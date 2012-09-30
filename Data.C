@@ -16,10 +16,13 @@ static QDateTime now() {
   return QDateTime::currentDateTime();
 }
 
-Data::Data(QString id, QDomElement parent, QString type) {
-  defn = parent.ownerDocument().createElement(type);
+Data::Data(QString tag, QDomElement parent, QString type) {
+  if (tag == "")
+    tag = type;
+  defn = parent.ownerDocument().createElement(tag);
   parent.appendChild(defn);
-  defn.setAttribute("id", id);
+  if (type != tag)
+    defn.setAttribute("type", type);
   defn.setAttribute("crea", date2str(now()));
   defn.setAttribute("mod", date2str(now()));
 }
@@ -31,26 +34,30 @@ Data::~Data() {
 }
 
 Data *Data::load(QDomElement defn) {
-  QString type = defn.tagName();
+  QString type = defn.hasAttribute("type")
+    ? defn.attribute(type)
+    : defn.tagName();
   Q_ASSERT_X(loaders().contains(type),
 	     "Data::load",
 	     "No loader for " + type);
   return loaders()[type](defn);
 }
 
-Data *Data::create(QString id, QDomElement parent, QString type) {
-  Q_ASSERT_X(creators().contains(type),
+Data *Data::create(QString tag, QDomElement parent, QString type) {
+  Q_ASSERT_X(typecreators().contains(type),
 	     "Data::create",
 	     "No creators for " + type);
-  return creators()[type](id, parent);
+  return creators()[type](tag, parent);
 }
 
 QString Data::type() const {
-  return defn.tagName();
+  return defn.hasAttribute("type")
+    ? defn.attribute(type)
+    : defn.tagName();
 }
 
-QString Data::id() const {
-  return defn.attribute("id");
+QString Data::tag() const {
+  return defn.tagName();
 }
 
 QDateTime Data::created() const {

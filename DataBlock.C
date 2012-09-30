@@ -10,8 +10,8 @@ DataBlock::DataBlock(QDomElement defn): Data(defn) {
     notes_.append(new DataNote(n));
 }
 
-DataBlock::DataBlock(QString id, QDomElement parent, QString type):
-  Data(id, parent, type) {
+DataBlock::DataBlock(QString tag, QDomElement parent, QString type):
+  Data(tag, parent, type) {
 }
 
 DataBlock::~DataBlock() {
@@ -26,8 +26,8 @@ QList<DataNote const *> DataBlock::notes() const {
   return r;
 }
 
-DataNote *DataBlock::addNote(QString id, double x, double y) {
-  DataNote *n = new DataNote(id, defn);
+DataNote *DataBlock::addNote(QString tag, double x, double y) {
+  DataNote *n = new DataNote(tag, defn);
   n->setX(x);
   n->setY(y);
   notes_.append(n);

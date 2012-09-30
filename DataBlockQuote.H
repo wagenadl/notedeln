@@ -9,7 +9,7 @@
 class DataBlockQuote: public DataBlockText {
 public:
   DataBlockQuote(QDomElement defn);
-  DataBlockQuote(QString id, QDomElement parent, QString type="blockquote");
+  DataBlockQuote(QString tag, QDomElement parent, QString type="blockquote");
   QString source() const;
   void setSource(QString s);
 private:

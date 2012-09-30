@@ -10,9 +10,9 @@
 class DataBlock: public Data {
 public:
   DataBlock(QDomElement defn);
-  DataBlock(QString id, QDomElement parent,  QString type="block");
+  DataBlock(QString tag, QDomElement parent,  QString type="block");
   virtual ~DataBlock();
-  DataNote *addNote(QString id, double x, double y);
+  DataNote *addNote(QString tag, double x, double y);
   QList<DataNote const *> notes() const;
 private:
   QList<DataNote *> notes_;

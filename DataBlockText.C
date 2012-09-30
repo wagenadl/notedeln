@@ -9,8 +9,8 @@ DataBlockText::DataBlockText(QDomElement defn):
   text_(defn.firstChildElement("text")) {
 }
 
-DataBlockText::DataBlockText(QString id, QDomElement parent, QString type):
-  DataBlock(id, parent, type),
+DataBlockText::DataBlockText(QString tag, QDomElement parent, QString type):
+  DataBlock(tag, parent, type),
   text_("text", defn) {
 }
 

@@ -9,7 +9,7 @@
 class DataGfx: public Data {
 public:
   DataGfx(QDomElement defn);
-  DataGfx(QString id, QDomElement parent, QString type="gfx");
+  DataGfx(QString tag, QDomElement parent, QString type="gfx");
   double x() const;
   double y() const;
   void setX(double x);

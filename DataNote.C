@@ -7,8 +7,8 @@ static DataMaker<DataNote> maker("note");
 DataNote::DataNote(QDomElement defn): DataText(defn) {
 }
 
-DataNote::DataNote(QString id, QDomElement parent, QString type):
-  DataText(id, parent, type) {
+DataNote::DataNote(QString tag, QDomElement parent, QString type):
+  DataText(tag, parent, type) {
   defn.setAttribute("x", "0");
   defn.setAttribute("y", "0");
 }

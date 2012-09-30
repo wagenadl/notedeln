@@ -5,8 +5,8 @@
 DataGfx::DataGfx(QDomElement defn): Data(defn) {
 }
 
-DataGfx::DataGfx(QString id, QDomElement parent, QString type):
-  Data(id, parent, type) {
+DataGfx::DataGfx(QString tag, QDomElement parent, QString type):
+  Data(tag, parent, type) {
   defn.setAttribute("x", "0");
   defn.setAttribute("y", "0");
 }

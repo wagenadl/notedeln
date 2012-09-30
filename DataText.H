@@ -9,7 +9,7 @@
 class DataText: public Data {
 public:
   DataText(QDomElement defn);
-  DataText(QString id, QDomElement parent, QString type="text");
+  DataText(QString tag, QDomElement parent, QString type="text");
   virtual ~DataText();
   QString text() const;
   void setText(QString);

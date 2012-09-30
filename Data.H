@@ -15,7 +15,7 @@ public:
   /*:F constructor
    *:D Loads a datum from xml.
    */
-  Data(QString id, QDomElement parent,  QString type="data");
+  Data(QString tag, QDomElement parent,  QString type="data");
   /*:F constructor
    *:D Creates a new datum of given type and name as a child under parent.
    */
@@ -24,7 +24,7 @@ public:
   /*:F load
    *:D Loads a new datum of whatever subtype from xml.
    */
-  static Data *create(QString id, QDomElement parent, QString type="data");
+  static Data *create(QString tag, QDomElement parent, QString type="data");
   /*:F create
    *:D Creates a new datum of given type and name as a child under parent.
    */
@@ -33,9 +33,9 @@ public:
   /*:F type
    *:D Returns the type of this datum.
    */
-  QString id() const;
-  /*:F id
-   *:D Returns the id of this datum.
+  QString tag() const;
+  /*:F tag
+   *:D Returns the tag of this datum.
    */
   QDateTime created() const;
   /*:F created
@@ -88,8 +88,8 @@ template <class T> class DataMaker {
   static Data *load(QDomElement defn) {
     return new T(defn);
   }
-  static Data *create(QString id, QDomElement defn) {
-    return new T(id, defn);
+  static Data *create(QString tag, QDomElement defn) {
+    return new T(tag, defn);
   }
 };
 

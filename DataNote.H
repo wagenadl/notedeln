@@ -9,7 +9,7 @@
 class DataNote: public DataText {
 public:
   DataNote(QDomElement defn);
-  DataNote(QString id, QDomElement parent, QString type="note");
+  DataNote(QString tag, QDomElement parent, QString type="note");
   double x() const;
   double y() const;
   void setX(double x);

@@ -9,8 +9,8 @@ DataPage::DataPage(QDomElement defn): Data(defn),
     blocks_.append(dynamic_cast<DataBlock*>(load(n)));
 }
 
-DataPage::DataPage(QString id, QDomElement parent, QString type):
-  Data(id, parent, type),
+DataPage::DataPage(QString tag, QDomElement parent, QString type):
+  Data(tag, parent, type),
   title_("title", defn) {
 }
 
@@ -19,8 +19,8 @@ DataPage::~DataPage() {
     delete b;
 }
 
-DataBlock *DataPage::addBlock(QString id, QString type) {
-  DataBlock *b = dynamic_cast<DataBlock*>(create(id, defn, type));
+DataBlock *DataPage::addBlock(QString tag, QString type) {
+  DataBlock *b = dynamic_cast<DataBlock*>(create(tag, defn, type));
   blocks_.append(b);
   return b;
 }

@@ -12,9 +12,9 @@
 class DataPage: public Data {
 public:
   DataPage(QDomElement defn);
-  DataPage(QString id, QDomElement parent, QString type="page");
+  DataPage(QString tag, QDomElement parent, QString type="page");
   virtual ~DataPage();
-  DataBlock *addBlock(QString id, QString type);
+  DataBlock *addBlock(QString tag, QString type);
   QString title() const;
   void setTitle(QString);
 private:

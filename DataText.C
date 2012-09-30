@@ -4,8 +4,8 @@
 
 static DataMaker<DataText> maker("text");
 
-DataText::DataText(QString id, QDomElement parent, QString type):
-  Data(id, parent, type) {
+DataText::DataText(QString tag, QDomElement parent, QString type):
+  Data(tag, parent, type) {
 }
 
 DataText::DataText(QDomElement defn): Data(defn) {

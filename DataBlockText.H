@@ -9,7 +9,7 @@
 class DataBlockText: public DataBlock {
 public:
   DataBlockText(QDomElement defn);
-  DataBlockText(QString id, QDomElement parent, QString type="textblock");
+  DataBlockText(QString tag, QDomElement parent, QString type="textblock");
   QString text() const;
   void setText(QString t);
 private:

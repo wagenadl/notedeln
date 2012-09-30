@@ -4,8 +4,8 @@
 
 static DataMaker<DataBlockQuote> maker("blockquote");
 
-DataBlockQuote::DataBlockQuote(QString id, QDomElement parent, QString type):
-  DataBlockText(id, parent, type),
+DataBlockQuote::DataBlockQuote(QString tag, QDomElement parent, QString type):
+  DataBlockText(tag, parent, type),
   source_("source", defn) {
 }
 
