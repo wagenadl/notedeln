@@ -1,6 +1,7 @@
 # Hey, emacs, show this as -*- mode: shell-script; -*-
 
 QT += xml
+CONFIG += debug
 TEMPLATE = app
 TARGET = 
 DEPENDPATH += . 1stattempt
@@ -14,7 +15,9 @@ HEADERS += Data.H \
     DataGfx.H \
     DataNote.H \
     DataPage.H \
-    DataText.H 
+    DataText.H \
+    FilePage.H
+
 SOURCES += Data.C \
     DataBlock.C \
     DataBlockQuote.C \
@@ -22,4 +25,6 @@ SOURCES += Data.C \
     DataGfx.C \
     DataNote.C \
     DataPage.C \
-    DataText.C 
+    DataText.C \
+    FilePage.C \
+    main.C

@@ -65,6 +65,7 @@ protected:
    *:D Set the modification date of this datum to the current time.
    */
 protected:
+  friend class FilePage;
   QDomElement defn;
   /*:V defn
    *:D Descendents may directly access the XML definition of the datum.

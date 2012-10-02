@@ -31,4 +31,5 @@ QString DataPage::title() const {
 
 void DataPage::setTitle(QString t) {
   title_.setText(t);
+  markModified();
 }

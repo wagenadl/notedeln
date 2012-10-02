@@ -24,7 +24,6 @@ Data::Data(QString tag, QDomElement parent, QString type) {
   if (type != tag)
     defn.setAttribute("type", type);
   defn.setAttribute("crea", date2str(now()));
-  defn.setAttribute("mod", date2str(now()));
 }
 
 Data::Data(QDomElement defn): defn(defn) {
@@ -34,25 +33,27 @@ Data::~Data() {
 }
 
 Data *Data::load(QDomElement defn) {
+  Q_ASSERT_X(!defn.isNull(), "Data::load", "Null element");
   QString type = defn.hasAttribute("type")
-    ? defn.attribute(type)
+    ? defn.attribute("type")
     : defn.tagName();
   Q_ASSERT_X(loaders().contains(type),
 	     "Data::load",
-	     "No loader for " + type);
+	     ("No loader for " + type).toUtf8().data());
   return loaders()[type](defn);
 }
 
 Data *Data::create(QString tag, QDomElement parent, QString type) {
-  Q_ASSERT_X(typecreators().contains(type),
+  Q_ASSERT_X(!parent.isNull(), "Data::create", "Null element");
+  Q_ASSERT_X(creators().contains(type),
 	     "Data::create",
-	     "No creators for " + type);
+	     ("No creators for " + type).toUtf8().data());
   return creators()[type](tag, parent);
 }
 
 QString Data::type() const {
   return defn.hasAttribute("type")
-    ? defn.attribute(type)
+    ? defn.attribute("type")
     : defn.tagName();
 }
 
@@ -65,7 +66,10 @@ QDateTime Data::created() const {
 }
  
 QDateTime Data::modified() const {
-  return str2date(defn.attribute("mod"));
+  if (defn.hasAttribute("mod"))
+    return str2date(defn.attribute("mod"));
+  else
+    return str2date(defn.attribute("crea"));
 }
   
 QMap<QString, Data *(*)(QDomElement)> &Data::loaders() {
@@ -93,5 +97,7 @@ void Data::registerCreator(QString typ, Data *(*foo)(QString, QDomElement)) {
 }
 
 void Data::markModified() {
-  defn.setAttribute("mod", date2str(now()));
+  QDateTime n = now();
+  if (modified().secsTo(n) >= 10)
+    defn.setAttribute("mod", date2str(n));
 }
