@@ -10,7 +10,7 @@ FilePage::FilePage(QString fn): data_(0), fn(fn) {
   if (!doc.setContent(&f))
     return;
 
-  data_ = new DataPage(doc.documentElement());
+  data_ = new DataPage(doc.documentElement().firstChildElement("page"));
 }
 
 FilePage::~FilePage() {
@@ -24,7 +24,7 @@ bool FilePage::ok() const {
 
 DataPage &FilePage::data() {
   if (!data_)
-    data_ = new DataPage(doc.documentElement());
+    data_ = new DataPage(doc.documentElement()); // this is an ERROR situation
   return *data_;
 }
 
@@ -57,9 +57,10 @@ FilePage *FilePage::create(QString fn) {
     return 0;
 
   QDomDocument d("elnPage");
-  QDomElement p = d.createElement("nop");
+  QDomElement p = d.createElement("elnPage");
+  d.appendChild(p);
   DataPage dp("", p);
-  d.appendChild(dp.defn);
+  p.appendChild(dp.defn);
   f.write(d.toByteArray());
   f.close();
   
