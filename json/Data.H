@@ -7,6 +7,7 @@
 #include <QObject>
 #include <QDateTime>
 #include <QString>
+#include <QVariant>
 
 class Data: public QObject {
   Q_OBJECT;
@@ -14,6 +15,11 @@ class Data: public QObject {
   Q_PROPERTY(QDateTime modified READ modified WRITE setModified)
   Q_PROPERTY(QString type READ type WRITE setType)
   Q_PROPERTY(QString id READ id WRITE setId)
+  enum ModType {
+    UserVisibleMod,
+    InternalMod,
+    NonPropMod,
+  };
 public:
   // constructor and destructor
   Data(Data *parent=0);
@@ -29,11 +35,11 @@ public:
   void setType(QString const &);
   void setId(QString const &);
   // other
-  void markModified();
+  void markModified(ModType mt=UserVisibleMod);
   void load(QVariantMap const &);
   QVariantMap save() const;
 signals:
-  void modify();
+  void mod();
 protected:
   virtual void loadMore(QVariantMap const &);
   virtual void saveMore(QVariantMap &) const;

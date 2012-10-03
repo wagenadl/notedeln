@@ -1,5 +1,7 @@
 Makefile
 *.o
 *~
+moc*
 
 eln
+jtest
