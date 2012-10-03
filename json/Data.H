@@ -30,11 +30,23 @@ public:
   void setId(QString const &);
   // other
   void markModified();
+  void load(QVariantMap const &);
+  QVariantMap save() const;
+signals:
+  void modify();
+protected:
+  virtual void loadMore(QVariantMap const &);
+  virtual void saveMore(QVariantMap &) const;
+private:
+  void loadProps(QVariantMap const &);
+  void saveProps(QVariantMap &);
 protected:
   QDateTime created_;
   QDateTime modified_;
   QString type_;
   QString id_;
+private:
+  bool loading_;
 };
 
 #endif
