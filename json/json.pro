@@ -4,14 +4,21 @@ TEMPLATE = app
 TARGET = eln
 DEPENDPATH += .
 INCLUDEPATH += .
-LIBRARIES += -lqjson
+LIBS += -lqjson
 CONFIG += debug
 
 HEADERS += \
-    Data.H \
-    BlockData.H \
-    NoteData.H \
-    PageData.H \
-    PageFile.H 
+    PageEditor.H \
+    PageScene.H \
+    Style.H
+#    Data.H \
+#    BlockData.H \
+#    NoteData.H \
+#    PageData.H \
+#    PageFile.H 
 SOURCES += \
-    PageFile.C
+    PageEditor.C \
+    PageScene.C \
+    Style.C \
+    main.C
+#    PageFile.C
