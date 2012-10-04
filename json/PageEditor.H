@@ -14,9 +14,10 @@ public slots:
   void load(QString fn);
   void create(QString fn);
 private:
-  class QGraphicsView *view_;
+  class PageView *view_;
   class PageScene *scene_;
   class PageFile *file_;
+  class Toolbar *toolbar_;
 };
 
 #endif

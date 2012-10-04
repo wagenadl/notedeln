@@ -1,6 +1,7 @@
 // TextBlockData.C
 
 #include "TextBlockData.H"
+#include <QDebug>
 
 TextBlockData::TextBlockData(class PageData *parent):
   BlockData(parent) {
@@ -41,9 +42,10 @@ MarkupData *TextBlockData::addMarkup(int start, int end,
   md->setStart(start);
   md->setEnd(end);
   md->setStyle(style);
-  markups_->append(md);
+  markups_.append(md);
   md->setParent(this);
   markModified(InternalMod);
+  return md;
 }
 
 void TextBlockData::removeMarkup(MarkupData *md) {
@@ -66,7 +68,7 @@ void TextBlockData::loadMore(QVariantMap const &src) {
   }
 }
 
-void TextBlockData::saveMore(QVariantMap &dst) {
+void TextBlockData::saveMore(QVariantMap &dst) const {
   QVariantList ml;
   foreach (MarkupData *md, markups_) {
     QVariantMap m = md->save();

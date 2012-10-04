@@ -12,12 +12,14 @@ class MarkupData: public Data {
   Q_ENUMS(Style)
   Q_PROPERTY(int start READ start WRITE setStart)
   Q_PROPERTY(int end READ end WRITE setEnd)
-  Q_PROPERTY(MarkupData::Style READ style WRITE setStyle)
+  Q_PROPERTY(Style style READ style WRITE setStyle)
+  Q_ENUMS(Style);
+public:
   enum Style {
     Normal,
     StrikeThrough,
     Emphasize,
-  }
+  };
 public:
   MarkupData(class TextBlockData *parent);
   virtual ~MarkupData();

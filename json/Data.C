@@ -1,13 +1,15 @@
 // Data.C
 
 #include "Data.H"
+#include <QSet>
+#include <QMetaProperty>
 
 Data::Data(Data *parent): QObject(parent) {
-  loading_ = true;
+  loading = true;
   setCreated(QDateTime::currentDateTime());
   setModified(QDateTime::currentDateTime());
   setType("data");
-  loading_ = false;
+  loading = false;
 }
 
 Data::~Data() {
@@ -30,13 +32,13 @@ QString const &Data::id() const {
 }
 
 void Data::setCreated(QDateTime const &dt) {
-  Q_ASSERT(loading_, "Data::setCreated");
-  created_ = dt;
+  if (!loading)
+    created_ = dt;
 }
 
 void Data::setModified(QDateTime const &dt) {
-  Q_ASSERT(loading_, "Data::setModified");
-  modified_ = dt;
+  if (!loading)
+    modified_ = dt;
 }
 
 void Data::setType(QString const &t) {
@@ -49,32 +51,39 @@ void Data::setId(QString const &i) {
   markModified();
 }
 
-void Data::markModified() {
-  if (loading_)
+void Data::markModified(Data::ModType mt) {
+  if (loading)
     return;
-  modified_ = QDateTime::currentDateTime();
-  emit modify();
+  if (mt==UserVisibleMod || mt==NonPropMod)
+    modified_ = QDateTime::currentDateTime();
+  emit mod();
+  
+  if (mt==NonPropMod)
+    mt = InternalMod;
+  Data *p = dynamic_cast<Data*>(parent());
+  if (p)
+    p->markModified(mt);
 }
 
 void Data::load(QVariantMap const &src) {
-  loading_ = true;
+  loading = true;
   loadProps(src);
   loadMore(src);
-  loading_ = false;
+  loading = false;
 }
 
 void Data::loadMore(QVariantMap const &) {
   // Descendents may do more interesting things
 }
 
-QVariantMap Data::save(QVariantMap) {
+QVariantMap Data::save() const {
   QVariantMap dst;
   saveProps(dst);
   saveMore(dst);
   return dst;
 }
 
-void Data::saveMore(QVariantMap &) {
+void Data::saveMore(QVariantMap &) const {
   // Descendents may do more interesting things
 }
 
@@ -116,13 +125,13 @@ void Data::loadProps(QVariantMap const &src) {
       setProperty(i.key().toLatin1(), i.value());
 }
 
-void Data::saveProps(QVariantMap &dst) {
-  QMetaObject const *metaobj = dst->metaObject();
+void Data::saveProps(QVariantMap &dst) const {
+  QMetaObject const *metaobj = metaObject();
   int nProps = metaobj->propertyCount();
   for (int i=0; i<nProps; ++i) {
     QMetaProperty metaprop = metaobj->property(i);
     char const *n = metaprop.name();
-    QString name = QString::fromLatin1(name);
+    QString name = QString::fromLatin1(n);
     if (name!="objectName" && metaprop.isReadable())
       dst
 	[name] = property(n);

@@ -5,3 +5,6 @@ moc*
 
 eln
 jtest
+.obj
+.moc
+qrc_icons.cpp

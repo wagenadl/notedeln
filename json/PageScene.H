@@ -33,9 +33,11 @@ private:
   QGraphicsTextItem *titleItem;
   QGraphicsTextItem *dateItem;
   QGraphicsTextItem *pgNoItem;
-  QGraphicsTextItem *contdItem;
+  QGraphicsTextItem *contdItem; // from prev page
+  QGraphicsTextItem *contItem; // to next page
   QGraphicsLineItem *leftMarginItem;
   QGraphicsLineItem *topMarginItem;
+  QGraphicsRectItem *bgItem;
   QList<class BlockItem *> blockItems;
 private:
   QList<int> sheetNos; // sheet number for each block

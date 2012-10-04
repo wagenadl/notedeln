@@ -1,8 +1,9 @@
 // MarkupData.C
 
 #include "MarkupData.H"
+#include "TextBlockData.H"
 
-MarkupData::MarkupData(class TextBlockData *parent):
+MarkupData::MarkupData(TextBlockData *parent):
   Data(parent) {
 }
 
@@ -17,7 +18,7 @@ int MarkupData::end() const {
   return end_;
 }
 
-Style MarkupData::style() const {
+MarkupData::Style MarkupData::style() const {
   return style_;
 }
 

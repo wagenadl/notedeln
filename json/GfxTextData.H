@@ -11,7 +11,8 @@ class GfxTextData: public GfxData {
   Q_PROPERTY(HAlign hAlign READ hAlign WRITE setHAlign);
   Q_PROPERTY(VAlign vAlign READ vAlign WRITE setVAlign);
   Q_PROPERTY(QString text READ text WRITE setText);
-  Q_ENUMS(HAlign, VAlign);
+  Q_ENUMS(HAlign VAlign);
+public:
   enum HAlign {
     Left,
     Right,

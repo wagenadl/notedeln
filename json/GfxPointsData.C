@@ -1,10 +1,11 @@
 // GfxPointsData.C
 
 #include "GfxPointsData.H"
+#include <QPointF>
 
 static GfxData::Creator<GfxPointsData> c("points");
 
-GfxPointsData::GfxPointsData(GfxBlockData *parent):
+GfxPointsData::GfxPointsData(GfxBlockData *parent=0):
   GfxData(parent) {
 }
 
@@ -32,8 +33,8 @@ void GfxPointsData::addPoint(double x, double y) {
 }
 
 void GfxPointsData::removePoint(int i) {
-  xx_.erase(i);
-  yy_.erase(i);
+  xx_.removeAt(i);
+  yy_.removeAt(i);
   markModified();
 }
 

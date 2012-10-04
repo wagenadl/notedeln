@@ -4,6 +4,8 @@
 
 #define BLOCKDATA_H
 
+#include "Data.H"
+
 class BlockData: public Data {
   Q_OBJECT;
   Q_PROPERTY(double y0 READ y0 WRITE setY0)

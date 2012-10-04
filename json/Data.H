@@ -15,6 +15,7 @@ class Data: public QObject {
   Q_PROPERTY(QDateTime modified READ modified WRITE setModified)
   Q_PROPERTY(QString type READ type WRITE setType)
   Q_PROPERTY(QString id READ id WRITE setId)
+public:
   enum ModType {
     UserVisibleMod,
     InternalMod,
@@ -45,14 +46,14 @@ protected:
   virtual void saveMore(QVariantMap &) const;
 private:
   void loadProps(QVariantMap const &);
-  void saveProps(QVariantMap &);
+  void saveProps(QVariantMap &) const;
 protected:
   QDateTime created_;
   QDateTime modified_;
   QString type_;
   QString id_;
 private:
-  bool loading_;
+  bool loading;
 };
 
 #endif

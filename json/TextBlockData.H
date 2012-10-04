@@ -5,11 +5,12 @@
 #define TEXTBLOCKDATA_H
 
 #include "BlockData.H"
+#include "MarkupData.H"
 
 class TextBlockData: public BlockData {
   Q_OBJECT;
   Q_PROPERTY(QString text READ text WRITE setText)
-  Q_PROPERTY(QList lineBreaks READ lineBreaks WRITE setLineBreaks)
+  Q_PROPERTY(QList<int> lineBreaks READ lineBreaks WRITE setLineBreaks)
   /* The lineBreaks property is optional and may be used to mark where
      line breaks should happen. This is useful to prevent reflow of text
      in case font metrics change subtly.
@@ -18,7 +19,6 @@ class TextBlockData: public BlockData {
      date.
      The numbers are the indices into the text of the starts of each line.
    */
-  Q_PROPERTY(QList markups READ markups)
 public:
   TextBlockData(class PageData *parent);
   virtual ~TextBlockData();
@@ -34,7 +34,7 @@ public:
   void removeMarkup(MarkupData *); // the markup is destructed as well
 protected:
   void loadMore(QVariantMap const &src);
-  void saveMore(QVariantMap &dst);
+  void saveMore(QVariantMap &dst) const;
 protected:
   QString text_;
   QList<int> lineBreaks_;

@@ -35,6 +35,18 @@ void PageScene::makeBackground() {
 	       style["margin-bottom"].toDouble()
 	       );
 
+  setBackgroundBrush(QBrush(QColor(style["border-color"].toString())));
+  bgItem = addRect(0,
+		   0, 
+		   style["margin-left"].toDouble()
+		   + style["text-width"].toDouble()
+		   + style["margin-right"].toDouble(),
+		   style["margin-top"].toDouble()
+		   + style["text-height"].toDouble()
+		   + style["margin-bottom"].toDouble(),
+		   QPen(Qt::NoPen),
+		   QBrush(QColor(style["background-color"].toString())));
+			
   leftMarginItem = addLine(style["margin-left"].toDouble(),
 			   0,
 			   style["margin-left"].toDouble(),
@@ -65,7 +77,7 @@ void PageScene::makeDateItem() {
   QPointF br = dateItem->boundingRect().bottomRight();
   dateItem->setPos(style["margin-left"].toDouble() +
 		   style["text-width"].toDouble() +
-		   style["margin-right"].toDouble()*.75 -
+		   style["margin-right-over"].toDouble() -
 		   br.x(),
 		   style["margin-top"].toDouble() -
 		   style["title-sep"].toDouble() -
@@ -95,13 +107,27 @@ void PageScene::makeContdItem() {
 		    style["margin-top"].toDouble()
 		    - tr.y()
 		    );
+
+  contItem = addText(">",
+		     QFont(style["contd-font-family"].toString(),
+			   style["contd-font-size"].toDouble())
+		     );
+  contItem->setDefaultTextColor(QColor(style["contd-color"].toString()));
+  QPointF bl = contItem->boundingRect().bottomLeft();
+  contItem->setPos(style["margin-left"].toDouble()
+		   + style["text-width"].toDouble()
+		   - bl.x(),
+		   style["margin-top"].toDouble()
+		   + style["text-height"].toDouble()
+		   - bl.y()
+		    );
 }
 
 void PageScene::positionPgNoItem() {
   QPointF tr = pgNoItem->boundingRect().topRight();
   pgNoItem->setPos(style["margin-left"].toDouble() +
 		   style["text-width"].toDouble() +
-		   style["margin-right"].toDouble()*.75 -
+		   style["margin-right-over"].toDouble() -
 		   tr.x(),
 		   style["margin-top"].toDouble() +
 		   style["text-height"].toDouble() +
@@ -171,7 +197,7 @@ void PageScene::stackBlocks() {
   
   sheetNos.clear();
   int sheet = 0;
-  double y0 = style["top-margin"].toDouble();
+  double y0 = style["margin-top"].toDouble();
   double y1 = y0 + style["text-height"].toDouble();
   double y = y0;
 

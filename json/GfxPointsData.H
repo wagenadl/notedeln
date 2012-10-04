@@ -5,11 +5,12 @@
 #define GFXPOINTSDATA_H
 
 #include "GfxData.H"
+#include <QList>
 
 class GfxPointsData: public GfxData {
   Q_OBJECT;
-  Q_PROPERTY(QList xx READ xx WRITE setXX)
-  Q_PROPERTY(QList yy READ yy WRITE setYY)
+  Q_PROPERTY(QList<double> xx READ xx WRITE setXX)
+  Q_PROPERTY(QList<double> yy READ yy WRITE setYY)
   /* the xx and yy coordinates are relative to the x and y coordinates of
      the GfxData. */
 public:

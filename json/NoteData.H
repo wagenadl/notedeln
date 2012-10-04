@@ -13,7 +13,7 @@ class NoteData: public Data {
   Q_PROPERTY(QString text READ text WRITE setText)
 public:
   // constructor and destructor  
-  NoteData(BlockData *parent=0);
+  NoteData(class BlockData *parent=0);
   virtual ~NoteData();
   // read properties
   double x() const;

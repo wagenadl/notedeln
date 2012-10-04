@@ -9,11 +9,11 @@ GfxTextData::GfxTextData(class GfxBlockData *parent): GfxData(parent) {
 GfxTextData::~GfxTextData() {
 }
 
-HAlign GfxTextData::hAlign() const {
+GfxTextData::HAlign GfxTextData::hAlign() const {
   return hAlign_;
 }
 
-VAlign GfxTextData::vAlign() const {
+GfxTextData::VAlign GfxTextData::vAlign() const {
   return vAlign_;
 }
 

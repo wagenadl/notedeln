@@ -1,6 +1,7 @@
 // GfxBlockData.C
 
 #include "GfxBlockData.H"
+#include "GfxData.H"
 
 GfxBlockData::GfxBlockData(class PageData *parent):
   BlockData(parent) {

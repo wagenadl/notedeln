@@ -9,7 +9,6 @@
 
 class PageData: public Data {
   Q_OBJECT;
-  Q_PROPERTY(QList blocks READ blocks WRITE setBlocks)
 public:
   // constructor and destructor  
   PageData(Data *parent=0);
@@ -20,6 +19,9 @@ public:
   void setBlocks(QList<class BlockData *> const &);
   // other
   void addBlock(BlockData *);
+protected:
+  virtual void loadMore(QVariantMap const &src);
+  virtual void saveMore(QVariantMap &dst) const;
 protected:
   QList<class BlockData *> blocks_;
 };

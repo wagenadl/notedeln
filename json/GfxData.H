@@ -13,6 +13,7 @@ class GfxData: public Data {
   Q_PROPERTY(double y READ y WRITE setY)
 public:
   GfxData(class GfxBlockData *parent=0);
+  ~GfxData();
   static GfxData *create(QString type);
   // read properties
   double x() const;
@@ -23,10 +24,7 @@ public:
 protected:
   double x_;
   double y_;
-private:
-  static QMap<QString, GfxData *(*)()> &creators();
-  template <class T> friend class Creator<T>; // is this allowed?
-protected:
+public: // but only to be used in defs of descendents
   template <class T> class Creator {
   public:
     Creator<T>(QString typ) {
@@ -36,6 +34,8 @@ protected:
       return new T();
     }
   };
+private:
+  static QMap<QString, GfxData *(*)()> &creators();
 };
 
 #endif

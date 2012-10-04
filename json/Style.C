@@ -9,7 +9,8 @@
 
 Style::Style(QString fn) {
   if (fn=="-")
-    fn = "/home/wagenaar/.config/eln/style.json";
+    fn = "/home/wagenaar/progs/eln/json/style.json";
+    //    fn = "/home/wagenaar/.config/eln/style.json";
 
   QFile f(fn);
   if (f.open(QFile::ReadOnly)) {
@@ -32,6 +33,8 @@ Style const &Style::defaultStyle() {
 }
 
 QVariant Style::operator[](QString k) const {
+  if (!options_.contains(k))
+    qDebug() << "(Style: No value for " << k << ")";
   return options_[k];
 }
 
