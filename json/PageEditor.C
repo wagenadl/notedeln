@@ -5,6 +5,7 @@
 #include "PageView.H"
 #include "PageScene.H"
 #include "Toolbar.H"
+#include "PageFile.H"
 
 #include <QApplication>
 #include <QDesktopWidget>
@@ -24,18 +25,34 @@ PageEditor::PageEditor() {
     toolbar_->setOrientation(Qt::Vertical);
     addToolBar(Qt::LeftToolBarArea, toolbar_);
   }
-      
-  scene_ = new PageScene(0, this);
-  view_->setScene(scene_);
 
-  resize(sizeHint());
+  file_ = 0;
+  scene_ = 0;
 }
 
 PageEditor::~PageEditor() {
 }
 
-void PageEditor::load(QString) {
+void PageEditor::load(QString fn) {
+  if (scene_)
+    delete scene_;
+  if (file_)
+    delete file_;
+
+  file_ = new PageFile(fn, this);
+  scene_ = new PageScene(file_->data(), this);  
+  view_->setScene(scene_);
+  resize(sizeHint());
 }
 
-void PageEditor::create(QString) {
+void PageEditor::create(QString fn) {
+  if (scene_)
+    delete scene_;
+  if (file_)
+    delete file_;
+
+  file_ = PageFile::create(fn);
+  scene_ = new PageScene(file_->data(), this);  
+  view_->setScene(scene_);
+  resize(sizeHint());
 }

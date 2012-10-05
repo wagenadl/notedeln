@@ -20,6 +20,7 @@ Style::Style(QString fn) {
     if (!ok) {
       qDebug() << "Style: JSON parse failed: " 
 	       << p.errorString() << " at line " << p.errorLine();
+      qFatal("style error");
     }
     options_ = v.toMap();
   } else {

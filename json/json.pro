@@ -12,42 +12,48 @@ OBJECTS_DIR = .obj
 RESOURCES += icons.qrc
 
 HEADERS += \
-    BlockData.H \
     Data.H \
+    BlockData.H \
+    TextBlockData.H \
     GfxBlockData.H \
     GfxData.H \
     GfxPointsData.H \
     GfxTextData.H \
-    Icons.H \
     MarkupData.H \
     NoteData.H \
     PageData.H \
-    PageEditor.H \
     PageFile.H \
+    Icons.H \
+    PageEditor.H \
     PageScene.H \
+    BlockItem.H \
+    TextBlockItem.H \
+    TextBlockTextItem.H \
     PageView.H \
     Style.H \
-    TextBlockData.H \
     Toolbar.H
 
 SOURCES += \
-    BlockData.C \
     Data.C \
+    BlockData.C \
+    TextBlockData.C \
     GfxBlockData.C \
     GfxData.C \
     GfxPointsData.C \
     GfxTextData.C \
-    Icons.C \
-    main.C \
     MarkupData.C \
     NoteData.C \
     PageData.C \
-    PageEditor.C \
     PageFile.C \
+    Icons.C \
+    main.C \
+    PageEditor.C \
     PageScene.C \
+    BlockItem.C \
+    TextBlockItem.C \
+    TextBlockTextItem.C \
     PageView.C \
     Style.C \
-    TextBlockData.C \
     Toolbar.C
 
 	

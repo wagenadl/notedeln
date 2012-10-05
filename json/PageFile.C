@@ -88,9 +88,11 @@ bool PageFile::save() const {
   QFile f(fn_);
   
   if (f.exists()) {
-    qDebug() << "(PageFile: Renaming old file)";
     QFile f0(fn_ + "~");
+    if (f0.exists())
+      qDebug() << "(PageFile: Removing ancient file)";
     f0.remove();
+    qDebug() << "(PageFile: Renaming old file)";
     f.rename(fn_ + "~");
     f.setFileName(fn_);
   }
@@ -154,4 +156,12 @@ PageFile::~PageFile() {
     qDebug() << "PageFile: Caution: PageFile destructed while waiting to save";
     save();
   }
+}
+
+PageData *PageFile::data() const {
+  return data_;
+}
+
+QString PageFile::fileName() const {
+  return fn_;
 }

@@ -4,12 +4,14 @@
 #include <QSet>
 #include <QMetaProperty>
 
+#define MAX_EDIT_DELAY_H 12
+// Should this be a style option?
+
 Data::Data(Data *parent): QObject(parent) {
-  loading = true;
+  loading = false;
   setCreated(QDateTime::currentDateTime());
   setModified(QDateTime::currentDateTime());
   setType("data");
-  loading = false;
 }
 
 Data::~Data() {
@@ -29,6 +31,11 @@ QString const &Data::type() const {
 
 QString const &Data::id() const {
   return id_;
+}
+
+bool Data::editable() const {
+  return modified().secsTo(QDateTime::currentDateTime())
+    < 60*60*MAX_EDIT_DELAY_H;
 }
 
 void Data::setCreated(QDateTime const &dt) {

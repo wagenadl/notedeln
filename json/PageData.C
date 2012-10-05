@@ -4,6 +4,8 @@
 #include "BlockData.H"
 
 PageData::PageData(Data *parent): Data(parent) {
+  startPage_ = 1;
+  title_ = "Untitled";
 }
 
 PageData::~PageData() {
@@ -42,3 +44,21 @@ void PageData::saveMore(QVariantMap &dst) const {
   dst["blocks"] = bl;
 }
 
+int PageData::startPage() const {
+  return startPage_;
+}
+
+void PageData::setStartPage(int s) {
+  startPage_ = s;
+  markModified(InternalMod);
+}
+
+QString PageData::title() const {
+  return title_;
+}
+
+void PageData::setTitle(QString t) {
+  title_ = t;
+  markModified();
+  // really, we should have a more sophisticated system for old titles
+}

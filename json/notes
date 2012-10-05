@@ -1,0 +1,5 @@
+Text boxes do not restack properly yet.
+Restacking from number i on doesn't work quite yet, it seems. (Or rather,
+restack from #i must also fix #i's top.)
+Closing the window does not cause data save.
+The json file is hard to read because there are no new lines in it.

@@ -2,6 +2,12 @@
 
 #include "PageScene.H"
 #include "Style.H"
+#include "BlockData.H"
+#include "BlockItem.H"
+#include "TextBlockItem.H"
+#include "TextBlockData.H"
+#include "PageData.H"
+
 #include <QGraphicsTextItem>
 #include <QGraphicsLineItem>
 #include <QDateTime>
@@ -9,11 +15,13 @@
 #include <QTextCursor>
 #include <QTextBlock>
 #include <QDebug>
+#include <QGraphicsSceneMouseEvent>
 
 PageScene::PageScene(PageData *data, QObject *parent):
   QGraphicsScene(parent),
   data(data),
   style(Style::defaultStyle()) {
+  mode_ = TypeMode; // really, this should be ViewMode, I think
   makeBackground();
   makeDateItem();
   makePgNoItem();
@@ -68,8 +76,9 @@ void PageScene::makeBackground() {
 }
 
 void PageScene::makeDateItem() {
-  dateItem = addText(QDateTime::currentDateTime().toString("MM/dd/yyyy")
-		     /* data->created().toString("MM/dd/yyyy") */,
+  Q_ASSERT(data);
+  qDebug() << "data: " << data << " data-created: " << data->created();
+  dateItem = addText(data->created().toString("MM/dd/yyyy"),
 		     QFont(style["date-font-family"].toString(),
 			   style["date-font-size"].toDouble())
 		     );
@@ -86,8 +95,7 @@ void PageScene::makeDateItem() {
 }
 
 void PageScene::makePgNoItem() {
-  pgNoItem = addText("nnn"
-		     /* data->created().toString("MM/dd/yyyy") */,
+  pgNoItem = addText(QString::number(data->startPage() + iSheet),
 		     QFont(style["pgno-font-family"].toString(),
 			   style["pgno-font-size"].toDouble())
 		     );
@@ -137,12 +145,12 @@ void PageScene::positionPgNoItem() {
 }
 
 void PageScene::makeTitleItem() {
-  Q_ASSERT(dateItem!=0);
+  Q_ASSERT(dateItem);
+  Q_ASSERT(data);
   
-  titleItem = addText("Page Title" /* data->title() */,
+  titleItem = addText(data->title(),
 		      QFont(style["title-font-family"].toString(),
-			    style["title-font-size"].toDouble())
-		      );
+			    style["title-font-size"].toDouble()));
   titleItem->setDefaultTextColor(QColor(style["title-color"].toString()));
   positionTitleItem();
   titleItem->setTextInteractionFlags(Qt::TextEditorInteraction);
@@ -194,6 +202,7 @@ void PageScene::positionTitleItem() {
 
 void PageScene::stackBlocks() {
   Q_ASSERT(contdItem!=0);
+  Q_ASSERT(contItem!=0);
   
   sheetNos.clear();
   int sheet = 0;
@@ -201,24 +210,60 @@ void PageScene::stackBlocks() {
   double y1 = y0 + style["text-height"].toDouble();
   double y = y0;
 
-#if 0
   foreach (BlockItem *bi, blockItems) {
     BlockData *bd = bi->data();
-    if (bd->h()==0)
-      bd->setH(bi->height());
-    if (y!=y0 && y+bd->h()>y1) {
-      // start a new sheet for this block
-      sheet++;
-      y = y0;
+    double h = bi->sceneBoundingRect().height();
+    if (bd->sheet()>=0) {
+      // (sheet,y) information stored in data, we'll use it
+      sheet = bd->sheet();
+      y = bd->y0();
+    } else {
+      // no (sheet,y) information stored in data, we'll make our own
+      if (y!=y0 && y+h>y1) {
+	sheet ++;
+	y = y0;
+      }
+      bd->setSheet(sheet);
+      bd->setY0(y);
     }
-    QPointF tl = bi->mapToScene(bi->boundingRect().topLeft());
-    bi->moveBy(0, y-tl.y());
     sheetNos.append(sheet);
-  }
-#endif
-  nSheets = sheet+1;
+    topY.append(y);
 
-  // contdItem->setVisible(nSheets>1);
+    bi->moveBy(0, y-bi->sceneBoundingRect().top());
+
+    y += h;
+  }
+
+  nSheets = sheet+1;
+}
+
+int PageScene::restackBlocks(int starti) {
+  int endi = sheetNos.size();
+  if (starti>=endi)
+    return 0;
+  double y0 = style["margin-top"].toDouble();
+  double y1 = y0 + style["text-height"].toDouble();
+  double y = topY[starti];
+  int sheet = sheetNos[starti];
+  for (int i=starti; i<endi; i++) {
+    BlockItem *bi = blockItems[i];
+    double h = bi->sceneBoundingRect().height();
+    if (y>y0 && y+h>y1) {
+      y = y0;
+      sheet++;
+    }
+
+    bi->moveBy(0, y - bi->sceneBoundingRect().top());
+    topY[i] = y;
+    sheetNos[i] = sheet;
+    BlockData *bd = bi->data();
+    bd->setY0(y);
+    bd->setSheet(sheet);
+    qDebug() << "Restack i="<<i<< " y="<<y << " h="<<h << " sheet="<<sheet;
+    
+    y = y + h;
+  }
+  return sheetNos[starti];
 }
 
 void PageScene::previousSheet() {
@@ -232,7 +277,8 @@ void PageScene::nextSheet() {
 }
 
 void PageScene::gotoSheet(int i) {
-  Q_ASSERT(titleItem!=0);
+  Q_ASSERT(data);
+  Q_ASSERT(titleItem);
   
   iSheet = i;
   if (iSheet>=nSheets)
@@ -242,20 +288,87 @@ void PageScene::gotoSheet(int i) {
 
   // Set visibility for all blocks
   int nBlocks = blockItems.size();
-  #if 0
   for (int k=0; k<nBlocks; k++)
     blockItems[k]->setVisible(sheetNos[k]==iSheet);
-  #endif
 
-  // Remove previous " (n/N)" from title
-  QTextCursor c = titleItem->document()->find(QRegExp("\\s+\\(\\d+/\\d+)$"));
+  // Remove previous "(n/N)" from title
+  QTextCursor c = titleItem->document()->find(QRegExp("\\s*\\(\\d+/\\d+)$"));
   if (!c.isNull())
     c.insertText("");
 
   if (nSheets>1) {
-    // add new " (n/N)" to title
+    // add new "(n/N)" to title
     QTextCursor c(titleItem->document());
     c.movePosition(QTextCursor::End);
     c.insertText(QString(" (%1/%2)").arg(iSheet+1).arg(nSheets));
   }
+
+  // Set visibility of continuation markers
+  contdItem->setVisible(iSheet>0);
+  contItem->setVisible(iSheet+1 < nSheets);
+
+  // Set page number
+  pgNoItem->setPlainText(QString::number(data->startPage() + iSheet));
+  positionPgNoItem();
+}
+
+void PageScene::mousePressEvent(QGraphicsSceneMouseEvent *e) {
+  QPointF sp = e->scenePos();
+  Style const &style(Style::defaultStyle());
+  qDebug() << "Scene mouse press: " << sp;
+
+  double ytop = style["margin-top"].toDouble();
+  double xleft = style["margin-left"].toDouble();
+  double ybottom = ytop + style["text-height"].toDouble();
+  double xright = xleft + style["text-width"].toDouble();
+
+  if (sp.x()<xleft || sp.x()>=xright ||
+      sp.y()<ytop || sp.y()>=ybottom) {
+    qDebug() << "PageScene: margin press";
+    QGraphicsScene::mousePressEvent(e);
+    return;
+  }
+  
+  double maxY = ytop;
+  int iAbove = -1;
+  for (int i=0; i<blockItems.size(); i++) {
+    if (sheetNos[i] == iSheet) {
+      double by = blockItems[i]->contentsSceneRect().bottom();
+      if (by>maxY) {
+	maxY = by;
+	iAbove = i;
+      }
+    }
+  }
+  qDebug() << "maxY: " << maxY;
+
+  if (sp.y() >= maxY) {
+    qDebug() << "PageScene: click in empty area at bottom";
+    if (mode_==TypeMode) {
+      Q_ASSERT(data);
+      TextBlockData *tbd = new TextBlockData();
+      data->addBlock(tbd);
+      int iNext = (iAbove>=0) ? iAbove+1 : blockItems.size();
+      TextBlockItem *tbi = new TextBlockItem(tbd, this);
+      double yt = iNext<blockItems.size() ? topY[iNext] : ytop;
+      blockItems.insert(iNext, tbi);
+      sheetNos.insert(iNext, iSheet);
+      topY.insert(iNext, yt);
+      restackBlocks();
+      gotoSheet(sheetNos[iSheet]);
+      tbi->setFocus();
+    } else {
+      QGraphicsScene::mousePressEvent(e);
+    }
+  } else {
+    QGraphicsScene::mousePressEvent(e);
+  }      
+}
+	
+void PageScene::setMode(PageScene::MouseMode m) {
+  mode_ = m;
+}
+
+PageScene::MouseMode PageScene::mode() const {
+  return mode_;
 }

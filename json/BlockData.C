@@ -5,6 +5,8 @@
 #include "NoteData.H"
 
 BlockData::BlockData(class PageData *parent): Data(parent) {
+  y0_ = 0;
+  sheet_ = -1;
 }
 
 BlockData::~BlockData() {
@@ -15,18 +17,18 @@ double BlockData::y0() const {
   return y0_;
 }
 
-double BlockData::h() const {
-  return h_;
+int BlockData::sheet() const {
+  return sheet_;
 }
 
 void BlockData::setY0(double y0) {
   y0_ = y0;
-  markModified();
+  markModified(InternalMod);
 }
 
-void BlockData::setH(double h) {
-  h_ = h;
-  markModified();
+void BlockData::setSheet(int sheet) {
+  sheet_ = sheet;
+  markModified(InternalMod);
 }
 
 QList<class NoteData *> const &BlockData::notes() const {

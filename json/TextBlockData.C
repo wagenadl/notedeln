@@ -14,9 +14,9 @@ QString TextBlockData::text() const {
   return text_;
 }
 
-QList<int> const &TextBlockData::lineBreaks() const {
-  return lineBreaks_;
-}
+//QList<int> const &TextBlockData::lineBreaks() const {
+//  return lineBreaks_;
+//}
 
 QList<MarkupData *> const &TextBlockData::markups() const {
   return markups_;
@@ -29,10 +29,10 @@ void TextBlockData::setText(QString const &t) {
   markModified();
 }
 
-void TextBlockData::setLineBreaks(QList<int> const &lb) {
-  lineBreaks_ = lb;
-  markModified(InternalMod);
-}
+//void TextBlockData::setLineBreaks(QList<int> const &lb) {
+//  lineBreaks_ = lb;
+//  markModified(InternalMod);
+//}
 
 MarkupData *TextBlockData::addMarkup(int start, int end,
 				     MarkupData::Style style) {

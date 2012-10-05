@@ -39,6 +39,7 @@ public:
   void markModified(ModType mt=UserVisibleMod);
   void load(QVariantMap const &);
   QVariantMap save() const;
+  bool editable() const;
 signals:
   void mod();
 protected:

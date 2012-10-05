@@ -7,11 +7,13 @@
 #include "PageData.H"
 
 class PageFile: public QObject {
+  Q_OBJECT;
 public:
   PageFile(QString fn, QObject *parent=0);
   virtual ~PageFile();
-  PageData *page();
+  PageData *data() const;
   bool save() const;
+  QString fileName() const;
 public:
   static PageFile *create(QString fn);
   static void setSaveDelay(double t_s);
