@@ -29,6 +29,7 @@ HEADERS += \
     BlockItem.H \
     TextBlockItem.H \
     TextBlockTextItem.H \
+    TextMarkings.H \
     PageView.H \
     Style.H \
     Toolbar.H
@@ -52,6 +53,7 @@ SOURCES += \
     BlockItem.C \
     TextBlockItem.C \
     TextBlockTextItem.C \
+    TextMarkings.C \
     PageView.C \
     Style.C \
     Toolbar.C

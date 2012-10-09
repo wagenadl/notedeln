@@ -26,6 +26,7 @@ private:
   void initializeFormat();
 private:
   TextBlockData *data_;
+  class TextMarkings *markings_;
 };
 
 #endif
