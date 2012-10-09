@@ -28,5 +28,10 @@
 "margin-left-line-width": 0.5,
 "margin-left-line-color": "#ff8888",
 "margin-top-line-width": 0.5,
-"margin-top-line-color": "#8888ff"
+"margin-top-line-color": "#8888ff",
+"paragraph-width": 450,
+"paragraph-indent": 20,
+"paragraph-line-spacing": 1.5,
+"paragraph-top-margin": 5,
+"paragraph-bottom-margin": 5
 }

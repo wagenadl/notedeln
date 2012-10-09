@@ -5,6 +5,7 @@
 #define TEXTBLOCKTEXTITEM_H
 
 #include <QGraphicsTextItem>
+#include <QTextCursor>
 
 class TextBlockTextItem: public QGraphicsTextItem {
   Q_OBJECT;
@@ -13,8 +14,16 @@ public:
   ~TextBlockTextItem();
 signals:
   void textChanged();
+  void abandoned(); // escape pressed while empty
+  void futileMovementKey(QTextCursor, int, Qt::KeyboardModifiers); 
+  void newParagraph(); // emitted after the creation of a new paragraph
+protected:
+  void keyPressEvent(QKeyEvent *);
+  void focusOutEvent(QFocusEvent *);
 private slots:
   void docChange();
+private:
+  void initializeFormat();
 private:
   TextBlockData *data_;
 };

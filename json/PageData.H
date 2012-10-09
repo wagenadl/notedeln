@@ -24,6 +24,7 @@ public:
   // other
   QList<class BlockData *> const &blocks() const;
   void addBlock(BlockData *); // we become owner
+  bool deleteBlock(BlockData *);
 protected:
   virtual void loadMore(QVariantMap const &src);
   virtual void saveMore(QVariantMap &dst) const;

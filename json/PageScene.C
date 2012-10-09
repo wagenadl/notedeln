@@ -4,6 +4,7 @@
 #include "Style.H"
 #include "BlockData.H"
 #include "BlockItem.H"
+#include "TextBlockTextItem.H"
 #include "TextBlockItem.H"
 #include "TextBlockData.H"
 #include "PageData.H"
@@ -13,14 +14,30 @@
 #include <QDateTime>
 #include <QTextDocument>
 #include <QTextCursor>
+#include <QTextLine>
+#include <QTextLayout>
 #include <QTextBlock>
 #include <QDebug>
 #include <QGraphicsSceneMouseEvent>
+#include <QSignalMapper>
+#include <QCursor>
 
 PageScene::PageScene(PageData *data, QObject *parent):
   QGraphicsScene(parent),
   data(data),
   style(Style::defaultStyle()) {
+
+  hChangeMapper = new QSignalMapper(this);
+  vChangeMapper = new QSignalMapper(this);
+  abandonedMapper = new QSignalMapper(this);
+  futileMovementMapper = new QSignalMapper(this);
+  newParagraphMapper = new QSignalMapper(this);
+  connect(hChangeMapper, SIGNAL(mapped(int)), SLOT(hChanged(int)));
+  connect(vChangeMapper, SIGNAL(mapped(int)), SLOT(vChanged(int)));
+  connect(abandonedMapper, SIGNAL(mapped(int)), SLOT(abandoned(int)));
+  connect(futileMovementMapper, SIGNAL(mapped(int)), SLOT(futileMovement(int)));
+  connect(newParagraphMapper, SIGNAL(mapped(int)), SLOT(newParagraph(int)));
+  
   mode_ = TypeMode; // really, this should be ViewMode, I think
   makeBackground();
   makeDateItem();
@@ -154,10 +171,12 @@ void PageScene::makeTitleItem() {
   titleItem->setDefaultTextColor(QColor(style["title-color"].toString()));
   positionTitleItem();
   titleItem->setTextInteractionFlags(Qt::TextEditorInteraction);
+  titleItem->setCursor(QCursor(Qt::IBeamCursor));
+  
   connect(titleItem->document(), SIGNAL(contentsChanged()),
-	  this, SLOT(titleEdited()));
+	  SLOT(titleEdited()));
   connect(titleItem->document(), SIGNAL(contentsChange(int, int, int)),
-	  this, SLOT(titleTextEdited()));
+	  SLOT(titleTextEdited()));
 }
 
 void PageScene::makeBlockItems() {
@@ -312,57 +331,208 @@ void PageScene::gotoSheet(int i) {
   positionPgNoItem();
 }
 
-void PageScene::mousePressEvent(QGraphicsSceneMouseEvent *e) {
-  QPointF sp = e->scenePos();
-  Style const &style(Style::defaultStyle());
-  qDebug() << "Scene mouse press: " << sp;
-
-  double ytop = style["margin-top"].toDouble();
-  double xleft = style["margin-left"].toDouble();
-  double ybottom = ytop + style["text-height"].toDouble();
-  double xright = xleft + style["text-width"].toDouble();
-
-  if (sp.x()<xleft || sp.x()>=xright ||
-      sp.y()<ytop || sp.y()>=ybottom) {
-    qDebug() << "PageScene: margin press";
-    QGraphicsScene::mousePressEvent(e);
-    return;
-  }
-  
-  double maxY = ytop;
+int PageScene::findLastBlockOnSheet(int sheet) {
+  double maxY = 0;
   int iAbove = -1;
   for (int i=0; i<blockItems.size(); i++) {
-    if (sheetNos[i] == iSheet) {
-      double by = blockItems[i]->contentsSceneRect().bottom();
+    if (sheetNos[i] == sheet) {
+      double by = blockItems[i]->netSceneRect().bottom();
       if (by>maxY) {
 	maxY = by;
 	iAbove = i;
       }
     }
   }
-  qDebug() << "maxY: " << maxY;
+  return iAbove;
+}
 
-  if (sp.y() >= maxY) {
-    qDebug() << "PageScene: click in empty area at bottom";
-    if (mode_==TypeMode) {
-      Q_ASSERT(data);
-      TextBlockData *tbd = new TextBlockData();
-      data->addBlock(tbd);
-      int iNext = (iAbove>=0) ? iAbove+1 : blockItems.size();
-      TextBlockItem *tbi = new TextBlockItem(tbd, this);
-      double yt = iNext<blockItems.size() ? topY[iNext] : ytop;
-      blockItems.insert(iNext, tbi);
-      sheetNos.insert(iNext, iSheet);
-      topY.insert(iNext, yt);
-      restackBlocks();
-      gotoSheet(sheetNos[iSheet]);
-      tbi->setFocus();
-    } else {
-      QGraphicsScene::mousePressEvent(e);
+bool PageScene::inMargin(QPointF sp) {
+  Style const &style(Style::defaultStyle());
+  double ytop = style["margin-top"].toDouble();
+  double xleft = style["margin-left"].toDouble();
+
+  return sp.x() < xleft
+    || sp.x() >= xleft + style["text-width"].toDouble()
+    || sp.y() < ytop
+    || sp.y() >= ytop + style["text-height"].toDouble();
+}    
+
+bool PageScene::belowContent(QPointF sp) {
+  int iAbove = findLastBlockOnSheet(iSheet);
+  if (iAbove<0)
+    return true;
+
+  return sp.y() >= blockItems[iAbove]->netSceneRect().bottom();
+}
+
+void PageScene::deleteBlock(int blocki) {
+  Q_ASSERT(data);
+  if (blocki>=blockItems.size()) {
+    qDebug() << "PageScene: deleting nonexisting block " << blocki;
+    return;
+  }
+  BlockItem *bi = blockItems[blocki];
+  BlockData *bd = bi->data();
+
+  blockItems.removeAt(blocki);
+  sheetNos.removeAt(blocki);
+  topY.removeAt(blocki);
+
+  delete bi;
+  data->deleteBlock(bd);
+
+  restackBlocks();
+  gotoSheet(iSheet>=nSheets ? nSheets-1 : iSheet);
+}
+
+void PageScene::newTextBlock(int iAbove) {
+  Q_ASSERT(data);
+
+  Style const &style(Style::defaultStyle());
+  if (iAbove<0)
+    iAbove = findLastBlockOnSheet(iSheet);
+  int iNew = (iAbove>=0)
+    ? iAbove + 1
+    : blockItems.size();
+  double yt = (iAbove>=0)
+    ? blockItems[iAbove]->sceneBoundingRect().bottom()
+    : style["margin-top"].toDouble();
+
+  TextBlockData *tbd = new TextBlockData();
+  data->addBlock(tbd);
+  TextBlockItem *tbi = new TextBlockItem(tbd, this);
+  blockItems.insert(iNew, tbi);
+  sheetNos.insert(iNew, iSheet);
+  topY.insert(iNew, yt);
+
+  vChangeMapper->setMapping(tbi, iNew);
+  abandonedMapper->setMapping(tbi, iNew);
+  futileMovementMapper->setMapping(tbi, iNew);
+  newParagraphMapper->setMapping(tbi, iNew);
+  connect(tbi, SIGNAL(vboxChanged()), vChangeMapper, SLOT(map()));
+  connect(tbi, SIGNAL(abandoned()), abandonedMapper, SLOT(map()));
+  connect(tbi, SIGNAL(futileMovement()), futileMovementMapper, SLOT(map()));
+  connect(tbi, SIGNAL(newParagraph()), newParagraphMapper, SLOT(map()));
+
+  restackBlocks(iNew);
+  gotoSheet(sheetNos[iNew]);
+  tbi->setFocus();
+}
+
+void PageScene::abandoned(int block) {
+  qDebug() << "abandoned " << block;
+  deleteBlock(block);
+}
+
+void PageScene::futileMovement(int block) {
+  qDebug() << "futilemovement " << block;
+  TextBlockItem *tbi = dynamic_cast<TextBlockItem *>(blockItems[block]);
+  if (!tbi) {
+    qDebug() << "not a text block";
+    return;
+  }
+
+  TextBlockItem::FutileMovementInfo fmi = tbi->lastFutileMovement();
+  qDebug() << "got info";
+  TextBlockItem *tgt = 0;
+  if (fmi.key()==Qt::Key_Left || fmi.key()==Qt::Key_Up) {
+    for (int b=block-1; b>=0; b--) {
+      tgt = dynamic_cast<TextBlockItem *>(blockItems[b]);
+      if (tgt)
+	break;
     }
+  } else if (fmi.key()==Qt::Key_Right || fmi.key()==Qt::Key_Down) {
+    for (int b=block+1; b<blockItems.size(); b++) {
+      tgt = dynamic_cast<TextBlockItem *>(blockItems[b]);
+      if (tgt) {
+	// I should also check that this item is editable
+	break;
+      }
+    }
+  }
+  if (!tgt) {
+    qDebug() << "No target";
+    return;
+  }
+
+  tgt->setFocus();
+  QTextDocument *doc = tgt->document();
+  QTextCursor c(doc);
+  QPointF p = tgt->text()->mapFromParent(tgt->mapFromScene(fmi.scenePos()));
+  switch (fmi.key()) {
+  case Qt::Key_Left: 
+    c.movePosition(QTextCursor::End);
+    break;
+  case Qt::Key_Up: {
+    QTextBlock blk = doc->lastBlock();
+    QTextLayout *lay = blk.layout();
+    QTextLine l = lay->lineAt(blk.lineCount()-1);
+    c.setPosition(l.xToCursor(p.x() - blk.layout()->position().x()));
+    break; }
+  case Qt::Key_Right:
+    c.movePosition(QTextCursor::Start);
+    break;
+  case Qt::Key_Down: {
+    QTextBlock blk = doc->firstBlock();
+    QTextLayout *lay = blk.layout();
+    QTextLine l = lay->lineAt(0);
+    c.setPosition(l.xToCursor(p.x() - blk.layout()->position().x()));
+    break; }
+  }
+  tgt->text()->setTextCursor(c);
+}
+
+void PageScene::newParagraph(int block) {
+  qDebug() << "new paragraph " << block;
+  TextBlockItem *tbi = dynamic_cast<TextBlockItem *>(blockItems[block]);
+  if (tbi) {
+    tbi->dropEmptyLastPar();
+    newTextBlock(block);
+  }
+}
+
+void PageScene::hChanged(int block) {
+  // Never allow sticking out L. of page
+  if (blockItems[block]->sceneBoundingRect().left()<0)
+     blockItems[block]->moveBy(-blockItems[block]->sceneBoundingRect().left(),
+			       0);
+      
+  // Try to respect L & R margins
+  Style const &style(Style::defaultStyle());
+  double l_space = blockItems[block]->sceneBoundingRect().left()
+    - style["margin-left"].toDouble();
+  double r_space = style["margin-left"].toDouble()
+    + style["text-width"].toDouble()
+    - blockItems[block]->sceneBoundingRect().right();
+  if (l_space<0) {
+    double dx = -l_space;
+    if (dx>r_space)
+      dx = r_space;
+    if (dx>0)
+      blockItems[block]->moveBy(dx, 0);
+  } else if (r_space<0) {
+    double dx = -r_space;
+    if (dx>l_space)
+      dx = l_space;
+    if (dx>0)
+      blockItems[block]->moveBy(-dx, 0);
+  }
+}
+
+void PageScene::vChanged(int block) {
+  restackBlocks(block);
+  gotoSheet(sheetNos[block]);
+}
+
+void PageScene::mousePressEvent(QGraphicsSceneMouseEvent *e) {
+  QPointF sp = e->scenePos();
+  if (inMargin(sp)) {
+    QGraphicsScene::mousePressEvent(e);
+  } else if (belowContent(sp) && mode_==TypeMode) {
+    newTextBlock();
   } else {
     QGraphicsScene::mousePressEvent(e);
-  }      
+  }
 }
 	
 void PageScene::setMode(PageScene::MouseMode m) {

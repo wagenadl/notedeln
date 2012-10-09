@@ -31,6 +31,11 @@ protected:
 private slots:
   void titleEdited();
   void titleTextEdited();
+  void hChanged(int block);
+  void vChanged(int block);
+  void abandoned(int block);
+  void futileMovement(int block);
+  void newParagraph(int block);
 private:
   void makeBackground();
   void makeTitleItem();
@@ -42,6 +47,13 @@ private:
   int restackBlocks(int starti=0); // returns new sheet no of starti item
   void positionPgNoItem();
   void positionTitleItem();
+  int findLastBlockOnSheet(int sheet); // returns -1 if none
+  bool inMargin(QPointF); // true if point is in any margin
+  bool belowContent(QPointF); // true if point is below any blocks on sheet,
+  // whether or not the point is in the margin
+  void newTextBlock(int after=-1); // creates a new text block after the
+  // given block or at the bottom of this sheet
+  void deleteBlock(int blocki); // also deletes data!
 private:
   QGraphicsTextItem *titleItem;
   QGraphicsTextItem *dateItem;
@@ -51,10 +63,16 @@ private:
   QGraphicsLineItem *leftMarginItem;
   QGraphicsLineItem *topMarginItem;
   QGraphicsRectItem *bgItem;
-  QList<class BlockItem *> blockItems;
+  class QSignalMapper *hChangeMapper;
+  class QSignalMapper *vChangeMapper;
+  class QSignalMapper *abandonedMapper;
+  class QSignalMapper *futileMovementMapper;
+  class QSignalMapper *newParagraphMapper;
 private:
+  QList<class BlockItem *> blockItems;
   QList<int> sheetNos; // sheet number for each block
   QList<double> topY; // top Y position for each block
+private:
   int nSheets; // number of sheets
   int iSheet; // current sheet (counting from 0)
   PageData *data;

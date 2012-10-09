@@ -22,6 +22,19 @@ void PageData::addBlock(BlockData *b) {
   markModified();
 }
 
+bool PageData::deleteBlock(BlockData *b) {
+  int i = blocks_.indexOf(b);
+  if (i<0)
+    return false;
+
+  delete blocks_[i];
+  blocks_.removeAt(i);
+  markModified();
+  return true;
+}
+
+
+
 void PageData::loadMore(QVariantMap const &src) {
   foreach (BlockData *bd, blocks_)
     delete bd;

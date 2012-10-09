@@ -12,10 +12,10 @@ public:
   BlockItem(class BlockData *data, class PageScene *parent);
   virtual ~BlockItem();
   BlockData *data();
-  QRectF contentsRect() const; // in this item's coords
-  QRectF contentsSceneRect() const; // in scene coords
-  void moveContentsBy(double dx, double dy);
-  virtual QRectF boundingRect() const;
+  QRectF boundingRect() const;
+  QRectF netBoundingRect() const; // w/o notes
+  QRectF netSceneRect() const; // in scene coords
+  QGraphicsItem *mainChild() const;
   void paint(QPainter *p, const QStyleOptionGraphicsItem *o, QWidget *w);
 signals:
   void vboxChanged();
