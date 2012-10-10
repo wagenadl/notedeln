@@ -6,6 +6,7 @@
 
 #include <QGraphicsTextItem>
 #include <QTextCursor>
+#include "MarkupData.H"
 
 class TextBlockTextItem: public QGraphicsTextItem {
   Q_OBJECT;
@@ -24,6 +25,11 @@ private slots:
   void docChange();
 private:
   void initializeFormat();
+  bool tryToPaste();
+  bool trySimpleStyle(QString marker, MarkupData::Style type);
+  bool tryScriptStyles();
+  bool charBeforeIsLetter(int pos) const;
+  bool charAfterIsLetter(int pos) const;
 private:
   TextBlockData *data_;
   class TextMarkings *markings_;

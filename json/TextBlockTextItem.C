@@ -94,57 +94,19 @@ void TextBlockTextItem::keyPressEvent(QKeyEvent *e) {
   } break;
   case Qt::Key_V:
     if (e->modifiers() & Qt::ControlModifier) {
-      QClipboard *cb = QApplication::clipboard();
-      QMimeData const *md = cb->mimeData(QClipboard::Clipboard);
-      QStringList fmt = md->formats();
-      qDebug() << "Clipboard: ";
-      //foreach (QString s, fmt)
-      //  qDebug() << "  Format: " << s;
-      if (md->hasText())
-	qDebug() << "  Text: " << md->text();
-      if (md->hasHtml())
-	qDebug() << "  Html: " << md->html();
-      if (md->hasUrls())
-	qDebug() << "  Urls: " << md->urls();
-      if (md->hasImage())
-	qDebug() << "  Image!";
-      md = cb->mimeData(QClipboard::Selection);
-      fmt = md->formats();
-      qDebug() << "Selection: ";
-      //foreach (QString s, fmt)
-      //  qDebug() << "  Format: " << s;
-      if (md->hasText())
-	qDebug() << "  Text: " << md->text();
-      if (md->hasHtml())
-	qDebug() << "  Html: " << md->html();
-      if (md->hasUrls())
-	qDebug() << "  Urls: " << md->urls();
-      if (md->hasImage())
-	qDebug() << "  Image!";
+      tryToPaste();
       pass = false;
     }
     break;
   default:
     if (e->text()=="/") {
-      // Let's find backwards to potentially italicize
-      QTextCursor c = textCursor();
-      QTextCursor m = document()->find(QRegExp("(?!\\w)/.*\\w(?!\\w)"),
-				       c, QTextDocument::FindBackward);
-      if (m.hasSelection()) {
-	QTextCursor m1 = document()->find(QRegExp("\\W"), c);
-	if (m.selectionEnd()>=c.position()
-	    && ((m1.hasSelection() && m1.selectionStart()==c.position())
-		|| c.atEnd())) {
-	  m.beginEditBlock();
-	  int p0 = m.selectionStart();
-	  m.setPosition(p0);
-	  m.deleteChar();
-	  int p1 = c.position();
-	  m.endEditBlock();
-	  markings_->newMark(TextMarkings::Italic, p0, p1);
-	  pass = false;
-	}
-      }
+      pass = !trySimpleStyle("/", MarkupData::Italic);
+    } else if (e->text()=="*") {
+      pass = !trySimpleStyle("*", MarkupData::Bold);
+    } else if (e->text()=="_") {
+      pass = !trySimpleStyle("_", MarkupData::Underline);
+    } else if (e->text()==".") {
+      pass = !tryScriptStyles();
     }
     break;
   }
@@ -152,3 +114,133 @@ void TextBlockTextItem::keyPressEvent(QKeyEvent *e) {
     QGraphicsTextItem::keyPressEvent(e);
 }
 
+bool TextBlockTextItem::charBeforeIsLetter(int pos) const {
+  return document()->characterAt(pos-1).isLetter();
+  // also returns false at start of doc
+}
+
+bool TextBlockTextItem::charAfterIsLetter(int pos) const {
+  return document()->characterAt(pos).isLetter();
+  // also returns false at end of doc
+}
+
+static bool containsOnlyDigits(QString s) {
+  int N = s.length();
+  for (int i=0; i<N; i++)
+    if (!s[i].isDigit())
+      return false;
+  return true;
+}
+
+static bool containsOnlyLetters(QString s) {
+  int N = s.length();
+  for (int i=0; i<N; i++)
+    if (!s[i].isLetter())
+      return false;
+  return true;
+}
+
+bool TextBlockTextItem::tryScriptStyles() {
+  /* Returns true if we decide to make a superscript or subscript, that is,
+     if:
+     (1) there is a preceding "^" or "_"
+     (2) either:
+         (a) there are only digits between that mark and us
+	 (b) there is a minus sign followed by only digits between that
+	     mark and us
+	 (c) the mark is followed by a "{" and we have a "}" before us
+   */
+  QTextCursor c = textCursor();
+  QTextCursor m = document()->find(QRegExp("\\^|_"),
+				   c, QTextDocument::FindBackward);
+  if (!m.hasSelection())
+    return false; // no "^" or "_"
+  QString mrk = m.selectedText();
+  int p0 = m.selectionStart();
+  m.setPosition(m.selectionEnd());
+  m.setPosition(c.position(), QTextCursor::KeepAnchor);
+  QString t = m.selectedText();
+  if (t.isEmpty())
+    return false;
+
+  if (containsOnlyDigits(t) ||
+      (t.startsWith("-") && containsOnlyDigits(t.mid(1))) ||
+      containsOnlyLetters(t) ||
+      (t.startsWith("{") && t.endsWith("}"))) {
+    m.setPosition(p0);
+    m.movePosition(QTextCursor::Right,
+		   QTextCursor::KeepAnchor,
+		   (t.startsWith("{") ? 2 : 1));
+    m.deleteChar();
+    if (t.endsWith("}"))
+      c.deletePreviousChar();
+    markings_->newMark(mrk=="^"
+		       ? MarkupData::Superscript
+		       : MarkupData::Subscript,
+		       p0, c.position());
+    return true;
+  } else {
+    return false;
+  }
+}
+
+bool TextBlockTextItem::trySimpleStyle(QString marker,
+				       MarkupData::Style type) {
+  /* Returns true if we decide to do italicize/bold/underline, that is, if:
+     (1) there is a preceding "/"/"*"/"_"
+     (2) that mark was not preceded by a word character
+     (3) that mark was followed by a word character
+     (4) we have a word character before us
+     (5) we do not have a word character after us
+  */
+
+  QTextCursor c = textCursor();
+  if (charAfterIsLetter(c.position()))
+    return false;
+  if (!charBeforeIsLetter(c.position()))
+    return false;
+  
+  QTextCursor m = document()->find(marker, c, QTextDocument::FindBackward);
+  if (!m.hasSelection())
+    return false; // no slash
+  if (charBeforeIsLetter(m.selectionStart()))
+    return false;
+  if (!charAfterIsLetter(m.selectionEnd()))
+    return false;
+
+  m.deleteChar();
+  markings_->newMark(type, m.position(), c.position());
+  return true;
+}
+  
+bool TextBlockTextItem::tryToPaste() {
+  QClipboard *cb = QApplication::clipboard();
+  QMimeData const *md = cb->mimeData(QClipboard::Clipboard);
+  QStringList fmt = md->formats();
+  qDebug() << "Clipboard: ";
+  //foreach (QString s, fmt)
+  //  qDebug() << "  Format: " << s;
+  if (md->hasText())
+    qDebug() << "  Text: " << md->text();
+  if (md->hasHtml())
+    qDebug() << "  Html: " << md->html();
+  if (md->hasUrls())
+    qDebug() << "  Urls: " << md->urls();
+  if (md->hasImage())
+    qDebug() << "  Image!";
+  md = cb->mimeData(QClipboard::Selection);
+  fmt = md->formats();
+  qDebug() << "Selection: ";
+  //foreach (QString s, fmt)
+  //  qDebug() << "  Format: " << s;
+  if (md->hasText())
+    qDebug() << "  Text: " << md->text();
+  if (md->hasHtml())
+    qDebug() << "  Html: " << md->html();
+  if (md->hasUrls())
+    qDebug() << "  Urls: " << md->urls();
+  if (md->hasImage())
+    qDebug() << "  Image!";
+
+  return false; // will return true if we decide to import
+}  

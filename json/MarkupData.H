@@ -17,6 +17,12 @@ class MarkupData: public Data {
 public:
   enum Style {
     Normal,
+    Italic,
+    Bold,
+    Underline,
+    URL,
+    Superscript,
+    Subscript,
     StrikeThrough,
     Emphasize,
   };
