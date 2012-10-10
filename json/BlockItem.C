@@ -7,6 +7,7 @@
 BlockItem::BlockItem(BlockData *data, PageScene *parent):
   QGraphicsObject(0),
   data_(data) {
+  mainChild_ = 0;
   parent->addItem(this);
 }
 
