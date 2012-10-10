@@ -1,9 +1,8 @@
 // MarkupData.C
 
 #include "MarkupData.H"
-#include "TextBlockData.H"
 
-MarkupData::MarkupData(TextBlockData *parent):
+MarkupData::MarkupData(Data *parent):
   Data(parent) {
 }
 

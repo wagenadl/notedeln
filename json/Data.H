@@ -40,6 +40,13 @@ public:
   void load(QVariantMap const &);
   QVariantMap save() const;
   bool editable() const;
+  Data *parent() const;
+  template <class T> static T *deepCopy(T const *data) {
+    /* T must be derived from Data */
+    T *copy = new T(data->parent());
+    copy->load(data->save());
+    return copy;
+  }
 signals:
   void mod();
 protected:

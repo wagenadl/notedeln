@@ -147,3 +147,7 @@ void Data::saveProps(QVariantMap &dst) const {
 
 /* ----- End of code adapted from QJSON's "qobjecthelper.cpp" ----- */
   
+Data *Data::parent() const {
+  return dynamic_cast<Data *>(parent());
+}
+

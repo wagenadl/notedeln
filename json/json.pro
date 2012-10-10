@@ -13,13 +13,15 @@ RESOURCES += icons.qrc
 
 HEADERS += \
     Data.H \
-    BlockData.H \
-    TextBlockData.H \
-    GfxBlockData.H \
+    MarkupData.H \
+    TextData.H \
+    TitleData.H \
     GfxData.H \
     GfxPointsData.H \
     GfxTextData.H \
-    MarkupData.H \
+    BlockData.H \
+    TextBlockData.H \
+    GfxBlockData.H \
     NoteData.H \
     PageData.H \
     PageFile.H \
@@ -36,13 +38,15 @@ HEADERS += \
 
 SOURCES += \
     Data.C \
-    BlockData.C \
-    TextBlockData.C \
-    GfxBlockData.C \
+    MarkupData.C \
+    TextData.C \
+    TitleData.C \
     GfxData.C \
     GfxPointsData.C \
     GfxTextData.C \
-    MarkupData.C \
+    BlockData.C \
+    TextBlockData.C \
+    GfxBlockData.C \
     NoteData.C \
     PageData.C \
     PageFile.C \

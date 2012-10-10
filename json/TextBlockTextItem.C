@@ -26,7 +26,7 @@ TextBlockTextItem::TextBlockTextItem(TextBlockData *data, TextBlockItem *parent)
   if (data_->editable())
     setTextInteractionFlags(Qt::TextEditorInteraction);
 
-  setPlainText(data_->text()); // eventually, we'll need to deal with markup
+  setPlainText(data_->text()->text()); // eventually, we'll need to deal with markup
   
   connect(document(), SIGNAL(contentsChange(int, int, int)),
 	  this, SLOT(docChange()));
@@ -57,7 +57,7 @@ void TextBlockTextItem::initializeFormat() {
 }
 
 void TextBlockTextItem::docChange() {
-  data_->setText(toPlainText());
+  data_->text()->setText(toPlainText());
   emit textChanged();
 }
 
