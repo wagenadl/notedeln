@@ -6,6 +6,7 @@
 PageData::PageData(Data *parent): Data(parent) {
   startPage_ = 1;
   title_ = "Untitled";
+  setType("page");
 }
 
 PageData::~PageData() {

@@ -17,7 +17,12 @@ public:
   TextData const *current() const;
   TextData const *orig() const;
   TextData *revise();
-  // revise() creates a new version if previous is more than X hours old
+  /* revise() creates a new version if previous is more than X hours old.
+     For the convenience of TitleItem, the new "current" pointer is always
+     the same as the old "current" pointer; the newly created copy is saved
+     as the old version.
+  */
+  
 protected:
   void loadMore(QVariantMap const &src);
   void saveMore(QVariantMap &dst) const;

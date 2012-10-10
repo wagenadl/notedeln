@@ -29,7 +29,7 @@ public:
   virtual ~TextBlockItem();
   TextBlockData *data(); // benevolently hides inherited version
   QTextDocument *document() const;
-  class TextBlockTextItem *text();
+  class TextItem *text();
   void setFocus();
   void clearFocus();
   void acceptFocus(QPointF);
@@ -45,7 +45,7 @@ private slots:
   void futileMovementKey(QTextCursor, int, Qt::KeyboardModifiers);
 private:
   TextBlockData *data_; // we don't own
-  class TextBlockTextItem *item_; // we do own
+  class TextItem *item_; // we do own
   FutileMovementInfo fmi;
 };
 

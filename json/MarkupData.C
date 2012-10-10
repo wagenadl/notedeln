@@ -4,6 +4,7 @@
 
 MarkupData::MarkupData(Data *parent):
   Data(parent) {
+  setType("markup");
 }
 
 MarkupData::~MarkupData() {

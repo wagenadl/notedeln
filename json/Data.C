@@ -50,7 +50,7 @@ void Data::setModified(QDateTime const &dt) {
 
 void Data::setType(QString const &t) {
   type_ = t;
-  markModified();
+  //  markModified();
 }
 
 void Data::setId(QString const &i) {
@@ -148,6 +148,6 @@ void Data::saveProps(QVariantMap &dst) const {
 /* ----- End of code adapted from QJSON's "qobjecthelper.cpp" ----- */
   
 Data *Data::parent() const {
-  return dynamic_cast<Data *>(parent());
+  return dynamic_cast<Data *>(QObject::parent());
 }
 

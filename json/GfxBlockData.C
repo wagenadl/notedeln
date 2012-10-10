@@ -5,6 +5,7 @@
 
 GfxBlockData::GfxBlockData(class PageData *parent):
   BlockData(parent) {
+  setType("gfxblock");
 }
 
 GfxBlockData::~GfxBlockData() {

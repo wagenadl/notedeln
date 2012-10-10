@@ -7,6 +7,7 @@ static GfxData::Creator<GfxPointsData> c("points");
 
 GfxPointsData::GfxPointsData(GfxBlockData *parent=0):
   GfxData(parent) {
+  setType("gfxpoints");
 }
 
 GfxPointsData::~GfxPointsData() {

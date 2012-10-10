@@ -4,6 +4,7 @@
 #include "BlockData.H"
 
 NoteData::NoteData(class BlockData *parent): Data(parent) {
+  setType("note");
 }
 
 NoteData::~NoteData() {

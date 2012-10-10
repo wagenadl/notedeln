@@ -6,6 +6,7 @@
 TextBlockData::TextBlockData(class PageData *parent):
   BlockData(parent) {
   text_ = new TextData(this);
+  setType("textblock");
 }
 
 TextBlockData::~TextBlockData() {

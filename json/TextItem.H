@@ -1,18 +1,20 @@
-// TextBlockTextItem.H
+// TextItem.H
 
-#ifndef TEXTBLOCKTEXTITEM_H
+#ifndef TEXTITEM_H
 
-#define TEXTBLOCKTEXTITEM_H
+#define TEXTITEM_H
 
 #include <QGraphicsTextItem>
 #include <QTextCursor>
 #include "MarkupData.H"
 
-class TextBlockTextItem: public QGraphicsTextItem {
+class TextItem: public QGraphicsTextItem {
   Q_OBJECT;
 public:
-  TextBlockTextItem(class TextBlockData *data, class TextBlockItem *parent);
-  ~TextBlockTextItem();
+  TextItem(class TextData *data, QGraphicsItem *parent);
+  ~TextItem();
+  virtual bool makeWritable();
+  void makeHardToWrite();
 signals:
   void textChanged();
   void abandoned(); // escape pressed while empty
@@ -30,8 +32,10 @@ private:
   bool tryScriptStyles();
   bool charBeforeIsLetter(int pos) const;
   bool charAfterIsLetter(int pos) const;
-private:
-  TextBlockData *data_;
+protected:
+  TextData *data_;
+  bool mayWrite;
+  bool mayMark;
   class TextMarkings *markings_;
 };
 

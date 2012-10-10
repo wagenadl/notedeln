@@ -5,6 +5,7 @@
 
 TitleData::TitleData(Data *parent): Data(parent) {
   versions_.append(new TextData(this));
+  setType("title");
 }
 
 TitleData::~TitleData() {
@@ -28,7 +29,8 @@ TextData *TitleData::revise() {
       Style::defaultStyle()["title-revision-threshold"].toDouble()*60*60)
     return r;
   
-  r = Data::deepCopy(r);
+  TextData *r0 = Data::deepCopy(r);
+  versions_.last() = r0; // store copy as previous version
   versions_.append(r);
   markModified();
   return r;

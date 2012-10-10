@@ -1,10 +1,10 @@
 // TextBlockItem.C
 
 #include "TextBlockItem.H"
-#include "TextBlockTextItem.H"
+#include "TextItem.H"
 #include "TextBlockData.H"
 #include "Style.H"
-#include <QCursor>
+
 #include <QTextCursor>
 #include <QTextBlock>
 #include <QTextLayout>
@@ -15,7 +15,7 @@ TextBlockItem::TextBlockItem(TextBlockData *data, PageScene *parent):
   BlockItem(data, parent),
   data_(data) {
   setPos(Style::defaultStyle()["margin-left"].toDouble(), 0);
-  item_ = new TextBlockTextItem(data_, this);
+  item_ = new TextItem(data_->text(), this);
   setMainChild(item_);
   connect(item_, SIGNAL(textChanged()),
 	  this, SLOT(checkVbox()));
@@ -39,13 +39,9 @@ TextBlockData *TextBlockItem::data() {
 }
 
 void TextBlockItem::setFocus() {
+  // do we need to check whether we want it?
   item_->setFocus();
-  item_->setCursor(QCursor(Qt::IBeamCursor));
 }
-
-//void TextBlockItem::dropFocus() {
-  //  item_->unsetCursor();
-//}
 
 QTextDocument *TextBlockItem::document() const {
   Q_ASSERT(item_);
@@ -122,7 +118,7 @@ void TextBlockItem::acceptFocus(QPointF p) {
   qDebug() << " failed";
 }
 	
-TextBlockTextItem *TextBlockItem::text() {
+TextItem *TextBlockItem::text() {
   return item_;
 }
 

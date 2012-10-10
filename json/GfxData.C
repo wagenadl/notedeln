@@ -16,6 +16,7 @@ GfxData *GfxData::create(QString t) {
 }
 
 GfxData::GfxData(GfxBlockData *parent): Data(parent) {
+  setType("gfx");
 }
 
 GfxData::~GfxData() {

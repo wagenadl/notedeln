@@ -7,6 +7,7 @@
 BlockData::BlockData(class PageData *parent): Data(parent) {
   y0_ = 0;
   sheet_ = -1;
+  setType("block");
 }
 
 BlockData::~BlockData() {

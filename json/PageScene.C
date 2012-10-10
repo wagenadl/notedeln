@@ -4,7 +4,7 @@
 #include "Style.H"
 #include "BlockData.H"
 #include "BlockItem.H"
-#include "TextBlockTextItem.H"
+#include "TitleItem.H"
 #include "TextBlockItem.H"
 #include "TextBlockData.H"
 #include "PageData.H"

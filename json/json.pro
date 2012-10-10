@@ -28,9 +28,11 @@ HEADERS += \
     Icons.H \
     PageEditor.H \
     PageScene.H \
+    TitleItem.H \
     BlockItem.H \
     TextBlockItem.H \
-    TextBlockTextItem.H \
+    TextItem.H \
+    TitleTextItem.H \
     TextMarkings.H \
     PageView.H \
     Style.H \
@@ -54,9 +56,11 @@ SOURCES += \
     main.C \
     PageEditor.C \
     PageScene.C \
+    TitleItem.C \
     BlockItem.C \
     TextBlockItem.C \
-    TextBlockTextItem.C \
+    TextItem.C \
+    TitleTextItem.C \
     TextMarkings.C \
     PageView.C \
     Style.C \

@@ -1,8 +1,7 @@
-// TextBlockTextItem.C
+// TextItem.C
 
-#include "TextBlockTextItem.H"
-#include "TextBlockItem.H"
-#include "TextBlockData.H"
+#include "TextItem.H"
+#include "TextData.H"
 #include "TextMarkings.H"
 
 #include "Style.H"
@@ -18,28 +17,44 @@
 #include <QClipboard>
 #include <QMimeData>
 #include <QUrl>
+#include <QCursor>
 
-TextBlockTextItem::TextBlockTextItem(TextBlockData *data, TextBlockItem *parent):
+TextItem::TextItem(TextData *data, QGraphicsItem *parent):
   QGraphicsTextItem(parent),
   data_(data) {
+  mayWrite = false;
+  mayMark = true;
 
-  if (data_->editable())
+  if (data_->editable()) {
+    mayWrite = true;
     setTextInteractionFlags(Qt::TextEditorInteraction);
+    setCursor(QCursor(Qt::IBeamCursor));
+  }
 
-  setPlainText(data_->text()->text()); // eventually, we'll need to deal with markup
-  
+  setPlainText(data_->text());  
+  markings_ = new TextMarkings(document(), this); // get from data_ too!
+
   connect(document(), SIGNAL(contentsChange(int, int, int)),
 	  this, SLOT(docChange()));
-
-  markings_ = new TextMarkings(document(), this);
 
   initializeFormat();
 }
 
-TextBlockTextItem::~TextBlockTextItem() {
+void TextItem::makeHardToWrite() {
+  // but not impossible
+  mayWrite = mayMark = false;
+  setTextInteractionFlags(Qt::TextEditorInteraction);
+  setCursor(QCursor(Qt::IBeamCursor));
+ }
+
+bool TextItem::makeWritable() {
+  return mayWrite && mayMark;
 }
 
-void TextBlockTextItem::initializeFormat() {
+TextItem::~TextItem() {
+}
+
+void TextItem::initializeFormat() {
   Style const &style(Style::defaultStyle());
   setTextWidth(style["paragraph-width"].toDouble());
   setFont(QFont(style["text-font-family"].toString(),
@@ -56,12 +71,20 @@ void TextBlockTextItem::initializeFormat() {
   tc.setBlockFormat(fmt);
 }
 
-void TextBlockTextItem::docChange() {
-  data_->text()->setText(toPlainText());
+void TextItem::docChange() {
+  if (!mayWrite)
+    makeWritable();
+
+  if (!mayWrite) {
+    qDebug() << "document change but cannot write!";
+    return;
+  }
+  
+  data_->setText(toPlainText());
   emit textChanged();
 }
 
-void TextBlockTextItem::focusOutEvent(QFocusEvent *e) {
+void TextItem::focusOutEvent(QFocusEvent *e) {
   QGraphicsTextItem::focusOutEvent(e);
   if (document()->isEmpty()) {
     qDebug() << "Abandoned.";
@@ -69,7 +92,7 @@ void TextBlockTextItem::focusOutEvent(QFocusEvent *e) {
   }
 }
 
-void TextBlockTextItem::keyPressEvent(QKeyEvent *e) {
+void TextItem::keyPressEvent(QKeyEvent *e) {
   bool pass = true;
   switch (e->key()) {
   case Qt::Key_Escape:
@@ -114,12 +137,12 @@ void TextBlockTextItem::keyPressEvent(QKeyEvent *e) {
     QGraphicsTextItem::keyPressEvent(e);
 }
 
-bool TextBlockTextItem::charBeforeIsLetter(int pos) const {
+bool TextItem::charBeforeIsLetter(int pos) const {
   return document()->characterAt(pos-1).isLetter();
   // also returns false at start of doc
 }
 
-bool TextBlockTextItem::charAfterIsLetter(int pos) const {
+bool TextItem::charAfterIsLetter(int pos) const {
   return document()->characterAt(pos).isLetter();
   // also returns false at end of doc
 }
@@ -140,7 +163,7 @@ static bool containsOnlyLetters(QString s) {
   return true;
 }
 
-bool TextBlockTextItem::tryScriptStyles() {
+bool TextItem::tryScriptStyles() {
   /* Returns true if we decide to make a superscript or subscript, that is,
      if:
      (1) there is a preceding "^" or "_"
@@ -184,7 +207,7 @@ bool TextBlockTextItem::tryScriptStyles() {
   }
 }
 
-bool TextBlockTextItem::trySimpleStyle(QString marker,
+bool TextItem::trySimpleStyle(QString marker,
 				       MarkupData::Style type) {
   /* Returns true if we decide to do italicize/bold/underline, that is, if:
      (1) there is a preceding "/"/"*"/"_"
@@ -213,7 +236,7 @@ bool TextBlockTextItem::trySimpleStyle(QString marker,
   return true;
 }
   
-bool TextBlockTextItem::tryToPaste() {
+bool TextItem::tryToPaste() {
   QClipboard *cb = QApplication::clipboard();
   QMimeData const *md = cb->mimeData(QClipboard::Clipboard);
   QStringList fmt = md->formats();

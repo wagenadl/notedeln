@@ -4,6 +4,7 @@
 
 TextData::TextData(Data *parent):
   Data(parent) {
+  setType("text");
 }
 
 TextData::~TextData() {

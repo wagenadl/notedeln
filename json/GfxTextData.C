@@ -4,6 +4,7 @@
 
 
 GfxTextData::GfxTextData(class GfxBlockData *parent): GfxData(parent) {
+  setType("gfxtext");
 }
 
 GfxTextData::~GfxTextData() {
