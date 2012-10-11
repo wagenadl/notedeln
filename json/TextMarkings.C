@@ -4,22 +4,26 @@
 #include <QTextCursor>
 #include <QDebug>
 
-TextMarkings::TextMarkings(QTextDocument *doc, QObject *parent):
-  QObject(parent), doc(doc) {
+TextMarkings::TextMarkings(TextData *data, QTextDocument *doc, QObject *parent):
+  QObject(parent), data(data), doc(doc) {
   connect(doc, SIGNAL(contentsChange(int, int, int)),
 	  SLOT(update(int, int, int)));
+  foreach (MarkupData *m, data->markups()) {
+    applyMark(m);
+    insertMark(m);
+  }    
 }
 
 TextMarkings::~TextMarkings() {
 }
 
-void TextMarkings::newMark(MarkupData::Style type, int start, int end) {
+void TextMarkings::applyMark(MarkupData const *data) {
   QTextCursor c(doc);
   c.beginEditBlock();
-  c.setPosition(start);
-  c.setPosition(end, QTextCursor::KeepAnchor);
+  c.setPosition(data->start());
+  c.setPosition(data->end(), QTextCursor::KeepAnchor);
   QTextCharFormat f(c.charFormat());
-  switch (type) {
+  switch (data->style()) {
   case MarkupData::Normal:
     f = QTextCharFormat();
     break;
@@ -49,8 +53,10 @@ void TextMarkings::newMark(MarkupData::Style type, int start, int end) {
   }
   c.setCharFormat(f);
   c.endEditBlock();
-  
-  Span s(type, start, end);
+}  
+
+void TextMarkings::insertMark(MarkupData *m) {
+  Span s(m);
   for (QList<Span>::iterator i=spans.begin(); i!=spans.end(); ++i) {
     if (s < *i) {
       spans.insert(i, s);
@@ -59,14 +65,22 @@ void TextMarkings::newMark(MarkupData::Style type, int start, int end) {
   }
   spans.append(s);
 }
+ 
+void TextMarkings::newMark(MarkupData::Style type, int start, int end) {
+  MarkupData *m = data->addMarkup(start, end, type);
+  applyMark(m);
+  insertMark(m);
+}
 
 void TextMarkings::update(int pos, int del, int ins) {
   // First round: update every span
   for (QList<Span>::iterator i=spans.begin(); i!=spans.end(); ) {
-    if ((*i).update(doc, pos, del, ins))
+    if ((*i).update(doc, pos, del, ins)) {
+      data->removeMarkup((*i).data);
       i = spans.erase(i);
-    else
+    } else {
       ++i;
+    }
   }
 
   // Second round: combine abutting or overlapping of same kind
@@ -75,11 +89,11 @@ void TextMarkings::update(int pos, int del, int ins) {
     qDebug() << "iloop";
     for (QList<Span>::iterator j=i+1; j!=spans.end(); ) {
       qDebug() << "jloop";
-      if ((*j).start<=(*i).end) {
-	if ((*j).type==(*i).type) {
+      if ((*j).data->start()<=(*i).data->end()) {
+	if ((*j).data->style()==(*i).data->style()) {
 	  // merge or subsume!
-	  if ((*j).end>(*i).end)
-	    (*i).end = (*j).end;
+	  (*i).data->merge((*j).data);
+	  data->removeMarkup((*j).data);
 	  j = spans.erase(j);
 	  qDebug() << "erased";
 	  changed = true;
@@ -98,92 +112,57 @@ void TextMarkings::update(int pos, int del, int ins) {
   
   qDebug() << "Markings updated";
   foreach (Span const &s, spans) 
-    qDebug() << "  Span: " << s.type << ": " << s.start << "-" << s.end;
+    qDebug() << "  Span: " << s.data->style() << ": " << s.data->start()
+	     << "-" << s.data->end();
   
 } 
 
-TextMarkings::Span::Span(MarkupData::Style t, int s, int e):
-  type(t), start(s), end(e) {
+TextMarkings::Span::Span(MarkupData *data): data(data) {
 }
 
 bool TextMarkings::Span::operator<(TextMarkings::Span const &other) const {
-  if (start<other.start)
-    return true;
-  else if (start>other.start)
-    return false;
-
-  if (end<other.end)
-    return true;
-  else if (end>other.end)
-    return false;
-
-  return type<other.type;
+  return *data < *(other.data);
 }
-
-bool TextMarkings::Span::cut(int pos, int len) {
-  if (start>pos) {
-    start -= len;
-    if (start<pos)
-      start = pos;
-  }
-  if (end>pos) {
-    end -= len;
-    if (end<pos)
-      end = pos;
-  }
-  return start==end;
-}  
 
 bool TextMarkings::Span::update(QTextDocument *doc,
 				int pos, int del, int ins) {
-  // This now mostly works.
-  // It does not know how to merge adjoining markings,
-  // and it cannot deal well with nested markings.
+  if (ins>del && data->end()==pos)
+    avoidPropagatingStyle(doc, pos, ins);
+  
+  data->update(pos, del, ins);
 
-  if (del>ins) 
-    return cut(pos, del-ins);
-  if (ins>del) 
-    insert(doc, pos, ins-del);
-  return false;
+  return data->start() == data->end();
 }
 
-void TextMarkings::Span::insert(QTextDocument *doc,
-				int pos, int len) {
-  if (end>pos || (end==pos && end==start)) {
-    end += len;
-  } else if (end==pos) {
-    /* Make sure that insertion after this span doesn't get style of the
-       span.
-    */
-    QTextCursor c(doc);
-    c.beginEditBlock();
-    c.setPosition(pos);
-    c.setPosition(pos+len, QTextCursor::KeepAnchor);
-    QTextCharFormat f = c.charFormat();
-    switch (type) {
-    case MarkupData::Italic:
-      f.setFontItalic(false);
-      break;
-    case MarkupData::Bold:
-      f.setFontWeight(QFont::Normal);
-      break;
-    case MarkupData::Underline:
-      f.setUnderlineStyle(QTextCharFormat::NoUnderline);
-      break;
-    case MarkupData::StrikeThrough:
-      f.setFontStrikeOut(false);
-      break;
-    case MarkupData::Emphasize:
-      f.setTextOutline(QPen(Qt::NoPen));
-      break;
-    case MarkupData::Superscript: case MarkupData::Subscript:
-      f.setVerticalAlignment(QTextCharFormat::AlignNormal);
-    default:
-      break;
-    }
-    c.setCharFormat(f);
-    c.endEditBlock();
+void TextMarkings::Span::avoidPropagatingStyle(QTextDocument *doc,
+					       int pos, int len) {
+  QTextCursor c(doc);
+  c.beginEditBlock();
+  c.setPosition(pos);
+  c.setPosition(pos+len, QTextCursor::KeepAnchor);
+  QTextCharFormat f = c.charFormat();
+  switch (data->style()) {
+  case MarkupData::Italic:
+    f.setFontItalic(false);
+    break;
+  case MarkupData::Bold:
+    f.setFontWeight(QFont::Normal);
+    break;
+  case MarkupData::Underline:
+    f.setUnderlineStyle(QTextCharFormat::NoUnderline);
+    break;
+  case MarkupData::StrikeThrough:
+    f.setFontStrikeOut(false);
+    break;
+  case MarkupData::Emphasize:
+    f.setTextOutline(QPen(Qt::NoPen));
+    break;
+  case MarkupData::Superscript: case MarkupData::Subscript:
+    f.setVerticalAlignment(QTextCharFormat::AlignNormal);
+  default:
+    break;
   }
-  if (start>=pos)
-    start += len;
+  c.setCharFormat(f);
+  c.endEditBlock();
 }
+

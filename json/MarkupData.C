@@ -1,6 +1,7 @@
 // MarkupData.C
 
 #include "MarkupData.H"
+#include <QDebug>
 
 MarkupData::MarkupData(Data *parent):
   Data(parent) {
@@ -19,6 +20,7 @@ int MarkupData::end() const {
 }
 
 MarkupData::Style MarkupData::style() const {
+  qDebug() << "MD:style: " << style_;
   return style_;
 }
 
@@ -34,6 +36,74 @@ void MarkupData::setEnd(int i) {
 
 void MarkupData::setStyle(Style s) {
   style_ = s;
+  qDebug() << "MD:setstyle: " << style_;
   markModified(NonPropMod);
 }
 
+bool MarkupData::operator<(MarkupData const &other) const {
+  if (start_<other.start_)
+    return true;
+  else if (start_>other.start_)
+    return false;
+
+  if (end_<other.end_)
+    return true;
+  else if (end_>other.end_)
+    return false;
+
+  return style_<other.style_;
+}
+
+void MarkupData::merge(MarkupData const *other) {
+  Q_ASSERT(style_ == other->style_);
+  if (other->created()<created())
+    setCreated(other->created());
+  if (other->modified()>modified())
+    setModified(other->modified());
+  if (other->start_ < start_)
+    start_ = other->start_;
+  if (other->end_ > end_)
+    end_ = other->end_;
+  markModified(InternalMod);
+}
+
+bool MarkupData::cut(int pos, int len) {
+  bool chg = false;
+  if (start_>pos) {
+    start_ -= len;
+    if (start_<pos)
+      start_ = pos;
+    chg = true;
+  }
+  if (end_>pos) {
+    end_ -= len;
+    if (end_<pos)
+      end_ = pos;
+    chg = true;
+  }
+  return chg;
+}  
+
+bool MarkupData::insert(int pos, int len) {
+  bool chg = false;
+  if (end_>pos || (end_==pos && end_==start_)) {
+    end_ += len;
+    chg = true;
+  }
+  if (start_>=pos) {
+    start_ += len;
+    chg = true;
+  }
+  return chg;
+}
+
+bool MarkupData::update(int pos, int del, int ins) {
+  bool chg = false;
+  if (del>ins) 
+    chg = cut(pos, del-ins);
+  else if (ins>del) 
+    chg = insert(pos, ins-del);
+  if (chg)
+    markModified(InternalMod);
+  return chg;
+} 

@@ -37,7 +37,14 @@ public:
   void setStart(int);
   void setEnd(int);
   void setStyle(Style);
-protected:
+  // other
+  bool operator<(MarkupData const &other) const;
+  void merge(MarkupData const *other);
+  bool update(int pos, int del, int ins);
+private:
+  bool cut(int pos, int len);
+  bool insert(int pos, int len);
+private:
   int start_;
   int end_;
   Style style_;

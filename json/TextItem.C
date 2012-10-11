@@ -35,7 +35,7 @@ TextItem::TextItem(TextData *data, QGraphicsItem *parent):
   }
 
   setPlainText(data_->text());  
-  markings_ = new TextMarkings(document(), this); // get from data_ too!
+  markings_ = new TextMarkings(data_, document(), this);
 
   connect(document(), SIGNAL(contentsChange(int, int, int)),
 	  this, SLOT(docChange()));
