@@ -8,6 +8,7 @@
 #include <QDateTime>
 #include <QString>
 #include <QVariant>
+#include <QMap>
 
 class Data: public QObject {
   Q_OBJECT;
@@ -25,6 +26,7 @@ public:
   // constructor and destructor
   Data(Data *parent=0);
   virtual ~Data();
+  static Data *create(QString type);
   // read properties
   QDateTime const &created() const;
   QDateTime const &modified() const;
@@ -62,6 +64,18 @@ protected:
   QString id_;
 private:
   bool loading;
+public: // but only to be used in defs of descendents
+  template <class T> class Creator {
+  public:
+    Creator<T>(QString typ) {
+      Data::creators()[typ] = &create;
+    }
+    static Data *create() {
+      return new T(0);
+    }
+  };
+private:
+  static QMap<QString, Data *(*)()> &creators();
 };
 
 #endif

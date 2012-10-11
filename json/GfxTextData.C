@@ -2,8 +2,9 @@
 
 #include "GfxTextData.H"
 
+static Data::Creator<GfxTextData> c("gfxtext");
 
-GfxTextData::GfxTextData(class GfxBlockData *parent): GfxData(parent) {
+GfxTextData::GfxTextData(Data *parent): GfxData(parent) {
   setType("gfxtext");
 }
 

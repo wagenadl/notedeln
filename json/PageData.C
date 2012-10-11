@@ -3,6 +3,7 @@
 #include "PageData.H"
 #include "BlockData.H"
 #include "TitleData.H"
+#include <QDebug>
 
 PageData::PageData(Data *parent): Data(parent) {
   setType("page");
@@ -46,9 +47,14 @@ void PageData::loadMore(QVariantMap const &src) {
 
   QVariantList bl = src["blocks"].toList();
   foreach (QVariant b, bl) {
-    BlockData *bd = new BlockData(this);
-    bd->load(b.toMap());
+    QVariantMap bm = b.toMap();
+    qDebug() << "PageData: loading block of type " << bm["typ"].toString();
+    BlockData *bd = dynamic_cast<BlockData*>(Data::create(bm["typ"].
+							  toString()));
+    Q_ASSERT(bd);
+    bd->load(bm);
     blocks_.append(bd);
+    bd->setParent(this);
   }
 }
 

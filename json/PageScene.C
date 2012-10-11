@@ -166,7 +166,26 @@ void PageScene::makeTitleItem() {
 }
 
 void PageScene::makeBlockItems() {
-  // ...
+  foreach (BlockData *bd, data->blocks()) {
+    qDebug() << "PageScene: considering block data";
+    TextBlockData *tbd = dynamic_cast<TextBlockData*>(bd);
+    if (tbd) {
+      qDebug() << "It's a text block";
+      TextBlockItem *tbi = new TextBlockItem(tbd, this);
+      int iNew = blockItems.size();
+      blockItems.append(tbi);
+      sheetNos.append(tbd->sheet());
+      topY.append(tbd->y0());
+      vChangeMapper->setMapping(tbi, iNew);
+      abandonedMapper->setMapping(tbi, iNew);
+      futileMovementMapper->setMapping(tbi, iNew);
+      newParagraphMapper->setMapping(tbi, iNew);
+      connect(tbi, SIGNAL(vboxChanged()), vChangeMapper, SLOT(map()));
+      connect(tbi, SIGNAL(abandoned()), abandonedMapper, SLOT(map()));
+      connect(tbi, SIGNAL(futileMovement()), futileMovementMapper, SLOT(map()));
+      connect(tbi, SIGNAL(newParagraph()), newParagraphMapper, SLOT(map()));
+    }
+  }
 }
   
 PageScene::~PageScene() {

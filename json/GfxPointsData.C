@@ -3,9 +3,9 @@
 #include "GfxPointsData.H"
 #include <QPointF>
 
-static GfxData::Creator<GfxPointsData> c("points");
+static Data::Creator<GfxPointsData> c("gfxpoints");
 
-GfxPointsData::GfxPointsData(GfxBlockData *parent=0):
+GfxPointsData::GfxPointsData(Data *parent=0):
   GfxData(parent) {
   setType("gfxpoints");
 }

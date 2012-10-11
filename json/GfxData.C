@@ -3,19 +3,7 @@
 #include "GfxData.H"
 #include "GfxBlockData.H"
 
-QMap<QString, GfxData *(*)()> &GfxData::creators() {
-  static QMap<QString, GfxData *(*)()> g;
-  return g;
-}
-
-GfxData *GfxData::create(QString t) {
-  if (creators().contains(t))
-    return creators()[t]();
-  else
-    return 0;
-}
-
-GfxData::GfxData(GfxBlockData *parent): Data(parent) {
+GfxData::GfxData(Data *parent): Data(parent) {
   setType("gfx");
 }
 

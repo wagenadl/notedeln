@@ -36,7 +36,8 @@ void GfxBlockData::loadMore(QVariantMap const &src) {
   QVariantList gl = src["gfx"].toList();
   foreach (QVariant g, gl) {
     QVariantMap gm = g.toMap();
-    GfxData *gd = GfxData::create(gm["type"].toString());
+    GfxData *gd = dynamic_cast<GfxData*>(Data::create(gm["typ"].toString()));
+    Q_ASSERT(gd);
     gd->load(gm);
     gfx_.append(gd);
     gd->setParent(this);

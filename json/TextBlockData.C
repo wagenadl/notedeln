@@ -3,6 +3,8 @@
 #include "TextBlockData.H"
 #include <QDebug>
 
+static Data::Creator<TextBlockData> c("textblock");
+
 TextBlockData::TextBlockData(class PageData *parent):
   BlockData(parent) {
   text_ = new TextData(this);

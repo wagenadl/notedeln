@@ -25,7 +25,7 @@ public:
     Baseline,
   };
 public:
-  GfxTextData(class GfxBlockData *parent);
+  GfxTextData(class Data *parent);
   virtual ~GfxTextData();
   HAlign hAlign() const;
   VAlign vAlign() const;

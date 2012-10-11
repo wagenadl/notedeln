@@ -151,3 +151,15 @@ Data *Data::parent() const {
   return dynamic_cast<Data *>(QObject::parent());
 }
 
+
+QMap<QString, Data *(*)()> &Data::creators() {
+  static QMap<QString, Data *(*)()> g;
+  return g;
+}
+
+Data *Data::create(QString t) {
+  if (creators().contains(t))
+    return creators()[t]();
+  else
+    return 0;
+}

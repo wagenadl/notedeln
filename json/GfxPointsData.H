@@ -14,7 +14,7 @@ class GfxPointsData: public GfxData {
   /* the xx and yy coordinates are relative to the x and y coordinates of
      the GfxData. */
 public:
-  GfxPointsData(class GfxBlockData *parent);
+  GfxPointsData(Data *parent);
   virtual ~GfxPointsData();
   QList<double> const &xx() const;
   QList<double> const &yy() const;
