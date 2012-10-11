@@ -11,9 +11,9 @@
 
 class Data: public QObject {
   Q_OBJECT;
-  Q_PROPERTY(QDateTime created READ created WRITE setCreated)
-  Q_PROPERTY(QDateTime modified READ modified WRITE setModified)
-  Q_PROPERTY(QString type READ type WRITE setType)
+  Q_PROPERTY(QDateTime cre READ created WRITE setCreated)
+  Q_PROPERTY(QDateTime mod READ modified WRITE setModified)
+  Q_PROPERTY(QString typ READ type WRITE setType)
   Q_PROPERTY(QString id READ id WRITE setId)
 public:
   enum ModType {

@@ -44,6 +44,8 @@ signals:
 private slots:
   void futileMovementKey(QTextCursor, int, Qt::KeyboardModifiers);
 private:
+  void initializeFormat();
+private:
   TextBlockData *data_; // we don't own
   class TextItem *item_; // we do own
   FutileMovementInfo fmi;

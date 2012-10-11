@@ -17,6 +17,8 @@ TextBlockItem::TextBlockItem(TextBlockData *data, PageScene *parent):
   setPos(Style::defaultStyle()["margin-left"].toDouble(), 0);
   item_ = new TextItem(data_->text(), this);
   setMainChild(item_);
+  initializeFormat();
+  
   connect(item_, SIGNAL(textChanged()),
 	  this, SLOT(checkVbox()));
   connect(item_, SIGNAL(abandoned()),
@@ -33,6 +35,23 @@ TextBlockItem::TextBlockItem(TextBlockData *data, PageScene *parent):
 TextBlockItem::~TextBlockItem() {
   // I assume the item_ is deleted by Qt?
 }
+
+void TextBlockItem::initializeFormat() {
+  Style const &style(Style::defaultStyle());
+  item_->setTextWidth(style["paragraph-width"].toDouble());
+  //item_->setFont(QFont(style["text-font-family"].toString(),
+  //style["text-font-size"].toDouble()));
+  //item_->setDefaultTextColor(QColor(style["text-color"].toString()));
+
+  QTextCursor tc(item_->document());
+  QTextBlockFormat fmt = tc.blockFormat();
+  fmt.setLineHeight(style["paragraph-line-spacing"].toDouble()*100,
+		    QTextBlockFormat::ProportionalHeight);
+  fmt.setTextIndent(style["paragraph-indent"].toDouble());
+  fmt.setTopMargin(style["paragraph-top-margin"].toDouble());
+  fmt.setBottomMargin(style["paragraph-bottom-margin"].toDouble());
+  tc.setBlockFormat(fmt);
+}  
 
 TextBlockData *TextBlockItem::data() {
   return data_;

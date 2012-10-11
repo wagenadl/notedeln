@@ -10,18 +10,16 @@
 class PageData: public Data {
   Q_OBJECT;
   Q_PROPERTY(int startPage READ startPage WRITE setStartPage)
-  Q_PROPERTY(QString title READ title WRITE setTitle)
 public:
   // constructor and destructor  
   PageData(Data *parent=0);
   virtual ~PageData();
   // read properties
   int startPage() const;
-  QString title() const;
   // write properties
   void setStartPage(int);
-  void setTitle(QString);
   // other
+  class TitleData *title() const;
   QList<class BlockData *> const &blocks() const;
   void addBlock(BlockData *); // we become owner
   bool deleteBlock(BlockData *);
@@ -30,7 +28,7 @@ protected:
   virtual void saveMore(QVariantMap &dst) const;
 protected:
   int startPage_;
-  QString title_;
+  TitleData *title_;
   QList<class BlockData *> blocks_;
 };
 

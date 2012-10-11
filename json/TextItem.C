@@ -26,9 +26,12 @@ TextItem::TextItem(TextData *data, QGraphicsItem *parent):
   mayMark = true;
 
   if (data_->editable()) {
+    qDebug() << "TextItem:editable";
     mayWrite = true;
     setTextInteractionFlags(Qt::TextEditorInteraction);
     setCursor(QCursor(Qt::IBeamCursor));
+  } else {
+    qDebug() << "TextItem: not editable";
   }
 
   setPlainText(data_->text());  
@@ -42,6 +45,7 @@ TextItem::TextItem(TextData *data, QGraphicsItem *parent):
 
 void TextItem::makeHardToWrite() {
   // but not impossible
+  qDebug() << "makeHardToWrite";
   mayWrite = mayMark = false;
   setTextInteractionFlags(Qt::TextEditorInteraction);
   setCursor(QCursor(Qt::IBeamCursor));
@@ -56,19 +60,8 @@ TextItem::~TextItem() {
 
 void TextItem::initializeFormat() {
   Style const &style(Style::defaultStyle());
-  setTextWidth(style["paragraph-width"].toDouble());
   setFont(QFont(style["text-font-family"].toString(),
 		style["text-font-size"].toDouble()));
-  setDefaultTextColor(QColor(style["text-color"].toString()));
-
-  QTextCursor tc(document());
-  QTextBlockFormat fmt = tc.blockFormat();
-  fmt.setLineHeight(style["paragraph-line-spacing"].toDouble()*100,
-		    QTextBlockFormat::ProportionalHeight);
-  fmt.setTextIndent(style["paragraph-indent"].toDouble());
-  fmt.setTopMargin(style["paragraph-top-margin"].toDouble());
-  fmt.setBottomMargin(style["paragraph-bottom-margin"].toDouble());
-  tc.setBlockFormat(fmt);
 }
 
 void TextItem::docChange() {

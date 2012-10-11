@@ -30,7 +30,6 @@ protected:
   void mousePressEvent(QGraphicsSceneMouseEvent *);
 private slots:
   void titleEdited();
-  void titleTextEdited();
   void hChanged(int block);
   void vChanged(int block);
   void abandoned(int block);
@@ -55,7 +54,7 @@ private:
   // given block or at the bottom of this sheet
   void deleteBlock(int blocki); // also deletes data!
 private:
-  QGraphicsTextItem *titleItem;
+  class TitleItem *titleItem;
   QGraphicsTextItem *dateItem;
   QGraphicsTextItem *pgNoItem;
   QGraphicsTextItem *contdItem; // from prev page

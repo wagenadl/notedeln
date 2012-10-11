@@ -52,23 +52,14 @@ PageScene::PageScene(PageData *data, QObject *parent):
 void PageScene::makeBackground() {
   setSceneRect(0,
 	       0,
-	       style["margin-left"].toDouble() +
-	       style["text-width"].toDouble() +
-	       style["margin-right"].toDouble(),
-	       style["margin-top"].toDouble() +
-	       style["text-height"].toDouble() +
-	       style["margin-bottom"].toDouble()
-	       );
+	       style["page-width"].toDouble(),
+	       style["page-height"].toDouble());
 
   setBackgroundBrush(QBrush(QColor(style["border-color"].toString())));
   bgItem = addRect(0,
 		   0, 
-		   style["margin-left"].toDouble()
-		   + style["text-width"].toDouble()
-		   + style["margin-right"].toDouble(),
-		   style["margin-top"].toDouble()
-		   + style["text-height"].toDouble()
-		   + style["margin-bottom"].toDouble(),
+		   style["page-width"].toDouble(),
+		   style["page-height"].toDouble(),
 		   QPen(Qt::NoPen),
 		   QBrush(QColor(style["background-color"].toString())));
 			
@@ -101,8 +92,7 @@ void PageScene::makeDateItem() {
 		     );
   dateItem->setDefaultTextColor(QColor(style["date-color"].toString()));
   QPointF br = dateItem->boundingRect().bottomRight();
-  dateItem->setPos(style["margin-left"].toDouble() +
-		   style["text-width"].toDouble() +
+  dateItem->setPos(style["page-width"].toDouble() -
 		   style["margin-right-over"].toDouble() -
 		   br.x(),
 		   style["margin-top"].toDouble() -
@@ -139,23 +129,22 @@ void PageScene::makeContdItem() {
 		     );
   contItem->setDefaultTextColor(QColor(style["contd-color"].toString()));
   QPointF bl = contItem->boundingRect().bottomLeft();
-  contItem->setPos(style["margin-left"].toDouble()
-		   + style["text-width"].toDouble()
+  contItem->setPos(style["page-width"].toDouble()
+		   - style["margin-right"].toDouble()
 		   - bl.x(),
-		   style["margin-top"].toDouble()
-		   + style["text-height"].toDouble()
+		   style["page-height"].toDouble()
+		   + style["margin-bottom"].toDouble()
 		   - bl.y()
 		    );
 }
 
 void PageScene::positionPgNoItem() {
   QPointF tr = pgNoItem->boundingRect().topRight();
-  pgNoItem->setPos(style["margin-left"].toDouble() +
-		   style["text-width"].toDouble() +
+  pgNoItem->setPos(style["page-width"].toDouble() -
 		   style["margin-right-over"].toDouble() -
 		   tr.x(),
-		   style["margin-top"].toDouble() +
-		   style["text-height"].toDouble() +
+		   style["page-height"].toDouble() -
+		   style["margin-bottom"].toDouble() +
 		   style["pgno-sep"].toDouble() -
 		   tr.y()
 		   );
@@ -164,19 +153,16 @@ void PageScene::positionPgNoItem() {
 void PageScene::makeTitleItem() {
   Q_ASSERT(dateItem);
   Q_ASSERT(data);
-  
-  titleItem = addText(data->title(),
-		      QFont(style["title-font-family"].toString(),
-			    style["title-font-size"].toDouble()));
-  titleItem->setDefaultTextColor(QColor(style["title-color"].toString()));
+
+  titleItem = new TitleItem(data->title(), 0);
+  addItem(titleItem);
+
   positionTitleItem();
-  titleItem->setTextInteractionFlags(Qt::TextEditorInteraction);
-  titleItem->setCursor(QCursor(Qt::IBeamCursor));
   
-  connect(titleItem->document(), SIGNAL(contentsChanged()),
+  connect(titleItem->text()->document(), SIGNAL(contentsChanged()),
 	  SLOT(titleEdited()));
-  connect(titleItem->document(), SIGNAL(contentsChange(int, int, int)),
-	  SLOT(titleTextEdited()));
+//connect(titleItem->text()->document(), SIGNAL(contentsChange(int, int, int)),
+//	  SLOT(titleTextEdited()));
 }
 
 void PageScene::makeBlockItems() {
@@ -186,16 +172,16 @@ void PageScene::makeBlockItems() {
 PageScene::~PageScene() {
 }
 
-void PageScene::titleTextEdited() {
-  /* This crazy piece of code replaces new lines in title by spaces */
-  QTextBlock blk = titleItem->document()->lastBlock();
-  while (blk.position()>0) {
-    QTextCursor c(blk);
-    c.deletePreviousChar();
-    c.insertText(" ");
-    blk = titleItem->document()->lastBlock();
-  }
-}
+// void PageScene::titleTextEdited() {
+//   /* This crazy piece of code replaces new lines in title by spaces */
+//   QTextBlock blk = titleItem->text()->document()->lastBlock();
+//   while (blk.position()>0) {
+//     QTextCursor c(blk);
+//     c.deletePreviousChar();
+//     c.insertText(" ");
+//     blk = titleItem->text()->document()->lastBlock();
+//   }
+// }
 
 void PageScene::titleEdited() {
   positionTitleItem();
@@ -203,11 +189,8 @@ void PageScene::titleEdited() {
 
 void PageScene::positionTitleItem() {
   /* This keeps the title bottom aligned */
-  titleItem->setTextWidth(dateItem->mapToScene(dateItem
-					       ->boundingRect().topLeft())
-			  .x()
-			  - style["margin-left"].toDouble()
-			  - 5);
+  double dateX = dateItem->mapToScene(dateItem->boundingRect().topLeft()).x();
+  titleItem->text()->setTextWidth(dateX - style["margin-left"].toDouble() - 5);
   QPointF bl = titleItem->boundingRect().bottomLeft();
   titleItem->setPos(style["margin-left"].toDouble() -
 		    bl.x(),
@@ -226,7 +209,8 @@ void PageScene::stackBlocks() {
   sheetNos.clear();
   int sheet = 0;
   double y0 = style["margin-top"].toDouble();
-  double y1 = y0 + style["text-height"].toDouble();
+  double y1 = style["page-height"].toDouble()
+    - style["margin-bottom"].toDouble();
   double y = y0;
 
   foreach (BlockItem *bi, blockItems) {
@@ -261,7 +245,8 @@ int PageScene::restackBlocks(int starti) {
   if (starti>=endi)
     return 0;
   double y0 = style["margin-top"].toDouble();
-  double y1 = y0 + style["text-height"].toDouble();
+  double y1 = style["page-height"].toDouble()
+    - style["margin-bottom"].toDouble();
   double y = topY[starti];
   int sheet = sheetNos[starti];
   for (int i=starti; i<endi; i++) {
@@ -311,13 +296,14 @@ void PageScene::gotoSheet(int i) {
     blockItems[k]->setVisible(sheetNos[k]==iSheet);
 
   // Remove previous "(n/N)" from title
-  QTextCursor c = titleItem->document()->find(QRegExp("\\s*\\(\\d+/\\d+)$"));
+  QTextCursor c = titleItem->text()->document()
+    ->find(QRegExp("\\s*\\(\\d+/\\d+)$"));
   if (!c.isNull())
     c.insertText("");
 
   if (nSheets>1) {
     // add new "(n/N)" to title
-    QTextCursor c(titleItem->document());
+    QTextCursor c(titleItem->text()->document());
     c.movePosition(QTextCursor::End);
     c.insertText(QString(" (%1/%2)").arg(iSheet+1).arg(nSheets));
   }
@@ -348,13 +334,13 @@ int PageScene::findLastBlockOnSheet(int sheet) {
 
 bool PageScene::inMargin(QPointF sp) {
   Style const &style(Style::defaultStyle());
-  double ytop = style["margin-top"].toDouble();
-  double xleft = style["margin-left"].toDouble();
 
-  return sp.x() < xleft
-    || sp.x() >= xleft + style["text-width"].toDouble()
-    || sp.y() < ytop
-    || sp.y() >= ytop + style["text-height"].toDouble();
+  return sp.x() < style["margin-left"].toDouble()
+    || sp.x() >= style["page-width"].toDouble()
+       - style["margin-right"].toDouble()
+    || sp.y() < style["margin-top"].toDouble()
+    || sp.y() >= style["page-height"].toDouble()
+       - style["margin-bottom"].toDouble();
 }    
 
 bool PageScene::belowContent(QPointF sp) {
@@ -501,8 +487,8 @@ void PageScene::hChanged(int block) {
   Style const &style(Style::defaultStyle());
   double l_space = blockItems[block]->sceneBoundingRect().left()
     - style["margin-left"].toDouble();
-  double r_space = style["margin-left"].toDouble()
-    + style["text-width"].toDouble()
+  double r_space = style["page-width"].toDouble()
+    - style["margin-right"].toDouble()
     - blockItems[block]->sceneBoundingRect().right();
   if (l_space<0) {
     double dx = -l_space;

@@ -6,6 +6,7 @@
 TitleData::TitleData(Data *parent): Data(parent) {
   versions_.append(new TextData(this));
   setType("title");
+  versions_[0]->setText("Untitled");
 }
 
 TitleData::~TitleData() {

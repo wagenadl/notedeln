@@ -2,11 +2,12 @@
 
 #include "PageData.H"
 #include "BlockData.H"
+#include "TitleData.H"
 
 PageData::PageData(Data *parent): Data(parent) {
-  startPage_ = 1;
-  title_ = "Untitled";
   setType("page");
+  startPage_ = 1;
+  title_ = new TitleData(this);
 }
 
 PageData::~PageData() {
@@ -37,6 +38,8 @@ bool PageData::deleteBlock(BlockData *b) {
 
 
 void PageData::loadMore(QVariantMap const &src) {
+  title_->load(src["title"].toMap());
+  
   foreach (BlockData *bd, blocks_)
     delete bd;
   blocks_.clear();
@@ -56,6 +59,11 @@ void PageData::saveMore(QVariantMap &dst) const {
     bl.append(b);
   }
   dst["blocks"] = bl;
+  dst["title"] = title_->save();
+}
+
+TitleData *PageData::title() const {
+  return title_;
 }
 
 int PageData::startPage() const {
@@ -67,12 +75,4 @@ void PageData::setStartPage(int s) {
   markModified(InternalMod);
 }
 
-QString PageData::title() const {
-  return title_;
-}
 
-void PageData::setTitle(QString t) {
-  title_ = t;
-  markModified();
-  // really, we should have a more sophisticated system for old titles
-}

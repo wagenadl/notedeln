@@ -39,13 +39,11 @@ bool Data::editable() const {
 }
 
 void Data::setCreated(QDateTime const &dt) {
-  if (!loading)
-    created_ = dt;
+  created_ = dt;
 }
 
 void Data::setModified(QDateTime const &dt) {
-  if (!loading)
-    modified_ = dt;
+  modified_ = dt;
 }
 
 void Data::setType(QString const &t) {
@@ -77,6 +75,8 @@ void Data::load(QVariantMap const &src) {
   loadProps(src);
   loadMore(src);
   loading = false;
+  setCreated(src["cre"].toDateTime());
+  setModified(src["mod"].toDateTime());
 }
 
 void Data::loadMore(QVariantMap const &) {
