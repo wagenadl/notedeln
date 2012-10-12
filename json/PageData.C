@@ -5,6 +5,9 @@
 #include "TitleData.H"
 #include <QDebug>
 
+
+static Data::Creator<PageData> c("page");
+
 PageData::PageData(Data *parent): Data(parent) {
   setType("page");
   startPage_ = 1;

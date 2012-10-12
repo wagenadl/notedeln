@@ -23,7 +23,7 @@ public:
   QList<class BlockData *> const &blocks() const;
   void addBlock(BlockData *); // we become owner
   bool deleteBlock(BlockData *);
-  void sheetCount() const;
+  int sheetCount() const;
 signals:
   void titleMod();
 protected:

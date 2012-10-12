@@ -5,6 +5,7 @@
 #define PAGEEDITOR_H
 
 #include <QMainWindow>
+#include "PageFile.H"
 
 class PageEditor: public QMainWindow {
 public:
@@ -16,7 +17,7 @@ public slots:
 private:
   class PageView *view_;
   class PageScene *scene_;
-  class PageFile *file_;
+  PageFile *file_;
   class Toolbar *toolbar_;
 };
 

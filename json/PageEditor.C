@@ -5,10 +5,11 @@
 #include "PageView.H"
 #include "PageScene.H"
 #include "Toolbar.H"
-#include "PageFile.H"
+#include "DataFile.H"
 
 #include <QApplication>
 #include <QDesktopWidget>
+#include <QDebug>
 
 PageEditor::PageEditor() {
   view_ = new PageView(this);
@@ -39,8 +40,11 @@ void PageEditor::load(QString fn) {
   if (file_)
     delete file_;
 
-  file_ = new PageFile(fn, this);
-  scene_ = new PageScene(file_->data(), this);  
+  file_ = PageFile::load(fn);
+  Q_ASSERT(file_);
+  Q_ASSERT(file_->isType<PageData>());
+  file_->setParent(this);
+  scene_ = new PageScene(file_->as<PageData>(), this);  
   view_->setScene(scene_);
   resize(sizeHint());
 }
@@ -51,7 +55,11 @@ void PageEditor::create(QString fn) {
   if (file_)
     delete file_;
 
-  file_ = PageFile::create(fn);
+  file_ = PageFile::create(fn, this);
+  if (!file_ || !file_->ok()) {
+    qDebug() << "PageEditor: failed to load " << fn;
+    return;
+  }
   scene_ = new PageScene(file_->data(), this);  
   view_->setScene(scene_);
   resize(sizeHint());

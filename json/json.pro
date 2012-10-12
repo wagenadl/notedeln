@@ -24,6 +24,8 @@ HEADERS += \
     GfxBlockData.H \
     NoteData.H \
     PageData.H \
+    JSONFile.H \
+    DataFile.H \
     PageFile.H \
     Icons.H \
     PageEditor.H \
@@ -51,7 +53,8 @@ SOURCES += \
     GfxBlockData.C \
     NoteData.C \
     PageData.C \
-    PageFile.C \
+    JSONFile.C \
+    DataFile.C \
     Icons.C \
     main.C \
     PageEditor.C \
