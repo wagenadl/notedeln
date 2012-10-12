@@ -23,6 +23,9 @@ public:
   QList<class BlockData *> const &blocks() const;
   void addBlock(BlockData *); // we become owner
   bool deleteBlock(BlockData *);
+  void sheetCount() const;
+signals:
+  void titleMod();
 protected:
   virtual void loadMore(QVariantMap const &src);
   virtual void saveMore(QVariantMap &dst) const;

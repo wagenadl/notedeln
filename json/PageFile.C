@@ -31,6 +31,7 @@ PageFile::PageFile(QString fn, QObject *parent):
   QJson::Parser parser;
   bool ok;
   QVariant doc = parser.parse(&f, &ok);
+  f.close();
   if (!ok) {
     qDebug() << "PageFile: Parse failed: "
 	     << parser.errorString()
