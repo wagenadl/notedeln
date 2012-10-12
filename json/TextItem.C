@@ -37,10 +37,10 @@ TextItem::TextItem(TextData *data, QGraphicsItem *parent):
   setPlainText(data_->text());  
   markings_ = new TextMarkings(data_, document(), this);
 
+  initializeFormat();
+
   connect(document(), SIGNAL(contentsChange(int, int, int)),
 	  this, SLOT(docChange()));
-
-  initializeFormat();
 }
 
 void TextItem::makeHardToWrite() {
@@ -62,9 +62,16 @@ void TextItem::initializeFormat() {
   Style const &style(Style::defaultStyle());
   setFont(QFont(style["text-font-family"].toString(),
 		style["text-font-size"].toDouble()));
+  setDefaultTextColor(QColor(style["text-color"].toString()));
 }
 
 void TextItem::docChange() {
+  QString plainText = toPlainText();
+  if (data_->text() == plainText) {
+    // trivial change; this happens if markup changes
+    return;
+  }
+  
   if (!mayWrite)
     makeWritable();
 
@@ -72,8 +79,8 @@ void TextItem::docChange() {
     qDebug() << "document change but cannot write!";
     return;
   }
-  
-  data_->setText(toPlainText());
+
+  data_->setText(plainText);
   emit textChanged();
 }
 

@@ -20,7 +20,6 @@ int MarkupData::end() const {
 }
 
 MarkupData::Style MarkupData::style() const {
-  qDebug() << "MD:style: " << style_;
   return style_;
 }
 
@@ -36,7 +35,6 @@ void MarkupData::setEnd(int i) {
 
 void MarkupData::setStyle(Style s) {
   style_ = s;
-  qDebug() << "MD:setstyle: " << style_;
   markModified(NonPropMod);
 }
 

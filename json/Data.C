@@ -118,18 +118,30 @@ void Data::saveMore(QVariantMap &) const {
    
 void Data::loadProps(QVariantMap const &src) {
   QSet<QString> props;
+  QSet<QString> enumprops;
   
   QMetaObject const *metaobj = metaObject();
   int nProps = metaobj->propertyCount();
   for (int i=0; i<nProps; ++i) {
     QMetaProperty metaprop = metaobj->property(i);
-    if (metaprop.isWritable())
-      props.insert(QString::fromLatin1(metaprop.name()));
+    if (metaprop.isWritable()) {
+      QString name = QString::fromLatin1(metaprop.name());
+      props.insert(name);
+      if (metaprop.isEnumType())
+	enumprops.insert(name);
+    }
   }
   
-  for (QVariantMap::const_iterator i = src.begin(); i != src.end(); ++i)
-    if (props.contains(i.key()))
-      setProperty(i.key().toLatin1(), i.value());
+  for (QVariantMap::const_iterator i = src.begin(); i != src.end(); ++i) {
+    if (props.contains(i.key())) {
+      if (enumprops.contains(i.key()))
+	// This ridiculous trick is needed to make qt load enum values,
+	// because qt doesn't like longlong variants for enum.
+	Q_ASSERT(setProperty(i.key().toLatin1(), i.value().toInt()));
+      else
+	Q_ASSERT(setProperty(i.key().toLatin1(), i.value()));
+    }
+  }
 }
 
 void Data::saveProps(QVariantMap &dst) const {

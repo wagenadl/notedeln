@@ -3,10 +3,12 @@
 #include "TitleData.H"
 #include "Style.H"
 
+#define DEFAULTTITLE "Untitled"
+
 TitleData::TitleData(Data *parent): Data(parent) {
   versions_.append(new TextData(this));
   setType("title");
-  versions_[0]->setText("Untitled");
+  versions_[0]->setText(DEFAULTTITLE);
 }
 
 TitleData::~TitleData() {
@@ -26,6 +28,12 @@ TextData const *TitleData::orig() const {
 
 TextData *TitleData::revise() {
   TextData *r = versions_.last();
+
+  if (r->text() == DEFAULTTITLE) {
+    r->setCreated(QDateTime::currentDateTime());
+    r->setModified(QDateTime::currentDateTime());
+    return r;
+  }
   if (r->modified().secsTo(QDateTime::currentDateTime()) <
       Style::defaultStyle()["title-revision-threshold"].toDouble()*60*60)
     return r;
@@ -33,6 +41,8 @@ TextData *TitleData::revise() {
   TextData *r0 = Data::deepCopy(r);
   versions_.last() = r0; // store copy as previous version
   versions_.append(r);
+  r->setCreated(QDateTime::currentDateTime());
+  r->setModified(QDateTime::currentDateTime());
   markModified();
   return r;
 }

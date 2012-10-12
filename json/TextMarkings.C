@@ -86,16 +86,13 @@ void TextMarkings::update(int pos, int del, int ins) {
   // Second round: combine abutting or overlapping of same kind
   bool changed = false;
   for (QList<Span>::iterator i=spans.begin(); i!=spans.end(); ++i) {
-    qDebug() << "iloop";
     for (QList<Span>::iterator j=i+1; j!=spans.end(); ) {
-      qDebug() << "jloop";
       if ((*j).data->start()<=(*i).data->end()) {
 	if ((*j).data->style()==(*i).data->style()) {
 	  // merge or subsume!
 	  (*i).data->merge((*j).data);
 	  data->removeMarkup((*j).data);
 	  j = spans.erase(j);
-	  qDebug() << "erased";
 	  changed = true;
 	} else {
 	  j++;
@@ -109,12 +106,6 @@ void TextMarkings::update(int pos, int del, int ins) {
   // Finally, resort if needed
   if (changed) 
     qSort(spans.begin(), spans.end());
-  
-  qDebug() << "Markings updated";
-  foreach (Span const &s, spans) 
-    qDebug() << "  Span: " << s.data->style() << ": " << s.data->start()
-	     << "-" << s.data->end();
-  
 } 
 
 TextMarkings::Span::Span(MarkupData *data): data(data) {

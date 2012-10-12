@@ -161,8 +161,6 @@ void PageScene::makeTitleItem() {
   
   connect(titleItem->text()->document(), SIGNAL(contentsChanged()),
 	  SLOT(titleEdited()));
-//connect(titleItem->text()->document(), SIGNAL(contentsChange(int, int, int)),
-//	  SLOT(titleTextEdited()));
 }
 
 void PageScene::makeBlockItems() {

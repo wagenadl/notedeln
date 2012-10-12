@@ -9,6 +9,8 @@ PageData::PageData(Data *parent): Data(parent) {
   setType("page");
   startPage_ = 1;
   title_ = new TitleData(this);
+  connect(title_, SIGNAL(mod()),
+	  this, SIGNAL(titleMod()));
 }
 
 PageData::~PageData() {
@@ -81,4 +83,12 @@ void PageData::setStartPage(int s) {
   markModified(InternalMod);
 }
 
-
+int PageData::sheetCount() const {
+  int maxSheet = 0;
+  foreach (BlockData *b, blocks_) {
+    int s = b->sheet();
+    if (s>maxSheet)
+      maxSheet = s;
+  }
+  return maxSheet + 1;
+}
