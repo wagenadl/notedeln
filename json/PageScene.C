@@ -161,7 +161,7 @@ void PageScene::makeTitleItem() {
 		     QFont(style["title-font-family"].toString(),
 			   style["title-font-size"].toDouble())
 		     );
-  nOfNItem->setDefaultTextColor(QColor(style["title-color"].toString()));
+  nOfNItem->setDefaultTextColor(QColor(style["pgno-color"].toString()));
   
   positionTitleItem();
   
@@ -227,8 +227,11 @@ void PageScene::positionTitleItem() {
   QTextBlock blk = doc->lastBlock();
   QTextLayout *lay = blk.layout();
   QTextLine l = lay->lineAt(blk.lineCount()-1);
-  QPointF tl(l.cursorToX(blk.length()) + 5, l.y());
+  QPointF tl(l.cursorToX(blk.length()) + 10, l.y());
   tl = titleItem->text()->mapToScene(tl + lay->position());
+  lay = nOfNItem->document()->lastBlock().layout();
+  l = lay->lineAt(0);
+  tl -= lay->position() - QPointF(l.cursorToX(0), l.y());
   nOfNItem->setPos(tl);
 }
 
