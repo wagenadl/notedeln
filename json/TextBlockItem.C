@@ -22,8 +22,6 @@ TextBlockItem::TextBlockItem(TextBlockData *data, PageScene *parent):
   
   connect(item_, SIGNAL(textChanged()),
 	  this, SLOT(checkVbox()));
-  connect(item_, SIGNAL(abandoned()),
-	  this, SIGNAL(abandoned()));
   connect(item_, SIGNAL(futileMovementKey(QTextCursor,
 					  int, Qt::KeyboardModifiers)),
 	  this, SLOT(futileMovementKey(QTextCursor,

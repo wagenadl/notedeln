@@ -39,7 +39,6 @@ public:
   FutileMovementInfo const &lastFutileMovement() const;
 signals:
   void futileMovement(); // up key on top line etc
-  void abandoned(); // escape pressed or focus lost while empty
   void enterPressed();
 private slots:
   void futileMovementKey(QTextCursor, int, Qt::KeyboardModifiers);

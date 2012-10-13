@@ -32,7 +32,6 @@ private slots:
   void titleEdited();
   void hChanged(int block);
   void vChanged(int block);
-  void abandoned(int block);
   void futileMovement(int block);
   void enterPressed(int block);
 private:

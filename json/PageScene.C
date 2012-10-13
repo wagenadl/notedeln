@@ -29,12 +29,10 @@ PageScene::PageScene(PageData *data, QObject *parent):
 
   hChangeMapper = new QSignalMapper(this);
   vChangeMapper = new QSignalMapper(this);
-  abandonedMapper = new QSignalMapper(this);
   futileMovementMapper = new QSignalMapper(this);
   enterPressedMapper = new QSignalMapper(this);
   connect(hChangeMapper, SIGNAL(mapped(int)), SLOT(hChanged(int)));
   connect(vChangeMapper, SIGNAL(mapped(int)), SLOT(vChanged(int)));
-  connect(abandonedMapper, SIGNAL(mapped(int)), SLOT(abandoned(int)));
   connect(futileMovementMapper, SIGNAL(mapped(int)), SLOT(futileMovement(int)));
   connect(enterPressedMapper, SIGNAL(mapped(int)), SLOT(enterPressed(int)));
   
@@ -181,11 +179,9 @@ void PageScene::makeBlockItems() {
       sheetNos.append(tbd->sheet());
       topY.append(tbd->y0());
       vChangeMapper->setMapping(tbi, iNew);
-      abandonedMapper->setMapping(tbi, iNew);
       futileMovementMapper->setMapping(tbi, iNew);
       enterPressedMapper->setMapping(tbi, iNew);
       connect(tbi, SIGNAL(vboxChanged()), vChangeMapper, SLOT(map()));
-      connect(tbi, SIGNAL(abandoned()), abandonedMapper, SLOT(map()));
       connect(tbi, SIGNAL(futileMovement()), futileMovementMapper, SLOT(map()));
       connect(tbi, SIGNAL(enterPressed()), enterPressedMapper, SLOT(map()));
     }
@@ -432,18 +428,12 @@ void PageScene::newTextBlock(int iAbove) {
   futileMovementMapper->setMapping(tbi, iNew);
   enterPressedMapper->setMapping(tbi, iNew);
   connect(tbi, SIGNAL(vboxChanged()), vChangeMapper, SLOT(map()));
-  connect(tbi, SIGNAL(abandoned()), abandonedMapper, SLOT(map()));
   connect(tbi, SIGNAL(futileMovement()), futileMovementMapper, SLOT(map()));
   connect(tbi, SIGNAL(enterPressed()), enterPressedMapper, SLOT(map()));
 
   restackBlocks(iNew);
   gotoSheet(sheetNos[iNew]);
   tbi->setFocus();
-}
-
-void PageScene::abandoned(int block) {
-  qDebug() << "abandoned " << block;
-  deleteBlock(block);
 }
 
 void PageScene::futileMovement(int block) {
