@@ -393,7 +393,7 @@ void PageScene::deleteBlock(int blocki) {
   gotoSheet(iSheet>=nSheets ? nSheets-1 : iSheet);
 }
 
-void PageScene::newTextBlock(int iAbove) {
+void PageScene::newTextBlock(int iAbove, bool evenIfLastEmpty) {
   qDebug() << "newTextBlock " << iAbove;
   Q_ASSERT(data);
 
@@ -401,7 +401,7 @@ void PageScene::newTextBlock(int iAbove) {
   if (iAbove<0)
     iAbove = findLastBlockOnSheet(iSheet);
 
-  if (iAbove>=0) {
+  if (iAbove>=0 && !evenIfLastEmpty) {
     TextBlockItem *tbi = dynamic_cast<TextBlockItem *>(blockItems[iAbove]);
     if (tbi && tbi->document()->isEmpty()) {
       // Previous block is empty text, go there instead
@@ -497,8 +497,10 @@ void PageScene::futileMovement(int block) {
 void PageScene::enterPressed(int block) {
   qDebug() << "new paragraph " << block;
   TextBlockItem *tbi = dynamic_cast<TextBlockItem *>(blockItems[block]);
-  if (!tbi->text()->document()->isEmpty())
-    newTextBlock(block);
+  if (!tbi
+      || !tbi->text()->document()->isEmpty()
+      || Style::defaultStyle()["paragraph-allow-empty"].toInt()!=0)
+    newTextBlock(block, true);
 }
 
 void PageScene::hChanged(int block) {

@@ -239,6 +239,7 @@ bool TextItem::trySimpleStyle(QString marker,
 }
   
 bool TextItem::tryToPaste() {
+  qDebug() << "TextItem::tryToPaste";
   QClipboard *cb = QApplication::clipboard();
   QMimeData const *md = cb->mimeData(QClipboard::Clipboard);
   QStringList fmt = md->formats();

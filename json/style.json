@@ -33,5 +33,6 @@
 "paragraph-indent": 20,
 "paragraph-line-spacing": 1.5,
 "paragraph-top-margin": 5,
-"paragraph-bottom-margin": 5
+"paragraph-bottom-margin": 5,
+"paragraph-allow-empty": 1
 }
