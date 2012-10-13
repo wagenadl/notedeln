@@ -57,6 +57,7 @@ private:
   class TitleItem *titleItem;
   QGraphicsTextItem *dateItem;
   QGraphicsTextItem *pgNoItem;
+  QGraphicsTextItem *nOfNItem;
   QGraphicsTextItem *contdItem; // from prev page
   QGraphicsTextItem *contItem; // to next page
   QGraphicsLineItem *leftMarginItem;

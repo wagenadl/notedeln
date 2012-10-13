@@ -157,6 +157,12 @@ void PageScene::makeTitleItem() {
   titleItem = new TitleItem(data->title(), 0);
   addItem(titleItem);
 
+  nOfNItem = addText("n/N",
+		     QFont(style["title-font-family"].toString(),
+			   style["title-font-size"].toDouble())
+		     );
+  nOfNItem->setDefaultTextColor(QColor(style["title-color"].toString()));
+  
   positionTitleItem();
   
   connect(titleItem->text()->document(), SIGNAL(contentsChanged()),
@@ -216,7 +222,14 @@ void PageScene::positionTitleItem() {
 		    bl.y()
 		    );
 
-  // Now we should also update the underlying PageData!
+  /* Reposition "n/N" */
+  QTextDocument *doc = titleItem->text()->document();
+  QTextBlock blk = doc->lastBlock();
+  QTextLayout *lay = blk.layout();
+  QTextLine l = lay->lineAt(blk.lineCount()-1);
+  QPointF tl(l.cursorToX(blk.length()) + 5, l.y());
+  tl = titleItem->text()->mapToScene(tl + lay->position());
+  nOfNItem->setPos(tl);
 }
 
 void PageScene::stackBlocks() {
@@ -300,6 +313,7 @@ void PageScene::nextSheet() {
 void PageScene::gotoSheet(int i) {
   Q_ASSERT(data);
   Q_ASSERT(titleItem);
+  Q_ASSERT(nOfNItem);
   
   iSheet = i;
   if (iSheet>=nSheets)
@@ -312,18 +326,10 @@ void PageScene::gotoSheet(int i) {
   for (int k=0; k<nBlocks; k++)
     blockItems[k]->setVisible(sheetNos[k]==iSheet);
 
-  // Remove previous "(n/N)" from title
-  QTextCursor c = titleItem->text()->document()
-    ->find(QRegExp("\\s*\\(\\d+/\\d+)$"));
-  if (!c.isNull())
-    c.insertText("");
-
-  if (nSheets>1) {
-    // add new "(n/N)" to title
-    QTextCursor c(titleItem->text()->document());
-    c.movePosition(QTextCursor::End);
-    c.insertText(QString(" (%1/%2)").arg(iSheet+1).arg(nSheets));
-  }
+  if (nSheets>1) 
+    nOfNItem->setPlainText(QString("(%1/%2)").arg(iSheet+1).arg(nSheets));
+  else
+    nOfNItem->setPlainText("");
 
   // Set visibility of continuation markers
   contdItem->setVisible(iSheet>0);
