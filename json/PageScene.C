@@ -31,12 +31,12 @@ PageScene::PageScene(PageData *data, QObject *parent):
   vChangeMapper = new QSignalMapper(this);
   abandonedMapper = new QSignalMapper(this);
   futileMovementMapper = new QSignalMapper(this);
-  newParagraphMapper = new QSignalMapper(this);
+  enterPressedMapper = new QSignalMapper(this);
   connect(hChangeMapper, SIGNAL(mapped(int)), SLOT(hChanged(int)));
   connect(vChangeMapper, SIGNAL(mapped(int)), SLOT(vChanged(int)));
   connect(abandonedMapper, SIGNAL(mapped(int)), SLOT(abandoned(int)));
   connect(futileMovementMapper, SIGNAL(mapped(int)), SLOT(futileMovement(int)));
-  connect(newParagraphMapper, SIGNAL(mapped(int)), SLOT(newParagraph(int)));
+  connect(enterPressedMapper, SIGNAL(mapped(int)), SLOT(enterPressed(int)));
   
   mode_ = TypeMode; // really, this should be ViewMode, I think
   makeBackground();
@@ -183,11 +183,11 @@ void PageScene::makeBlockItems() {
       vChangeMapper->setMapping(tbi, iNew);
       abandonedMapper->setMapping(tbi, iNew);
       futileMovementMapper->setMapping(tbi, iNew);
-      newParagraphMapper->setMapping(tbi, iNew);
+      enterPressedMapper->setMapping(tbi, iNew);
       connect(tbi, SIGNAL(vboxChanged()), vChangeMapper, SLOT(map()));
       connect(tbi, SIGNAL(abandoned()), abandonedMapper, SLOT(map()));
       connect(tbi, SIGNAL(futileMovement()), futileMovementMapper, SLOT(map()));
-      connect(tbi, SIGNAL(newParagraph()), newParagraphMapper, SLOT(map()));
+      connect(tbi, SIGNAL(enterPressed()), enterPressedMapper, SLOT(map()));
     }
   }
 }
@@ -398,11 +398,22 @@ void PageScene::deleteBlock(int blocki) {
 }
 
 void PageScene::newTextBlock(int iAbove) {
+  qDebug() << "newTextBlock " << iAbove;
   Q_ASSERT(data);
 
   Style const &style(Style::defaultStyle());
   if (iAbove<0)
     iAbove = findLastBlockOnSheet(iSheet);
+
+  if (iAbove>=0) {
+    TextBlockItem *tbi = dynamic_cast<TextBlockItem *>(blockItems[iAbove]);
+    if (tbi && tbi->document()->isEmpty()) {
+      // Previous block is empty text, go there instead
+      tbi->setFocus();
+      return;
+    }
+  }      
+
   int iNew = (iAbove>=0)
     ? iAbove + 1
     : blockItems.size();
@@ -418,13 +429,12 @@ void PageScene::newTextBlock(int iAbove) {
   topY.insert(iNew, yt);
 
   vChangeMapper->setMapping(tbi, iNew);
-  abandonedMapper->setMapping(tbi, iNew);
   futileMovementMapper->setMapping(tbi, iNew);
-  newParagraphMapper->setMapping(tbi, iNew);
+  enterPressedMapper->setMapping(tbi, iNew);
   connect(tbi, SIGNAL(vboxChanged()), vChangeMapper, SLOT(map()));
   connect(tbi, SIGNAL(abandoned()), abandonedMapper, SLOT(map()));
   connect(tbi, SIGNAL(futileMovement()), futileMovementMapper, SLOT(map()));
-  connect(tbi, SIGNAL(newParagraph()), newParagraphMapper, SLOT(map()));
+  connect(tbi, SIGNAL(enterPressed()), enterPressedMapper, SLOT(map()));
 
   restackBlocks(iNew);
   gotoSheet(sheetNos[iNew]);
@@ -494,13 +504,11 @@ void PageScene::futileMovement(int block) {
   tgt->text()->setTextCursor(c);
 }
 
-void PageScene::newParagraph(int block) {
+void PageScene::enterPressed(int block) {
   qDebug() << "new paragraph " << block;
   TextBlockItem *tbi = dynamic_cast<TextBlockItem *>(blockItems[block]);
-  if (tbi) {
-    tbi->dropEmptyLastPar();
+  if (!tbi->text()->document()->isEmpty())
     newTextBlock(block);
-  }
 }
 
 void PageScene::hChanged(int block) {

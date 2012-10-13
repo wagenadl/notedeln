@@ -15,11 +15,13 @@ public:
   ~TextItem();
   virtual bool makeWritable();
   void makeHardToWrite();
+  bool allowParagraphs() const;
+  void setAllowParagraphs(bool yes);
 signals:
   void textChanged();
   void abandoned(); // escape pressed while empty
   void futileMovementKey(QTextCursor, int, Qt::KeyboardModifiers); 
-  void newParagraph(); // emitted after the creation of a new paragraph
+  void enterPressed(); // emitted if creation of a new paragraph prevented
 protected:
   void keyPressEvent(QKeyEvent *);
   void focusOutEvent(QFocusEvent *);
@@ -36,6 +38,7 @@ protected:
   TextData *data_;
   bool mayWrite;
   bool mayMark;
+  bool allowParagraphs_;
   class TextMarkings *markings_;
 };
 

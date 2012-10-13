@@ -24,6 +24,7 @@ TextItem::TextItem(TextData *data, QGraphicsItem *parent):
   data_(data) {
   mayWrite = false;
   mayMark = true;
+  allowParagraphs_ = true;
 
   if (data_->editable()) {
     qDebug() << "TextItem:editable";
@@ -100,9 +101,10 @@ void TextItem::keyPressEvent(QKeyEvent *e) {
     pass = false;
     break;
   case Qt::Key_Return: case Qt::Key_Enter:
-    QGraphicsTextItem::keyPressEvent(e);
-    emit newParagraph();
-    pass = false;
+    if (!allowParagraphs_) {
+      emit enterPressed();
+      pass = false;
+    }
     break;
   case Qt::Key_Left: case Qt::Key_Up:
   case Qt::Key_Right: case Qt::Key_Down:
@@ -267,3 +269,12 @@ bool TextItem::tryToPaste() {
 
   return false; // will return true if we decide to import
 }  
+
+bool TextItem::allowParagraphs() const {
+  return allowParagraphs_;
+}
+
+void TextItem::setAllowParagraphs(bool yes) {
+  allowParagraphs_ = yes;
+}
+

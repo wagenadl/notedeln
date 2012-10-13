@@ -34,7 +34,7 @@ private slots:
   void vChanged(int block);
   void abandoned(int block);
   void futileMovement(int block);
-  void newParagraph(int block);
+  void enterPressed(int block);
 private:
   void makeBackground();
   void makeTitleItem();
@@ -67,7 +67,7 @@ private:
   class QSignalMapper *vChangeMapper;
   class QSignalMapper *abandonedMapper;
   class QSignalMapper *futileMovementMapper;
-  class QSignalMapper *newParagraphMapper;
+  class QSignalMapper *enterPressedMapper;
 private:
   QList<class BlockItem *> blockItems;
   QList<int> sheetNos; // sheet number for each block

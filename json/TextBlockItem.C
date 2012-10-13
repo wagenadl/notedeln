@@ -18,6 +18,7 @@ TextBlockItem::TextBlockItem(TextBlockData *data, PageScene *parent):
   item_ = new TextItem(data_->text(), this);
   setMainChild(item_);
   initializeFormat();
+  item_->setAllowParagraphs(false);
   
   connect(item_, SIGNAL(textChanged()),
 	  this, SLOT(checkVbox()));
@@ -27,8 +28,8 @@ TextBlockItem::TextBlockItem(TextBlockData *data, PageScene *parent):
 					  int, Qt::KeyboardModifiers)),
 	  this, SLOT(futileMovementKey(QTextCursor,
 				       int, Qt::KeyboardModifiers)));
-  connect(item_, SIGNAL(newParagraph()),
-	  this, SIGNAL(newParagraph()));
+  connect(item_, SIGNAL(enterPressed()),
+	  this, SIGNAL(enterPressed()));
   
 }
 
@@ -82,7 +83,7 @@ void TextBlockItem::futileMovementKey(QTextCursor c,
   fmi.scenePos_ = mapToParent(fmi.pos_);
   fmi.key_ = key;
   fmi.modifiers_ = mod;
-  emit futileMovement();
+  emit futileMovement(); // we emit w/o content, because PageScene uses Mapper.
 }
 
 bool TextBlockItem::isEmpty() const {
