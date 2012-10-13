@@ -8,6 +8,7 @@
 #include "TextBlockItem.H"
 #include "TextBlockData.H"
 #include "PageData.H"
+#include "GfxBlockItem.H"
 
 #include <QGraphicsTextItem>
 #include <QGraphicsLineItem>
@@ -21,12 +22,17 @@
 #include <QGraphicsSceneMouseEvent>
 #include <QSignalMapper>
 #include <QCursor>
+#include <QUrl>
+#include <QNetworkAccessManager>
+#include <QNetworkRequest>
 
 PageScene::PageScene(PageData *data, QObject *parent):
   QGraphicsScene(parent),
   data(data),
   style(Style::defaultStyle()) {
 
+  networkManager = 0;
+  
   hChangeMapper = new QSignalMapper(this);
   vChangeMapper = new QSignalMapper(this);
   futileMovementMapper = new QSignalMapper(this);
@@ -60,6 +66,7 @@ void PageScene::makeBackground() {
 		   style["page-height"].toDouble(),
 		   QPen(Qt::NoPen),
 		   QBrush(QColor(style["background-color"].toString())));
+  bgItem->setAcceptDrops(true);
 			
   leftMarginItem = addLine(style["margin-left"].toDouble(),
 			   0,
@@ -355,7 +362,6 @@ int PageScene::findLastBlockOnSheet(int sheet) {
 }
 
 bool PageScene::inMargin(QPointF sp) {
-  Style const &style(Style::defaultStyle());
 
   return sp.x() < style["margin-left"].toDouble()
     || sp.x() >= style["page-width"].toDouble()
@@ -397,7 +403,6 @@ void PageScene::newTextBlock(int iAbove, bool evenIfLastEmpty) {
   qDebug() << "newTextBlock " << iAbove;
   Q_ASSERT(data);
 
-  Style const &style(Style::defaultStyle());
   if (iAbove<0)
     iAbove = findLastBlockOnSheet(iSheet);
 
@@ -499,7 +504,7 @@ void PageScene::enterPressed(int block) {
   TextBlockItem *tbi = dynamic_cast<TextBlockItem *>(blockItems[block]);
   if (!tbi
       || !tbi->text()->document()->isEmpty()
-      || Style::defaultStyle()["paragraph-allow-empty"].toInt()!=0)
+      || style["paragraph-allow-empty"].toInt()!=0)
     newTextBlock(block, true);
 }
 
@@ -510,7 +515,6 @@ void PageScene::hChanged(int block) {
 			       0);
       
   // Try to respect L & R margins
-  Style const &style(Style::defaultStyle());
   double l_space = blockItems[block]->sceneBoundingRect().left()
     - style["margin-left"].toDouble();
   double r_space = style["page-width"].toDouble()
@@ -554,3 +558,113 @@ void PageScene::setMode(PageScene::MouseMode m) {
 PageScene::MouseMode PageScene::mode() const {
   return mode_;
 }
+
+void PageScene::keyPressEvent(QKeyEvent *e) {
+  if (e->key()==Qt::Key_V && e->modifiers() & Qt::ControlModifier) 
+    tryToPaste();
+  QGraphicsScene::keyPressEvent(e);
+}
+
+void PageScene::tryToPaste() {
+  // we get it first.
+  // if we don't send the event on to QGraphicsScene, textItems don't get it
+  qDebug() << "PageScene::tryToPaste";
+}
+
+void PageScene::dropEvent(QGraphicsSceneDragDropEvent *e) {
+  //qDebug() << " scenePos = " << e->scenePos();
+  //qDebug() << " action = " << e->dropAction();
+  //qDebug() << " modifiers = " << e->modifiers();
+  //qDebug() << " source = " << e->source() << " (views="<<views()<<")";
+
+  if (e->source() == 0) {
+    // event from outside our application
+    QMimeData const *md = e->mimeData();
+    bool accept = false;
+    if (md->hasImage()) 
+      accept = importDroppedImage(e->scenePos(),
+				   qvariant_cast<QImage>(e->mimeData()
+							 ->imageData()));
+    else if (md->hasUrls()) 
+      accept = importDroppedUrls(e->scenePos(), md->urls());
+    else if (md->hasText())
+      accept = importDroppedText(e->scenePos(), md->text());
+
+    if (accept) {
+      e->setDropAction(Qt::CopyAction);
+      e->accept();
+    } else {
+      e->ignore(); // this does not seem to graphically refuse the offering
+    }
+  } else {
+    // event from inside our application
+    // we may be dragging some image around
+    // not yet implemented
+    qDebug() << "PageScene: internal drop";
+    QGraphicsScene::dropEvent(e);
+  }
+}
+
+bool PageScene::importDroppedImage(QPointF scenePos, QImage const &img,
+				   QUrl const *source) {
+  // Return true if we want it
+  qDebug() << "PageScene: import dropped image";
+  QString imgName = ImageCacheManager::import(img, source);
+  /* ImageCacheManager must somehow be local to a notebook, but it is
+     not obvious right now how to implement that.
+     Perhaps I am simply putting too much weight on the PageScene.
+  */
+  GfxBlockItem *dst = dynamic_cast<GfxBlockItem *>(itemAt(scenePos));
+  if (!dst)
+    dst = newGfxBlock();
+  dst->addImage(imgName);
+  return true;
+}
+
+bool PageScene::importDroppedUrls(QPointF scenePos, QList<QUrl> const &urls) {
+  bool ok = false;
+  foreach (QUrl const &u, urls)
+    if (importDroppedUrl(scenePos, u))
+      ok = true;
+  return ok;
+}
+
+bool PageScene::importDroppedUrl(QPointF scenePos, QUrl const &url) {
+  QGraphicsItem *dst = itemAt(scenePos);
+  qDebug() << "PageScene: import dropped url: " << url
+	   << " at " << scenePos
+	   << " onto " << dst;
+  /* A URL could be any of the following:
+     (1) A local image file
+     (2) A local file of non-image type
+     (3) An internet-located image file
+     (4) A web-page
+     (5) Anything else
+  */
+  if (url.isLocalFile()) {
+    QImage image = QImage(url.toLocalFile());
+    if (!image.isNull())
+      return importDroppedImage(scenePos, image, &url);
+    else
+      return importDroppedFile(scenePos, url.toLocalFile());
+  } else if (networkManager) {
+    networkManager->get(QNetworkRequest(url));
+    return true;
+  } else {
+    // no network
+    return importDroppedText(scenePos, url.toString());
+  }
+  return false;
+}
+
+bool PageScene::importDroppedText(QPointF scenePos, QString const &txt,
+					QUrl const *source) {
+  qDebug() << "PageScene: import dropped text: " << txt;
+  return false;
+}
+
+bool PageScene::importDroppedFile(QPointF scenePos, QString const &fn) {
+  qDebug() << "PageScene: import dropped file: " << fn;
+  return false;
+}
+    

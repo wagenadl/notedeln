@@ -28,6 +28,8 @@ public slots:
   void gotoSheet(int i);
 protected:
   void mousePressEvent(QGraphicsSceneMouseEvent *);
+  void keyPressEvent(QKeyEvent *);
+  void dropEvent (QGraphicsSceneDragDropEvent *);
 private slots:
   void titleEdited();
   void hChanged(int block);
@@ -35,6 +37,14 @@ private slots:
   void futileMovement(int block);
   void enterPressed(int block);
 private:
+  void tryToPaste();
+  bool importDroppedImage(QPointF scenePos, QImage const &img,
+			  class QUrl const *source=0);
+  bool importDroppedUrls(QPointF scenePos, QList<class QUrl> const &url);
+  bool importDroppedUrl(QPointF scenePos, class QUrl const &url);
+  bool importDroppedText(QPointF scenePos, QString const &txt,
+			 class QUrl const *source=0);
+  bool importDroppedFile(QPointF scenePos, QString const &fn);
   void makeBackground();
   void makeTitleItem();
   void makeDateItem();
@@ -68,6 +78,7 @@ private:
   class QSignalMapper *abandonedMapper;
   class QSignalMapper *futileMovementMapper;
   class QSignalMapper *enterPressedMapper;
+  class QNetworkAccessManager *networkManager;
 private:
   QList<class BlockItem *> blockItems;
   QList<int> sheetNos; // sheet number for each block
@@ -78,6 +89,7 @@ private:
   PageData *data;
   class Style const &style;
   MouseMode mode_;
+  
 };
 
 #endif

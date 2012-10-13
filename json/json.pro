@@ -8,6 +8,7 @@ LIBS += -lqjson
 CONFIG += debug
 MOC_DIR = .moc
 OBJECTS_DIR = .obj
+QT += network
 
 RESOURCES += icons.qrc
 

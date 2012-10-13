@@ -242,7 +242,7 @@ bool TextItem::tryToPaste() {
   qDebug() << "TextItem::tryToPaste";
   QClipboard *cb = QApplication::clipboard();
   QMimeData const *md = cb->mimeData(QClipboard::Clipboard);
-  QStringList fmt = md->formats();
+  //  QStringList fmt = md->formats();
   qDebug() << "Clipboard: ";
   //foreach (QString s, fmt)
   //  qDebug() << "  Format: " << s;
@@ -255,7 +255,7 @@ bool TextItem::tryToPaste() {
   if (md->hasImage())
     qDebug() << "  Image!";
   md = cb->mimeData(QClipboard::Selection);
-  fmt = md->formats();
+  //  fmt = md->formats();
   qDebug() << "Selection: ";
   //foreach (QString s, fmt)
   //  qDebug() << "  Format: " << s;
