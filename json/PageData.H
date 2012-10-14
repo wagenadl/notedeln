@@ -26,13 +26,17 @@ public:
   int sheetCount() const;
 signals:
   void titleMod();
+  void sheetCountMod();
 protected:
   virtual void loadMore(QVariantMap const &src);
   virtual void saveMore(QVariantMap &dst) const;
+private slots:
+  void newSheet();
 protected:
   int startPage_;
   TitleData *title_;
   QList<class BlockData *> blocks_;
+  int maxSheet;
 };
 
 #endif

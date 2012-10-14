@@ -6,39 +6,44 @@
 
 #include <QObject>
 #include <QVariant>
+#include <QDate>
 
-/* I should probably split TOC into TOCData and TOCFile so that the
-   whole JSON business is separated from the core functionality.
-*/
+class TOCEntry {
+public:
+  QString title;
+  QDate created;
+  int sheetCount;
+public:
+  TOCEntry(QString title="",
+	   QDate created=QDate::currentDate(),
+	   int sheetCount=1);
+  QVariantMap save() const;
+  void load(QVariantMap const &);
+};
 
 class TOC: public QObject {
   Q_OBJECT;
 public:
-  class Entry {
-  public:
-    int startPage;
-    QString fn;
-    QString title;
-  public:
-    Entry(int startPage=0, QString fn="", QString title="");
-    bool operator<(Entry const &) const;
-    QVariantMap save() const;
-    void load(QVariantMap const &);
-  };
-public:
   TOC(QString fn, QObject *parent=0); // loads fn
   virtual ~TOC();
-  QList<Entry> const &entries() const;
-  void addEntry(int startPage, QString fn, QString title);
-  void setStartPage(QString fn, int startPage);
-  void setTitle(QString fn, QString title);
-  bool save() const;
-  static TOC *create(QString fn, QObject *parent=0)
+  QMap<int, TOCEntry> const &entries() const;
+  TOCEntry const &entry(int pgno) const; // null Entry if none
+  bool contains(int startPage) const;
+  void addEntry(int startPage, TOCEntry const &entry);
+  int nextPage() const;
+  bool ok() const; // true if last save ok
+public slots:
+  void setTitle(int startPage, QString title);
+  void setSheetCount(int startPage, int sheetCount);
+  void save() const;
+public:
+  static TOC *create(QString fn, QObject *parent=0);
 private:
   TOC(QObject *parent=0); // doesn't load
 private:
-  QList<Entry> entries_;
+  QMap<int, TOCEntry> entries_;
   QString fn;
+  mutable bool ok_;
 };
 
 #endif

@@ -39,7 +39,13 @@ HEADERS += \
     TextMarkings.H \
     PageView.H \
     Style.H \
-    Toolbar.H
+    Toolbar.H \
+    ResourceLoader.H \
+    ResourceManager.H \
+    Notebook.H \
+    TOC.H \
+    BookData.H \
+    BookFile.H
 
 SOURCES += \
     Data.C \
@@ -68,6 +74,11 @@ SOURCES += \
     TextMarkings.C \
     PageView.C \
     Style.C \
-    Toolbar.C
+    Toolbar.C \
+    ResourceLoader.C \
+    ResourceManager.C \
+    Notebook.C \
+    TOC.C \
+    BookData.C
 
 	

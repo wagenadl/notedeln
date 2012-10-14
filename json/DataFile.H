@@ -14,8 +14,6 @@ public:  virtual ~DataFile0();
   bool save(bool onlyIfNeeded=false) const;
   // returns true if ok, even if nothing was saved
   QString fileName() const;
-  template <class T> bool isType() const { return dynamic_cast<T *>(data_)!=0; }
-  template <class T> T *as() const { return dynamic_cast<T *>(data_); }
 public:
   static void setSaveDelay(double t_s);
   static void setSaveImmediatelyToo(bool);
@@ -45,10 +43,18 @@ template <class T> class DataFile: public DataFile0 {
  public:
   T *data() const { return dynamic_cast<T*>(DataFile0::data()); }
   static DataFile<T> *create(QString fn, QObject *parent=0) {
-    return new DataFile<T>(new T(), fn, parent);
+    DataFile<T> *df = new DataFile<T>(new T(), fn, parent);
+    if (df->ok())
+      return df;
+    delete df;
+    return 0;
   }
   static DataFile<T> *load(QString fn, QObject *parent=0) {
-    return new DataFile<T>(fn, parent);
+    DataFile<T> *df = new DataFile<T>(fn, parent);
+    if (df->ok())
+      return df;
+    delete df;
+    return 0;
   }
 };
 

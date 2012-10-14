@@ -43,6 +43,8 @@ public:
   QVariantMap save() const;
   bool editable() const;
   Data *parent() const;
+  class PageData *page() const; // pointer to parent page, if any
+  class OpenBook *book() const; // pointer to parent book, if any
   template <class T> static T *deepCopy(T const *data) {
     /* T must be derived from Data */
     T *copy = new T(data->parent());
@@ -54,6 +56,7 @@ signals:
 protected:
   virtual void loadMore(QVariantMap const &);
   virtual void saveMore(QVariantMap &) const;
+  bool loading() const;
 private:
   void loadProps(QVariantMap const &);
   void saveProps(QVariantMap &) const;
@@ -63,7 +66,7 @@ protected:
   QString type_;
   QString id_;
 private:
-  bool loading;
+  bool loading_;
 public: // but only to be used in defs of descendents
   template <class T> class Creator {
   public:

@@ -30,6 +30,8 @@ void BlockData::setY0(double y0) {
 void BlockData::setSheet(int sheet) {
   sheet_ = sheet;
   markModified(InternalMod);
+  if (!loading())
+    emit newSheet(sheet);
 }
 
 QList<class NoteData *> const &BlockData::notes() const {

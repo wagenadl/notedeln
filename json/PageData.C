@@ -14,6 +14,7 @@ PageData::PageData(Data *parent): Data(parent) {
   title_ = new TitleData(this);
   connect(title_, SIGNAL(mod()),
 	  this, SIGNAL(titleMod()));
+  maxSheet = 0;
 }
 
 PageData::~PageData() {
@@ -27,6 +28,11 @@ QList<class BlockData *> const &PageData::blocks() const {
 void PageData::addBlock(BlockData *b) {
   blocks_.append(b);
   b->setParent(this);
+  connect(b, SIGNAL(newSheet(int)), SLOT(newSheet()));
+  if (b->sheet()>maxSheet) {
+    maxSheet = b->sheet();
+    emit sheetCountMod();
+  }
   markModified();
 }
 
@@ -37,11 +43,24 @@ bool PageData::deleteBlock(BlockData *b) {
 
   delete blocks_[i];
   blocks_.removeAt(i);
+
+  newSheet();
+
   markModified();
   return true;
 }
 
-
+void PageData::newSheet() {
+  int newMax = 0;
+  foreach (BlockData *b, blocks_) {
+    if (b->sheet()>newMax)
+      newMax = b->sheet();
+  }
+  if (newMax != maxSheet) {
+    maxSheet = newMax;
+    emit sheetCountMod();
+  }
+}  
 
 void PageData::loadMore(QVariantMap const &src) {
   title_->load(src["title"].toMap());
@@ -49,6 +68,7 @@ void PageData::loadMore(QVariantMap const &src) {
   foreach (BlockData *bd, blocks_)
     delete bd;
   blocks_.clear();
+  maxSheet = 0;
 
   QVariantList bl = src["blocks"].toList();
   foreach (QVariant b, bl) {
@@ -60,6 +80,7 @@ void PageData::loadMore(QVariantMap const &src) {
     bd->load(bm);
     blocks_.append(bd);
     bd->setParent(this);
+    connect(bd, SIGNAL(newSheet(int)), SLOT(newSheet()));
   }
 }
 
@@ -87,11 +108,5 @@ void PageData::setStartPage(int s) {
 }
 
 int PageData::sheetCount() const {
-  int maxSheet = 0;
-  foreach (BlockData *b, blocks_) {
-    int s = b->sheet();
-    if (s>maxSheet)
-      maxSheet = s;
-  }
   return maxSheet + 1;
 }

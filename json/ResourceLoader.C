@@ -8,14 +8,15 @@
 #include <QTimer>
 #include <QDebug>
 #include <QVariant>
+#include <QProgressDialog>
 
 QNetworkAccessManager &ResourceLoader::nam() {
   static QNetworkAccessManager n;
   return n;
 }
 
-ResourceLoader::ResourceLoader(QUrl const &src, QString dst0, QObject *parent):
-  QObject(parent), dst(dst0) {
+ResourceLoader::ResourceLoader(QUrl const &src0, QString dst0, QObject *parent):
+  QObject(parent), src(src0), dst(dst0) {
   QNetworkRequest rq(src);
   ok = err = false;
   if (!dst.open(QFile::WriteOnly)) {
@@ -27,6 +28,8 @@ ResourceLoader::ResourceLoader(QUrl const &src, QString dst0, QObject *parent):
   
   qnr = nam().get(rq);
   connect(qnr, SIGNAL(finished()), SLOT(qnrFinished()));
+  connect(qnr, SIGNAL(downloadProgress(qint64, qint64)),
+	  SLOT(qnrProgress(qint64, qint64)));
   connect(qnr, SIGNAL(readyRead()), SLOT(qnrDataAv()));
   //if (qnr->isFinished())
     // in case the signal got emitted before our connection got made
@@ -39,6 +42,15 @@ bool ResourceLoader::complete() const {
 
 bool ResourceLoader::failed() const {
   return err;
+}
+
+void ResourceLoader::qnrProgress(qint64 n, qint64 m) {
+  if (m<=0)
+    emit progress(-1);
+  else if (n<0)
+    emit progress(-1);
+  else
+    emit progress(int(100*double(n)/double(m)));
 }
 
 void ResourceLoader::qnrDataAv() {
@@ -115,3 +127,33 @@ bool ResourceLoader::getNow(double timeout_s) {
   else
     return false; // this does *not* necessarily mean error
 }
+
+bool ResourceLoader::getNowDialog(double delay_s) {
+  if (getNow(delay_s))
+    return true;
+  if (err)
+    return false;
+
+  QProgressDialog dlg("Downloading " + src.toString(),
+		      "Cancel",
+		      0, 100);
+  connect(this, SIGNAL(progress(int)), &dlg, SLOT(setValue(int)));
+  dlg.show();
+  QEventLoop el(this);
+  connect(qnr, SIGNAL(finished()), &el, SLOT(quit()));
+  connect(&dlg, SIGNAL(canceled()), &el, SLOT(quit()));
+  el.exec();
+  if (qnr->isFinished() && !ok && !err)
+    qnrFinished(); // since slots get called in arbitrary order, we must do this
+  
+  if (ok)
+    return true;
+
+  qnr->abort();
+  qDebug() << "ResourceLoader: Aborted upon user request";
+  err = true;
+  dst.close();
+  dst.remove();
+  return false;
+}
+  

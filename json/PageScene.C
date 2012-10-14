@@ -609,15 +609,15 @@ bool PageScene::importDroppedImage(QPointF scenePos, QImage const &img,
 				   QUrl const *source) {
   // Return true if we want it
   qDebug() << "PageScene: import dropped image";
-  QString imgName = ImageCacheManager::import(img, source);
+  //  QString imgName = ImageCacheManager::import(img, source);
   /* ImageCacheManager must somehow be local to a notebook, but it is
      not obvious right now how to implement that.
      Perhaps I am simply putting too much weight on the PageScene.
   */
-  GfxBlockItem *dst = dynamic_cast<GfxBlockItem *>(itemAt(scenePos));
-  if (!dst)
-    dst = newGfxBlock();
-  dst->addImage(imgName);
+  //GfxBlockItem *dst = dynamic_cast<GfxBlockItem *>(itemAt(scenePos));
+  //if (!dst)
+  //  dst = newGfxBlock();
+  //dst->addImage(imgName);
   return true;
 }
 

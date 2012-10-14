@@ -13,6 +13,7 @@ public:
   virtual ~PageEditor();
 public slots:
   void load(QString fn);
+  void open(PageFile *f);
   void create(QString fn);
 private:
   class PageView *view_;

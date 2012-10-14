@@ -3,12 +3,13 @@
 #include "Data.H"
 #include <QSet>
 #include <QMetaProperty>
+#include "PageData.H"
 
 #define MAX_EDIT_DELAY_H 12
 // Should this be a style option?
 
 Data::Data(Data *parent): QObject(parent) {
-  loading = false;
+  loading_ = false;
   setCreated(QDateTime::currentDateTime());
   setModified(QDateTime::currentDateTime());
   setType("data");
@@ -57,7 +58,7 @@ void Data::setId(QString const &i) {
 }
 
 void Data::markModified(Data::ModType mt) {
-  if (loading)
+  if (loading_)
     return;
   if (mt==UserVisibleMod || mt==NonPropMod)
     modified_ = QDateTime::currentDateTime();
@@ -71,12 +72,12 @@ void Data::markModified(Data::ModType mt) {
 }
 
 void Data::load(QVariantMap const &src) {
-  loading = true;
+  loading_ = true;
   loadProps(src);
   loadMore(src);
-  loading = false;
   setCreated(src["cre"].toDateTime());
   setModified(src["mod"].toDateTime());
+  loading_ = false;
 }
 
 void Data::loadMore(QVariantMap const &) {
@@ -174,4 +175,33 @@ Data *Data::create(QString t) {
     return creators()[t]();
   else
     return 0;
+}
+
+PageData *Data::page() const {
+  Data *dp = const_cast<Data*>(this);
+  while (dp) {
+    PageData *pp = dynamic_cast<PageData*>(dp);
+    if (pp)
+      return pp;
+    dp = parent();
+  }
+  return 0;
+}
+
+OpenBook *Data::book() const {
+  /*
+  Data *dp = const_cast<Data *>(this);
+  while (dp) {
+    OpenBook *pp = dynamic_cast<OpenBook*>(dp);
+    if (pp)
+      return pp;
+    dp = parent();
+  }
+  */
+  return 0;
+  
+}
+  
+bool Data::loading() const {
+  return loading_;
 }

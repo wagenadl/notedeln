@@ -23,6 +23,8 @@ public:
   void setSheet(int);
   // other
   void addNote(NoteData *);
+signals:
+  void newSheet(int); // not emitted during loading
 protected:
   virtual void loadMore(QVariantMap const &src);
   virtual void saveMore(QVariantMap &dst) const;
