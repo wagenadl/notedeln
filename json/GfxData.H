@@ -5,7 +5,7 @@
 #define GFXDATA_H
 
 #include "Data.H"
-#include <QMap>
+#include <QPointF>
 
 class GfxData: public Data {
   Q_OBJECT
@@ -20,6 +20,9 @@ public:
   // write properties
   void setX(double);
   void setY(double);
+  // convenience
+  QPointF xy() const;
+  void setXY(QPointF);
 protected:
   double x_;
   double y_;

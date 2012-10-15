@@ -6,6 +6,7 @@
 GfxBlockData::GfxBlockData(class PageData *parent):
   BlockData(parent) {
   setType("gfxblock");
+  height_ = 72; // some stupid default
 }
 
 GfxBlockData::~GfxBlockData() {
@@ -54,3 +55,11 @@ void GfxBlockData::saveMore(QVariantMap &dst) {
   dst["gfx"] = gl;
 }
 
+double GfxBlockData::height() const {
+  return height_;
+}
+
+void GfxBlockData::setHeight(double h) {
+  height_ = h;
+  markModified();
+}

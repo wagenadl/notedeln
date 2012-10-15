@@ -20,6 +20,7 @@ HEADERS += \
     GfxData.H \
     GfxPointsData.H \
     GfxTextData.H \
+    GfxImageData.H \
     BlockData.H \
     TextBlockData.H \
     GfxBlockData.H \
@@ -33,6 +34,9 @@ HEADERS += \
     PageScene.H \
     TitleItem.H \
     BlockItem.H \
+    GfxBlockItem.H \
+    GfxImageItem.H \
+    GfxItemFactory.H \
     TextBlockItem.H \
     TextItem.H \
     TitleTextItem.H \
@@ -55,6 +59,7 @@ SOURCES += \
     GfxData.C \
     GfxPointsData.C \
     GfxTextData.C \
+    GfxImageData.C \
     BlockData.C \
     TextBlockData.C \
     GfxBlockData.C \
@@ -68,6 +73,9 @@ SOURCES += \
     PageScene.C \
     TitleItem.C \
     BlockItem.C \
+    GfxBlockItem.C \
+    GfxImageItem.C \
+    GfxItemFactory.C \
     TextBlockItem.C \
     TextItem.C \
     TitleTextItem.C \

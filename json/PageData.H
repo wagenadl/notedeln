@@ -24,6 +24,9 @@ public:
   void addBlock(BlockData *); // we become owner
   bool deleteBlock(BlockData *);
   int sheetCount() const;
+  void setNotebook(class Notebook *nb); // } This is for use by items that 
+  Notebook *notebook() const;           // } wish to use resources. We don't
+  class ResourceManager *resMgr() const;// } use it ourselves.
 signals:
   void titleMod();
   void sheetCountMod();
@@ -37,6 +40,7 @@ protected:
   TitleData *title_;
   QList<class BlockData *> blocks_;
   int maxSheet;
+  Notebook *nb;
 };
 
 #endif

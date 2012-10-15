@@ -39,13 +39,26 @@ void GfxPointsData::removePoint(int i) {
   markModified();
 }
 
-void GfxPointsData::setXX(QList<double> const &x) {
-  xx_ = x;
-  // Since this should only be called from load(), we don't need to
-  // call markModified()
+void GfxPointsData::loadMore(QVariantMap const &src) {
+  xx_.clear();
+  yy_.clear();
+
+  foreach (QVariant v, src["xx"].toList())
+    xx_.append(v.toDouble());
+  foreach (QVariant v, src["yy"].toList())
+    yy_.append(v.toDouble());
 }
 
-void GfxPointsData::setYY(QList<double> const &y) {
-  yy_ = y;
-}
+void GfxPointsData::saveMore(QVariantMap &dst) {
+  QVariantList xl;
+  foreach (double v, xx_)
+    xl.append(QVariant(v));
+  dst["xx"] = QVariant(xl);
 
+  QVariantList yl;
+  foreach (double v, yy_)
+    yl.append(QVariant(v));
+  dst["yy"] = QVariant(yl);
+}
+  
+  

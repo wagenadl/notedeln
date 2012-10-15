@@ -18,5 +18,7 @@ int main(int argc, char **argv) {
   editor.open(nb->hasPage(1) ? nb->page(1) : nb->createPage(1));
   
   editor.show();
-  return app.exec();
+  int r = app.exec();
+  delete nb;
+  return r;
 }

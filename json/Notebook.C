@@ -5,13 +5,18 @@
 #include "ResourceManager.H"
 #include "PageFile.H"
 #include "TitleData.H"
+#include <QDebug>
 
 Notebook::Notebook(QString path) {
   root = QDir(path);
-  toc_ = new TOC(root.filePath("toc.json"), this);
-  resMgr_ = new ResourceManager(root.filePath("res"), this);
+  tocFile_ = TOCFile::load(root.filePath("toc.json"), this);
   bookFile_ = BookFile::load(root.filePath("book.json"), this);
+  Q_ASSERT(tocFile_);
   Q_ASSERT(bookFile_);
+}
+
+Notebook::~Notebook() {
+  flush();
 }
 
 Notebook *Notebook::load(QString path) {
@@ -33,28 +38,40 @@ Notebook *Notebook::create(QString path) {
   if (!d.mkpath("res"))
     return 0;
 
-  delete TOC::create(d.filePath("toc.json"));
+  delete TOCFile::create(d.filePath("toc.json"));
   delete BookFile::create(d.filePath("book.json"));
   
   Notebook *nb = new Notebook(d.absolutePath());
   return nb;
 }
 
-ResourceManager *Notebook::resMgr() const {
-  return resMgr_;
+ResourceManager *Notebook::resMgr(int pgno) {
+  if (resMgrs.contains(pgno))
+    return resMgrs[pgno];
+  ResourceManager *r
+    = new ResourceManager(root.absoluteFilePath(QString("res/%1").arg(pgno)),
+			  this);
+  resMgrs[pgno] = r;
+  return r;
 }
 
 TOC *Notebook::toc() const {
-  return toc_;
+  return tocFile_->data();
 }
 
 bool Notebook::hasPage(int n) const {
-  return toc_->contains(n);
+  return toc()->contains(n);
 }
 
 PageFile *Notebook::page(int n)  {
-  return PageFile::load(root.filePath(QString("pages/%1.json").arg(n)),
-			this);
+  PageFile *f = PageFile::load(root.filePath(QString("pages/%1.json").arg(n)),
+			       this);
+  if (!f)
+    return 0;
+
+  connect(f->data(), SIGNAL(titleMod()), SLOT(titleMod()));
+  connect(f->data(), SIGNAL(sheetcountMod()), SLOT(sheetCountMod()));
+  return f;
 }
 
 PageFile *Notebook::createPage(int n) {
@@ -62,7 +79,8 @@ PageFile *Notebook::createPage(int n) {
 				 this);
   if (!f)
     return 0;
-  toc_->addEntry(n, TOCEntry()); // details will be filled out later
+
+  toc()->addEntry(n, TOCEntry()); // details will be filled out later
   connect(f->data(), SIGNAL(titleMod()), SLOT(titleMod()));
   connect(f->data(), SIGNAL(sheetcountMod()), SLOT(sheetCountMod()));
   bookData()->setEndDate(QDate::currentDate());
@@ -70,18 +88,23 @@ PageFile *Notebook::createPage(int n) {
 }
 
 void Notebook::titleMod() {
+  qDebug() << "Notebook::titleMod";
   PageData *pg = dynamic_cast<PageData *>(sender());
   Q_ASSERT(pg);
-  toc_->setTitle(pg->startPage(), pg->title()->current()->text());
+  toc()->setTitle(pg->startPage(), pg->title()->current()->text());
 }
 
 void Notebook::sheetCountMod() {
   PageData *pg = dynamic_cast<PageData *>(sender());
   Q_ASSERT(pg);
-  toc_->setSheetCount(pg->startPage(), pg->sheetCount());
+  toc()->setSheetCount(pg->startPage(), pg->sheetCount());
 }
 
 BookData *Notebook::bookData() const {
   return bookFile_->data();
 }
 
+void Notebook::flush() {
+  tocFile_->save(true);
+  bookFile_->save(true);
+}

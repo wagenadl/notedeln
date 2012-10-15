@@ -29,6 +29,7 @@ DataFile0::DataFile0(QString fn, QObject *parent):
     return;
   }
   data_ = Data::create(v["typ"].toString());
+  data_->setParent(this); // just a QObject as a parent
   ok_ = data_!=0;
 
   if (!ok_) {

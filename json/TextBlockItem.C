@@ -14,9 +14,12 @@
 TextBlockItem::TextBlockItem(TextBlockData *data, PageScene *parent):
   BlockItem(data, parent),
   data_(data) {
+  item_ = 0;
+
   setPos(Style::defaultStyle()["margin-left"].toDouble(), 0);
+
   item_ = new TextItem(data_->text(), this);
-  setMainChild(item_);
+
   initializeFormat();
   item_->setAllowParagraphs(false);
   
@@ -28,7 +31,8 @@ TextBlockItem::TextBlockItem(TextBlockData *data, PageScene *parent):
 				       int, Qt::KeyboardModifiers)));
   connect(item_, SIGNAL(enterPressed()),
 	  this, SIGNAL(enterPressed()));
-  
+
+  resetBbox();
 }
 
 TextBlockItem::~TextBlockItem() {
@@ -135,7 +139,19 @@ void TextBlockItem::acceptFocus(QPointF p) {
   }
   qDebug() << " failed";
 }
-	
+
+QRectF TextBlockItem::netBoundingRect() const {
+  return item_
+    ? item_->boundingRect()
+    : QRectF();
+}
+
+void TextBlockItem::paint(QPainter *,
+		      const QStyleOptionGraphicsItem *,
+		      QWidget *) {
+  // text draws itself
+}
+
 TextItem *TextBlockItem::text() {
   return item_;
 }

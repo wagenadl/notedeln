@@ -12,12 +12,17 @@ public:
   GfxBlockItem(class GfxBlockData *data, class PageScene *parent);
   virtual ~GfxBlockItem();
   GfxBlockData *data(); // benevolently hides inherited version
-  QList<class GfxItem *> const &gfx();
+  QList<QGraphicsItem *> const &gfx();
   bool isEmpty() const;
-  void newImage();
+  class GfxImageItem *newImage(QString resName, QPointF xy);
+  virtual QRectF netBoundingRect() const; // w/o notes
+  void paint(QPainter *p, const QStyleOptionGraphicsItem *o, QWidget *w);
+private:
+  double width() const;
+  double height() const;
 private:
   GfxBlockData *data_; // we don't own
-  QList<GfxItem *> items_; // we do own
+  QList<QGraphicsItem *> items_; // we do own
 };
 
 #endif

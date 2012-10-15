@@ -15,6 +15,8 @@ public slots:
   void load(QString fn);
   void open(PageFile *f);
   void create(QString fn);
+protected:
+  void closeEvent(QCloseEvent *);
 private:
   class PageView *view_;
   class PageScene *scene_;

@@ -34,8 +34,8 @@ QRectF TitleItem::boundingRect() const {
   return text_->mapRectToParent(text_->boundingRect());
 }
 
-void TitleItem::paint(QPainter *p,
-		      const QStyleOptionGraphicsItem *o,
-		      QWidget *w) {
-  text_->paint(p, o, w);
+void TitleItem::paint(QPainter *,
+		      const QStyleOptionGraphicsItem *,
+		      QWidget *) {
+  // text draws itself
 }

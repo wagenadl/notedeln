@@ -37,6 +37,8 @@ public:
   bool lastParIsEmpty() const;
   void dropEmptyLastPar();
   FutileMovementInfo const &lastFutileMovement() const;
+  virtual QRectF netBoundingRect() const;
+  void paint(QPainter *p, const QStyleOptionGraphicsItem *o, QWidget *w);
 signals:
   void futileMovement(); // up key on top line etc
   void enterPressed();

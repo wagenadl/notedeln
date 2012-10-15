@@ -13,10 +13,8 @@ public:
   virtual ~BlockItem();
   BlockData *data();
   QRectF boundingRect() const;
-  QRectF netBoundingRect() const; // w/o notes
+  virtual QRectF netBoundingRect() const; // w/o notes
   QRectF netSceneRect() const; // in scene coords
-  QGraphicsItem *mainChild() const;
-  void paint(QPainter *p, const QStyleOptionGraphicsItem *o, QWidget *w);
 signals:
   void vboxChanged();
   void hboxChanged();
@@ -24,11 +22,10 @@ protected slots:
   void checkBbox();
   void checkVbox();
 protected:
-  void setMainChild(QGraphicsItem *);
+  void resetBbox(); // size change w/o emitting signals
 private:
   BlockData *data_;
   QRectF oldBbox;
-  QGraphicsItem *mainChild_;
   // QList<NoteItem *> notes_;
 };
 

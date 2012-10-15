@@ -4,11 +4,12 @@
 #include "BlockData.H"
 #include "TitleData.H"
 #include <QDebug>
-
+#include "Notebook.H"
 
 static Data::Creator<PageData> c("page");
 
 PageData::PageData(Data *parent): Data(parent) {
+  nb = 0;
   setType("page");
   startPage_ = 1;
   title_ = new TitleData(this);
@@ -52,6 +53,8 @@ bool PageData::deleteBlock(BlockData *b) {
 
 void PageData::newSheet() {
   int newMax = 0;
+  // I think we can actually assume the last block is on the last page,
+  // but I am going to be bloody minded about it.
   foreach (BlockData *b, blocks_) {
     if (b->sheet()>newMax)
       newMax = b->sheet();
@@ -109,4 +112,22 @@ void PageData::setStartPage(int s) {
 
 int PageData::sheetCount() const {
   return maxSheet + 1;
+}
+
+void PageData::setNotebook(Notebook *x) {
+  nb = x;
+}
+
+Notebook *PageData::notebook() const {
+  return nb;
+}
+
+ResourceManager *PageData::resMgr() const {
+  if (!this)
+    return 0; // for convenience, allow to be called without a page
+  
+  if (nb) 
+    return nb->resMgr(startPage_);
+  else
+    return 0;
 }

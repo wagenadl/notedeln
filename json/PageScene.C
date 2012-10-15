@@ -9,6 +9,7 @@
 #include "TextBlockData.H"
 #include "PageData.H"
 #include "GfxBlockItem.H"
+#include "GfxBlockData.H"
 
 #include <QGraphicsTextItem>
 #include <QGraphicsLineItem>
@@ -398,6 +399,31 @@ void PageScene::deleteBlock(int blocki) {
   restackBlocks();
   gotoSheet(iSheet>=nSheets ? nSheets-1 : iSheet);
 }
+
+void PageScene::newGfxBlock() {
+  Q_ASSERT(data);
+  int iAbove = findLastBlockOnSheet(iSheet);
+  int iNew = (iAbove>=0)
+    ? iAbove + 1
+    : blockItems.size();
+  double yt = (iAbove>=0)
+    ? blockItems[iAbove]->sceneBoundingRect().bottom()
+    : style["margin-top"].toDouble();
+
+  GfxBlockData *gbd = new GfxBlockData();
+  data->addBlock(gbd);
+  GfxBlockItem *gbi = new GfxBlockItem(gbd, this);
+  blockItems.insert(iNew, gbi);
+  sheetNos.insert(iNew, iSheet);
+  topY.insert(iNew, yt);
+
+  vChangeMapper->setMapping(gbi, iNew);
+  connect(gbi, SIGNAL(vboxChanged()), vChangeMapper, SLOT(map()));
+
+  restackBlocks(iNew);
+  gotoSheet(sheetNos[iNew]);
+}
+
 
 void PageScene::newTextBlock(int iAbove, bool evenIfLastEmpty) {
   qDebug() << "newTextBlock " << iAbove;

@@ -10,6 +10,7 @@
 #include <QApplication>
 #include <QDesktopWidget>
 #include <QDebug>
+#include <QCloseEvent>
 
 PageEditor::PageEditor() {
   view_ = new PageView(this);
@@ -79,4 +80,10 @@ void PageEditor::create(QString fn) {
   scene_ = new PageScene(file_->data(), this);  
   view_->setScene(scene_);
   resize(sizeHint());
+}
+
+void PageEditor::closeEvent(QCloseEvent *e) {
+  if (file_)
+    file_->save(true);
+  e->accept();
 }

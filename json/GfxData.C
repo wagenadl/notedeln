@@ -27,3 +27,12 @@ void GfxData::setY(double y) {
   markModified();
 }
 
+QPointF GfxData::xy() const {
+  return QPointF(x_, y_);
+}
+
+void GfxData::setXY(QPointF xy) {
+  x_ = xy.x();
+  y_ = xy.y();
+  markModified();
+}

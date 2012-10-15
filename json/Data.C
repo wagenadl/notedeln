@@ -4,6 +4,7 @@
 #include <QSet>
 #include <QMetaProperty>
 #include "PageData.H"
+#include <QDebug>
 
 #define MAX_EDIT_DELAY_H 12
 // Should this be a style option?

@@ -7,7 +7,6 @@
 BlockItem::BlockItem(BlockData *data, PageScene *parent):
   QGraphicsObject(0),
   data_(data) {
-  mainChild_ = 0;
   parent->addItem(this);
 }
 
@@ -32,9 +31,6 @@ void BlockItem::checkBbox() {
 }
 
 void BlockItem::checkVbox() {
-  if (!mainChild_)
-    return;
-
   QRectF newBbox = netBoundingRect();
 
   if (newBbox.top()==oldBbox.top() && newBbox.bottom()==oldBbox.bottom())
@@ -55,25 +51,9 @@ QRectF BlockItem::boundingRect() const {
 }
 
 QRectF BlockItem::netBoundingRect() const {
-  return mainChild_
-    ? mainChild_->mapRectToParent(mainChild_->boundingRect())
-    : QRectF();
+  return QRectF();
 }
 
-void BlockItem::setMainChild(QGraphicsItem *g) {
-  mainChild_ = g;
-  if (g)
-    oldBbox = netBoundingRect();
-}
-
-QGraphicsItem *BlockItem::mainChild() const {
-  return mainChild_;
-}
-
-void BlockItem::paint(QPainter *p,
-		      const QStyleOptionGraphicsItem *o,
-		      QWidget *w) {
-  if (mainChild_)
-    mainChild_->paint(p, o, w);
-  // should include notes as well
+void BlockItem::resetBbox() {
+  oldBbox = netBoundingRect();
 }
