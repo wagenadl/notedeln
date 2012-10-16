@@ -9,7 +9,7 @@
 
 Style::Style(QString fn) {
   if (fn=="-")
-    fn = "/home/wagenaar/progs/eln/json/style.json";
+    fn = "/home/wagenaar/progs/eln/style.json";
     //    fn = "/home/wagenaar/.config/eln/style.json";
 
   QFile f(fn);
