@@ -5,7 +5,6 @@
 #include "GfxImageData.H"
 #include <QDebug>
 #include "ResourceManager.H"
-#include "PageData.H" // only because of its resmgr...
 
 GfxItemFactory::Creator<GfxImageData, GfxImageItem> c("gfximage");
 
@@ -17,7 +16,7 @@ GfxImageItem::GfxImageItem(GfxImageData *data, QGraphicsItem *parent):
   }
 
   // get the image, crop it, etc.
-  ResourceManager *resmgr = data->page()->resMgr();
+  ResourceManager *resmgr = data->resMgr();
   if (!resmgr) {
     qDebug() << "GfxImageItem: no resource manager";
     return;

@@ -13,7 +13,7 @@
 ResourceManager::ResourceManager(QString resdir, QObject *parent):
   QObject(parent), dir(resdir) {
   if (!dir.exists())
-    dir.mkdir("");
+    QDir().mkpath(dir.absolutePath());
   Q_ASSERT(dir.exists());
   
   mapper = new QSignalMapper(this);
@@ -102,9 +102,10 @@ bool ResourceManager::outdated(QString name) const {
   return f.lastModified() > f0.lastModified();
 }
 
-QString ResourceManager::import(QImage img, QUrl *source) {
-  QString name = newName();
-  img.save(path(name));
+QString ResourceManager::import(QImage img, QUrl const *source) {
+  QString name = newName(QUrl("import.png")); // is that good default?
+  qDebug() << "ResourceManager::import" << name << path(name) << source;
+  Q_ASSERT(img.save(path(name)));
   sources[name] = source ? *source : QUrl();
   saveSources();
   return name;

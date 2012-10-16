@@ -19,7 +19,7 @@ public:
   void removePoint(int i);
 protected:
   void loadMore(QVariantMap const &src);
-  void saveMore(QVariantMap &dst);
+  void saveMore(QVariantMap &dst) const;
 private:
   QList<double> xx_;
   QList<double> yy_;

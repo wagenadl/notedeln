@@ -49,7 +49,7 @@ void GfxPointsData::loadMore(QVariantMap const &src) {
     yy_.append(v.toDouble());
 }
 
-void GfxPointsData::saveMore(QVariantMap &dst) {
+void GfxPointsData::saveMore(QVariantMap &dst) const {
   QVariantList xl;
   foreach (double v, xx_)
     xl.append(QVariant(v));

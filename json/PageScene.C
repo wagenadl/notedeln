@@ -10,6 +10,7 @@
 #include "PageData.H"
 #include "GfxBlockItem.H"
 #include "GfxBlockData.H"
+#include "ResourceManager.H"
 
 #include <QGraphicsTextItem>
 #include <QGraphicsLineItem>
@@ -178,23 +179,43 @@ void PageScene::makeTitleItem() {
 void PageScene::makeBlockItems() {
   foreach (BlockData *bd, data->blocks()) {
     qDebug() << "PageScene: considering block data";
-    TextBlockData *tbd = dynamic_cast<TextBlockData*>(bd);
-    if (tbd) {
-      qDebug() << "It's a text block";
-      TextBlockItem *tbi = new TextBlockItem(tbd, this);
-      int iNew = blockItems.size();
-      blockItems.append(tbi);
-      sheetNos.append(tbd->sheet());
-      topY.append(tbd->y0());
-      vChangeMapper->setMapping(tbi, iNew);
-      futileMovementMapper->setMapping(tbi, iNew);
-      enterPressedMapper->setMapping(tbi, iNew);
-      connect(tbi, SIGNAL(vboxChanged()), vChangeMapper, SLOT(map()));
-      connect(tbi, SIGNAL(futileMovement()), futileMovementMapper, SLOT(map()));
-      connect(tbi, SIGNAL(enterPressed()), enterPressedMapper, SLOT(map()));
-    }
+    BlockItem *bi = tryMakeTextBlock(bd);
+    if (!bi)
+      bi = tryMakeGfxBlock(bd);
+    Q_ASSERT(bi);
+    vChangeMapper->setMapping(bi, blockItems.size());
+    connect(bi, SIGNAL(vboxChanged()), vChangeMapper, SLOT(map()));
+    blockItems.append(bi);
+    sheetNos.append(bd->sheet());
+    topY.append(bd->y0());
   }
 }
+
+BlockItem *PageScene::tryMakeGfxBlock(BlockData *bd) {
+  GfxBlockData *gbd = dynamic_cast<GfxBlockData*>(bd);
+  if (!gbd)
+    return 0;
+  qDebug() << "It's a gfx block";
+  GfxBlockItem *gbi = new GfxBlockItem(gbd, this);
+  return gbi;
+}
+
+BlockItem *PageScene::tryMakeTextBlock(BlockData *bd) {
+  TextBlockData *tbd = dynamic_cast<TextBlockData*>(bd);
+  if (!tbd)
+    return 0;
+
+  qDebug() << "It's a text block";
+  TextBlockItem *tbi = new TextBlockItem(tbd, this);
+  
+  futileMovementMapper->setMapping(tbi, blockItems.size());
+  enterPressedMapper->setMapping(tbi, blockItems.size());
+  connect(tbi, SIGNAL(futileMovement()), futileMovementMapper, SLOT(map()));
+  connect(tbi, SIGNAL(enterPressed()), enterPressedMapper, SLOT(map()));
+  return tbi;
+}
+
+
   
 PageScene::~PageScene() {
 }
@@ -400,8 +421,9 @@ void PageScene::deleteBlock(int blocki) {
   gotoSheet(iSheet>=nSheets ? nSheets-1 : iSheet);
 }
 
-void PageScene::newGfxBlock() {
+GfxBlockItem *PageScene::newGfxBlock() {
   Q_ASSERT(data);
+  qDebug() << "newGfxBlock";
   int iAbove = findLastBlockOnSheet(iSheet);
   int iNew = (iAbove>=0)
     ? iAbove + 1
@@ -422,10 +444,11 @@ void PageScene::newGfxBlock() {
 
   restackBlocks(iNew);
   gotoSheet(sheetNos[iNew]);
+  return gbi;
 }
 
 
-void PageScene::newTextBlock(int iAbove, bool evenIfLastEmpty) {
+TextBlockItem *PageScene::newTextBlock(int iAbove, bool evenIfLastEmpty) {
   qDebug() << "newTextBlock " << iAbove;
   Q_ASSERT(data);
 
@@ -437,7 +460,7 @@ void PageScene::newTextBlock(int iAbove, bool evenIfLastEmpty) {
     if (tbi && tbi->document()->isEmpty()) {
       // Previous block is empty text, go there instead
       tbi->setFocus();
-      return;
+      return tbi;
     }
   }      
 
@@ -465,6 +488,7 @@ void PageScene::newTextBlock(int iAbove, bool evenIfLastEmpty) {
   restackBlocks(iNew);
   gotoSheet(sheetNos[iNew]);
   tbi->setFocus();
+  return tbi;
 }
 
 void PageScene::futileMovement(int block) {
@@ -640,10 +664,12 @@ bool PageScene::importDroppedImage(QPointF scenePos, QImage const &img,
      not obvious right now how to implement that.
      Perhaps I am simply putting too much weight on the PageScene.
   */
-  //GfxBlockItem *dst = dynamic_cast<GfxBlockItem *>(itemAt(scenePos));
-  //if (!dst)
-  //  dst = newGfxBlock();
-  //dst->addImage(imgName);
+  GfxBlockItem *dst = dynamic_cast<GfxBlockItem *>(itemAt(scenePos));
+  qDebug() << "  old gfx block? " << dst;
+  if (!dst)
+    dst = newGfxBlock();
+  qDebug() << "  gfx block " << dst;
+  dst->newImage(img, source, dst->mapFromScene(scenePos));
   return true;
 }
 

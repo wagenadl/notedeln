@@ -19,7 +19,7 @@ public:
   void removeGfx(GfxData *);
 protected:
   void loadMore(QVariantMap const &src);
-  void saveMore(QVariantMap &dst);
+  void saveMore(QVariantMap &dst) const;
 protected:
   double height_;
   QList<GfxData *> gfx_;

@@ -44,7 +44,8 @@ public:
   bool editable() const;
   Data *parent() const;
   class PageData *page() const; // pointer to parent page, if any
-  class OpenBook *book() const; // pointer to parent book, if any
+  class Notebook *book() const; // pointer to parent book, if any
+  class ResourceManager *resMgr() const; // pointer to resource manager, if any
   template <class T> static T *deepCopy(T const *data) {
     /* T must be derived from Data */
     T *copy = new T(data->parent());

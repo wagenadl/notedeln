@@ -59,11 +59,13 @@ private:
   bool inMargin(QPointF); // true if point is in any margin
   bool belowContent(QPointF); // true if point is below any blocks on sheet,
   // whether or not the point is in the margin
-  void newGfxBlock();
-  void newTextBlock(int after=-1, bool evenIfLastEmpty=false);
+  class GfxBlockItem *newGfxBlock();
+  class TextBlockItem *newTextBlock(int after=-1, bool evenIfLastEmpty=false);
   // creates a new text block after the
   // given block or at the bottom of this sheet
   void deleteBlock(int blocki); // also deletes data!
+  class BlockItem *tryMakeGfxBlock(class BlockData *bd);
+  class BlockItem *tryMakeTextBlock(class BlockData *bd);
 private:
   class TitleItem *titleItem;
   QGraphicsTextItem *dateItem;

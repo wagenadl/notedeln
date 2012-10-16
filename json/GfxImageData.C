@@ -3,10 +3,36 @@
 #include "GfxImageData.H"
 #include <QRectF>
 #include <QDebug>
+#include <QImage>
 
 static Data::Creator<GfxImageData> c("gfximage");
 
 GfxImageData::GfxImageData(Data *parent): GfxData(parent) {
+  setType("gfximage");
+  resName_ = "";
+  width_ = 1;
+  height_ = 1;
+  scale_ = 1;
+  cropTop_ = 0;
+  cropBottom_ = 0;
+  cropLeft_ = 0;
+  cropRight_ = 0;
+}
+
+GfxImageData::GfxImageData(QString resName, QImage img): GfxData(0) {
+  setType("gfximage");
+  resName_ = resName;
+  width_ = img.width();
+  height_ = img.height();
+  scale_ = 1;
+  if (width_ * scale_ > 5*72) // arbitrary
+    scale_ = 5*72/width_;
+  if (height_ * scale_ > 5*72) // arbitrary
+    scale_ = 5*72/height_;
+  cropTop_ = 0;
+  cropBottom_ = 0;
+  cropLeft_ = 0;
+  cropRight_ = 0;
 }
 
 GfxImageData::~GfxImageData() {

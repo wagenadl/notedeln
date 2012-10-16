@@ -69,8 +69,9 @@ PageFile *Notebook::page(int n)  {
   if (!f)
     return 0;
 
+  f->data()->setNotebook(this);
   connect(f->data(), SIGNAL(titleMod()), SLOT(titleMod()));
-  connect(f->data(), SIGNAL(sheetcountMod()), SLOT(sheetCountMod()));
+  connect(f->data(), SIGNAL(sheetCountMod()), SLOT(sheetCountMod()));
   return f;
 }
 
@@ -81,8 +82,10 @@ PageFile *Notebook::createPage(int n) {
     return 0;
 
   toc()->addEntry(n, TOCEntry()); // details will be filled out later
+
+  f->data()->setNotebook(this);
   connect(f->data(), SIGNAL(titleMod()), SLOT(titleMod()));
-  connect(f->data(), SIGNAL(sheetcountMod()), SLOT(sheetCountMod()));
+  connect(f->data(), SIGNAL(sheetCountMod()), SLOT(sheetCountMod()));
   bookData()->setEndDate(QDate::currentDate());
   return f;
 }

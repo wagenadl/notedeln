@@ -17,7 +17,8 @@ class GfxImageData: public GfxData {
   Q_PROPERTY(double cropLeft READ cropLeft WRITE setCropLeft)
   Q_PROPERTY(double cropRight READ cropRight WRITE setCropRight)
 public:
-  GfxImageData(Data *parent);
+  GfxImageData(Data *parent=0);
+  GfxImageData(QString resName, QImage img);
   virtual ~GfxImageData();
 public:
   // read properties

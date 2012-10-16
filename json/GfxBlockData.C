@@ -2,6 +2,9 @@
 
 #include "GfxBlockData.H"
 #include "GfxData.H"
+#include <QDebug>
+
+static Data::Creator<GfxBlockData> c("gfxblock");
 
 GfxBlockData::GfxBlockData(class PageData *parent):
   BlockData(parent) {
@@ -17,6 +20,7 @@ QList<class GfxData *> const &GfxBlockData::gfx() const{
 }
 
 void GfxBlockData::addGfx(GfxData *g) {
+  qDebug() << "GBD: addGfx" << g;
   gfx_.append(g);
   g->setParent(this);
   markModified();
@@ -30,6 +34,8 @@ void GfxBlockData::removeGfx(GfxData *g) {
 }
 
 void GfxBlockData::loadMore(QVariantMap const &src) {
+  qDebug() << "GfxBlockData::loadMore";
+  
   foreach (GfxData *gd, gfx_)
     delete gd;
   gfx_.clear();
@@ -37,7 +43,14 @@ void GfxBlockData::loadMore(QVariantMap const &src) {
   QVariantList gl = src["gfx"].toList();
   foreach (QVariant g, gl) {
     QVariantMap gm = g.toMap();
-    GfxData *gd = dynamic_cast<GfxData*>(Data::create(gm["typ"].toString()));
+    Data *g0 = Data::create(gm["typ"].toString());
+    if (!g0) 
+      qDebug() << "Failed to create data of type " << gm["typ"].toString();
+    Q_ASSERT(g0);
+    GfxData *gd = dynamic_cast<GfxData*>(g0);
+    if (!gd)
+      qDebug() << "Failed to cast data of type " << gm["typ"].toString()
+	       << "to GfxData";
     Q_ASSERT(gd);
     gd->load(gm);
     gfx_.append(gd);
@@ -46,7 +59,8 @@ void GfxBlockData::loadMore(QVariantMap const &src) {
 }
   
   
-void GfxBlockData::saveMore(QVariantMap &dst) {
+void GfxBlockData::saveMore(QVariantMap &dst) const {
+  qDebug() << "GfxBlockData::saveMore";
   QVariantList gl;
   foreach (GfxData *gd, gfx_) {
     QVariantMap g = gd->save();

@@ -14,12 +14,14 @@ public:
   GfxBlockData *data(); // benevolently hides inherited version
   QList<QGraphicsItem *> const &gfx();
   bool isEmpty() const;
-  class GfxImageItem *newImage(QString resName, QPointF xy);
+  class GfxImageItem *newImage(QImage img, QUrl const *src, QPointF xy);
+  class GfxImageItem *newImage(QUrl src, QPointF xy);
   virtual QRectF netBoundingRect() const; // w/o notes
   void paint(QPainter *p, const QStyleOptionGraphicsItem *o, QWidget *w);
 private:
   double width() const;
   double height() const;
+  void growToFit();
 private:
   GfxBlockData *data_; // we don't own
   QList<QGraphicsItem *> items_; // we do own

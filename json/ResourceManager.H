@@ -13,7 +13,7 @@ class ResourceManager: public QObject {
   Q_OBJECT;
 public:
   ResourceManager(QString resdir, QObject *parent=0);
-  QString import(QImage img, QUrl *source=0);
+  QString import(QImage img, QUrl const *source=0);
   QString import(QUrl source); // this will wait until complete
   QString link(QUrl source); // this will complete in b/g
   /* Return from import() and link() is a resource name.

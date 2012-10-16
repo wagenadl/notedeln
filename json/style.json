@@ -35,5 +35,8 @@
 "paragraph-top-margin": 5,
 "paragraph-bottom-margin": 5,
 "paragraph-allow-empty": 1,
-"title-revision-threshold": 12
+"title-revision-threshold": 12,
+"canvas-grid-line-width": 0.5,
+"canvas-grid-color": "#ccccff",
+"canvas-grid-spacing": 18
 }

@@ -180,27 +180,26 @@ Data *Data::create(QString t) {
 
 PageData *Data::page() const {
   Data *dp = const_cast<Data*>(this);
+  qDebug() << "Data::page" << dp;
   while (dp) {
     PageData *pp = dynamic_cast<PageData*>(dp);
+    qDebug() << " pp="<<pp;
     if (pp)
       return pp;
-    dp = parent();
+    dp = dp->parent();
+    qDebug() << " dp <- " << dp;
   }
   return 0;
 }
 
-OpenBook *Data::book() const {
-  /*
-  Data *dp = const_cast<Data *>(this);
-  while (dp) {
-    OpenBook *pp = dynamic_cast<OpenBook*>(dp);
-    if (pp)
-      return pp;
-    dp = parent();
-  }
-  */
-  return 0;
-  
+Notebook *Data::book() const {
+  PageData *pg = page();
+  return pg ? pg->notebook() : 0;
+}
+
+ResourceManager *Data::resMgr() const {
+  PageData *pg = page();
+  return pg ? pg->resMgr() : 0;
 }
   
 bool Data::loading() const {
