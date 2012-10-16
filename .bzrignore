@@ -1,12 +1,12 @@
 Makefile
 *.o
+*.pri
 *~
-moc*
 
 eln
 jtest
 .obj
 .moc
-qrc_icons.cpp
 .rcc
 test.nb
+
