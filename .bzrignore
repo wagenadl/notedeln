@@ -8,3 +8,5 @@ jtest
 .obj
 .moc
 qrc_icons.cpp
+.rcc
+test.nb
