@@ -5,12 +5,12 @@
 #define GFXTEXTDATA_H
 
 #include "GfxData.H"
+#include "TextData.H"
 
 class GfxTextData: public GfxData {
   Q_OBJECT;
   Q_PROPERTY(HAlign hAlign READ hAlign WRITE setHAlign);
   Q_PROPERTY(VAlign vAlign READ vAlign WRITE setVAlign);
-  Q_PROPERTY(QString text READ text WRITE setText);
   Q_ENUMS(HAlign VAlign);
 public:
   enum HAlign {
@@ -29,14 +29,16 @@ public:
   virtual ~GfxTextData();
   HAlign hAlign() const;
   VAlign vAlign() const;
-  QString text() const;
   void setHAlign(HAlign);
   void setVAlign(VAlign);
-  void setText(QString);
+  TextData *text() const;
+protected:
+  void loadMore(QVariantMap const &src);
+  void saveMore(QVariantMap &dst) const;
 private:
   HAlign hAlign_;
   VAlign vAlign_;
-  QString text_;
+  TextData *text_;
 };
 
 #endif

@@ -1,0 +1,46 @@
+// TextData.H
+
+#ifndef TEXTDATA_H
+
+#define TEXTDATA_H
+
+#include "Data.H"
+
+#include <QList>
+
+#include "MarkupData.H"
+
+class TextD0 {
+public:
+  TextD0();
+  virtual ~TextD0();
+   // read properties
+  QString text() const;
+  // write properties
+  void setText(QString const &);
+  /* If you change the text in the presence of markups, you are responsible
+     for updating the markups */
+  // other
+  QList<MarkupData *> const &markups() const;
+  MarkupData *addMarkup(int start, int end, MarkupData::Style style);
+  void removeMarkup(MarkupData *); // the markup is destructed as well
+protected:
+  void loadMore(QVariantMap const &src);
+  void saveMore(QVariantMap &dst) const;
+protected:
+  QString text_;
+  QList<MarkupData *> markups_;
+};
+
+class TextData: public Data, public TextD0 {
+  Q_OBJECT;
+  Q_PROPERTY(QString text READ text WRITE setText)
+public:
+  TextData(Data *parent=0);
+  virtual ~TextData();
+protected:
+  void loadMore(QVariantMap const &src);
+  void saveMore(QVariantMap &dst) const;
+};
+
+#endif
