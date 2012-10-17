@@ -3,23 +3,26 @@
 #include "GfxImageItem.H"
 #include "GfxItemFactory.H"
 #include "GfxImageData.H"
+#include "PageScene.H"
 #include <QDebug>
 #include <QGraphicsSceneMouseEvent>
 #include <QGraphicsSceneHoverEvent>
 #include <QKeyEvent>
 #include "ResourceManager.H"
 #include <QCursor>
+#include <math.h>
 
 GfxItemFactory::Creator<GfxImageData, GfxImageItem> c("gfximage");
 
-GfxImageItem::GfxImageItem(GfxImageData *data, QGraphicsItem *parent):
-  QGraphicsPixmapItem(parent), data(data) {
+GfxImageItem::GfxImageItem(GfxImageData *data, QGraphicsObject *parent):
+  QObject(parent), QGraphicsPixmapItem(parent), data(data) {
   if (!data) {
     qDebug() << "GfxImageItem constructed w/o data";
     return;
   }
 
   dragType = None;
+  moveModPressed = false;
 
   // get the image, crop it, etc.
   ResourceManager *resmgr = data->resMgr();
@@ -33,9 +36,16 @@ GfxImageItem::GfxImageItem(GfxImageData *data, QGraphicsItem *parent):
   }
   setPixmap(QPixmap::fromImage(image.copy(data->cropRect().toRect())));
   setScale(data->scale());
-  setPos(data->xy());
+  setPos(data->pos());
   setAcceptHoverEvents(true);
   oldCursor = Qt::ArrowCursor;
+  setCursor(GfxBlockItem::defaultCursor());
+  PageScene *s = dynamic_cast<PageScene*>(scene());
+  if (s) 
+    connect(s, SIGNAL(modifiersChanged(Qt::KeyboardModifiers)),
+	    SLOT(modifierChange(Qt::KeyboardModifiers)));
+  else
+    qDebug() << "GfxImageItem: no page -> keyboard modifiers will be ignored";
 }
 
 GfxImageItem::~GfxImageItem() {
@@ -58,15 +68,108 @@ QPointF GfxImageItem::moveDelta(QGraphicsSceneMouseEvent *e) {
   return delta;
 }
 
+//static double operator*(QPointF a, QPointF b) {
+//  return a.x()*b.x() + a.y()*b.y();
+//}
+
+static double euclideanLength(QPointF a) {
+  return sqrt(a.x()*a.x() + a.y()*a.y());
+}
+
 void GfxImageItem::mouseMoveEvent(QGraphicsSceneMouseEvent *e) {
+  QPointF ppos = mapToParent(e->pos());
   qDebug() << "GfxImageItem::mouseMove" << e->pos();
   switch (dragType) {
   case None:
     qDebug() << " Nonmove!?";
     break;
   case Move:
-    setPos(initialPos + moveDelta(e));
+    setPos(data->pos() + moveDelta(e));
     break;
+  case ResizeTopLeft: {
+    QPointF xy0 = data->blockRect().bottomRight();
+    double diag0 = euclideanLength(dragStart - xy0);
+    double diag1 = euclideanLength(ppos - xy0);
+    setScale(data->scale() * diag1/diag0);
+    setPos(pos() + xy0 - mapToParent(boundingRect().bottomRight()));
+  } break;
+  case ResizeTopRight: {
+    QPointF xy0 = data->blockRect().bottomLeft();
+    double diag0 = euclideanLength(dragStart - xy0);
+    double diag1 = euclideanLength(ppos - xy0);
+    setScale(data->scale() * diag1/diag0);
+    setPos(pos() + xy0 - mapToParent(boundingRect().bottomLeft()));
+  } break;
+  case ResizeBottomLeft: {
+    QPointF xy0 = data->blockRect().topRight();
+    double diag0 = euclideanLength(dragStart - xy0);
+    double diag1 = euclideanLength(ppos - xy0);
+    setScale(data->scale() * diag1/diag0);
+    setPos(pos() + xy0 - mapToParent(boundingRect().topRight()));
+  } break;
+  case ResizeBottomRight: {
+    QPointF xy0 = data->blockRect().topLeft();
+    double diag0 = euclideanLength(dragStart - xy0);
+    double diag1 = euclideanLength(ppos - xy0);
+    setScale(data->scale() * diag1/diag0);
+  } break;
+  case CropLeft: {
+    double dx = moveDelta(e).x();
+    dragCrop = data->cropRect();
+    double x0 = dragCrop.left();
+    double x = x0 + dx;
+    if (x < 0)
+      x = 0;
+    else if (x > dragCrop.right())
+      x = dragCrop.right();
+    dx = x - x0;
+    dragCrop.setLeft(x);
+    setPixmap(QPixmap::fromImage(image.copy(dragCrop.toRect())));
+    setPos(pos() + data->blockRect().bottomRight()
+	   - mapRectToParent(boundingRect()).bottomRight());
+  } break;
+  case CropRight: {
+    double dx = moveDelta(e).x();
+    dragCrop = data->cropRect();
+    double x0 = dragCrop.right();
+    double x = x0 + dx;
+    if (x < dragCrop.left())
+      x = dragCrop.left();
+    else if (x > data->width())
+      x = data->width();
+    dx = x - x0;
+    dragCrop.setRight(x);
+    setPixmap(QPixmap::fromImage(image.copy(dragCrop.toRect())));
+  } break;
+  case CropTop: {
+    double dy = moveDelta(e).y();
+    dragCrop = data->cropRect();
+    double y0 = dragCrop.top();
+    double y = y0 + dy;
+    if (y < 0)
+      y = 0;
+    else if (y > dragCrop.bottom())
+      y = dragCrop.bottom();
+    dy = y - y0;
+    dragCrop.setTop(y);
+    setPixmap(QPixmap::fromImage(image.copy(dragCrop.toRect())));
+    setPos(pos() + data->blockRect().bottomRight()
+	   - mapRectToParent(boundingRect()).bottomRight());
+  } break;
+  case CropBottom: {
+    double dy = moveDelta(e).y();
+    dragCrop = data->cropRect();
+    double y0 = dragCrop.bottom();
+    double y = y0 + dy;
+    if (y < dragCrop.top())
+      y = dragCrop.top();
+    else if (y > data->height())
+      y = data->height();
+    dy = y - y0;
+    dragCrop.setBottom(y);
+    setPixmap(QPixmap::fromImage(image.copy(dragCrop.toRect())));
+  } break;
+    
   default:
     qDebug() << "Crop NYI";
     break;
@@ -75,50 +178,48 @@ void GfxImageItem::mouseMoveEvent(QGraphicsSceneMouseEvent *e) {
 
 void GfxImageItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
   qDebug() << "GfxImageItem::mousePress" << e->pos() << e->modifiers();
-  if (e->modifiers() & GfxBlockItem::moveModifiers()) {
-    qDebug() << "-> I will move (in future, I might crop)";
-    dragType = Move;
-    initialPos = pos();
-    /* Eventually, we'll use initialPos for multiple things:
-       (1) for Move: initial TL in parent coords
-       (2) for Resize: initial whatever corner in parent coords
-       (3) for Crop: initial whatever edge in our coords (!)
-     * Resize will be initiated if we are within 1/4 of width and 1/4 of
-       height from a corner.
-     * Crop will be initiated if we are not within resize distance of a
-       corner and we are within 1/6 of width from a vertical edge or within
-       1/6 of height from a horizontal edge.
-     * It would be nice to have a graphical way to show what will happen.
-       Can I make the mouse cursor reflect that when the relevant modifier is
-       held down? YES! Hover events would allow that
-    */
-
+  if (moveModPressed) { // if (e->modifiers() & GfxBlockItem::moveModifiers())
+    dragType = dragTypeForPoint(e->pos());
     dragStart = mapToParent(e->pos());
+    dragCrop = data->cropRect();
+    if (parentBlock())
+      parentBlock()->lockBounds();
     e->accept();
   } else {
     e->ignore(); // pass to parent
   }
 }
 
+GfxBlockItem *GfxImageItem::parentBlock() const {
+  return dynamic_cast<GfxBlockItem *>(parentItem());
+}
+
 void GfxImageItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *e) {
   qDebug() << "GfxImageItem::mouseRelease" << e->pos();
+  GfxBlockItem *block = parentBlock();
   switch (dragType) {
   case None:
     qDebug() << "Nonmove!?";
     break;
-  case Move: {
-    setPos(initialPos + moveDelta(e));
-    data->setXY(pos());
-    GfxBlockItem *block = dynamic_cast<GfxBlockItem *>(parentItem());
-    if (block)
-      block->checkVbox();
-    else
-      qDebug() << "Not a block parent?";
-  } break;
+  case Move: 
+    data->setPos(pos());
+    break;
+  case ResizeTopLeft: case ResizeTopRight:
+  case ResizeBottomLeft: case ResizeBottomRight: 
+    data->setPos(pos());
+    data->setScale(scale());
+    break;
+  case CropLeft: case CropRight:
+  case CropTop: case CropBottom:
+    data->setPos(pos());
+    data->setCropRect(dragCrop.toRect()); // round to integers
+    break;
   default:
     qDebug() << "Crop NYI";
     break;
   }
+  if (block)
+    block->unlockBounds();
 }
 
 GfxImageItem::DragType GfxImageItem::dragTypeForPoint(QPointF p) {
@@ -148,31 +249,44 @@ GfxImageItem::DragType GfxImageItem::dragTypeForPoint(QPointF p) {
 
 Qt::CursorShape GfxImageItem::cursorForDragType(GfxImageItem::DragType dt) {
   switch (dt) {
-  case None: case Move:
+  case None:
+    return Qt::ArrowCursor;
+  case Move:
     return Qt::ArrowCursor;
   case ResizeTopLeft: case ResizeBottomRight:
     return Qt::SizeFDiagCursor;
   case ResizeTopRight: case ResizeBottomLeft:
     return Qt::SizeBDiagCursor;
   case CropLeft: case CropRight:
-    return Qt::SizeHorCursor;    
+    return Qt::SplitHCursor;
   case CropTop: case CropBottom:
-    return Qt::SizeVerCursor;    
+    return Qt::SplitVCursor;
   }
+  return GfxBlockItem::defaultCursor(); // this statement will not be reached
+}
+
+void GfxImageItem::setCursor(Qt::CursorShape newCursor) {
+  if (newCursor==oldCursor)
+    return;
+  
+  QGraphicsPixmapItem::setCursor(newCursor);
+  oldCursor = newCursor;
+}
+
+void GfxImageItem::modifierChange(Qt::KeyboardModifiers m) {
+  moveModPressed = m & GfxBlockItem::moveModifiers();
+  if (moveModPressed)
+    setCursor(cursorForDragType(dragTypeForPoint(cursorPos)));
+  else 
+   setCursor(GfxBlockItem::defaultCursor());
 }
 
 void GfxImageItem::hoverMoveEvent(QGraphicsSceneHoverEvent *e) {
-  Qt::CursorShape newCursor = Qt::ArrowCursor;
-  double x = e->pos().x();
-  double y = e->pos().y();
-  double w = boundingRect().width();
-  double h = boundingRect().height();
-  if (e->modifiers() & GfxBlockItem::moveModifiers()) 
-    newCursor = cursorForDragType(dragTypeForPoint(e->pos()));
-  if (newCursor != oldCursor) {
-    setCursor(QCursor(newCursor));
-    oldCursor = newCursor;
-  }
+  cursorPos = e->pos(); // cache for the use of modifierChanged
+  if (moveModPressed)
+    setCursor(cursorForDragType(dragTypeForPoint(cursorPos)));
+  else
+    setCursor(GfxBlockItem::defaultCursor());
   e->accept();
 }
 

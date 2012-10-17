@@ -34,6 +34,7 @@ PageScene::PageScene(PageData *data, QObject *parent):
   style(Style::defaultStyle()) {
 
   networkManager = 0;
+  keymods_ = 0x0;
   
   hChangeMapper = new QSignalMapper(this);
   vChangeMapper = new QSignalMapper(this);
@@ -612,16 +613,65 @@ PageScene::MouseMode PageScene::mode() const {
   return mode_;
 }
 
+void PageScene::keyReleaseEvent(QKeyEvent *e) {
+  switch (e->key()) {
+  case Qt::Key_Alt: case Qt::Key_AltGr:
+    keymods_ &= ~Qt::AltModifier;
+    emit modifiersChanged(keymods_);
+    break;
+  case Qt::Key_Control:
+    keymods_ &= ~Qt::ControlModifier;
+    emit modifiersChanged(keymods_);
+    break;
+  case Qt::Key_Shift:    
+    keymods_ &= ~Qt::ShiftModifier;
+    emit modifiersChanged(keymods_);
+    break;
+  case Qt::Key_Super_L: case Qt::Key_Super_R:
+  case Qt::Key_Hyper_L: case Qt::Key_Hyper_R:
+    keymods_ &= ~Qt::MetaModifier;
+    emit modifiersChanged(keymods_);
+    break;
+  }
+  QGraphicsScene::keyReleaseEvent(e);
+}
+
 void PageScene::keyPressEvent(QKeyEvent *e) {
-  if (e->key()==Qt::Key_V && e->modifiers() & Qt::ControlModifier) 
-    tryToPaste();
+  switch (e->key()) {
+  case Qt::Key_Alt: case Qt::Key_AltGr:
+    keymods_ |= Qt::AltModifier;
+    emit modifiersChanged(keymods_);
+    break;
+  case Qt::Key_Control:
+    keymods_ |= Qt::ControlModifier;
+    emit modifiersChanged(keymods_);
+    break;
+  case Qt::Key_Shift:    
+    keymods_ |= Qt::ShiftModifier;
+    emit modifiersChanged(keymods_);
+    break;
+  case Qt::Key_Super_L: case Qt::Key_Super_R:
+  case Qt::Key_Hyper_L: case Qt::Key_Hyper_R:
+    keymods_ |= Qt::MetaModifier;
+    emit modifiersChanged(keymods_);
+    break;
+  case Qt::Key_V:
+    if (e->modifiers() & Qt::ControlModifier) 
+      if (tryToPaste()) {
+	e->accept();
+	return;
+      }
+  default:
+    break;
+  }
   QGraphicsScene::keyPressEvent(e);
 }
 
-void PageScene::tryToPaste() {
+bool PageScene::tryToPaste() {
   // we get it first.
   // if we don't send the event on to QGraphicsScene, textItems don't get it
   qDebug() << "PageScene::tryToPaste";
+  return false;
 }
 
 void PageScene::dropEvent(QGraphicsSceneDragDropEvent *e) {
@@ -714,12 +764,12 @@ bool PageScene::importDroppedUrl(QPointF scenePos, QUrl const &url) {
 
 bool PageScene::importDroppedText(QPointF scenePos, QString const &txt,
 					QUrl const *source) {
-  qDebug() << "PageScene: import dropped text: " << txt;
+  qDebug() << "PageScene: import dropped text: " << scenePos << txt << source;
   return false;
 }
 
 bool PageScene::importDroppedFile(QPointF scenePos, QString const &fn) {
-  qDebug() << "PageScene: import dropped file: " << fn;
+  qDebug() << "PageScene: import dropped file: " << scenePos << fn;
   return false;
 }
     

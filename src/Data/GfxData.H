@@ -21,8 +21,8 @@ public:
   void setX(double);
   void setY(double);
   // convenience
-  QPointF xy() const;
-  void setXY(QPointF);
+  QPointF pos() const;
+  void setPos(QPointF);
 protected:
   double x_;
   double y_;

@@ -26,9 +26,12 @@ public slots:
   void nextSheet();
   void previousSheet();
   void gotoSheet(int i);
+signals:
+  void modifiersChanged(Qt::KeyboardModifiers);
 protected:
   void mousePressEvent(QGraphicsSceneMouseEvent *);
   void keyPressEvent(QKeyEvent *);
+  void keyReleaseEvent(QKeyEvent *);
   void dropEvent (QGraphicsSceneDragDropEvent *);
 private slots:
   void titleEdited();
@@ -37,7 +40,7 @@ private slots:
   void futileMovement(int block);
   void enterPressed(int block);
 private:
-  void tryToPaste();
+  bool tryToPaste();
   bool importDroppedImage(QPointF scenePos, QImage const &img,
 			  class QUrl const *source=0);
   bool importDroppedUrls(QPointF scenePos, QList<class QUrl> const &url);
@@ -92,7 +95,7 @@ private:
   PageData *data;
   class Style const &style;
   MouseMode mode_;
-  
+  Qt::KeyboardModifiers keymods_;
 };
 
 #endif

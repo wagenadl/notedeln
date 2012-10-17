@@ -41,15 +41,17 @@ public:
   void setCropLeft(double);
   void setCropRight(double);
   // other
+  QSizeF size() const; // image pixels
   QRectF cropRect() const; // image pixels, calc'd from above
+  void setSize(QSizeF);
   void setCropRect(QRectF);
 
-  QSizeF mapImageToBlock(QSizeF) const;
-  QPointF mapImageToBlock(QPointF) const;
-  QRectF mapImageToBlock(QRectF) const;
-  QSizeF mapBlockToImage(QSizeF) const;
-  QPointF mapBlockToImage(QPointF) const;
-  QRectF mapBlockToImage(QRectF) const;
+  QSizeF mapToBlock(QSizeF) const;
+  QPointF mapToBlock(QPointF) const;
+  QRectF mapToBlock(QRectF) const;
+  QSizeF mapFromBlock(QSizeF) const;
+  QPointF mapFromBlock(QPointF) const;
+  QRectF mapFromBlock(QRectF) const;
   QRectF blockRect() const;
   QRectF uncroppedBlockRect() const;
 private:

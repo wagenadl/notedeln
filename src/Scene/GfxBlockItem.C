@@ -11,6 +11,7 @@
 #include "GfxImageItem.H"
 #include <math.h>
 #include <QGraphicsSceneMouseEvent>
+#include <QCursor>
 
 GfxBlockItem::GfxBlockItem(GfxBlockData *data, PageScene *parent):
   BlockItem(data, parent),
@@ -24,9 +25,21 @@ GfxBlockItem::GfxBlockItem(GfxBlockData *data, PageScene *parent):
   qDebug() <<"  items="<<items_;
 
   setPos(Style::defaultStyle()["margin-left"].toDouble(), 0);
+  setCursor(defaultCursor());
+  boundsLocked = false;
 }
 
 GfxBlockItem::~GfxBlockItem() {
+}
+
+void GfxBlockItem::lockBounds() {
+  boundingRectCache = netBoundingRect();
+  boundsLocked = true;
+}
+
+void GfxBlockItem::unlockBounds() {
+  boundsLocked = false;
+  sizeToFit();
 }
 
 GfxBlockData *GfxBlockItem::data() {
@@ -47,20 +60,18 @@ GfxImageItem *GfxBlockItem::newImage(QImage img, QUrl const *src, QPointF xy) {
   Q_ASSERT(data()->resMgr());
   QString resName = data()->resMgr()->import(img, src);
   qDebug() << "GfxBlockItem::newImage" << resName << xy;
-  if (true || isEmpty()) {
-    // let's just place it
-    GfxImageData *gid = new GfxImageData(resName, img);
-    gid->setXY(QPointF(18, 18));
-    data()->addGfx(gid);
-    GfxImageItem *gii = new GfxImageItem(gid, this);
-    items_.append(gii);
-    qDebug() << "  new image: bbox: "
-	     << gii->mapRectToParent(gii->boundingRect());
-    growToFit();
-  } else {
-    // should use passed position info?
-  }
-  return 0;
+  
+  GfxImageData *gid = new GfxImageData(resName, img);
+  gid->setPos(QPointF(18, 18)); // should use passed xy?
+  data()->addGfx(gid);
+  GfxImageItem *gii = new GfxImageItem(gid, this);
+  items_.append(gii);
+  qDebug() << "  new image: bbox: "
+	   << gii->mapRectToParent(gii->boundingRect());
+  connect(gii, SIGNAL(geometryChange()), SLOT(sizeToFit()));
+  sizeToFit();
+
+  return gii;
 }
 
 double GfxBlockItem::availableWidth() const {
@@ -70,12 +81,16 @@ double GfxBlockItem::availableWidth() const {
     style["margin-right"].toDouble();
 }
 
-void GfxBlockItem::growToFit() {
+void GfxBlockItem::sizeToFit() {
+  prepareGeometryChange();
   checkVbox();
-  data_->setRef(-netBoundingRect().topLeft());
+  data_->setRef(-netBoundingRect().topLeft()); // this has the intended
+  // side effect of updating the boundingRectCache
 }
 
 QRectF GfxBlockItem::netBoundingRect() const {
+  if (boundsLocked)
+    return boundingRectCache;
   QRectF b = QRectF(0, 0, availableWidth(), 72);
   foreach (QGraphicsItem *i, items_) {
     QRectF bb = i->mapRectToParent(i->boundingRect());
@@ -89,11 +104,12 @@ QRectF GfxBlockItem::netBoundingRect() const {
 }
 
 void GfxBlockItem::paint(QPainter *p,
-			 const QStyleOptionGraphicsItem *o,
-			 QWidget *w) {
+			 const QStyleOptionGraphicsItem *,
+			 QWidget *) {
   // paint background grid; items draw themselves  
   Style const &style(Style::defaultStyle());
   QRectF bb = netBoundingRect();
+  qDebug() << "paint: " << bb;
 
   p->setPen(QPen(QBrush(QColor(style["canvas-grid-color"].toString())),
 		 style["canvas-grid-line-width"].toDouble(),
@@ -133,6 +149,11 @@ void GfxBlockItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
 
 void GfxBlockItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *e) {
   qDebug() << "GfxBlockItem::mouseRelease" << e->pos();
+}
+
+Qt::CursorShape GfxBlockItem::defaultCursor() {
+  return Qt::CrossCursor;
+  // perhaps this should be different for read-only state?
 }
 
 Qt::KeyboardModifiers GfxBlockItem::moveModifiers() {

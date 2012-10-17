@@ -19,6 +19,11 @@ public:
   class GfxImageItem *newImage(QUrl src, QPointF xy);
   virtual QRectF netBoundingRect() const; // w/o notes
   void paint(QPainter *p, const QStyleOptionGraphicsItem *o, QWidget *w);
+public slots:
+  void lockBounds();   // } children call these to prevent geom. update
+  void unlockBounds(); // } during drags
+public:
+  static Qt::CursorShape defaultCursor();
   static Qt::KeyboardModifiers moveModifiers(); // mask of modifier keys ...
   static Qt::MouseButton moveButton(); // ... and mouse button that should
                                        // trigger a move
@@ -27,12 +32,14 @@ protected:
   virtual void mousePressEvent(QGraphicsSceneMouseEvent *);
   virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *);
 private:
+  void sizeToFit();
   double availableWidth() const;
-  void growToFit();
   void drawGrid(QPainter *p, QRectF const &bb, double dx);
 private:
   GfxBlockData *data_; // we don't own
   QList<QGraphicsItem *> items_; // we do own
+  QRectF boundingRectCache;
+  bool boundsLocked;
 };
 
 #endif

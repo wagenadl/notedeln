@@ -5,10 +5,12 @@
 #define GFXIMAGEITEM_H
 
 #include <QGraphicsPixmapItem>
+#include <QObject>
 
-class GfxImageItem: public QGraphicsPixmapItem {
+class GfxImageItem: public QObject, public QGraphicsPixmapItem {
+  Q_OBJECT;
 public:
-  GfxImageItem(class GfxImageData *data, QGraphicsItem *parent=0);
+  GfxImageItem(class GfxImageData *data, QGraphicsObject *parent=0);
   virtual ~GfxImageItem();
   void showCroppedAreas();
   void hideCroppedAreas();
@@ -31,17 +33,23 @@ private:
     CropTop,
     CropBottom,
   };
-private:  
+private slots:
+  void modifierChange(Qt::KeyboardModifiers);
+private:
+  class GfxBlockItem *parentBlock() const;
   QPointF moveDelta(QGraphicsSceneMouseEvent *);
   DragType dragTypeForPoint(QPointF);
   Qt::CursorShape cursorForDragType(DragType);
+  void setCursor(Qt::CursorShape);
 private:
   GfxImageData *data;
   QImage image; // not cropped
   DragType dragType;
-  QPointF initialPos;
-  QPointF dragStart;
+  QPointF dragStart; // in parent block's coordinates
   Qt::CursorShape oldCursor;
+  QPointF cursorPos;
+  QRectF dragCrop; // in image coords
+  bool moveModPressed;
 };
 
 #endif
