@@ -9,6 +9,8 @@
 #include "ResourceManager.H"
 #include "GfxImageData.H"
 #include "GfxImageItem.H"
+#include <math.h>
+#include <QGraphicsSceneMouseEvent>
 
 GfxBlockItem::GfxBlockItem(GfxBlockData *data, PageScene *parent):
   BlockItem(data, parent),
@@ -61,36 +63,26 @@ GfxImageItem *GfxBlockItem::newImage(QImage img, QUrl const *src, QPointF xy) {
   return 0;
 }
 
-double GfxBlockItem::width() const {
+double GfxBlockItem::availableWidth() const {
   Style const &style(Style::defaultStyle());
   return style["page-width"].toDouble() -
     style["margin-left"].toDouble() -
     style["margin-right"].toDouble();
 }
 
-double GfxBlockItem::height() const {
-  return data_ ? data_->height() : 0;
-}
-
 void GfxBlockItem::growToFit() {
-  double h0 = height(); // current height
-  QRectF b = netBoundingRect();
-  double h1 = b.height(); // contents height
-  qDebug() << "GBI:growtofit h0="<<h0 << " h1="<<h1;
-  if (h1>h0) {
-    data_->setHeight(h1); // make us be larger
-    checkVbox();
-  }
+  checkVbox();
+  data_->setRef(-netBoundingRect().topLeft());
 }
 
 QRectF GfxBlockItem::netBoundingRect() const {
-  QRectF b = QRectF(0, 0, width(), height());
+  QRectF b = QRectF(0, 0, availableWidth(), 72);
   foreach (QGraphicsItem *i, items_) {
     QRectF bb = i->mapRectToParent(i->boundingRect());
-    if (dynamic_cast<GfxImageItem*>(i))
-      bb.adjust(-18, -18, 18, 18);
-    else
-      bb.adjust(-5, -5, 5, 5);
+     if (dynamic_cast<GfxImageItem*>(i))
+       bb.adjust(0, -18, 0, 18);
+     else
+       bb.adjust(0, -5, 0, 5);
     b |= bb;
   }
   return b;
@@ -101,14 +93,52 @@ void GfxBlockItem::paint(QPainter *p,
 			 QWidget *w) {
   // paint background grid; items draw themselves  
   Style const &style(Style::defaultStyle());
+  QRectF bb = netBoundingRect();
+
   p->setPen(QPen(QBrush(QColor(style["canvas-grid-color"].toString())),
 		 style["canvas-grid-line-width"].toDouble(),
 		 Qt::SolidLine,
 		 Qt::FlatCap));
   double dx = style["canvas-grid-spacing"].toDouble();
-  QRectF bb = netBoundingRect();
-  for (double x = bb.left()+dx/2; x<bb.right(); x+=dx)
+  drawGrid(p, bb, dx);
+
+  p->setPen(QPen(QBrush(QColor(style["canvas-grid-major-color"].toString())),
+		 style["canvas-grid-major-line-width"].toDouble(),
+		 Qt::SolidLine,
+		 Qt::FlatCap));
+  dx *= style["canvas-grid-major-interval"].toInt();
+  if (dx)
+    drawGrid(p, bb, dx);
+}
+
+void GfxBlockItem::drawGrid(QPainter *p, QRectF const &bb, double dx) {
+  double x0 = dx*ceil(bb.left()/dx);
+  double x1 = dx*floor(bb.right()/dx);
+  double y0 = dx*ceil(bb.top()/dx);
+  double y1 = dx*floor(bb.bottom()/dx);
+  for (double x = x0; x<=x1+.001; x+=dx)
     p->drawLine(x, bb.top(), x, bb.bottom());
-  for (double y = bb.top()+dx/2; y<bb.bottom(); y+=dx)
+  for (double y = y0; y<=y1+.001; y+=dx)
     p->drawLine(bb.left(), y, bb.right(), y);
+}
+
+void GfxBlockItem::mouseMoveEvent(QGraphicsSceneMouseEvent *e) {
+  qDebug() << "GfxBlockItem::mouseMove" << e->pos();  
+}
+
+void GfxBlockItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
+  qDebug() << "GfxBlockItem::mousePress" << e->pos();
+  e->ignore();
+}
+
+void GfxBlockItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *e) {
+  qDebug() << "GfxBlockItem::mouseRelease" << e->pos();
+}
+
+Qt::KeyboardModifiers GfxBlockItem::moveModifiers() {
+  return Qt::AltModifier | Qt::MetaModifier | Qt::GroupSwitchModifier;
+}
+
+Qt::MouseButton GfxBlockItem::moveButton() {
+  return Qt::LeftButton;
 }

@@ -17,9 +17,7 @@ public:
   QRectF netSceneRect() const; // in scene coords
 signals:
   void vboxChanged();
-  void hboxChanged();
-protected slots:
-  void checkBbox();
+public slots:
   void checkVbox();
 protected:
   void resetBbox(); // size change w/o emitting signals

@@ -15,7 +15,9 @@
 PageEditor::PageEditor() {
   view_ = new PageView(this);
   setCentralWidget(view_);
-
+  toolbar_ = 0;
+  
+  /*
   toolbar_ = new Toolbar(this);
 
   QRect desk = QApplication::desktop()->availableGeometry();
@@ -27,6 +29,7 @@ PageEditor::PageEditor() {
     toolbar_->setOrientation(Qt::Vertical);
     addToolBar(Qt::LeftToolBarArea, toolbar_);
   }
+  */
 
   file_ = 0;
   scene_ = 0;

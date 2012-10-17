@@ -17,19 +17,6 @@ BlockData *BlockItem::data() {
   return data_;
 }
 
-void BlockItem::checkBbox() {
-  QRectF newBbox = netBoundingRect();
-  if (newBbox == oldBbox)
-    return;
-
-  if (newBbox.left()!=oldBbox.left() || newBbox.right()!=oldBbox.right())
-    emit hboxChanged();
-  if (newBbox.top()!=oldBbox.top() || newBbox.bottom()!=oldBbox.bottom())
-    emit vboxChanged();
-
-  oldBbox = newBbox;
-}
-
 void BlockItem::checkVbox() {
   QRectF newBbox = netBoundingRect();
 

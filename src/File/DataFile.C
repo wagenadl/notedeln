@@ -26,17 +26,18 @@ DataFile0::DataFile0(QString fn, QObject *parent):
   QVariantMap v = JSONFile::load(fn, &ok_);
 
   if (!ok_) {
+    qDebug() << "DataFile0: failed to load " << fn;
     return;
   }
   data_ = Data::create(v["typ"].toString());
-  data_->setParent(this); // just a QObject as a parent
   ok_ = data_!=0;
-
   if (!ok_) {
-    qDebug() << "DataFile: could not interpret json as typed data";
+    qDebug() << "DataFile: could not interpret json as typed data ("
+	     << v["typ"].toString() << ")";
     return;
   }
 
+  data_->setParent(this); // just a QObject as a parent
   data_->load(v);
   connect(data_, SIGNAL(mod()), this, SLOT(saveSoon()));
 }

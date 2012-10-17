@@ -289,8 +289,9 @@ void PageScene::stackBlocks() {
     }
     sheetNos.append(sheet);
     topY.append(y);
-
+    qDebug() << "stackBlocks" << y << bi->sceneBoundingRect().top();
     bi->moveBy(0, y-bi->sceneBoundingRect().top());
+    qDebug() << "  ->" << bi->sceneBoundingRect().top();
 
     y += h;
   }
@@ -315,7 +316,9 @@ int PageScene::restackBlocks(int starti) {
       sheet++;
     }
 
+    qDebug() << "restackBlocks" << y << bi->sceneBoundingRect().top();
     bi->moveBy(0, y - bi->sceneBoundingRect().top());
+    qDebug() << "  ->" << bi->sceneBoundingRect().top();
     topY[i] = y;
     sheetNos[i] = sheet;
     BlockData *bd = bi->data();

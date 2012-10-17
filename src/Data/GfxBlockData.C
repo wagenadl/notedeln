@@ -9,7 +9,7 @@ static Data::Creator<GfxBlockData> c("gfxblock");
 GfxBlockData::GfxBlockData(class PageData *parent):
   BlockData(parent) {
   setType("gfxblock");
-  height_ = 72; // some stupid default
+  xref_ = yref_ = 0;
 }
 
 GfxBlockData::~GfxBlockData() {
@@ -69,11 +69,32 @@ void GfxBlockData::saveMore(QVariantMap &dst) const {
   dst["gfx"] = gl;
 }
 
-double GfxBlockData::height() const {
-  return height_;
+double GfxBlockData::xref() const {
+  return xref_;
 }
 
-void GfxBlockData::setHeight(double h) {
-  height_ = h;
+double GfxBlockData::yref() const {
+  return yref_;
+}
+
+QPointF GfxBlockData::ref() const {
+  return QPointF(xref_, yref_);
+}
+
+void GfxBlockData::setXref(double x) {
+  xref_ = x;
+  markModified();
+}
+
+
+void GfxBlockData::setYref(double y) {
+  yref_ = y;
+  markModified();
+}
+
+
+void GfxBlockData::setRef(QPointF xy) {
+  xref_ = xy.x();
+  yref_ = xy.y();
   markModified();
 }

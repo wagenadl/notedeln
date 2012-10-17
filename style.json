@@ -7,8 +7,8 @@
 "text-font-family": "Ubuntu",
 "text-font-size": 11,
 "margin-left": 72,
-"margin-right": 54,
-"margin-right-over": 18,
+"margin-right": 72,
+"margin-right-over": 36,
 "margin-top": 72,
 "margin-bottom": 36,
 "title-sep": 0,
@@ -29,7 +29,7 @@
 "margin-left-line-color": "#ff8888",
 "margin-top-line-width": 0.5,
 "margin-top-line-color": "#8888ff",
-"paragraph-width": 450,
+"paragraph-width": 432,
 "paragraph-indent": 20,
 "paragraph-line-spacing": 1.5,
 "paragraph-top-margin": 5,
@@ -38,5 +38,8 @@
 "title-revision-threshold": 12,
 "canvas-grid-line-width": 0.5,
 "canvas-grid-color": "#ccccff",
-"canvas-grid-spacing": 18
+"canvas-grid-spacing": 18,
+"canvas-grid-major-interval": 4,
+"canvas-grid-major-color": "#ccccff",
+"canvas-grid-major-line-width": 0.5
 }
