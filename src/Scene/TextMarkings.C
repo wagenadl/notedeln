@@ -76,7 +76,7 @@ void TextMarkings::update(int pos, int del, int ins) {
   // First round: update every span
   for (QList<Span>::iterator i=spans.begin(); i!=spans.end(); ) {
     if ((*i).update(doc, pos, del, ins)) {
-      data->removeMarkup((*i).data);
+      data->deleteMarkup((*i).data); // delete empty one
       i = spans.erase(i);
     } else {
       ++i;
@@ -91,7 +91,7 @@ void TextMarkings::update(int pos, int del, int ins) {
 	if ((*j).data->style()==(*i).data->style()) {
 	  // merge or subsume!
 	  (*i).data->merge((*j).data);
-	  data->removeMarkup((*j).data);
+	  data->deleteMarkup((*j).data);
 	  j = spans.erase(j);
 	  changed = true;
 	} else {

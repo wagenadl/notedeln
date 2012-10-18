@@ -8,6 +8,14 @@ MarkupData::MarkupData(Data *parent):
   setType("markup");
 }
 
+MarkupData::MarkupData(int start, int end, MarkupData::Style style,
+		       Data *parent):
+  Data(parent), start_(start), end_(end), style_(style) {
+  setType("markup");
+}
+
+
+
 MarkupData::~MarkupData() {
 }
 

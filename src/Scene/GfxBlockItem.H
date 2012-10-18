@@ -13,20 +13,11 @@ public:
   GfxBlockItem(class GfxBlockData *data, class PageScene *parent);
   virtual ~GfxBlockItem();
   GfxBlockData *data(); // benevolently hides inherited version
-  QList<QGraphicsItem *> const &gfx();
-  bool isEmpty() const;
   class GfxImageItem *newImage(QImage img, QUrl const *src, QPointF xy);
   class GfxImageItem *newImage(QUrl src, QPointF xy);
-  virtual QRectF netBoundingRect() const; // w/o notes
-  void paint(QPainter *p, const QStyleOptionGraphicsItem *o, QWidget *w);
-public slots:
-  void lockBounds();   // } children call these to prevent geom. update
-  void unlockBounds(); // } during drags
-public:
-  static Qt::CursorShape defaultCursor();
-  static Qt::KeyboardModifiers moveModifiers(); // mask of modifier keys ...
-  static Qt::MouseButton moveButton(); // ... and mouse button that should
-                                       // trigger a move
+  void paint(QPainter *, const QStyleOptionGraphicsItem *, QWidget *);
+  virtual QRectF boundingRect() const;
+  virtual void childGeometryChanged();
 protected:
   virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *);
   virtual void mousePressEvent(QGraphicsSceneMouseEvent *);
@@ -37,9 +28,6 @@ private:
   void drawGrid(QPainter *p, QRectF const &bb, double dx);
 private:
   GfxBlockData *data_; // we don't own
-  QList<QGraphicsItem *> items_; // we do own
-  QRectF boundingRectCache;
-  bool boundsLocked;
 };
 
 #endif

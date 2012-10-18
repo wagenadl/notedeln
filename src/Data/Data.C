@@ -75,21 +75,74 @@ void Data::markModified(Data::ModType mt) {
 void Data::load(QVariantMap const &src) {
   loading_ = true;
   loadProps(src);
+  loadChildren(src);
   loadMore(src);
   setCreated(src["cre"].toDateTime());
   setModified(src["mod"].toDateTime());
   loading_ = false;
 }
 
-void Data::loadMore(QVariantMap const &) {
-  // Descendents may do more interesting things
-}
-
 QVariantMap Data::save() const {
   QVariantMap dst;
   saveProps(dst);
+  saveChildren(dst);
   saveMore(dst);
   return dst;
+}
+
+void Data::loadChildren(QVariantMap const &src) {
+  foreach (Data *d, children_)
+    delete d;
+  children_.clear();
+
+  QVariantList l = src["cc"].toList();
+  foreach (QVariant v, l) {
+    QVariantMap m = v.toMap();
+    Data *d = create(m["typ"].toString(), this);
+    if (d) {
+      children_.append(d);
+      d->load(m);
+    } else {
+      qDebug() << "Failed to create child of type" << m["typ"].toString();
+    }
+  }
+}
+
+void Data::saveChildren(QVariantMap &dst) const {
+  QVariantList l;
+  foreach (Data *d, children_) {
+    QVariantMap m = d->save();
+    l.append(m);
+  }
+  dst["cc"] = l;
+}  
+
+void Data::addChild(Data *d, ModType mt) {
+  children_.append(d);
+  d->setParent(this);
+  markModified(mt);
+}
+
+bool Data::deleteChild(Data *d, ModType mt) {
+  if (takeChild(d, mt)) {
+    delete d;
+    return true;
+  } else {
+    return false;
+  }
+}
+
+Data *Data::takeChild(Data *d, ModType mt) {
+  if (children_.removeOne(d)) {
+    markModified(mt);
+    return d;
+  } else {
+    return 0;
+  }
+}
+
+void Data::loadMore(QVariantMap const &) {
+  // Descendents may do more interesting things
 }
 
 void Data::saveMore(QVariantMap &) const {
@@ -166,14 +219,14 @@ Data *Data::parent() const {
 }
 
 
-QMap<QString, Data *(*)()> &Data::creators() {
-  static QMap<QString, Data *(*)()> g;
+QMap<QString, Data *(*)(Data *)> &Data::creators() {
+  static QMap<QString, Data *(*)(Data *)> g;
   return g;
 }
 
-Data *Data::create(QString t) {
+Data *Data::create(QString t, Data *parent) {
   if (creators().contains(t))
-    return creators()[t]();
+    return creators()[t](parent);
   else
     return 0;
 }
@@ -205,3 +258,4 @@ ResourceManager *Data::resMgr() const {
 bool Data::loading() const {
   return loading_;
 }
+

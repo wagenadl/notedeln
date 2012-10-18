@@ -5,16 +5,14 @@
 #define BLOCKITEM_H
 
 #include <QGraphicsObject>
+#include "Item.H"
 
-class BlockItem: public QGraphicsObject {
+class BlockItem: public QGraphicsObject, public Item {
   Q_OBJECT;
 public:
   BlockItem(class BlockData *data, class PageScene *parent);
   virtual ~BlockItem();
   BlockData *data();
-  QRectF boundingRect() const;
-  virtual QRectF netBoundingRect() const; // w/o notes
-  QRectF netSceneRect() const; // in scene coords
 signals:
   void vboxChanged();
 public slots:

@@ -27,7 +27,8 @@ public:
     Emphasize,
   };
 public:
-  MarkupData(Data *parent);
+  MarkupData(Data *parent=0);
+  MarkupData(int start, int end, Style style, Data *parent=0);
   virtual ~MarkupData();
   // read properties
   int start() const;

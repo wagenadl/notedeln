@@ -5,9 +5,10 @@
 
 static Data::Creator<TextBlockData> c("textblock");
 
-TextBlockData::TextBlockData(class PageData *parent):
+TextBlockData::TextBlockData(Data *parent):
   BlockData(parent) {
   text_ = new TextData(this);
+  addChild(text_); // we store the text as our first child
   setType("textblock");
 }
 
@@ -23,9 +24,9 @@ TextData *TextBlockData::text() {
 }
 
 void TextBlockData::loadMore(QVariantMap const &src) {
-  text_->load(src["text"].toMap());
-}
-
-void TextBlockData::saveMore(QVariantMap &dst) const {
-  dst["text"] = text_->save();
+  BlockData::loadMore(src);
+  QList<TextData*> l(children<TextData>());
+  Q_ASSERT(!l.isEmpty());
+  text_ = l[0];
+  Q_ASSERT(text_);
 }

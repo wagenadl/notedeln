@@ -6,7 +6,6 @@ static Data::Creator<GfxTextData> c("gfxtext");
 
 GfxTextData::GfxTextData(Data *parent): GfxData(parent) {
   setType("gfxtext");
-  text_ = new TextData(this);
 }
 
 GfxTextData::~GfxTextData() {
@@ -30,16 +29,28 @@ void GfxTextData::setVAlign(GfxTextData::VAlign va) {
   markModified();
 }
 
-TextData *GfxTextData::text() const {
+
+QString GfxTextData::text() const {
   return text_;
 }
 
-void GfxTextData::loadMore(QVariantMap const &src) {
-  text_->loadMore(src["text"].toMap());
+QList<MarkupData *> GfxTextData::markups() const {
+  return children<MarkupData>();
 }
 
-void GfxTextData::saveMore(QVariantMap &dst) const {
-  QVariantMap m;
-  text_->saveMore(m);
-  dst["text"] = m;
+void GfxTextData::setText(QString const &t) {
+  text_ = t;
+  markModified();
 }
+
+MarkupData *GfxTextData::addMarkup(int start, int end,
+				     MarkupData::Style style) {
+  MarkupData *md = new MarkupData(start, end, style, this);
+  addChild(md, InternalMod);
+  return md;
+}
+
+void GfxTextData::deleteMarkup(MarkupData *md) {
+  deleteChild(md, InternalMod);
+}
+

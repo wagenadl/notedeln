@@ -4,7 +4,7 @@
 #include "PageData.H"
 #include "NoteData.H"
 
-BlockData::BlockData(class PageData *parent): Data(parent) {
+BlockData::BlockData(Data *parent): Data(parent) {
   y0_ = 0;
   sheet_ = -1;
   setType("block");
@@ -34,34 +34,14 @@ void BlockData::setSheet(int sheet) {
     emit newSheet(sheet);
 }
 
-QList<class NoteData *> const &BlockData::notes() const {
-  return notes_;
+QList<class NoteData *> BlockData::notes() const {
+  return children<NoteData>();
 }
 
 void BlockData::addNote(NoteData *n) {
-  notes_.append(n);
-  n->setParent(this);
-  markModified();
+  addChild(n);
 }
 
-void BlockData::loadMore(QVariantMap const &src) {
-  foreach (NoteData *nd, notes_)
-    delete nd;
-  notes_.clear();
-
-  QVariantList nl = src["notes"].toList();
-  foreach (QVariant n, nl) {
-    NoteData *nd = new NoteData(this);
-    nd->load(n.toMap());
-    notes_.append(nd);
-  }
-}
-
-void BlockData::saveMore(QVariantMap &dst) const {
-  QVariantList nl;
-  foreach (NoteData *nd, notes_) {
-    QVariantMap n = nd->save();
-    nl.append(n);
-  }
-  dst["notes"] = nl;
+bool BlockData::deleteNote(NoteData *n) {
+  return deleteChild(n);
 }

@@ -274,7 +274,7 @@ void PageScene::stackBlocks() {
 
   foreach (BlockItem *bi, blockItems) {
     BlockData *bd = bi->data();
-    double h = bi->sceneBoundingRect().height();
+    double h = bi->netSceneRect().height();
     if (bd->sheet()>=0) {
       // (sheet,y) information stored in data, we'll use it
       sheet = bd->sheet();
@@ -290,9 +290,9 @@ void PageScene::stackBlocks() {
     }
     sheetNos.append(sheet);
     topY.append(y);
-    qDebug() << "stackBlocks" << y << bi->sceneBoundingRect().top();
-    bi->moveBy(0, y-bi->sceneBoundingRect().top());
-    qDebug() << "  ->" << bi->sceneBoundingRect().top();
+    qDebug() << "stackBlocks" << y << bi->netSceneRect().top();
+    bi->moveBy(0, y-bi->netSceneRect().top());
+    qDebug() << "  ->" << bi->netSceneRect().top();
 
     y += h;
   }
@@ -311,15 +311,15 @@ int PageScene::restackBlocks(int starti) {
   int sheet = sheetNos[starti];
   for (int i=starti; i<endi; i++) {
     BlockItem *bi = blockItems[i];
-    double h = bi->sceneBoundingRect().height();
+    double h = bi->netSceneRect().height();
     if (y>y0 && y+h>y1) {
       y = y0;
       sheet++;
     }
 
-    qDebug() << "restackBlocks" << y << bi->sceneBoundingRect().top();
-    bi->moveBy(0, y - bi->sceneBoundingRect().top());
-    qDebug() << "  ->" << bi->sceneBoundingRect().top();
+    qDebug() << "restackBlocks" << y << bi->netSceneRect().top();
+    bi->moveBy(0, y - bi->netSceneRect().top());
+    qDebug() << "  ->" << bi->netSceneRect().top();
     topY[i] = y;
     sheetNos[i] = sheet;
     BlockData *bd = bi->data();
@@ -433,7 +433,7 @@ GfxBlockItem *PageScene::newGfxBlock() {
     ? iAbove + 1
     : blockItems.size();
   double yt = (iAbove>=0)
-    ? blockItems[iAbove]->sceneBoundingRect().bottom()
+    ? blockItems[iAbove]->netSceneRect().bottom()
     : style["margin-top"].toDouble();
 
   GfxBlockData *gbd = new GfxBlockData();
@@ -472,7 +472,7 @@ TextBlockItem *PageScene::newTextBlock(int iAbove, bool evenIfLastEmpty) {
     ? iAbove + 1
     : blockItems.size();
   double yt = (iAbove>=0)
-    ? blockItems[iAbove]->sceneBoundingRect().bottom()
+    ? blockItems[iAbove]->netSceneRect().bottom()
     : style["margin-top"].toDouble();
 
   TextBlockData *tbd = new TextBlockData();
@@ -564,16 +564,16 @@ void PageScene::enterPressed(int block) {
 
 void PageScene::hChanged(int block) {
   // Never allow sticking out L. of page
-  if (blockItems[block]->sceneBoundingRect().left()<0)
-     blockItems[block]->moveBy(-blockItems[block]->sceneBoundingRect().left(),
+  if (blockItems[block]->netSceneRect().left()<0)
+     blockItems[block]->moveBy(-blockItems[block]->netSceneRect().left(),
 			       0);
       
   // Try to respect L & R margins
-  double l_space = blockItems[block]->sceneBoundingRect().left()
+  double l_space = blockItems[block]->netSceneRect().left()
     - style["margin-left"].toDouble();
   double r_space = style["page-width"].toDouble()
     - style["margin-right"].toDouble()
-    - blockItems[block]->sceneBoundingRect().right();
+    - blockItems[block]->netSceneRect().right();
   if (l_space<0) {
     double dx = -l_space;
     if (dx>r_space)

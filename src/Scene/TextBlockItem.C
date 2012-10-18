@@ -140,10 +140,8 @@ void TextBlockItem::acceptFocus(QPointF p) {
   qDebug() << " failed";
 }
 
-QRectF TextBlockItem::netBoundingRect() const {
-  return item_
-    ? item_->boundingRect()
-    : QRectF();
+QRectF TextBlockItem::boundingRect() const {
+  return QRectF();
 }
 
 void TextBlockItem::paint(QPainter *,

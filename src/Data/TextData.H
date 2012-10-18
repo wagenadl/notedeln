@@ -5,9 +5,6 @@
 #define TEXTDATA_H
 
 #include "Data.H"
-
-#include <QList>
-
 #include "MarkupData.H"
 
 class TextData: public Data {
@@ -23,15 +20,11 @@ public:
   /* If you change the text in the presence of markups, you are responsible
      for updating the markups */
   // other
-  QList<MarkupData *> const &markups() const;
+  QList<MarkupData *> markups() const;
   MarkupData *addMarkup(int start, int end, MarkupData::Style style);
-  void removeMarkup(MarkupData *); // the markup is destructed as well
-protected:
-  void loadMore(QVariantMap const &src);
-  void saveMore(QVariantMap &dst) const;
+  void deleteMarkup(MarkupData *);
 protected:
   QString text_;
-  QList<MarkupData *> markups_;
 };
 
 #endif

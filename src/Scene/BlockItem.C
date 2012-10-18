@@ -5,8 +5,7 @@
 #include "PageScene.H"
 
 BlockItem::BlockItem(BlockData *data, PageScene *parent):
-  QGraphicsObject(0),
-  data_(data) {
+  QGraphicsObject(0), Item(data, this), data_(data) {
   parent->addItem(this);
 }
 
@@ -25,20 +24,6 @@ void BlockItem::checkVbox() {
   
   emit vboxChanged();
   oldBbox = newBbox;
-}
-
-QRectF BlockItem::netSceneRect() const {
-  return mapRectToScene(netBoundingRect());
-}
-
-QRectF BlockItem::boundingRect() const {
-  QRectF bb = netBoundingRect();
-  // should include notes as well
-  return bb;
-}
-
-QRectF BlockItem::netBoundingRect() const {
-  return QRectF();
 }
 
 void BlockItem::resetBbox() {

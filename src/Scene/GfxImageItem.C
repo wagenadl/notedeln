@@ -12,10 +12,13 @@
 #include <QCursor>
 #include <math.h>
 
-GfxItemFactory::Creator<GfxImageData, GfxImageItem> c("gfximage");
+Item::Creator<GfxImageData, GfxImageItem> c("gfximage");
 
-GfxImageItem::GfxImageItem(GfxImageData *data, QGraphicsObject *parent):
-  QObject(parent), QGraphicsPixmapItem(parent), data(data) {
+GfxImageItem::GfxImageItem(GfxImageData *data, Item *parent):
+  QObject(Item::obj(parent)),
+  QGraphicsPixmapItem(Item::gi(parent)),
+  Item(data, this),
+  data(data) {
   if (!data) {
     qDebug() << "GfxImageItem constructed w/o data";
     return;
@@ -31,7 +34,8 @@ GfxImageItem::GfxImageItem(GfxImageData *data, QGraphicsObject *parent):
     return;
   }
   if (!image.load(resmgr->path(data->resName()))) {
-    qDebug() << "GfxImageItem: image load failed";
+    qDebug() << "GfxImageItem: image load failed for " << data->resName()
+	     << resmgr->path(data->resName());
     return;
   }
   setPixmap(QPixmap::fromImage(image.copy(data->cropRect().toRect())));
@@ -64,7 +68,6 @@ void GfxImageItem::hideCroppedAreas() {
 
 QPointF GfxImageItem::moveDelta(QGraphicsSceneMouseEvent *e) {
   QPointF delta = mapToParent(e->pos()) - dragStart;
-  qDebug() << "delta: " << delta;
   return delta;
 }
 
@@ -78,7 +81,6 @@ static double euclideanLength(QPointF a) {
 
 void GfxImageItem::mouseMoveEvent(QGraphicsSceneMouseEvent *e) {
   QPointF ppos = mapToParent(e->pos());
-  qDebug() << "GfxImageItem::mouseMove" << e->pos();
   switch (dragType) {
   case None:
     qDebug() << " Nonmove!?";
@@ -91,21 +93,21 @@ void GfxImageItem::mouseMoveEvent(QGraphicsSceneMouseEvent *e) {
     double diag0 = euclideanLength(dragStart - xy0);
     double diag1 = euclideanLength(ppos - xy0);
     setScale(data->scale() * diag1/diag0);
-    setPos(pos() + xy0 - mapToParent(boundingRect().bottomRight()));
+    setPos(pos() + xy0 - mapToParent(imageBoundingRect().bottomRight()));
   } break;
   case ResizeTopRight: {
     QPointF xy0 = data->blockRect().bottomLeft();
     double diag0 = euclideanLength(dragStart - xy0);
     double diag1 = euclideanLength(ppos - xy0);
     setScale(data->scale() * diag1/diag0);
-    setPos(pos() + xy0 - mapToParent(boundingRect().bottomLeft()));
+    setPos(pos() + xy0 - mapToParent(imageBoundingRect().bottomLeft()));
   } break;
   case ResizeBottomLeft: {
     QPointF xy0 = data->blockRect().topRight();
     double diag0 = euclideanLength(dragStart - xy0);
     double diag1 = euclideanLength(ppos - xy0);
     setScale(data->scale() * diag1/diag0);
-    setPos(pos() + xy0 - mapToParent(boundingRect().topRight()));
+    setPos(pos() + xy0 - mapToParent(imageBoundingRect().topRight()));
   } break;
   case ResizeBottomRight: {
     QPointF xy0 = data->blockRect().topLeft();
@@ -126,7 +128,7 @@ void GfxImageItem::mouseMoveEvent(QGraphicsSceneMouseEvent *e) {
     dragCrop.setLeft(x);
     setPixmap(QPixmap::fromImage(image.copy(dragCrop.toRect())));
     setPos(pos() + data->blockRect().bottomRight()
-	   - mapRectToParent(boundingRect()).bottomRight());
+	   - mapRectToParent(imageBoundingRect()).bottomRight());
   } break;
   case CropRight: {
     double dx = moveDelta(e).x();
@@ -154,7 +156,7 @@ void GfxImageItem::mouseMoveEvent(QGraphicsSceneMouseEvent *e) {
     dragCrop.setTop(y);
     setPixmap(QPixmap::fromImage(image.copy(dragCrop.toRect())));
     setPos(pos() + data->blockRect().bottomRight()
-	   - mapRectToParent(boundingRect()).bottomRight());
+	   - mapRectToParent(imageBoundingRect()).bottomRight());
   } break;
   case CropBottom: {
     double dy = moveDelta(e).y();
@@ -169,34 +171,25 @@ void GfxImageItem::mouseMoveEvent(QGraphicsSceneMouseEvent *e) {
     dragCrop.setBottom(y);
     setPixmap(QPixmap::fromImage(image.copy(dragCrop.toRect())));
   } break;
-    
-  default:
-    qDebug() << "Crop NYI";
-    break;
   }
 }
 
 void GfxImageItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
-  qDebug() << "GfxImageItem::mousePress" << e->pos() << e->modifiers();
   if (moveModPressed) { // if (e->modifiers() & GfxBlockItem::moveModifiers())
     dragType = dragTypeForPoint(e->pos());
     dragStart = mapToParent(e->pos());
     dragCrop = data->cropRect();
-    if (parentBlock())
-      parentBlock()->lockBounds();
+    if (itemParent())
+      itemParent()->lockBounds();
+    else
+      qDebug() << "GfxImageItem: no parent";
     e->accept();
   } else {
     e->ignore(); // pass to parent
   }
 }
 
-GfxBlockItem *GfxImageItem::parentBlock() const {
-  return dynamic_cast<GfxBlockItem *>(parentItem());
-}
-
 void GfxImageItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *e) {
-  qDebug() << "GfxImageItem::mouseRelease" << e->pos();
-  GfxBlockItem *block = parentBlock();
   switch (dragType) {
   case None:
     qDebug() << "Nonmove!?";
@@ -214,19 +207,19 @@ void GfxImageItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *e) {
     data->setPos(pos());
     data->setCropRect(dragCrop.toRect()); // round to integers
     break;
-  default:
-    qDebug() << "Crop NYI";
-    break;
   }
-  if (block)
-    block->unlockBounds();
+  if (itemParent()) {
+    itemParent()->unlockBounds();
+    itemParent()->childGeometryChanged();
+  }
+  e->accept();
 }
 
 GfxImageItem::DragType GfxImageItem::dragTypeForPoint(QPointF p) {
   double x = p.x();
   double y = p.y();
-  double w = boundingRect().width();
-  double h = boundingRect().height();
+  double w = imageBoundingRect().width();
+  double h = imageBoundingRect().height();
   if (x/w < .25 && y/h < .25)
     return ResizeTopLeft;
   else if (x/w < .25 && y/h > .75)
@@ -290,3 +283,10 @@ void GfxImageItem::hoverMoveEvent(QGraphicsSceneHoverEvent *e) {
   e->accept();
 }
 
+QRectF GfxImageItem::imageBoundingRect() const {
+  return QGraphicsPixmapItem::boundingRect();
+}
+
+QRectF GfxImageItem::boundingRect() const {
+  return imageBoundingRect().adjusted(0, -18, 0, 18);
+}

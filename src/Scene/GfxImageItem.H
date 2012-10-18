@@ -6,12 +6,15 @@
 
 #include <QGraphicsPixmapItem>
 #include <QObject>
+#include "Item.H"
 
-class GfxImageItem: public QObject, public QGraphicsPixmapItem {
+class GfxImageItem: public QObject, public QGraphicsPixmapItem, public Item {
   Q_OBJECT;
 public:
-  GfxImageItem(class GfxImageData *data, QGraphicsObject *parent=0);
+  GfxImageItem(class GfxImageData *data, Item *parent=0);
   virtual ~GfxImageItem();
+  QRectF boundingRect() const;
+  QRectF imageBoundingRect() const; // w/o margins
   void showCroppedAreas();
   void hideCroppedAreas();
   // whatever magic to crop and resize?
@@ -36,7 +39,6 @@ private:
 private slots:
   void modifierChange(Qt::KeyboardModifiers);
 private:
-  class GfxBlockItem *parentBlock() const;
   QPointF moveDelta(QGraphicsSceneMouseEvent *);
   DragType dragTypeForPoint(QPointF);
   Qt::CursorShape cursorForDragType(DragType);
