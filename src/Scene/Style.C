@@ -30,12 +30,14 @@ Style::Style(QString fn) {
 
 Style const &Style::defaultStyle() {
   static Style s("-");
+  // qDebug() << "Default style: " << &s;
   return s;
 }
 
 QVariant Style::operator[](QString k) const {
   if (!options_.contains(k))
     qDebug() << "(Style: No value for " << k << ")";
+  // qDebug() << "Style[]" << k;
   return options_[k];
 }
 

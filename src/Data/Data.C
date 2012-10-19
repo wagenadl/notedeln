@@ -31,10 +31,6 @@ QString const &Data::type() const {
   return type_;
 }
 
-QString const &Data::id() const {
-  return id_;
-}
-
 bool Data::editable() const {
   return modified().secsTo(QDateTime::currentDateTime())
     < 60*60*MAX_EDIT_DELAY_H;
@@ -51,11 +47,6 @@ void Data::setModified(QDateTime const &dt) {
 void Data::setType(QString const &t) {
   type_ = t;
   //  markModified();
-}
-
-void Data::setId(QString const &i) {
-  id_ = i;
-  markModified();
 }
 
 void Data::markModified(Data::ModType mt) {

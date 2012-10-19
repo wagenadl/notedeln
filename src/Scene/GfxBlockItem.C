@@ -4,11 +4,12 @@
 #include "GfxBlockData.H"
 #include "Style.H"
 #include <QPainter>
-#include "GfxItemFactory.H"
 #include <QDebug>
 #include "ResourceManager.H"
 #include "GfxImageData.H"
 #include "GfxImageItem.H"
+#include "GfxNoteData.H"
+#include "GfxNoteItem.H"
 #include <math.h>
 #include <QGraphicsSceneMouseEvent>
 #include <QCursor>
@@ -34,7 +35,7 @@ GfxBlockData *GfxBlockItem::data() {
   return data_;
 }
 
-GfxImageItem *GfxBlockItem::newImage(QImage img, QUrl const *src, QPointF xy) {
+Item *GfxBlockItem::newImage(QImage img, QUrl const *src, QPointF xy) {
   // this needs some work
   Q_ASSERT(data()->book());
   Q_ASSERT(data()->resMgr());
@@ -54,11 +55,12 @@ GfxImageItem *GfxBlockItem::newImage(QImage img, QUrl const *src, QPointF xy) {
 }
 
 Item *GfxBlockItem::newNote(QPointF p0) {
-  GfxTextData *d = new GfxTextData();
+  GfxNoteData *d = new GfxNoteData();
   d->setPos(p0);
-  data_ -> addGfx(g);
+  d->setLineLengthToZero();
+  data_ -> addGfx(d);
   
-  GfxTextItem *i = new GfxTextItem(d, this);
+  GfxNoteItem *i = new GfxNoteItem(d, this);
   addChild(i);
   sizeToFit();
   i->setFocus();
@@ -90,6 +92,7 @@ void GfxBlockItem::childGeometryChanged() {
 }
 
 void GfxBlockItem::sizeToFit() {
+  qDebug() << "GfxBlockItem::sizeToFit" << this;
   prepareGeometryChange();
   checkVbox();
   data_->setRef(-netBoundingRect().topLeft()); // this has the intended
@@ -97,13 +100,17 @@ void GfxBlockItem::sizeToFit() {
 }
 
 QRectF GfxBlockItem::boundingRect() const {
+  // qDebug() << "GfxBlockItem::boundingRect" << this;
   QRectF bb(cachedBounds());
   if (bb.isNull()) {
     bb = QRectF(0, 0, availableWidth(), 72);
     // must do this here, because I cannot use our netBoundingRect...
-    foreach (Item *i, allChildren()) 
-      if (!i->isExtraneous())
+    foreach (Item *i, allChildren()) {
+      if (!i->isExtraneous()) {
+	// qDebug() << "  GBI" << this << ": Including child " << i;
 	bb |= gi(i)->mapRectToParent(i->netBoundingRect());
+      }
+    }
   }
   bb.setLeft(0);
   bb.setWidth(availableWidth());

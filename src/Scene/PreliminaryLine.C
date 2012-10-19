@@ -1,12 +1,19 @@
 // PreliminaryLine.C
 
 #include "PreliminaryLine.H"
+#include "Style.H"
+#include <QBrush>
+#include <QPen>
+
+static QVariant style(QString s) {
+  return Style::defaultStyle()[s];
+}
 
 PreliminaryLine::PreliminaryLine(QPointF p0, QGraphicsItem *parent):
   QGraphicsItem(parent), p0(p0) {
-  line = new QGraphicsItem(this);
-  line->setLine(p0, p0);
-  line->setPen(QPen(QBrush(style("preliminary-line-color").toString()),
+  line = new QGraphicsLineItem(this);
+  line->setLine(QLineF(p0, p0));
+  line->setPen(QPen(QBrush(QColor(style("preliminary-line-color").toString())),
 		    style("preliminary-line-width").toDouble()));
   line->hide();
 }
@@ -16,7 +23,7 @@ PreliminaryLine::~PreliminaryLine() {
 
 void PreliminaryLine::updateEnd(QPointF p1_) {
   p1 = p1_;
-  line->setLine(p0, p1);
+  line->setLine(QLineF(p0, p1));
   if (isLine())
     line->show();
 }
@@ -26,7 +33,7 @@ bool PreliminaryLine::isCircular() const {
 }
 
 bool PreliminaryLine::isLine() const {
-  return (p1-p0).manhattanLength() > = 5;
+  return (p1-p0).manhattanLength() >= 5;
 }
 
 QPointF PreliminaryLine::startPoint() const {
@@ -37,7 +44,7 @@ QPointF PreliminaryLine::endPoint() const {
   return p1;
 }
 
-QRectF PreliminaryLine::boundingBox() const {
+QRectF PreliminaryLine::boundingRect() const {
   return QRectF();
 }
 

@@ -13,8 +13,10 @@ public:
   GfxBlockItem(class GfxBlockData *data, class PageScene *parent);
   virtual ~GfxBlockItem();
   GfxBlockData *data(); // benevolently hides inherited version
-  class GfxImageItem *newImage(QImage img, QUrl const *src, QPointF xy);
-  class GfxImageItem *newImage(QUrl src, QPointF xy);
+  Item *newImage(QImage img, QUrl const *src, QPointF xy);
+  Item *newImage(QUrl src, QPointF xy);
+  Item *newNote(QPointF p0);
+  Item *newNote(QPointF p0, QPointF p1);
   void paint(QPainter *, const QStyleOptionGraphicsItem *, QWidget *);
   virtual QRectF boundingRect() const;
   virtual void childGeometryChanged();

@@ -21,6 +21,7 @@
 
 TextItem::TextItem(TextData *data, QGraphicsItem *parent):
   QGraphicsTextItem(parent),
+  Item(data, this),
   data_(data) {
   mayWrite = false;
   mayMark = true;

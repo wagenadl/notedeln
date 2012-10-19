@@ -7,8 +7,9 @@
 #include <QGraphicsTextItem>
 #include <QTextCursor>
 #include "MarkupData.H"
+#include "Item.H"
 
-class TextItem: public QGraphicsTextItem {
+class TextItem: public QGraphicsTextItem, public Item {
   Q_OBJECT;
 public:
   TextItem(class TextData *data, QGraphicsItem *parent);

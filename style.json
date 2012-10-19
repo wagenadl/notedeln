@@ -42,9 +42,9 @@
 "canvas-grid-major-interval": 4,
 "canvas-grid-major-color": "#ccccff",
 "canvas-grid-major-line-width": 0.5,
-"gfx-line-color": #22aa33,
+"gfx-line-color": "#22aa33",
 "gfx-line-width": 0.5,
-"gfx-text-color": #22aa33,
-"preliminary-line-color": #22bb55,
-"preliminary-line-width": 0.5
+"gfx-text-color": "#22aa33",
+"preliminary-line-color": "#22bb55",
+"preliminary-line-width": 1
 }

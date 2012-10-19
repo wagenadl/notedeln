@@ -42,9 +42,13 @@ public:
   void setTextWidth(double);
   TextData const *text() const;
   TextData *text();
-  QPointF textPos() const;
-  void setTextPos(QPointF, bool realign=false);
-  /* textPos is calculated from pos() and (dx,dy); setTextPos sets (dx,dy).
+  QPointF endPoint() const;
+  QPointF delta() const;
+  double lineLength() const;
+  void setEndPoint(QPointF, bool realign=false);
+  void setDelta(QPointF);
+  void setLineLengthToZero();
+  /* endPoint is calculated from pos() and (dx,dy); setEndPoint sets (dx,dy).
      If realign=true, alignment is reset based on (dx,dy). */
 protected:
   void loadMore(QVariantMap const &src);

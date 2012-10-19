@@ -1,6 +1,7 @@
 // GfxNoteData.C
 
 #include "GfxNoteData.H"
+#include <math.h>
 
 static Data::Creator<GfxNoteData> c("gfxnote");
 
@@ -58,17 +59,36 @@ void GfxNoteData::setTextWidth(double d) {
   markModified();
 }
 
-QPointF GfxNoteData::textPos() const {
-  return pos() + QPointF(dx(), dy());
+QPointF GfxNoteData::endPoint() const {
+  return pos() + delta();
 }
 
-void GfxNoteData::setTextPos(QPointF p, bool realign) {
+QPointF GfxNoteData::delta() const {
+  return QPointF(dx(), dy());
+}
+
+double GfxNoteData::lineLength() const {
+  return sqrt(dx()*dx() + dy()*dy());
+}
+
+void GfxNoteData::setEndPoint(QPointF p, bool realign) {
   dx_ = p.x() - x();
   dy_ = p.y() - y();
   if (realign) {
     hAlign_ = dx_<0 ? Right : Left;
     vAlign_ = Middle;
   }
+  markModified();
+}
+
+void GfxNoteData::setDelta(QPointF p) {
+  dx_ = p.x();
+  dy_ = p.y();
+  markModified();
+}
+
+void GfxNoteData::setLineLengthToZero() {
+  dx_ = dy_ = 0;
   markModified();
 }
 

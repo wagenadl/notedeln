@@ -19,6 +19,7 @@ TextBlockItem::TextBlockItem(TextBlockData *data, PageScene *parent):
   setPos(Style::defaultStyle()["margin-left"].toDouble(), 0);
 
   item_ = new TextItem(data_->text(), this);
+  addChild(item_);
 
   initializeFormat();
   item_->setAllowParagraphs(false);

@@ -15,7 +15,6 @@ class Data: public QObject {
   Q_PROPERTY(QDateTime cre READ created WRITE setCreated)
   Q_PROPERTY(QDateTime mod READ modified WRITE setModified)
   Q_PROPERTY(QString typ READ type WRITE setType)
-  Q_PROPERTY(QString id READ id WRITE setId)
 public:
   enum ModType {
     UserVisibleMod,
@@ -31,12 +30,10 @@ public:
   QDateTime const &created() const;
   QDateTime const &modified() const;
   QString const &type() const;
-  QString const &id() const;
   // write properties - not for casual use
   void setCreated(QDateTime const &);
   void setModified(QDateTime const &);
   void setType(QString const &);
-  void setId(QString const &);
   // other
   void markModified(ModType mt=UserVisibleMod);
   void load(QVariantMap const &);
@@ -75,7 +72,6 @@ private:
   QDateTime created_;
   QDateTime modified_;
   QString type_;
-  QString id_;
   QList<Data *> children_;
 private:
   bool loading_;

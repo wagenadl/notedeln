@@ -12,7 +12,7 @@
 #include <QCursor>
 #include <math.h>
 
-Item::Creator<GfxImageData, GfxImageItem> c("gfximage");
+static Item::Creator<GfxImageData, GfxImageItem> c("gfximage");
 
 GfxImageItem::GfxImageItem(GfxImageData *data, Item *parent):
   QObject(Item::obj(parent)),
@@ -55,16 +55,16 @@ GfxImageItem::GfxImageItem(GfxImageData *data, Item *parent):
 GfxImageItem::~GfxImageItem() {
 }
 
-void GfxImageItem::showCroppedAreas() {
-  QPixmap pm(QPixmap::fromImage(image));
-  setPixmap(pm);
-  setOffset(-data->cropLeft(), -data->cropTop());
-}
-
-void GfxImageItem::hideCroppedAreas() {
-  setPixmap(QPixmap::fromImage(image.copy(data->cropRect().toRect())));
-  setOffset(0, 0);
-}
+//void GfxImageItem::showCroppedAreas() {
+//  QPixmap pm(QPixmap::fromImage(image));
+//  setPixmap(pm);
+//  setOffset(-data->cropLeft(), -data->cropTop());
+//}
+//
+//void GfxImageItem::hideCroppedAreas() {
+//  setPixmap(QPixmap::fromImage(image.copy(data->cropRect().toRect())));
+//  setOffset(0, 0);
+//}
 
 QPointF GfxImageItem::moveDelta(QGraphicsSceneMouseEvent *e) {
   QPointF delta = mapToParent(e->pos()) - dragStart;

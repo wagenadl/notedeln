@@ -2,13 +2,19 @@
 
 #include "GfxNoteItem.H"
 #include "GfxNoteData.H"
+#include "TextItem.H"
+#include <QDebug>
+#include <QGraphicsSceneMouseEvent>
 
-GfxNoteItem::GfxNoteItem(GfxNoteData *data, Item *parent=0):
+static Item::Creator<GfxNoteData, GfxNoteItem> c("gfxnote");
+
+GfxNoteItem::GfxNoteItem(GfxNoteData *data, Item *parent):
   QGraphicsObject(Item::gi(parent)),
-  Item(data, parent),
+  Item(data, this),
   data_(data) {
   text = new TextItem(data->text(), this);
-  line = new QGraphicsLineItem(QLineF(data->pos(), data->textPos()), this);
+  line = new QGraphicsLineItem(QLineF(data->pos(), data->endPoint()), this);
+  text->setPos(data->endPoint()); // this is inadequate
   }
 
 GfxNoteItem::~GfxNoteItem() {

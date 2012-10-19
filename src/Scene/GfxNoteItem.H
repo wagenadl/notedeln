@@ -21,7 +21,9 @@ protected:
   virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *);
 private slots:
   void modifierChange(Qt::KeyboardModifiers);
-  TextItem *text;
+private:
+  GfxNoteData *data_;
+  class TextItem *text;
   QGraphicsLineItem *line;
 };
 

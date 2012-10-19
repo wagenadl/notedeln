@@ -273,6 +273,7 @@ void PageScene::stackBlocks() {
   foreach (BlockItem *bi, blockItems) {
     BlockData *bd = bi->data();
     double h = bi->netSceneRect().height();
+    qDebug() << "PageScene:stack: bi="<<bi<< " h="<<h;
     if (bd->sheet()>=0) {
       // (sheet,y) information stored in data, we'll use it
       sheet = bd->sheet();
@@ -714,7 +715,7 @@ bool PageScene::importDroppedUrls(QPointF scenePos, QList<QUrl> const &urls) {
 }
 
 bool PageScene::importDroppedUrl(QPointF scenePos, QUrl const &url) {
-  QGraphicsItem *dst = itemAt(scenePos);
+  // QGraphicsItem *dst = itemAt(scenePos);
   /* A URL could be any of the following:
      (1) A local image file
      (2) A local file of non-image type

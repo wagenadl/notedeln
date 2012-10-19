@@ -2,6 +2,7 @@
 
 #include "Item.H"
 #include "PageScene.H"
+#include <QDebug>
 
 Item::Item(Data *d, QGraphicsItem *me): d(d), me(me) {
   Q_ASSERT(me);
@@ -22,8 +23,11 @@ PageScene *Item::pageScene() const {
 
 Item *Item::create(Data *d, Item *parent) {
   Q_ASSERT(d);
-  Q_ASSERT(creators().contains(d->type()));
-  return creators()[d->type()](d, parent);
+  if (creators().contains(d->type()))
+    return creators()[d->type()](d, parent);
+  qDebug() << "Item::create: No creator for " << d->type();
+  Q_ASSERT(0);
+  return 0;
 }
 
 QMap<QString, Item *(*)(Data *, Item *)> &Item::creators() {
@@ -46,6 +50,8 @@ QList<Item *> const &Item::allChildren() const {
 }
 
 void Item::addChild(Item *i) {
+  Q_ASSERT(i->me != me); // quick check that child wasn't accidentally
+  // constructed like Item(data, parent) rather than Item(data, this).
   children_.append(i);
 }
 
@@ -79,12 +85,16 @@ QRectF Item::cachedBounds() const {
 }
 
 QRectF Item::netBoundingRect() const {
+  // qDebug() << "Item::netBoundingRect" << this;
   if (brLocked)
     return brCache;
   QRectF bb = me->boundingRect();
-  foreach (Item *i, children_) 
-    if (!i->extraneous)
+  foreach (Item *i, children_) {
+    if (!i->extraneous) {
+      // qDebug() << "  Item" << this << ": including child " <<i;
       bb |= i->me->mapRectToParent(i->netBoundingRect());
+    }
+  }
   return bb;
 }
 
@@ -123,5 +133,6 @@ void Item::childGeometryChanged() {
 }
 
 QVariant Item::style(QString k) {
+  // qDebug() << "Item::style" << k;
   return Style::defaultStyle()[k];
 }
