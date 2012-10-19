@@ -12,16 +12,16 @@
 #include <math.h>
 #include <QGraphicsSceneMouseEvent>
 #include <QCursor>
+#include "PreliminaryLine.H"
 
 GfxBlockItem::GfxBlockItem(GfxBlockData *data, PageScene *parent):
   BlockItem(data, parent),
   data_(data) {
-  // let's get stuff from the data...
-  qDebug() << "GfxBlockItem!";
-  foreach (GfxData *d, data->gfx()) {
-    qDebug() << "  d="<<d;
+
+  dragLine = 0;
+  
+  foreach (GfxData *d, data->gfx()) 
     addChild(create(d, this));
-  }
 
   setPos(Style::defaultStyle()["margin-left"].toDouble(), 0);
   setCursor(defaultCursor());
@@ -52,6 +52,31 @@ GfxImageItem *GfxBlockItem::newImage(QImage img, QUrl const *src, QPointF xy) {
 
   return gii;
 }
+
+Item *GfxBlockItem::newNote(QPointF p0) {
+  GfxTextData *d = new GfxTextData();
+  d->setPos(p0);
+  data_ -> addGfx(g);
+  
+  GfxTextItem *i = new GfxTextItem(d, this);
+  addChild(i);
+  sizeToFit();
+  i->setFocus();
+  return i;
+}
+
+/*
+Item *GfxBlockItem::newNote(QPointF p0, QPointF p1) {
+  GfxNoteData *d = new GfxNoteData();
+  d->setPos(p0, p1);
+  data_ -> addGfx(d);
+  GfxNoteItem *i = new GfxNoteItem(d, this);
+  addChild(i);
+  sizeToFit();
+  i->setFocus();
+  return i;
+}
+*/
 
 double GfxBlockItem::availableWidth() const {
   Style const &style(Style::defaultStyle());
@@ -91,7 +116,6 @@ void GfxBlockItem::paint(QPainter *p,
   // paint background grid; items draw themselves  
   Style const &style(Style::defaultStyle());
   QRectF bb = boundingRect();
-  qDebug() << "paint: " << bb;
 
   p->setPen(QPen(QBrush(QColor(style["canvas-grid-color"].toString())),
 		 style["canvas-grid-line-width"].toDouble(),
@@ -121,15 +145,41 @@ void GfxBlockItem::drawGrid(QPainter *p, QRectF const &bb, double dx) {
 }
 
 void GfxBlockItem::mouseMoveEvent(QGraphicsSceneMouseEvent *e) {
-  qDebug() << "GfxBlockItem::mouseMove" << e->pos();  
+  qDebug() << "GfxBlockItem::mouseMove" << e->pos();
+  if (!dragLine) {
+    qDebug() << "GfxBlockItem::mouseMove: No dragLine!?";
+    return;
+  }
+  dragLine->updateEnd(e->pos());
+  e->accept();
 }
 
 void GfxBlockItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
   qDebug() << "GfxBlockItem::mousePress" << e->pos();
-  e->ignore();
+  if (dragLine) {
+    qDebug() << "GfxBlockItem::mousePressEvent: dragLine pre-existed !?";
+    e->ignore();
+    return;
+  }
+  dragLine = new PreliminaryLine(e->pos(), this);
+  e->accept();
 }
 
 void GfxBlockItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *e) {
   qDebug() << "GfxBlockItem::mouseRelease" << e->pos();
+  if (!dragLine) {
+    qDebug() << "GfxBlockItem::mouseRelease: No dragLine!?";
+    return;
+  }
+
+  if (dragLine->isLine()) 
+    newNote(dragLine->startPoint()); //, dragLine->endPoint());
+  else
+    newNote(dragLine->startPoint());
+
+  delete dragLine;
+  dragLine = 0;
+
+  e->accept();
 }
 

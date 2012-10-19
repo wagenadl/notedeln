@@ -8,6 +8,7 @@
 #include <QGraphicsItem>
 #include <QObject>
 #include <Qt>
+#include "Style.H"
 
 class Item {
 public:
@@ -39,6 +40,7 @@ public:
   }
   void addChild(Item *);
   bool deleteChild(Item *);
+  static QVariant style(QString k);
   static Item *create(Data *d, Item *parent=0);
   static QGraphicsItem *gi(Item *);
   static QObject *obj(Item *);

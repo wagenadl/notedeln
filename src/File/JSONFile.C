@@ -62,9 +62,7 @@ namespace JSONFile {
       QString fn0 = fn + "~";
       QFile f0(fn0);
       if (f0.exists())
-	qDebug() << "(JSONFile: Removing ancient file)";
-      f0.remove();
-      qDebug() << "(JSONFile: Renaming old file)";
+	f0.remove();
       f.rename(fn0);
       f.setFileName(fn);
     }

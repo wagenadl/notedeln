@@ -15,9 +15,6 @@ public:
   virtual ~GfxImageItem();
   QRectF boundingRect() const;
   QRectF imageBoundingRect() const; // w/o margins
-  void showCroppedAreas();
-  void hideCroppedAreas();
-  // whatever magic to crop and resize?
 protected:
   virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *);
   virtual void mousePressEvent(QGraphicsSceneMouseEvent *);

@@ -121,3 +121,7 @@ void Item::childGeometryChanged() {
   if (itemParent())
     itemParent()->childGeometryChanged();
 }
+
+QVariant Item::style(QString k) {
+  return Style::defaultStyle()[k];
+}

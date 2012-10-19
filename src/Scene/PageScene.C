@@ -196,7 +196,6 @@ BlockItem *PageScene::tryMakeGfxBlock(BlockData *bd) {
   GfxBlockData *gbd = dynamic_cast<GfxBlockData*>(bd);
   if (!gbd)
     return 0;
-  qDebug() << "It's a gfx block";
   GfxBlockItem *gbi = new GfxBlockItem(gbd, this);
   return gbi;
 }
@@ -206,7 +205,6 @@ BlockItem *PageScene::tryMakeTextBlock(BlockData *bd) {
   if (!tbd)
     return 0;
 
-  qDebug() << "It's a text block";
   TextBlockItem *tbi = new TextBlockItem(tbd, this);
   
   futileMovementMapper->setMapping(tbi, blockItems.size());
@@ -290,9 +288,7 @@ void PageScene::stackBlocks() {
     }
     sheetNos.append(sheet);
     topY.append(y);
-    qDebug() << "stackBlocks" << y << bi->netSceneRect().top();
     bi->moveBy(0, y-bi->netSceneRect().top());
-    qDebug() << "  ->" << bi->netSceneRect().top();
 
     y += h;
   }
@@ -317,15 +313,12 @@ int PageScene::restackBlocks(int starti) {
       sheet++;
     }
 
-    qDebug() << "restackBlocks" << y << bi->netSceneRect().top();
     bi->moveBy(0, y - bi->netSceneRect().top());
-    qDebug() << "  ->" << bi->netSceneRect().top();
     topY[i] = y;
     sheetNos[i] = sheet;
     BlockData *bd = bi->data();
     bd->setY0(y);
     bd->setSheet(sheet);
-    qDebug() << "Restack i="<<i<< " y="<<y << " h="<<h << " sheet="<<sheet;
     
     y = y + h;
   }
@@ -427,7 +420,6 @@ void PageScene::deleteBlock(int blocki) {
 
 GfxBlockItem *PageScene::newGfxBlock() {
   Q_ASSERT(data);
-  qDebug() << "newGfxBlock";
   int iAbove = findLastBlockOnSheet(iSheet);
   int iNew = (iAbove>=0)
     ? iAbove + 1
@@ -453,7 +445,6 @@ GfxBlockItem *PageScene::newGfxBlock() {
 
 
 TextBlockItem *PageScene::newTextBlock(int iAbove, bool evenIfLastEmpty) {
-  qDebug() << "newTextBlock " << iAbove;
   Q_ASSERT(data);
 
   if (iAbove<0)
@@ -496,7 +487,6 @@ TextBlockItem *PageScene::newTextBlock(int iAbove, bool evenIfLastEmpty) {
 }
 
 void PageScene::futileMovement(int block) {
-  qDebug() << "futilemovement " << block;
   TextBlockItem *tbi = dynamic_cast<TextBlockItem *>(blockItems[block]);
   if (!tbi) {
     qDebug() << "not a text block";
@@ -504,7 +494,6 @@ void PageScene::futileMovement(int block) {
   }
 
   TextBlockItem::FutileMovementInfo fmi = tbi->lastFutileMovement();
-  qDebug() << "got info";
   TextBlockItem *tgt = 0;
   if (fmi.key()==Qt::Key_Left || fmi.key()==Qt::Key_Up) {
     for (int b=block-1; b>=0; b--) {
@@ -522,7 +511,6 @@ void PageScene::futileMovement(int block) {
     }
   }
   if (!tgt) {
-    qDebug() << "No target";
     return;
   }
 
@@ -554,7 +542,6 @@ void PageScene::futileMovement(int block) {
 }
 
 void PageScene::enterPressed(int block) {
-  qDebug() << "new paragraph " << block;
   TextBlockItem *tbi = dynamic_cast<TextBlockItem *>(blockItems[block]);
   if (!tbi
       || !tbi->text()->document()->isEmpty()
@@ -711,17 +698,9 @@ void PageScene::dropEvent(QGraphicsSceneDragDropEvent *e) {
 bool PageScene::importDroppedImage(QPointF scenePos, QImage const &img,
 				   QUrl const *source) {
   // Return true if we want it
-  qDebug() << "PageScene: import dropped image";
-  //  QString imgName = ImageCacheManager::import(img, source);
-  /* ImageCacheManager must somehow be local to a notebook, but it is
-     not obvious right now how to implement that.
-     Perhaps I am simply putting too much weight on the PageScene.
-  */
   GfxBlockItem *dst = dynamic_cast<GfxBlockItem *>(itemAt(scenePos));
-  qDebug() << "  old gfx block? " << dst;
   if (!dst)
     dst = newGfxBlock();
-  qDebug() << "  gfx block " << dst;
   dst->newImage(img, source, dst->mapFromScene(scenePos));
   return true;
 }
@@ -736,9 +715,6 @@ bool PageScene::importDroppedUrls(QPointF scenePos, QList<QUrl> const &urls) {
 
 bool PageScene::importDroppedUrl(QPointF scenePos, QUrl const &url) {
   QGraphicsItem *dst = itemAt(scenePos);
-  qDebug() << "PageScene: import dropped url: " << url
-	   << " at " << scenePos
-	   << " onto " << dst;
   /* A URL could be any of the following:
      (1) A local image file
      (2) A local file of non-image type

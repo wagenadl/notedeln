@@ -28,6 +28,7 @@ private:
   void drawGrid(QPainter *p, QRectF const &bb, double dx);
 private:
   GfxBlockData *data_; // we don't own
+  class PreliminaryLine *dragLine; // null unless dragging
 };
 
 #endif
