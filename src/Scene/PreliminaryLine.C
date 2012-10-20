@@ -10,9 +10,9 @@ static QVariant style(QString s) {
 }
 
 PreliminaryLine::PreliminaryLine(QPointF p0, QGraphicsItem *parent):
-  QGraphicsItem(parent), p0(p0) {
+  QGraphicsItem(parent), p0(p0), p1(p0) {
   line = new QGraphicsLineItem(this);
-  line->setLine(QLineF(p0, p0));
+  line->setLine(QLineF(p0, p1));
   line->setPen(QPen(QBrush(QColor(style("preliminary-line-color").toString())),
 		    style("preliminary-line-width").toDouble()));
   line->hide();

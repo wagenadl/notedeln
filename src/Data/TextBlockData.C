@@ -27,8 +27,6 @@ void TextBlockData::loadMore(QVariantMap const &src) {
   BlockData::loadMore(src);
   // Our old text_ pointer is now invalidated: since it was part of
   // Data's children array, it has already been deleted.
-  QList<TextData*> l(children<TextData>());
-  Q_ASSERT(!l.isEmpty());
-  text_ = l[0];
+  text_ = firstChild<TextData>();
   Q_ASSERT(text_);
 }

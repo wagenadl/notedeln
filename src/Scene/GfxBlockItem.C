@@ -55,6 +55,7 @@ Item *GfxBlockItem::newImage(QImage img, QUrl const *src, QPointF xy) {
 }
 
 Item *GfxBlockItem::newNote(QPointF p0) {
+  qDebug() << "GBI:newNote" << p0;
   GfxNoteData *d = new GfxNoteData();
   d->setPos(p0);
   d->setLineLengthToZero();
@@ -67,10 +68,11 @@ Item *GfxBlockItem::newNote(QPointF p0) {
   return i;
 }
 
-/*
 Item *GfxBlockItem::newNote(QPointF p0, QPointF p1) {
+  qDebug() << "GBI:newNote" << p0 << p1;
   GfxNoteData *d = new GfxNoteData();
-  d->setPos(p0, p1);
+  d->setPos(p0);
+  d->setEndPoint(p1);
   data_ -> addGfx(d);
   GfxNoteItem *i = new GfxNoteItem(d, this);
   addChild(i);
@@ -78,7 +80,6 @@ Item *GfxBlockItem::newNote(QPointF p0, QPointF p1) {
   i->setFocus();
   return i;
 }
-*/
 
 double GfxBlockItem::availableWidth() const {
   Style const &style(Style::defaultStyle());
@@ -180,7 +181,7 @@ void GfxBlockItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *e) {
   }
 
   if (dragLine->isLine()) 
-    newNote(dragLine->startPoint()); //, dragLine->endPoint());
+    newNote(dragLine->startPoint(), dragLine->endPoint());
   else
     newNote(dragLine->startPoint());
 

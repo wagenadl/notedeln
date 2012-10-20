@@ -51,6 +51,15 @@ public:
     }
     return res;
   }
+  template <class T> T *firstChild() const {
+    for (QList<Data*>::const_iterator i=children_.begin();
+	 i!=children_.end(); ++i) {
+      T *c = dynamic_cast<T*>(*i);
+      if (c)
+	return c;
+    }
+    return 0;
+  }
   void addChild(Data *, ModType mt=UserVisibleMod);
   bool deleteChild(Data *, ModType mt=UserVisibleMod);
   Data *takeChild(Data *, ModType mt=UserVisibleMod); // remove but do not delete

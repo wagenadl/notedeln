@@ -41,10 +41,14 @@
 "canvas-grid-spacing": 18,
 "canvas-grid-major-interval": 4,
 "canvas-grid-major-color": "#ccccff",
-"canvas-grid-major-line-width": 0.5,
-"gfx-line-color": "#22aa33",
-"gfx-line-width": 0.5,
-"gfx-text-color": "#22aa33",
+"canvas-grid-major-line-width": 1.5,
+"note-line-color": "#2255ff",
+"note-line-width": 1.5,
+"note-text-color": "#2255ff",
+"note-shadow-color": "#ffffff",
+"note-shadow-alpha": 1.0,
+"note-shadow-blur": 3.0,
+"note-y-offset": -10.0,
 "preliminary-line-color": "#22bb55",
-"preliminary-line-width": 1
+"preliminary-line-width": 1.0
 }

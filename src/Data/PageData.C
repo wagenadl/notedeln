@@ -13,6 +13,7 @@ PageData::PageData(Data *parent): Data(parent) {
   setType("page");
   startPage_ = 1;
   title_ = new TitleData(this);
+  addChild(title_);
   connect(title_, SIGNAL(mod()),
 	  this, SIGNAL(titleMod()));
   maxSheet = 0;
@@ -22,32 +23,24 @@ PageData::~PageData() {
 }
 
 
-QList<class BlockData *> const &PageData::blocks() const {
-  return blocks_;
+QList<class BlockData *> PageData::blocks() const {
+  return children<BlockData>();
 }
 
 void PageData::addBlock(BlockData *b) {
-  blocks_.append(b);
-  b->setParent(this);
   connect(b, SIGNAL(newSheet(int)), SLOT(newSheet()));
   if (b->sheet()>maxSheet) {
     maxSheet = b->sheet();
     emit sheetCountMod();
   }
-  markModified();
+  addChild(b);
 }
 
 bool PageData::deleteBlock(BlockData *b) {
-  int i = blocks_.indexOf(b);
-  if (i<0)
+  if (!deleteChild(b))
     return false;
 
-  delete blocks_[i];
-  blocks_.removeAt(i);
-
   newSheet();
-
-  markModified();
   return true;
 }
 
@@ -55,46 +48,29 @@ void PageData::newSheet() {
   int newMax = 0;
   // I think we can actually assume the last block is on the last page,
   // but I am going to be bloody minded about it.
-  foreach (BlockData *b, blocks_) {
+  foreach (BlockData *b, blocks()) {
     if (b->sheet()>newMax)
       newMax = b->sheet();
   }
+  bool doEmit = maxSheet>=0;
   if (newMax != maxSheet) {
     maxSheet = newMax;
-    emit sheetCountMod();
+    if (doEmit)
+      emit sheetCountMod();
   }
 }  
 
 void PageData::loadMore(QVariantMap const &src) {
-  title_->load(src["title"].toMap());
-  
-  foreach (BlockData *bd, blocks_)
-    delete bd;
-  blocks_.clear();
+  Data::loadMore(src);
+  title_ = firstChild<TitleData>();
+  Q_ASSERT(title_);
+
   maxSheet = 0;
-
-  QVariantList bl = src["blocks"].toList();
-  foreach (QVariant b, bl) {
-    QVariantMap bm = b.toMap();
-    qDebug() << "PageData: loading block of type " << bm["typ"].toString();
-    BlockData *bd = dynamic_cast<BlockData*>(Data::create(bm["typ"].
-							  toString()));
-    Q_ASSERT(bd);
-    bd->load(bm);
-    blocks_.append(bd);
-    bd->setParent(this);
-    connect(bd, SIGNAL(newSheet(int)), SLOT(newSheet()));
+  foreach (BlockData *b, blocks()) {
+    if (b->sheet() > maxSheet)
+      maxSheet = b->sheet();
+    connect(b, SIGNAL(newSheet(int)), SLOT(newSheet()));
   }
-}
-
-void PageData::saveMore(QVariantMap &dst) const {
-  QVariantList bl;
-  foreach (BlockData *bd, blocks_) {
-    QVariantMap b = bd->save();
-    bl.append(b);
-  }
-  dst["blocks"] = bl;
-  dst["title"] = title_->save();
 }
 
 TitleData *PageData::title() const {

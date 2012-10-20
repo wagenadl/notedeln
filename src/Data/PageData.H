@@ -20,7 +20,7 @@ public:
   void setStartPage(int);
   // other
   class TitleData *title() const;
-  QList<class BlockData *> const &blocks() const;
+  QList<class BlockData *> blocks() const;
   void addBlock(BlockData *); // we become owner
   bool deleteBlock(BlockData *);
   int sheetCount() const;
@@ -32,13 +32,11 @@ signals:
   void sheetCountMod();
 protected:
   virtual void loadMore(QVariantMap const &src);
-  virtual void saveMore(QVariantMap &dst) const;
 private slots:
   void newSheet();
 protected:
   int startPage_;
   TitleData *title_;
-  QList<class BlockData *> blocks_;
   int maxSheet;
   Notebook *nb;
 };

@@ -5,6 +5,8 @@
 
 #define DEFAULTTITLE "Untitled"
 
+static Data::Creator<TitleData> c("title");
+
 TitleData::TitleData(Data *parent): Data(parent) {
   versions_.append(new TextData(this));
   setType("title");

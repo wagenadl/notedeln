@@ -30,51 +30,67 @@ namespace JSONFile {
   * the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
   * Boston, MA 02110-1301, USA.
   */
-  QString serializeMap(QVariantMap const &v, int indent);  
-  QString serializeList(QVariantList const &v, int indent);
+  QString serializeMap(QVariantMap const &v, int indent, bool parentIsArray);  
+  QString serializeList(QVariantList const &v, int indent, bool parentIsArray);
   QString serializeString(QString s);
   QString serializeDouble(QString s);
-  QString serialize(QVariant v, int indent);
+  QString serialize(QVariant v, int indent=0, bool parentIsArray=false);
   
-  QString serializeMap(QVariantMap const &v, int indent) {
+  QString serializeMap(QVariantMap const &v, int indent, bool parentIsArray) {
     if (v.isEmpty())
       return "{ }";
-    QString s = "{\n";
     QString ind = "";
     for (int k=0; k<indent; k++)
       ind += "  ";
+    QString s = parentIsArray ? "{ " : "{\n" + ind + "  ";
     bool first = true;
-    foreach (QString k, v.keys()) {
+    QList<QString> kk = v.keys();
+    // do a little reordering
+    if (kk.removeOne("mod"))
+      kk.insert(0, "mod");
+    if (kk.removeOne("cre"))
+      kk.insert(0, "cre");
+    if (kk.removeOne("typ"))
+      kk.insert(0, "typ");
+    if (kk.removeOne("cc"))
+      kk.append("cc");
+    // bool lastML = 0;
+    foreach (QString k, kk) {
       if (first)
 	first = false;
       else
-	s += ",\n";
-      s += ind + "  ";
+	s += ",\n" + ind + "  ";
       s += serializeString(k);
       s += ": ";
-      s += serialize(v[k], indent+1);
+      QString s1 = serialize(v[k], indent+1, false);
+      // lastML = s1.contains("\n");
+      s += s1;
     }
     s += "\n" + ind + "}";
+    // s += (parentIsArray && !lastML) ? " }" : "\n" + ind + "}";
     return s;
   }
 
-  QString serializeList(QVariantList const &v, int indent) {
+  QString serializeList(QVariantList const &v, int indent, bool parentIsArray) {
     if (v.isEmpty())
       return "[ ]";
-    QString s = "[\n";
     QString ind = "";
     for (int k=0; k<indent; k++)
       ind += "  ";
+    QString s = parentIsArray ? "[ " : "[\n" + ind + "  ";
     bool first = true;
+    //    bool lastML = false;
     foreach (QVariant k, v) {
       if (first)
 	first = false;
       else
-	s += ",\n";
-      s += ind + "  ";
-      s += serialize(k, indent+1);
+	s += ",\n" + ind + "  ";
+      QString s1 = serialize(k, indent+1, true);
+      //      lastML = s1.contains("\n");
+      s += s1;
     }
     s += "\n" + ind + "]";
+    //    s += (parentIsArray && ! lastML) ? " ]" : "\n" + ind + "]";
     return s;
   }
 
@@ -96,13 +112,13 @@ namespace JSONFile {
     return s;
   }
   
-  QString serialize(QVariant v, int indent) {
+  QString serialize(QVariant v, int indent, bool parentIsArray) {
     if (!v.isValid())
       return QString(); // invalid
     if (v.type()==QVariant::List) 
-      return serializeList(v.toList(), indent);
+      return serializeList(v.toList(), indent, parentIsArray);
     else if (v.type()==QVariant::Map)
-      return serializeMap(v.toMap(), indent);
+      return serializeMap(v.toMap(), indent, parentIsArray);
     else if (v.type()==QVariant::String || v.type()==QVariant::ByteArray)
       return serializeString(v.toString());
     else if (v.type()==QVariant::Double)
@@ -148,7 +164,7 @@ namespace JSONFile {
   bool save(QVariantMap const &src, QString fn) {
     //    QJson::Serializer s;
     //    QByteArray ba = s.serialize(QVariant(src));
-    QByteArray ba = serialize(src, 0).toUtf8();
+    QByteArray ba = serialize(src, 0, true).toUtf8();
     if (ba.isEmpty()) {  
       qDebug() << "DataFile0: Serialization failed";
       return false;

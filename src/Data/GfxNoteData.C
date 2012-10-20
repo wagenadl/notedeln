@@ -14,35 +14,35 @@ GfxNoteData::GfxNoteData(Data *parent): GfxData(parent) {
 GfxNoteData::~GfxNoteData() {
 }
 
-GfxNoteData::HAlign GfxNoteData::hAlign() const {
-  return hAlign_;
-}
-
-GfxNoteData::VAlign GfxNoteData::vAlign() const {
-  return vAlign_;
-}
+//GfxNoteData::HAlign GfxNoteData::hAlign() const {
+//  return hAlign_;
+//}
+//
+//GfxNoteData::VAlign GfxNoteData::vAlign() const {
+//  return vAlign_;
+//}
 
 double GfxNoteData::dx() const {
   return dx_;
 }
 
 double GfxNoteData::dy() const {
-  return dx_;
+  return dy_;
 }
 
 double GfxNoteData::textWidth() const {
   return textWidth_;
 }
 
-void GfxNoteData::setHAlign(GfxNoteData::HAlign ha) {
-  hAlign_ = ha;
-  markModified();
-}
-
-void GfxNoteData::setVAlign(GfxNoteData::VAlign va) {
-  vAlign_ = va;
-  markModified();
-}
+//void GfxNoteData::setHAlign(GfxNoteData::HAlign ha) {
+//  hAlign_ = ha;
+//  markModified();
+//}
+//
+//void GfxNoteData::setVAlign(GfxNoteData::VAlign va) {
+//  vAlign_ = va;
+//  markModified();
+//}
 
 void GfxNoteData::setDx(double d) {
   dx_ = d;
@@ -71,13 +71,17 @@ double GfxNoteData::lineLength() const {
   return sqrt(dx()*dx() + dy()*dy());
 }
 
-void GfxNoteData::setEndPoint(QPointF p, bool realign) {
+bool GfxNoteData::lineLengthIsZero() const {
+  return dx()==0 && dy()==0;
+}
+
+void GfxNoteData::setEndPoint(QPointF p /*, bool realign */) {
   dx_ = p.x() - x();
   dy_ = p.y() - y();
-  if (realign) {
-    hAlign_ = dx_<0 ? Right : Left;
-    vAlign_ = Middle;
-  }
+  //if (realign) {
+  //  hAlign_ = dx_<0 ? Right : Left;
+  //  vAlign_ = Middle;
+  //}
   markModified();
 }
 
@@ -102,8 +106,6 @@ TextData *GfxNoteData::text() {
 
 void GfxNoteData::loadMore(QVariantMap const &src) {
   GfxData::loadMore(src);
-  QList<TextData*> l(children<TextData>());
-  Q_ASSERT(!l.isEmpty());
-  text_ = l[0];
+  text_ = firstChild<TextData>();
   Q_ASSERT(text_);
 }
