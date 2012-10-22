@@ -3,3 +3,61 @@ Restacking from number i on doesn't work quite yet, it seems. (Or rather,
 restack from #i must also fix #i's top.)
 Closing the window does not cause data save.
 The json file is hard to read because there are no new lines in it.
+
+All above fixed as of 10/22, I believe.
+----------------------------------------------------------------------
+
+I need a "LastAdded" global object to implement removal of last item.
+I need a "Limbo" global object to reparent removed item so that it can be
+restored.
+I need to store the "style.json" with each book.
+I need to figure out a clean way to make items editable or not. This needs
+not happen at the level of objects.
+
+Links can be implemented purely as a markup: I don't want any hidden
+information. Clicking on a link (with Ctrl?) should open it. Links can be
+URLs, page numbers, or lit. references. Links can be inserted by auto-recog.
+of URLs (based on http...html, or www...php, or whatever) or by recognizing
+/\d{1,3}/ as a page number, /[A-Z]?\d\d-[A-Za-z0-9]+/ as a lit. reference,
+/\d{4,8}/ as a pmid, etc., when enclosed in [] (which would be autoremoved
+just like //, **, etc.).
+
+The Glow for making gfxnotes more visible doesn't work so well.
+Gfx notes should be movable.
+Gfx notes should be abandonable
+It should be possible to doodle on canvas. And draw straight lines.
+
+Alt-drag moves an existing item
+(Alt-drag near right edge of text changes width (left edge for r.aligned notes))
+Click adds text
+Drag adds line with text
+Ctrl-click adds dot
+Ctrl-drag adds doodle
+Shift-drag adds h./v. line
+# toggles snap-to-grid
+
+Status messages could pop up in little balloons or near bottom of window.
+("Snap to grid enabled", "Text object deleted" (?))
+
+While doodling or clicking dots, up/down arrows change size,
+left/right arrows change colors. Colors are from a very small
+palette. Palette could pop up.
+
+Would "nothing loaded is editable" be a good rule?
+
+Mouse pointer shape must be more clearly meaningful:
+  - I beam: text can be input by clicking
+  - +: a new gfx item can be created
+  - directional arrows: an item can be moved
+  - default arrow: click will add a new note
+
+How can I grab mouse events from a note line? And is there a nicer way
+to pass events up from TextItem to GfxNoteItem?
+
+TitleItem should be more elegant in its dealing with writable. It's
+not obvious to me why a TitleTextItem exists. It would seem better to
+make TitleItem inherit TextItem and to reimplement the docChange slot.
+
+All Items should by default not be writable. The makeWritable function
+should make them writable and make that evident in the mouse cursor
+shape.

@@ -20,8 +20,6 @@ public:
   void setYref(double);
   void setRef(QPointF);
   QList<class GfxData *> gfx() const;
-  void addGfx(GfxData *);
-  bool deleteGfx(GfxData *);
 protected:
   double xref_, yref_;
 };

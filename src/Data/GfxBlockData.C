@@ -19,14 +19,6 @@ QList<class GfxData *> GfxBlockData::gfx() const{
   return children<GfxData>();
 }
 
-void GfxBlockData::addGfx(GfxData *g) {
-  addChild(g);
-}
-
-bool GfxBlockData::deleteGfx(GfxData *g) {
-  return deleteChild(g);
-}
-
 double GfxBlockData::xref() const {
   return xref_;
 }

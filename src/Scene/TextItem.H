@@ -12,10 +12,9 @@
 class TextItem: public QGraphicsTextItem, public Item {
   Q_OBJECT;
 public:
-  TextItem(class TextData *data, QGraphicsItem *parent);
+  TextItem(class TextData *data, Item *parent);
   ~TextItem();
-  virtual bool makeWritable();
-  void makeHardToWrite();
+  virtual void makeWritable();
   bool allowParagraphs() const;
   void setAllowParagraphs(bool yes);
 signals:
@@ -24,10 +23,11 @@ signals:
   void futileMovementKey(QTextCursor, int, Qt::KeyboardModifiers); 
   void enterPressed(); // emitted if creation of a new paragraph prevented
 protected:
+  void mousePressEvent(QGraphicsSceneMouseEvent *);
   void keyPressEvent(QKeyEvent *);
   void focusOutEvent(QFocusEvent *);
-private slots:
-  void docChange();
+protected slots:
+  virtual void docChange();
 private:
   void initializeFormat();
   bool tryToPaste();

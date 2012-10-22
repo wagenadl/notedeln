@@ -24,6 +24,10 @@ TextData const *TitleData::current() const {
   return versions_.last();
 }
 
+TextData *TitleData::current() {
+  return versions_.last();
+}
+
 TextData const *TitleData::orig() const {
   return versions_[0];
 }

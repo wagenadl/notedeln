@@ -1,41 +1,32 @@
 // TitleItem.C
 
 #include "TitleItem.H"
-#include "TitleTextItem.H"
 #include "Style.H"
 #include <QDebug>
 #include <QTextDocument>
 
-TitleItem::TitleItem(TitleData *data, QGraphicsObject *parent):
-  QGraphicsObject(parent), data_(data) {
-  Style const &style(Style::defaultStyle());
+TitleItem::TitleItem(TitleData *data, Item *parent):
+  TextItem(data->current(), parent), data_(data) {
   qDebug() << "TitleItem!";
-  text_ = new TitleTextItem(data_, this);
-  qDebug() << "Created TitleTextItem";
 
-  text_->setFont(QFont(style["title-font-family"].toString(),
-			      style["title-font-size"].toDouble()));
-  text_->setDefaultTextColor(QColor(style["title-color"].toString()));
+  setFont(QFont(style("title-font-family").toString(),
+		style("title-font-size").toDouble()));
+  setDefaultTextColor(QColor(style("title-color").toString()));
 }
 
 
 TitleItem::~TitleItem() {
 }
 
-TextItem *TitleItem::text() {
-  return text_;
-}
-
 TitleData *TitleItem::data() const {
   return data_;
 }
 
-QRectF TitleItem::boundingRect() const {
-  return text_->mapRectToParent(text_->boundingRect());
-}
+void TitleItem::docChange() {
+  QString plainText = toPlainText();
+  if (data_->current()->text() != plainText)
+    data_->revise();
 
-void TitleItem::paint(QPainter *,
-		      const QStyleOptionGraphicsItem *,
-		      QWidget *) {
-  // text draws itself
+  TextItem::docChange();
 }
+ 

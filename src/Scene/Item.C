@@ -8,6 +8,7 @@ Item::Item(Data *d, QGraphicsItem *me): d(d), me(me) {
   Q_ASSERT(me);
   brLocked = false;
   extraneous = false;
+  writable = false;
 }
 
 Item::~Item() {
@@ -15,6 +16,14 @@ Item::~Item() {
 
 Data *Item::data() {
   return d;
+}
+
+bool Item::isWritable() const {
+  return writable;
+}
+
+void Item::makeWritable() {
+  writable = true;
 }
 
 PageScene *Item::pageScene() const {
@@ -39,9 +48,17 @@ QMap<QString, Item *(*)(Data *, Item *)> &Item::creators() {
 QGraphicsItem *Item::gi(Item *i) {
   return i ? i->me : 0;
 }
-  
+
+QGraphicsItem *Item::gi() {
+  return me;
+}
+
 QObject *Item::obj(Item *i) {
   return i ? dynamic_cast<QObject*>(i->me) : 0;
+}
+
+QObject *Item::obj() {
+  return dynamic_cast<QObject*>(me);
 }
 
 
@@ -57,7 +74,11 @@ void Item::addChild(Item *i) {
 
 bool Item::deleteChild(Item *i) {
   if (children_.removeOne(i)) {
-    delete i;
+    QObject *o = obj(i);
+    if (o)
+      o->deleteLater();
+    else
+      delete i;
     return true;
   } else {
     return false;

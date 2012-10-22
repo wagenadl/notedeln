@@ -15,6 +15,7 @@ public:
   virtual ~TitleData();
   QList<TextData *> const &versions() const;
   TextData const *current() const;
+  TextData *current(); // usu. better to use revise()
   TextData const *orig() const;
   TextData *revise();
   /* revise() creates a new version if previous is more than X hours old.

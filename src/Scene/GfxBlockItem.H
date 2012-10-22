@@ -24,6 +24,8 @@ protected:
   virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *);
   virtual void mousePressEvent(QGraphicsSceneMouseEvent *);
   virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *);
+private slots:
+  void noteAbandoned();
 private:
   void sizeToFit();
   double availableWidth() const;

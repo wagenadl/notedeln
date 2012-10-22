@@ -21,8 +21,10 @@ GfxBlockItem::GfxBlockItem(GfxBlockData *data, PageScene *parent):
 
   dragLine = 0;
   
-  foreach (GfxData *d, data->gfx()) 
-    addChild(create(d, this));
+  foreach (GfxData *d, data->gfx()) {
+    Item *i = create(d, this);
+    addChild(i);
+  }
 
   setPos(Style::defaultStyle()["margin-left"].toDouble(), 0);
   setCursor(defaultCursor());
@@ -35,49 +37,35 @@ GfxBlockData *GfxBlockItem::data() {
   return data_;
 }
 
-Item *GfxBlockItem::newImage(QImage img, QUrl const *src, QPointF xy) {
-  // this needs some work
+Item *GfxBlockItem::newImage(QImage img, QUrl const *src, QPointF) {
   Q_ASSERT(data()->book());
   Q_ASSERT(data()->resMgr());
   QString resName = data()->resMgr()->import(img, src);
-  qDebug() << "GfxBlockItem::newImage" << resName << xy;
-  
   GfxImageData *gid = new GfxImageData(resName, img);
   gid->setPos(QPointF(18, 18)); // should use passed xy?
-  data()->addGfx(gid);
+  data()->addChild(gid);
   GfxImageItem *gii = new GfxImageItem(gid, this);
   addChild(gii);
-  qDebug() << "  new image: bbox: "
-	   << gii->mapRectToParent(gii->boundingRect());
   sizeToFit();
-
   return gii;
 }
 
+void GfxBlockItem::noteAbandoned() {
+  qDebug() << "noteAbandoned " << sender();
+  Item *i = dynamic_cast<Item*>(sender());
+  bool del = i ? deleteChild(i) : false;
+  qDebug() << "  -> " << i << del;
+}
+
 Item *GfxBlockItem::newNote(QPointF p0) {
-  qDebug() << "GBI:newNote" << p0;
-  GfxNoteData *d = new GfxNoteData();
-  d->setPos(p0);
-  d->setLineLengthToZero();
-  data_ -> addGfx(d);
-  
-  GfxNoteItem *i = new GfxNoteItem(d, this);
-  addChild(i);
-  sizeToFit();
-  i->setFocus();
-  return i;
+  return newNote(p0, p0);
 }
 
 Item *GfxBlockItem::newNote(QPointF p0, QPointF p1) {
-  qDebug() << "GBI:newNote" << p0 << p1;
-  GfxNoteData *d = new GfxNoteData();
-  d->setPos(p0);
-  d->setEndPoint(p1);
-  data_ -> addGfx(d);
-  GfxNoteItem *i = new GfxNoteItem(d, this);
-  addChild(i);
+  GfxNoteItem *i = GfxNoteItem::newNote(p0, p1, this);
+  connect(i, SIGNAL(abandoned()),
+	  this, SLOT(noteAbandoned()));
   sizeToFit();
-  i->setFocus();
   return i;
 }
 

@@ -18,23 +18,16 @@
 #include <QMimeData>
 #include <QUrl>
 #include <QCursor>
+#include <QGraphicsSceneMouseEvent>
 
-TextItem::TextItem(TextData *data, QGraphicsItem *parent):
-  QGraphicsTextItem(parent),
+#include "GfxNoteItem.H" // yick
+
+TextItem::TextItem(TextData *data, Item *parent):
+  QGraphicsTextItem(gi(parent)),
   Item(data, this),
   data_(data) {
-  mayWrite = false;
   mayMark = true;
   allowParagraphs_ = true;
-
-  if (data_->editable()) {
-    qDebug() << "TextItem:editable";
-    mayWrite = true;
-    setTextInteractionFlags(Qt::TextEditorInteraction);
-    setCursor(QCursor(Qt::IBeamCursor));
-  } else {
-    qDebug() << "TextItem: not editable";
-  }
 
   setPlainText(data_->text());  
   markings_ = new TextMarkings(data_, document(), this);
@@ -45,16 +38,10 @@ TextItem::TextItem(TextData *data, QGraphicsItem *parent):
 	  this, SLOT(docChange()));
 }
 
-void TextItem::makeHardToWrite() {
-  // but not impossible
-  qDebug() << "makeHardToWrite";
-  mayWrite = mayMark = false;
+void TextItem::makeWritable() {
+  Item::makeWritable();
   setTextInteractionFlags(Qt::TextEditorInteraction);
   setCursor(QCursor(Qt::IBeamCursor));
- }
-
-bool TextItem::makeWritable() {
-  return mayWrite && mayMark;
 }
 
 TextItem::~TextItem() {
@@ -73,15 +60,7 @@ void TextItem::docChange() {
     // trivial change; this happens if markup changes
     return;
   }
-  
-  if (!mayWrite)
-    makeWritable();
-
-  if (!mayWrite) {
-    qDebug() << "document change but cannot write!";
-    return;
-  }
-
+  Q_ASSERT(isWritable());
   data_->setText(plainText);
   emit textChanged();
 }
@@ -89,9 +68,23 @@ void TextItem::docChange() {
 void TextItem::focusOutEvent(QFocusEvent *e) {
   QGraphicsTextItem::focusOutEvent(e);
   if (document()->isEmpty()) {
-    qDebug() << "Abandoned.";
     emit abandoned();
   }
+}
+
+void TextItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
+  qDebug() << "TextItem::mousePressEvent";
+  if (e->modifiers() && moveModifiers()) {
+    GfxNoteItem *p = dynamic_cast<GfxNoteItem *>(parentItem());
+    if (p) {
+      qDebug() << "  Parent is note item";
+      e->accept();
+      clearFocus();
+      p->grabMouse();
+      return;
+    }
+  }
+  QGraphicsTextItem::mousePressEvent(e);
 }
 
 void TextItem::keyPressEvent(QKeyEvent *e) {

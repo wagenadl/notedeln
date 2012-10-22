@@ -15,6 +15,10 @@ public:
   GfxNoteData *data();
   QRectF boundingRect() const;
   void paint(QPainter *, const QStyleOptionGraphicsItem *, QWidget *);
+  static GfxNoteItem *newNote(QPointF p0, Item *parent);
+  static GfxNoteItem *newNote(QPointF p0, QPointF p1, Item *parent);
+signals:
+  void abandoned();
 protected:
   virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *);
   virtual void mousePressEvent(QGraphicsSceneMouseEvent *);

@@ -164,6 +164,7 @@ void PageScene::makeTitleItem() {
 
   titleItem = new TitleItem(data->title(), 0);
   addItem(titleItem);
+  titleItem->makeWritable();
 
   nOfNItem = addText("n/N",
 		     QFont(style["title-font-family"].toString(),
@@ -173,7 +174,7 @@ void PageScene::makeTitleItem() {
   
   positionTitleItem();
   
-  connect(titleItem->text()->document(), SIGNAL(contentsChanged()),
+  connect(titleItem->document(), SIGNAL(contentsChanged()),
 	  SLOT(titleEdited()));
 }
 
@@ -184,6 +185,7 @@ void PageScene::makeBlockItems() {
     if (!bi)
       bi = tryMakeGfxBlock(bd);
     Q_ASSERT(bi);
+    bi->makeWritable(); // more sophistication needed
     vChangeMapper->setMapping(bi, blockItems.size());
     connect(bi, SIGNAL(vboxChanged()), vChangeMapper, SLOT(map()));
     blockItems.append(bi);
@@ -237,7 +239,7 @@ void PageScene::titleEdited() {
 void PageScene::positionTitleItem() {
   /* This keeps the title bottom aligned */
   double dateX = dateItem->mapToScene(dateItem->boundingRect().topLeft()).x();
-  titleItem->text()->setTextWidth(dateX - style["margin-left"].toDouble() - 5);
+  titleItem->setTextWidth(dateX - style["margin-left"].toDouble() - 5);
   QPointF bl = titleItem->boundingRect().bottomLeft();
   titleItem->setPos(style["margin-left"].toDouble() -
 		    bl.x(),
@@ -247,12 +249,12 @@ void PageScene::positionTitleItem() {
 		    );
 
   /* Reposition "n/N" */
-  QTextDocument *doc = titleItem->text()->document();
+  QTextDocument *doc = titleItem->document();
   QTextBlock blk = doc->lastBlock();
   QTextLayout *lay = blk.layout();
   QTextLine l = lay->lineAt(blk.lineCount()-1);
   QPointF tl(l.cursorToX(blk.length()) + 10, l.y());
-  tl = titleItem->text()->mapToScene(tl + lay->position());
+  tl = titleItem->mapToScene(tl + lay->position());
   lay = nOfNItem->document()->lastBlock().layout();
   l = lay->lineAt(0);
   tl -= lay->position() - QPointF(l.cursorToX(0), l.y());

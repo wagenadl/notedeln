@@ -24,6 +24,9 @@ GfxNoteItem::GfxNoteItem(GfxNoteData *data, Item *parent):
   text = new TextItem(data->text(), this);
   text->setDefaultTextColor(QColor(style("note-text-color").toString()));
 
+  connect(text, SIGNAL(abandoned()),
+	  this, SIGNAL(abandoned()));
+
   QGraphicsDropShadowEffect *s = new QGraphicsDropShadowEffect(this);
   QColor c(style("note-shadow-color").toString());
   c.setAlphaF(style("note-shadow-alpha").toDouble());
@@ -66,16 +69,35 @@ void GfxNoteItem::mouseMoveEvent(QGraphicsSceneMouseEvent *e) {
 }
 
 void GfxNoteItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
+  /* This apparently never gets called because we have a zero bbox.
+   */     
   qDebug() << "GfxNoteItem::mousePressEvent";
   e->ignore();
 }
 
-void GfxNoteItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *e) {
+void GfxNoteItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *) {
   qDebug() << "GfxNoteItem::mouseReleaseEvent";
-  e->ignore();
+  ungrabMouse();
 }
 
 void GfxNoteItem::modifierChange(Qt::KeyboardModifiers m) {
   qDebug() << "GfxNoteItem::modifierChange" << m;
+}
+
+GfxNoteItem *GfxNoteItem::newNote(QPointF p0, Item *parent) {
+  return newNote(p0, p0, parent);
+}
+
+GfxNoteItem *GfxNoteItem::newNote(QPointF p0, QPointF p1, Item *parent) {
+  Q_ASSERT(parent);
+  GfxNoteData *d = new GfxNoteData();
+  d->setPos(p0);
+  d->setEndPoint(p1);
+  parent->data()->addChild(d);
+
+  GfxNoteItem *i = new GfxNoteItem(d, parent);
+  parent->addChild(i);
+  i->setFocus();
+  return i;
 }
 

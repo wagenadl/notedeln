@@ -22,6 +22,8 @@ public:
   bool isExtraneous() const;
   void setExtraneous(bool e=true); // extraneous items are not used for
                                    // calculations of netBoundingRect
+  bool isWritable() const;
+  virtual void makeWritable();
   void lockBounds();   // } children call these to prevent 
   void unlockBounds(); // } geom. update during drags
   QRectF cachedBounds() const; // null if not locked
@@ -39,11 +41,13 @@ public:
     return res;
   }
   void addChild(Item *);
-  bool deleteChild(Item *);
+  bool deleteChild(Item *); // this uses deleteLater if child is an object
   static QVariant style(QString k);
   static Item *create(Data *d, Item *parent=0);
-  static QGraphicsItem *gi(Item *);
+  static QGraphicsItem *gi(Item *); // null pointer ok
   static QObject *obj(Item *);
+  QGraphicsItem *gi();
+  QObject *obj();  
   template <class DT, class IT> class Creator {
   public:
     Creator<DT, IT>(QString typ) {
@@ -67,6 +71,7 @@ private:
   bool extraneous;
   bool brLocked;
   QRectF brCache;
+  bool writable;
 };
 
 #endif
