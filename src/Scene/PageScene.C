@@ -11,6 +11,7 @@
 #include "GfxBlockItem.H"
 #include "GfxBlockData.H"
 #include "ResourceManager.H"
+#include "ModSnooper.H"
 
 #include <QGraphicsTextItem>
 #include <QGraphicsLineItem>
@@ -629,60 +630,60 @@ void PageScene::mousePressEvent(QGraphicsSceneMouseEvent *e) {
 }
 	
 void PageScene::keyReleaseEvent(QKeyEvent *e) {
-  qDebug() << "PageScene: keyRelease" << e->key() << e->modifiers();
-  
-  switch (e->key()) {
-  case Qt::Key_Alt: case Qt::Key_AltGr:
-    keymods_ &= ~Qt::AltModifier;
-    emit modifiersChanged(keymods_);
-    break;
-  case Qt::Key_Control:
-    keymods_ &= ~Qt::ControlModifier;
-    emit modifiersChanged(keymods_);
-    break;
-  case Qt::Key_Shift:    
-    keymods_ &= ~Qt::ShiftModifier;
-    emit modifiersChanged(keymods_);
-    break;
-  case Qt::Key_Super_L: case Qt::Key_Super_R:
-  case Qt::Key_Hyper_L: case Qt::Key_Hyper_R:
-    keymods_ &= ~Qt::MetaModifier;
-    emit modifiersChanged(keymods_);
-    break;
-  }
+  keyChange(e->key(), -1);
   QGraphicsScene::keyReleaseEvent(e);
 }
 
 void PageScene::keyPressEvent(QKeyEvent *e) {
-  qDebug() << "PageScene: keyPress" << e->key() << e->modifiers();
+  keyChange(e->key(), +1);
   switch (e->key()) {
-  case Qt::Key_Alt: case Qt::Key_AltGr:
-    keymods_ |= Qt::AltModifier;
-    emit modifiersChanged(keymods_);
-    break;
-  case Qt::Key_Control:
-    keymods_ |= Qt::ControlModifier;
-    emit modifiersChanged(keymods_);
-    break;
-  case Qt::Key_Shift:    
-    keymods_ |= Qt::ShiftModifier;
-    emit modifiersChanged(keymods_);
-    break;
-  case Qt::Key_Super_L: case Qt::Key_Super_R:
-  case Qt::Key_Hyper_L: case Qt::Key_Hyper_R:
-    keymods_ |= Qt::MetaModifier;
-    emit modifiersChanged(keymods_);
-    break;
   case Qt::Key_V:
     if (e->modifiers() & Qt::ControlModifier) 
       if (tryToPaste()) {
 	e->accept();
 	return;
       }
-  default:
-    break;
   }
   QGraphicsScene::keyPressEvent(e);
+}
+
+void PageScene::keyChange(int key, int delta) {
+  ModSnooper *ms = ModSnooper::instance();
+  if (ms && ms->haveState()) {
+    // Get info straight from X server
+    Qt::KeyboardModifiers m = 0x0;
+    if (ms->anyShift())
+      m |= Qt::ShiftModifier;
+    if (ms->anyControl())
+      m |= Qt::ControlModifier;
+    if (ms->anyAlt())
+      m |= Qt::AltModifier;
+    if (m!=keymods_) {
+      keymods_ = m;
+      emit modifiersChanged(keymods_);
+    }
+  } else {
+    // Get info from Qt
+    Qt::KeyboardModifiers m = 0x0;
+    switch (key) {
+    case Qt::Key_Alt: case Qt::Key_AltGr:
+      m |= Qt::AltModifier;
+    break;
+    case Qt::Key_Control:
+      m |= Qt::ControlModifier;
+    break;
+    case Qt::Key_Shift:    
+      m |= Qt::ShiftModifier;
+    break;
+    }
+    if (m) {
+      if (delta>0)
+	keymods_ |= m;
+      else
+	keymods_ &= ~m;
+      emit modifiersChanged(keymods_);
+    }
+  }
 }
 
 bool PageScene::tryToPaste() {

@@ -196,11 +196,16 @@ void Item::acceptModifierChanges() {
 GfxNoteItem *Item::newNote(QPointF p0, QPointF p1) {
   GfxNoteItem *n = GfxNoteItem::newNote(p0, p1, this);
   childGeometryChanged(); // b/c of the new note
+  return n;
 }
 
 bool Item::abandonNote(GfxNoteItem *n) {
-  if (deleteChild(n))
+  if (deleteChild(n)) {
     childGeometryChanged();
+    return true;
+  } else {
+    return false;
+  }
 }
 
 bool Item::mousePress(QGraphicsSceneMouseEvent *e) {

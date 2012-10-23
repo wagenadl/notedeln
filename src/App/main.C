@@ -5,9 +5,10 @@
 #include <QFile>
 #include <QDir>
 #include "Notebook.H"
+#include "ModSnooper.H"
 
 int main(int argc, char **argv) {
-  QApplication app(argc, argv);
+  ModSnooper app(argc, argv);
   PageEditor editor;
   QDir d("test.nb");
   Notebook *nb = d.exists()

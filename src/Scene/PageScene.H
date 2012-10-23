@@ -33,6 +33,7 @@ private slots:
   void futileMovement(int block);
   void enterPressed(int block);
 private:
+  void keyChange(int key, int delta);
   bool tryToPaste();
   bool importDroppedImage(QPointF scenePos, QImage const &img,
 			  class QUrl const *source=0);
