@@ -30,3 +30,12 @@ void TitleItem::docChange() {
   TextItem::docChange();
 }
  
+void TitleItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
+  TextItem::mousePressEvent(e);
+  if (hasFocus() && toPlainText()==TitleData::defaultTitle()) {
+    QTextCursor c = textCursor(); //(document());
+    c.setPosition(0);
+    c.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
+    setTextCursor(c);
+  }
+}

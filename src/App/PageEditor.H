@@ -12,9 +12,9 @@ public:
   PageEditor();
   virtual ~PageEditor();
 public slots:
-  void load(QString fn);
+  //  void load(QString fn);
   void open(PageFile *f);
-  void create(QString fn);
+  //  void create(QString fn);
 protected:
   void closeEvent(QCloseEvent *);
 private:

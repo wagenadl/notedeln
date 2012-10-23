@@ -8,20 +8,13 @@
 
 class PageScene: public QGraphicsScene {
   Q_OBJECT;
-  Q_ENUMS(MouseMode);
-  Q_PROPERTY(MouseMode mode READ mode WRITE setMode);
 public:
-  enum MouseMode {
-    ViewMode,
-    TypeMode,
-    MoveMode,
-  };
 public:
   PageScene(class PageData *data, QObject *parent=0);
   virtual ~PageScene();
   int sheetCount() const;
-  void setMode(MouseMode);
-  MouseMode mode() const;
+  void makeWritable();
+  Qt::KeyboardModifiers keyboardModifiers() const;
 public slots:
   void nextSheet();
   void previousSheet();
@@ -79,6 +72,7 @@ private:
   QGraphicsLineItem *leftMarginItem;
   QGraphicsLineItem *topMarginItem;
   QGraphicsRectItem *bgItem;
+  QGraphicsRectItem *belowItem;
   class QSignalMapper *hChangeMapper;
   class QSignalMapper *vChangeMapper;
   class QSignalMapper *abandonedMapper;
@@ -94,8 +88,8 @@ private:
   int iSheet; // current sheet (counting from 0)
   PageData *data;
   class Style const &style;
-  MouseMode mode_;
   Qt::KeyboardModifiers keymods_;
+  bool writable;
 };
 
 #endif

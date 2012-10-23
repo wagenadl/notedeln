@@ -42,6 +42,7 @@ void TextItem::makeWritable() {
   Item::makeWritable();
   setTextInteractionFlags(Qt::TextEditorInteraction);
   setCursor(QCursor(Qt::IBeamCursor));
+  acceptModifierChanges();
 }
 
 TextItem::~TextItem() {
@@ -73,18 +74,8 @@ void TextItem::focusOutEvent(QFocusEvent *e) {
 }
 
 void TextItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
-  qDebug() << "TextItem::mousePressEvent";
-  if (e->modifiers() && moveModifiers()) {
-    GfxNoteItem *p = dynamic_cast<GfxNoteItem *>(parentItem());
-    if (p) {
-      qDebug() << "  Parent is note item";
-      e->accept();
-      clearFocus();
-      p->grabMouse();
-      return;
-    }
-  }
   QGraphicsTextItem::mousePressEvent(e);
+  emit mousePress(e->scenePos(), e->button());
 }
 
 void TextItem::keyPressEvent(QKeyEvent *e) {
@@ -271,5 +262,13 @@ bool TextItem::allowParagraphs() const {
 
 void TextItem::setAllowParagraphs(bool yes) {
   allowParagraphs_ = yes;
+}
+
+void TextItem::modifierChange(Qt::KeyboardModifiers) {
+  // this will only be called if we are writable
+  if (moveModPressed())
+    setCursor(Qt::SizeAllCursor);
+  else
+    setCursor(Qt::IBeamCursor);
 }
 

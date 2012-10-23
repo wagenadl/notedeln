@@ -132,12 +132,11 @@ bool Item::isExtraneous() const {
 }
 
 Qt::CursorShape Item::defaultCursor() {
-  return Qt::CrossCursor;
-  // perhaps this should be different for read-only state?
+  return Qt::ArrowCursor;
 }
 
 Qt::KeyboardModifiers Item::moveModifiers() {
-  return Qt::AltModifier | Qt::MetaModifier | Qt::GroupSwitchModifier;
+  return Qt::AltModifier;
 }
 
 Qt::MouseButton Item::moveButton() {
@@ -157,3 +156,21 @@ QVariant Item::style(QString k) {
   // qDebug() << "Item::style" << k;
   return Style::defaultStyle()[k];
 }
+
+bool Item::moveModPressed() const {
+  PageScene const *s = dynamic_cast<PageScene const *>(me->scene());
+  return s
+    ? (s->keyboardModifiers() & moveModifiers())!=0
+    : false;
+}
+
+void Item::acceptModifierChanges() {
+  PageScene *s = dynamic_cast<PageScene*>(me->scene());
+  QObject *o = obj();
+  if (s && o) 
+    o->connect(s, SIGNAL(modifiersChanged(Qt::KeyboardModifiers)),
+	       o, SLOT(modifierChange(Qt::KeyboardModifiers)));
+  else
+    qDebug() << "Item: no page -> keyboard modifiers will be ignored";
+}
+    

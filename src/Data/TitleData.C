@@ -3,17 +3,19 @@
 #include "TitleData.H"
 #include "Style.H"
 
-#define DEFAULTTITLE "Untitled"
-
 static Data::Creator<TitleData> c("title");
 
 TitleData::TitleData(Data *parent): Data(parent) {
   versions_.append(new TextData(this));
   setType("title");
-  versions_[0]->setText(DEFAULTTITLE);
+  versions_[0]->setText(defaultTitle());
 }
 
 TitleData::~TitleData() {
+}
+
+QString TitleData::defaultTitle() {
+  return "Untitled";
 }
 
 QList<TextData *> const &TitleData::versions() const {
@@ -35,7 +37,7 @@ TextData const *TitleData::orig() const {
 TextData *TitleData::revise() {
   TextData *r = versions_.last();
 
-  if (r->text() == DEFAULTTITLE) {
+  if (r->text() == defaultTitle()) {
     r->setCreated(QDateTime::currentDateTime());
     r->setModified(QDateTime::currentDateTime());
     return r;

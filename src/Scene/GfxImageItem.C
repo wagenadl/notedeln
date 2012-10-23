@@ -25,7 +25,6 @@ GfxImageItem::GfxImageItem(GfxImageData *data, Item *parent):
   }
 
   dragType = None;
-  moveModPressed = false;
 
   // get the image, crop it, etc.
   ResourceManager *resmgr = data->resMgr();
@@ -41,15 +40,9 @@ GfxImageItem::GfxImageItem(GfxImageData *data, Item *parent):
   setPixmap(QPixmap::fromImage(image.copy(data->cropRect().toRect())));
   setScale(data->scale());
   setPos(data->pos());
-  setAcceptHoverEvents(true);
   oldCursor = Qt::ArrowCursor;
   setCursor(GfxBlockItem::defaultCursor());
-  PageScene *s = dynamic_cast<PageScene*>(scene());
-  if (s) 
-    connect(s, SIGNAL(modifiersChanged(Qt::KeyboardModifiers)),
-	    SLOT(modifierChange(Qt::KeyboardModifiers)));
-  else
-    qDebug() << "GfxImageItem: no page -> keyboard modifiers will be ignored";
+  acceptModifierChanges();
 }
 
 GfxImageItem::~GfxImageItem() {
@@ -175,7 +168,7 @@ void GfxImageItem::mouseMoveEvent(QGraphicsSceneMouseEvent *e) {
 }
 
 void GfxImageItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
-  if (moveModPressed) { // if (e->modifiers() & GfxBlockItem::moveModifiers())
+  if (moveModPressed()) { 
     dragType = dragTypeForPoint(e->pos());
     dragStart = mapToParent(e->pos());
     dragCrop = data->cropRect();
@@ -185,6 +178,7 @@ void GfxImageItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
       qDebug() << "GfxImageItem: no parent";
     e->accept();
   } else {
+    // we should make new notes attached to us, but for now:
     e->ignore(); // pass to parent
   }
 }
@@ -245,7 +239,7 @@ Qt::CursorShape GfxImageItem::cursorForDragType(GfxImageItem::DragType dt) {
   case None:
     return Qt::ArrowCursor;
   case Move:
-    return Qt::ArrowCursor;
+    return Qt::SizeAllCursor;
   case ResizeTopLeft: case ResizeBottomRight:
     return Qt::SizeFDiagCursor;
   case ResizeTopRight: case ResizeBottomLeft:
@@ -255,7 +249,7 @@ Qt::CursorShape GfxImageItem::cursorForDragType(GfxImageItem::DragType dt) {
   case CropTop: case CropBottom:
     return Qt::SplitVCursor;
   }
-  return GfxBlockItem::defaultCursor(); // this statement will not be reached
+  return defaultCursor(); // this statement will not be reached
 }
 
 void GfxImageItem::setCursor(Qt::CursorShape newCursor) {
@@ -266,20 +260,19 @@ void GfxImageItem::setCursor(Qt::CursorShape newCursor) {
   oldCursor = newCursor;
 }
 
-void GfxImageItem::modifierChange(Qt::KeyboardModifiers m) {
-  moveModPressed = m & GfxBlockItem::moveModifiers();
-  if (moveModPressed)
+void GfxImageItem::modifierChange(Qt::KeyboardModifiers) {
+  if (moveModPressed())
     setCursor(cursorForDragType(dragTypeForPoint(cursorPos)));
   else 
-   setCursor(GfxBlockItem::defaultCursor());
+    setCursor(Qt::CrossCursor);
 }
 
 void GfxImageItem::hoverMoveEvent(QGraphicsSceneHoverEvent *e) {
   cursorPos = e->pos(); // cache for the use of modifierChanged
-  if (moveModPressed)
+  if (moveModPressed())
     setCursor(cursorForDragType(dragTypeForPoint(cursorPos)));
   else
-    setCursor(GfxBlockItem::defaultCursor());
+    setCursor(Qt::CrossCursor);
   e->accept();
 }
 
@@ -289,4 +282,9 @@ QRectF GfxImageItem::imageBoundingRect() const {
 
 QRectF GfxImageItem::boundingRect() const {
   return imageBoundingRect().adjusted(0, -18, 0, 18);
+}
+
+void GfxImageItem::makeWritable() {
+  Item::makeWritable();
+  setAcceptHoverEvents(true);
 }

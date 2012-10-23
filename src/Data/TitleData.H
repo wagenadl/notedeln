@@ -23,7 +23,7 @@ public:
      the same as the old "current" pointer; the newly created copy is saved
      as the old version.
   */
-  
+  static QString defaultTitle();  
 protected:
   void loadMore(QVariantMap const &src);
   void saveMore(QVariantMap &dst) const;

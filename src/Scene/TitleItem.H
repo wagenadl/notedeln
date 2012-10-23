@@ -16,6 +16,8 @@ public:
   TitleData *data() const;
 protected slots:
   virtual void docChange();
+protected:
+  virtual void mousePressEvent(QGraphicsSceneMouseEvent *);
 private:
   TitleData *data_;
 };

@@ -39,6 +39,7 @@ public:
   FutileMovementInfo const &lastFutileMovement() const;
   virtual QRectF boundingRect() const;
   void paint(QPainter *p, const QStyleOptionGraphicsItem *o, QWidget *w);
+  virtual void makeWritable();
 signals:
   void futileMovement(); // up key on top line etc
   void enterPressed();

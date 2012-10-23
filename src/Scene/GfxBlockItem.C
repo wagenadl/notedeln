@@ -179,3 +179,21 @@ void GfxBlockItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *e) {
   e->accept();
 }
 
+void GfxBlockItem::makeWritable() {
+  BlockItem::makeWritable();
+  setCursor(Qt::CrossCursor);
+  acceptModifierChanges();
+
+  // is it really right to make all children writable?
+  foreach (Item *i, allChildren())
+    i->makeWritable();
+}
+
+void GfxBlockItem::modifierChange(Qt::KeyboardModifiers) {
+  // this will only be called if we are writable
+  if (moveModPressed())
+    setCursor(Qt::ForbiddenCursor);
+  else
+    setCursor(Qt::CrossCursor);
+}
+

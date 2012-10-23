@@ -20,10 +20,13 @@ public:
   void paint(QPainter *, const QStyleOptionGraphicsItem *, QWidget *);
   virtual QRectF boundingRect() const;
   virtual void childGeometryChanged();
+  virtual void makeWritable();
 protected:
   virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *);
   virtual void mousePressEvent(QGraphicsSceneMouseEvent *);
   virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *);
+protected slots:
+  virtual void modifierChange(Qt::KeyboardModifiers);
 private slots:
   void noteAbandoned();
 private:

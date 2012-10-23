@@ -171,3 +171,7 @@ Qt::KeyboardModifiers TextBlockItem::FutileMovementInfo::modifiers() const {
   return modifiers_;
 }
 
+void TextBlockItem::makeWritable() {
+  item_->makeWritable();
+  BlockItem::makeWritable();
+}

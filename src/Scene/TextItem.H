@@ -22,12 +22,14 @@ signals:
   void abandoned(); // escape pressed while empty
   void futileMovementKey(QTextCursor, int, Qt::KeyboardModifiers); 
   void enterPressed(); // emitted if creation of a new paragraph prevented
+  void mousePress(QPointF, Qt::MouseButton);
 protected:
   void mousePressEvent(QGraphicsSceneMouseEvent *);
   void keyPressEvent(QKeyEvent *);
   void focusOutEvent(QFocusEvent *);
 protected slots:
   virtual void docChange();
+  void modifierChange(Qt::KeyboardModifiers);
 private:
   void initializeFormat();
   bool tryToPaste();
@@ -37,7 +39,6 @@ private:
   bool charAfterIsLetter(int pos) const;
 protected:
   TextData *data_;
-  bool mayWrite;
   bool mayMark;
   bool allowParagraphs_;
   class TextMarkings *markings_;

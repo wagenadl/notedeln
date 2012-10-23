@@ -15,6 +15,7 @@ public:
   virtual ~GfxImageItem();
   QRectF boundingRect() const;
   QRectF imageBoundingRect() const; // w/o margins
+  virtual void makeWritable();
 protected:
   virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *);
   virtual void mousePressEvent(QGraphicsSceneMouseEvent *);
@@ -48,7 +49,6 @@ private:
   Qt::CursorShape oldCursor;
   QPointF cursorPos;
   QRectF dragCrop; // in image coords
-  bool moveModPressed;
 };
 
 #endif

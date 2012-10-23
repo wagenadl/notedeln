@@ -23,10 +23,13 @@ GfxNoteItem::GfxNoteItem(GfxNoteData *data, Item *parent):
   }
   text = new TextItem(data->text(), this);
   text->setDefaultTextColor(QColor(style("note-text-color").toString()));
+  addChild(text);
 
   connect(text, SIGNAL(abandoned()),
 	  this, SIGNAL(abandoned()));
-
+  connect(text, SIGNAL(mousePress(QPointF, Qt::MouseButton)),
+	  this, SLOT(childMousePress(QPointF, Qt::MouseButton)));
+		     
   QGraphicsDropShadowEffect *s = new QGraphicsDropShadowEffect(this);
   QColor c(style("note-shadow-color").toString());
   c.setAlphaF(style("note-shadow-alpha").toDouble());
@@ -40,6 +43,7 @@ GfxNoteItem::GfxNoteItem(GfxNoteData *data, Item *parent):
   connect(text->document(), SIGNAL(contentsChanged()),
 	  SLOT(updateTextPos()));
   updateTextPos();
+  acceptModifierChanges();
 }
 
 GfxNoteItem::~GfxNoteItem() {
@@ -56,6 +60,7 @@ void GfxNoteItem::updateTextPos() {
 
 QRectF GfxNoteItem::boundingRect() const {
   return QRectF();
+  //  return childrenBoundingRect(); // this is not really how it's supposed to go, but otherwise, we don't seem to matter for
 }
 
 void GfxNoteItem::paint(QPainter *,
@@ -64,24 +69,32 @@ void GfxNoteItem::paint(QPainter *,
 }
 
 void GfxNoteItem::mouseMoveEvent(QGraphicsSceneMouseEvent *e) {
-  qDebug() << "GfxNoteItem::mouseMoveEvent";
-  e->ignore();
-}
-
-void GfxNoteItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
-  /* This apparently never gets called because we have a zero bbox.
-   */     
-  qDebug() << "GfxNoteItem::mousePressEvent";
-  e->ignore();
+  QPointF delta = e->pos() - e->lastPos();
+  text->setPos(text->pos() + delta);
+  if (line) {
+    QLineF l = line->line(); // origLine;
+    l.setP2(l.p2() + delta);
+    if (e->modifiers() & Qt::ShiftModifier) 
+      l.setP1(l.p1() + delta);
+    line->setLine(l);
+  }
+  e->accept();
 }
 
 void GfxNoteItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *) {
-  qDebug() << "GfxNoteItem::mouseReleaseEvent";
+  unlockBounds();
   ungrabMouse();
-}
-
-void GfxNoteItem::modifierChange(Qt::KeyboardModifiers m) {
-  qDebug() << "GfxNoteItem::modifierChange" << m;
+  if (line) {
+    QLineF l = line->line();
+    QPointF p0 = l.p1();
+    QPointF p1 = l.p2();
+    data_->setPos(p0);
+    data_->setEndPoint(p1);
+  } else {
+    data_->setPos(text->pos() - QPointF(0, style("note-y-offset").toDouble()));
+  }
+  if (itemParent())
+    itemParent()->childGeometryChanged();
 }
 
 GfxNoteItem *GfxNoteItem::newNote(QPointF p0, Item *parent) {
@@ -96,8 +109,23 @@ GfxNoteItem *GfxNoteItem::newNote(QPointF p0, QPointF p1, Item *parent) {
   parent->data()->addChild(d);
 
   GfxNoteItem *i = new GfxNoteItem(d, parent);
+  i->makeWritable();
   parent->addChild(i);
   i->setFocus();
   return i;
+}
+
+void GfxNoteItem::childMousePress(QPointF, Qt::MouseButton b) {
+  if (b==moveButton() && moveModPressed()) {
+    text->setFocus();
+    text->clearFocus();
+    lockBounds();
+    grabMouse();
+  }
+}
+
+void GfxNoteItem::makeWritable() {
+  text->makeWritable();
+  acceptModifierChanges();
 }
 

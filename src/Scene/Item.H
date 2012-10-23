@@ -62,6 +62,9 @@ public:
   static Qt::KeyboardModifiers moveModifiers(); // mask of modifier keys ...
   static Qt::MouseButton moveButton(); // ... and mouse button that should
                                        // trigger a move
+protected:
+  void acceptModifierChanges();
+  bool moveModPressed() const; // only works if acceptModifierChanges has been called earlier
 private:
   static QMap<QString, Item *(*)(Data *, Item *)> &creators();
 private:

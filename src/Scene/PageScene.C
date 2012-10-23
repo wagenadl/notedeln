@@ -45,7 +45,6 @@ PageScene::PageScene(PageData *data, QObject *parent):
   connect(futileMovementMapper, SIGNAL(mapped(int)), SLOT(futileMovement(int)));
   connect(enterPressedMapper, SIGNAL(mapped(int)), SLOT(enterPressed(int)));
   
-  mode_ = TypeMode; // really, this should be ViewMode, I think
   makeBackground();
   makeDateItem();
   makePgNoItem();
@@ -64,12 +63,22 @@ void PageScene::makeBackground() {
 
   setBackgroundBrush(QBrush(QColor(style["border-color"].toString())));
   bgItem = addRect(0,
-		   0, 
-		   style["page-width"].toDouble(),
+		   0,
+ 		   style["page-width"].toDouble(),
 		   style["page-height"].toDouble(),
 		   QPen(Qt::NoPen),
 		   QBrush(QColor(style["background-color"].toString())));
-  bgItem->setAcceptDrops(true);
+
+  belowItem = addRect(style["margin-left"].toDouble(),
+		      style["margin-top"].toDouble(),
+		      style["page-width"].toDouble()
+		      - style["margin-left"].toDouble()
+		      - style["margin-right"].toDouble(),
+		      style["page-height"].toDouble()
+		      - style["margin-top"].toDouble()
+		      - style["margin-bottom"].toDouble(),
+		      QPen(Qt::NoPen),
+		      QBrush(Qt::NoBrush));
 			
   leftMarginItem = addLine(style["margin-left"].toDouble(),
 			   0,
@@ -366,7 +375,22 @@ void PageScene::gotoSheet(int i) {
   // Set page number
   pgNoItem->setPlainText(QString::number(data->startPage() + iSheet));
   positionPgNoItem();
+
+  // Shape below item
+  int iLast = findLastBlockOnSheet(iSheet);
+  double ytop = iLast<0
+    ? style["margin-top"].toDouble()
+    :  blockItems[iLast]->netSceneRect().bottom();
+  belowItem->setRect(style["margin-left"].toDouble(),
+		     ytop,
+		     style["page-width"].toDouble()
+		     - style["margin-left"].toDouble()
+		     - style["margin-right"].toDouble(),
+		     style["page-height"].toDouble()
+		     - ytop
+		     - style["margin-bottom"].toDouble());
 }
+  
 
 int PageScene::findLastBlockOnSheet(int sheet) {
   double maxY = 0;
@@ -434,6 +458,8 @@ GfxBlockItem *PageScene::newGfxBlock() {
   GfxBlockData *gbd = new GfxBlockData();
   data->addBlock(gbd);
   GfxBlockItem *gbi = new GfxBlockItem(gbd, this);
+  gbi->makeWritable();
+  
   blockItems.insert(iNew, gbi);
   sheetNos.insert(iNew, iSheet);
   topY.insert(iNew, yt);
@@ -455,8 +481,8 @@ TextBlockItem *PageScene::newTextBlock(int iAbove, bool evenIfLastEmpty) {
 
   if (iAbove>=0 && !evenIfLastEmpty) {
     TextBlockItem *tbi = dynamic_cast<TextBlockItem *>(blockItems[iAbove]);
-    if (tbi && tbi->document()->isEmpty()) {
-      // Previous block is empty text, go there instead
+    if (tbi && tbi->document()->isEmpty() && tbi->isWritable()) {
+      // Previous block is writable empty text, go there instead
       tbi->setFocus();
       return tbi;
     }
@@ -472,6 +498,8 @@ TextBlockItem *PageScene::newTextBlock(int iAbove, bool evenIfLastEmpty) {
   TextBlockData *tbd = new TextBlockData();
   data->addBlock(tbd);
   TextBlockItem *tbi = new TextBlockItem(tbd, this);
+  tbi->makeWritable();
+  
   blockItems.insert(iNew, tbi);
   sheetNos.insert(iNew, iSheet);
   topY.insert(iNew, yt);
@@ -585,24 +613,22 @@ void PageScene::vChanged(int block) {
 }
 
 void PageScene::mousePressEvent(QGraphicsSceneMouseEvent *e) {
+  qDebug() << "PageScene::mousePressEvent";
   QPointF sp = e->scenePos();
   if (inMargin(sp)) {
+    qDebug() << "  in margin";
     QGraphicsScene::mousePressEvent(e);
-  } else if (belowContent(sp) && mode_==TypeMode) {
-    newTextBlock();
+  } else if (belowContent(sp)) {
+    qDebug() << "  below content";
+    if (writable)
+      newTextBlock();
+    else
+      qDebug() << "  not writable";
   } else {
     QGraphicsScene::mousePressEvent(e);
   }
 }
 	
-void PageScene::setMode(PageScene::MouseMode m) {
-  mode_ = m;
-}
-
-PageScene::MouseMode PageScene::mode() const {
-  return mode_;
-}
-
 void PageScene::keyReleaseEvent(QKeyEvent *e) {
   switch (e->key()) {
   case Qt::Key_Alt: case Qt::Key_AltGr:
@@ -752,3 +778,13 @@ bool PageScene::importDroppedFile(QPointF scenePos, QString const &fn) {
   return false;
 }
     
+void PageScene::makeWritable() {
+  qDebug() << "PageScene: made writable";
+  writable = true;
+  belowItem->setCursor(Qt::IBeamCursor);
+  belowItem->setAcceptDrops(true);
+}
+
+Qt::KeyboardModifiers PageScene::keyboardModifiers() const {
+  return keymods_;
+}

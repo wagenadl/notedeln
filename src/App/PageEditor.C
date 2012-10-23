@@ -38,6 +38,7 @@ PageEditor::PageEditor() {
 PageEditor::~PageEditor() {
 }
 
+/*
 void PageEditor::load(QString fn) {
   if (scene_)
     delete scene_;
@@ -48,10 +49,13 @@ void PageEditor::load(QString fn) {
   Q_ASSERT(file_);
   Q_ASSERT(file_->data());
   file_->setParent(this);
-  scene_ = new PageScene(file_->data(), this);  
+  scene_ = new PageScene(file_->data(), this);
+  scene_->makeWritable(); // this should be more sophisticated
+
   view_->setScene(scene_);
   resize(sizeHint());
 }
+*/
 
 void PageEditor::open(PageFile *f) {
   if (scene_)
@@ -65,11 +69,13 @@ void PageEditor::open(PageFile *f) {
   file_ = f;
 
   scene_ = new PageScene(file_->data(), this);  
+  scene_->makeWritable(); // this should be more sophisticated
   view_->setScene(scene_);
   resize(sizeHint());
 }
 
-void PageEditor::create(QString fn) {
+/*
+  void PageEditor::create(QString fn) {
   if (scene_)
     delete scene_;
   if (file_ && file_->parent()==this)
@@ -84,6 +90,7 @@ void PageEditor::create(QString fn) {
   view_->setScene(scene_);
   resize(sizeHint());
 }
+*/
 
 void PageEditor::closeEvent(QCloseEvent *e) {
   if (file_)
