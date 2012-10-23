@@ -5,6 +5,8 @@
 #include "ResourceManager.H"
 #include "PageFile.H"
 #include "TitleData.H"
+#include "Style.H"
+
 #include <QDebug>
 
 Notebook::Notebook(QString path) {
@@ -13,10 +15,15 @@ Notebook::Notebook(QString path) {
   bookFile_ = BookFile::load(root.filePath("book.json"), this);
   Q_ASSERT(tocFile_);
   Q_ASSERT(bookFile_);
+  style_ = &Style::defaultStyle();
 }
 
 Notebook::~Notebook() {
   flush();
+}
+
+Style const &Notebook::style() const {
+  return *style_;
 }
 
 Notebook *Notebook::load(QString path) {

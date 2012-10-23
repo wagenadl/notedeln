@@ -224,14 +224,11 @@ Data *Data::create(QString t, Data *parent) {
 
 PageData *Data::page() const {
   Data *dp = const_cast<Data*>(this);
-  qDebug() << "Data::page" << dp;
   while (dp) {
     PageData *pp = dynamic_cast<PageData*>(dp);
-    qDebug() << " pp="<<pp;
     if (pp)
       return pp;
     dp = dp->parent();
-    qDebug() << " dp <- " << dp;
   }
   return 0;
 }

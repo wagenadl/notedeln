@@ -19,6 +19,7 @@ public slots:
   void checkVbox();
 protected:
   void resetBbox(); // size change w/o emitting signals
+  virtual void mousePressEvent(QGraphicsSceneMouseEvent *);
 private:
   BlockData *data_;
   QRectF oldBbox;

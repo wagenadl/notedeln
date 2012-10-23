@@ -29,3 +29,8 @@ void BlockItem::checkVbox() {
 void BlockItem::resetBbox() {
   oldBbox = netBoundingRect();
 }
+
+void BlockItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
+  mousePress(e);
+}
+

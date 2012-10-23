@@ -15,27 +15,18 @@ public:
   GfxBlockData *data(); // benevolently hides inherited version
   Item *newImage(QImage img, QUrl const *src, QPointF xy);
   Item *newImage(QUrl src, QPointF xy);
-  Item *newNote(QPointF p0);
-  Item *newNote(QPointF p0, QPointF p1);
   void paint(QPainter *, const QStyleOptionGraphicsItem *, QWidget *);
   virtual QRectF boundingRect() const;
   virtual void childGeometryChanged();
   virtual void makeWritable();
-protected:
-  virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *);
-  virtual void mousePressEvent(QGraphicsSceneMouseEvent *);
-  virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *);
 protected slots:
   virtual void modifierChange(Qt::KeyboardModifiers);
-private slots:
-  void noteAbandoned();
 private:
   void sizeToFit();
   double availableWidth() const;
   void drawGrid(QPainter *p, QRectF const &bb, double dx);
 private:
-  GfxBlockData *data_; // we don't own
-  class PreliminaryLine *dragLine; // null unless dragging
+  GfxBlockData *data_;
 };
 
 #endif

@@ -3,19 +3,42 @@
 #include "Item.H"
 #include "PageScene.H"
 #include <QDebug>
+#include "Notebook.H"
+#include "GfxNoteItem.H"
+#include "PageScene.H"
+#include <QGraphicsSceneMouseEvent>
+#include "DragLine.H"
 
 Item::Item(Data *d, QGraphicsItem *me): d(d), me(me) {
+  Q_ASSERT(d);
   Q_ASSERT(me);
+  /* Is the following a good idea?
+     Item *p = itemParent();
+     if (p)
+       p->addChild(this);
+     I need to clarify who exactly is responsible for addChild/deleteChild.
+  */
   brLocked = false;
   extraneous = false;
   writable = false;
 }
 
 Item::~Item() {
+  qDebug() << "Deleting item " << this << me;
 }
 
 Data *Item::data() {
   return d;
+}
+
+Style const &Item::style() const {
+  Notebook *n = d->book();
+  Q_ASSERT(n);
+  return n->style();
+}
+
+QVariant Item::style(QString k) const {
+  return style()[k];
 }
 
 bool Item::isWritable() const {
@@ -27,7 +50,7 @@ void Item::makeWritable() {
 }
 
 PageScene *Item::pageScene() const {
-  return me ? dynamic_cast<PageScene*>(me->scene()) : 0;
+  return dynamic_cast<PageScene*>(me->scene());
 }
 
 Item *Item::create(Data *d, Item *parent) {
@@ -69,7 +92,10 @@ QList<Item *> const &Item::allChildren() const {
 void Item::addChild(Item *i) {
   Q_ASSERT(i->me != me); // quick check that child wasn't accidentally
   // constructed like Item(data, parent) rather than Item(data, this).
-  children_.append(i);
+  bool haveAlready = children_.contains(i);
+  Q_ASSERT(!haveAlready); // is this too aggressive?
+  if (!haveAlready)
+    children_.append(i);
 }
 
 bool Item::deleteChild(Item *i) {
@@ -106,13 +132,11 @@ QRectF Item::cachedBounds() const {
 }
 
 QRectF Item::netBoundingRect() const {
-  // qDebug() << "Item::netBoundingRect" << this;
   if (brLocked)
     return brCache;
   QRectF bb = me->boundingRect();
   foreach (Item *i, children_) {
     if (!i->extraneous) {
-      // qDebug() << "  Item" << this << ": including child " <<i;
       bb |= i->me->mapRectToParent(i->netBoundingRect());
     }
   }
@@ -152,13 +176,8 @@ void Item::childGeometryChanged() {
     itemParent()->childGeometryChanged();
 }
 
-QVariant Item::style(QString k) {
-  // qDebug() << "Item::style" << k;
-  return Style::defaultStyle()[k];
-}
-
 bool Item::moveModPressed() const {
-  PageScene const *s = dynamic_cast<PageScene const *>(me->scene());
+  PageScene const *s = pageScene();
   return s
     ? (s->keyboardModifiers() & moveModifiers())!=0
     : false;
@@ -174,3 +193,30 @@ void Item::acceptModifierChanges() {
     qDebug() << "Item: no page -> keyboard modifiers will be ignored";
 }
     
+GfxNoteItem *Item::newNote(QPointF p0, QPointF p1) {
+  GfxNoteItem *n = GfxNoteItem::newNote(p0, p1, this);
+  childGeometryChanged(); // b/c of the new note
+}
+
+bool Item::abandonNote(GfxNoteItem *n) {
+  if (deleteChild(n))
+    childGeometryChanged();
+}
+
+bool Item::mousePress(QGraphicsSceneMouseEvent *e) {
+  PageScene *p = pageScene();
+  Qt::KeyboardModifiers m = p
+    ? p->keyboardModifiers()
+    : e->modifiers();
+  qDebug() << "Item" << this<<"::mousePress" << m << "(" << p << ")";
+  if (m==0) {
+    e->accept();
+    QPointF p0 = e->pos();
+    QPointF p1 = DragLine::drag(this, p0);
+    newNote(p0, p1);
+    return true;
+  } else {
+    e->ignore();
+    return false;
+  }
+}

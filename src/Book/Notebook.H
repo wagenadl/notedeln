@@ -25,6 +25,7 @@ public:
   class TOC *toc() const;
   class ResourceManager *resMgr(int pgno);
   class BookData *bookData() const;
+  class Style const &style() const;
 public slots:
   void flush();
 private:
@@ -38,6 +39,7 @@ private:
   QMap<int, PageFile *> pgFiles;
   TOCFile *tocFile_;
   BookFile *bookFile_;
+  Style const *style_;
 };
 
 #endif

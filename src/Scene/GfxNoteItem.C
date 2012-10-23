@@ -18,23 +18,23 @@ GfxNoteItem::GfxNoteItem(GfxNoteData *data, Item *parent):
     line = 0;
   } else {
     line = new QGraphicsLineItem(QLineF(data->pos(), data->endPoint()), this);
-    line->setPen(QPen(QBrush(QColor(style("note-line-color").toString())),
-		      style("note-line-width").toDouble()));
+    line->setPen(QPen(QBrush(QColor(style().string("note-line-color"))),
+		      style().real("note-line-width")));
   }
   text = new TextItem(data->text(), this);
-  text->setDefaultTextColor(QColor(style("note-text-color").toString()));
+  text->setDefaultTextColor(QColor(style().string("note-text-color")));
   addChild(text);
 
   connect(text, SIGNAL(abandoned()),
-	  this, SIGNAL(abandoned()));
+	  this, SLOT(abandon()), Qt::QueuedConnection);
   connect(text, SIGNAL(mousePress(QPointF, Qt::MouseButton)),
 	  this, SLOT(childMousePress(QPointF, Qt::MouseButton)));
 		     
   QGraphicsDropShadowEffect *s = new QGraphicsDropShadowEffect(this);
-  QColor c(style("note-shadow-color").toString());
-  c.setAlphaF(style("note-shadow-alpha").toDouble());
+  QColor c(style().string("note-shadow-color"));
+  c.setAlphaF(style().real("note-shadow-alpha"));
   s->setColor(c);
-  s->setBlurRadius(style("note-shadow-blur").toDouble());
+  s->setBlurRadius(style().real("note-shadow-blur"));
   s->setOffset(QPointF(0,0));
   setGraphicsEffect(s);
 
@@ -43,15 +43,20 @@ GfxNoteItem::GfxNoteItem(GfxNoteData *data, Item *parent):
   connect(text->document(), SIGNAL(contentsChanged()),
 	  SLOT(updateTextPos()));
   updateTextPos();
-  acceptModifierChanges();
 }
 
 GfxNoteItem::~GfxNoteItem() {
 }
 
+void GfxNoteItem::abandon() {
+  Item *p = itemParent();
+  Q_ASSERT(p);
+  p->abandonNote(this);
+}
+
 void GfxNoteItem::updateTextPos() {
   QPointF p = data_->endPoint();
-  double yof = style("note-y-offset").toDouble();
+  double yof = style().real("note-y-offset");
   p += QPointF(0, yof);
   if (data_->dx() < 0)
     p -= QPointF(text->boundingRect().width(), 0);
@@ -91,7 +96,7 @@ void GfxNoteItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *) {
     data_->setPos(p0);
     data_->setEndPoint(p1);
   } else {
-    data_->setPos(text->pos() - QPointF(0, style("note-y-offset").toDouble()));
+    data_->setPos(text->pos() - QPointF(0, style().real("note-y-offset")));
   }
   if (itemParent())
     itemParent()->childGeometryChanged();
@@ -126,6 +131,6 @@ void GfxNoteItem::childMousePress(QPointF, Qt::MouseButton b) {
 
 void GfxNoteItem::makeWritable() {
   text->makeWritable();
-  acceptModifierChanges();
+  //acceptModifierChanges();
 }
 

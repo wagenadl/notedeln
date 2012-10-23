@@ -13,14 +13,12 @@
 #include <math.h>
 #include <QGraphicsSceneMouseEvent>
 #include <QCursor>
-#include "PreliminaryLine.H"
+#include "DragLine.H"
 
 GfxBlockItem::GfxBlockItem(GfxBlockData *data, PageScene *parent):
   BlockItem(data, parent),
   data_(data) {
 
-  dragLine = 0;
-  
   foreach (GfxData *d, data->gfx()) {
     Item *i = create(d, this);
     addChild(i);
@@ -50,25 +48,6 @@ Item *GfxBlockItem::newImage(QImage img, QUrl const *src, QPointF) {
   return gii;
 }
 
-void GfxBlockItem::noteAbandoned() {
-  qDebug() << "noteAbandoned " << sender();
-  Item *i = dynamic_cast<Item*>(sender());
-  bool del = i ? deleteChild(i) : false;
-  qDebug() << "  -> " << i << del;
-}
-
-Item *GfxBlockItem::newNote(QPointF p0) {
-  return newNote(p0, p0);
-}
-
-Item *GfxBlockItem::newNote(QPointF p0, QPointF p1) {
-  GfxNoteItem *i = GfxNoteItem::newNote(p0, p1, this);
-  connect(i, SIGNAL(abandoned()),
-	  this, SLOT(noteAbandoned()));
-  sizeToFit();
-  return i;
-}
-
 double GfxBlockItem::availableWidth() const {
   Style const &style(Style::defaultStyle());
   return style["page-width"].toDouble() -
@@ -77,15 +56,14 @@ double GfxBlockItem::availableWidth() const {
 }
 
 void GfxBlockItem::childGeometryChanged() {
+  BlockItem::childGeometryChanged();
   sizeToFit();
 }
 
 void GfxBlockItem::sizeToFit() {
-  qDebug() << "GfxBlockItem::sizeToFit" << this;
   prepareGeometryChange();
   checkVbox();
-  data_->setRef(-netBoundingRect().topLeft()); // this has the intended
-  // side effect of updating the boundingRectCache
+  data_->setRef(-netBoundingRect().topLeft());
 }
 
 QRectF GfxBlockItem::boundingRect() const {
@@ -138,45 +116,6 @@ void GfxBlockItem::drawGrid(QPainter *p, QRectF const &bb, double dx) {
     p->drawLine(x, bb.top(), x, bb.bottom());
   for (double y = y0; y<=y1+.001; y+=dx)
     p->drawLine(bb.left(), y, bb.right(), y);
-}
-
-void GfxBlockItem::mouseMoveEvent(QGraphicsSceneMouseEvent *e) {
-  qDebug() << "GfxBlockItem::mouseMove" << e->pos();
-  if (!dragLine) {
-    qDebug() << "GfxBlockItem::mouseMove: No dragLine!?";
-    return;
-  }
-  dragLine->updateEnd(e->pos());
-  e->accept();
-}
-
-void GfxBlockItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
-  qDebug() << "GfxBlockItem::mousePress" << e->pos();
-  if (dragLine) {
-    qDebug() << "GfxBlockItem::mousePressEvent: dragLine pre-existed !?";
-    e->ignore();
-    return;
-  }
-  dragLine = new PreliminaryLine(e->pos(), this);
-  e->accept();
-}
-
-void GfxBlockItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *e) {
-  qDebug() << "GfxBlockItem::mouseRelease" << e->pos();
-  if (!dragLine) {
-    qDebug() << "GfxBlockItem::mouseRelease: No dragLine!?";
-    return;
-  }
-
-  if (dragLine->isLine()) 
-    newNote(dragLine->startPoint(), dragLine->endPoint());
-  else
-    newNote(dragLine->startPoint());
-
-  delete dragLine;
-  dragLine = 0;
-
-  e->accept();
 }
 
 void GfxBlockItem::makeWritable() {

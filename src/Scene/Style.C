@@ -5,6 +5,7 @@
 #include <QDir>
 #include <QFileInfo>
 #include <QDebug>
+#include <QColor>
 #include <qjson/parser.h>
 
 Style::Style(QString fn) {
@@ -39,6 +40,26 @@ QVariant Style::operator[](QString k) const {
     qDebug() << "(Style: No value for " << k << ")";
   // qDebug() << "Style[]" << k;
   return options_[k];
+}
+
+double Style::real(QString k) const {
+  return (*this)[k].toDouble();
+}
+
+QString Style::string(QString k) const {
+  return (*this)[k].toString();
+}
+
+bool Style::flag(QString k) const {
+  return (*this)[k].toBool();
+}
+
+int Style::integer(QString k) const {
+  return (*this)[k].toInt();
+}
+
+QColor Style::color(QString k) const {
+  return QColor(string(k));
 }
 
 QVariantMap const &Style::options() const {

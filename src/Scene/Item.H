@@ -24,10 +24,8 @@ public:
                                    // calculations of netBoundingRect
   bool isWritable() const;
   virtual void makeWritable();
-  void lockBounds();   // } children call these to prevent 
-  void unlockBounds(); // } geom. update during drags
-  QRectF cachedBounds() const; // null if not locked
-  virtual void childGeometryChanged(); // children must call this directly
+  Style const &style() const;
+  QVariant style(QString) const;
   bool childless() const;
   QList<Item*> const &allChildren() const;
   template<class T> QList<T*> children() const {
@@ -40,14 +38,17 @@ public:
     }
     return res;
   }
-  void addChild(Item *);
-  bool deleteChild(Item *); // this uses deleteLater if child is an object
-  static QVariant style(QString k);
+public:
   static Item *create(Data *d, Item *parent=0);
   static QGraphicsItem *gi(Item *); // null pointer ok
   static QObject *obj(Item *);
+  void addChild(Item *);
+  bool deleteChild(Item *); // this uses deleteLater if child is an object
   QGraphicsItem *gi();
-  QObject *obj();  
+  QObject *obj();
+  class GfxNoteItem *newNote(QPointF p0, QPointF p1);
+  virtual bool abandonNote(class GfxNoteItem *);
+public: // but only for use in derived class source files
   template <class DT, class IT> class Creator {
   public:
     Creator<DT, IT>(QString typ) {
@@ -58,13 +59,20 @@ public:
     }
   };
 public:
+  void lockBounds();   // } children call these to prevent 
+  void unlockBounds(); // } geom. update during drags
+  QRectF cachedBounds() const; // null if not locked
+  virtual void childGeometryChanged(); // children must call this directly
+protected:
+  void acceptModifierChanges();
+  bool moveModPressed() const;
+  bool mousePress(QGraphicsSceneMouseEvent *); // must only be called
+  // from within mousePressEvent. Returns true if accepted
+protected:
   static Qt::CursorShape defaultCursor();
   static Qt::KeyboardModifiers moveModifiers(); // mask of modifier keys ...
   static Qt::MouseButton moveButton(); // ... and mouse button that should
                                        // trigger a move
-protected:
-  void acceptModifierChanges();
-  bool moveModPressed() const; // only works if acceptModifierChanges has been called earlier
 private:
   static QMap<QString, Item *(*)(Data *, Item *)> &creators();
 private:

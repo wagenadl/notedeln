@@ -284,7 +284,6 @@ void PageScene::stackBlocks() {
   foreach (BlockItem *bi, blockItems) {
     BlockData *bd = bi->data();
     double h = bi->netSceneRect().height();
-    qDebug() << "PageScene:stack: bi="<<bi<< " h="<<h;
     if (bd->sheet()>=0) {
       // (sheet,y) information stored in data, we'll use it
       sheet = bd->sheet();
@@ -630,6 +629,8 @@ void PageScene::mousePressEvent(QGraphicsSceneMouseEvent *e) {
 }
 	
 void PageScene::keyReleaseEvent(QKeyEvent *e) {
+  qDebug() << "PageScene: keyRelease" << e->key() << e->modifiers();
+  
   switch (e->key()) {
   case Qt::Key_Alt: case Qt::Key_AltGr:
     keymods_ &= ~Qt::AltModifier;
@@ -653,6 +654,7 @@ void PageScene::keyReleaseEvent(QKeyEvent *e) {
 }
 
 void PageScene::keyPressEvent(QKeyEvent *e) {
+  qDebug() << "PageScene: keyPress" << e->key() << e->modifiers();
   switch (e->key()) {
   case Qt::Key_Alt: case Qt::Key_AltGr:
     keymods_ |= Qt::AltModifier;

@@ -1,7 +1,6 @@
 // GfxImageItem.C
 
 #include "GfxImageItem.H"
-#include "GfxItemFactory.H"
 #include "GfxImageData.H"
 #include "PageScene.H"
 #include <QDebug>
@@ -41,7 +40,7 @@ GfxImageItem::GfxImageItem(GfxImageData *data, Item *parent):
   setScale(data->scale());
   setPos(data->pos());
   oldCursor = Qt::ArrowCursor;
-  setCursor(GfxBlockItem::defaultCursor());
+  setCursor(defaultCursor());
   acceptModifierChanges();
 }
 
@@ -178,8 +177,8 @@ void GfxImageItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
       qDebug() << "GfxImageItem: no parent";
     e->accept();
   } else {
-    // we should make new notes attached to us, but for now:
-    e->ignore(); // pass to parent
+    mousePress(e); // let item do it
+    // (e will be passed to parent if item doesn't care.)
   }
 }
 
