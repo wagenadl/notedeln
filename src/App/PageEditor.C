@@ -68,7 +68,8 @@ void PageEditor::open(PageFile *f) {
   Q_ASSERT(f->data());
   file_ = f;
 
-  scene_ = new PageScene(file_->data(), this);  
+  scene_ = new PageScene(file_->data(), this);
+  scene_->populate();
   scene_->makeWritable(); // this should be more sophisticated
   view_->setScene(scene_);
   resize(sizeHint());

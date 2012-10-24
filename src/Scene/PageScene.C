@@ -30,12 +30,9 @@
 #include <QNetworkRequest>
 
 PageScene::PageScene(PageData *data, QObject *parent):
-  QGraphicsScene(parent),
-  data(data),
-  style(Style::defaultStyle()) {
-
+  BaseScene(data, parent),
+  data(data) {
   networkManager = 0;
-  keymods_ = 0x0;
   
   hChangeMapper = new QSignalMapper(this);
   vChangeMapper = new QSignalMapper(this);
@@ -45,146 +42,63 @@ PageScene::PageScene(PageData *data, QObject *parent):
   connect(vChangeMapper, SIGNAL(mapped(int)), SLOT(vChanged(int)));
   connect(futileMovementMapper, SIGNAL(mapped(int)), SLOT(futileMovement(int)));
   connect(enterPressedMapper, SIGNAL(mapped(int)), SLOT(enterPressed(int)));
-  
-  makeBackground();
+
+  nOfNItem = 0;
+  dateItem = 0;
+}
+
+void PageScene::populate() {
+  BaseScene::populate();
   makeDateItem();
-  makePgNoItem();
-  makeContdItem();
-  makeTitleItem();
+  positionTitleItem();
   makeBlockItems();
   stackBlocks();
   gotoSheet(0);
 }
 
 void PageScene::makeBackground() {
-  setSceneRect(0,
-	       0,
-	       style["page-width"].toDouble(),
-	       style["page-height"].toDouble());
-
-  setBackgroundBrush(QBrush(QColor(style["border-color"].toString())));
-  bgItem = addRect(0,
-		   0,
- 		   style["page-width"].toDouble(),
-		   style["page-height"].toDouble(),
-		   QPen(Qt::NoPen),
-		   QBrush(QColor(style["background-color"].toString())));
-
-  belowItem = addRect(style["margin-left"].toDouble(),
-		      style["margin-top"].toDouble(),
-		      style["page-width"].toDouble()
-		      - style["margin-left"].toDouble()
-		      - style["margin-right"].toDouble(),
-		      style["page-height"].toDouble()
-		      - style["margin-top"].toDouble()
-		      - style["margin-bottom"].toDouble(),
+  BaseScene::makeBackground();
+  belowItem = addRect(style->real("margin-left"),
+		      style->real("margin-top"),
+		      style->real("page-width")
+		      - style->real("margin-left")
+		      - style->real("margin-right"),
+		      style->real("page-height")
+		      - style->real("margin-top")
+		      - style->real("margin-bottom"),
 		      QPen(Qt::NoPen),
 		      QBrush(Qt::NoBrush));
-			
-  leftMarginItem = addLine(style["margin-left"].toDouble(),
-			   0,
-			   style["margin-left"].toDouble(),
-			   height(),
-			   QPen(QBrush(QColor(style["margin-left-line-color"].
-					      toString())),
-				style["margin-left-line-width"].toDouble())
-			   );
-  
-  topMarginItem = addLine(0,
-			  style["margin-top"].toDouble(),
-			  width(),
-			  style["margin-top"].toDouble(),
-			  QPen(QBrush(QColor(style["margin-top-line-color"].
-					     toString())),
-			       style["margin-top-line-width"].toDouble())
-			  );
-
 }
 
 void PageScene::makeDateItem() {
-  Q_ASSERT(data);
-  qDebug() << "data: " << data << " data-created: " << data->created();
   dateItem = addText(data->created().toString("MM/dd/yyyy"),
-		     QFont(style["date-font-family"].toString(),
-			   style["date-font-size"].toDouble())
-		     );
-  dateItem->setDefaultTextColor(QColor(style["date-color"].toString()));
+		     QFont(style->string("date-font-family"),
+			   style->real("date-font-size"))		     );
+  dateItem->setDefaultTextColor(style->color("date-color"));
   QPointF br = dateItem->boundingRect().bottomRight();
-  dateItem->setPos(style["page-width"].toDouble() -
-		   style["margin-right-over"].toDouble() -
+  dateItem->setPos(style->real("page-width") -
+		   style->real("margin-right-over") -
 		   br.x(),
-		   style["margin-top"].toDouble() -
-		   style["title-sep"].toDouble() -
-		   br.y()
-		   );
-}
-
-void PageScene::makePgNoItem() {
-  pgNoItem = addText(QString::number(data->startPage() + iSheet),
-		     QFont(style["pgno-font-family"].toString(),
-			   style["pgno-font-size"].toDouble())
-		     );
-  pgNoItem->setDefaultTextColor(QColor(style["pgno-color"].toString()));
-  positionPgNoItem();
-}
-
-void PageScene::makeContdItem() {
-  contdItem = addText(">",
-		     QFont(style["contd-font-family"].toString(),
-			   style["contd-font-size"].toDouble())
-		     );
-  contdItem->setDefaultTextColor(QColor(style["contd-color"].toString()));
-  QPointF tr = contdItem->boundingRect().topRight();
-  contdItem->setPos(style["margin-left"].toDouble()
-		    - tr.x(),
-		    style["margin-top"].toDouble()
-		    - tr.y()
-		    );
-
-  contItem = addText(">",
-		     QFont(style["contd-font-family"].toString(),
-			   style["contd-font-size"].toDouble())
-		     );
-  contItem->setDefaultTextColor(QColor(style["contd-color"].toString()));
-  QPointF bl = contItem->boundingRect().bottomLeft();
-  contItem->setPos(style["page-width"].toDouble()
-		   - style["margin-right"].toDouble()
-		   - bl.x(),
-		   style["page-height"].toDouble()
-		   + style["margin-bottom"].toDouble()
-		   - bl.y()
-		    );
-}
-
-void PageScene::positionPgNoItem() {
-  QPointF tr = pgNoItem->boundingRect().topRight();
-  pgNoItem->setPos(style["page-width"].toDouble() -
-		   style["margin-right-over"].toDouble() -
-		   tr.x(),
-		   style["page-height"].toDouble() -
-		   style["margin-bottom"].toDouble() +
-		   style["pgno-sep"].toDouble() -
-		   tr.y()
-		   );
+		   style->real("margin-top") -
+		   style->real("title-sep") -
+		   br.y());
 }
 
 void PageScene::makeTitleItem() {
-  Q_ASSERT(dateItem);
-  Q_ASSERT(data);
-
-  titleItem = new TitleItem(data->title(), 0);
+  TitleItem *tt = new TitleItem(data->title(), 0);
+  titleItem = tt;
   addItem(titleItem);
-  titleItem->makeWritable();
+
+  tt->makeWritable();
 
   nOfNItem = addText("n/N",
-		     QFont(style["title-font-family"].toString(),
-			   style["title-font-size"].toDouble())
-		     );
-  nOfNItem->setDefaultTextColor(QColor(style["pgno-color"].toString()));
+		     QFont(style->string("title-font-family"),
+			   style->real("title-font-size")));
+  nOfNItem->setDefaultTextColor(style->color("pgno-color"));
   
   positionTitleItem();
   
-  connect(titleItem->document(), SIGNAL(contentsChanged()),
+  connect(tt->document(), SIGNAL(contentsChanged()),
 	  SLOT(titleEdited()));
 }
 
@@ -225,8 +139,6 @@ BlockItem *PageScene::tryMakeTextBlock(BlockData *bd) {
   connect(tbi, SIGNAL(enterPressed()), enterPressedMapper, SLOT(map()));
   return tbi;
 }
-
-
   
 PageScene::~PageScene() {
 }
@@ -248,13 +160,17 @@ void PageScene::titleEdited() {
 
 void PageScene::positionTitleItem() {
   /* This keeps the title bottom aligned */
+  if (!dateItem || !nOfNItem)
+    return; // too early in process
+
+  BaseScene::positionTitleItem();
   double dateX = dateItem->mapToScene(dateItem->boundingRect().topLeft()).x();
-  titleItem->setTextWidth(dateX - style["margin-left"].toDouble() - 5);
+  titleItem->setTextWidth(dateX - style->real("margin-left") - 5);
   QPointF bl = titleItem->boundingRect().bottomLeft();
-  titleItem->setPos(style["margin-left"].toDouble() -
+  titleItem->setPos(style->real("margin-left") -
 		    bl.x(),
-		    style["margin-top"].toDouble() -
-		    style["title-sep"].toDouble() -
+		    style->real("margin-top") -
+		    style->real("title-sep") -
 		    bl.y()
 		    );
 
@@ -272,14 +188,11 @@ void PageScene::positionTitleItem() {
 }
 
 void PageScene::stackBlocks() {
-  Q_ASSERT(contdItem!=0);
-  Q_ASSERT(contItem!=0);
-  
   sheetNos.clear();
+  topY.clear();
   int sheet = 0;
-  double y0 = style["margin-top"].toDouble();
-  double y1 = style["page-height"].toDouble()
-    - style["margin-bottom"].toDouble();
+  double y0 = style->real("margin-top");
+  double y1 = style->real("page-height") - style->real("margin-bottom");
   double y = y0;
 
   foreach (BlockItem *bi, blockItems) {
@@ -312,9 +225,8 @@ int PageScene::restackBlocks(int starti) {
   int endi = sheetNos.size();
   if (starti>=endi)
     return 0;
-  double y0 = style["margin-top"].toDouble();
-  double y1 = style["page-height"].toDouble()
-    - style["margin-bottom"].toDouble();
+  double y0 = style->real("margin-top");
+  double y1 = style->real("page-height") - style->real("margin-bottom");
   double y = topY[starti];
   int sheet = sheetNos[starti];
   for (int i=starti; i<endi; i++) {
@@ -337,26 +249,8 @@ int PageScene::restackBlocks(int starti) {
   return sheetNos[starti];
 }
 
-void PageScene::previousSheet() {
-  if (iSheet>0)
-    gotoSheet(iSheet-1);
-}
-
-void PageScene::nextSheet() {
-  if (iSheet<nSheets-1)
-    gotoSheet(iSheet+1);
-}
-
 void PageScene::gotoSheet(int i) {
-  Q_ASSERT(data);
-  Q_ASSERT(titleItem);
-  Q_ASSERT(nOfNItem);
-  
-  iSheet = i;
-  if (iSheet>=nSheets)
-    iSheet = nSheets-1;
-  if (iSheet<0)
-    iSheet = 0;
+  BaseScene::gotoSheet(i);
 
   // Set visibility for all blocks
   int nBlocks = blockItems.size();
@@ -368,29 +262,20 @@ void PageScene::gotoSheet(int i) {
   else
     nOfNItem->setPlainText("");
 
-  // Set visibility of continuation markers
-  contdItem->setVisible(iSheet>0);
-  contItem->setVisible(iSheet+1 < nSheets);
-
-  // Set page number
-  pgNoItem->setPlainText(QString::number(data->startPage() + iSheet));
-  positionPgNoItem();
-
   // Shape below item
   int iLast = findLastBlockOnSheet(iSheet);
   double ytop = iLast<0
-    ? style["margin-top"].toDouble()
+    ? style->real("margin-top")
     :  blockItems[iLast]->netSceneRect().bottom();
-  belowItem->setRect(style["margin-left"].toDouble(),
+  belowItem->setRect(style->real("margin-left"),
 		     ytop,
-		     style["page-width"].toDouble()
-		     - style["margin-left"].toDouble()
-		     - style["margin-right"].toDouble(),
-		     style["page-height"].toDouble()
+		     style->real("page-width")
+		     - style->real("margin-left")
+		     - style->real("margin-right"),
+		     style->real("page-height")
 		     - ytop
-		     - style["margin-bottom"].toDouble());
+		     - style->real("margin-bottom"));
 }
-  
 
 int PageScene::findLastBlockOnSheet(int sheet) {
   double maxY = 0;
@@ -407,26 +292,15 @@ int PageScene::findLastBlockOnSheet(int sheet) {
   return iAbove;
 }
 
-bool PageScene::inMargin(QPointF sp) {
-
-  return sp.x() < style["margin-left"].toDouble()
-    || sp.x() >= style["page-width"].toDouble()
-       - style["margin-right"].toDouble()
-    || sp.y() < style["margin-top"].toDouble()
-    || sp.y() >= style["page-height"].toDouble()
-       - style["margin-bottom"].toDouble();
-}    
-
 bool PageScene::belowContent(QPointF sp) {
   int iAbove = findLastBlockOnSheet(iSheet);
   if (iAbove<0)
     return true;
-
-  return sp.y() >= blockItems[iAbove]->netSceneRect().bottom();
+  else
+    return sp.y() >= blockItems[iAbove]->netSceneRect().bottom();
 }
 
 void PageScene::deleteBlock(int blocki) {
-  Q_ASSERT(data);
   if (blocki>=blockItems.size()) {
     qDebug() << "PageScene: deleting nonexisting block " << blocki;
     return;
@@ -446,14 +320,13 @@ void PageScene::deleteBlock(int blocki) {
 }
 
 GfxBlockItem *PageScene::newGfxBlock() {
-  Q_ASSERT(data);
   int iAbove = findLastBlockOnSheet(iSheet);
   int iNew = (iAbove>=0)
     ? iAbove + 1
     : blockItems.size();
   double yt = (iAbove>=0)
     ? blockItems[iAbove]->netSceneRect().bottom()
-    : style["margin-top"].toDouble();
+    : style->real("margin-top");
 
   GfxBlockData *gbd = new GfxBlockData();
   data->addBlock(gbd);
@@ -474,8 +347,6 @@ GfxBlockItem *PageScene::newGfxBlock() {
 
 
 TextBlockItem *PageScene::newTextBlock(int iAbove, bool evenIfLastEmpty) {
-  Q_ASSERT(data);
-
   if (iAbove<0)
     iAbove = findLastBlockOnSheet(iSheet);
 
@@ -493,7 +364,7 @@ TextBlockItem *PageScene::newTextBlock(int iAbove, bool evenIfLastEmpty) {
     : blockItems.size();
   double yt = (iAbove>=0)
     ? blockItems[iAbove]->netSceneRect().bottom()
-    : style["margin-top"].toDouble();
+    : style->real("margin-top");
 
   TextBlockData *tbd = new TextBlockData();
   data->addBlock(tbd);
@@ -518,6 +389,7 @@ TextBlockItem *PageScene::newTextBlock(int iAbove, bool evenIfLastEmpty) {
 }
 
 void PageScene::futileMovement(int block) {
+  // futile movement in a text block
   TextBlockItem *tbi = dynamic_cast<TextBlockItem *>(blockItems[block]);
   if (!tbi) {
     qDebug() << "not a text block";
@@ -576,7 +448,7 @@ void PageScene::enterPressed(int block) {
   TextBlockItem *tbi = dynamic_cast<TextBlockItem *>(blockItems[block]);
   if (!tbi
       || !tbi->text()->document()->isEmpty()
-      || style["paragraph-allow-empty"].toInt()!=0)
+      || style->flag("paragraph-allow-empty"))
     newTextBlock(block, true);
 }
 
@@ -588,9 +460,9 @@ void PageScene::hChanged(int block) {
       
   // Try to respect L & R margins
   double l_space = blockItems[block]->netSceneRect().left()
-    - style["margin-left"].toDouble();
-  double r_space = style["page-width"].toDouble()
-    - style["margin-right"].toDouble()
+    - style->real("margin-left");
+  double r_space = style->real("page-width")
+    - style->real("margin-right")
     - blockItems[block]->netSceneRect().right();
   if (l_space<0) {
     double dx = -l_space;
@@ -628,14 +500,8 @@ void PageScene::mousePressEvent(QGraphicsSceneMouseEvent *e) {
     QGraphicsScene::mousePressEvent(e);
   }
 }
-	
-void PageScene::keyReleaseEvent(QKeyEvent *e) {
-  keyChange(e->key(), -1);
-  QGraphicsScene::keyReleaseEvent(e);
-}
 
 void PageScene::keyPressEvent(QKeyEvent *e) {
-  keyChange(e->key(), +1);
   switch (e->key()) {
   case Qt::Key_V:
     if (e->modifiers() & Qt::ControlModifier) 
@@ -644,46 +510,7 @@ void PageScene::keyPressEvent(QKeyEvent *e) {
 	return;
       }
   }
-  QGraphicsScene::keyPressEvent(e);
-}
-
-void PageScene::keyChange(int key, int delta) {
-  ModSnooper *ms = ModSnooper::instance();
-  if (ms && ms->haveState()) {
-    // Get info straight from X server
-    Qt::KeyboardModifiers m = 0x0;
-    if (ms->anyShift())
-      m |= Qt::ShiftModifier;
-    if (ms->anyControl())
-      m |= Qt::ControlModifier;
-    if (ms->anyAlt())
-      m |= Qt::AltModifier;
-    if (m!=keymods_) {
-      keymods_ = m;
-      emit modifiersChanged(keymods_);
-    }
-  } else {
-    // Get info from Qt
-    Qt::KeyboardModifiers m = 0x0;
-    switch (key) {
-    case Qt::Key_Alt: case Qt::Key_AltGr:
-      m |= Qt::AltModifier;
-    break;
-    case Qt::Key_Control:
-      m |= Qt::ControlModifier;
-    break;
-    case Qt::Key_Shift:    
-      m |= Qt::ShiftModifier;
-    break;
-    }
-    if (m) {
-      if (delta>0)
-	keymods_ |= m;
-      else
-	keymods_ &= ~m;
-      emit modifiersChanged(keymods_);
-    }
-  }
+  BaseScene::keyPressEvent(e);
 }
 
 bool PageScene::tryToPaste() {
@@ -788,6 +615,4 @@ void PageScene::makeWritable() {
   belowItem->setAcceptDrops(true);
 }
 
-Qt::KeyboardModifiers PageScene::keyboardModifiers() const {
-  return keymods_;
-}
+

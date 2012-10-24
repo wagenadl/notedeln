@@ -4,27 +4,18 @@
 
 #define PAGESCENE_H
 
-#include <QGraphicsScene>
+#include "BaseScene.H"
 
-class PageScene: public QGraphicsScene {
+class PageScene: public BaseScene {
   Q_OBJECT;
 public:
-public:
   PageScene(class PageData *data, QObject *parent=0);
+  virtual void populate();
   virtual ~PageScene();
-  int sheetCount() const;
   void makeWritable();
-  Qt::KeyboardModifiers keyboardModifiers() const;
-public slots:
-  void nextSheet();
-  void previousSheet();
-  void gotoSheet(int i);
-signals:
-  void modifiersChanged(Qt::KeyboardModifiers);
 protected:
   void mousePressEvent(QGraphicsSceneMouseEvent *);
   void keyPressEvent(QKeyEvent *);
-  void keyReleaseEvent(QKeyEvent *);
   void dropEvent (QGraphicsSceneDragDropEvent *);
 private slots:
   void titleEdited();
@@ -33,7 +24,6 @@ private slots:
   void futileMovement(int block);
   void enterPressed(int block);
 private:
-  void keyChange(int key, int delta);
   bool tryToPaste();
   bool importDroppedImage(QPointF scenePos, QImage const &img,
 			  class QUrl const *source=0);
@@ -45,15 +35,12 @@ private:
   void makeBackground();
   void makeTitleItem();
   void makeDateItem();
-  void makePgNoItem();
-  void makeContdItem();
   void makeBlockItems();
   void stackBlocks();
+  void gotoSheet(int i);
   int restackBlocks(int starti=0); // returns new sheet no of starti item
-  void positionPgNoItem();
   void positionTitleItem();
   int findLastBlockOnSheet(int sheet); // returns -1 if none
-  bool inMargin(QPointF); // true if point is in any margin
   bool belowContent(QPointF); // true if point is below any blocks on sheet,
   // whether or not the point is in the margin
   class GfxBlockItem *newGfxBlock();
@@ -64,15 +51,8 @@ private:
   class BlockItem *tryMakeGfxBlock(class BlockData *bd);
   class BlockItem *tryMakeTextBlock(class BlockData *bd);
 private:
-  class TitleItem *titleItem;
   QGraphicsTextItem *dateItem;
-  QGraphicsTextItem *pgNoItem;
   QGraphicsTextItem *nOfNItem;
-  QGraphicsTextItem *contdItem; // from prev page
-  QGraphicsTextItem *contItem; // to next page
-  QGraphicsLineItem *leftMarginItem;
-  QGraphicsLineItem *topMarginItem;
-  QGraphicsRectItem *bgItem;
   QGraphicsRectItem *belowItem;
   class QSignalMapper *hChangeMapper;
   class QSignalMapper *vChangeMapper;
@@ -85,11 +65,7 @@ private:
   QList<int> sheetNos; // sheet number for each block
   QList<double> topY; // top Y position for each block
 private:
-  int nSheets; // number of sheets
-  int iSheet; // current sheet (counting from 0)
   PageData *data;
-  class Style const &style;
-  Qt::KeyboardModifiers keymods_;
   bool writable;
 };
 
