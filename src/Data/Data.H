@@ -63,9 +63,10 @@ public:
   void addChild(Data *, ModType mt=UserVisibleMod);
   bool deleteChild(Data *, ModType mt=UserVisibleMod);
   Data *takeChild(Data *, ModType mt=UserVisibleMod); // remove but do not delete
-  class PageData *page() const; // pointer to parent page, if any
-  class Notebook *book() const; // pointer to parent book, if any
-  class ResourceManager *resMgr() const; // pointer to resource manager, if any
+  virtual class PageData const *page() const; // pointer to ...
+  virtual class PageData *page(); // ... parent page, if any
+  virtual class Notebook *book() const; // pointer to parent book, if any
+  virtual class ResourceManager *resMgr() const; // if any
 signals:
   void mod();
 protected:

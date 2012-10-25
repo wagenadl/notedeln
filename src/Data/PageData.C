@@ -77,6 +77,10 @@ TitleData *PageData::title() const {
   return title_;
 }
 
+QString PageData::titleText() const {
+  return title_->current()->text();
+}
+
 int PageData::startPage() const {
   return startPage_;
 }
@@ -90,11 +94,11 @@ int PageData::sheetCount() const {
   return maxSheet + 1;
 }
 
-void PageData::setNotebook(Notebook *x) {
+void PageData::setBook(Notebook *x) {
   nb = x;
 }
 
-Notebook *PageData::notebook() const {
+Notebook *PageData::book() const {
   return nb;
 }
 
@@ -107,3 +111,12 @@ ResourceManager *PageData::resMgr() const {
   else
     return 0;
 }
+
+PageData const *PageData::page() const {
+  return this;
+}
+
+PageData *PageData::page() {
+  return this;
+}
+

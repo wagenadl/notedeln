@@ -18,16 +18,21 @@ public:
   virtual ~TOC();
   QMap<int, TOCEntry *> const &entries() const;
   TOCEntry *entry(int startPage) const; // assertion if not found
+  TOCEntry *find(int page) const; // returns entry containing the numbered page
+                                  // ... or 0 if none does.
   bool contains(int startPage) const;
-  void addEntry(int startPage, TOCEntry *entry);
-  TOCEntry *newEntry(int startPage);
-  bool deleteEntry(int startPage);
+  TOCEntry *addEntry(class PageData *data);
+  bool deleteEntry(TOCEntry *);
   int newPageNumber() const;
 protected:
   virtual void loadMore(QVariantMap const &src);
-  virtual void saveMore(QVariantMap &dst) const;
+private: // hide these from general use
+  void addChild(Data *);
+  bool deleteChild(Data *);
+  Data *takeChild(Data *);
 private:
-  QMap<int, TOCEntry *> entries_;
+  typedef QMap<int, TOCEntry *> EntryMap;
+  EntryMap entries_;
 };
 
 #endif

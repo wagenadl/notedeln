@@ -12,12 +12,21 @@ TOCEntry::TOCEntry(Data *parent): Data(parent) {
 TOCEntry::~TOCEntry() {
 }
 
+int TOCEntry::startPage() const {
+  return startPage_;
+}
+
 QString TOCEntry::title() const {
   return title_;
 }
 
 int TOCEntry::sheetCount() const {
   return sheetCount_;
+}
+
+void TOCEntry::setStartPage(int n) {
+  startPage_ = n;
+  markModified();
 }
 
 void TOCEntry::setTitle(QString t) {

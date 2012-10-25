@@ -222,27 +222,26 @@ Data *Data::create(QString t, Data *parent) {
     return 0;
 }
 
-PageData *Data::page() const {
-  Data *dp = const_cast<Data*>(this);
-  while (dp) {
-    PageData *pp = dynamic_cast<PageData*>(dp);
-    if (pp)
-      return pp;
-    dp = dp->parent();
-  }
-  return 0;
+PageData const *Data::page() const {
+  Data const *p = parent();
+  return p ? p->page() : 0;
+}
+
+PageData *Data::page() {
+  Data *p = parent();
+  return p ? p->page() : 0;
 }
 
 Notebook *Data::book() const {
-  PageData *pg = page();
-  return pg ? pg->notebook() : 0;
+  PageData const *pg = page();
+  return pg ? pg->book() : 0;
 }
 
 ResourceManager *Data::resMgr() const {
-  PageData *pg = page();
+  PageData const *pg = page();
   return pg ? pg->resMgr() : 0;
 }
-  
+
 bool Data::loading() const {
   return loading_;
 }
