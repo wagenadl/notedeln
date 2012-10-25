@@ -88,7 +88,7 @@ PageFile *Notebook::createPage(int n) {
   if (!f)
     return 0;
 
-  toc()->addEntry(n, TOCEntry()); // details will be filled out later
+  toc()->newEntry(n);
 
   f->data()->setNotebook(this);
   connect(f->data(), SIGNAL(titleMod()), SLOT(titleMod()));
@@ -101,13 +101,17 @@ void Notebook::titleMod() {
   qDebug() << "Notebook::titleMod";
   PageData *pg = dynamic_cast<PageData *>(sender());
   Q_ASSERT(pg);
-  toc()->setTitle(pg->startPage(), pg->title()->current()->text());
+  TOCEntry *e = toc()->entry(pg->startPage());
+  Q_ASSERT(e);
+  e->setTitle(pg->title()->current()->text());
 }
 
 void Notebook::sheetCountMod() {
   PageData *pg = dynamic_cast<PageData *>(sender());
   Q_ASSERT(pg);
-  toc()->setSheetCount(pg->startPage(), pg->sheetCount());
+  TOCEntry *e = toc()->entry(pg->startPage());
+  Q_ASSERT(e);
+  e->setSheetCount(pg->sheetCount());
 }
 
 BookData *Notebook::bookData() const {

@@ -9,40 +9,25 @@
 #include <QDate>
 #include "Data.H"
 #include "DataFile.H"
-
-class TOCEntry {
-public:
-  QString title;
-  QDate created;
-  int sheetCount;
-public:
-  TOCEntry(QString title="",
-	   QDate created=QDate::currentDate(),
-	   int sheetCount=1);
-  QVariantMap save() const;
-  void load(QVariantMap const &);
-};
+#include "TOCEntry.H"
 
 class TOC: public Data {
   Q_OBJECT;
 public:
   TOC(Data *parent=0);
   virtual ~TOC();
-  QMap<int, TOCEntry> const &entries() const;
-  TOCEntry const &entry(int pgno) const; // null Entry if none
+  QMap<int, TOCEntry *> const &entries() const;
+  TOCEntry *entry(int startPage) const; // assertion if not found
   bool contains(int startPage) const;
-  void addEntry(int startPage, TOCEntry const &entry);
-  int nextPage() const;
-  bool ok() const; // true if last save ok
-  void setTitle(int startPage, QString title);
-  void setSheetCount(int startPage, int sheetCount);
+  void addEntry(int startPage, TOCEntry *entry);
+  TOCEntry *newEntry(int startPage);
+  bool deleteEntry(int startPage);
+  int newPageNumber() const;
 protected:
   virtual void loadMore(QVariantMap const &src);
   virtual void saveMore(QVariantMap &dst) const;
 private:
-  QMap<int, TOCEntry> entries_;
+  QMap<int, TOCEntry *> entries_;
 };
-
-typedef DataFile<TOC> TOCFile;
 
 #endif

@@ -9,7 +9,7 @@
 #include <QFile>
 #include "PageFile.H"
 #include "BookFile.H"
-#include "TOC.H"
+#include "TOCFile.H"
 
 class Notebook: public QObject {
   Q_OBJECT;
