@@ -6,8 +6,11 @@
 #include "PageData.H"
 #include "TitleData.H"
 
+static Data::Creator<TOC> c("toc");
+
 TOC::TOC(Data *parent): Data(parent) {
   setType("toc");
+  nb = 0;
 }
 
 void TOC::loadMore(QVariantMap const &) {
@@ -73,3 +76,10 @@ int TOC::newPageNumber() const {
   return i.key() + e->sheetCount();
 }
 
+void TOC::setBook(Notebook *n) {
+  nb = n;
+}
+
+Notebook *TOC::book() const {
+  return nb;
+}

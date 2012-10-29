@@ -24,7 +24,7 @@ GfxBlockItem::GfxBlockItem(GfxBlockData *data, PageScene *parent):
     addChild(i);
   }
 
-  setPos(Style::defaultStyle()["margin-left"].toDouble(), 0);
+  setPos(style().real("margin-left"), 0);
   setCursor(defaultCursor());
 }
 
@@ -49,10 +49,9 @@ Item *GfxBlockItem::newImage(QImage img, QUrl const *src, QPointF) {
 }
 
 double GfxBlockItem::availableWidth() const {
-  Style const &style(Style::defaultStyle());
-  return style["page-width"].toDouble() -
-    style["margin-left"].toDouble() -
-    style["margin-right"].toDouble();
+  return style().real("page-width") -
+    style().real("margin-left") -
+    style().real("margin-right");
 }
 
 void GfxBlockItem::childGeometryChanged() {
@@ -88,21 +87,20 @@ void GfxBlockItem::paint(QPainter *p,
 			 const QStyleOptionGraphicsItem *,
 			 QWidget *) {
   // paint background grid; items draw themselves  
-  Style const &style(Style::defaultStyle());
   QRectF bb = boundingRect();
 
-  p->setPen(QPen(QBrush(QColor(style["canvas-grid-color"].toString())),
-		 style["canvas-grid-line-width"].toDouble(),
+  p->setPen(QPen(QBrush(style().color("canvas-grid-color")),
+		 style().real("canvas-grid-line-width"),
 		 Qt::SolidLine,
 		 Qt::FlatCap));
-  double dx = style["canvas-grid-spacing"].toDouble();
+  double dx = style().real("canvas-grid-spacing");
   drawGrid(p, bb, dx);
 
-  p->setPen(QPen(QBrush(QColor(style["canvas-grid-major-color"].toString())),
-		 style["canvas-grid-major-line-width"].toDouble(),
+  p->setPen(QPen(QBrush(style().color("canvas-grid-major-color")),
+		 style().real("canvas-grid-major-line-width"),
 		 Qt::SolidLine,
 		 Qt::FlatCap));
-  dx *= style["canvas-grid-major-interval"].toInt();
+  dx *= style().integer("canvas-grid-major-interval");
   if (dx)
     drawGrid(p, bb, dx);
 }

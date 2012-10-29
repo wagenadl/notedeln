@@ -19,6 +19,8 @@ QT += network
 DEPENDPATH +=  $$sourcedirs
 INCLUDEPATH += $$sourcedirs
 
+unix: DEFINES += QQ_X11
+
 for(sd, sourcedirs): include($${sd}/$${sd}.pri)
 
 message("HEADERS: $$HEADERS" )

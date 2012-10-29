@@ -58,29 +58,29 @@ void PageScene::populate() {
 
 void PageScene::makeBackground() {
   BaseScene::makeBackground();
-  belowItem = addRect(style->real("margin-left"),
-		      style->real("margin-top"),
-		      style->real("page-width")
-		      - style->real("margin-left")
-		      - style->real("margin-right"),
-		      style->real("page-height")
-		      - style->real("margin-top")
-		      - style->real("margin-bottom"),
+  belowItem = addRect(style_->real("margin-left"),
+		      style_->real("margin-top"),
+		      style_->real("page-width")
+		      - style_->real("margin-left")
+		      - style_->real("margin-right"),
+		      style_->real("page-height")
+		      - style_->real("margin-top")
+		      - style_->real("margin-bottom"),
 		      QPen(Qt::NoPen),
 		      QBrush(Qt::NoBrush));
 }
 
 void PageScene::makeDateItem() {
-  dateItem = addText(data->created().toString("MM/dd/yyyy"),
-		     QFont(style->string("date-font-family"),
-			   style->real("date-font-size"))		     );
-  dateItem->setDefaultTextColor(style->color("date-color"));
+  dateItem = addText(data->created().toString(style().string("date-format")),
+		     QFont(style().string("date-font-family"),
+			   style().real("date-font-size")));
+  dateItem->setDefaultTextColor(style().color("date-color"));
   QPointF br = dateItem->boundingRect().bottomRight();
-  dateItem->setPos(style->real("page-width") -
-		   style->real("margin-right-over") -
+  dateItem->setPos(style().real("page-width") -
+		   style().real("margin-right-over") -
 		   br.x(),
-		   style->real("margin-top") -
-		   style->real("title-sep") -
+		   style().real("margin-top") -
+		   style().real("title-sep") -
 		   br.y());
 }
 
@@ -92,9 +92,9 @@ void PageScene::makeTitleItem() {
   tt->makeWritable();
 
   nOfNItem = addText("n/N",
-		     QFont(style->string("title-font-family"),
-			   style->real("title-font-size")));
-  nOfNItem->setDefaultTextColor(style->color("pgno-color"));
+		     QFont(style().string("title-font-family"),
+			   style().real("title-font-size")));
+  nOfNItem->setDefaultTextColor(style().color("pgno-color"));
   
   positionTitleItem();
   
@@ -165,12 +165,12 @@ void PageScene::positionTitleItem() {
 
   BaseScene::positionTitleItem();
   double dateX = dateItem->mapToScene(dateItem->boundingRect().topLeft()).x();
-  titleItem->setTextWidth(dateX - style->real("margin-left") - 5);
+  titleItem->setTextWidth(dateX - style().real("margin-left") - 5);
   QPointF bl = titleItem->boundingRect().bottomLeft();
-  titleItem->setPos(style->real("margin-left") -
+  titleItem->setPos(style().real("margin-left") -
 		    bl.x(),
-		    style->real("margin-top") -
-		    style->real("title-sep") -
+		    style().real("margin-top") -
+		    style().real("title-sep") -
 		    bl.y()
 		    );
 
@@ -191,8 +191,8 @@ void PageScene::stackBlocks() {
   sheetNos.clear();
   topY.clear();
   int sheet = 0;
-  double y0 = style->real("margin-top");
-  double y1 = style->real("page-height") - style->real("margin-bottom");
+  double y0 = style().real("margin-top");
+  double y1 = style().real("page-height") - style().real("margin-bottom");
   double y = y0;
 
   foreach (BlockItem *bi, blockItems) {
@@ -225,8 +225,8 @@ int PageScene::restackBlocks(int starti) {
   int endi = sheetNos.size();
   if (starti>=endi)
     return 0;
-  double y0 = style->real("margin-top");
-  double y1 = style->real("page-height") - style->real("margin-bottom");
+  double y0 = style().real("margin-top");
+  double y1 = style().real("page-height") - style().real("margin-bottom");
   double y = topY[starti];
   int sheet = sheetNos[starti];
   for (int i=starti; i<endi; i++) {
@@ -265,16 +265,16 @@ void PageScene::gotoSheet(int i) {
   // Shape below item
   int iLast = findLastBlockOnSheet(iSheet);
   double ytop = iLast<0
-    ? style->real("margin-top")
+    ? style().real("margin-top")
     :  blockItems[iLast]->netSceneRect().bottom();
-  belowItem->setRect(style->real("margin-left"),
+  belowItem->setRect(style().real("margin-left"),
 		     ytop,
-		     style->real("page-width")
-		     - style->real("margin-left")
-		     - style->real("margin-right"),
-		     style->real("page-height")
+		     style().real("page-width")
+		     - style().real("margin-left")
+		     - style().real("margin-right"),
+		     style().real("page-height")
 		     - ytop
-		     - style->real("margin-bottom"));
+		     - style().real("margin-bottom"));
 }
 
 int PageScene::findLastBlockOnSheet(int sheet) {
@@ -326,7 +326,7 @@ GfxBlockItem *PageScene::newGfxBlock() {
     : blockItems.size();
   double yt = (iAbove>=0)
     ? blockItems[iAbove]->netSceneRect().bottom()
-    : style->real("margin-top");
+    : style().real("margin-top");
 
   GfxBlockData *gbd = new GfxBlockData();
   data->addBlock(gbd);
@@ -364,7 +364,7 @@ TextBlockItem *PageScene::newTextBlock(int iAbove, bool evenIfLastEmpty) {
     : blockItems.size();
   double yt = (iAbove>=0)
     ? blockItems[iAbove]->netSceneRect().bottom()
-    : style->real("margin-top");
+    : style().real("margin-top");
 
   TextBlockData *tbd = new TextBlockData();
   data->addBlock(tbd);
@@ -448,7 +448,7 @@ void PageScene::enterPressed(int block) {
   TextBlockItem *tbi = dynamic_cast<TextBlockItem *>(blockItems[block]);
   if (!tbi
       || !tbi->text()->document()->isEmpty()
-      || style->flag("paragraph-allow-empty"))
+      || style().flag("paragraph-allow-empty"))
     newTextBlock(block, true);
 }
 
@@ -460,9 +460,9 @@ void PageScene::hChanged(int block) {
       
   // Try to respect L & R margins
   double l_space = blockItems[block]->netSceneRect().left()
-    - style->real("margin-left");
-  double r_space = style->real("page-width")
-    - style->real("margin-right")
+    - style().real("margin-left");
+  double r_space = style().real("page-width")
+    - style().real("margin-right")
     - blockItems[block]->netSceneRect().right();
   if (l_space<0) {
     double dx = -l_space;

@@ -12,10 +12,11 @@
 Notebook::Notebook(QString path) {
   root = QDir(path);
   tocFile_ = TOCFile::load(root.filePath("toc.json"), this);
+  tocFile_->data()->setBook(this);
   bookFile_ = BookFile::load(root.filePath("book.json"), this);
   Q_ASSERT(tocFile_);
   Q_ASSERT(bookFile_);
-  style_ = &Style::defaultStyle();
+  style_ = new Style("-");
 }
 
 Notebook::~Notebook() {
@@ -121,4 +122,6 @@ BookData *Notebook::bookData() const {
 void Notebook::flush() {
   tocFile_->save(true);
   bookFile_->save(true);
+  foreach (PageFile *pf, pgFiles)
+    pf->save(true);
 }

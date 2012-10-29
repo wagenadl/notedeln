@@ -49,10 +49,9 @@ TextItem::~TextItem() {
 }
 
 void TextItem::initializeFormat() {
-  Style const &style(Style::defaultStyle());
-  setFont(QFont(style["text-font-family"].toString(),
-		style["text-font-size"].toDouble()));
-  setDefaultTextColor(QColor(style["text-color"].toString()));
+  setFont(QFont(style().string("text-font-family"),
+		style().real("text-font-size")));
+  setDefaultTextColor(style().color("text-color"));
 }
 
 void TextItem::docChange() {

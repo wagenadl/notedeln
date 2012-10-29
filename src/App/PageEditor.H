@@ -5,23 +5,25 @@
 #define PAGEEDITOR_H
 
 #include <QMainWindow>
-#include "PageFile.H"
 
 class PageEditor: public QMainWindow {
 public:
-  PageEditor();
+  PageEditor(class Notebook *nb);
   virtual ~PageEditor();
 public slots:
-  //  void load(QString fn);
-  void open(PageFile *f);
-  //  void create(QString fn);
-protected:
-  void closeEvent(QCloseEvent *);
+  void gotoPage(int pgno);
+  void gotoTOC(int pgno=0);
+  void gotoFront();
+  //  void gotoIndex();
+  void nextPage();
+  void previousPage();
 private:
-  class PageView *view_;
-  class PageScene *scene_;
-  PageFile *file_;
-  class Toolbar *toolbar_;
+  class Notebook *book; // we do not own!
+  class PageView *view;
+  class FrontScene *frontScene;
+  class TOCScene *tocScene;
+  class PageScene *pageScene;
+  // class Toolbar *toolbar;
 };
 
 #endif

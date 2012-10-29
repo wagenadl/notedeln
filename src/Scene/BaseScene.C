@@ -21,8 +21,7 @@ BaseScene::BaseScene(Data *data, QObject *parent):
   Q_ASSERT(data);
   Notebook *book = data->book();
   Q_ASSERT(book);
-  style = &book->style();
-  keymods = 0;
+  style_ = &book->style();
   nSheets = 1;
 }
 
@@ -40,31 +39,31 @@ BaseScene::~BaseScene() {
 void BaseScene::makeBackground() {
   setSceneRect(0,
 	       0,
-	       style->real("page-width"),
-	       style->real("page-height"));
+	       style_->real("page-width"),
+	       style_->real("page-height"));
   
-  setBackgroundBrush(QBrush(style->color("border-color")));
+  setBackgroundBrush(QBrush(style_->color("border-color")));
   
   bgItem = addRect(0,
 		   0,
- 		   style->real("page-width"),
-		   style->real("page-height"),
+ 		   style_->real("page-width"),
+		   style_->real("page-height"),
 		   QPen(Qt::NoPen),
-		   QBrush(style->color("background-color")));
+		   QBrush(style_->color("background-color")));
 
-  leftMarginItem = addLine(style->real("margin-left"),
+  leftMarginItem = addLine(style_->real("margin-left"),
 			   0,
-			   style->real("margin-left"),
+			   style_->real("margin-left"),
 			   height(),
-			   QPen(QBrush(style->color("margin-left-line-color")),
-				style->real("margin-left-line-width")));
+			   QPen(QBrush(style_->color("margin-left-line-color")),
+				style_->real("margin-left-line-width")));
   
   topMarginItem = addLine(0,
-			  style->real("margin-top"),
+			  style_->real("margin-top"),
 			  width(),
-			  style->real("margin-top"),
-			  QPen(QBrush(style->color("margin-top-line-color")),
-			       style->real("margin-top-line-width")));
+			  style_->real("margin-top"),
+			  QPen(QBrush(style_->color("margin-top-line-color")),
+			       style_->real("margin-top-line-width")));
 
 }
 
@@ -74,41 +73,41 @@ QString BaseScene::pgNoToString(int n) const {
 
 void BaseScene::makePgNoItem() {
   pgNoItem = addText(pgNoToString(startPage() + iSheet),
-		     QFont(style->string("pgno-font-family"),
-			   style->real("pgno-font-size")));
-  pgNoItem->setDefaultTextColor(style->color("pgno-color"));
+		     QFont(style_->string("pgno-font-family"),
+			   style_->real("pgno-font-size")));
+  pgNoItem->setDefaultTextColor(style_->color("pgno-color"));
   positionPgNoItem();
 }
 
 
 void BaseScene::makeContdItems() {
   contdItem = addText(">",
-		      QFont(style->string("contd-font-family"),
-			    style->real("contd-font-size")));
-  contdItem->setDefaultTextColor(style->color("contd-color"));
+		      QFont(style_->string("contd-font-family"),
+			    style_->real("contd-font-size")));
+  contdItem->setDefaultTextColor(style_->color("contd-color"));
   QPointF tr = contdItem->boundingRect().topRight();
-  contdItem->setPos(style->real("margin-left") - tr.x(),
-		    style->real("margin-top") - tr.y());
+  contdItem->setPos(style_->real("margin-left") - tr.x(),
+		    style_->real("margin-top") - tr.y());
 
   contItem = addText(">",
-		     QFont(style->string("contd-font-family"),
-			   style->real("contd-font-size")));
-  contItem->setDefaultTextColor(style->color("contd-color"));
+		     QFont(style_->string("contd-font-family"),
+			   style_->real("contd-font-size")));
+  contItem->setDefaultTextColor(style_->color("contd-color"));
   QPointF bl = contItem->boundingRect().bottomLeft();
-  contItem->setPos(style->real("page-width") - style->real("margin-right")
+  contItem->setPos(style_->real("page-width") - style_->real("margin-right")
 		   - bl.x(),
-		   style->real("page-height") + style->real("margin-bottom")
+		   style_->real("page-height") + style_->real("margin-bottom")
 		   - bl.y());
 }
 
 void BaseScene::positionPgNoItem() {
   QPointF tr = pgNoItem->boundingRect().topRight();
-  pgNoItem->setPos(style->real("page-width") -
-		   style->real("margin-right-over") -
+  pgNoItem->setPos(style_->real("page-width") -
+		   style_->real("margin-right-over") -
 		   tr.x(),
-		   style->real("page-height") -
-		   style->real("margin-bottom") +
-		   style->real("pgno-sep") -
+		   style_->real("page-height") -
+		   style_->real("margin-bottom") +
+		   style_->real("pgno-sep") -
 		   tr.y());
 }
 
@@ -119,14 +118,14 @@ void BaseScene::makeTitleItem() {
 }
 
 void BaseScene::positionTitleItem() {
-  titleItem->setTextWidth(style->real("page-width")
-			  - style->real("margin-left")
-			  - style->real("margin-right"));
+  titleItem->setTextWidth(style_->real("page-width")
+			  - style_->real("margin-left")
+			  - style_->real("margin-right"));
   QPointF bl = titleItem->boundingRect().bottomLeft();
-  titleItem->setPos(style->real("margin-left") -
+  titleItem->setPos(style_->real("margin-left") -
 		    bl.x(),
-		    style->real("margin-top") -
-		    style->real("title-sep") -
+		    style_->real("margin-top") -
+		    style_->real("title-sep") -
 		    bl.y());
 }
 
@@ -166,74 +165,13 @@ void BaseScene::gotoSheet(int i) {
   
 
 bool BaseScene::inMargin(QPointF sp) {
-  return sp.x() < style->real("margin-left")
-    || sp.x() >= style->real("page-width")
-       - style->real("margin-right")
-    || sp.y() < style->real("margin-top")
-    || sp.y() >= style->real("page-height")
-       - style->real("margin-bottom");
+  return sp.x() < style_->real("margin-left")
+    || sp.x() >= style_->real("page-width")
+       - style_->real("margin-right")
+    || sp.y() < style_->real("margin-top")
+    || sp.y() >= style_->real("page-height")
+       - style_->real("margin-bottom");
 }    
-
-void BaseScene::keyChange(int key, int delta) {
-  ModSnooper *ms = ModSnooper::instance();
-  if (ms && ms->haveState()) {
-    // Get info straight from X server
-    Qt::KeyboardModifiers m = 0x0;
-    if (ms->anyShift())
-      m |= Qt::ShiftModifier;
-    if (ms->anyControl())
-      m |= Qt::ControlModifier;
-    if (ms->anyAlt())
-      m |= Qt::AltModifier;
-    if (m!=keymods) {
-      keymods = m;
-      emit modifiersChanged(keymods);
-    }
-  } else {
-    // Get info from Qt
-    Qt::KeyboardModifiers m = 0x0;
-    switch (key) {
-    case Qt::Key_Alt: case Qt::Key_AltGr:
-      m |= Qt::AltModifier;
-    break;
-    case Qt::Key_Control:
-      m |= Qt::ControlModifier;
-    break;
-    case Qt::Key_Shift:    
-      m |= Qt::ShiftModifier;
-    break;
-    }
-    if (m) {
-      if (delta>0)
-	keymods |= m;
-      else
-	keymods &= ~m;
-      emit modifiersChanged(keymods);
-    }
-  }
-}
-
-void BaseScene::keyPressEvent(QKeyEvent *e) {
-  keyChange(e->key(), +1);
-  switch (e->key()) {
-  case Qt::Key_PageUp:
-    if (!previousSheet())
-      emit futileMovement(e);
-    e->accept();
-    return;
-  case Qt::Key_PageDown:
-    if (!nextSheet())
-      emit futileMovement(e);
-    e->accept();
-    return;
-  }
-  QGraphicsScene::keyPressEvent(e);
-}
-
-void BaseScene::keyReleaseEvent(QKeyEvent *e) {
-  keyChange(e->key(), -1);
-  QGraphicsScene::keyReleaseEvent(e);
-}
 
 QString BaseScene::title() const {
   return "---";
@@ -243,6 +181,6 @@ int BaseScene::startPage() const {
   return 1;
 }
 
-Qt::KeyboardModifiers BaseScene::keyboardModifiers() const {
-  return keymods;
+Style const &BaseScene::style() const {
+  return *style_;
 }

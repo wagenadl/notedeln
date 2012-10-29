@@ -13,19 +13,12 @@ public:
   virtual void populate();
   virtual ~BaseScene();
   int sheetCount() const;
-  Qt::KeyboardModifiers keyboardModifiers() const;
+  class Style const &style() const;
 public slots:
   bool nextSheet();
   bool previousSheet();
   void gotoSheet(int i);
-signals:
-  void modifiersChanged(Qt::KeyboardModifiers);
-  void futileMovement(QKeyEvent *);
 protected:
-  virtual void keyPressEvent(QKeyEvent *);
-  virtual void keyReleaseEvent(QKeyEvent *);
-protected:
-  void keyChange(int key, int delta);
   bool inMargin(QPointF); // true if point is in any margin
   virtual void makeBackground();
   virtual void makeTitleItem();
@@ -48,8 +41,7 @@ protected:
   int nSheets; // number of sheets
   int iSheet; // current sheet (counting from 0)
   Data *data;
-  class Style const *style;
-  Qt::KeyboardModifiers keymods;
+  Style const *style_;
 };
 
 #endif

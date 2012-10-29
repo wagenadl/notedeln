@@ -8,6 +8,8 @@
 #include "PageScene.H"
 #include <QGraphicsSceneMouseEvent>
 #include "DragLine.H"
+#include "ModSnooper.H"
+#include "App.H"
 
 Item::Item(Data *d, QGraphicsItem *me): d(d), me(me) {
   Q_ASSERT(d);
@@ -176,21 +178,25 @@ void Item::childGeometryChanged() {
     itemParent()->childGeometryChanged();
 }
 
+static ModSnooper *modSnooper() {
+  App *app = App::instance();
+  Q_ASSERT(app);
+  ModSnooper *ms = app->modSnooper();
+  Q_ASSERT(ms);
+  return ms;
+}
+
 bool Item::moveModPressed() const {
-  PageScene const *s = pageScene();
-  return s
-    ? (s->keyboardModifiers() & moveModifiers())!=0
-    : false;
+  return (modSnooper()->keyboardModifiers() & moveModifiers()) != 0;
 }
 
 void Item::acceptModifierChanges() {
-  PageScene *s = dynamic_cast<PageScene*>(me->scene());
   QObject *o = obj();
-  if (s && o) 
-    o->connect(s, SIGNAL(modifiersChanged(Qt::KeyboardModifiers)),
+  if (o) 
+    o->connect(modSnooper(), SIGNAL(modifiersChanged(Qt::KeyboardModifiers)),
 	       o, SLOT(modifierChange(Qt::KeyboardModifiers)));
   else
-    qDebug() << "Item: no page -> keyboard modifiers will be ignored";
+    qDebug() << "Item: not an object -> keyboard modifiers will be ignored";
 }
     
 GfxNoteItem *Item::newNote(QPointF p0, QPointF p1) {
@@ -209,11 +215,8 @@ bool Item::abandonNote(GfxNoteItem *n) {
 }
 
 bool Item::mousePress(QGraphicsSceneMouseEvent *e) {
-  PageScene *p = pageScene();
-  Qt::KeyboardModifiers m = p
-    ? p->keyboardModifiers()
-    : e->modifiers();
-  qDebug() << "Item" << this<<"::mousePress" << m << "(" << p << ")";
+  Qt::KeyboardModifiers m = modSnooper()->keyboardModifiers();
+  qDebug() << "Item" << this<<"::mousePress" << m;
   if (m==0) {
     e->accept();
     QPointF p0 = e->pos();

@@ -26,14 +26,14 @@ DataFile0::DataFile0(QString fn, QObject *parent):
   QVariantMap v = JSONFile::load(fn, &ok_);
 
   if (!ok_) {
-    qDebug() << "DataFile0: failed to load " << fn;
+    qDebug() << "DataFile: failed to load " << fn;
     return;
   }
   data_ = Data::create(v["typ"].toString());
   ok_ = data_!=0;
   if (!ok_) {
-    qDebug() << "DataFile: could not interpret json as typed data ("
-	     << v["typ"].toString() << ")";
+    qDebug() << "DataFile: No creator for type "
+	     << v["typ"].toString();
     return;
   }
 
@@ -68,7 +68,7 @@ bool DataFile0::save(bool onlyIfNeeded) const {
   }
   
   if (!data_) {
-    qDebug() << "DataFile0: Nothing to save";
+    qDebug() << "DataFile: Nothing to save";
     return false;
   }
 

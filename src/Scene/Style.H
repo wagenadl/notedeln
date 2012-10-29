@@ -16,8 +16,6 @@ public:
   int integer(QString) const;
   QColor color(QString) const;
   QVariantMap const &options() const;
-public:
-  static Style const &defaultStyle();
 private:
   QVariantMap options_;
 };

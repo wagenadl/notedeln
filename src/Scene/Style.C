@@ -19,27 +19,23 @@ Style::Style(QString fn) {
     bool ok = true;
     QVariant v = p.parse(&f, &ok);
     if (!ok) {
-      qDebug() << "Style: JSON parse failed: " 
+      qDebug() << "Style: JSON parse of " << fn << " failed: " 
 	       << p.errorString() << " at line " << p.errorLine();
       qFatal("style error");
     }
     options_ = v.toMap();
   } else {
-    qDebug() << "Style: File not found";
+    qDebug() << "Style: File not found: " << fn;
+    qFatal("style error");
   }
 }
 
-Style const &Style::defaultStyle() {
-  static Style s("-");
-  // qDebug() << "Default style: " << &s;
-  return s;
-}
-
 QVariant Style::operator[](QString k) const {
-  if (!options_.contains(k))
-    qDebug() << "(Style: No value for " << k << ")";
-  // qDebug() << "Style[]" << k;
-  return options_[k];
+  if (options_.contains(k))
+    return options_[k];
+  qDebug() << "Style: No value for " << k;
+  // Q_ASSERT(0);
+  return QVariant();
 }
 
 double Style::real(QString k) const {

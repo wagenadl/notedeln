@@ -24,6 +24,8 @@ public:
   TOCEntry *addEntry(class PageData *data);
   bool deleteEntry(TOCEntry *);
   int newPageNumber() const;
+  void setBook(class Notebook *);
+  virtual class Notebook *book() const; // pointer to parent book, if any.
 protected:
   virtual void loadMore(QVariantMap const &src);
 private: // hide these from general use
@@ -33,6 +35,7 @@ private: // hide these from general use
 private:
   typedef QMap<int, TOCEntry *> EntryMap;
   EntryMap entries_;
+  Notebook *nb;
 };
 
 #endif

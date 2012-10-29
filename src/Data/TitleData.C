@@ -2,6 +2,7 @@
 
 #include "TitleData.H"
 #include "Style.H"
+#include "Notebook.H"
 
 static Data::Creator<TitleData> c("title");
 
@@ -42,8 +43,9 @@ TextData *TitleData::revise() {
     r->setModified(QDateTime::currentDateTime());
     return r;
   }
-  if (r->modified().secsTo(QDateTime::currentDateTime()) <
-      Style::defaultStyle()["title-revision-threshold"].toDouble()*60*60)
+  Notebook *b = book();
+  double thr_h = b ? b->style().real("title-revision-threshold") : 6;
+  if (r->modified().secsTo(QDateTime::currentDateTime()) < thr_h*60*60)
     return r;
   
   TextData *r0 = Data::deepCopy(r);

@@ -5,21 +5,22 @@
 #include <QFile>
 #include <QDir>
 #include "Notebook.H"
-#include "ModSnooper.H"
+#include "App.H"
 
 int main(int argc, char **argv) {
-  ModSnooper app(argc, argv);
-  PageEditor editor;
+  App app(argc, argv);
   QDir d("test.nb");
   Notebook *nb = d.exists()
     ? Notebook::load("test.nb")
     : Notebook::create("test.nb");
   Q_ASSERT(nb);
 
-  editor.open(nb->hasPage(1) ? nb->page(1) : nb->createPage(1));
-  
-  editor.show();
+  PageEditor *editor = new PageEditor(nb);
+  editor->gotoFront();
+  editor->resize(editor->sizeHint());
+  editor->show();
   int r = app.exec();
-  delete nb;
+  delete editor;
+  delete nb; // this flushes
   return r;
 }

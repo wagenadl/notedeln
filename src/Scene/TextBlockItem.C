@@ -16,7 +16,7 @@ TextBlockItem::TextBlockItem(TextBlockData *data, PageScene *parent):
   data_(data) {
   item_ = 0;
 
-  setPos(Style::defaultStyle()["margin-left"].toDouble(), 0);
+  setPos(style().real("margin-left"), 0);
 
   item_ = new TextItem(data_->text(), this);
   addChild(item_);
@@ -41,19 +41,15 @@ TextBlockItem::~TextBlockItem() {
 }
 
 void TextBlockItem::initializeFormat() {
-  Style const &style(Style::defaultStyle());
-  item_->setTextWidth(style["paragraph-width"].toDouble());
-  //item_->setFont(QFont(style["text-font-family"].toString(),
-  //style["text-font-size"].toDouble()));
-  //item_->setDefaultTextColor(QColor(style["text-color"].toString()));
+  item_->setTextWidth(style().real("paragraph-width"));
 
   QTextCursor tc(item_->document());
   QTextBlockFormat fmt = tc.blockFormat();
-  fmt.setLineHeight(style["paragraph-line-spacing"].toDouble()*100,
+  fmt.setLineHeight(style().real("paragraph-line-spacing")*100,
 		    QTextBlockFormat::ProportionalHeight);
-  fmt.setTextIndent(style["paragraph-indent"].toDouble());
-  fmt.setTopMargin(style["paragraph-top-margin"].toDouble());
-  fmt.setBottomMargin(style["paragraph-bottom-margin"].toDouble());
+  fmt.setTextIndent(style().real("paragraph-indent"));
+  fmt.setTopMargin(style().real("paragraph-top-margin"));
+  fmt.setBottomMargin(style().real("paragraph-bottom-margin"));
   tc.setBlockFormat(fmt);
 }  
 
