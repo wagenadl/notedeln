@@ -18,6 +18,7 @@ public slots:
   bool nextSheet();
   bool previousSheet();
   virtual void gotoSheet(int i);
+  void focusTitle();
 protected:
   bool inMargin(QPointF); // true if point is in any margin
   virtual void makeBackground();

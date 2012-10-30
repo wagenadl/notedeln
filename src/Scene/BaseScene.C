@@ -196,3 +196,8 @@ Style const &BaseScene::style() const {
 int BaseScene::sheetCount() const {
   return nSheets;
 }
+
+void BaseScene::focusTitle() {
+  Q_ASSERT(titleItem);
+  titleItem->setFocus();
+}

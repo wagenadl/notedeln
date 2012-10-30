@@ -9,6 +9,7 @@
 #include "DataFile.H"
 #include "TOCScene.H"
 #include "FrontScene.H"
+#include "TitleData.H"
 
 #include <QApplication>
 #include <QDesktopWidget>
@@ -35,7 +36,6 @@ PageEditor::~PageEditor() {
 }
 
 void PageEditor::gotoPage(int n) {
-  //  qDebug() << "PE:page" << n;
   if (n<1)
     n=1;
 
@@ -80,8 +80,14 @@ void PageEditor::gotoPage(int n) {
 
   pageScene = new PageScene(file->data(), this);
   pageScene->populate();
-  pageScene->makeWritable(); // this should be more sophisticated
+  if (book->toc()->isLast(te))
+    pageScene->makeWritable(); // this should be even more sophisticated
   view->setScene(pageScene);
+
+  if (file->data()->title()->isDefault())
+    pageScene->focusTitle();
+  else
+    pageScene->focusEnd();
 }
 
 void PageEditor::gotoFront() {

@@ -17,7 +17,7 @@ public:
 protected slots:
   virtual void docChange();
 protected:
-  virtual void mousePressEvent(QGraphicsSceneMouseEvent *);
+  virtual void focusInEvent(QFocusEvent *);
 private:
   TitleData *data_;
 };

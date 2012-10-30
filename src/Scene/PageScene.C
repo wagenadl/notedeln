@@ -87,6 +87,7 @@ void PageScene::makeDateItem() {
 void PageScene::makeTitleItem() {
   TitleItem *tt = new TitleItem(data->title(), 0);
   titleItem = tt;
+  connect(tt, SIGNAL(enterPressed()), SLOT(enterPressedInTitle()));
   addItem(titleItem);
 
   tt->makeWritable();
@@ -446,6 +447,26 @@ void PageScene::enterPressed(int block) {
     newTextBlock(block, true);
 }
 
+void PageScene::enterPressedInTitle() {
+  focusEnd();
+}
+
+void PageScene::focusEnd() {
+  if (!writable)
+    return;
+
+  if (blockItems.isEmpty()
+      || !dynamic_cast<TextBlockItem *>(blockItems.last())) {
+    newTextBlock();
+  } else {
+    TextBlockItem *tbi = dynamic_cast<TextBlockItem *>(blockItems.last());
+    tbi->setFocus();
+    QTextCursor tc = tbi->text()->textCursor();
+    tc.movePosition(QTextCursor::End);
+    tbi->text()->setTextCursor(tc);    
+  }
+}
+
 void PageScene::hChanged(int block) {
   // Never allow sticking out L. of page
   if (blockItems[block]->netSceneRect().left()<0)
@@ -607,8 +628,14 @@ void PageScene::makeWritable() {
   writable = true;
   belowItem->setCursor(Qt::IBeamCursor);
   belowItem->setAcceptDrops(true);
+  foreach (BlockItem *bi, blockItems)
+    bi->makeWritable();
 }
 
 int PageScene::startPage() const {
   return data->startPage();
+}
+
+bool PageScene::isWritable() const {
+  return writable;
 }

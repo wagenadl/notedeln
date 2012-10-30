@@ -13,6 +13,8 @@ public:
   virtual void populate();
   virtual ~PageScene();
   void makeWritable();
+  void focusEnd(); // may create new text block
+  bool isWritable() const;
 protected:
   void mousePressEvent(QGraphicsSceneMouseEvent *);
   void keyPressEvent(QKeyEvent *);
@@ -24,6 +26,7 @@ private slots:
   void vChanged(int block);
   void futileMovement(int block);
   void enterPressed(int block);
+  void enterPressedInTitle();
 private:
   bool tryToPaste();
   bool importDroppedImage(QPointF scenePos, QImage const &img,

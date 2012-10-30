@@ -4,6 +4,7 @@
 #include "TextItem.H"
 #include "TextBlockData.H"
 #include "Style.H"
+#include "PageScene.H"
 
 #include <QTextCursor>
 #include <QTextBlock>
@@ -14,6 +15,8 @@
 TextBlockItem::TextBlockItem(TextBlockData *data, PageScene *parent):
   BlockItem(data, parent),
   data_(data) {
+  Q_ASSERT(data);
+  Q_ASSERT(parent);
   item_ = 0;
 
   setPos(style().real("margin-left"), 0);
@@ -34,6 +37,15 @@ TextBlockItem::TextBlockItem(TextBlockData *data, PageScene *parent):
 	  this, SIGNAL(enterPressed()));
 
   resetBbox();
+  if (parent->isWritable())
+    makeWritable();
+}
+
+void TextBlockItem::makeWritable() {
+  BlockItem::makeWritable();
+  item_->makeWritable();
+  setFlag(ItemIsFocusable);
+  setFocusProxy(item_);
 }
 
 TextBlockItem::~TextBlockItem() {
@@ -168,7 +180,3 @@ Qt::KeyboardModifiers TextBlockItem::FutileMovementInfo::modifiers() const {
   return modifiers_;
 }
 
-void TextBlockItem::makeWritable() {
-  item_->makeWritable();
-  BlockItem::makeWritable();
-}

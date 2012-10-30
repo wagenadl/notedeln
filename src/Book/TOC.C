@@ -51,6 +51,10 @@ TOCEntry *TOC::addEntry(PageData *data) {
   return e;
 }
 
+bool TOC::isLast(TOCEntry const *e) const {
+  return e == lastEntry();
+}
+
 bool TOC::contains(int p) const {
   return entries_.contains(p);
 }
@@ -67,15 +71,19 @@ bool TOC::deleteEntry(TOCEntry *e) {
   }
 }
 
-int TOC::newPageNumber() const {
+TOCEntry const *TOC::lastEntry() const {
   if (entries_.isEmpty())
-    return 1;
-  QMap<int, TOCEntry *>::const_iterator i = entries_.constEnd();
+    return 0;
+  EntryMap::const_iterator i = entries_.constEnd();
   --i;
-  TOCEntry *e = i.value();
-  Q_ASSERT(e);
-  qDebug() << "TOC:newpgno" << i.key() << e->startPage() << e->sheetCount();
-  return i.key() + e->sheetCount();
+  return i.value();
+}
+
+int TOC::newPageNumber() const {
+  TOCEntry const *e = lastEntry();
+  if (!e)
+    return 1;
+  return e->startPage() + e->sheetCount();
 }
 
 void TOC::setBook(Notebook *n) {

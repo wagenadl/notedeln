@@ -5,9 +5,8 @@
 #include <QMetaProperty>
 #include "PageData.H"
 #include <QDebug>
-
-#define MAX_EDIT_DELAY_H 12
-// Should this be a style option?
+#include "Style.H"
+#include "Notebook.H"
 
 Data::Data(Data *parent): QObject(parent) {
   loading_ = false;
@@ -31,9 +30,10 @@ QString const &Data::type() const {
   return type_;
 }
 
-bool Data::editable() const {
-  return modified().secsTo(QDateTime::currentDateTime())
-    < 60*60*MAX_EDIT_DELAY_H;
+bool Data::isRecent() const {
+  Notebook *b = book();
+  double thr_h = b ? b->style().real("recency-threshold") : 24;
+  return modified().secsTo(QDateTime::currentDateTime()) < thr_h*60*60;
 }
 
 void Data::setCreated(QDateTime const &dt) {

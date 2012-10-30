@@ -38,7 +38,7 @@ public:
   void markModified(ModType mt=UserVisibleMod);
   void load(QVariantMap const &);
   QVariantMap save() const;
-  bool editable() const;
+  bool isRecent() const;
   Data *parent() const;
   QList<Data *> const &allChildren() const { return children_; }
   template <class T> QList<T *> children() const {

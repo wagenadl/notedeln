@@ -12,6 +12,7 @@ TitleItem::TitleItem(TitleData *data, Item *parent):
   setFont(QFont(style("title-font-family").toString(),
 		style("title-font-size").toDouble()));
   setDefaultTextColor(QColor(style("title-color").toString()));
+  setAllowParagraphs(false);
 }
 
 
@@ -30,9 +31,9 @@ void TitleItem::docChange() {
   TextItem::docChange();
 }
  
-void TitleItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
-  TextItem::mousePressEvent(e);
-  if (hasFocus() && toPlainText()==TitleData::defaultTitle()) {
+void TitleItem::focusInEvent(QFocusEvent *e) {
+  TextItem::focusInEvent(e);
+  if (toPlainText()==TitleData::defaultTitle()) {
     QTextCursor c = textCursor(); //(document());
     c.setPosition(0);
     c.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
