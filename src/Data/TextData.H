@@ -20,6 +20,7 @@ public:
   /* If you change the text in the presence of markups, you are responsible
      for updating the markups */
   // other
+  bool isEmpty() const;
   QList<MarkupData *> markups() const;
   MarkupData *addMarkup(int start, int end, MarkupData::Style style);
   void deleteMarkup(MarkupData *);

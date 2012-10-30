@@ -12,6 +12,10 @@ TextData::TextData(Data *parent):
 TextData::~TextData() {
 }
 
+bool TextData::isEmpty() const {
+  return text_.isEmpty() && markups().isEmpty();
+}
+
 QString TextData::text() const {
   return text_;
 }

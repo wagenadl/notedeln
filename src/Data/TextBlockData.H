@@ -14,6 +14,7 @@ public:
   virtual ~TextBlockData();
   TextData const *text() const;
   TextData *text();
+  virtual bool isEmpty() const;
 protected:
   void loadMore(QVariantMap const &src);
 private:

@@ -103,6 +103,33 @@ PageFile *Notebook::createPage(int n) {
   return f;
 }
 
+bool Notebook::deletePage(int pgno) {
+  PageFile *pf = page(pgno);
+  if (!pf) {
+    qDebug() << "Notebook: cannot delete nonexistent page";
+    return false;
+  }
+  Q_ASSERT(pf->data());
+  if (!pf->data()->isEmpty()) {
+    qDebug() << "Notebook: refusing to delete non-empty page";
+    return false;
+  }
+
+  if (resMgrs.contains(pgno)) {
+    delete resMgrs[pgno];
+    resMgrs.remove(pgno);
+  }
+  delete pgFiles[pgno];
+  pgFiles.remove(pgno);
+
+  Q_ASSERT(toc()->deleteEntry(toc()->find(pgno)));
+  QString fn = QString("pages/%1.json").arg(pgno);
+  QString fn0 = fn + "~";
+  root.remove(fn0);
+  Q_ASSERT(root.rename(fn, fn0));
+  return true;
+}
+
 void Notebook::titleMod() {
   PageData *pg = dynamic_cast<PageData *>(sender());
   Q_ASSERT(pg);

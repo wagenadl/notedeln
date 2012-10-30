@@ -30,7 +30,7 @@ public:
   class ResourceManager *resMgr() const; // } use it ourselves.
   PageData const *page() const;
   PageData *page();
-  bool isEmpty() const;
+  bool isEmpty() const; // true iff no blocks and title is default
 signals:
   void titleMod();
   void sheetCountMod();

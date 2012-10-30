@@ -17,13 +17,14 @@ public:
   // read properties
   double y0() const;
   int sheet() const;
-  QList<class NoteData *> notes() const;
+  // QList<class NoteData *> notes() const;
   // write properties
   void setY0(double);
   void setSheet(int);
   // other
-  void addNote(NoteData *);
-  bool deleteNote(NoteData *);
+  // void addNote(NoteData *);
+  // bool deleteNote(NoteData *);
+  virtual bool isEmpty() const;
 signals:
   void newSheet(int); // not emitted during loading
 private:

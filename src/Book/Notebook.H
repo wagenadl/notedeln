@@ -19,9 +19,10 @@ public:
   /* Returns null if couldn't create, e.g., if already exists */
 public:
   ~Notebook();
-  bool hasPage(int pgno) const;   // } pgno must be
-  PageFile *page(int pgno);       // } the first sheet
-  PageFile *createPage(int pgno); // } of a Page
+  bool hasPage(int pgno) const;   // } pgno must 
+  PageFile *page(int pgno);       // } be the first
+  PageFile *createPage(int pgno); // } sheet of a
+  bool deletePage(int pgno);      // } Page
   class TOC *toc() const;
   class ResourceManager *resMgr(int pgno);
   class BookData *bookData() const;

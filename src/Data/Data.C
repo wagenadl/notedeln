@@ -38,21 +38,24 @@ bool Data::editable() const {
 
 void Data::setCreated(QDateTime const &dt) {
   created_ = dt;
+  markModified(InternalMod);
 }
 
 void Data::setModified(QDateTime const &dt) {
   modified_ = dt;
+  markModified(InternalMod);
 }
 
 void Data::setType(QString const &t) {
   type_ = t;
-  //  markModified();
+  markModified(InternalMod);
 }
 
 void Data::markModified(Data::ModType mt) {
   // qDebug() << "Data" << this << ": markmodified" << mt;
   if (loading_)
     return;
+
   if (mt==UserVisibleMod || mt==NonPropMod)
     modified_ = QDateTime::currentDateTime();
   emit mod();

@@ -19,6 +19,10 @@ QString TitleData::defaultTitle() {
   return "Untitled";
 }
 
+bool TitleData::isDefault() const {
+  return versions_.size()==1 && current()->text()==defaultTitle();
+}
+
 QList<TextData *> const &TitleData::versions() const {
   return versions_;
 }
@@ -38,11 +42,12 @@ TextData const *TitleData::orig() const {
 TextData *TitleData::revise() {
   TextData *r = versions_.last();
 
-  if (r->text() == defaultTitle()) {
+  if (versions_.size()==1 && r->text() == defaultTitle()) {
     r->setCreated(QDateTime::currentDateTime());
     r->setModified(QDateTime::currentDateTime());
     return r;
   }
+  
   Notebook *b = book();
   double thr_h = b ? b->style().real("title-revision-threshold") : 6;
   if (r->modified().secsTo(QDateTime::currentDateTime()) < thr_h*60*60)

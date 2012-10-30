@@ -30,3 +30,7 @@ void TextBlockData::loadMore(QVariantMap const &src) {
   text_ = firstChild<TextData>();
   Q_ASSERT(text_);
 }
+
+bool TextBlockData::isEmpty() const {
+  return BlockData::isEmpty() && text_->isEmpty();
+}

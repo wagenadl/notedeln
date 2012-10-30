@@ -20,6 +20,8 @@ public slots:
   void previousPage();
   void lastPage();
 private:
+  void leavePage();
+private:
   class Notebook *book; // we do not own!
   class PageView *view;
   class FrontScene *frontScene;

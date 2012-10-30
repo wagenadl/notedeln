@@ -27,7 +27,12 @@ QList<class BlockData *> PageData::blocks() const {
 }
 
 bool PageData::isEmpty() const {
-  return blocks().isEmpty();
+  if (!title_->isDefault())
+    return false;
+  foreach (BlockData *b, blocks())
+    if (!b->isEmpty())
+      return false;
+  return true;
 }
 
 void PageData::addBlock(BlockData *b) {

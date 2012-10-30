@@ -48,3 +48,8 @@ void GfxBlockData::setRef(QPointF xy) {
   yref_ = xy.y();
   markModified();
 }
+
+
+bool GfxBlockData::isEmpty() const {
+  return BlockData::isEmpty() && gfx().isEmpty();
+}
