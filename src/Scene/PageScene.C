@@ -615,4 +615,6 @@ void PageScene::makeWritable() {
   belowItem->setAcceptDrops(true);
 }
 
-
+int PageScene::startPage() const {
+  return data->startPage();
+}

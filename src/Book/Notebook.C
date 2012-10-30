@@ -72,10 +72,13 @@ bool Notebook::hasPage(int n) const {
 }
 
 PageFile *Notebook::page(int n)  {
+  if (pgFiles.contains(n))
+    return pgFiles[n];
   PageFile *f = PageFile::load(root.filePath(QString("pages/%1.json").arg(n)),
 			       this);
   if (!f)
     return 0;
+  pgFiles[n] = f;
 
   f->data()->setBook(this);
   connect(f->data(), SIGNAL(titleMod()), SLOT(titleMod()));
@@ -84,10 +87,12 @@ PageFile *Notebook::page(int n)  {
 }
 
 PageFile *Notebook::createPage(int n) {
+  Q_ASSERT(!pgFiles.contains(n));
   PageFile *f = PageFile::create(root.filePath(QString("pages/%1.json").arg(n)),
 				 this);
   if (!f)
     return 0;
+  pgFiles[n] = f;
   f->data()->setStartPage(n);
   toc()->addEntry(f->data());
 

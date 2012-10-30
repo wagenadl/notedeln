@@ -23,6 +23,11 @@ BaseScene::BaseScene(Data *data, QObject *parent):
   Q_ASSERT(book);
   style_ = &book->style();
   nSheets = 1;
+
+  titleItem = pgNoItem = contdItem = contItem = 0;
+  leftMarginItem = topMarginItem = 0;
+  bgItem = 0;
+  // must populate!
 }
 
 void BaseScene::populate() {
@@ -163,7 +168,6 @@ void BaseScene::gotoSheet(int i) {
   positionPgNoItem();
 }
   
-
 bool BaseScene::inMargin(QPointF sp) {
   return sp.x() < style_->real("margin-left")
     || sp.x() >= style_->real("page-width")
@@ -183,4 +187,8 @@ int BaseScene::startPage() const {
 
 Style const &BaseScene::style() const {
   return *style_;
+}
+
+int BaseScene::sheetCount() const {
+  return nSheets;
 }

@@ -14,10 +14,14 @@ public:
   virtual ~TOCScene();
 public slots:
   void rebuild();
+  virtual void gotoSheet(int);
 protected:
-  QString title() const;
+  virtual QString title() const;
+  virtual QString pgNoToString(int) const;
 private:
   TOC *data;
+  QList<class TOCItem *> items;
+  QList<int> sheetNos;
 };
 
 #endif

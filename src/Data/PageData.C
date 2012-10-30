@@ -27,6 +27,10 @@ QList<class BlockData *> PageData::blocks() const {
   return children<BlockData>();
 }
 
+bool PageData::isEmpty() const {
+  return blocks().isEmpty();
+}
+
 void PageData::addBlock(BlockData *b) {
   connect(b, SIGNAL(newSheet(int)), SLOT(newSheet()));
   if (b->sheet()>maxSheet) {

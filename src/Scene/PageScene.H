@@ -17,6 +17,7 @@ protected:
   void mousePressEvent(QGraphicsSceneMouseEvent *);
   void keyPressEvent(QKeyEvent *);
   void dropEvent (QGraphicsSceneDragDropEvent *);
+  virtual int startPage() const;
 private slots:
   void titleEdited();
   void hChanged(int block);

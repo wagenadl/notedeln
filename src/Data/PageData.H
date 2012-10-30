@@ -30,6 +30,7 @@ public:
   class ResourceManager *resMgr() const; // } use it ourselves.
   PageData const *page() const;
   PageData *page();
+  bool isEmpty() const;
 signals:
   void titleMod();
   void sheetCountMod();

@@ -14,6 +14,7 @@ public:
   virtual ~TOCItem();
   TOCEntry *data();
   QRectF boundingRect() const;
+  void paint(QPainter*, const QStyleOptionGraphicsItem*, QWidget*);
 signals:
   void vboxChanged();
 public slots:

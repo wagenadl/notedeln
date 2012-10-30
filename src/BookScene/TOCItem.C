@@ -75,3 +75,6 @@ void TOCItem::entryChanged() {
 void TOCItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
   qDebug() << "TOCItem::mousePress" << e;
 }
+
+void TOCItem::paint(QPainter*, const QStyleOptionGraphicsItem*, QWidget*) {
+}

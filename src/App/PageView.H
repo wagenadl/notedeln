@@ -11,8 +11,15 @@ class PageView: public QGraphicsView {
 public:
   PageView(QWidget *parent=0);
   virtual ~PageView();
+signals:
+  void pgUp();
+  void pgDn();
+  void home();
+  void end();
 protected:
   void resizeEvent(QResizeEvent *);
+  void keyPressEvent(QKeyEvent *);
+  void keyReleaseEvent(QKeyEvent *);
 };
 
 #endif

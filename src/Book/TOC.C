@@ -14,6 +14,7 @@ TOC::TOC(Data *parent): Data(parent) {
 }
 
 void TOC::loadMore(QVariantMap const &) {
+  qDebug() << "TOC::loadMore";
   entries_.clear();
   foreach (TOCEntry *e, children<TOCEntry>()) 
     entries_[e->startPage()] = e;
@@ -35,7 +36,7 @@ TOCEntry *TOC::find(int page) const {
   // This is not an efficient implementation, but it's fine for reasonably
   // sized notebooks
   foreach (TOCEntry *e, entries_) 
-    if (page >= e->startPage() && page <= e->startPage() + e->sheetCount())
+    if (page >= e->startPage() && page < e->startPage() + e->sheetCount())
       return e;
   return 0;
 }
@@ -73,6 +74,7 @@ int TOC::newPageNumber() const {
   --i;
   TOCEntry *e = i.value();
   Q_ASSERT(e);
+  qDebug() << "TOC:newpgno" << i.key() << e->startPage() << e->sheetCount();
   return i.key() + e->sheetCount();
 }
 

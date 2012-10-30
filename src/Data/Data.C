@@ -233,8 +233,8 @@ PageData *Data::page() {
 }
 
 Notebook *Data::book() const {
-  PageData const *pg = page();
-  return pg ? pg->book() : 0;
+  Data *p = parent();
+  return p ? p->book() : 0;
 }
 
 ResourceManager *Data::resMgr() const {
