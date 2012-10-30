@@ -26,9 +26,12 @@ void FrontScene::rebuild() {
   author->setPlainText("DAW");
   address->setPlainText("Caltech");
   QString dateFmt = style.string("front-date-format");
-  dates->setHtml(data->startDate().toString(dateFmt)
-		      + "&ndash;" +
-		      data->endDate().toString(dateFmt));
+  if (data->startDate() == data->endDate())
+    dates->setHtml(data->startDate().toString(dateFmt));
+  else
+    dates->setHtml(data->startDate().toString(dateFmt)
+		   + "&ndash;" +
+		   data->endDate().toString(dateFmt));
   positionItems();
 }
 

@@ -13,14 +13,19 @@ public:
   virtual void populate();
   virtual ~TOCScene();
 public slots:
-  void rebuild();
+  void tocChanged();
+  void itemChanged();
   virtual void gotoSheet(int);
 protected:
   virtual QString title() const;
   virtual QString pgNoToString(int) const;
 private:
+  void rebuild();
+  void relayout();
+private:
   TOC *data;
   QList<class TOCItem *> items;
+  QList<class QGraphicsLineItem *> lines;
   QList<int> sheetNos;
 };
 

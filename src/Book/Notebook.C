@@ -104,7 +104,6 @@ PageFile *Notebook::createPage(int n) {
 }
 
 void Notebook::titleMod() {
-  qDebug() << "Notebook::titleMod";
   PageData *pg = dynamic_cast<PageData *>(sender());
   Q_ASSERT(pg);
   TOCEntry *e = toc()->entry(pg->startPage());

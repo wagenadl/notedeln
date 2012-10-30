@@ -50,6 +50,7 @@ void Data::setType(QString const &t) {
 }
 
 void Data::markModified(Data::ModType mt) {
+  // qDebug() << "Data" << this << ": markmodified" << mt;
   if (loading_)
     return;
   if (mt==UserVisibleMod || mt==NonPropMod)

@@ -11,7 +11,6 @@ TOCItem::TOCItem(TOCEntry *data, TOCScene *parent):
   parent->addItem(this);
   makeItems();
   fillItems();
-  positionItems();
   connect(data, SIGNAL(mod()), this, SLOT(entryChanged()));
 }
 
@@ -29,10 +28,15 @@ void TOCItem::makeItems() {
 			   style().real("toc-font-size")));
   pgnoItem->setFont(QFont(style().string("toc-font-family"),
 			  style().real("toc-font-size")));
+
   dateItem->setDefaultTextColor(style().color("toc-date-color"));
   titleItem->setDefaultTextColor(style().color("toc-title-color"));
-  titleItem->setTextWidth(style().real("text-width"));
   pgnoItem->setDefaultTextColor(style().color("toc-pgno-color"));
+
+  titleItem->setPos(QPointF(style().real("margin-left"), 0));
+  titleItem->setTextWidth(style().real("page-width")
+			  - style().real("margin-left")
+			  - style().real("margin-right"));
 }
 
 void TOCItem::fillItems() {
@@ -40,16 +44,14 @@ void TOCItem::fillItems() {
 			 .toString(style().string("toc-date-format")));
   titleItem->setPlainText(data_->title());
   pgnoItem->setPlainText(QString::number(data_->startPage()));
-}
-
-void TOCItem::positionItems() {
-  dateItem->setPos(dateItem->pos()
-		   + QPointF(0, 0) - dateItem->boundingRect().topRight());
-
-  pgnoItem->setPos(pgnoItem->pos()
-		   + QPointF(style().real("text-width"), 0)
-		   - pgnoItem->boundingRect().topLeft());
-  titleItem->setPos(QPointF(0, 0));
+  
+  dateItem->setPos(QPointF(style().real("margin-left")
+			   - dateItem->boundingRect().width(), 0));
+  pgnoItem->setPos(QPointF(style().real("page-width")
+			   - style().real("margin-right-over")
+			   - pgnoItem->boundingRect().width(), 
+			   titleItem->boundingRect().height()
+			   - pgnoItem->boundingRect().height()));
 }
 
 QRectF TOCItem::boundingRect() const {
@@ -60,15 +62,10 @@ TOCEntry *TOCItem::data() {
   return data_;
 }
 
-bool TOCItem::resetVBox() {
-  QRectF r = childrenBoundingRect();
-  positionItems();
-  return r != childrenBoundingRect();
-}
-
 void TOCItem::entryChanged() {
+  QRectF r = childrenBoundingRect();
   fillItems();
-  if (resetVBox())
+  if (r != childrenBoundingRect())
     emit vboxChanged();
 }
 

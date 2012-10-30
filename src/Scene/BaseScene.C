@@ -118,17 +118,21 @@ void BaseScene::positionPgNoItem() {
 
 void BaseScene::makeTitleItem() {
   titleItem = new QGraphicsTextItem(title());
+  titleItem->setFont(QFont(style().string("title-font-family"),
+			   style().real("title-font-size")));
+  titleItem->setDefaultTextColor(style().color("title-color"));
   addItem(titleItem);
+  titleItem->setTextWidth(style_->real("page-width")
+			  - style_->real("margin-left")
+			  - style_->real("title-sep")
+			  - style_->real("margin-right"));
   positionTitleItem();
 }
 
 void BaseScene::positionTitleItem() {
-  titleItem->setTextWidth(style_->real("page-width")
-			  - style_->real("margin-left")
-			  - style_->real("margin-right"));
   QPointF bl = titleItem->boundingRect().bottomLeft();
   titleItem->setPos(style_->real("margin-left") -
-		    bl.x(),
+		    bl.x() + style_->real("title-sep"),
 		    style_->real("margin-top") -
 		    style_->real("title-sep") -
 		    bl.y());

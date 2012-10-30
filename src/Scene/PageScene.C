@@ -163,16 +163,10 @@ void PageScene::positionTitleItem() {
   if (!dateItem || !nOfNItem)
     return; // too early in process
 
-  BaseScene::positionTitleItem();
   double dateX = dateItem->mapToScene(dateItem->boundingRect().topLeft()).x();
-  titleItem->setTextWidth(dateX - style().real("margin-left") - 5);
-  QPointF bl = titleItem->boundingRect().bottomLeft();
-  titleItem->setPos(style().real("margin-left") -
-		    bl.x(),
-		    style().real("margin-top") -
-		    style().real("title-sep") -
-		    bl.y()
-		    );
+  titleItem->setTextWidth(dateX - style().real("margin-left")
+			  - style().real("title-sep") - 5);
+  BaseScene::positionTitleItem();
 
   /* Reposition "n/N" */
   QTextDocument *doc = titleItem->document();
@@ -485,17 +479,17 @@ void PageScene::vChanged(int block) {
 }
 
 void PageScene::mousePressEvent(QGraphicsSceneMouseEvent *e) {
-  qDebug() << "PageScene::mousePressEvent";
+  //qDebug() << "PageScene::mousePressEvent";
   QPointF sp = e->scenePos();
   if (inMargin(sp)) {
-    qDebug() << "  in margin";
+    //qDebug() << "  in margin";
     QGraphicsScene::mousePressEvent(e);
   } else if (belowContent(sp)) {
-    qDebug() << "  below content";
+    //qDebug() << "  below content";
     if (writable)
       newTextBlock();
     else
-      qDebug() << "  not writable";
+      qDebug() << "PageScene::mousePressEvent: Not writable";
   } else {
     QGraphicsScene::mousePressEvent(e);
   }

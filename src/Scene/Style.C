@@ -55,7 +55,12 @@ int Style::integer(QString k) const {
 }
 
 QColor Style::color(QString k) const {
-  return QColor(string(k));
+  QColor c(string(k));
+  if (!c.isValid()) {
+    qDebug() << "Not a valid color: " << k << string(k);
+    Q_ASSERT(0); // this is not actually fatal, so don't crash unless debug
+  }
+  return c;    
 }
 
 QVariantMap const &Style::options() const {

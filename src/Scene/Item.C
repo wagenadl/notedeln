@@ -26,7 +26,7 @@ Item::Item(Data *d, QGraphicsItem *me): d(d), me(me) {
 }
 
 Item::~Item() {
-  qDebug() << "Deleting item " << this << me;
+  // qDebug() << "Deleting item " << this << me;
 }
 
 Data *Item::data() {

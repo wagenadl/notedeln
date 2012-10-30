@@ -21,11 +21,9 @@ public slots:
   void entryChanged();
 protected:
   virtual void mousePressEvent(QGraphicsSceneMouseEvent *);
-  bool resetVBox(); // return true iff actual change
 private:
   void makeItems();
   void fillItems();
-  void positionItems();
 private:
   QGraphicsTextItem *dateItem;
   QGraphicsTextItem *titleItem;

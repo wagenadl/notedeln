@@ -42,6 +42,7 @@ TextBlockItem::~TextBlockItem() {
 
 void TextBlockItem::initializeFormat() {
   item_->setTextWidth(style().real("paragraph-width"));
+  item_->setPos(0, style().real("text-block-above"));
 
   QTextCursor tc(item_->document());
   QTextBlockFormat fmt = tc.blockFormat();
@@ -138,7 +139,7 @@ void TextBlockItem::acceptFocus(QPointF p) {
 }
 
 QRectF TextBlockItem::boundingRect() const {
-  return QRectF();
+  return QRectF(0, 0, 1, 1);
 }
 
 void TextBlockItem::paint(QPainter *,

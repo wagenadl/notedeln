@@ -14,8 +14,7 @@ PageData::PageData(Data *parent): Data(parent) {
   startPage_ = 1;
   title_ = new TitleData(this);
   addChild(title_);
-  connect(title_, SIGNAL(mod()),
-	  this, SIGNAL(titleMod()));
+  connect(title_, SIGNAL(mod()), SIGNAL(titleMod()));
   maxSheet = 0;
 }
 
@@ -67,7 +66,9 @@ void PageData::newSheet() {
 void PageData::loadMore(QVariantMap const &src) {
   Data::loadMore(src);
   title_ = firstChild<TitleData>();
+  // Any old title has already been destructed by Data's loadChildren()
   Q_ASSERT(title_);
+  connect(title_, SIGNAL(mod()), SIGNAL(titleMod()));
 
   maxSheet = 0;
   foreach (BlockData *b, blocks()) {

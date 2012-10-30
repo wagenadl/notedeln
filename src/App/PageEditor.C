@@ -33,7 +33,7 @@ PageEditor::~PageEditor() {
 }
 
 void PageEditor::gotoPage(int n) {
-  qDebug() << "PE:page" << n;
+  //  qDebug() << "PE:page" << n;
   if (n<1)
     n=1;
 
@@ -77,13 +77,13 @@ void PageEditor::gotoPage(int n) {
 }
 
 void PageEditor::gotoFront() {
-  qDebug() << "PE:front";
+  // qDebug() << "PE:front";
   currentSection = Front;
   view->setScene(frontScene);
 }
 
 void PageEditor::gotoTOC(int n) {
-  qDebug() << "PE:toc" << n;
+  // qDebug() << "PE:toc" << n;
   currentSection = TOC;
   currentPage = n;
   view->setScene(tocScene);
@@ -91,7 +91,7 @@ void PageEditor::gotoTOC(int n) {
 }
 
 void PageEditor::previousPage() {
-  qDebug() << "PE:pp" << currentSection << currentPage;
+  // qDebug() << "PE:pp" << currentSection << currentPage;
   switch (currentSection) {
   case Front:
     break;
@@ -111,7 +111,7 @@ void PageEditor::previousPage() {
 }
 
 void PageEditor::nextPage() {
-  qDebug() << "PE:np" << currentSection << currentPage;
+  //  qDebug() << "PE:np" << currentSection << currentPage;
   switch (currentSection) {
   case Front:
     gotoTOC();
@@ -136,6 +136,6 @@ void PageEditor::nextPage() {
 }
 
 void PageEditor::lastPage() {
-  qDebug() << "PE:lp" << currentSection << currentPage;
+  // qDebug() << "PE:lp" << currentSection << currentPage;
   gotoPage(book->toc()->newPageNumber()-1);
 }
