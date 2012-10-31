@@ -23,6 +23,7 @@ public:
   QString titleText() const;
   QList<class BlockData *> blocks() const;
   void addBlock(BlockData *); // we become owner
+  void insertBlock(int idx, BlockData *); // we become owner
   bool deleteBlock(BlockData *);
   int sheetCount() const;
   void setBook(class Notebook *nb);      // } This is for use by items that 

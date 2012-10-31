@@ -35,13 +35,22 @@ bool PageData::isEmpty() const {
   return true;
 }
 
-void PageData::addBlock(BlockData *b) {
+void PageData::insertBlock(int idx, BlockData *b) {
+  insertChild(idx, b);
   connect(b, SIGNAL(newSheet(int)), SLOT(newSheet()));
   if (b->sheet()>maxSheet) {
     maxSheet = b->sheet();
     emit sheetCountMod();
   }
+}
+
+void PageData::addBlock(BlockData *b) {
   addChild(b);
+  connect(b, SIGNAL(newSheet(int)), SLOT(newSheet()));
+  if (b->sheet()>maxSheet) {
+    maxSheet = b->sheet();
+    emit sheetCountMod();
+  }
 }
 
 bool PageData::deleteBlock(BlockData *b) {

@@ -31,7 +31,6 @@ void TOCEntry::setStartPage(int n) {
 }
 
 void TOCEntry::setTitle(QString t) {
-  qDebug() << "TOCEntry " << startPage_ << " setTitle " << t;
   title_ = t;
   markModified();
 }

@@ -33,6 +33,7 @@ PageScene::PageScene(PageData *data, QObject *parent):
   BaseScene(data, parent),
   data(data) {
   networkManager = 0;
+  writable = false;
   
   hChangeMapper = new QSignalMapper(this);
   vChangeMapper = new QSignalMapper(this);
@@ -53,6 +54,7 @@ void PageScene::populate() {
   positionTitleItem();
   makeBlockItems();
   stackBlocks();
+  iSheet = -1; // cheat to force signal
   gotoSheet(0);
 }
 
@@ -105,12 +107,10 @@ void PageScene::makeTitleItem() {
 
 void PageScene::makeBlockItems() {
   foreach (BlockData *bd, data->blocks()) {
-    qDebug() << "PageScene: considering block data";
     BlockItem *bi = tryMakeTextBlock(bd);
     if (!bi)
       bi = tryMakeGfxBlock(bd);
     Q_ASSERT(bi);
-    bi->makeWritable(); // more sophistication needed
     vChangeMapper->setMapping(bi, blockItems.size());
     connect(bi, SIGNAL(vboxChanged()), vChangeMapper, SLOT(map()));
     blockItems.append(bi);
@@ -245,6 +245,8 @@ int PageScene::restackBlocks(int starti) {
 }
 
 void PageScene::gotoSheet(int i) {
+  int oldSheet = iSheet; // keep info on old sheet
+  
   BaseScene::gotoSheet(i);
 
   // Set visibility for all blocks
@@ -270,6 +272,9 @@ void PageScene::gotoSheet(int i) {
 		     style().real("page-height")
 		     - ytop
 		     - style().real("margin-bottom"));
+
+  if (oldSheet!=iSheet)
+    emit nowOnPage(startPage()+iSheet);
 }
 
 int PageScene::findLastBlockOnSheet(int sheet) {
@@ -362,7 +367,7 @@ TextBlockItem *PageScene::newTextBlock(int iAbove, bool evenIfLastEmpty) {
     : style().real("margin-top");
 
   TextBlockData *tbd = new TextBlockData();
-  data->addBlock(tbd);
+  data->insertBlock(iNew, tbd);
   TextBlockItem *tbi = new TextBlockItem(tbd, this);
   tbi->makeWritable();
   
@@ -392,26 +397,33 @@ void PageScene::futileMovement(int block) {
   }
 
   TextBlockItem::FutileMovementInfo fmi = tbi->lastFutileMovement();
-  TextBlockItem *tgt = 0;
+  int tgtidx = -1;
   if (fmi.key()==Qt::Key_Left || fmi.key()==Qt::Key_Up) {
+    // upward movement
     for (int b=block-1; b>=0; b--) {
-      tgt = dynamic_cast<TextBlockItem *>(blockItems[b]);
-      if (tgt)
+      BlockItem *bi = blockItems[b];
+      if (dynamic_cast<TextBlockItem *>(bi) && bi->isWritable()) {
+	tgtidx = b;
 	break;
+      }
     }
   } else if (fmi.key()==Qt::Key_Right || fmi.key()==Qt::Key_Down) {
+    // downward movement
     for (int b=block+1; b<blockItems.size(); b++) {
-      tgt = dynamic_cast<TextBlockItem *>(blockItems[b]);
-      if (tgt) {
-	// I should also check that this item is editable
+      BlockItem *bi = blockItems[b];
+      if (dynamic_cast<TextBlockItem *>(bi) && bi->isWritable()) {
+	tgtidx = b;
 	break;
       }
     }
   }
-  if (!tgt) {
-    return;
-  }
-
+  if (tgtidx<0)
+    return; // no target
+  
+  TextBlockItem *tgt = dynamic_cast<TextBlockItem*>(blockItems[tgtidx]);
+  Q_ASSERT(tgt);
+  if (sheetNos[tgtidx]!=iSheet)
+    gotoSheet(sheetNos[tgtidx]);
   tgt->setFocus();
   QTextDocument *doc = tgt->document();
   QTextCursor c(doc);
@@ -423,8 +435,9 @@ void PageScene::futileMovement(int block) {
   case Qt::Key_Up: {
     QTextBlock blk = doc->lastBlock();
     QTextLayout *lay = blk.layout();
-    QTextLine l = lay->lineAt(blk.lineCount()-1);
+    QTextLine l = lay->lineAt(lay->lineCount()-1);
     c.setPosition(l.xToCursor(p.x() - blk.layout()->position().x()));
+    qDebug() << "up. nblk=" << doc->blockCount() << " nlns="<<blk.lineCount() << lay->lineCount();
     break; }
   case Qt::Key_Right:
     c.movePosition(QTextCursor::Start);
@@ -455,15 +468,22 @@ void PageScene::focusEnd() {
   if (!writable)
     return;
 
-  if (blockItems.isEmpty()
-      || !dynamic_cast<TextBlockItem *>(blockItems.last())) {
-    newTextBlock();
-  } else {
-    TextBlockItem *tbi = dynamic_cast<TextBlockItem *>(blockItems.last());
-    tbi->setFocus();
-    QTextCursor tc = tbi->text()->textCursor();
+  TextBlockItem *lastbi = 0;
+  for (int i=0; i<blockItems.size(); ++i) {
+    if (sheetNos[i] == iSheet) {
+      TextBlockItem *tbi = dynamic_cast<TextBlockItem *>(blockItems[i]);
+      if (tbi)
+	lastbi = tbi;
+    }
+  }
+  if (lastbi) {
+    lastbi->setFocus();
+    QTextCursor tc = lastbi->text()->textCursor();
     tc.movePosition(QTextCursor::End);
-    tbi->text()->setTextCursor(tc);    
+    lastbi->text()->setTextCursor(tc);    
+  } else {
+    if (iSheet == nSheets-1)
+      newTextBlock(); // create new text block only on last sheet
   }
 }
 
@@ -624,7 +644,6 @@ bool PageScene::importDroppedFile(QPointF scenePos, QString const &fn) {
 }
     
 void PageScene::makeWritable() {
-  qDebug() << "PageScene: made writable";
   writable = true;
   belowItem->setCursor(Qt::IBeamCursor);
   belowItem->setAcceptDrops(true);

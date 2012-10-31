@@ -78,6 +78,11 @@ bool DataFile0::save(bool onlyIfNeeded) const {
   return ok_;
 }
 
+void DataFile0::cancelSave() {
+  needToSave_ = false;
+}
+  
+
 void DataFile0::saveSoon() {
   if (!saveTimer_) {
     saveTimer_ = new QTimer(this);

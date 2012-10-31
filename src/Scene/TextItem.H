@@ -35,6 +35,8 @@ private:
   bool tryToPaste();
   bool trySimpleStyle(QString marker, MarkupData::Style type);
   bool tryScriptStyles();
+  bool tryURL();
+  bool tryCustomRef();
   bool charBeforeIsLetter(int pos) const;
   bool charAfterIsLetter(int pos) const;
 protected:

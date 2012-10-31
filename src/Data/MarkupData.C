@@ -3,6 +3,8 @@
 #include "MarkupData.H"
 #include <QDebug>
 
+static Data::Creator<MarkupData> c("markup");
+
 MarkupData::MarkupData(Data *parent):
   Data(parent) {
   setType("markup");

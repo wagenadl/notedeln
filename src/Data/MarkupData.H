@@ -7,7 +7,8 @@
 #include "Data.H"
 
 class MarkupData: public Data {
-  /* This is for simple posthoc annotations of text */
+  /* This is for simple posthoc annotations of text as well as italics,
+     scripts, hyperlinks. */
   Q_OBJECT;
   Q_ENUMS(Style)
   Q_PROPERTY(int start READ start WRITE setStart)
@@ -21,6 +22,7 @@ public:
     Bold,
     Underline,
     URL,
+    CustomRef,
     Superscript,
     Subscript,
     StrikeThrough,

@@ -48,6 +48,12 @@ void TextMarkings::applyMark(MarkupData const *data) {
   case MarkupData::Subscript:
     f.setVerticalAlignment(QTextCharFormat::AlignSubScript);
     break;
+  case MarkupData::URL:
+    f.setUnderlineStyle(QTextCharFormat::DashUnderline);
+    break;
+  case MarkupData::CustomRef:
+    f.setUnderlineStyle(QTextCharFormat::DotLine);
+    break;
   default: 
     break;
   }
@@ -150,6 +156,10 @@ void TextMarkings::Span::avoidPropagatingStyle(QTextDocument *doc,
     break;
   case MarkupData::Superscript: case MarkupData::Subscript:
     f.setVerticalAlignment(QTextCharFormat::AlignNormal);
+    break;
+  case MarkupData::URL: case MarkupData::CustomRef:
+    f.setUnderlineStyle(QTextCharFormat::NoUnderline);
+    break;
   default:
     break;
   }

@@ -26,9 +26,7 @@ QString TOCScene::title() const {
 }
 
 void TOCScene::tocChanged() {
-  qDebug() << "TOCScene: tocChanged";
   if (data->entries().size() != items.size()) {
-    qDebug() << "  item count changed";
     rebuild();
   }
 }

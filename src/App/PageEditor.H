@@ -21,6 +21,8 @@ public slots:
   void lastPage();
 private:
   void leavePage();
+private slots:
+  void nowOnPage(int pgno);
 private:
   class Notebook *book; // we do not own!
   class PageView *view;

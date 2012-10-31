@@ -98,7 +98,8 @@ void Data::loadChildren(QVariantMap const &src) {
       children_.append(d);
       d->load(m);
     } else {
-      qDebug() << "Failed to create child of type" << m["typ"].toString();
+      qDebug() << "Data: Failed to create child of type"
+	       << m["typ"].toString() << "(no creator)";
     }
   }
 }
@@ -112,10 +113,15 @@ void Data::saveChildren(QVariantMap &dst) const {
   dst["cc"] = l;
 }  
 
-void Data::addChild(Data *d, ModType mt) {
-  children_.append(d);
+void Data::addedChild(Data *d, ModType mt) {
   d->setParent(this);
   markModified(mt);
+}  
+
+
+void Data::addChild(Data *d, ModType mt) {
+  children_.append(d);
+  addedChild(d, mt);
 }
 
 bool Data::deleteChild(Data *d, ModType mt) {

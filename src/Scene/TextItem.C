@@ -116,6 +116,11 @@ void TextItem::keyPressEvent(QKeyEvent *e) {
       pass = !trySimpleStyle("_", MarkupData::Underline);
     } else if (e->text()==".") {
       pass = !tryScriptStyles();
+    } else if (e->text()=="]") {
+      pass = !tryCustomRef();
+      // should probably offer to create a footnote?
+    } else if (QString(",; \n").contains(e->text())) {
+      tryURL();
     }
     break;
   }
@@ -153,7 +158,7 @@ bool TextItem::tryScriptStyles() {
   /* Returns true if we decide to make a superscript or subscript, that is,
      if:
      (1) there is a preceding "^" or "_"
-     (2) either:
+     (2) and either:
          (a) there are only digits between that mark and us
 	 (b) there is a minus sign followed by only digits between that
 	     mark and us
@@ -193,10 +198,80 @@ bool TextItem::tryScriptStyles() {
   }
 }
 
+bool TextItem::tryURL() {
+  /* Returns true if we decide to mark some text as a hyperlink, that is, if
+     (1) there is text beginning with "http://", "https://" or "www." before
+         us,
+     (2) and that text was not preceded by a word character
+     (3) and there are no spaces or ";" or "," between it and us.
+     Additionally, if the character before us is ".", it will not be part
+     of the URL.
+  */
+  QTextCursor c = textCursor();
+  QTextCursor m = document()->find(QRegExp("https?://"), c,
+					QTextDocument::FindBackward);
+  // look for http or https
+  if (m.hasSelection()) {
+    QTextCursor url(c);
+    url.setPosition(m.selectionStart(), QTextCursor::KeepAnchor);
+    if (url.selectedText().contains(QRegExp("[,;\\s]")))
+      m.clearSelection();
+  }
+  if (!m.hasSelection()) {
+    // alternatively, look for just plain www
+    m = document()->find("www.", c, QTextDocument::FindBackward);
+    if (m.hasSelection()) {
+      QTextCursor url(c);
+      url.setPosition(m.selectionStart(), QTextCursor::KeepAnchor);
+      if (url.selectedText().contains(QRegExp("[,;\\s]")))
+	m.clearSelection();
+    }
+  }
+  if (m.hasSelection()) {
+    // gotcha
+    int endpos = c.position();
+    if (document()->characterAt(endpos-1)==QChar('.'))
+      endpos--;
+    markings_->newMark(MarkupData::URL, m.selectionStart(), endpos);
+    return true;
+  } else {
+    return false;
+  }
+}
+
+bool TextItem::tryCustomRef() {
+  /* Returns true if we decide to do a custom reference, that is, if
+     (1) there is a preceding "["
+     (2) there are no space characters between it and us
+     (3) there is not a word character after us
+  */
+   QTextCursor c = textCursor();
+   if (charAfterIsLetter(c.position()))
+     return false;
+   QTextCursor m = document()->find("[", c,
+				    QTextDocument::FindBackward);
+   if (!m.hasSelection())
+     return false;
+   int p0 = m.selectionStart();
+   m.setPosition(m.selectionEnd());
+   m.setPosition(c.position(), QTextCursor::KeepAnchor);
+   QString t = m.selectedText();
+   if (t.isEmpty() || t.contains(QRegExp("\\s")))
+     return false;
+
+   // gotcha
+   m.setPosition(p0);
+   m.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor);
+   m.deleteChar(); // remove opening "["
+   markings_->newMark(MarkupData::CustomRef, p0, c.position());
+   return true;
+}   
+
 bool TextItem::trySimpleStyle(QString marker,
-				       MarkupData::Style type) {
-  /* Returns true if we decide to do italicize/bold/underline, that is, if:
-     (1) there is a preceding "/"/"*"/"_"
+			      MarkupData::Style type) {
+  /* Returns true if we decide to do italicize/bold/underline, that is, if
+     all of the following are true:
+     (1) there is a preceding "/" or "*" or "_"
      (2) that mark was not preceded by a word character
      (3) that mark was followed by a word character
      (4) we have a word character before us

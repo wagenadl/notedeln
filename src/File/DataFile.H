@@ -14,6 +14,9 @@ public:  virtual ~DataFile0();
   bool save(bool onlyIfNeeded=false) const;
   // returns true if ok, even if nothing was saved
   QString fileName() const;
+public slots:
+  void cancelSave();
+  void saveSoon();
 public:
   static void setSaveDelay(double t_s);
   static void setSaveImmediatelyToo(bool);
@@ -22,7 +25,6 @@ public:
   DataFile0(Data *data, QString fn, QObject *parent=0); // creates
   DataFile0(QString fn, QObject *parent=0); // loads
 private slots:
-  void saveSoon();
   void saveTimerTimeout();
 private:
   mutable bool ok_;

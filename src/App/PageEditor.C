@@ -35,6 +35,11 @@ PageEditor::PageEditor(Notebook *nb): book(nb) {
 PageEditor::~PageEditor() {
 }
 
+void PageEditor::nowOnPage(int n) {
+  if (currentSection==Pages)
+    currentPage = n;
+}
+
 void PageEditor::gotoPage(int n) {
   if (n<1)
     n=1;
@@ -80,10 +85,12 @@ void PageEditor::gotoPage(int n) {
 
   pageScene = new PageScene(file->data(), this);
   pageScene->populate();
-  if (book->toc()->isLast(te))
+  connect(pageScene, SIGNAL(nowOnPage(int)), SLOT(nowOnPage(int)));
+  if (book->toc()->isLast(te) && file->data()->isRecent())
     pageScene->makeWritable(); // this should be even more sophisticated
   view->setScene(pageScene);
-
+  pageScene->gotoSheet(currentPage - te->startPage());
+  
   if (file->data()->title()->isDefault())
     pageScene->focusTitle();
   else

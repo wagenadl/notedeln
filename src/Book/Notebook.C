@@ -119,6 +119,7 @@ bool Notebook::deletePage(int pgno) {
     delete resMgrs[pgno];
     resMgrs.remove(pgno);
   }
+  pgFiles[pgno]->cancelSave();
   delete pgFiles[pgno];
   pgFiles.remove(pgno);
 

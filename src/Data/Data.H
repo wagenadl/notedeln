@@ -60,6 +60,20 @@ public:
     }
     return 0;
   }
+  template <class T> void insertChild(int idx, T *d,
+				      ModType mt=UserVisibleMod) {
+    for (QList<Data*>::iterator i=children_.begin(); i!=children_.end(); ++i) {
+      if (dynamic_cast<T*>(*i))
+	--idx;
+      if (idx<0) {
+	children_.insert(i, d);
+	break;
+      }
+    }
+    if (idx>=0)
+      children_.append(d);
+    addedChild(d, mt);
+  }
   void addChild(Data *, ModType mt=UserVisibleMod);
   bool deleteChild(Data *, ModType mt=UserVisibleMod);
   Data *takeChild(Data *, ModType mt=UserVisibleMod); // remove but don't delete
@@ -78,6 +92,7 @@ private:
   void saveProps(QVariantMap &) const;
   void loadChildren(QVariantMap const &);
   void saveChildren(QVariantMap &) const;
+  void addedChild(Data *d, ModType mt);
 private:
   QDateTime created_;
   QDateTime modified_;

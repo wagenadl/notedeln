@@ -15,6 +15,9 @@ public:
   void makeWritable();
   void focusEnd(); // may create new text block
   bool isWritable() const;
+  void gotoSheet(int i);
+signals:
+  void nowOnPage(int);
 protected:
   void mousePressEvent(QGraphicsSceneMouseEvent *);
   void keyPressEvent(QKeyEvent *);
@@ -41,7 +44,6 @@ private:
   void makeDateItem();
   void makeBlockItems();
   void stackBlocks();
-  void gotoSheet(int i);
   int restackBlocks(int starti=0); // returns new sheet no of starti item
   void positionTitleItem();
   int findLastBlockOnSheet(int sheet); // returns -1 if none
