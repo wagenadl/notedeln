@@ -35,8 +35,8 @@ bool PageData::isEmpty() const {
   return true;
 }
 
-void PageData::insertBlock(int idx, BlockData *b) {
-  insertChild(idx, b);
+void PageData::insertBlockBefore(BlockData *b, Data *ref) {
+  insertChildBefore(b, ref);
   connect(b, SIGNAL(newSheet(int)), SLOT(newSheet()));
   if (b->sheet()>maxSheet) {
     maxSheet = b->sheet();

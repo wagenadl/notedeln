@@ -113,15 +113,28 @@ void Data::saveChildren(QVariantMap &dst) const {
   dst["cc"] = l;
 }  
 
-void Data::addedChild(Data *d, ModType mt) {
-  d->setParent(this);
-  markModified(mt);
+void Data::insertChildBefore(Data *d, Data *ref, ModType mt) {
+  if (ref==0) {
+    addChild(d, mt);
+    return;
+  }
+  for (QList<Data *>::iterator i=children_.begin(); i!=children_.end(); ++i) {
+    if (*i == ref) {
+      children_.insert(i, d);
+      d->setParent(this);
+      markModified(mt);
+      return;
+    }
+  }
+  qDebug() << "Data::insertChildBefore failed: not found " << ref;
+  Q_ASSERT(0);
 }  
 
 
 void Data::addChild(Data *d, ModType mt) {
   children_.append(d);
-  addedChild(d, mt);
+  d->setParent(this);
+  markModified(mt);
 }
 
 bool Data::deleteChild(Data *d, ModType mt) {

@@ -367,7 +367,8 @@ TextBlockItem *PageScene::newTextBlock(int iAbove, bool evenIfLastEmpty) {
     : style().real("margin-top");
 
   TextBlockData *tbd = new TextBlockData();
-  data->insertBlock(iNew, tbd);
+  data->insertBlockBefore(tbd,
+			  iNew<blockItems.size() ? data->blocks()[iNew] : 0);
   TextBlockItem *tbi = new TextBlockItem(tbd, this);
   tbi->makeWritable();
   
