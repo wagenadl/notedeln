@@ -390,6 +390,9 @@ void PageScene::joinTextBlocks(int iblock_pre, int iblock_post) {
   c_pre.setPosition(len);
   tbi_pre->text()->setTextCursor(c_pre);
   tbi_pre->setFocus();
+  TextData *td_pre = tbi_pre->data()->text();
+  if (td_post->created() < td_pre->created())
+    td_pre->setCreated(td_post->created());
   deleteBlock(iblock_post); // is this acceptable?
 }  
 
