@@ -72,6 +72,7 @@ private:
   QList<class BlockItem *> blockItems;
   QList<int> sheetNos; // sheet number for each block
   QList<double> topY; // top Y position for each block
+  QList<QGraphicsItem *> footnoteGroups; // one for each block
 private:
   PageData *data;
   bool writable;
