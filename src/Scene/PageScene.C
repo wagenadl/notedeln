@@ -12,6 +12,9 @@
 #include "GfxBlockData.H"
 #include "ResourceManager.H"
 #include "ModSnooper.H"
+#include "FootnoteGroupItem.H"
+#include "FootnoteData.H"
+#include "FootnoteItem.H"
 
 #include <QGraphicsTextItem>
 #include <QGraphicsLineItem>
@@ -116,6 +119,7 @@ void PageScene::makeBlockItems() {
     blockItems.append(bi);
     sheetNos.append(bd->sheet());
     topY.append(bd->y0());
+    footnoteGroups.append(new FootnoteGroupItem(bd, this));
   }
 }
 
@@ -183,63 +187,82 @@ void PageScene::positionTitleItem() {
 void PageScene::stackBlocks() {
   sheetNos.clear();
   topY.clear();
-  int sheet = 0;
   double y0 = style().real("margin-top");
-  double y1 = style().real("page-height") - style().real("margin-bottom");
-  double y = y0;
-
-  foreach (BlockItem *bi, blockItems) {
-    BlockData *bd = bi->data();
-    double h = bi->netSceneRect().height();
-    if (bd->sheet()>=0) {
-      // (sheet,y) information stored in data, we'll use it
-      sheet = bd->sheet();
-      y = bd->y0();
-    } else {
-      // no (sheet,y) information stored in data, we'll make our own
-      if (y!=y0 && y+h>y1) {
-	sheet ++;
-	y = y0;
-      }
-      bd->setSheet(sheet);
-      bd->setY0(y);
-    }
-    sheetNos.append(sheet);
-    topY.append(y);
-    bi->moveBy(0, y-bi->netSceneRect().top());
-
-    y += h;
+  for (int n=0; n<blockItems.size(); n++) {
+    sheetNos.append(0);
+    topY.append(y0);
   }
-
-  nSheets = sheet+1;
+  restackBlocks(0, true);
 }
 
-int PageScene::restackBlocks(int starti) {
+void PageScene::restackBlocks(int starti, bool preferData) {
   int endi = sheetNos.size();
   if (starti>=endi)
-    return 0;
+    return;
   double y0 = style().real("margin-top");
   double y1 = style().real("page-height") - style().real("margin-bottom");
   double y = topY[starti];
   int sheet = sheetNos[starti];
+  double y1a = y1;
+
+  for (int i=0; i<starti; i++)
+    if (sheetNos[i]==sheet)
+      y1a -= footnoteGroups[i]->netSceneRect().height();
+  
   for (int i=starti; i<endi; i++) {
     BlockItem *bi = blockItems[i];
+    BlockData *bd = bi->data();
     double h = bi->netSceneRect().height();
-    if (y>y0 && y+h>y1) {
-      y = y0;
-      sheet++;
+    FootnoteGroupItem *fng = footnoteGroups[i];
+    double fnh = fng->netSceneRect().height();
+    bool updateData = false;
+    if (preferData && bd->sheet()>=0) {
+      // (sheet,y) information stored in data, we'll use it
+      if (bd->sheet()!=sheet) {
+	restackFootnotes(sheet);
+	sheet = bd->sheet();
+      }
+      y = bd->y0();
+    } else {
+      if (y>y0 && y+h>y1a - fnh) {
+	restackFootnotes(sheet);
+	y = y0;
+	y1a = y1;
+	sheet++;
+      }
+      updateData = true;
     }
-
-    bi->moveBy(0, y - bi->netSceneRect().top());
     topY[i] = y;
     sheetNos[i] = sheet;
-    BlockData *bd = bi->data();
-    bd->setY0(y);
-    bd->setSheet(sheet);
-    
+    bi->moveBy(0, y - bi->netSceneRect().top());
+
+    if (updateData) {
+      BlockData *bd = bi->data();
+      bd->setY0(y);
+      bd->setSheet(sheet);
+    }
+
     y = y + h;
   }
-  return sheetNos[starti];
+  restackFootnotes(sheet);
+  nSheets = sheet + 1;
+}
+
+void PageScene::restackFootnotes(int sheet) {
+  double accumh = 0;
+  for (int k=0; k<footnoteGroups.size(); k++) 
+    if (sheetNos[k] == sheet)
+      accumh += footnoteGroups[k]->netSceneRect().height();
+
+  double y = style().real("page-height")
+    - style().real("margin-bottom")
+    - accumh;
+  for (int k=0; k<footnoteGroups.size(); k++) {
+    if (sheetNos[k] == sheet) {
+      footnoteGroups[k]->setPos(style().real("margin-left"), y);
+      y+= footnoteGroups[k]->netSceneRect().height();
+    }
+  }
 }
 
 void PageScene::gotoSheet(int i) {
@@ -251,6 +274,8 @@ void PageScene::gotoSheet(int i) {
   int nBlocks = blockItems.size();
   for (int k=0; k<nBlocks; k++)
     blockItems[k]->setVisible(sheetNos[k]==iSheet);
+  for (int k=0; k<nBlocks; k++)
+    footnoteGroups[k]->setVisible(sheetNos[k]==iSheet);
 
   if (nSheets>1) 
     nOfNItem->setPlainText(QString("(%1/%2)").arg(iSheet+1).arg(nSheets));
@@ -291,11 +316,12 @@ int PageScene::findLastBlockOnSheet(int sheet) {
 }
 
 bool PageScene::belowContent(QPointF sp) {
-  int iAbove = findLastBlockOnSheet(iSheet);
-  if (iAbove<0)
-    return true;
-  else
-    return sp.y() >= blockItems[iAbove]->netSceneRect().bottom();
+  return itemAt(sp) == belowItem;
+  //int iAbove = findLastBlockOnSheet(iSheet);
+  //if (iAbove<0)
+  //  return true;
+  //else
+  //  return sp.y() >= blockItems[iAbove]->netSceneRect().bottom();
 }
 
 void PageScene::deleteBlock(int blocki) {
@@ -411,6 +437,7 @@ TextBlockItem *PageScene::injectTextBlock(TextBlockData *tbd, int iblock) {
   blockItems.insert(iblock, tbi);
   sheetNos.insert(iblock, iSheet);
   topY.insert(iblock, 0); // this topY is just a place holder
+  footnoteGroups.insert(iblock, new FootnoteGroupItem(tbd, this));
   connect(tbi, SIGNAL(vboxChanged()), vChangeMapper, SLOT(map()));
   connect(tbi, SIGNAL(futileMovement()), futileMovementMapper, SLOT(map()));
   remap();
@@ -624,16 +651,64 @@ void PageScene::mousePressEvent(QGraphicsSceneMouseEvent *e) {
 }
 
 void PageScene::keyPressEvent(QKeyEvent *e) {
-  switch (e->key()) {
-  case Qt::Key_V:
-    if (e->modifiers() & Qt::ControlModifier) 
-      if (tryToPaste()) {
-	e->accept();
-	return;
-      }
+  if (e->modifiers() & Qt::ControlModifier) {
+    bool steal = false;
+    switch (e->key()) {
+    case Qt::Key_V:
+      steal = tryToPaste();
+      break;
+    case Qt::Key_N:
+      steal = tryMakeNote();
+      break;
+    }
+    if (steal) {
+      e->accept();
+      return;
+    }
   }
   BaseScene::keyPressEvent(e);
 }
+
+bool PageScene::tryMakeNote() {
+  qDebug() << "PageScene::tryMakeNote";
+  TextItem *ti = dynamic_cast<TextItem*>(focusItem());
+  if (!ti) {
+    qDebug() << "Focus not in text item";
+    return false;
+  }
+  
+  TextBlockItem *tbi = dynamic_cast<TextBlockItem*>(ti->parentItem());
+  if (!tbi) {
+    qDebug() << "Focus not in text block item";
+    return false;
+  }
+  for (int i=0; i<blockItems.size(); i++) {
+    if (blockItems[i] == tbi) {
+      qDebug() << "  Focus in block " << i;
+      QTextCursor c = ti->textCursor();
+      int pos = c.position();
+      TextData *t = tbi->data()->text();
+      foreach (MarkupData *md, t->children<MarkupData>()) {
+	if (md->style()==MarkupData::CustomRef
+	    && md->end()>=pos
+	    && md->start()<=pos) {
+	  qDebug() << "  Found a custom ref";
+	  QTextCursor c = ti->textCursor();
+	  c.setPosition(md->start());
+	  c.setPosition(md->end(), QTextCursor::KeepAnchor);
+	  QString tag = c.selectedText();
+	  newFootnote(i, tag);
+	  return true;
+	}
+      }
+      qDebug() << "  No customref found";
+      return false;
+    }
+  }
+  qDebug() << "  Unknown block!!?";
+  return false;
+}
+	
 
 bool PageScene::tryToPaste() {
   // we get it first.
@@ -736,6 +811,8 @@ void PageScene::makeWritable() {
   belowItem->setAcceptDrops(true);
   foreach (BlockItem *bi, blockItems)
     bi->makeWritable();
+  foreach (FootnoteGroupItem *fng, footnoteGroups)
+    fng->makeWritable();
 }
 
 int PageScene::startPage() const {
@@ -744,4 +821,16 @@ int PageScene::startPage() const {
 
 bool PageScene::isWritable() const {
   return writable;
+}
+
+void PageScene::newFootnote(int block, QString tag) {
+  Q_ASSERT(block>=0 && block<blockItems.size());
+  
+  FootnoteData *fnd = new FootnoteData();
+  fnd->setTag(tag);
+  blockItems[block]->data()->addChild(fnd);
+  FootnoteItem *fni = new FootnoteItem(fnd, footnoteGroups[block]);
+  footnoteGroups[block]->addChild(fni);
+  fni->makeWritable();
+  restackBlocks(block);
 }

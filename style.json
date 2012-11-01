@@ -3,7 +3,7 @@
 "border-color": "#dddddd",
 "page-width": 576,
 "page-height": 756,
-"text-color": "#1111ff",
+"text-color": "#0000cc",
 "text-font-family": "Ubuntu",
 "text-font-size": 11,
 "margin-left": 90,
@@ -13,7 +13,7 @@
 "margin-bottom": 36,
 "title-sep": 8,
 "pgno-sep": 0,
-"text-block-above": 6,
+"text-block-above": 4,
 "title-font-family": "Ubuntu",
 "title-font-size": 13,
 "title-color": "#000088",
@@ -75,5 +75,11 @@
 "front-title-y": 150,
 "front-author-y": 580,
 "front-address-y": 650,
-"front-dates-y": 250
+"front-dates-y": 250,
+"footnote-tag-font-family": "Ubuntu",
+"footnote-tag-font-size": 9,
+"footnote-tag-color": "#dd0000",
+"footnote-def-font-family": "Ubuntu",
+"footnote-def-font-size": 9,
+"footnote-def-color": "#000088"
 }

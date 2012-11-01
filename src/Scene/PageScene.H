@@ -17,6 +17,7 @@ public:
   void focusEnd(); // may create new text block
   bool isWritable() const;
   void gotoSheet(int i);
+  void newFootnote(int block, QString tag);
 signals:
   void nowOnPage(int);
 protected:
@@ -34,6 +35,7 @@ private:
   void splitTextBlock(int iblock, int pos);
   class TextBlockItem *injectTextBlock(class TextBlockData *, int iblock);
   bool tryToPaste();
+  bool tryMakeNote();
   void remap();
   bool importDroppedImage(QPointF scenePos, QImage const &img,
 			  class QUrl const *source=0);
@@ -47,7 +49,8 @@ private:
   void makeDateItem();
   void makeBlockItems();
   void stackBlocks();
-  int restackBlocks(int starti=0); // returns new sheet no of starti item
+  void restackBlocks(int starti=0, bool preferData=false);
+  void restackFootnotes(int sheet);
   void positionTitleItem();
   int findLastBlockOnSheet(int sheet); // returns -1 if none
   bool belowContent(QPointF); // true if point is below any blocks on sheet,
@@ -72,7 +75,7 @@ private:
   QList<class BlockItem *> blockItems;
   QList<int> sheetNos; // sheet number for each block
   QList<double> topY; // top Y position for each block
-  QList<QGraphicsItem *> footnoteGroups; // one for each block
+  QList<class FootnoteGroupItem *> footnoteGroups; // one for each block
 private:
   PageData *data;
   bool writable;
