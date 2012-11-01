@@ -41,25 +41,8 @@ public:
   bool isRecent() const;
   Data *parent() const;
   QList<Data *> const &allChildren() const { return children_; }
-  template <class T> QList<T *> children() const {
-    QList<T *> res;
-    for (QList<Data*>::const_iterator i=children_.begin();
-	 i!=children_.end(); ++i) {
-      T *c = dynamic_cast<T*>(*i);
-      if (c)
-	res.append(c);
-    }
-    return res;
-  }
-  template <class T> T *firstChild() const {
-    for (QList<Data*>::const_iterator i=children_.begin();
-	 i!=children_.end(); ++i) {
-      T *c = dynamic_cast<T*>(*i);
-      if (c)
-	return c;
-    }
-    return 0;
-  }
+  template <class T> QList<T *> children() const;
+  template <class T> T *firstChild() const;
   void insertChildBefore(Data *newChild, Data *ref, ModType mt=UserVisibleMod);
   void addChild(Data *, ModType mt=UserVisibleMod);
   bool deleteChild(Data *, ModType mt=UserVisibleMod);
@@ -86,13 +69,11 @@ private:
   QList<Data *> children_;
 private:
   bool loading_;
+public:
+  template <class T> static T *deepCopy(T const *data);
+  /* T must be derived from Data */
+  /* Caution! deepCopy() does not attach signals and slots to the new vsn. */
 public: // but only to be used in defs of descendents
-  template <class T> static T *deepCopy(T const *data) {
-    /* T must be derived from Data */
-    T *copy = new T(data->parent());
-    copy->load(data->save());
-    return copy;
-  }
   template <class T> class Creator {
   public:
     Creator<T>(QString typ) {
@@ -105,5 +86,7 @@ public: // but only to be used in defs of descendents
 private:
   static QMap<QString, Data *(*)(Data *)> &creators();
 };
+
+#include "DataTemplates.H"
 
 #endif

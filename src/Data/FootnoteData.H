@@ -11,7 +11,7 @@ class FootnoteData: public TextData {
   Q_PROPERTY(QString tag READ tag WRITE setTag)
 public:
   FootnoteData(Data *parent=0);
-  virtual ~BlockData();
+  virtual ~FootnoteData();
   QString tag() const;
   void setTag(QString);
 private:

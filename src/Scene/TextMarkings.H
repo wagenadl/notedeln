@@ -16,6 +16,7 @@ public:
   TextMarkings(TextData *data, QTextDocument *doc, QObject *parent=0);
   virtual ~TextMarkings();
   void newMark(MarkupData::Style t, int start, int end);
+  void newMark(MarkupData *); // the data object is appropriated into our text
 private slots:
   void update(int, int, int);
 private:

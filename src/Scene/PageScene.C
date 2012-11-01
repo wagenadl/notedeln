@@ -385,8 +385,11 @@ void PageScene::joinTextBlocks(int iblock_pre, int iblock_post) {
   int len = c_pre.position();
   c_pre.insertText(td_post->text());
   TextItem *ti_pre = tbi_pre->text();
-  foreach (MarkupData *md, td_post->markups())
-    ti_pre->addMarkup(md->style(), md->start()+len, md->end()+len);
+  foreach (MarkupData *md, td_post->markups()) {
+    MarkupData *copy = Data::deepCopy(md);
+    copy->update(0, 0, len);
+    ti_pre->addMarkup(copy);
+  }
   c_pre.setPosition(len);
   tbi_pre->text()->setTextCursor(c_pre);
   tbi_pre->setFocus();
@@ -407,7 +410,7 @@ TextBlockItem *PageScene::injectTextBlock(TextBlockData *tbd, int iblock) {
 
   blockItems.insert(iblock, tbi);
   sheetNos.insert(iblock, iSheet);
-  topY.insert(iblock, style().real("margin-top")); // this topY is not correct
+  topY.insert(iblock, 0); // this topY is just a place holder
   connect(tbi, SIGNAL(vboxChanged()), vChangeMapper, SLOT(map()));
   connect(tbi, SIGNAL(futileMovement()), futileMovementMapper, SLOT(map()));
   remap();

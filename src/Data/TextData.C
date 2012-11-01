@@ -36,6 +36,10 @@ MarkupData *TextData::addMarkup(int start, int end,
   return md;
 }
 
+void TextData::addMarkup(MarkupData *md) {
+  addChild(md, InternalMod);
+} 
+
 void TextData::deleteMarkup(MarkupData *md) {
   deleteChild(md, InternalMod);
 }

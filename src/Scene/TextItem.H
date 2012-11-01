@@ -18,6 +18,7 @@ public:
   bool allowParagraphs() const;
   void setAllowParagraphs(bool yes);
   void addMarkup(MarkupData::Style t, int start, int end);
+  void addMarkup(MarkupData *); // we appropriate the data!
 signals:
   void textChanged();
   void abandoned(); // escape pressed while empty

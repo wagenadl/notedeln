@@ -73,11 +73,15 @@ void TextMarkings::insertMark(MarkupData *m) {
 }
  
 void TextMarkings::newMark(MarkupData::Style type, int start, int end) {
-  MarkupData *m = data->addMarkup(start, end, type);
+  newMark(new MarkupData(start, end, type));
+}
+
+void TextMarkings::newMark(MarkupData *m) {
+  data->addMarkup(m);
   applyMark(m);
   insertMark(m);
-  update(start, 0, 0); // this should fix overlaps if any
-}
+  update(m->start(), 0, 0); // this should fix overlaps if any
+}  
 
 void TextMarkings::update(int pos, int del, int ins) {
   // First round: update every span

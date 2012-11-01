@@ -23,6 +23,7 @@ public:
   bool isEmpty() const;
   QList<MarkupData *> markups() const;
   MarkupData *addMarkup(int start, int end, MarkupData::Style style);
+  void addMarkup(MarkupData *);
   void deleteMarkup(MarkupData *);
   //  void append(TextData *);
   /*:F append

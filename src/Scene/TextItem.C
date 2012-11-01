@@ -312,7 +312,11 @@ bool TextItem::trySimpleStyle(QString marker,
 void TextItem::addMarkup(MarkupData::Style t, int start, int end) {
   markings_->newMark(t, start, end);
 }
-  
+
+void TextItem::addMarkup(MarkupData *d) {
+  markings_->newMark(d);
+}
+ 
 bool TextItem::tryToPaste() {
   qDebug() << "TextItem::tryToPaste";
   QClipboard *cb = QApplication::clipboard();
