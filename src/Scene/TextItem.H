@@ -17,11 +17,12 @@ public:
   virtual void makeWritable();
   bool allowParagraphs() const;
   void setAllowParagraphs(bool yes);
+  void addMarkup(MarkupData::Style t, int start, int end);
 signals:
   void textChanged();
   void abandoned(); // escape pressed while empty
-  void futileMovementKey(QTextCursor, int, Qt::KeyboardModifiers); 
-  void enterPressed(); // emitted if creation of a new paragraph prevented
+  void futileMovementKey(QTextCursor, int, Qt::KeyboardModifiers);
+  /* also emitted for enter press or for delete/backspace at end/start */
   void mousePress(QPointF, Qt::MouseButton);
 protected:
   void mousePressEvent(QGraphicsSceneMouseEvent *);

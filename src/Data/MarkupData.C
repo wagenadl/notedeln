@@ -62,6 +62,12 @@ bool MarkupData::operator<(MarkupData const &other) const {
   return style_<other.style_;
 }
 
+bool MarkupData::mergeable(MarkupData const *other) const {
+  return other->style_ == style_
+    && other->start_ <= end_
+    && other->end_ >= start_;
+}
+
 void MarkupData::merge(MarkupData const *other) {
   Q_ASSERT(style_ == other->style_);
   if (other->created()<created())

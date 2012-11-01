@@ -33,8 +33,6 @@ TextBlockItem::TextBlockItem(TextBlockData *data, PageScene *parent):
 					  int, Qt::KeyboardModifiers)),
 	  this, SLOT(futileMovementKey(QTextCursor,
 				       int, Qt::KeyboardModifiers)));
-  connect(item_, SIGNAL(enterPressed()),
-	  this, SIGNAL(enterPressed()));
 
   resetBbox();
   if (parent->isWritable())

@@ -76,6 +76,7 @@ void TextMarkings::newMark(MarkupData::Style type, int start, int end) {
   MarkupData *m = data->addMarkup(start, end, type);
   applyMark(m);
   insertMark(m);
+  update(start, 0, 0); // this should fix overlaps if any
 }
 
 void TextMarkings::update(int pos, int del, int ins) {

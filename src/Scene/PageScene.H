@@ -5,6 +5,7 @@
 #define PAGESCENE_H
 
 #include "BaseScene.H"
+#include <QTextCursor>
 
 class PageScene: public BaseScene {
   Q_OBJECT;
@@ -28,10 +29,12 @@ private slots:
   void hChanged(int block);
   void vChanged(int block);
   void futileMovement(int block);
-  void enterPressed(int block);
-  void enterPressedInTitle();
+  void futileTitleMovement(QTextCursor, int, Qt::KeyboardModifiers);
 private:
+  void splitTextBlock(int iblock, int pos);
+  class TextBlockItem *injectTextBlock(class TextBlockData *, int iblock);
   bool tryToPaste();
+  void remap();
   bool importDroppedImage(QPointF scenePos, QImage const &img,
 			  class QUrl const *source=0);
   bool importDroppedUrls(QPointF scenePos, QList<class QUrl> const &url);
@@ -56,15 +59,14 @@ private:
   void deleteBlock(int blocki); // also deletes data!
   class BlockItem *tryMakeGfxBlock(class BlockData *bd);
   class BlockItem *tryMakeTextBlock(class BlockData *bd);
+  void joinTextBlocks(int iblock_pre, int iblock_post);
 private:
   QGraphicsTextItem *dateItem;
   QGraphicsTextItem *nOfNItem;
   QGraphicsRectItem *belowItem;
   class QSignalMapper *hChangeMapper;
   class QSignalMapper *vChangeMapper;
-  class QSignalMapper *abandonedMapper;
   class QSignalMapper *futileMovementMapper;
-  class QSignalMapper *enterPressedMapper;
   class QNetworkAccessManager *networkManager;
 private:
   QList<class BlockItem *> blockItems;

@@ -38,11 +38,9 @@ PageScene::PageScene(PageData *data, QObject *parent):
   hChangeMapper = new QSignalMapper(this);
   vChangeMapper = new QSignalMapper(this);
   futileMovementMapper = new QSignalMapper(this);
-  enterPressedMapper = new QSignalMapper(this);
   connect(hChangeMapper, SIGNAL(mapped(int)), SLOT(hChanged(int)));
   connect(vChangeMapper, SIGNAL(mapped(int)), SLOT(vChanged(int)));
   connect(futileMovementMapper, SIGNAL(mapped(int)), SLOT(futileMovement(int)));
-  connect(enterPressedMapper, SIGNAL(mapped(int)), SLOT(enterPressed(int)));
 
   nOfNItem = 0;
   dateItem = 0;
@@ -89,7 +87,9 @@ void PageScene::makeDateItem() {
 void PageScene::makeTitleItem() {
   TitleItem *tt = new TitleItem(data->title(), 0);
   titleItem = tt;
-  connect(tt, SIGNAL(enterPressed()), SLOT(enterPressedInTitle()));
+  connect(tt,
+	  SIGNAL(futileMovementKey(QTextCursor, int, Qt::KeyboardModifiers)),
+	  SLOT(futileTitleMovement(QTextCursor, int, Qt::KeyboardModifiers)));
   addItem(titleItem);
 
   tt->makeWritable();
@@ -135,9 +135,7 @@ BlockItem *PageScene::tryMakeTextBlock(BlockData *bd) {
   TextBlockItem *tbi = new TextBlockItem(tbd, this);
   
   futileMovementMapper->setMapping(tbi, blockItems.size());
-  enterPressedMapper->setMapping(tbi, blockItems.size());
   connect(tbi, SIGNAL(futileMovement()), futileMovementMapper, SLOT(map()));
-  connect(tbi, SIGNAL(enterPressed()), enterPressedMapper, SLOT(map()));
   return tbi;
 }
   
@@ -312,7 +310,7 @@ void PageScene::deleteBlock(int blocki) {
   sheetNos.removeAt(blocki);
   topY.removeAt(blocki);
 
-  delete bi;
+  bi->deleteLater();
   data->deleteBlock(bd);
 
   restackBlocks();
@@ -345,6 +343,82 @@ GfxBlockItem *PageScene::newGfxBlock() {
   return gbi;
 }
 
+void PageScene::splitTextBlock(int iblock, int pos) {
+  // block number iblock is going to be split
+  TextBlockData *orig =
+    dynamic_cast<TextBlockData*>(blockItems[iblock]->data());
+  Q_ASSERT(orig);
+  TextBlockData *copy = Data::deepCopy(orig);
+  injectTextBlock(copy, iblock);
+  topY[iblock] = topY[iblock+1];
+  TextBlockItem *tbi_pre = dynamic_cast<TextBlockItem*>(blockItems[iblock]);
+  Q_ASSERT(tbi_pre);
+  QTextCursor pre = tbi_pre->text()->textCursor();
+  pre.setPosition(pos);
+  pre.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
+  pre.deleteChar();
+  TextBlockItem *tbi_post = dynamic_cast<TextBlockItem*>(blockItems[iblock+1]);
+  Q_ASSERT(tbi_post);
+  QTextCursor post = tbi_post->text()->textCursor();
+  post.setPosition(pos);
+  post.movePosition(QTextCursor::Start, QTextCursor::KeepAnchor);
+  post.deleteChar();
+  tbi_post->text()->setTextCursor(post);
+  restackBlocks(iblock);
+  gotoSheet(sheetNos[iblock+1]);
+  tbi_post->setFocus();
+}
+
+void PageScene::joinTextBlocks(int iblock_pre, int iblock_post) {
+  Q_ASSERT(iblock_pre<iblock_post);
+  Q_ASSERT(iblock_pre>=0);
+  Q_ASSERT(iblock_post<blockItems.size());
+  TextBlockItem *tbi_pre
+    = dynamic_cast<TextBlockItem*>(blockItems[iblock_pre]);
+  TextBlockItem *tbi_post
+    = dynamic_cast<TextBlockItem*>(blockItems[iblock_post]);
+  Q_ASSERT(tbi_pre);
+  Q_ASSERT(tbi_post);
+  QTextCursor c_pre = tbi_pre->text()->textCursor();
+  c_pre.movePosition(QTextCursor::End);
+  TextData *td_post = tbi_post->data()->text();
+  int len = c_pre.position();
+  c_pre.insertText(td_post->text());
+  TextItem *ti_pre = tbi_pre->text();
+  foreach (MarkupData *md, td_post->markups())
+    ti_pre->addMarkup(md->style(), md->start()+len, md->end()+len);
+  c_pre.setPosition(len);
+  tbi_pre->text()->setTextCursor(c_pre);
+  tbi_pre->setFocus();
+  deleteBlock(iblock_post); // is this acceptable?
+}  
+
+TextBlockItem *PageScene::injectTextBlock(TextBlockData *tbd, int iblock) {
+  // creates a new text block immediately before iblock (or at end if iblock
+  // points past the last text block)
+  BlockData *tbi_next = 
+    iblock<blockItems.size() ? data->blocks()[iblock] : 0;
+  data->insertBlockBefore(tbd, tbi_next);
+  TextBlockItem *tbi = new TextBlockItem(tbd, this);
+  tbi->makeWritable();
+
+  blockItems.insert(iblock, tbi);
+  sheetNos.insert(iblock, iSheet);
+  topY.insert(iblock, style().real("margin-top")); // this topY is not correct
+  connect(tbi, SIGNAL(vboxChanged()), vChangeMapper, SLOT(map()));
+  connect(tbi, SIGNAL(futileMovement()), futileMovementMapper, SLOT(map()));
+  remap();
+  return tbi;
+}
+
+void PageScene::remap() {
+  for (int i=0; i<blockItems.size(); i++) {
+    BlockItem *bi = blockItems[i];
+    hChangeMapper->setMapping(bi, i);
+    vChangeMapper->setMapping(bi, i);
+    futileMovementMapper->setMapping(bi, i);
+  }
+}
 
 TextBlockItem *PageScene::newTextBlock(int iAbove, bool evenIfLastEmpty) {
   if (iAbove<0)
@@ -367,22 +441,9 @@ TextBlockItem *PageScene::newTextBlock(int iAbove, bool evenIfLastEmpty) {
     : style().real("margin-top");
 
   TextBlockData *tbd = new TextBlockData();
-  data->insertBlockBefore(tbd,
-			  iNew<blockItems.size() ? data->blocks()[iNew] : 0);
-  TextBlockItem *tbi = new TextBlockItem(tbd, this);
-  tbi->makeWritable();
+  TextBlockItem *tbi = injectTextBlock(tbd, iNew);
+  topY[iNew] = yt;
   
-  blockItems.insert(iNew, tbi);
-  sheetNos.insert(iNew, iSheet);
-  topY.insert(iNew, yt);
-
-  vChangeMapper->setMapping(tbi, iNew);
-  futileMovementMapper->setMapping(tbi, iNew);
-  enterPressedMapper->setMapping(tbi, iNew);
-  connect(tbi, SIGNAL(vboxChanged()), vChangeMapper, SLOT(map()));
-  connect(tbi, SIGNAL(futileMovement()), futileMovementMapper, SLOT(map()));
-  connect(tbi, SIGNAL(enterPressed()), enterPressedMapper, SLOT(map()));
-
   restackBlocks(iNew);
   gotoSheet(sheetNos[iNew]);
   tbi->setFocus();
@@ -399,7 +460,16 @@ void PageScene::futileMovement(int block) {
 
   TextBlockItem::FutileMovementInfo fmi = tbi->lastFutileMovement();
   int tgtidx = -1;
-  if (fmi.key()==Qt::Key_Left || fmi.key()==Qt::Key_Up) {
+  if (fmi.key()==Qt::Key_Enter || fmi.key()==Qt::Key_Return) {
+    QTextCursor c = tbi->text()->textCursor();
+    if (c.atEnd()) 
+      newTextBlock(block, true);
+    else
+      splitTextBlock(block, c.position());
+    return;
+  } 
+  if (fmi.key()==Qt::Key_Left || fmi.key()==Qt::Key_Up
+      || fmi.key()==Qt::Key_Backspace) {
     // upward movement
     for (int b=block-1; b>=0; b--) {
       BlockItem *bi = blockItems[b];
@@ -408,7 +478,8 @@ void PageScene::futileMovement(int block) {
 	break;
       }
     }
-  } else if (fmi.key()==Qt::Key_Right || fmi.key()==Qt::Key_Down) {
+  } else if (fmi.key()==Qt::Key_Right || fmi.key()==Qt::Key_Down
+	     || fmi.key()==Qt::Key_Delete) {
     // downward movement
     for (int b=block+1; b<blockItems.size(); b++) {
       BlockItem *bi = blockItems[b];
@@ -420,6 +491,14 @@ void PageScene::futileMovement(int block) {
   }
   if (tgtidx<0)
     return; // no target
+
+  if (fmi.key()==Qt::Key_Delete) {
+    joinTextBlocks(block, tgtidx);
+    return;
+  } else if (fmi.key()==Qt::Key_Backspace) {
+    joinTextBlocks(tgtidx, block);
+    return;
+  }
   
   TextBlockItem *tgt = dynamic_cast<TextBlockItem*>(blockItems[tgtidx]);
   Q_ASSERT(tgt);
@@ -453,16 +532,17 @@ void PageScene::futileMovement(int block) {
   tgt->text()->setTextCursor(c);
 }
 
-void PageScene::enterPressed(int block) {
-  TextBlockItem *tbi = dynamic_cast<TextBlockItem *>(blockItems[block]);
-  if (!tbi
-      || !tbi->text()->document()->isEmpty()
-      || style().flag("paragraph-allow-empty"))
-    newTextBlock(block, true);
-}
 
-void PageScene::enterPressedInTitle() {
-  focusEnd();
+void PageScene::futileTitleMovement(QTextCursor,
+				    int key, Qt::KeyboardModifiers) {
+  switch (key) {
+  case Qt::Key_Enter: case Qt::Key_Return:
+  case Qt::Key_Down:
+    focusEnd();
+    break;
+  default:
+    break;
+  }
 }
 
 void PageScene::focusEnd() {

@@ -42,7 +42,6 @@ public:
   virtual void makeWritable();
 signals:
   void futileMovement(); // up key on top line etc
-  void enterPressed();
 private slots:
   void futileMovementKey(QTextCursor, int, Qt::KeyboardModifiers);
 private:

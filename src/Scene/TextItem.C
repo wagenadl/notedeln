@@ -86,7 +86,19 @@ void TextItem::keyPressEvent(QKeyEvent *e) {
     break;
   case Qt::Key_Return: case Qt::Key_Enter:
     if (!allowParagraphs_) {
-      emit enterPressed();
+      emit futileMovementKey(textCursor(), e->key(), e->modifiers());
+      pass = false;
+    }
+    break;
+  case Qt::Key_Backspace:
+    if (textCursor().atStart() && !textCursor().hasSelection()) {
+      emit futileMovementKey(textCursor(), e->key(), e->modifiers());
+      pass = false;
+    }
+    break;
+  case Qt::Key_Delete:
+    if (textCursor().atEnd() && !textCursor().hasSelection()) {
+      emit futileMovementKey(textCursor(), e->key(), e->modifiers());
       pass = false;
     }
     break;
@@ -188,10 +200,10 @@ bool TextItem::tryScriptStyles() {
     m.deleteChar();
     if (t.endsWith("}"))
       c.deletePreviousChar();
-    markings_->newMark(mrk=="^"
-		       ? MarkupData::Superscript
-		       : MarkupData::Subscript,
-		       p0, c.position());
+    addMarkup(mrk=="^"
+	      ? MarkupData::Superscript
+	      : MarkupData::Subscript,
+	      p0, c.position());
     return true;
   } else {
     return false;
@@ -232,7 +244,7 @@ bool TextItem::tryURL() {
     int endpos = c.position();
     if (document()->characterAt(endpos-1)==QChar('.'))
       endpos--;
-    markings_->newMark(MarkupData::URL, m.selectionStart(), endpos);
+    addMarkup(MarkupData::URL, m.selectionStart(), endpos);
     return true;
   } else {
     return false;
@@ -263,7 +275,7 @@ bool TextItem::tryCustomRef() {
    m.setPosition(p0);
    m.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor);
    m.deleteChar(); // remove opening "["
-   markings_->newMark(MarkupData::CustomRef, p0, c.position());
+   addMarkup(MarkupData::CustomRef, p0, c.position());
    return true;
 }   
 
@@ -293,8 +305,12 @@ bool TextItem::trySimpleStyle(QString marker,
     return false;
 
   m.deleteChar();
-  markings_->newMark(type, m.position(), c.position());
+  addMarkup(type, m.position(), c.position());
   return true;
+}
+
+void TextItem::addMarkup(MarkupData::Style t, int start, int end) {
+  markings_->newMark(t, start, end);
 }
   
 bool TextItem::tryToPaste() {

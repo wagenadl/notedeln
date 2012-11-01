@@ -42,8 +42,13 @@ public:
   void setStyle(Style);
   // other
   bool operator<(MarkupData const &other) const;
+  bool mergeable(MarkupData const *other) const;
+  /* returns true iff other is of the same style and overlaps with us */
   void merge(MarkupData const *other);
+  /* only call merge() if mergeable() returns true! */
   bool update(int pos, int del, int ins);
+  /* An insertion either immediately before or after our markup will not
+     be put inside it. An insertion over an empty markup will go before it. */
 private:
   bool cut(int pos, int len);
   bool insert(int pos, int len);
