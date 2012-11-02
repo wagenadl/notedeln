@@ -364,3 +364,7 @@ void TextItem::modifierChange(Qt::KeyboardModifiers) {
     setCursor(Qt::IBeamCursor);
 }
 
+void TextItem::updateRefText(QString olds, QString news) {
+  qDebug() << "refTextChange" << olds << news;
+  emit refTextChange(olds, news);
+}

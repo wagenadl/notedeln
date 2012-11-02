@@ -9,7 +9,6 @@ FootnoteItem::FootnoteItem(FootnoteData *data, Item *parent):
   Q_ASSERT(data);
   Q_ASSERT(data->book());
   tag_ = new QGraphicsTextItem(this);
-  tag_->setPlainText(data->tag() + ":");
 
   tag_->setFont(QFont(style().string("footnote-tag-font-family"),
 		     style().real("footnote-tag-font-size")));
@@ -18,13 +17,8 @@ FootnoteItem::FootnoteItem(FootnoteData *data, Item *parent):
   text()->setFont(QFont(style().string("footnote-def-font-family"),
 		     style().real("footnote-def-font-size")));
   text()->setDefaultTextColor(style().color("footnote-def-color"));
-  
-  double textwidth = style().real("page-width")
-    - style().real("margin-left")
-    - style().real("margin-right");
-  double tagwidth = tag_->boundingRect().width();
-  text()->setPos(tagwidth, 0);
-  text()->setTextWidth(textwidth - tagwidth);
+
+  updateTag();
   text()->setAllowParagraphs(false);
 
   QTextCursor tc(text()->document());
@@ -46,4 +40,19 @@ FootnoteData *FootnoteItem::data() {
 
 QGraphicsTextItem *FootnoteItem::tag() {
   return tag_;
+}
+
+void FootnoteItem::setTagText(QString t) {
+  data_->setTag(t);
+  updateTag();
+}
+
+void FootnoteItem::updateTag() {
+  tag_->setPlainText(data()->tag() + ":");
+  double textwidth = style().real("page-width")
+    - style().real("margin-left")
+    - style().real("margin-right");
+  double tagwidth = tag_->boundingRect().width();
+  text()->setPos(tagwidth, 0);
+  text()->setTextWidth(textwidth - tagwidth);
 }

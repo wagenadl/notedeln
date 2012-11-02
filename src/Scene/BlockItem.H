@@ -17,6 +17,7 @@ signals:
   void vboxChanged();
 public slots:
   void checkVbox();
+  void refTextChange(QString olds, QString news);
 protected:
   void resetBbox(); // size change w/o emitting signals
   virtual void mousePressEvent(QGraphicsSceneMouseEvent *);

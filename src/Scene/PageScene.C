@@ -332,12 +332,14 @@ void PageScene::deleteBlock(int blocki) {
   sheetNos.removeAt(blocki);
   topY.removeAt(blocki);
   footnoteGroups.removeAt(blocki);
-
+  remap();
+  
   bi->deleteLater();
   data->deleteBlock(bd);
   fng->deleteLater();
 
   restackBlocks();
+
   gotoSheet(iSheet>=nSheets ? nSheets-1 : iSheet);
 }
 
@@ -426,11 +428,11 @@ void PageScene::joinTextBlocks(int iblock_pre, int iblock_post) {
   foreach (FootnoteData *fnd, tbi_post->data()->children<FootnoteData>()) {
     FootnoteData *copy = Data::deepCopy(fnd);
     tbi_pre->data()->addChild(copy);
-    FootnoteItem *fni = new FootnoteItem(fnd, footnoteGroups[iblock_pre]);
+    FootnoteItem *fni = new FootnoteItem(copy, footnoteGroups[iblock_pre]);
     connect(fni, SIGNAL(futileMovement()), SLOT(futileNoteMovement()));
     if (writable)
       fni->makeWritable();
-  }  
+  }
   deleteBlock(iblock_post);
   footnoteGroups[iblock_pre]->restack();
 }  

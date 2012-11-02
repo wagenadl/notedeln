@@ -25,6 +25,7 @@ signals:
   void futileMovementKey(int, Qt::KeyboardModifiers);
   /* also emitted for enter press or for delete/backspace at end/start */
   void mousePress(QPointF, Qt::MouseButton);
+  void refTextChange(QString oldText, QString newText);
 protected:
   void mousePressEvent(QGraphicsSceneMouseEvent *);
   void keyPressEvent(QKeyEvent *);
@@ -32,6 +33,9 @@ protected:
 protected slots:
   virtual void docChange();
   void modifierChange(Qt::KeyboardModifiers);
+public:
+  void updateRefText(QString oldText, QString newText);
+  // for use by TextMarkings to signal change of reference text
 private:
   void initializeFormat();
   bool tryToPaste();

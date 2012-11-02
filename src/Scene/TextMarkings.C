@@ -70,7 +70,7 @@ void TextMarkings::applyMark(MarkupData const *data) {
 }  
 
 void TextMarkings::insertMark(MarkupData *m) {
-  Span s(m);
+  Span s(m, this);
   for (QList<Span>::iterator i=spans.begin(); i!=spans.end(); ++i) {
     if (s < *i) {
       spans.insert(i, s);
@@ -78,6 +78,14 @@ void TextMarkings::insertMark(MarkupData *m) {
     }
   }
   spans.append(s);
+}
+
+static QString spanText(MarkupData *m, TextItem *ti) {
+  Q_ASSERT(ti);
+  QTextCursor c(ti->document());
+  c.setPosition(m->start());
+  c.setPosition(m->end(), QTextCursor::KeepAnchor);
+  return c.selectedText();
 }
  
 void TextMarkings::newMark(MarkupData::Style type, int start, int end) {
@@ -106,18 +114,16 @@ void TextMarkings::update(int pos, int del, int ins) {
   bool changed = false;
   for (QList<Span>::iterator i=spans.begin(); i!=spans.end(); ++i) {
     for (QList<Span>::iterator j=i+1; j!=spans.end(); ) {
-      if ((*j).data->start()<=(*i).data->end()) {
-	if ((*j).data->style()==(*i).data->style()) {
-	  // merge or subsume!
-	  (*i).data->merge((*j).data);
-	  data->deleteMarkup((*j).data);
-	  j = spans.erase(j);
-	  changed = true;
-	} else {
-	  j++;
-	}
-      } else {
+      if ((*j).data->start() > (*i).data->end())
 	break;
+      if (mergeable((*i).data, (*j).data)) {
+	// merge or subsume!
+	(*i).data->merge((*j).data);
+	data->deleteMarkup((*j).data);
+	j = spans.erase(j);
+	changed = true;
+      } else {
+	j++;
       }
     }
   }
@@ -127,7 +133,9 @@ void TextMarkings::update(int pos, int del, int ins) {
     qSort(spans.begin(), spans.end());
 } 
 
-TextMarkings::Span::Span(MarkupData *data): data(data) {
+TextMarkings::Span::Span(MarkupData *data, TextMarkings *tm): data(data) {
+  if (tm && data->style()==MarkupData::CustomRef)
+    refText = spanText(data, tm->parent());
 }
 
 bool TextMarkings::Span::operator<(TextMarkings::Span const &other) const {
@@ -137,10 +145,18 @@ bool TextMarkings::Span::operator<(TextMarkings::Span const &other) const {
 bool TextMarkings::Span::update(TextItem *item,
 				int pos, int del, int ins) {
   if (ins>del && data->end()==pos)
-    avoidPropagatingStyle(item, pos, ins);
+    avoidPropagatingStyle(item, pos, ins-del);
+  if (ins>del && data->start()==0 && pos==0)
+    avoidPropagatingStyle(item, 0, ins-del);
   
   data->update(pos, del, ins);
-
+  if (data->style()==MarkupData::CustomRef) {
+    QString newRef = spanText(data, item);
+    if (newRef != refText) {
+      item->updateRefText(refText, newRef);
+      refText = newRef;
+    }
+  }
   return data->start() == data->end();
 }
 

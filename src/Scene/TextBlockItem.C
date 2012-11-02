@@ -29,7 +29,8 @@ TextBlockItem::TextBlockItem(TextBlockData *data, Item *parent):
 	  this, SLOT(checkVbox()));
   connect(item_, SIGNAL(futileMovementKey(int, Qt::KeyboardModifiers)),
 	  this, SLOT(futileMovementKey(int, Qt::KeyboardModifiers)));
-
+  connect(item_, SIGNAL(refTextChange(QString, QString)),
+	  this, SLOT(refTextChange(QString, QString)));
   resetBbox();
 }
 
@@ -141,5 +142,3 @@ void TextBlockItem::paint(QPainter *,
 TextItem *TextBlockItem::text() {
   return item_;
 }
-
-

@@ -27,8 +27,9 @@ private:
   class Span {
   public:
     MarkupData *data;
+    QString refText;
   public:
-    Span(MarkupData *data);
+    Span(MarkupData *data, TextMarkings *tm=0);
     bool cut(int pos, int len);
     void insert(TextItem *item, int pos, int len);
     bool update(TextItem *item, int pos, int del, int ins);

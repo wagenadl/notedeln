@@ -62,10 +62,11 @@ bool MarkupData::operator<(MarkupData const &other) const {
   return style_<other.style_;
 }
 
-bool MarkupData::mergeable(MarkupData const *other) const {
-  return other->style_ == style_
-    && other->start_ <= end_
-    && other->end_ >= start_;
+bool mergeable(MarkupData const *a, MarkupData const *b) {
+  return a->style_ == b->style_
+    && a->style_ != MarkupData::CustomRef
+    && a->start_ <= b->end_
+    && a->end_ >= b->start_;
 }
 
 void MarkupData::merge(MarkupData const *other) {
