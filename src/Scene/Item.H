@@ -12,7 +12,7 @@
 
 class Item {
 public:
-  Item(Data *d, QGraphicsItem *me);
+  Item(Data *d, QGraphicsItem &me);
   virtual ~Item();
   Data *data();
   Item *itemParent() const;

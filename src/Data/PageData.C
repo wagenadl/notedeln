@@ -13,7 +13,6 @@ PageData::PageData(Data *parent): Data(parent) {
   setType("page");
   startPage_ = 1;
   title_ = new TitleData(this);
-  addChild(title_);
   connect(title_, SIGNAL(mod()), SIGNAL(titleMod()));
   maxSheet = 0;
 }

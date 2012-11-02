@@ -5,11 +5,9 @@
 
 static Data::Creator<TextBlockData> c("textblock");
 
-TextBlockData::TextBlockData(Data *parent):
-  BlockData(parent) {
-  text_ = new TextData(this);
-  addChild(text_); // we store the text as our first child
+TextBlockData::TextBlockData(Data *parent): BlockData(parent) {
   setType("textblock");
+  text_ = new TextData(this);
 }
 
 TextBlockData::~TextBlockData() {

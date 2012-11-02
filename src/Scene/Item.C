@@ -11,22 +11,18 @@
 #include "ModSnooper.H"
 #include "App.H"
 
-Item::Item(Data *d, QGraphicsItem *me): d(d), me(me) {
+Item::Item(Data *d, QGraphicsItem &me): d(d), me(&me) {
   Q_ASSERT(d);
   Q_ASSERT(me);
-  /* Is the following a good idea?
-     Item *p = itemParent();
-     if (p)
-       p->addChild(this);
-     I need to clarify who exactly is responsible for addChild/deleteChild.
-  */
+  Item *p = itemParent();
+  if (p)
+    p->addChild(this);
   brLocked = false;
   extraneous = false;
   writable = false;
 }
 
 Item::~Item() {
-  // qDebug() << "Deleting item " << this << me;
 }
 
 Data *Item::data() {

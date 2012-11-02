@@ -13,7 +13,6 @@ FootnoteGroupItem::FootnoteGroupItem(BlockData *data, PageScene *parent):
   int y = 0;
   foreach (FootnoteData *fd, data->children<FootnoteData>()) {
     FootnoteItem *fni = new FootnoteItem(fd, this);
-    addChild(fni);
     fni->setPos(0, y);
     y += fni->childrenBoundingRect().height();
   }  

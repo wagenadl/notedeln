@@ -8,10 +8,12 @@
 #include "Style.H"
 #include "Notebook.H"
 
-Data::Data(Data *parent): QObject(parent) {
+Data::Data(Data *parent0): QObject(parent0) {
   loading_ = false;
   setCreated(QDateTime::currentDateTime());
   setModified(QDateTime::currentDateTime());
+  if (parent())
+    parent()->addChild(this);
   setType("data");
 }
 
@@ -114,6 +116,8 @@ void Data::saveChildren(QVariantMap &dst) const {
 }  
 
 void Data::insertChildBefore(Data *d, Data *ref, ModType mt) {
+  Q_ASSERT(!children_.contains(d));
+  Q_ASSERT(d->parent()==0);
   if (ref==0) {
     addChild(d, mt);
     return;
@@ -132,6 +136,7 @@ void Data::insertChildBefore(Data *d, Data *ref, ModType mt) {
 
 
 void Data::addChild(Data *d, ModType mt) {
+  Q_ASSERT(d->parent()==0);
   children_.append(d);
   d->setParent(this);
   markModified(mt);

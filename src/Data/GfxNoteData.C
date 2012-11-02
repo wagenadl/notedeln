@@ -6,21 +6,12 @@
 static Data::Creator<GfxNoteData> c("gfxnote");
 
 GfxNoteData::GfxNoteData(Data *parent): GfxData(parent) {
-  text_ = new TextData(this);
-  addChild(text_); // we store the text as our first child
   setType("gfxnote");
+  text_ = new TextData(this);
 }
 
 GfxNoteData::~GfxNoteData() {
 }
-
-//GfxNoteData::HAlign GfxNoteData::hAlign() const {
-//  return hAlign_;
-//}
-//
-//GfxNoteData::VAlign GfxNoteData::vAlign() const {
-//  return vAlign_;
-//}
 
 double GfxNoteData::dx() const {
   return dx_;
@@ -33,16 +24,6 @@ double GfxNoteData::dy() const {
 double GfxNoteData::textWidth() const {
   return textWidth_;
 }
-
-//void GfxNoteData::setHAlign(GfxNoteData::HAlign ha) {
-//  hAlign_ = ha;
-//  markModified();
-//}
-//
-//void GfxNoteData::setVAlign(GfxNoteData::VAlign va) {
-//  vAlign_ = va;
-//  markModified();
-//}
 
 void GfxNoteData::setDx(double d) {
   dx_ = d;
@@ -78,10 +59,6 @@ bool GfxNoteData::lineLengthIsZero() const {
 void GfxNoteData::setEndPoint(QPointF p /*, bool realign */) {
   dx_ = p.x() - x();
   dy_ = p.y() - y();
-  //if (realign) {
-  //  hAlign_ = dx_<0 ? Right : Left;
-  //  vAlign_ = Middle;
-  //}
   markModified();
 }
 

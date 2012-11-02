@@ -34,18 +34,6 @@ void BlockData::setSheet(int sheet) {
     emit newSheet(sheet);
 }
 
-// QList<class NoteData *> BlockData::notes() const {
-//   return children<NoteData>();
-// }
-// 
-// void BlockData::addNote(NoteData *n) {
-//   addChild(n);
-// }
-// 
-// bool BlockData::deleteNote(NoteData *n) {
-//   return deleteChild(n);
-// }
-
 bool BlockData::isEmpty() const {
   return true;
 }

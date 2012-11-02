@@ -31,7 +31,7 @@ void TextData::setText(QString const &t) {
 
 MarkupData *TextData::addMarkup(int start, int end,
 				     MarkupData::Style style) {
-  MarkupData *md = new MarkupData(start, end, style, this);
+  MarkupData *md = new MarkupData(start, end, style);
   addChild(md, InternalMod);
   return md;
 }

@@ -47,7 +47,6 @@ TOCEntry *TOC::addEntry(PageData *data) {
   e->setTitle(data->titleText());
   e->setSheetCount(data->sheetCount());
   entries_[e->startPage()] = e;
-  Data::addChild(e);
   return e;
 }
 
