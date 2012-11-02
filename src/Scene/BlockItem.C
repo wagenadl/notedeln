@@ -5,7 +5,7 @@
 #include "PageScene.H"
 
 BlockItem::BlockItem(BlockData *data, PageScene *parent):
-  QGraphicsObject(0), Item(data, this), data_(data) {
+  QGraphicsObject(0), Item(data, *this), data_(data) {
   parent->addItem(this);
 }
 

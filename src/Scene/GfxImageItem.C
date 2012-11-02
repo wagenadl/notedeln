@@ -16,7 +16,7 @@ static Item::Creator<GfxImageData, GfxImageItem> c("gfximage");
 GfxImageItem::GfxImageItem(GfxImageData *data, Item *parent):
   QObject(Item::obj(parent)),
   QGraphicsPixmapItem(Item::gi(parent)),
-  Item(data, this),
+  Item(data, *this),
   data(data) {
   if (!data) {
     qDebug() << "GfxImageItem constructed w/o data";

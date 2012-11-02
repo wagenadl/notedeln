@@ -7,7 +7,7 @@
 #include "PageScene.H"
 
 FootnoteGroupItem::FootnoteGroupItem(BlockData *data, PageScene *parent):
-  QGraphicsObject(0), Item(data, this), data(data) {
+  QGraphicsObject(0), Item(data, *this), data(data) {
   parent->addItem(this);
 
   int y = 0;

@@ -23,9 +23,7 @@
 #include "GfxNoteItem.H" // yick
 
 TextItem::TextItem(TextData *data, Item *parent):
-  QGraphicsTextItem(gi(parent)),
-  Item(data, this),
-  data_(data) {
+  QGraphicsTextItem(gi(parent)), Item(data, *this), data_(data) {
   mayMark = true;
   allowParagraphs_ = true;
 

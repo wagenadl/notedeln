@@ -13,7 +13,6 @@
 
 Item::Item(Data *d, QGraphicsItem &me): d(d), me(&me) {
   Q_ASSERT(d);
-  Q_ASSERT(me);
   Item *p = itemParent();
   if (p)
     p->addChild(this);

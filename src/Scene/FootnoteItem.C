@@ -6,7 +6,7 @@
 
 FootnoteItem::FootnoteItem(FootnoteData *data, Item *parent):
   QGraphicsItem(Item::gi(parent)),
-  Item(data, this),
+  Item(data, *this),
   data_(data) {
   Q_ASSERT(data);
   Q_ASSERT(data->book());

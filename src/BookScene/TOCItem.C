@@ -7,7 +7,7 @@
 #include <QDateTime>
 
 TOCItem::TOCItem(TOCEntry *data, TOCScene *parent):
-  QGraphicsObject(0), Item(data, this), data_(data), scene_(parent) {
+  QGraphicsObject(0), Item(data, *this), data_(data), scene_(parent) {
   parent->addItem(this);
   makeItems();
   fillItems();
