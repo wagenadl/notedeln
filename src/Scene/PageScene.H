@@ -29,8 +29,10 @@ private slots:
   void titleEdited();
   void hChanged(int block);
   void vChanged(int block);
+  void noteVChanged(int block);
   void futileMovement(int block);
-  void futileTitleMovement(QTextCursor, int, Qt::KeyboardModifiers);
+  void futileTitleMovement(int, Qt::KeyboardModifiers);
+  void futileNoteMovement();
 private:
   void splitTextBlock(int iblock, int pos);
   class TextBlockItem *injectTextBlock(class TextBlockData *, int iblock);
@@ -69,6 +71,7 @@ private:
   QGraphicsRectItem *belowItem;
   class QSignalMapper *hChangeMapper;
   class QSignalMapper *vChangeMapper;
+  class QSignalMapper *noteVChangeMapper;
   class QSignalMapper *futileMovementMapper;
   class QNetworkAccessManager *networkManager;
 private:

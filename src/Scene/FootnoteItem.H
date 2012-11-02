@@ -4,24 +4,19 @@
 
 #define FOOTNOTEITEM_H
 
-#include <QGraphicsItem>
-#include "Item.H"
+#include "TextBlockItem.H"
+#include "FutileMovementInfo.H"
 
-class FootnoteItem: public QGraphicsItem, public Item {
-  /* In future, might inherit QGraphicsObject instead of QGraphicsItem */
+class FootnoteItem: public TextBlockItem {
+  Q_OBJECT;
 public:
   FootnoteItem(class FootnoteData *data, Item *parent);
-  ~FootnoteItem();
+  virtual ~FootnoteItem();
   FootnoteData *data();
-  class QGraphicsTextItem *tagItem();
-  class TextItem *defItem();
-  virtual void makeWritable();
-  QRectF boundingRect() const;
-  void paint(QPainter *, const QStyleOptionGraphicsItem *, QWidget *);
+  class QGraphicsTextItem *tag();
 private:
   FootnoteData *data_;
-  QGraphicsTextItem *tag;
-  TextItem *def;
+  QGraphicsTextItem *tag_;
 };
 
 #endif

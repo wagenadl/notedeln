@@ -34,8 +34,6 @@
 "paragraph-width": 432,
 "paragraph-indent": 20,
 "paragraph-line-spacing": 1.5,
-"paragraph-top-margin": 0,
-"paragraph-bottom-margin": 0,
 "paragraph-allow-empty": 1,
 "title-revision-threshold": 12,
 "recency-threshold": 12,
@@ -78,8 +76,10 @@
 "front-dates-y": 250,
 "footnote-tag-font-family": "Ubuntu",
 "footnote-tag-font-size": 9,
-"footnote-tag-color": "#dd0000",
+"footnote-tag-color": "#aa0088",
 "footnote-def-font-family": "Ubuntu",
 "footnote-def-font-size": 9,
-"footnote-def-color": "#000088"
+"footnote-def-color": "#000088",
+"url-color": "#2266ff",
+"customref-color": "#aa0088"
 }

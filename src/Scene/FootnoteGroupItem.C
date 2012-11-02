@@ -6,23 +6,34 @@
 #include "FootnoteItem.H"
 #include "PageScene.H"
 
+#include <QDebug>
+
 FootnoteGroupItem::FootnoteGroupItem(BlockData *data, PageScene *parent):
   QGraphicsObject(0), Item(data, *this), data(data) {
   parent->addItem(this);
-
-  int y = 0;
   foreach (FootnoteData *fd, data->children<FootnoteData>()) {
     FootnoteItem *fni = new FootnoteItem(fd, this);
-    fni->setPos(0, y);
-    y += fni->childrenBoundingRect().height();
-  }  
+    connect(fni, SIGNAL(vboxChanged()), SLOT(restack()));
+  }
+  restack();
 }
 
 FootnoteGroupItem::~FootnoteGroupItem() {
 }
 
+void FootnoteGroupItem::restack() {
+  qDebug() << "FootnoteGroupItem::restack";
+  int y = 0;
+  foreach (FootnoteItem *fni, itemChildren<FootnoteItem>()) {
+    fni->setPos(0, y);
+    fni->data()->setY0(mapToScene(QPointF(0,y)).y());
+    y += fni->childrenBoundingRect().height();
+  }
+  emit vChanged();
+}
+
 void FootnoteGroupItem::makeWritable() {
-  foreach (Item *c, Item::children<FootnoteItem>())
+  foreach (Item *c, itemChildren<FootnoteItem>())
     c->makeWritable();
 }
 

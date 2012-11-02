@@ -13,10 +13,11 @@
 class TextMarkings: public QObject {
   Q_OBJECT;
 public:
-  TextMarkings(TextData *data, QTextDocument *doc, QObject *parent=0);
+  TextMarkings(TextData *data, class TextItem *parent);
   virtual ~TextMarkings();
   void newMark(MarkupData::Style t, int start, int end);
   void newMark(MarkupData *); // the data object is appropriated into our text
+  TextItem *parent() const;
 private slots:
   void update(int, int, int);
 private:
@@ -29,11 +30,11 @@ private:
   public:
     Span(MarkupData *data);
     bool cut(int pos, int len);
-    void insert(QTextDocument *doc, int pos, int len);
-    bool update(QTextDocument *doc, int pos, int del, int ins);
+    void insert(TextItem *item, int pos, int len);
+    bool update(TextItem *item, int pos, int del, int ins);
     // returns true if the span becomes empty
     bool operator<(Span const &other) const;
-    void avoidPropagatingStyle(QTextDocument *doc, int pos, int len);
+    void avoidPropagatingStyle(TextItem *item, int pos, int len);
   };
 private:
   TextData *data;

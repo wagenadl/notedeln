@@ -13,7 +13,7 @@ class TitleData: public Data {
 public:
   TitleData(Data *parent=0);
   virtual ~TitleData();
-  QList<TextData *> const &versions() const;
+  QList<TextData *> versions() const;
   TextData const *current() const;
   TextData *current(); // usu. better to use revise()
   TextData const *orig() const;
@@ -25,12 +25,6 @@ public:
   */
   bool isDefault() const;
   static QString defaultTitle();  
-protected:
-  void loadMore(QVariantMap const &src);
-  void saveMore(QVariantMap &dst) const;
-private:
-  QList<TextData *> versions_;
-  
 };
 
 #endif

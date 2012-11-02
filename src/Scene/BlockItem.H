@@ -10,7 +10,7 @@
 class BlockItem: public QGraphicsObject, public Item {
   Q_OBJECT;
 public:
-  BlockItem(class BlockData *data, class PageScene *parent);
+  BlockItem(class BlockData *data, Item *parent);
   virtual ~BlockItem();
   BlockData *data();
 signals:

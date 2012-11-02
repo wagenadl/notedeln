@@ -82,10 +82,6 @@ QObject *Item::obj() {
 }
 
 
-QList<Item *> const &Item::allChildren() const {
-  return children_;
-}
-
 void Item::addChild(Item *i) {
   Q_ASSERT(i->me != me); // quick check that child wasn't accidentally
   // constructed like Item(data, parent) rather than Item(data, this).

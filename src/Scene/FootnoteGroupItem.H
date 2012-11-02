@@ -15,6 +15,10 @@ public:
   virtual void makeWritable();
   QRectF boundingRect() const;
   void paint(QPainter *, const QStyleOptionGraphicsItem *, QWidget *);
+public slots:
+  void restack();
+signals:
+  void vChanged();
 private:
   BlockData *data;
 };

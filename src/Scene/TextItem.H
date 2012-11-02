@@ -22,7 +22,7 @@ public:
 signals:
   void textChanged();
   void abandoned(); // escape pressed while empty
-  void futileMovementKey(QTextCursor, int, Qt::KeyboardModifiers);
+  void futileMovementKey(int, Qt::KeyboardModifiers);
   /* also emitted for enter press or for delete/backspace at end/start */
   void mousePress(QPointF, Qt::MouseButton);
 protected:

@@ -28,7 +28,7 @@ TextItem::TextItem(TextData *data, Item *parent):
   allowParagraphs_ = true;
 
   setPlainText(data_->text());  
-  markings_ = new TextMarkings(data_, document(), this);
+  markings_ = new TextMarkings(data_, this);
 
   initializeFormat();
 
@@ -84,19 +84,19 @@ void TextItem::keyPressEvent(QKeyEvent *e) {
     break;
   case Qt::Key_Return: case Qt::Key_Enter:
     if (!allowParagraphs_) {
-      emit futileMovementKey(textCursor(), e->key(), e->modifiers());
+      emit futileMovementKey(e->key(), e->modifiers());
       pass = false;
     }
     break;
   case Qt::Key_Backspace:
     if (textCursor().atStart() && !textCursor().hasSelection()) {
-      emit futileMovementKey(textCursor(), e->key(), e->modifiers());
+      emit futileMovementKey(e->key(), e->modifiers());
       pass = false;
     }
     break;
   case Qt::Key_Delete:
     if (textCursor().atEnd() && !textCursor().hasSelection()) {
-      emit futileMovementKey(textCursor(), e->key(), e->modifiers());
+      emit futileMovementKey(e->key(), e->modifiers());
       pass = false;
     }
     break;
@@ -107,7 +107,7 @@ void TextItem::keyPressEvent(QKeyEvent *e) {
     QGraphicsTextItem::keyPressEvent(e);
     QTextCursor post = textCursor();
     if (pre.position() == post.position()) {
-      emit futileMovementKey(pre, e->key(), e->modifiers());
+      emit futileMovementKey(e->key(), e->modifiers());
     }
     pass = false;
   } break;

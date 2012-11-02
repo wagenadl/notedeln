@@ -10,7 +10,7 @@
 class GfxBlockItem: public BlockItem {
   Q_OBJECT;
 public:
-  GfxBlockItem(class GfxBlockData *data, class PageScene *parent);
+  GfxBlockItem(class GfxBlockData *data, Item *parent=0);
   virtual ~GfxBlockItem();
   GfxBlockData *data(); // benevolently hides inherited version
   Item *newImage(QImage img, QUrl const *src, QPointF xy);

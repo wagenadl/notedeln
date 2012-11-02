@@ -12,11 +12,10 @@
 #include <QTextDocument>
 #include <QDebug>
 
-TextBlockItem::TextBlockItem(TextBlockData *data, PageScene *parent):
+TextBlockItem::TextBlockItem(TextBlockData *data, Item *parent):
   BlockItem(data, parent),
   data_(data) {
   Q_ASSERT(data);
-  Q_ASSERT(parent);
   item_ = 0;
 
   setPos(style().real("margin-left"), 0);
@@ -28,14 +27,10 @@ TextBlockItem::TextBlockItem(TextBlockData *data, PageScene *parent):
   
   connect(item_, SIGNAL(textChanged()),
 	  this, SLOT(checkVbox()));
-  connect(item_, SIGNAL(futileMovementKey(QTextCursor,
-					  int, Qt::KeyboardModifiers)),
-	  this, SLOT(futileMovementKey(QTextCursor,
-				       int, Qt::KeyboardModifiers)));
+  connect(item_, SIGNAL(futileMovementKey(int, Qt::KeyboardModifiers)),
+	  this, SLOT(futileMovementKey(int, Qt::KeyboardModifiers)));
 
   resetBbox();
-  if (parent->isWritable())
-    makeWritable();
 }
 
 void TextBlockItem::makeWritable() {
@@ -58,8 +53,8 @@ void TextBlockItem::initializeFormat() {
   fmt.setLineHeight(style().real("paragraph-line-spacing")*100,
 		    QTextBlockFormat::ProportionalHeight);
   fmt.setTextIndent(style().real("paragraph-indent"));
-  fmt.setTopMargin(style().real("paragraph-top-margin"));
-  fmt.setBottomMargin(style().real("paragraph-bottom-margin"));
+  //fmt.setTopMargin(style().real("paragraph-top-margin"));
+  //  fmt.setBottomMargin(style().real("paragraph-bottom-margin"));
   tc.setBlockFormat(fmt);
 }  
 
@@ -77,21 +72,8 @@ QTextDocument *TextBlockItem::document() const {
   return item_->document();
 }
 
-void TextBlockItem::futileMovementKey(QTextCursor c,
-				      int key,
-				      Qt::KeyboardModifiers mod) {
-  Q_ASSERT(item_);
-  QTextBlock b = c.block();
-  QTextLayout *lay = b.layout();
-  QPointF xy0 = lay->position(); // in item
-  int p = c.positionInBlock();
-  QTextLine line = lay->lineForTextPosition(p);
-  QPointF xy(line.cursorToX(p), line.y()+line.ascent()); // in layout
-
-  fmi.pos_ = item_->mapToParent(xy0 + xy);
-  fmi.scenePos_ = mapToParent(fmi.pos_);
-  fmi.key_ = key;
-  fmi.modifiers_ = mod;
+void TextBlockItem::futileMovementKey(int key, Qt::KeyboardModifiers mod) {
+  fmi = FutileMovementInfo(key, mod, item_);
   emit futileMovement(); // we emit w/o content, because PageScene uses Mapper.
 }
 
@@ -114,8 +96,7 @@ void TextBlockItem::dropEmptyLastPar() {
   }
 }
 
-TextBlockItem::FutileMovementInfo const &TextBlockItem::lastFutileMovement()
-  const {
+FutileMovementInfo const &TextBlockItem::lastFutileMovement() const {
   return fmi;
 }
 
@@ -161,19 +142,4 @@ TextItem *TextBlockItem::text() {
   return item_;
 }
 
-QPointF TextBlockItem::FutileMovementInfo::pos() const {
-  return pos_;
-}
-
-QPointF TextBlockItem::FutileMovementInfo::scenePos() const {
-  return scenePos_;
-}
-
-int TextBlockItem::FutileMovementInfo::key() const {
-  return key_;
-}
-
-Qt::KeyboardModifiers TextBlockItem::FutileMovementInfo::modifiers() const {
-  return modifiers_;
-}
 

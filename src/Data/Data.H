@@ -71,7 +71,7 @@ private:
   bool loading_;
 public:
   template <class T> static T *deepCopy(T const *data);
-  /* T must be derived from Data */
+  /* T must be derived from Data. The copy will be parentless. */
   /* Caution! deepCopy() does not attach signals and slots to the new vsn. */
 public: // but only to be used in defs of descendents
   template <class T> class Creator {

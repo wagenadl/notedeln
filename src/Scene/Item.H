@@ -27,8 +27,7 @@ public:
   Style const &style() const;
   QVariant style(QString) const;
   bool childless() const;
-  QList<Item*> const &allChildren() const;
-  template<class T> QList<T*> children() const {
+  template<class T> QList<T*> itemChildren() const {
     QList<T *> res;
     for (QList<Item*>::const_iterator i=children_.begin();
 	 i!=children_.end(); ++i) {

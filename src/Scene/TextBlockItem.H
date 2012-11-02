@@ -5,27 +5,15 @@
 #define TEXTBLOCKITEM_H
 
 #include "BlockItem.H"
+#include "FutileMovementInfo.H"
 
 #include <QTextCursor>
 
 class TextBlockItem: public BlockItem {
   Q_OBJECT;
 public:
-  class FutileMovementInfo {
-  public:
-    QPointF pos() const;
-    QPointF scenePos() const;
-    int key() const;
-    Qt::KeyboardModifiers modifiers() const;
-  private:
-    QPointF pos_;
-    QPointF scenePos_;
-    int key_;
-    Qt::KeyboardModifiers modifiers_;
-    friend class TextBlockItem;
-  };
 public:
-  TextBlockItem(class TextBlockData *data, class PageScene *parent);
+  TextBlockItem(class TextBlockData *data, Item *parent=0);
   virtual ~TextBlockItem();
   TextBlockData *data(); // benevolently hides inherited version
   QTextDocument *document() const;
@@ -43,7 +31,7 @@ public:
 signals:
   void futileMovement(); // up key on top line etc
 private slots:
-  void futileMovementKey(QTextCursor, int, Qt::KeyboardModifiers);
+  void futileMovementKey(int, Qt::KeyboardModifiers);
 private:
   void initializeFormat();
 private:

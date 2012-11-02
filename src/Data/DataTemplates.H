@@ -26,7 +26,7 @@ template <class T> T *Data::firstChild() const {
 }
 
 template <class T> T *Data::deepCopy(T const *data) {
-  T *copy = new T(data->parent());
+  T *copy = new T(0);
   copy->load(data->save());
   return copy;
 }

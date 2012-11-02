@@ -3,9 +3,13 @@
 #include "TextMarkings.H"
 #include <QTextCursor>
 #include <QDebug>
+#include "TextItem.H"
+#include "Style.H"
 
-TextMarkings::TextMarkings(TextData *data, QTextDocument *doc, QObject *parent):
-  QObject(parent), data(data), doc(doc) {
+TextMarkings::TextMarkings(TextData *data, TextItem *parent):
+  QObject(parent), data(data) {
+  Q_ASSERT(parent);
+  doc = parent->document();
   connect(doc, SIGNAL(contentsChange(int, int, int)),
 	  SLOT(update(int, int, int)));
   foreach (MarkupData *m, data->markups()) {
@@ -15,6 +19,10 @@ TextMarkings::TextMarkings(TextData *data, QTextDocument *doc, QObject *parent):
 }
 
 TextMarkings::~TextMarkings() {
+}
+
+TextItem *TextMarkings::parent() const {
+  return dynamic_cast<TextItem*>(QObject::parent());
 }
 
 void TextMarkings::applyMark(MarkupData const *data) {
@@ -49,10 +57,10 @@ void TextMarkings::applyMark(MarkupData const *data) {
     f.setVerticalAlignment(QTextCharFormat::AlignSubScript);
     break;
   case MarkupData::URL:
-    f.setUnderlineStyle(QTextCharFormat::DashUnderline);
+    f.setForeground(parent()->style().color("url-color"));
     break;
   case MarkupData::CustomRef:
-    f.setUnderlineStyle(QTextCharFormat::DotLine);
+    f.setForeground(parent()->style().color("customref-color"));
     break;
   default: 
     break;
@@ -86,7 +94,7 @@ void TextMarkings::newMark(MarkupData *m) {
 void TextMarkings::update(int pos, int del, int ins) {
   // First round: update every span
   for (QList<Span>::iterator i=spans.begin(); i!=spans.end(); ) {
-    if ((*i).update(doc, pos, del, ins)) {
+    if ((*i).update(parent(), pos, del, ins)) {
       data->deleteMarkup((*i).data); // delete empty one
       i = spans.erase(i);
     } else {
@@ -126,19 +134,19 @@ bool TextMarkings::Span::operator<(TextMarkings::Span const &other) const {
   return *data < *(other.data);
 }
 
-bool TextMarkings::Span::update(QTextDocument *doc,
+bool TextMarkings::Span::update(TextItem *item,
 				int pos, int del, int ins) {
   if (ins>del && data->end()==pos)
-    avoidPropagatingStyle(doc, pos, ins);
+    avoidPropagatingStyle(item, pos, ins);
   
   data->update(pos, del, ins);
 
   return data->start() == data->end();
 }
 
-void TextMarkings::Span::avoidPropagatingStyle(QTextDocument *doc,
+void TextMarkings::Span::avoidPropagatingStyle(TextItem *item,
 					       int pos, int len) {
-  QTextCursor c(doc);
+  QTextCursor c(item->document());
   c.beginEditBlock();
   c.setPosition(pos);
   c.setPosition(pos+len, QTextCursor::KeepAnchor);
@@ -163,7 +171,7 @@ void TextMarkings::Span::avoidPropagatingStyle(QTextDocument *doc,
     f.setVerticalAlignment(QTextCharFormat::AlignNormal);
     break;
   case MarkupData::URL: case MarkupData::CustomRef:
-    f.setUnderlineStyle(QTextCharFormat::NoUnderline);
+    f.setForeground(item->defaultTextColor());
     break;
   default:
     break;

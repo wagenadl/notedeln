@@ -15,9 +15,8 @@
 #include <QCursor>
 #include "DragLine.H"
 
-GfxBlockItem::GfxBlockItem(GfxBlockData *data, PageScene *parent):
-  BlockItem(data, parent),
-  data_(data) {
+GfxBlockItem::GfxBlockItem(GfxBlockData *data, Item *parent):
+  BlockItem(data, parent), data_(data) {
 
   foreach (GfxData *d, data->gfx()) 
     create(d, this);
@@ -67,7 +66,7 @@ QRectF GfxBlockItem::boundingRect() const {
   if (bb.isNull()) {
     bb = QRectF(0, 0, availableWidth(), 72);
     // must do this here, because I cannot use our netBoundingRect...
-    foreach (Item *i, allChildren()) {
+    foreach (Item *i, itemChildren<Item>()) {
       if (!i->isExtraneous()) {
 	// qDebug() << "  GBI" << this << ": Including child " << i;
 	bb |= gi(i)->mapRectToParent(i->netBoundingRect());
@@ -118,7 +117,7 @@ void GfxBlockItem::makeWritable() {
   acceptModifierChanges();
 
   // is it really right to make all children writable?
-  foreach (Item *i, allChildren())
+  foreach (Item *i, itemChildren<Item>())
     i->makeWritable();
 }
 

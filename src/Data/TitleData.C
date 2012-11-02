@@ -7,9 +7,9 @@
 static Data::Creator<TitleData> c("title");
 
 TitleData::TitleData(Data *parent): Data(parent) {
-  versions_.append(new TextData(this));
   setType("title");
-  versions_[0]->setText(defaultTitle());
+  TextData *v0 = new TextData(this);
+  v0->setText(defaultTitle());
 }
 
 TitleData::~TitleData() {
@@ -20,29 +20,30 @@ QString TitleData::defaultTitle() {
 }
 
 bool TitleData::isDefault() const {
-  return versions_.size()==1 && current()->text()==defaultTitle();
+  return children<TextData>().size()==1 && current()->text()==defaultTitle();
 }
 
-QList<TextData *> const &TitleData::versions() const {
-  return versions_;
+QList<TextData *> TitleData::versions() const {
+  return children<TextData>();
 }
 
 TextData const *TitleData::current() const {
-  return versions_.last();
+  return versions().last();
 }
 
 TextData *TitleData::current() {
-  return versions_.last();
+  return versions().last();
 }
 
 TextData const *TitleData::orig() const {
-  return versions_[0];
+  return versions()[0];
 }
 
 TextData *TitleData::revise() {
-  TextData *r = versions_.last();
+  QList<TextData *> vv = versions();
+  TextData *r = vv.last();
 
-  if (versions_.size()==1 && r->text() == defaultTitle()) {
+  if (vv.size()==1 && r->text() == defaultTitle()) {
     r->setCreated(QDateTime::currentDateTime());
     r->setModified(QDateTime::currentDateTime());
     return r;
@@ -54,33 +55,11 @@ TextData *TitleData::revise() {
     return r;
   
   TextData *r0 = Data::deepCopy(r);
-  versions_.last() = r0; // store copy as previous version
-  versions_.append(r);
+  insertChildBefore(r0, r); // reinsert the copy
   r->setCreated(QDateTime::currentDateTime());
   r->setModified(QDateTime::currentDateTime());
   markModified();
   return r;
 }
 
-void TitleData::loadMore(QVariantMap const &src) {
-  foreach (TextData *v, versions_)
-    delete v;
-  versions_.clear();
-  
-  QVariantList vl = src["versions"].toList();
-  foreach (QVariant v, vl) {
-    TextData *t = new TextData(this);
-    t->load(v.toMap());
-    versions_.append(t);
-  }
-}
-
-void TitleData::saveMore(QVariantMap &dst) const {
-  QVariantList vl;
-  foreach (TextData *t, versions_) {
-    QVariantMap v = t->save();
-    vl.append(v);
-  }
-  dst["versions"] = vl;
-}
   

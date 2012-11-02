@@ -4,9 +4,12 @@
 
 #define FOOTNOTEDATA_H
 
-#include "TextData.H"
+#include "TextBlockData.H"
 
-class FootnoteData: public TextData {
+class FootnoteData: public TextBlockData {
+  /* We inherit TextBlockData so that a FootnoteItem can be a BlockItem,
+     but we don't actually use the y0 and sheet properties for now.
+  */
   Q_OBJECT;
   Q_PROPERTY(QString tag READ tag WRITE setTag)
 public:

@@ -5,29 +5,36 @@
 #include "TextItem.H"
 
 FootnoteItem::FootnoteItem(FootnoteData *data, Item *parent):
-  QGraphicsItem(Item::gi(parent)),
-  Item(data, *this),
-  data_(data) {
+  TextBlockItem(data, parent), data_(data) {
   Q_ASSERT(data);
   Q_ASSERT(data->book());
-  tag = new QGraphicsTextItem(this);
-  tag->setPlainText(data->tag());
-  def = new TextItem(data, this);
+  tag_ = new QGraphicsTextItem(this);
+  tag_->setPlainText(data->tag() + ":");
 
-  tag->setFont(QFont(style().string("footnote-tag-font-family"),
+  tag_->setFont(QFont(style().string("footnote-tag-font-family"),
 		     style().real("footnote-tag-font-size")));
-  tag->setDefaultTextColor(style().color("footnote-tag-color"));
+  tag_->setDefaultTextColor(style().color("footnote-tag-color"));
 
-  def->setFont(QFont(style().string("footnote-def-font-family"),
+  text()->setFont(QFont(style().string("footnote-def-font-family"),
 		     style().real("footnote-def-font-size")));
-  def->setDefaultTextColor(style().color("footnote-def-color"));
+  text()->setDefaultTextColor(style().color("footnote-def-color"));
   
   double textwidth = style().real("page-width")
     - style().real("margin-left")
     - style().real("margin-right");
-  double tagwidth = tag->boundingRect().width();
-  def->setPos(tagwidth, 0);
-  def->setTextWidth(textwidth - tagwidth);
+  double tagwidth = tag_->boundingRect().width();
+  text()->setPos(tagwidth, 0);
+  text()->setTextWidth(textwidth - tagwidth);
+  text()->setAllowParagraphs(false);
+
+  QTextCursor tc(text()->document());
+  QTextBlockFormat fmt = tc.blockFormat();
+  fmt.setLineHeight(100, QTextBlockFormat::ProportionalHeight);
+  fmt.setTextIndent(0.0);
+  fmt.setTopMargin(0.0);
+  fmt.setBottomMargin(0.0);
+  tc.setBlockFormat(fmt);
+
 }
 
 FootnoteItem::~FootnoteItem() {
@@ -37,23 +44,6 @@ FootnoteData *FootnoteItem::data() {
   return data_;
 }
 
-QGraphicsTextItem *FootnoteItem::tagItem() {
-  return tag;
+QGraphicsTextItem *FootnoteItem::tag() {
+  return tag_;
 }
-
-TextItem *FootnoteItem::defItem() {
-  return def;
-}
-
-void FootnoteItem::makeWritable() {
-  def->makeWritable();
-}
-
-QRectF FootnoteItem::boundingRect() const {
-  return QRectF();
-}
-
-void FootnoteItem::paint(QPainter *, const QStyleOptionGraphicsItem *,
-			 QWidget *) {
-}
-

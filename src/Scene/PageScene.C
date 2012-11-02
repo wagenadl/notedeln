@@ -40,9 +40,11 @@ PageScene::PageScene(PageData *data, QObject *parent):
   
   hChangeMapper = new QSignalMapper(this);
   vChangeMapper = new QSignalMapper(this);
+  noteVChangeMapper = new QSignalMapper(this);
   futileMovementMapper = new QSignalMapper(this);
   connect(hChangeMapper, SIGNAL(mapped(int)), SLOT(hChanged(int)));
   connect(vChangeMapper, SIGNAL(mapped(int)), SLOT(vChanged(int)));
+  connect(noteVChangeMapper, SIGNAL(mapped(int)), SLOT(noteVChanged(int)));
   connect(futileMovementMapper, SIGNAL(mapped(int)), SLOT(futileMovement(int)));
 
   nOfNItem = 0;
@@ -91,8 +93,8 @@ void PageScene::makeTitleItem() {
   TitleItem *tt = new TitleItem(data->title(), 0);
   titleItem = tt;
   connect(tt,
-	  SIGNAL(futileMovementKey(QTextCursor, int, Qt::KeyboardModifiers)),
-	  SLOT(futileTitleMovement(QTextCursor, int, Qt::KeyboardModifiers)));
+	  SIGNAL(futileMovementKey(int, Qt::KeyboardModifiers)),
+	  SLOT(futileTitleMovement(int, Qt::KeyboardModifiers)));
   addItem(titleItem);
 
   tt->makeWritable();
@@ -114,20 +116,25 @@ void PageScene::makeBlockItems() {
     if (!bi)
       bi = tryMakeGfxBlock(bd);
     Q_ASSERT(bi);
-    vChangeMapper->setMapping(bi, blockItems.size());
     connect(bi, SIGNAL(vboxChanged()), vChangeMapper, SLOT(map()));
     blockItems.append(bi);
     sheetNos.append(bd->sheet());
     topY.append(bd->y0());
-    footnoteGroups.append(new FootnoteGroupItem(bd, this));
+    FootnoteGroupItem *fng = new FootnoteGroupItem(bd, this);
+    foreach (FootnoteItem *fni, fng->itemChildren<FootnoteItem>())
+      connect(fni, SIGNAL(futileMovement()), SLOT(futileNoteMovement()));
+    footnoteGroups.append(fng);
+    connect(fng, SIGNAL(vChanged()), noteVChangeMapper, SLOT(map()));    
   }
+  remap();
 }
 
 BlockItem *PageScene::tryMakeGfxBlock(BlockData *bd) {
   GfxBlockData *gbd = dynamic_cast<GfxBlockData*>(bd);
   if (!gbd)
     return 0;
-  GfxBlockItem *gbi = new GfxBlockItem(gbd, this);
+  GfxBlockItem *gbi = new GfxBlockItem(gbd);
+  addItem(gbi);
   return gbi;
 }
 
@@ -135,27 +142,14 @@ BlockItem *PageScene::tryMakeTextBlock(BlockData *bd) {
   TextBlockData *tbd = dynamic_cast<TextBlockData*>(bd);
   if (!tbd)
     return 0;
-
-  TextBlockItem *tbi = new TextBlockItem(tbd, this);
-  
-  futileMovementMapper->setMapping(tbi, blockItems.size());
+  TextBlockItem *tbi = new TextBlockItem(tbd);
+  addItem(tbi);
   connect(tbi, SIGNAL(futileMovement()), futileMovementMapper, SLOT(map()));
   return tbi;
 }
   
 PageScene::~PageScene() {
 }
-
-// void PageScene::titleTextEdited() {
-//   /* This crazy piece of code replaces new lines in title by spaces */
-//   QTextBlock blk = titleItem->text()->document()->lastBlock();
-//   while (blk.position()>0) {
-//     QTextCursor c(blk);
-//     c.deletePreviousChar();
-//     c.insertText(" ");
-//     blk = titleItem->text()->document()->lastBlock();
-//   }
-// }
 
 void PageScene::titleEdited() {
   positionTitleItem();
@@ -249,6 +243,7 @@ void PageScene::restackBlocks(int starti, bool preferData) {
 }
 
 void PageScene::restackFootnotes(int sheet) {
+  qDebug() << "PageScene::restackFootnotes" << sheet;
   double accumh = 0;
   for (int k=0; k<footnoteGroups.size(); k++) 
     if (sheetNos[k] == sheet)
@@ -260,7 +255,7 @@ void PageScene::restackFootnotes(int sheet) {
   for (int k=0; k<footnoteGroups.size(); k++) {
     if (sheetNos[k] == sheet) {
       footnoteGroups[k]->setPos(style().real("margin-left"), y);
-      y+= footnoteGroups[k]->netSceneRect().height();
+      y += footnoteGroups[k]->netSceneRect().height();
     }
   }
 }
@@ -331,13 +326,16 @@ void PageScene::deleteBlock(int blocki) {
   }
   BlockItem *bi = blockItems[blocki];
   BlockData *bd = bi->data();
+  FootnoteGroupItem *fng = footnoteGroups[blocki];
 
   blockItems.removeAt(blocki);
   sheetNos.removeAt(blocki);
   topY.removeAt(blocki);
+  footnoteGroups.removeAt(blocki);
 
   bi->deleteLater();
   data->deleteBlock(bd);
+  fng->deleteLater();
 
   restackBlocks();
   gotoSheet(iSheet>=nSheets ? nSheets-1 : iSheet);
@@ -354,7 +352,8 @@ GfxBlockItem *PageScene::newGfxBlock() {
 
   GfxBlockData *gbd = new GfxBlockData();
   data->addBlock(gbd);
-  GfxBlockItem *gbi = new GfxBlockItem(gbd, this);
+  GfxBlockItem *gbi = new GfxBlockItem(gbd);
+  addItem(gbi);
   gbi->makeWritable();
   
   blockItems.insert(iNew, gbi);
@@ -413,6 +412,7 @@ void PageScene::joinTextBlocks(int iblock_pre, int iblock_post) {
   TextItem *ti_pre = tbi_pre->text();
   foreach (MarkupData *md, td_post->markups()) {
     MarkupData *copy = Data::deepCopy(md);
+    td_post->takeChild(copy); // unparent it
     copy->update(0, 0, len);
     ti_pre->addMarkup(copy);
   }
@@ -422,16 +422,28 @@ void PageScene::joinTextBlocks(int iblock_pre, int iblock_post) {
   TextData *td_pre = tbi_pre->data()->text();
   if (td_post->created() < td_pre->created())
     td_pre->setCreated(td_post->created());
-  deleteBlock(iblock_post); // is this acceptable?
+
+  foreach (FootnoteData *fnd, tbi_post->data()->children<FootnoteData>()) {
+    FootnoteData *copy = Data::deepCopy(fnd);
+    tbi_pre->data()->addChild(copy);
+    FootnoteItem *fni = new FootnoteItem(fnd, footnoteGroups[iblock_pre]);
+    connect(fni, SIGNAL(futileMovement()), SLOT(futileNoteMovement()));
+    if (writable)
+      fni->makeWritable();
+  }  
+  deleteBlock(iblock_post);
+  footnoteGroups[iblock_pre]->restack();
 }  
 
 TextBlockItem *PageScene::injectTextBlock(TextBlockData *tbd, int iblock) {
   // creates a new text block immediately before iblock (or at end if iblock
   // points past the last text block)
-  BlockData *tbi_next = 
-    iblock<blockItems.size() ? data->blocks()[iblock] : 0;
-  data->insertBlockBefore(tbd, tbi_next);
-  TextBlockItem *tbi = new TextBlockItem(tbd, this);
+  BlockData *tbd_next =  iblock<blockItems.size()
+    ? data->blocks()[iblock]
+    : 0;
+  data->insertBlockBefore(tbd, tbd_next);
+  TextBlockItem *tbi = new TextBlockItem(tbd);
+  addItem(tbi);
   tbi->makeWritable();
 
   blockItems.insert(iblock, tbi);
@@ -450,6 +462,7 @@ void PageScene::remap() {
     hChangeMapper->setMapping(bi, i);
     vChangeMapper->setMapping(bi, i);
     futileMovementMapper->setMapping(bi, i);
+    noteVChangeMapper->setMapping(footnoteGroups[i], i);
   }
 }
 
@@ -491,7 +504,7 @@ void PageScene::futileMovement(int block) {
     return;
   }
 
-  TextBlockItem::FutileMovementInfo fmi = tbi->lastFutileMovement();
+  FutileMovementInfo fmi = tbi->lastFutileMovement();
   int tgtidx = -1;
   if (fmi.key()==Qt::Key_Enter || fmi.key()==Qt::Key_Return) {
     QTextCursor c = tbi->text()->textCursor();
@@ -565,9 +578,7 @@ void PageScene::futileMovement(int block) {
   tgt->text()->setTextCursor(c);
 }
 
-
-void PageScene::futileTitleMovement(QTextCursor,
-				    int key, Qt::KeyboardModifiers) {
+void PageScene::futileTitleMovement(int key, Qt::KeyboardModifiers) {
   switch (key) {
   case Qt::Key_Enter: case Qt::Key_Return:
   case Qt::Key_Down:
@@ -829,6 +840,23 @@ void PageScene::newFootnote(int block, QString tag) {
   FootnoteData *fnd = new FootnoteData(blockItems[block]->data());
   fnd->setTag(tag);
   FootnoteItem *fni = new FootnoteItem(fnd, footnoteGroups[block]);
+  connect(fni, SIGNAL(futileMovement()), SLOT(futileNoteMovement()));
   fni->makeWritable();
+  fni->setFocus();
+  footnoteGroups[block]->restack();
+}
+
+void PageScene::noteVChanged(int block) {
+  Q_ASSERT(block>=0 && block<blockItems.size());
+  int s = sheetNos[block];
+  for (int i=0; i<block; i++) {
+    if (sheetNos[i]==s) {
+      restackBlocks(i);
+      return;
+    }
+  }
   restackBlocks(block);
+}
+
+void PageScene::futileNoteMovement() {
 }

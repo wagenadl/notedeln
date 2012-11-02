@@ -4,7 +4,7 @@
 
 static Data::Creator<FootnoteData> c("footnote");
 
-FootnoteData::FootnoteData(Data *parent): TextData(parent) {
+FootnoteData::FootnoteData(Data *parent): TextBlockData(parent) {
   setType("footnote");
 }
 
