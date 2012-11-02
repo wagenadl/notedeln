@@ -826,11 +826,9 @@ bool PageScene::isWritable() const {
 void PageScene::newFootnote(int block, QString tag) {
   Q_ASSERT(block>=0 && block<blockItems.size());
   
-  FootnoteData *fnd = new FootnoteData();
+  FootnoteData *fnd = new FootnoteData(blockItems[block]->data());
   fnd->setTag(tag);
-  blockItems[block]->data()->addChild(fnd);
   FootnoteItem *fni = new FootnoteItem(fnd, footnoteGroups[block]);
-  footnoteGroups[block]->addChild(fni);
   fni->makeWritable();
   restackBlocks(block);
 }

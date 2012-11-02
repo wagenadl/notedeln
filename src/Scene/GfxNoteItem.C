@@ -23,7 +23,6 @@ GfxNoteItem::GfxNoteItem(GfxNoteData *data, Item *parent):
   }
   text = new TextItem(data->text(), this);
   text->setDefaultTextColor(QColor(style().string("note-text-color")));
-  addChild(text);
 
   connect(text, SIGNAL(abandoned()),
 	  this, SLOT(abandon()), Qt::QueuedConnection);
@@ -108,14 +107,12 @@ GfxNoteItem *GfxNoteItem::newNote(QPointF p0, Item *parent) {
 
 GfxNoteItem *GfxNoteItem::newNote(QPointF p0, QPointF p1, Item *parent) {
   Q_ASSERT(parent);
-  GfxNoteData *d = new GfxNoteData();
+  GfxNoteData *d = new GfxNoteData(parent->data());
   d->setPos(p0);
   d->setEndPoint(p1);
-  parent->data()->addChild(d);
 
   GfxNoteItem *i = new GfxNoteItem(d, parent);
   i->makeWritable();
-  parent->addChild(i);
   i->setFocus();
   return i;
 }

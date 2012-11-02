@@ -22,7 +22,6 @@ TextBlockItem::TextBlockItem(TextBlockData *data, PageScene *parent):
   setPos(style().real("margin-left"), 0);
 
   item_ = new TextItem(data_->text(), this);
-  addChild(item_);
 
   initializeFormat();
   item_->setAllowParagraphs(false);

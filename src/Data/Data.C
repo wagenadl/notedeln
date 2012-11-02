@@ -97,7 +97,6 @@ void Data::loadChildren(QVariantMap const &src) {
     QVariantMap m = v.toMap();
     Data *d = create(m["typ"].toString(), this);
     if (d) {
-      children_.append(d);
       d->load(m);
     } else {
       qDebug() << "Data: Failed to create child of type"
@@ -136,7 +135,8 @@ void Data::insertChildBefore(Data *d, Data *ref, ModType mt) {
 
 
 void Data::addChild(Data *d, ModType mt) {
-  Q_ASSERT(d->parent()==0);
+  Q_ASSERT(!children_.contains(d));
+  Q_ASSERT(d->parent()==0 || d->parent()==this);
   children_.append(d);
   d->setParent(this);
   markModified(mt);

@@ -19,10 +19,8 @@ GfxBlockItem::GfxBlockItem(GfxBlockData *data, PageScene *parent):
   BlockItem(data, parent),
   data_(data) {
 
-  foreach (GfxData *d, data->gfx()) {
-    Item *i = create(d, this);
-    addChild(i);
-  }
+  foreach (GfxData *d, data->gfx()) 
+    create(d, this);
 
   setPos(style().real("margin-left"), 0);
   setCursor(defaultCursor());
@@ -39,11 +37,9 @@ Item *GfxBlockItem::newImage(QImage img, QUrl const *src, QPointF) {
   Q_ASSERT(data()->book());
   Q_ASSERT(data()->resMgr());
   QString resName = data()->resMgr()->import(img, src);
-  GfxImageData *gid = new GfxImageData(resName, img);
+  GfxImageData *gid = new GfxImageData(resName, img, data());
   gid->setPos(QPointF(18, 18)); // should use passed xy?
-  data()->addChild(gid);
   GfxImageItem *gii = new GfxImageItem(gid, this);
-  addChild(gii);
   sizeToFit();
   return gii;
 }

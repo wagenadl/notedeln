@@ -13,7 +13,6 @@ FootnoteItem::FootnoteItem(FootnoteData *data, Item *parent):
   tag = new QGraphicsTextItem(this);
   tag->setPlainText(data->tag());
   def = new TextItem(data, this);
-  addChild(def);
 
   tag->setFont(QFont(style().string("footnote-tag-font-family"),
 		     style().real("footnote-tag-font-size")));

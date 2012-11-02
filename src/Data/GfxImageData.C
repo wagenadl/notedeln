@@ -19,7 +19,8 @@ GfxImageData::GfxImageData(Data *parent): GfxData(parent) {
   cropRight_ = 0;
 }
 
-GfxImageData::GfxImageData(QString resName, QImage img): GfxData(0) {
+GfxImageData::GfxImageData(QString resName, QImage img, Data *parent):
+  GfxData(parent) {
   setType("gfximage");
   resName_ = resName;
   width_ = img.width();
