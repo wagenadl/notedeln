@@ -357,13 +357,16 @@ GfxBlockItem *PageScene::newGfxBlock() {
   GfxBlockItem *gbi = new GfxBlockItem(gbd);
   addItem(gbi);
   gbi->makeWritable();
+  FootnoteGroupItem *fng =  new FootnoteGroupItem(gbd, this);
   
   blockItems.insert(iNew, gbi);
   sheetNos.insert(iNew, iSheet);
   topY.insert(iNew, yt);
+  footnoteGroups.insert(iNew, fng);
 
-  vChangeMapper->setMapping(gbi, iNew);
   connect(gbi, SIGNAL(vboxChanged()), vChangeMapper, SLOT(map()));
+  connect(fng, SIGNAL(vChanged()), noteVChangeMapper, SLOT(map()));    
+  remap();
 
   restackBlocks(iNew);
   gotoSheet(sheetNos[iNew]);

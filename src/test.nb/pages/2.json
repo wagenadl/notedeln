@@ -1,6 +1,6 @@
 { "typ": "page",
   "cre": "2012-11-02T20:16:48",
-  "mod": "2012-11-02T21:04:47",
+  "mod": "2012-11-03T06:29:06",
   "startPage": 2,
   "cc": [
     { "typ": "title",
@@ -179,6 +179,111 @@
           "cre": "2012-11-02T21:01:08",
           "mod": "2012-11-02T21:04:47",
           "text": "I also very urgently want transparent network updates: I want to be able to read these notes both at home and at work. I think unison can fit the bill, because notebooks are not expected to get huge. For now, I can simply add the test.nb to the bzr!",
+          "cc": [ ]
+        }
+      ]
+    },
+    { "typ": "gfxblock",
+      "cre": "2012-11-03T06:23:55",
+      "mod": "2012-11-03T06:27:50",
+      "sheet": 1,
+      "xref": 0.0,
+      "y0": 249.0,
+      "yref": 0.0,
+      "cc": [
+        { "typ": "gfximage",
+          "cre": "2012-11-03T06:23:55",
+          "mod": "2012-11-03T06:27:50",
+          "cropBottom": 0.0,
+          "cropLeft": 0.0,
+          "cropRight": 0.0,
+          "cropTop": 0.0,
+          "height": 192.0,
+          "resName": "import-1.png",
+          "scale": 0.836916,
+          "width": 192.0,
+          "x": 18.0,
+          "y": 18.0,
+          "cc": [
+            { "typ": "gfxnote",
+              "cre": "2012-11-03T06:27:05",
+              "mod": "2012-11-03T06:27:50",
+              "dx": 40.2797,
+              "dy": -59.4126,
+              "textWidth": 0.0,
+              "x": 115.552,
+              "y": 68.3287,
+              "cc": [
+                { "typ": "text",
+                  "cre": "2012-11-03T06:27:05",
+                  "mod": "2012-11-03T06:27:50",
+                  "text": "This note is attached to the image. It still\nscales with the image, which is not right.",
+                  "cc": [ ]
+                }
+              ]
+            }
+          ]
+        },
+        { "typ": "gfxnote",
+          "cre": "2012-11-03T06:24:34",
+          "mod": "2012-11-03T06:27:38",
+          "dx": 81.5664,
+          "dy": -74.5175,
+          "textWidth": 0.0,
+          "x": 134.559,
+          "y": 137.685,
+          "cc": [
+            { "typ": "text",
+              "cre": "2012-11-03T06:24:34",
+              "mod": "2012-11-03T06:27:29",
+              "text": "Here's a graphics note,\nnot attached to the\nimage.",
+              "cc": [ ]
+            }
+          ]
+        },
+        { "typ": "gfxnote",
+          "cre": "2012-11-03T06:25:25",
+          "mod": "2012-11-03T06:26:30",
+          "dx": 0.0,
+          "dy": 0.0,
+          "textWidth": 0.0,
+          "x": 241.301,
+          "y": 141.713,
+          "cc": [
+            { "typ": "text",
+              "cre": "2012-11-03T06:25:25",
+              "mod": "2012-11-03T06:26:01",
+              "text": "I need to have a way\nto set the width of a\ngraphics note (other\nthan by hitting Enter).\nAlt-drag edge would be\nobvious.",
+              "cc": [ ]
+            }
+          ]
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2012-11-03T06:23:59",
+      "mod": "2012-11-03T06:24:24",
+      "sheet": 1,
+      "y0": 490.713,
+      "cc": [
+        { "typ": "text",
+          "cre": "2012-11-03T06:23:59",
+          "mod": "2012-11-03T06:24:24",
+          "text": "OK. I fixed the graphics import issue. I simply hadn't made newGBI create a footnote group.",
+          "cc": [ ]
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2012-11-03T06:28:46",
+      "mod": "2012-11-03T06:29:06",
+      "sheet": 1,
+      "y0": 553.713,
+      "cc": [
+        { "typ": "text",
+          "cre": "2012-11-03T06:28:46",
+          "mod": "2012-11-03T06:29:06",
+          "text": "Also: gfxnotes attached to images scale wrong and do not load properly.",
           "cc": [ ]
         }
       ]
