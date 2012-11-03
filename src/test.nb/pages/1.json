@@ -1,0 +1,168 @@
+{ "typ": "page",
+  "cre": "2012-11-01T21:01:18",
+  "mod": "2012-11-01T21:49:36",
+  "startPage": 1,
+  "cc": [
+    { "typ": "title",
+      "cre": "2012-11-01T21:01:18",
+      "mod": "2012-11-01T21:01:25",
+      "cc": [
+        { "typ": "text",
+          "cre": "2012-11-01T21:01:22",
+          "mod": "2012-11-01T21:01:25",
+          "text": "More testing of foot notes",
+          "cc": [ ]
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2012-11-01T21:01:26",
+      "mod": "2012-11-01T21:24:03",
+      "sheet": 0,
+      "y0": 72.0,
+      "cc": [
+        { "typ": "text",
+          "cre": "2012-11-01T21:01:26",
+          "mod": "2012-11-01T21:24:03",
+          "text": "Here is a paragraph. Restack. Making a new footnote. And another one.",
+          "cc": [
+            { "typ": "markup",
+              "cre": "2012-11-01T21:01:34",
+              "mod": "2012-11-01T21:01:34",
+              "end": 19,
+              "start": 10,
+              "style": 5,
+              "cc": [ ]
+            },
+            { "typ": "markup",
+              "cre": "2012-11-01T21:05:13",
+              "mod": "2012-11-01T21:05:13",
+              "end": 51,
+              "start": 43,
+              "style": 5,
+              "cc": [ ]
+            },
+            { "typ": "markup",
+              "cre": "2012-11-01T21:11:35",
+              "mod": "2012-11-01T21:11:35",
+              "end": 68,
+              "start": 65,
+              "style": 5,
+              "cc": [ ]
+            }
+          ]
+        },
+        { "typ": "footnote",
+          "cre": "2012-11-01T21:01:36",
+          "mod": "2012-11-01T21:12:23",
+          "sheet": -1,
+          "tag": "paragraph",
+          "y0": 0.0,
+          "cc": [
+            { "typ": "text",
+              "cre": "2012-11-01T21:01:36",
+              "mod": "2012-11-01T21:12:23",
+              "text": "With a footnote. What happens if this goes too long? Does it suddenly jump? No. Can I change this text and make it longer? What happens then? It works, but oddly not immediately. I don't quite understand why.",
+              "cc": [ ]
+            }
+          ]
+        },
+        { "typ": "footnote",
+          "cre": "2012-11-01T21:05:14",
+          "mod": "2012-11-01T21:05:18",
+          "sheet": -1,
+          "tag": "footnote",
+          "y0": 68.0,
+          "cc": [
+            { "typ": "text",
+              "cre": "2012-11-01T21:05:14",
+              "mod": "2012-11-01T21:05:18",
+              "text": "Hello world.",
+              "cc": [ ]
+            }
+          ]
+        },
+        { "typ": "footnote",
+          "cre": "2012-11-01T21:11:36",
+          "mod": "2012-11-01T21:11:37",
+          "sheet": -1,
+          "tag": "one",
+          "y0": 91.0,
+          "cc": [
+            { "typ": "text",
+              "cre": "2012-11-01T21:11:36",
+              "mod": "2012-11-01T21:11:37",
+              "text": "One!",
+              "cc": [ ]
+            }
+          ]
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2012-11-01T21:24:38",
+      "mod": "2012-11-01T21:27:12",
+      "sheet": 0,
+      "y0": 135.0,
+      "cc": [
+        { "typ": "text",
+          "cre": "2012-11-01T21:24:38",
+          "mod": "2012-11-01T21:27:12",
+          "text": "Here is a new paragraph. ",
+          "cc": [ ]
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2012-11-01T21:24:38",
+      "mod": "2012-11-01T21:46:11",
+      "sheet": 0,
+      "y0": 172.5,
+      "cc": [
+        { "typ": "text",
+          "cre": "2012-11-01T21:24:38",
+          "mod": "2012-11-01T21:46:11",
+          "text": "And a third paragraph. www.url.net. ",
+          "cc": [
+            { "typ": "markup",
+              "cre": "2012-11-01T21:46:11",
+              "mod": "2012-11-01T21:46:11",
+              "end": 34,
+              "start": 23,
+              "style": 4,
+              "cc": [ ]
+            }
+          ]
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2012-11-01T21:48:15",
+      "mod": "2012-11-01T21:48:52",
+      "sheet": 0,
+      "y0": 210.0,
+      "cc": [
+        { "typ": "text",
+          "cre": "2012-11-01T21:48:15",
+          "mod": "2012-11-01T21:48:52",
+          "text": "This looks pretty good. Only trouble is that footnotes don't move properly when paragraphs are split. They are not, after all, actually connected to their references.",
+          "cc": [ ]
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2012-11-01T21:48:54",
+      "mod": "2012-11-01T21:49:36",
+      "sheet": 0,
+      "y0": 298.5,
+      "cc": [
+        { "typ": "text",
+          "cre": "2012-11-01T21:48:54",
+          "mod": "2012-11-01T21:49:36",
+          "text": "And I really need a format identifier in my files so I can avoid messing things up when I do stuff like removing the \"versions\" field from TitleData in favor of using the \"cc\" field.",
+          "cc": [ ]
+        }
+      ]
+    }
+  ]
+}
