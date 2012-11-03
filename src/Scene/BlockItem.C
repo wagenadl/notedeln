@@ -35,14 +35,13 @@ void BlockItem::resetBbox() {
 }
 
 void BlockItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
+  qDebug() << "BlockItem:mousePressEvent";
   mousePress(e);
 }
 
 void BlockItem::refTextChange(QString olds, QString news) {
-  qDebug() << "BlockItem::refTextChange" << olds << news;
   foreach (FootnoteData *fnd, data()->children<FootnoteData>()) {
     if (fnd->tag()==olds) {
-      qDebug() << "BlockItem:refTextChange: found data";
       // Found a footnote that is affected by this. Let's find the
       // corresponding item.
       QGraphicsScene *s = scene();
@@ -54,10 +53,8 @@ void BlockItem::refTextChange(QString olds, QString news) {
 	      if (fni->data()==fnd) {
 		// found the note!
 		if (news.isEmpty()) {
-		  qDebug() << "Deleting footnote item";
 		  fng->deleteChild(fni);
 		} else {
-		  qDebug() << "Updating footnote item";
 		  fni->setTagText(news);
 		}
 		fng->restack();
@@ -68,7 +65,6 @@ void BlockItem::refTextChange(QString olds, QString news) {
       }
 	
       if (news.isEmpty()) {
-	qDebug() << "Deleting data";
 	data()->deleteChild(fnd);
       }
     }

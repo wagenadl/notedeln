@@ -57,7 +57,6 @@ void PageEditor::gotoPage(int n) {
 	return;
       }
     }
-    qDebug() << " -> creating page" << n;
     book->createPage(n);
   }
 
@@ -98,7 +97,6 @@ void PageEditor::gotoPage(int n) {
 }
 
 void PageEditor::gotoFront() {
-  // qDebug() << "PE:front";
   leavePage();
   currentSection = Front;
   view->setScene(frontScene);
@@ -126,7 +124,6 @@ void PageEditor::leavePage() {
     Q_ASSERT(file->data());
     if (file->data()->isEmpty()) {
       // Leaving an empty page
-      qDebug() << "PageEditor: leaving empty page";
       if (pageScene)
 	delete pageScene;
       pageScene = 0;
@@ -136,7 +133,6 @@ void PageEditor::leavePage() {
 }  
 
 void PageEditor::previousPage() {
-  // qDebug() << "PE:pp" << currentSection << currentPage;
   switch (currentSection) {
   case Front:
     break;
@@ -156,7 +152,6 @@ void PageEditor::previousPage() {
 }
 
 void PageEditor::nextPage() {
-  //  qDebug() << "PE:np" << currentSection << currentPage;
   switch (currentSection) {
   case Front:
     gotoTOC();
@@ -181,6 +176,5 @@ void PageEditor::nextPage() {
 }
 
 void PageEditor::lastPage() {
-  // qDebug() << "PE:lp" << currentSection << currentPage;
   gotoPage(book->toc()->newPageNumber()-1);
 }

@@ -23,25 +23,21 @@ void PageView::keyPressEvent(QKeyEvent *e) {
   App::instance()->modSnooper()->keyPress(e->key());
   switch (e->key()) {
   case Qt::Key_PageUp:
-    qDebug() << "pgup";
     emit pgUp();
     e->accept();
     return;
   case Qt::Key_PageDown:
-    qDebug() << "pgdn";
     emit pgDn();
     e->accept();
     return;
   case Qt::Key_Home:
     if (e->modifiers() & Qt::ControlModifier) {
-      qDebug() << "ctrl-home";
       emit home();
       e->accept();
       return;
     }
   case Qt::Key_End:
     if (e->modifiers() & Qt::ControlModifier) {
-      qDebug() << "ctrl-end";
       emit end();
       e->accept();
       return;

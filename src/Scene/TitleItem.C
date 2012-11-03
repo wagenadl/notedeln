@@ -7,7 +7,6 @@
 
 TitleItem::TitleItem(TitleData *data, Item *parent):
   TextItem(data->current(), parent), data_(data) {
-  qDebug() << "TitleItem!";
 
   setFont(QFont(style("title-font-family").toString(),
 		style("title-font-size").toDouble()));

@@ -243,7 +243,7 @@ void PageScene::restackBlocks(int starti, bool preferData) {
 }
 
 void PageScene::restackFootnotes(int sheet) {
-  qDebug() << "PageScene::restackFootnotes" << sheet;
+  // qDebug() << "PageScene::restackFootnotes" << sheet;
   double accumh = 0;
   for (int k=0; k<footnoteGroups.size(); k++) 
     if (sheetNos[k] == sheet)
@@ -565,7 +565,7 @@ void PageScene::futileMovement(int block) {
     QTextLayout *lay = blk.layout();
     QTextLine l = lay->lineAt(lay->lineCount()-1);
     c.setPosition(l.xToCursor(p.x() - blk.layout()->position().x()));
-    qDebug() << "up. nblk=" << doc->blockCount() << " nlns="<<blk.lineCount() << lay->lineCount();
+    // qDebug() << "up. nblk=" << doc->blockCount() << " nlns="<<blk.lineCount() << lay->lineCount();
     break; }
   case Qt::Key_Right:
     c.movePosition(QTextCursor::Start);
@@ -647,7 +647,7 @@ void PageScene::vChanged(int block) {
 }
 
 void PageScene::mousePressEvent(QGraphicsSceneMouseEvent *e) {
-  //qDebug() << "PageScene::mousePressEvent";
+  qDebug() << "PageScene::mousePressEvent";
   QPointF sp = e->scenePos();
   if (inMargin(sp)) {
     //qDebug() << "  in margin";
@@ -683,21 +683,21 @@ void PageScene::keyPressEvent(QKeyEvent *e) {
 }
 
 bool PageScene::tryMakeNote() {
-  qDebug() << "PageScene::tryMakeNote";
+  //  qDebug() << "PageScene::tryMakeNote";
   TextItem *ti = dynamic_cast<TextItem*>(focusItem());
   if (!ti) {
-    qDebug() << "Focus not in text item";
+    // qDebug() << "Focus not in text item";
     return false;
   }
   
   TextBlockItem *tbi = dynamic_cast<TextBlockItem*>(ti->parentItem());
   if (!tbi) {
-    qDebug() << "Focus not in text block item";
+    // qDebug() << "Focus not in text block item";
     return false;
   }
   for (int i=0; i<blockItems.size(); i++) {
     if (blockItems[i] == tbi) {
-      qDebug() << "  Focus in block " << i;
+      // qDebug() << "  Focus in block " << i;
       QTextCursor c = ti->textCursor();
       int pos = c.position();
       TextData *t = tbi->data()->text();
@@ -705,7 +705,7 @@ bool PageScene::tryMakeNote() {
 	if (md->style()==MarkupData::CustomRef
 	    && md->end()>=pos
 	    && md->start()<=pos) {
-	  qDebug() << "  Found a custom ref";
+	  // qDebug() << "  Found a custom ref";
 	  QTextCursor c = ti->textCursor();
 	  c.setPosition(md->start());
 	  c.setPosition(md->end(), QTextCursor::KeepAnchor);
@@ -714,11 +714,11 @@ bool PageScene::tryMakeNote() {
 	  return true;
 	}
       }
-      qDebug() << "  No customref found";
+      //      qDebug() << "  No customref found";
       return false;
     }
   }
-  qDebug() << "  Unknown block!!?";
+  //  qDebug() << "  Unknown block!!?";
   return false;
 }
 	

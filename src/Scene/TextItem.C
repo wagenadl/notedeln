@@ -71,6 +71,7 @@ void TextItem::focusOutEvent(QFocusEvent *e) {
 }
 
 void TextItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
+  qDebug() << "TextItem::mousepressevent";
   QGraphicsTextItem::mousePressEvent(e);
   emit mousePress(e->scenePos(), e->button());
 }

@@ -22,7 +22,7 @@ FootnoteGroupItem::~FootnoteGroupItem() {
 }
 
 void FootnoteGroupItem::restack() {
-  qDebug() << "FootnoteGroupItem::restack";
+  // qDebug() << "FootnoteGroupItem::restack";
   int y = 0;
   foreach (FootnoteItem *fni, itemChildren<FootnoteItem>()) {
     fni->setPos(0, y);
