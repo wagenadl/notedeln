@@ -56,7 +56,7 @@ bool GfxNoteData::lineLengthIsZero() const {
   return dx()==0 && dy()==0;
 }
 
-void GfxNoteData::setEndPoint(QPointF p /*, bool realign */) {
+void GfxNoteData::setEndPoint(QPointF p) {
   dx_ = p.x() - x();
   dy_ = p.y() - y();
   markModified();
