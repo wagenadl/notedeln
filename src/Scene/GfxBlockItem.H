@@ -19,6 +19,8 @@ public:
   virtual QRectF boundingRect() const;
   virtual void childGeometryChanged();
   virtual void makeWritable();
+protected:
+  virtual void mousePressEvent(QGraphicsSceneMouseEvent *);
 protected slots:
   virtual void modifierChange(Qt::KeyboardModifiers);
 private:

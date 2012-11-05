@@ -12,7 +12,6 @@
 
 BlockItem::BlockItem(BlockData *data, Item *parent):
   QGraphicsObject(gi(parent)), Item(data, *this), data_(data) {
-  qDebug() << "Blockitem" << data << this;
 }
 
 BlockItem::~BlockItem() {
@@ -34,16 +33,6 @@ void BlockItem::checkVbox() {
 
 void BlockItem::resetBbox() {
   oldBbox = netBoundingRect();
-}
-
-void BlockItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
-  qDebug() << "BlockItem:mousePressEvent";
-  if (modSnooper()->keyboardModifiers()==0 && e->button()==Qt::LeftButton) {
-    e->accept();
-    createNote(e->pos());
-  } else {
-    QGraphicsObject::mousePressEvent(e);
-  }
 }
 
 void BlockItem::refTextChange(QString olds, QString news) {

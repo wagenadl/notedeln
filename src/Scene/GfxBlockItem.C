@@ -1,5 +1,6 @@
 // GfxBlockItem.C
 
+#include "ModSnooper.H"
 #include "GfxBlockItem.H"
 #include "GfxBlockData.H"
 #include "Style.H"
@@ -21,7 +22,6 @@ GfxBlockItem::GfxBlockItem(GfxBlockData *data, Item *parent):
   foreach (GfxData *g, data->gfx()) 
     create(g, this);
 
-  qDebug() << "GfxBlockItem" << this;
   setPos(style().real("margin-left"), 0);
   setCursor(defaultCursor());
 }
@@ -62,14 +62,12 @@ void GfxBlockItem::sizeToFit() {
 }
 
 QRectF GfxBlockItem::boundingRect() const {
-  // qDebug() << "GfxBlockItem::boundingRect" << this;
   QRectF bb(cachedBounds());
   if (bb.isNull()) {
     bb = QRectF(0, 0, availableWidth(), 72);
     // must do this here, because I cannot use our netBoundingRect...
     foreach (Item *i, itemChildren<Item>()) {
       if (!i->isExtraneous()) {
-	// qDebug() << "  GBI" << this << ": Including child " << i;
 	bb |= gi(i)->mapRectToParent(i->netBoundingRect());
       }
     }
@@ -110,6 +108,15 @@ void GfxBlockItem::drawGrid(QPainter *p, QRectF const &bb, double dx) {
     p->drawLine(x, bb.top(), x, bb.bottom());
   for (double y = y0; y<=y1+.001; y+=dx)
     p->drawLine(bb.left(), y, bb.right(), y);
+}
+
+void GfxBlockItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
+  if (modSnooper()->keyboardModifiers()==0 && e->button()==Qt::LeftButton) {
+    e->accept();
+    createNote(e->pos(), !data()->isRecent());
+  } else {
+    GfxBlockItem::mousePressEvent(e);
+  }
 }
 
 void GfxBlockItem::makeWritable() {

@@ -4,6 +4,8 @@
 #include "GfxImageData.H"
 #include "PageScene.H"
 #include "ModSnooper.H"
+#include "GfxNoteData.H"
+#include "GfxNoteItem.H"
 
 #include <QDebug>
 #include <QGraphicsSceneMouseEvent>
@@ -20,9 +22,11 @@ GfxImageItem::GfxImageItem(GfxImageData *data, Item *parent):
   QGraphicsPixmapItem(Item::gi(parent)),
   Item(data, *this),
   data(data) {
-  if (!data) {
-    qDebug() << "GfxImageItem constructed w/o data";
-    return;
+
+  foreach (GfxNoteData *gnd, data->children<GfxNoteData>()) {
+    GfxNoteItem *gni = dynamic_cast<GfxNoteItem*>(create(gnd, this));
+    Q_ASSERT(gni);
+    // -> make this item scale properly!
   }
 
   dragType = None;
@@ -181,7 +185,7 @@ void GfxImageItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
   } else {
     if (modSnooper()->keyboardModifiers()==0 && e->button()==Qt::LeftButton) {
       e->accept();
-      createNote(e->pos());
+      createNote(e->pos(), !data->isRecent());
     } else {
       QGraphicsPixmapItem::mousePressEvent(e);
     }

@@ -16,7 +16,6 @@ public:
   QRectF boundingRect() const;
   QRectF netBoundingRect() const;
   void paint(QPainter *, const QStyleOptionGraphicsItem *, QWidget *);
-  static GfxNoteItem *newNote(QPointF p0, Item *parent);
   static GfxNoteItem *newNote(QPointF p0, QPointF p1, Item *parent);
   virtual void makeWritable();
 protected:
@@ -26,7 +25,7 @@ private slots:
   void updateTextPos();
   void childMousePress(QPointF, Qt::MouseButton);
   void abandon();
-private:
+protected:
   GfxNoteData *data_;
   class TextItem *text;
   QGraphicsLineItem *line;

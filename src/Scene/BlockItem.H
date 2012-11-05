@@ -20,7 +20,6 @@ public slots:
   void refTextChange(QString olds, QString news);
 protected:
   void resetBbox(); // size change w/o emitting signals
-  virtual void mousePressEvent(QGraphicsSceneMouseEvent *);
 private:
   BlockData *data_;
   QRectF oldBbox;

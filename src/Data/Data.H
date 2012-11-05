@@ -35,7 +35,7 @@ public:
   void setModified(QDateTime const &);
   void setType(QString const &);
   // other
-  void markModified(ModType mt=UserVisibleMod);
+  virtual void markModified(ModType mt=UserVisibleMod);
   void load(QVariantMap const &);
   QVariantMap save() const;
   bool isRecent() const;

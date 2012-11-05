@@ -21,10 +21,15 @@
 #include <QCursor>
 #include <QGraphicsSceneMouseEvent>
 
-#include "GfxNoteItem.H" // yick
+#include "LateNoteItem.H" 
+#include "LateNoteData.H" 
 
 TextItem::TextItem(TextData *data, Item *parent):
   QGraphicsTextItem(gi(parent)), Item(data, *this), data_(data) {
+
+  foreach (LateNoteData *lnd, data->children<LateNoteData>()) 
+    create(lnd, this);
+
   mayMark = true;
   allowParagraphs_ = true;
 
@@ -84,7 +89,7 @@ void TextItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
   } else {
     if (modSnooper()->keyboardModifiers()==0 && e->button()==Qt::LeftButton) {
       e->accept();
-      createNote(e->pos());
+      createNote(e->pos(), true);
     } else {
       QGraphicsTextItem::mousePressEvent(e);
     }

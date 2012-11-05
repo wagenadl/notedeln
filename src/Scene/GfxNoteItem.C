@@ -101,10 +101,6 @@ void GfxNoteItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *) {
     itemParent()->childGeometryChanged();
 }
 
-GfxNoteItem *GfxNoteItem::newNote(QPointF p0, Item *parent) {
-  return newNote(p0, p0, parent);
-}
-
 GfxNoteItem *GfxNoteItem::newNote(QPointF p0, QPointF p1, Item *parent) {
   Q_ASSERT(parent);
   GfxNoteData *d = new GfxNoteData(parent->data());

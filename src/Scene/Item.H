@@ -45,7 +45,7 @@ public:
   bool deleteChild(Item *); // this uses deleteLater if child is an object
   QGraphicsItem *gi();
   QObject *obj();
-  class GfxNoteItem *newNote(QPointF p0, QPointF p1);
+  class GfxNoteItem *newNote(QPointF p0, QPointF p1, bool late);
   virtual bool abandonNote(class GfxNoteItem *);
 public: // but only for use in derived class source files
   template <class DT, class IT> class Creator {
@@ -65,7 +65,7 @@ public:
 protected:
   void acceptModifierChanges();
   bool moveModPressed() const;
-  void createNote(QPointF p0);
+  void createNote(QPointF p0, bool late);
 protected:
   static Qt::CursorShape defaultCursor();
   static Qt::KeyboardModifiers moveModifiers(); // mask of modifier keys ...

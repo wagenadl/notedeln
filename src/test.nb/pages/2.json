@@ -271,7 +271,7 @@
           "mod": "2012-11-04T21:38:21",
           "text": "OK. I fixed the graphics import issue. I simply hadn't made newGBI create a footnote group. Also: gfxnotes attached to images scale wrong and do not load properly. ",
           "cc": [
-            { "typ": "gfxnote",
+            { "typ": "latenote",
               "cre": "2012-11-04T21:37:20",
               "mod": "2012-11-04T21:38:21",
               "dx": 0.0,
@@ -288,7 +288,7 @@
                 }
               ]
             },
-            { "typ": "gfxnote",
+            { "typ": "latenote",
               "cre": "2012-11-04T21:38:06",
               "mod": "2012-11-04T21:38:16",
               "dx": 56.3916,

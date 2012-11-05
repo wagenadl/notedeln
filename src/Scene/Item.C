@@ -4,7 +4,7 @@
 #include "PageScene.H"
 #include <QDebug>
 #include "Notebook.H"
-#include "GfxNoteItem.H"
+#include "LateNoteItem.H"
 #include "PageScene.H"
 #include <QGraphicsSceneMouseEvent>
 #include "DragLine.H"
@@ -191,8 +191,10 @@ void Item::acceptModifierChanges() {
     qDebug() << "Item: not an object -> keyboard modifiers will be ignored";
 }
     
-GfxNoteItem *Item::newNote(QPointF p0, QPointF p1) {
-  GfxNoteItem *n = GfxNoteItem::newNote(p0, p1, this);
+GfxNoteItem *Item::newNote(QPointF p0, QPointF p1, bool late) {
+  GfxNoteItem *n = late
+    ? LateNoteItem::newNote(p0, p1, this)
+    : GfxNoteItem::newNote(p0, p1, this);
   childGeometryChanged(); // b/c of the new note
   return n;
 }
@@ -206,7 +208,7 @@ bool Item::abandonNote(GfxNoteItem *n) {
   }
 }
 
-void Item::createNote(QPointF p0) {
+void Item::createNote(QPointF p0, bool late) {
   QPointF p1 = DragLine::drag(this, p0);
-  newNote(p0, p1);
+  newNote(p0, p1, late);
 }

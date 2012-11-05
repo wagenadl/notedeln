@@ -112,12 +112,9 @@ void PageScene::makeTitleItem() {
 
 void PageScene::makeBlockItems() {
   foreach (BlockData *bd, data->blocks()) {
-    qDebug() << "makeBlockItems" << bd;
     BlockItem *bi = tryMakeTextBlock(bd);
-    qDebug() << "  mBI: " << bi;
     if (!bi)
       bi = tryMakeGfxBlock(bd);
-    qDebug() << "  2->mBI: " << bi;
     Q_ASSERT(bi);
     connect(bi, SIGNAL(vboxChanged()), vChangeMapper, SLOT(map()));
     blockItems.append(bi);
@@ -246,7 +243,6 @@ void PageScene::restackBlocks(int starti, bool preferData) {
 }
 
 void PageScene::restackFootnotes(int sheet) {
-  // qDebug() << "PageScene::restackFootnotes" << sheet;
   double accumh = 0;
   for (int k=0; k<footnoteGroups.size(); k++) 
     if (sheetNos[k] == sheet)
@@ -571,7 +567,6 @@ void PageScene::futileMovement(int block) {
     QTextLayout *lay = blk.layout();
     QTextLine l = lay->lineAt(lay->lineCount()-1);
     c.setPosition(l.xToCursor(p.x() - blk.layout()->position().x()));
-    // qDebug() << "up. nblk=" << doc->blockCount() << " nlns="<<blk.lineCount() << lay->lineCount();
     break; }
   case Qt::Key_Right:
     c.movePosition(QTextCursor::Start);
@@ -653,7 +648,7 @@ void PageScene::vChanged(int block) {
 }
 
 void PageScene::mousePressEvent(QGraphicsSceneMouseEvent *e) {
-  qDebug() << "PageScene::mousePressEvent";
+  // qDebug() << "PageScene::mousePressEvent";
   QPointF sp = e->scenePos();
   if (inMargin(sp)) {
     //qDebug() << "  in margin";
