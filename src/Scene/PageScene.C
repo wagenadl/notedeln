@@ -112,9 +112,12 @@ void PageScene::makeTitleItem() {
 
 void PageScene::makeBlockItems() {
   foreach (BlockData *bd, data->blocks()) {
+    qDebug() << "makeBlockItems" << bd;
     BlockItem *bi = tryMakeTextBlock(bd);
+    qDebug() << "  mBI: " << bi;
     if (!bi)
       bi = tryMakeGfxBlock(bd);
+    qDebug() << "  2->mBI: " << bi;
     Q_ASSERT(bi);
     connect(bi, SIGNAL(vboxChanged()), vChangeMapper, SLOT(map()));
     blockItems.append(bi);

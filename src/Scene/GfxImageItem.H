@@ -16,6 +16,7 @@ public:
   QRectF boundingRect() const;
   QRectF imageBoundingRect() const; // w/o margins
   virtual void makeWritable();
+  virtual void setScale(double);
 protected:
   virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *);
   virtual void mousePressEvent(QGraphicsSceneMouseEvent *);
@@ -34,6 +35,8 @@ private:
     CropTop,
     CropBottom,
   };
+signals:
+  void newScale(double);
 private slots:
   void modifierChange(Qt::KeyboardModifiers);
 private:

@@ -10,8 +10,10 @@
 #include "DragLine.H"
 #include "ModSnooper.H"
 #include "App.H"
+#include "GfxData.H"
 
 Item::Item(Data *d, QGraphicsItem &me): d(d), me(&me) {
+  qDebug() << "Item!" << this << d;
   Q_ASSERT(d);
   Item *p = itemParent();
   if (p)
@@ -19,6 +21,11 @@ Item::Item(Data *d, QGraphicsItem &me): d(d), me(&me) {
   brLocked = false;
   extraneous = false;
   writable = false;
+
+  foreach (GfxData *g, d->children<GfxData>()) {
+    qDebug() << "  Item" << this << gi(this) << "considering data " << d << ":" << g;
+    create(g, this);
+  }
 }
 
 Item::~Item() {
@@ -169,7 +176,7 @@ void Item::childGeometryChanged() {
     itemParent()->childGeometryChanged();
 }
 
-static ModSnooper *modSnooper() {
+ModSnooper *Item::modSnooper() {
   App *app = App::instance();
   Q_ASSERT(app);
   ModSnooper *ms = app->modSnooper();
@@ -205,17 +212,7 @@ bool Item::abandonNote(GfxNoteItem *n) {
   }
 }
 
-bool Item::mousePress(QGraphicsSceneMouseEvent *e) {
-  Qt::KeyboardModifiers m = modSnooper()->keyboardModifiers();
-  qDebug() << "Item" << this<<"::mousePress" << m;
-  if (m==0) {
-    e->accept();
-    QPointF p0 = e->pos();
-    QPointF p1 = DragLine::drag(this, p0);
-    newNote(p0, p1);
-    return true;
-  } else {
-    e->ignore();
-    return false;
-  }
+void Item::createNote(QPointF p0) {
+  QPointF p1 = DragLine::drag(this, p0);
+  newNote(p0, p1);
 }

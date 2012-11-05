@@ -15,10 +15,6 @@ GfxBlockData::GfxBlockData(Data *parent):
 GfxBlockData::~GfxBlockData() {
 }
 
-QList<class GfxData *> GfxBlockData::gfx() const{
-  return children<GfxData>();
-}
-
 double GfxBlockData::xref() const {
   return xref_;
 }
@@ -51,5 +47,5 @@ void GfxBlockData::setRef(QPointF xy) {
 
 
 bool GfxBlockData::isEmpty() const {
-  return BlockData::isEmpty() && gfx().isEmpty();
+  return BlockData::isEmpty() && children<GfxData>().isEmpty();
 }

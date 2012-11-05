@@ -3,6 +3,7 @@
 #include "TextItem.H"
 #include "TextData.H"
 #include "TextMarkings.H"
+#include "ModSnooper.H"
 
 #include "Style.H"
 #include <QFont>
@@ -72,8 +73,22 @@ void TextItem::focusOutEvent(QFocusEvent *e) {
 
 void TextItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
   qDebug() << "TextItem::mousepressevent";
-  QGraphicsTextItem::mousePressEvent(e);
-  emit mousePress(e->scenePos(), e->button());
+  if (isWritable()) {
+    if (moveModPressed()) {
+      emit mousePress(e->scenePos(), e->button()); // may send to GfxNote.
+      // this is pretty awkward.
+      e->accept();
+    } else {
+      QGraphicsTextItem::mousePressEvent(e);
+    }
+  } else {
+    if (modSnooper()->keyboardModifiers()==0 && e->button()==Qt::LeftButton) {
+      e->accept();
+      createNote(e->pos());
+    } else {
+      QGraphicsTextItem::mousePressEvent(e);
+    }
+  }
 }
 
 void TextItem::keyPressEvent(QKeyEvent *e) {

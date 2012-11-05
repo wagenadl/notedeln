@@ -35,7 +35,7 @@ QString const &Data::type() const {
 bool Data::isRecent() const {
   Notebook *b = book();
   double thr_h = b ? b->style().real("recency-threshold") : 24;
-  return modified().secsTo(QDateTime::currentDateTime()) < thr_h*60*60;
+  return created().secsTo(QDateTime::currentDateTime()) < thr_h*60*60;
 }
 
 void Data::setCreated(QDateTime const &dt) {

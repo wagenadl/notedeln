@@ -3,6 +3,8 @@
 #include "GfxImageItem.H"
 #include "GfxImageData.H"
 #include "PageScene.H"
+#include "ModSnooper.H"
+
 #include <QDebug>
 #include <QGraphicsSceneMouseEvent>
 #include <QGraphicsSceneHoverEvent>
@@ -177,8 +179,12 @@ void GfxImageItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
       qDebug() << "GfxImageItem: no parent";
     e->accept();
   } else {
-    mousePress(e); // let item do it
-    // (e will be passed to parent if item doesn't care.)
+    if (modSnooper()->keyboardModifiers()==0 && e->button()==Qt::LeftButton) {
+      e->accept();
+      createNote(e->pos());
+    } else {
+      QGraphicsPixmapItem::mousePressEvent(e);
+    }
   }
 }
 
@@ -286,4 +292,9 @@ QRectF GfxImageItem::boundingRect() const {
 void GfxImageItem::makeWritable() {
   Item::makeWritable();
   setAcceptHoverEvents(true);
+}
+
+void GfxImageItem::setScale(double s) {
+  QGraphicsPixmapItem::setScale(s);
+  emit newScale(s);
 }

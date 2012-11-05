@@ -65,13 +65,13 @@ public:
 protected:
   void acceptModifierChanges();
   bool moveModPressed() const;
-  bool mousePress(QGraphicsSceneMouseEvent *); // must only be called
-  // from within mousePressEvent. Returns true if accepted
+  void createNote(QPointF p0);
 protected:
   static Qt::CursorShape defaultCursor();
   static Qt::KeyboardModifiers moveModifiers(); // mask of modifier keys ...
   static Qt::MouseButton moveButton(); // ... and mouse button that should
                                        // trigger a move
+  static class ModSnooper *modSnooper();
 private:
   static QMap<QString, Item *(*)(Data *, Item *)> &creators();
 private:

@@ -1,0 +1,70 @@
+{ "typ": "page",
+  "cre": "2012-11-04T21:38:43",
+  "mod": "2012-11-04T22:33:15",
+  "startPage": 5,
+  "cc": [
+    { "typ": "title",
+      "cre": "2012-11-04T21:38:43",
+      "mod": "2012-11-04T21:38:46",
+      "cc": [
+        { "typ": "text",
+          "cre": "2012-11-04T21:38:45",
+          "mod": "2012-11-04T21:38:46",
+          "text": "Late notes",
+          "cc": [ ]
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2012-11-04T21:38:46",
+      "mod": "2012-11-04T21:39:12",
+      "sheet": 0,
+      "y0": 72.0,
+      "cc": [
+        { "typ": "text",
+          "cre": "2012-11-04T21:38:46",
+          "mod": "2012-11-04T21:39:12",
+          "text": "Late notes get added just fine, but they don't load. Also, they render their parent editable again. That's wrong.",
+          "cc": [ ]
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2012-11-04T22:09:23",
+      "mod": "2012-11-04T22:11:08",
+      "sheet": 0,
+      "y0": 135.0,
+      "cc": [
+        { "typ": "text",
+          "cre": "2012-11-04T22:09:23",
+          "mod": "2012-11-04T22:11:08",
+          "text": "Fixed. They load OK too, but it now seems that gfx loads twice. Also, late notes should be editable if they are recent, even if their parents aren't. Plus, GfxBlockItem should have the right height. I think I want to slightly revisit the netBoundingRect mechanism.",
+          "cc": [ ]
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2012-11-04T22:32:53",
+      "mod": "2012-11-04T22:33:15",
+      "sheet": 0,
+      "y0": 274.5,
+      "cc": [
+        { "typ": "text",
+          "cre": "2012-11-04T22:32:53",
+          "mod": "2012-11-04T22:33:15",
+          "text": "FootnoteGroupItem should not create GfxItems. Perhaps that means Item cannot do it.",
+          "cc": [
+            { "typ": "markup",
+              "cre": "2012-11-04T22:33:01",
+              "mod": "2012-11-04T22:33:01",
+              "end": 28,
+              "start": 25,
+              "style": 2,
+              "cc": [ ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
