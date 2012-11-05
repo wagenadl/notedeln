@@ -17,6 +17,10 @@
 
 GfxBlockItem::GfxBlockItem(GfxBlockData *data, Item *parent):
   BlockItem(data, parent), data_(data) {
+
+  foreach (GfxData *g, data->gfx()) 
+    create(g, this);
+
   qDebug() << "GfxBlockItem" << this;
   setPos(style().real("margin-left"), 0);
   setCursor(defaultCursor());

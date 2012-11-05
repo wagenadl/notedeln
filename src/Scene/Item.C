@@ -13,7 +13,6 @@
 #include "GfxData.H"
 
 Item::Item(Data *d, QGraphicsItem &me): d(d), me(&me) {
-  qDebug() << "Item!" << this << d;
   Q_ASSERT(d);
   Item *p = itemParent();
   if (p)
@@ -21,11 +20,6 @@ Item::Item(Data *d, QGraphicsItem &me): d(d), me(&me) {
   brLocked = false;
   extraneous = false;
   writable = false;
-
-  foreach (GfxData *g, d->children<GfxData>()) {
-    qDebug() << "  Item" << this << gi(this) << "considering data " << d << ":" << g;
-    create(g, this);
-  }
 }
 
 Item::~Item() {
