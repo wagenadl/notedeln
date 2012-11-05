@@ -23,12 +23,6 @@ GfxImageItem::GfxImageItem(GfxImageData *data, Item *parent):
   Item(data, *this),
   data(data) {
 
-  foreach (GfxNoteData *gnd, data->children<GfxNoteData>()) {
-    GfxNoteItem *gni = dynamic_cast<GfxNoteItem*>(create(gnd, this));
-    Q_ASSERT(gni);
-    // -> make this item scale properly!
-  }
-
   dragType = None;
 
   // get the image, crop it, etc.
@@ -45,6 +39,13 @@ GfxImageItem::GfxImageItem(GfxImageData *data, Item *parent):
   setPixmap(QPixmap::fromImage(image.copy(data->cropRect().toRect())));
   setScale(data->scale());
   setPos(data->pos());
+
+  foreach (GfxNoteData *gnd, data->children<GfxNoteData>()) {
+    GfxNoteItem *gni = dynamic_cast<GfxNoteItem*>(create(gnd, this));
+    Q_ASSERT(gni);
+    gni->setScale(1./data->scale());
+  }
+
   oldCursor = Qt::ArrowCursor;
   setCursor(defaultCursor());
   acceptModifierChanges();
@@ -185,7 +186,8 @@ void GfxImageItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
   } else {
     if (modSnooper()->keyboardModifiers()==0 && e->button()==Qt::LeftButton) {
       e->accept();
-      createNote(e->pos(), !data->isRecent());
+      GfxNoteItem *gni = createNote(e->pos(), !data->isRecent());
+      gni->setScale(1./data->scale());
     } else {
       QGraphicsPixmapItem::mousePressEvent(e);
     }
@@ -295,10 +297,13 @@ QRectF GfxImageItem::boundingRect() const {
 
 void GfxImageItem::makeWritable() {
   Item::makeWritable();
+  foreach (GfxNoteItem *gni, itemChildren<GfxNoteItem>())
+    gni->makeWritable();
   setAcceptHoverEvents(true);
 }
 
 void GfxImageItem::setScale(double s) {
   QGraphicsPixmapItem::setScale(s);
-  emit newScale(s);
+  foreach (GfxNoteItem *gni, itemChildren<GfxNoteItem>())
+    gni->setScale(1./s);
 }

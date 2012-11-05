@@ -19,6 +19,8 @@ public:
   void setAllowParagraphs(bool yes);
   void addMarkup(MarkupData::Style t, int start, int end);
   void addMarkup(MarkupData *); // we appropriate the data!
+  bool allowNotes() const;
+  void setAllowNotes(bool y=true);
 signals:
   void textChanged();
   void abandoned(); // escape pressed while empty
@@ -48,6 +50,7 @@ private:
 protected:
   TextData *data_;
   bool mayMark;
+  bool mayNote;
   bool allowParagraphs_;
   class TextMarkings *markings_;
 };

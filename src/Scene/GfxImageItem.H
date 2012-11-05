@@ -35,8 +35,6 @@ private:
     CropTop,
     CropBottom,
   };
-signals:
-  void newScale(double);
 private slots:
   void modifierChange(Qt::KeyboardModifiers);
 private:

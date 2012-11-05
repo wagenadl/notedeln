@@ -24,6 +24,7 @@ TextBlockItem::TextBlockItem(TextBlockData *data, Item *parent):
 
   initializeFormat();
   item_->setAllowParagraphs(false);
+  item_->setAllowNotes(true);
   
   connect(item_, SIGNAL(textChanged()),
 	  this, SLOT(checkVbox()));
@@ -37,6 +38,7 @@ TextBlockItem::TextBlockItem(TextBlockData *data, Item *parent):
 void TextBlockItem::makeWritable() {
   BlockItem::makeWritable();
   item_->makeWritable();
+  item_->setAllowNotes(false);
   setFlag(ItemIsFocusable);
   setFocusProxy(item_);
 }

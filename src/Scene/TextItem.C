@@ -31,6 +31,7 @@ TextItem::TextItem(TextData *data, Item *parent):
     create(lnd, this);
 
   mayMark = true;
+  mayNote = false;
   allowParagraphs_ = true;
 
   setPlainText(data_->text());  
@@ -40,6 +41,14 @@ TextItem::TextItem(TextData *data, Item *parent):
 
   connect(document(), SIGNAL(contentsChange(int, int, int)),
 	  this, SLOT(docChange()));
+}
+
+bool TextItem::allowNotes() const {
+  return mayNote;
+}
+
+void TextItem::setAllowNotes(bool y) {
+  mayNote = y;
 }
 
 void TextItem::makeWritable() {
@@ -87,7 +96,9 @@ void TextItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
       QGraphicsTextItem::mousePressEvent(e);
     }
   } else {
-    if (modSnooper()->keyboardModifiers()==0 && e->button()==Qt::LeftButton) {
+    if (allowNotes()
+	&& modSnooper()->keyboardModifiers()==0
+	&& e->button()==Qt::LeftButton) {
       e->accept();
       createNote(e->pos(), true);
     } else {

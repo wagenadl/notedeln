@@ -65,7 +65,7 @@ public:
 protected:
   void acceptModifierChanges();
   bool moveModPressed() const;
-  void createNote(QPointF p0, bool late);
+  class GfxNoteItem *createNote(QPointF p0, bool late);
 protected:
   static Qt::CursorShape defaultCursor();
   static Qt::KeyboardModifiers moveModifiers(); // mask of modifier keys ...

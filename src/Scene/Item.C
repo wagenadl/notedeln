@@ -11,6 +11,7 @@
 #include "ModSnooper.H"
 #include "App.H"
 #include "GfxData.H"
+#include "GfxNoteData.H"
 
 Item::Item(Data *d, QGraphicsItem &me): d(d), me(&me) {
   Q_ASSERT(d);
@@ -199,8 +200,11 @@ GfxNoteItem *Item::newNote(QPointF p0, QPointF p1, bool late) {
   return n;
 }
 
-bool Item::abandonNote(GfxNoteItem *n) {
-  if (deleteChild(n)) {
+bool Item::abandonNote(GfxNoteItem *gni) {
+  Q_ASSERT(gni);
+  GfxNoteData *gnd = gni->data();
+  if (deleteChild(gni)) {
+    d->deleteChild(gnd);
     childGeometryChanged();
     return true;
   } else {
@@ -208,7 +212,7 @@ bool Item::abandonNote(GfxNoteItem *n) {
   }
 }
 
-void Item::createNote(QPointF p0, bool late) {
+GfxNoteItem *Item::createNote(QPointF p0, bool late) {
   QPointF p1 = DragLine::drag(this, p0);
-  newNote(p0, p1, late);
+  return newNote(p0, p1, late);
 }

@@ -14,7 +14,6 @@ TOC::TOC(Data *parent): Data(parent) {
 }
 
 void TOC::loadMore(QVariantMap const &) {
-  qDebug() << "TOC::loadMore";
   entries_.clear();
   foreach (TOCEntry *e, children<TOCEntry>()) 
     entries_[e->startPage()] = e;

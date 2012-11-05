@@ -14,10 +14,11 @@ GfxNoteItem::GfxNoteItem(GfxNoteData *data, Item *parent):
   QGraphicsObject(Item::gi(parent)),
   Item(data, *this),
   data_(data) {
+  setPos(data->pos());
   if (data->lineLengthIsZero()) {
     line = 0;
   } else {
-    line = new QGraphicsLineItem(QLineF(data->pos(), data->endPoint()), this);
+    line = new QGraphicsLineItem(QLineF(QPointF(0,0), data->delta()), this);
     line->setPen(QPen(QBrush(QColor(style().string("note-line-color"))),
 		      style().real("note-line-width")));
   }
@@ -54,7 +55,7 @@ void GfxNoteItem::abandon() {
 }
 
 void GfxNoteItem::updateTextPos() {
-  QPointF p = data_->endPoint();
+  QPointF p = data_->delta();
   double yof = style().real("note-y-offset");
   p += QPointF(0, yof);
   if (data_->dx() < 0)
@@ -85,20 +86,27 @@ void GfxNoteItem::mouseMoveEvent(QGraphicsSceneMouseEvent *e) {
   e->accept();
 }
 
-void GfxNoteItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *) {
+void GfxNoteItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *e) {
   unlockBounds();
   ungrabMouse();
   if (line) {
     QLineF l = line->line();
-    QPointF p0 = l.p1();
-    QPointF p1 = l.p2();
+    QPointF p0 = mapToParent(l.p1());
+    QPointF p1 = l.p2() - l.p1();
     data_->setPos(p0);
-    data_->setEndPoint(p1);
+    data_->setDelta(p1);
+    setPos(p0);
+    line->setLine(QLineF(QPointF(0,0), p1));
   } else {
-    data_->setPos(text->pos() - QPointF(0, style().real("note-y-offset")));
+    QPointF p0 = mapToParent(text->pos()
+			     - QPointF(0, style().real("note-y-offset")));
+    data_->setPos(p0);
+    setPos(p0);
   }
+  updateTextPos();
   if (itemParent())
     itemParent()->childGeometryChanged();
+  e->accept();
 }
 
 GfxNoteItem *GfxNoteItem::newNote(QPointF p0, QPointF p1, Item *parent) {
@@ -127,3 +135,6 @@ void GfxNoteItem::makeWritable() {
   //acceptModifierChanges();
 }
 
+GfxNoteData *GfxNoteItem::data()  {
+  return data_;
+}
