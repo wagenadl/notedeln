@@ -23,6 +23,7 @@ public:
     OpenSquare,
     DotCircle,
     DotSquare,
+    LAST=DotSquare,
   };
 public:
   GfxMarkData(Data *parent=0);
@@ -40,3 +41,4 @@ private:
 };
 
 #endif
+
