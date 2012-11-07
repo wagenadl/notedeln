@@ -6,6 +6,7 @@
 #include <QBrush>
 #include <QPen>
 #include <QPainter>
+#include <QGraphicsScene>
 #include <math.h>
 
 GfxPalette::GfxPalette(QGraphicsItem *parent): QGraphicsObject(parent) {

@@ -16,7 +16,6 @@ int main(int argc, char **argv) {
   Q_ASSERT(nb);
 
   PageEditor *editor = new PageEditor(nb);
-  editor->gotoFront();
   editor->resize(editor->sizeHint());
   editor->show();
   int r = app.exec();

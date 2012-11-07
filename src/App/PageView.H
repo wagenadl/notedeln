@@ -9,17 +9,39 @@
 class PageView: public QGraphicsView {
   Q_OBJECT;
 public:
-  PageView(QWidget *parent=0);
+  PageView(class Notebook *nb, QWidget *parent=0);
   virtual ~PageView();
-signals:
-  void pgUp();
-  void pgDn();
-  void home();
-  void end();
+public slots:
+  void gotoPage(int pgno);
+  void gotoTOC(int pgno=1);
+  void gotoFront();
+  //  void gotoIndex();
+  void nextPage();
+  void previousPage();
+  void lastPage();
 protected:
   void resizeEvent(QResizeEvent *);
   void keyPressEvent(QKeyEvent *);
   void keyReleaseEvent(QKeyEvent *);
+  void mousePressEvent(QMouseEvent *);
+private:
+  void leavePage();
+private slots:
+  void nowOnPage(int pgno);
+private:
+  class Notebook *book; // we do not own!
+  class FrontScene *frontScene;
+  class TOCScene *tocScene;
+  class PageScene *pageScene;
+  class GfxPalette *linePalette;
+  class GfxPalette *markPalette;
+  // class Toolbar *toolbar;
+  int currentPage;
+  enum {
+    Front,
+    TOC,
+    Pages
+  } currentSection;
 };
 
 #endif

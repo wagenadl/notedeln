@@ -3,12 +3,33 @@
 #include "PageView.H"
 #include "App.H"
 #include "ModSnooper.H"
+#include "PageScene.H"
+#include "Notebook.H"
+#include "PageFile.H"
+#include "DataFile.H"
+#include "TOCScene.H"
+#include "FrontScene.H"
+#include "TitleData.H"
+#include "GfxLinePalette.H"
+#include "GfxMarkPalette.H"
+
 #include <QKeyEvent>
 #include <QDebug>
 
-PageView::PageView(QWidget *parent): QGraphicsView(parent) {
-  //  setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-  //  setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);  
+PageView::PageView(Notebook *nb, QWidget *parent):
+  QGraphicsView(parent), book(nb) {
+  frontScene = new FrontScene(nb, this);
+  tocScene = new TOCScene(nb->toc(), this);
+  tocScene->populate();
+
+  linePalette = new GfxLinePalette();
+  linePalette->setParent(this);
+  markPalette = new GfxMarkPalette();
+  markPalette->setParent(this);
+  
+  pageScene = 0;
+
+  currentSection = Front;
 }
 
 PageView::~PageView() {
@@ -19,26 +40,31 @@ void PageView::resizeEvent(QResizeEvent *e) {
   if (scene()) 
     fitInView(scene()->sceneRect(), Qt::KeepAspectRatio);
 }
+
+void PageView::mousePressEvent(QMouseEvent *e) {
+  QGraphicsView::mousePressEvent(e);
+}
+  
 void PageView::keyPressEvent(QKeyEvent *e) {
   App::instance()->modSnooper()->keyPress(e->key());
   switch (e->key()) {
   case Qt::Key_PageUp:
-    emit pgUp();
+    previousPage();
     e->accept();
     return;
   case Qt::Key_PageDown:
-    emit pgDn();
+    nextPage();
     e->accept();
     return;
   case Qt::Key_Home:
-    if (e->modifiers() & Qt::ControlModifier) {
-      emit home();
+    if (currentSection!=Pages || (e->modifiers() & Qt::ControlModifier)) {
+      gotoTOC();
       e->accept();
       return;
     }
   case Qt::Key_End:
-    if (e->modifiers() & Qt::ControlModifier) {
-      emit end();
+    if (currentSection!=Pages || (e->modifiers() & Qt::ControlModifier)) {
+      lastPage();
       e->accept();
       return;
     }
@@ -51,4 +77,148 @@ void PageView::keyPressEvent(QKeyEvent *e) {
 void PageView::keyReleaseEvent(QKeyEvent *e) {
   App::instance()->modSnooper()->keyRelease(e->key());
   QGraphicsView::keyReleaseEvent(e);
+}
+
+void PageView::nowOnPage(int n) {
+  if (currentSection==Pages)
+    currentPage = n;
+}
+
+void PageView::gotoPage(int n) {
+  if (n<1)
+    n=1;
+
+  if (n>=book->toc()->newPageNumber()) {
+    // make a new page?
+    TOCEntry *te = book->toc()->find(n-1);
+    if (te) {
+      // let's look at page before end
+      PageFile *file = book->page(te->startPage());
+      Q_ASSERT(file);
+      if (file->data()->isEmpty()) {
+	// previous page is empty -> go there instead
+	gotoPage(n-1);
+	return;
+      }
+    }
+    book->createPage(n);
+  }
+
+  if (currentSection==Pages && currentPage==n)
+    return; // don't move (special case must be checked to avoid deleting tgt)
+  
+  TOCEntry *te = book->toc()->find(n);
+  if (!te) {
+    qDebug() << "PageEditor: gotoPage("<<n<<"): no such page";
+    return;
+  }
+
+  PageFile *file = book->page(te->startPage());
+  Q_ASSERT(file);
+  Q_ASSERT(file->data());
+
+  if (pageScene)
+    delete pageScene;
+  pageScene = 0;
+
+  leavePage();
+
+  currentSection = Pages;
+  currentPage = n;
+
+  pageScene = new PageScene(file->data(), this);
+  pageScene->populate();
+  connect(pageScene, SIGNAL(nowOnPage(int)), SLOT(nowOnPage(int)));
+  if (book->toc()->isLast(te) && file->data()->isRecent())
+    pageScene->makeWritable(); // this should be even more sophisticated
+  setScene(pageScene);
+  pageScene->gotoSheet(currentPage - te->startPage());
+  
+  if (file->data()->title()->isDefault())
+    pageScene->focusTitle();
+  else
+    pageScene->focusEnd();
+}
+
+void PageView::gotoFront() {
+  leavePage();
+  currentSection = Front;
+  setScene(frontScene);
+}
+
+void PageView::gotoTOC(int n) {
+  leavePage();
+  
+  currentSection = TOC;
+  currentPage = n;
+  setScene(tocScene);
+  tocScene->gotoSheet(currentPage-1);
+}
+
+void PageView::leavePage() {
+  if (currentSection==Pages
+      && currentPage>1
+      && currentPage==book->toc()->newPageNumber()-1) {
+    // Leaving the last page in the notebook, not being the only page.
+    // If the page is empty, we'll delete it.   
+    TOCEntry *te = book->toc()->find(currentPage);
+    Q_ASSERT(te);
+    PageFile *file = book->page(te->startPage());
+    Q_ASSERT(file);
+    Q_ASSERT(file->data());
+    if (file->data()->isEmpty()) {
+      // Leaving an empty page
+      if (pageScene)
+	delete pageScene;
+      pageScene = 0;
+      book->deletePage(currentPage);
+    }
+  }
+}  
+
+void PageView::previousPage() {
+  switch (currentSection) {
+  case Front:
+    break;
+  case TOC:
+    if (currentPage<=1)
+      gotoFront();
+    else
+      gotoTOC(currentPage-1);
+    break;
+  case Pages:
+    if (currentPage<=1)
+      gotoTOC(tocScene->sheetCount());
+    else
+      gotoPage(currentPage-1);
+    break;
+  }
+}
+
+void PageView::nextPage() {
+  switch (currentSection) {
+  case Front:
+    gotoTOC();
+    break;
+  case TOC:
+    if (currentPage>=tocScene->sheetCount())
+      gotoPage(1);
+    else
+      gotoTOC(currentPage+1);
+    break;
+  case Pages:
+    if (currentPage>=book->toc()->newPageNumber()) {
+      // go to index?
+    } else if (currentPage==book->toc()->newPageNumber()-1) {
+      gotoPage(currentPage+1);
+      // makes a new page unless current is empty
+    } else {
+      gotoPage(currentPage+1);
+    }
+    break;
+  }
+}
+
+void PageView::lastPage() {
+  gotoPage(book->toc()->newPageNumber()-1);
 }
