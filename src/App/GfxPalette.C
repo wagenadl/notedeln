@@ -106,7 +106,7 @@ bool GfxPalette::letUserChoose(QGraphicsScene *scene, QPointF p0) {
 void GfxPalette::paint(QPainter *p,
 		       const QStyleOptionGraphicsItem *,
 		       QWidget *) {
-  p->setBrush(QBrush("white"));
+  p->setBrush(QBrush("#eeeeee"));
   p->setPen(Qt::NoPen);
   p->drawRect(boundingRect());
   for (int r=0; r<rows; r++) 

@@ -12,7 +12,7 @@ GfxMarkPalette::~GfxMarkPalette() {
 }
 
 double GfxMarkPalette::sizeAt(int, int s) {
-  return 72./16 * pow(2, s/2.0);
+  return 72./32 * pow(2, s/2.0);
 }
 
 GfxMarkData::Shape GfxMarkPalette::shapeAt(int s, int) {

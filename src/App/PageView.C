@@ -42,7 +42,24 @@ void PageView::resizeEvent(QResizeEvent *e) {
 }
 
 void PageView::mousePressEvent(QMouseEvent *e) {
-  QGraphicsView::mousePressEvent(e);
+  bool take = false;
+  if (e->button()==Qt::RightButton) {
+    QPointF p = mapToScene(e->pos());
+    if (currentSection==Pages) {
+      if (e->modifiers() & Qt::ControlModifier) {
+	markPalette->letUserChoose(pageScene, p);
+	take = true;
+      } else if (e->modifiers() & Qt::ShiftModifier) {
+	if (linePalette->letUserChoose(pageScene, p))
+	  markPalette->setColor(linePalette->color());
+	take = true;
+      }
+    } 
+  }
+  if (take)
+    e->accept();
+  else
+    QGraphicsView::mousePressEvent(e);
 }
   
 void PageView::keyPressEvent(QKeyEvent *e) {

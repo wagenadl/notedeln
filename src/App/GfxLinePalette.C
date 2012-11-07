@@ -22,28 +22,46 @@ static char const *colors[] = {
   "#C400FF",
 };
 
+static double lineWidths[] = {
+  0.5,
+  1,
+  1.5,
+  2,
+  3,
+  5,
+  8,
+};
+
+static int nColors = sizeof(colors)/sizeof(*colors);
+static int nLineWidths = sizeof(lineWidths)/sizeof(*lineWidths);
+
 GfxLinePalette::GfxLinePalette(QGraphicsItem *parent): GfxPalette(parent) {
-  setGridSize(sizeof(colors), 6);
+  setGridSize(nColors, nLineWidths);
 }
 
 GfxLinePalette::~GfxLinePalette() {
 }
 
 QColor GfxLinePalette::colorAt(int c, int) {
-  if (c<0 || c>=int(sizeof(colors)))
+  if (c<0 || c>=nColors)
     return QColor();
   else
     return QColor(colors[c]);
 }
 
 double GfxLinePalette::sizeAt(int, int s) {
-  return 0.5 * pow(2, s/2.0);
+  if (s<0 || s>=nLineWidths)
+    return 1;
+  else
+    return lineWidths[s];
 }
   
 void GfxLinePalette::paintOne(int row, int col, QPainter *p) {
   QPointF p0((col+.5) * cellsize, (row+.5) * cellsize);
-  p->setPen(QPen(colorAt(row, col), sizeAt(row, col)));
+  QPen pen(colorAt(row, col));
+  pen.setWidthF(sizeAt(row, col));
+  p->setPen(pen);
   p->setBrush(Qt::NoBrush);
-  p->drawLine(-.4*cellsize, .9*cellsize,
-	      .4*cellsize, -.9*cellsize);
+  p->drawLine(p0.x()-.18*cellsize, p0.y()+.32*cellsize,
+	      p0.x()+.18*cellsize, p0.y()-.32*cellsize);
 }
