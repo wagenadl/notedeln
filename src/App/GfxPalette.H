@@ -15,7 +15,8 @@ public:
   QColor color() const;
   double size() const;
   GfxMarkData::Shape markShape() const;
-  virtual bool letUserChoose(QPointF p0); // p0 must be current mouse position
+  virtual bool letUserChoose(QGraphicsScene *scene, QPointF p0);
+  // p0 must be current mouse position
   // returns false if moved out of range
   // letUserChoose() must only be called when a mouse button is down
   void setColor(QColor);

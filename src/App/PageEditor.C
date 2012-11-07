@@ -10,6 +10,8 @@
 #include "TOCScene.H"
 #include "FrontScene.H"
 #include "TitleData.H"
+#include "GfxLinePalette.H"
+#include "GfxMarkPalette.H"
 
 #include <QApplication>
 #include <QDesktopWidget>
@@ -22,6 +24,10 @@ PageEditor::PageEditor(Notebook *nb): book(nb) {
   frontScene = new FrontScene(nb, this);
   tocScene = new TOCScene(nb->toc(), this);
   tocScene->populate();
+
+  linePalette = new GfxLinePalette(this);
+  markPalette = new GfxMarkPalette(this);
+  
   pageScene = 0;
 
   connect(view, SIGNAL(pgUp()), SLOT(previousPage()));

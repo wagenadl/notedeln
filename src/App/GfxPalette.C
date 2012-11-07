@@ -72,9 +72,12 @@ bool GfxPalette::findMe() {
   return ds<10;
 }
       
-bool GfxPalette::letUserChoose(QPointF p0) {
+bool GfxPalette::letUserChoose(QGraphicsScene *scene, QPointF p0) {
+  QObject *origParent = parent();
   QEventLoop el;
   connect(this, SIGNAL(release()), &el, SLOT(quit()));
+
+  scene->addItem(this);
   if (findMe()) 
     setPos(p0-QPointF((col+.5)*cellsize, (row+.5)*cellsize));
   else
@@ -84,6 +87,10 @@ bool GfxPalette::letUserChoose(QPointF p0) {
   grabMouse();
   el.exec();
   ungrabMouse();
+  hide();
+  scene->removeItem(this);
+  setParent(origParent);
+  
   if (row>=0 && row<rows && col>=0 && col<cols) {
     // selection made
     c = colorAt(row, col);

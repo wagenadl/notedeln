@@ -23,21 +23,21 @@ static char const *colors[] = {
 };
 
 GfxLinePalette::GfxLinePalette(QGraphicsItem *parent): GfxPalette(parent) {
-  setGridSize(6, sizeof(colors));
+  setGridSize(sizeof(colors), 6);
 }
 
 GfxLinePalette::~GfxLinePalette() {
 }
 
-QColor GfxLinePalette::colorAt(int, int col) {
-  if (col<0 || col>=int(sizeof(colors)))
+QColor GfxLinePalette::colorAt(int c, int) {
+  if (c<0 || c>=int(sizeof(colors)))
     return QColor();
   else
-    return QColor(colors[col]);
+    return QColor(colors[c]);
 }
 
-double GfxLinePalette::sizeAt(int row, int) {
-  return pow(2, (row-2)/2.0);
+double GfxLinePalette::sizeAt(int, int s) {
+  return 0.5 * pow(2, s/2.0);
 }
   
 void GfxLinePalette::paintOne(int row, int col, QPainter *p) {

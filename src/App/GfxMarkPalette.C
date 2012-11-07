@@ -5,21 +5,21 @@
 #include "GfxMarkItem.H"
 
 GfxMarkPalette::GfxMarkPalette(QGraphicsItem *parent): GfxPalette(parent) {
-  setGridSize(6, 8);
+  setGridSize(8, 6);
 }
 
 GfxMarkPalette::~GfxMarkPalette() {
 }
 
-double GfxMarkPalette::sizeAt(int row, int) {
-  return pow(2, row/2.0);
+double GfxMarkPalette::sizeAt(int, int s) {
+  return 72./16 * pow(2, s/2.0);
 }
 
-GfxMarkData::Shape GfxMarkPalette::shapeAt(int, int col) {
-  if (col<0 || col>GfxMarkData::LAST)
+GfxMarkData::Shape GfxMarkPalette::shapeAt(int s, int) {
+  if (s<0 || s>GfxMarkData::LAST)
     return GfxMarkData::SolidCircle; // bailout
   else
-    return GfxMarkData::Shape(col);
+    return GfxMarkData::Shape(s);
 }
   
 void GfxMarkPalette::paintOne(int row, int col, QPainter *p) {

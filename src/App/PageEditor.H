@@ -29,6 +29,8 @@ private:
   class FrontScene *frontScene;
   class TOCScene *tocScene;
   class PageScene *pageScene;
+  class GfxPalette *linePalette;
+  class GfxPalette *markPalette;
   // class Toolbar *toolbar;
   int currentPage;
   enum {
