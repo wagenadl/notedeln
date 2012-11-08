@@ -27,6 +27,7 @@ private:
   void sizeToFit();
   double availableWidth() const;
   void drawGrid(QPainter *p, QRectF const &bb, double dx);
+  void createMark(QPointF pos);
 private:
   GfxBlockData *data_;
 };

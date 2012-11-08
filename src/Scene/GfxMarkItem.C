@@ -9,7 +9,7 @@
 static Item::Creator<GfxMarkData, GfxMarkItem> c("gfxmark");
 
 GfxMarkItem::GfxMarkItem(GfxMarkData *data, Item *parent):
-  QGraphicsObject(gi(parent)), Item(*this), d(data) {
+  QGraphicsObject(gi(parent)), Item(data, *this), d(data) {
   setPos(d->pos());
 }
 
@@ -22,7 +22,7 @@ GfxMarkData *GfxMarkItem::data() {
 
 QRectF GfxMarkItem::boundingRect() const {
   double s = d->size() + 1; // add +1 for line width
-  return QRectF(-s,-s,s,s);
+  return QRectF(-s,-s,2*s,2*s);
 }
 
 void GfxMarkItem::paint(QPainter *p,

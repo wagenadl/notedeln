@@ -75,6 +75,8 @@ protected:
 private:
   static QMap<QString, Item *(*)(Data *, Item *)> &creators();
 private:
+  Item(Item const &); // this must never be called
+private:
   Data *d;
   QGraphicsItem *me;
   QList<Item *> children_;
