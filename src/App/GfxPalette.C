@@ -9,10 +9,12 @@
 #include <QGraphicsScene>
 #include <math.h>
 
+QColor GfxPalette::c("black");
+double GfxPalette::wid = 1;
+double GfxPalette::siz = 5;
+GfxMarkData::Shape GfxPalette::shp(GfxMarkData::SolidCircle);
+
 GfxPalette::GfxPalette(QGraphicsItem *parent): QGraphicsObject(parent) {
-  c = QColor("black");
-  siz = 5;
-  shp = GfxMarkData::SolidCircle;
   rows = 1;
   cols = 1;
   cellsize = 72.0/2;
@@ -22,15 +24,19 @@ GfxPalette::GfxPalette(QGraphicsItem *parent): QGraphicsObject(parent) {
 GfxPalette::~GfxPalette() {
 }
 
-QColor GfxPalette::color() const {
+QColor GfxPalette::color() {
   return c;
 }
 
-double GfxPalette::size() const {
+double GfxPalette::lineWidth() {
+  return wid;
+}
+
+double GfxPalette::markSize() {
   return siz;
 }
 
-GfxMarkData::Shape GfxPalette::markShape() const {
+GfxMarkData::Shape GfxPalette::markShape() {
   return shp;
 }
 
@@ -38,7 +44,11 @@ void GfxPalette::setColor(QColor c_) {
   c = c_;
 }
 
-void GfxPalette::setSize(double s) {
+void GfxPalette::setLineWidth(double s) {
+  wid = s;
+}
+
+void GfxPalette::setMarkSize(double s) {
   siz = s;
 }
 
@@ -57,20 +67,26 @@ void GfxPalette::mouseReleaseEvent(QGraphicsSceneMouseEvent *e) {
   emit release();
 }
 
+static double sq(double x) {
+  return x*x;
+}
+
 bool GfxPalette::findMe() {
   double ds = 1e9;
   for (int r=0; r<rows; r++) {
     for (int c=0; c<cols; c++) {
       if (colorAt(r, c) == color()
-	  && shapeAt(r, c) == markShape()
-	  && fabs(sizeAt(r, c)-size()) < ds) {
-	row = r;
-	col = c;
-	ds = fabs(sizeAt(r, c)-size());
+	  && shapeAt(r, c) == markShape()) {
+	double ds1 = sq(sizeAt(r, c)-markSize()) + sq(widthAt(r,c)-lineWidth());
+	if (ds1 < ds) {
+	  row = r;
+	  col = c;
+	  ds = ds1;
+	}
       }
     }
   }
-  return ds<10;
+  return ds<100;
 }
       
 bool GfxPalette::letUserChoose(QGraphicsScene *scene, QPointF p0) {
@@ -95,6 +111,7 @@ bool GfxPalette::letUserChoose(QGraphicsScene *scene, QPointF p0) {
   if (row>=0 && row<rows && col>=0 && col<cols) {
     // selection made
     c = colorAt(row, col);
+    wid = widthAt(row, col);
     siz = sizeAt(row, col);
     shp = shapeAt(row, col);
     return true;
@@ -125,6 +142,10 @@ void GfxPalette::setCellSize(double s) {
 
 QColor GfxPalette::colorAt(int, int) {
   return c;
+}
+
+double GfxPalette::widthAt(int, int) {
+  return wid;
 }
 
 double GfxPalette::sizeAt(int, int) {

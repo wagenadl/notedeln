@@ -49,7 +49,7 @@ QColor GfxLinePalette::colorAt(int c, int) {
     return QColor(colors[c]);
 }
 
-double GfxLinePalette::sizeAt(int, int s) {
+double GfxLinePalette::widthAt(int, int s) {
   if (s<0 || s>=nLineWidths)
     return 1;
   else
@@ -59,7 +59,7 @@ double GfxLinePalette::sizeAt(int, int s) {
 void GfxLinePalette::paintOne(int row, int col, QPainter *p) {
   QPointF p0((col+.5) * cellsize, (row+.5) * cellsize);
   QPen pen(colorAt(row, col));
-  pen.setWidthF(sizeAt(row, col));
+  pen.setWidthF(widthAt(row, col));
   p->setPen(pen);
   p->setBrush(Qt::NoBrush);
   p->drawLine(p0.x()-.18*cellsize, p0.y()+.32*cellsize,

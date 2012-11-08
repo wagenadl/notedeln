@@ -13,7 +13,7 @@ public:
   virtual ~GfxLinePalette();
 protected:
   virtual QColor colorAt(int row, int col);
-  virtual double sizeAt(int row, int col);
+  virtual double widthAt(int row, int col);
   virtual void paintOne(int row, int col, QPainter *);
 };
 
