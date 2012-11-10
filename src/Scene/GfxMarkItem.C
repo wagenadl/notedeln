@@ -5,12 +5,16 @@
 #include <QPen>
 #include <QBrush>
 #include <math.h>
+#include <QGraphicsSceneMouseEvent>
+#include "GfxPalette.H"
+#include <QCursor>
 
 static Item::Creator<GfxMarkData, GfxMarkItem> c("gfxmark");
 
 GfxMarkItem::GfxMarkItem(GfxMarkData *data, Item *parent):
   QGraphicsObject(gi(parent)), Item(data, *this), d(data) {
   setPos(d->pos());
+  acceptModifierChanges();
 }
 
 GfxMarkItem::~GfxMarkItem() {
@@ -94,7 +98,15 @@ void GfxMarkItem::renderMark(QPointF p0,
     break;
   }
 }
-  
+
+GfxMarkItem *GfxMarkItem::newMark(QPointF p, Item *parent) {
+  return newMark(p,
+		 GfxPalette::color(),
+		 GfxPalette::markSize(),
+		 GfxPalette::markShape(),
+		 parent);
+}
+
 GfxMarkItem *GfxMarkItem::newMark(QPointF p,
 				  QColor c, double siz, GfxMarkData::Shape shp,
 				  Item *parent) {
@@ -104,6 +116,32 @@ GfxMarkItem *GfxMarkItem::newMark(QPointF p,
   gmd->setSize(siz);
   gmd->setShape(shp);
   GfxMarkItem *gmi = new GfxMarkItem(gmd, parent);
+  gmi->makeWritable();
   return gmi;
 }
   
+void GfxMarkItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
+  if (isWritable() && moveModPressed()) {
+    e->accept();
+  } else {
+    QGraphicsObject::mousePressEvent(e);
+  }
+}
+
+void GfxMarkItem::mouseMoveEvent(QGraphicsSceneMouseEvent *e) {
+  setPos(mapToParent(e->scenePos() - e->lastScenePos()));
+  e->accept();
+}
+
+void GfxMarkItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *e) {
+  d->setPos(pos());
+  e->accept();
+}
+
+
+void GfxMarkItem::modifierChange(Qt::KeyboardModifiers) {
+  if (moveModPressed())
+    setCursor(Qt::SizeAllCursor);
+  else 
+    setCursor(Qt::CrossCursor);
+}

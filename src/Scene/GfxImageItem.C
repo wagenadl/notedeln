@@ -6,6 +6,7 @@
 #include "ModSnooper.H"
 #include "GfxNoteData.H"
 #include "GfxNoteItem.H"
+#include "GfxMarkItem.H"
 
 #include <QDebug>
 #include <QGraphicsSceneMouseEvent>
@@ -40,10 +41,9 @@ GfxImageItem::GfxImageItem(GfxImageData *data, Item *parent):
   setScale(data->scale());
   setPos(data->pos());
 
-  foreach (GfxNoteData *gnd, data->children<GfxNoteData>()) {
-    GfxNoteItem *gni = dynamic_cast<GfxNoteItem*>(create(gnd, this));
-    Q_ASSERT(gni);
-    gni->setScale(1./data->scale());
+  foreach (GfxData *gd, data->children<GfxData>()) {
+    Item *i = create(gd, this);
+    i->gi()->setScale(1./data->scale());
   }
 
   oldCursor = Qt::ArrowCursor;
@@ -184,10 +184,16 @@ void GfxImageItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
       qDebug() << "GfxImageItem: no parent";
     e->accept();
   } else {
-    if (modSnooper()->keyboardModifiers()==0 && e->button()==Qt::LeftButton) {
-      e->accept();
-      GfxNoteItem *gni = createNote(e->pos(), !data->isRecent());
-      gni->setScale(1./data->scale());
+    if (e->button()==Qt::LeftButton) {
+      if (modSnooper()->keyboardModifiers()==0) {
+	e->accept();
+	GfxNoteItem *gni = createNote(e->pos(), !data->isRecent());
+	gni->setScale(1./data->scale());
+      } else if (modSnooper()->keyboardModifiers() & Qt::ControlModifier) {
+	e->accept();
+	GfxMarkItem *mi = GfxMarkItem::newMark(e->pos(), this);
+	mi->setScale(1./data->scale());
+      }
     } else {
       QGraphicsPixmapItem::mousePressEvent(e);
     }
@@ -297,13 +303,13 @@ QRectF GfxImageItem::boundingRect() const {
 
 void GfxImageItem::makeWritable() {
   Item::makeWritable();
-  foreach (GfxNoteItem *gni, itemChildren<GfxNoteItem>())
-    gni->makeWritable();
+  foreach (Item *i, itemChildren<Item>())
+    i->makeWritable();
   setAcceptHoverEvents(true);
 }
 
 void GfxImageItem::setScale(double s) {
   QGraphicsPixmapItem::setScale(s);
-  foreach (GfxNoteItem *gni, itemChildren<GfxNoteItem>())
-    gni->setScale(1./s);
+  foreach (Item *i, itemChildren<Item>())
+    i->gi()->setScale(1./s);
 }

@@ -16,7 +16,6 @@
 #include <QCursor>
 #include "DragLine.H"
 #include "GfxMarkItem.H"
-#include "GfxPalette.H"
 
 GfxBlockItem::GfxBlockItem(GfxBlockData *data, Item *parent):
   BlockItem(data, parent), data_(data) {
@@ -112,14 +111,6 @@ void GfxBlockItem::drawGrid(QPainter *p, QRectF const &bb, double dx) {
     p->drawLine(bb.left(), y, bb.right(), y);
 }
 
-void GfxBlockItem::createMark(QPointF pos) {
-  GfxMarkItem::newMark(pos,
-		       GfxPalette::color(),
-		       GfxPalette::markSize(),
-		       GfxPalette::markShape(),
-		       this);
-}
-
 void GfxBlockItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
   Qt::KeyboardModifiers mod = modSnooper()->keyboardModifiers();
   Qt::MouseButton but = e->button();
@@ -129,7 +120,7 @@ void GfxBlockItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
       createNote(e->pos(), !data()->isRecent());
       take = true;
     } else if (mod & Qt::ControlModifier && data()->isRecent()) {
-      createMark(e->pos());
+      GfxMarkItem::newMark(e->pos(), this);
       take = true;
     }
   }
