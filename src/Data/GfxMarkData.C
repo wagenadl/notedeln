@@ -5,6 +5,7 @@
 static Data::Creator<GfxMarkData> c("gfxmark");
 
 GfxMarkData::GfxMarkData(Data *parent): GfxData(parent) {
+  setType("gfxmark");
   col = QColor("black");
   siz = 5;
   shp = SolidCircle;

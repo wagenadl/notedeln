@@ -42,6 +42,7 @@ private:
     TOC,
     Pages
   } currentSection;
+  class DeletedStack *deletedStack;
 };
 
 #endif

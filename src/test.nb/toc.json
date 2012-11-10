@@ -1,6 +1,6 @@
 { "typ": "toc",
   "cre": "2012-11-01T21:01:16",
-  "mod": "2012-11-07T21:39:54",
+  "mod": "2012-11-09T21:01:15",
   "cc": [
     { "typ": "entry",
       "cre": "2012-11-01T21:01:18",
@@ -32,6 +32,22 @@
       "sheetCount": 1,
       "startPage": 6,
       "title": "Testing image notes again",
+      "cc": [ ]
+    },
+    { "typ": "entry",
+      "cre": "2012-11-07T21:47:01",
+      "mod": "2012-11-07T21:47:07",
+      "sheetCount": 1,
+      "startPage": 7,
+      "title": "Notes on bugs",
+      "cc": [ ]
+    },
+    { "typ": "entry",
+      "cre": "2012-11-09T20:32:07",
+      "mod": "2012-11-09T21:01:15",
+      "sheetCount": 2,
+      "startPage": 8,
+      "title": "Experiments with deleted items",
       "cc": [ ]
     }
   ]

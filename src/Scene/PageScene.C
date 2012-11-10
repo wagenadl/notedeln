@@ -393,7 +393,7 @@ void PageScene::splitTextBlock(int iblock, int pos) {
   post.movePosition(QTextCursor::Start, QTextCursor::KeepAnchor);
   post.deleteChar();
   tbi_post->text()->setTextCursor(post);
-  restackBlocks(iblock);
+  restackBlocks(iblock>0 ? iblock-1 : iblock);
   gotoSheet(sheetNos[iblock+1]);
   tbi_post->setFocus();
 }
@@ -422,7 +422,6 @@ void PageScene::joinTextBlocks(int iblock_pre, int iblock_post) {
   }
   c_pre.setPosition(len);
   tbi_pre->text()->setTextCursor(c_pre);
-  tbi_pre->setFocus();
   TextData *td_pre = tbi_pre->data()->text();
   if (td_post->created() < td_pre->created())
     td_pre->setCreated(td_post->created());
@@ -437,6 +436,8 @@ void PageScene::joinTextBlocks(int iblock_pre, int iblock_post) {
   }
   deleteBlock(iblock_post);
   footnoteGroups[iblock_pre]->restack();
+  gotoSheet(sheetNos[iblock_pre]);
+  tbi_pre->setFocus();
 }  
 
 TextBlockItem *PageScene::injectTextBlock(TextBlockData *tbd, int iblock) {
@@ -539,8 +540,13 @@ void PageScene::futileMovement(int block) {
       }
     }
   }
-  if (tgtidx<0)
-    return; // no target
+  if (tgtidx<0) {
+    // no target, go to end of previous
+    QTextCursor c = tbi->text()->textCursor();
+    c.movePosition(QTextCursor::End);
+    tbi->text()->setTextCursor(c);
+    return;
+  }
 
   if (fmi.key()==Qt::Key_Delete) {
     joinTextBlocks(block, tgtidx);

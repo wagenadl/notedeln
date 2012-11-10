@@ -12,12 +12,14 @@
 #include "TitleData.H"
 #include "GfxLinePalette.H"
 #include "GfxMarkPalette.H"
+#include "DeletedStack.H"
 
 #include <QKeyEvent>
 #include <QDebug>
 
 PageView::PageView(Notebook *nb, QWidget *parent):
   QGraphicsView(parent), book(nb) {
+  deletedStack = new DeletedStack(this);
   frontScene = new FrontScene(nb, this);
   tocScene = new TOCScene(nb->toc(), this);
   tocScene->populate();
@@ -79,12 +81,31 @@ void PageView::keyPressEvent(QKeyEvent *e) {
       e->accept();
       return;
     }
+    break;
   case Qt::Key_End:
     if (currentSection!=Pages || (e->modifiers() & Qt::ControlModifier)) {
       lastPage();
       e->accept();
       return;
     }
+    break;
+  case Qt::Key_Delete:
+    if (currentSection==Pages && pageScene->focusItem()==0) {
+      QPointF p = mapToScene(mapFromGlobal(QCursor::pos()));
+      Item *item = dynamic_cast<Item*>(pageScene->itemAt(p));
+      if (item) 
+	deletedStack->grabIfRestorable(item);
+      e->accept();
+      return;
+    }
+    break;
+  case Qt::Key_Insert:
+    if (currentSection==Pages && pageScene->focusItem()==0) {
+      deletedStack->restoreTop();
+      e->accept();
+      return;
+    }
+    break;
   default:
     break;
   }
