@@ -7,7 +7,7 @@
 #include <QGraphicsObject>
 #include "Item.H"
 
-class BlockItem: public QGraphicsObject, public Item {
+class BlockItem: public Item {
   Q_OBJECT;
 public:
   BlockItem(class BlockData *data, Item *parent);

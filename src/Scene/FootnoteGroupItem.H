@@ -7,7 +7,7 @@
 #include <QGraphicsObject>
 #include "Item.H"
 
-class FootnoteGroupItem: public QGraphicsObject, public Item {
+class FootnoteGroupItem: public Item {
   Q_OBJECT;
 public:
   FootnoteGroupItem(class BlockData *data, class PageScene *parent);

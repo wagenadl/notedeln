@@ -19,8 +19,7 @@ protected:
 private:
   friend class TextItem;
   void internalKeyPressEvent(QKeyEvent *);
-private:
-  TextItem *parent;
+  TextItem *parent();
 };
 
 #endif

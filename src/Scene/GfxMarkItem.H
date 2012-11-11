@@ -9,7 +9,7 @@
 
 #include <QGraphicsObject>
 
-class GfxMarkItem: public QGraphicsObject, public Item {
+class GfxMarkItem: public Item {
   Q_OBJECT;
 public:
   GfxMarkItem(GfxMarkData *data, Item *parent=0);

@@ -101,7 +101,7 @@ void BaseScene::makeContdItems() {
   QPointF bl = contItem->boundingRect().bottomLeft();
   contItem->setPos(style_->real("page-width") - style_->real("margin-right")
 		   - bl.x(),
-		   style_->real("page-height") + style_->real("margin-bottom")
+		   style_->real("page-height") - style_->real("margin-bottom")
 		   - bl.y());
 }
 

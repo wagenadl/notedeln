@@ -11,7 +11,7 @@
 #include <QDebug>
 
 BlockItem::BlockItem(BlockData *data, Item *parent):
-  QGraphicsObject(gi(parent)), Item(data, *this), data_(data) {
+  Item(data, parent), data_(data) {
 }
 
 BlockItem::~BlockItem() {

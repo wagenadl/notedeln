@@ -19,9 +19,7 @@
 static Item::Creator<GfxImageData, GfxImageItem> c("gfximage");
 
 GfxImageItem::GfxImageItem(GfxImageData *data, Item *parent):
-  QGraphicsObject(Item::gi(parent)),
-  Item(data, *this),
-  data(data) {
+  Item(data, parent), data(data) {
   pixmap = new QGraphicsPixmapItem(this);
   pixmap->setAcceptedMouseButtons(0);
 
@@ -45,7 +43,7 @@ GfxImageItem::GfxImageItem(GfxImageData *data, Item *parent):
 
   foreach (GfxData *gd, data->children<GfxData>()) {
     Item *i = create(gd, this);
-    i->gi()->setScale(1./data->scale());
+    i->setScale(1./data->scale());
   }
 
   oldCursor = Qt::ArrowCursor;
@@ -319,7 +317,7 @@ void GfxImageItem::makeWritable() {
 void GfxImageItem::setScale(double s) {
   QGraphicsObject::setScale(s);
   foreach (Item *i, itemChildren<Item>())
-    i->gi()->setScale(1./s);
+    i->setScale(1./s);
 }
 
 void GfxImageItem::paint(QPainter*, const QStyleOptionGraphicsItem*, QWidget*) {

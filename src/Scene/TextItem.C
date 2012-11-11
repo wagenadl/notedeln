@@ -25,7 +25,7 @@
 #include "LateNoteData.H" 
 
 TextItem::TextItem(TextData *data, Item *parent):
-  QGraphicsObject(gi(parent)), Item(data, *this), data_(data) {
+  Item(data, parent), data_(data) {
   text = new TextItemText(this);
   setFocusProxy(text);
 
@@ -92,7 +92,6 @@ bool TextItem::focusOut(QFocusEvent *) {
 }
 
 bool TextItem::mousePress(QGraphicsSceneMouseEvent *e) {
-  qDebug() << "TextItem::mousepressevent";
   if (isWritable()) {
     if (moveModPressed()) {
       emit mousePress(e->scenePos(), e->button()); // may send to GfxNote.

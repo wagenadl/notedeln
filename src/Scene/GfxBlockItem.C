@@ -69,7 +69,7 @@ QRectF GfxBlockItem::boundingRect() const {
     // must do this here, because I cannot use our netBoundingRect...
     foreach (Item *i, itemChildren<Item>()) {
       if (!i->isExtraneous()) {
-	bb |= gi(i)->mapRectToParent(i->netBoundingRect());
+	bb |= i->mapRectToParent(i->netBoundingRect());
       }
     }
   }

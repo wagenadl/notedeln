@@ -10,7 +10,7 @@
 #include "Item.H"
 #include "TextItemText.H"
 
-class TextItem: public QGraphicsObject, public Item {
+class TextItem: public Item {
   Q_OBJECT;
 public:
   TextItem(class TextData *data, Item *parent);

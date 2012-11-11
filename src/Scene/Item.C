@@ -13,11 +13,10 @@
 #include "GfxData.H"
 #include "GfxNoteData.H"
 
-Item::Item(Data *d, QGraphicsItem &me): d(d), me(&me) {
+Item::Item(Data *d, Item *parent): QGraphicsObject(parent), d(d) {
   Q_ASSERT(d);
-  Item *p = itemParent();
-  if (p)
-    p->addChild(this);
+  if (parent)
+    parent->addChild(this);
   brLocked = false;
   extraneous = false;
   writable = false;
@@ -49,7 +48,7 @@ void Item::makeWritable() {
 }
 
 PageScene *Item::pageScene() const {
-  return dynamic_cast<PageScene*>(me->scene());
+  return dynamic_cast<PageScene*>(scene());
 }
 
 Item *Item::create(Data *d, Item *parent) {
@@ -66,27 +65,7 @@ QMap<QString, Item *(*)(Data *, Item *)> &Item::creators() {
   return m;
 }
   
-
-QGraphicsItem *Item::gi(Item *i) {
-  return i ? i->me : 0;
-}
-
-QGraphicsItem *Item::gi() {
-  return me;
-}
-
-QObject *Item::obj(Item *i) {
-  return i ? dynamic_cast<QObject*>(i->me) : 0;
-}
-
-QObject *Item::obj() {
-  return dynamic_cast<QObject*>(me);
-}
-
-
 void Item::addChild(Item *i) {
-  Q_ASSERT(i->me != me); // quick check that child wasn't accidentally
-  // constructed like Item(data, parent) rather than Item(data, this).
   bool haveAlready = children_.contains(i);
   Q_ASSERT(!haveAlready); // is this too aggressive?
   if (!haveAlready)
@@ -95,11 +74,7 @@ void Item::addChild(Item *i) {
 
 bool Item::deleteChild(Item *i) {
   if (children_.removeOne(i)) {
-    QObject *o = obj(i);
-    if (o)
-      o->deleteLater();
-    else
-      delete i;
+    i->deleteLater();
     return true;
   } else {
     return false;
@@ -129,17 +104,17 @@ QRectF Item::cachedBounds() const {
 QRectF Item::netBoundingRect() const {
   if (brLocked)
     return brCache;
-  QRectF bb = me->boundingRect();
+  QRectF bb = boundingRect();
   foreach (Item *i, children_) {
     if (!i->extraneous) {
-      bb |= i->me->mapRectToParent(i->netBoundingRect());
+      bb |= i->mapRectToParent(i->netBoundingRect());
     }
   }
   return bb;
 }
 
 QRectF Item::netSceneRect() const {
-  return me->mapRectToScene(netBoundingRect());
+  return mapRectToScene(netBoundingRect());
 }
 
 void Item::setExtraneous(bool e) {
@@ -163,7 +138,7 @@ Qt::MouseButton Item::moveButton() {
 }
 
 Item *Item::itemParent() const {
-  return dynamic_cast<Item*>(me->parentItem());
+  return dynamic_cast<Item*>(parentItem());
 }
 
 void Item::childGeometryChanged() {
@@ -184,12 +159,8 @@ bool Item::moveModPressed() const {
 }
 
 void Item::acceptModifierChanges() {
-  QObject *o = obj();
-  if (o) 
-    o->connect(modSnooper(), SIGNAL(modifiersChanged(Qt::KeyboardModifiers)),
-	       o, SLOT(modifierChange(Qt::KeyboardModifiers)));
-  else
-    qDebug() << "Item: not an object -> keyboard modifiers will be ignored";
+  connect(modSnooper(), SIGNAL(modifiersChanged(Qt::KeyboardModifiers)),
+	  this, SLOT(modifierChange(Qt::KeyboardModifiers)));
 }
     
 GfxNoteItem *Item::newNote(QPointF p0, QPointF p1, bool late) {

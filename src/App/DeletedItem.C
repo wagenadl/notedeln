@@ -8,7 +8,7 @@ DeletedItem::DeletedItem(Item *item) {
   Q_ASSERT(data);
   parentItem = item->itemParent();
   Q_ASSERT(parentItem);
-  QObject *parentObject = parentItem->obj();
+  QObject *parentObject = parentItem;
   Q_ASSERT(parentObject);  
   connect(parentObject, SIGNAL(destroyed()), this, SLOT(parentDestroyed()));
 }

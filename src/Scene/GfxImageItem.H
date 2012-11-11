@@ -8,7 +8,7 @@
 #include <QGraphicsObject>
 #include "Item.H"
 
-class GfxImageItem: public QGraphicsObject, public Item {
+class GfxImageItem: public Item {
   Q_OBJECT;
 public:
   GfxImageItem(class GfxImageData *data, Item *parent=0);

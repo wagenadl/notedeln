@@ -7,7 +7,7 @@
 #include "Item.H"
 #include <QGraphicsObject>
 
-class TOCItem: public QGraphicsObject, public Item {
+class TOCItem: public Item {
   Q_OBJECT;
 public:
   TOCItem(class TOCEntry *data, class TOCScene *parent);

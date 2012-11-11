@@ -5,14 +5,14 @@
 #define ITEM_H
 
 #include "Data.H"
-#include <QGraphicsItem>
+#include <QGraphicsObject>
 #include <QObject>
 #include <Qt>
 #include "Style.H"
 
-class Item {
+class Item: public QGraphicsObject {
 public:
-  Item(Data *d, QGraphicsItem &me);
+  Item(Data *d, Item *parent);
   virtual ~Item();
   Data *data();
   Item *itemParent() const;
@@ -39,12 +39,8 @@ public:
   }
 public:
   static Item *create(Data *d, Item *parent=0);
-  static QGraphicsItem *gi(Item *); // null pointer ok
-  static QObject *obj(Item *);
   void addChild(Item *);
   bool deleteChild(Item *); // this uses deleteLater if child is an object
-  QGraphicsItem *gi();
-  QObject *obj();
   class GfxNoteItem *newNote(QPointF p0, QPointF p1, bool late);
   virtual bool abandonNote(class GfxNoteItem *);
 public: // but only for use in derived class source files
@@ -78,8 +74,7 @@ private:
   Item(Item const &); // this must never be called
 private:
   Data *d;
-  QGraphicsItem *me;
-  QList<Item *> children_;
+  QList<Item *> children_; // do I really want these?
   bool extraneous;
   bool brLocked;
   QRectF brCache;

@@ -62,7 +62,7 @@ QPointF DragLine::drag(Item *parent, QPointF p0, QColor c) {
   if (!c.isValid())
     c = parent->style().color("drag-line-color");
   
-  DragLine dl(p0, Item::gi(parent));
+  DragLine dl(p0, parent);
   dl.setPen(QPen(c, pw));
   QEventLoop el;
   QObject::connect(&dl, SIGNAL(release()),

@@ -7,7 +7,7 @@
 #include "Item.H"
 #include <QGraphicsObject>
 
-class GfxNoteItem: public QGraphicsObject, public Item {
+class GfxNoteItem: public Item {
   Q_OBJECT;  
 public:
   GfxNoteItem(class GfxNoteData *data, Item *parent=0);

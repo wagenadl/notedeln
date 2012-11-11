@@ -12,7 +12,7 @@
 static Item::Creator<GfxMarkData, GfxMarkItem> c("gfxmark");
 
 GfxMarkItem::GfxMarkItem(GfxMarkData *data, Item *parent):
-  QGraphicsObject(gi(parent)), Item(data, *this), d(data) {
+  Item(data, parent), d(data) {
   setPos(d->pos());
   acceptModifierChanges();
 }

@@ -11,9 +11,7 @@
 static Item::Creator<GfxNoteData, GfxNoteItem> c("gfxnote");
 
 GfxNoteItem::GfxNoteItem(GfxNoteData *data, Item *parent):
-  QGraphicsObject(Item::gi(parent)),
-  Item(data, *this),
-  data_(data) {
+  Item(data, parent), data_(data) {
   setPos(data->pos());
   if (data->lineLengthIsZero()) {
     line = 0;
