@@ -46,14 +46,14 @@ public:
   void setSize(QSizeF);
   void setCropRect(QRectF);
 
-  QSizeF mapToBlock(QSizeF) const;
-  QPointF mapToBlock(QPointF) const;
-  QRectF mapToBlock(QRectF) const;
-  QSizeF mapFromBlock(QSizeF) const;
-  QPointF mapFromBlock(QPointF) const;
-  QRectF mapFromBlock(QRectF) const;
-  QRectF blockRect() const;
-  QRectF uncroppedBlockRect() const;
+  // QSizeF mapToBlock(QSizeF) const;
+  // QPointF mapToBlock(QPointF) const;
+  // QRectF mapToBlock(QRectF) const;
+  // QSizeF mapFromBlock(QSizeF) const;
+  // QPointF mapFromBlock(QPointF) const;
+  // QRectF mapFromBlock(QRectF) const;
+  // QRectF blockRect() const;
+  // QRectF uncroppedBlockRect() const;
 private:
   QString resName_;
   double width_;
