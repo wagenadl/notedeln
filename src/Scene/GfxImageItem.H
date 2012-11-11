@@ -5,10 +5,10 @@
 #define GFXIMAGEITEM_H
 
 #include <QGraphicsPixmapItem>
-#include <QObject>
+#include <QGraphicsObject>
 #include "Item.H"
 
-class GfxImageItem: public QObject, public QGraphicsPixmapItem, public Item {
+class GfxImageItem: public QGraphicsObject, public Item {
   Q_OBJECT;
 public:
   GfxImageItem(class GfxImageData *data, Item *parent=0);
@@ -16,7 +16,8 @@ public:
   QRectF boundingRect() const;
   QRectF imageBoundingRect() const; // w/o margins
   virtual void makeWritable();
-  virtual void setScale(double);
+  //  virtual void setScale(double);
+  virtual void paint(QPainter*, const QStyleOptionGraphicsItem*, QWidget*);
 protected:
   virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *);
   virtual void mousePressEvent(QGraphicsSceneMouseEvent *);
@@ -50,6 +51,7 @@ private:
   Qt::CursorShape oldCursor;
   QPointF cursorPos;
   QRectF dragCrop; // in image coords
+  QGraphicsPixmapItem *pixmap;
 };
 
 #endif
