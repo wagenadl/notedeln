@@ -39,12 +39,12 @@ GfxImageItem::GfxImageItem(GfxImageData *data, Item *parent):
     return;
   }
   pixmap->setPixmap(QPixmap::fromImage(image.copy(data->cropRect().toRect())));
-  pixmap->setScale(data->scale());
+  setScale(data->scale());
   setPos(data->pos());
 
   foreach (GfxData *gd, data->children<GfxData>()) {
-    create(gd, this);
-    //    i->gi()->setScale(1./data->scale());
+    Item *i = create(gd, this);
+    i->gi()->setScale(1./data->scale());
   }
 
   oldCursor = Qt::ArrowCursor;
@@ -92,28 +92,28 @@ void GfxImageItem::mouseMoveEvent(QGraphicsSceneMouseEvent *e) {
     QPointF xy0 = data->blockRect().bottomRight();
     double diag0 = euclideanLength(dragStart - xy0);
     double diag1 = euclideanLength(ppos - xy0);
-    pixmap->setScale(data->scale() * diag1/diag0);
+    setScale(data->scale() * diag1/diag0);
     setPos(pos() + xy0 - mapToParent(imageBoundingRect().bottomRight()));
   } break;
   case ResizeTopRight: {
     QPointF xy0 = data->blockRect().bottomLeft();
     double diag0 = euclideanLength(dragStart - xy0);
     double diag1 = euclideanLength(ppos - xy0);
-    pixmap->setScale(data->scale() * diag1/diag0);
+    setScale(data->scale() * diag1/diag0);
     setPos(pos() + xy0 - mapToParent(imageBoundingRect().bottomLeft()));
   } break;
   case ResizeBottomLeft: {
     QPointF xy0 = data->blockRect().topRight();
     double diag0 = euclideanLength(dragStart - xy0);
     double diag1 = euclideanLength(ppos - xy0);
-    pixmap->setScale(data->scale() * diag1/diag0);
+    setScale(data->scale() * diag1/diag0);
     setPos(pos() + xy0 - mapToParent(imageBoundingRect().topRight()));
   } break;
   case ResizeBottomRight: {
     QPointF xy0 = data->blockRect().topLeft();
     double diag0 = euclideanLength(dragStart - xy0);
     double diag1 = euclideanLength(ppos - xy0);
-    pixmap->setScale(data->scale() * diag1/diag0);
+    setScale(data->scale() * diag1/diag0);
   } break;
   case CropLeft: {
     double dx = moveDelta(e).x();
@@ -188,12 +188,12 @@ void GfxImageItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
     if (e->button()==Qt::LeftButton) {
       if (modSnooper()->keyboardModifiers()==0) {
 	e->accept();
-	createNote(e->pos(), !data->isRecent());
-	//	gni->setScale(1./data->scale());
+	GfxNoteItem *gni = createNote(e->pos(), !data->isRecent());
+	gni->setScale(1./data->scale());
       } else if (modSnooper()->keyboardModifiers() & Qt::ControlModifier) {
 	e->accept();
-	GfxMarkItem::newMark(e->pos(), this);
-	//mi->setScale(1./data->scale());
+	GfxMarkItem *mi = GfxMarkItem::newMark(e->pos(), this);
+	mi->setScale(1./data->scale());
       }
     } else {
       QGraphicsObject::mousePressEvent(e);
@@ -309,11 +309,11 @@ void GfxImageItem::makeWritable() {
   setAcceptHoverEvents(true);
 }
 
-//void GfxImageItem::setScale(double s) {
-//  QGraphicsPixmapItem::setScale(s);
-//  foreach (Item *i, itemChildren<Item>())
-//    i->gi()->setScale(1./s);
-//}
+void GfxImageItem::setScale(double s) {
+  QGraphicsObject::setScale(s);
+  foreach (Item *i, itemChildren<Item>())
+    i->gi()->setScale(1./s);
+}
 
 void GfxImageItem::paint(QPainter*, const QStyleOptionGraphicsItem*, QWidget*) {
 }

@@ -16,7 +16,7 @@ public:
   QRectF boundingRect() const;
   QRectF imageBoundingRect() const; // w/o margins
   virtual void makeWritable();
-  //  virtual void setScale(double);
+  virtual void setScale(double);
   virtual void paint(QPainter*, const QStyleOptionGraphicsItem*, QWidget*);
 protected:
   virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *);
