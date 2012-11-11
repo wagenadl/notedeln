@@ -398,9 +398,9 @@ void TextItem::setAllowParagraphs(bool yes) {
 void TextItem::modifierChange(Qt::KeyboardModifiers) {
   // this will only be called if we are writable
   if (moveModPressed())
-    setCursor(Qt::SizeAllCursor);
+    text->setCursor(Qt::SizeAllCursor);
   else
-    setCursor(Qt::IBeamCursor);
+    text->setCursor(Qt::IBeamCursor);
 }
 
 void TextItem::updateRefText(QString olds, QString news) {
