@@ -1,0 +1,47 @@
+{ "typ": "page",
+  "cre": "2012-11-10T09:10:52",
+  "mod": "2012-11-10T20:48:06",
+  "startPage": 10,
+  "cc": [
+    { "typ": "title",
+      "cre": "2012-11-10T09:10:52",
+      "mod": "2012-11-10T09:11:03",
+      "cc": [
+        { "typ": "text",
+          "cre": "2012-11-10T09:10:54",
+          "mod": "2012-11-10T09:11:03",
+          "text": "Making Item a QGraphicsObject",
+          "cc": [ ]
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2012-11-10T09:11:03",
+      "mod": "2012-11-10T09:12:35",
+      "sheet": 0,
+      "y0": 72.0,
+      "cc": [
+        { "typ": "text",
+          "cre": "2012-11-10T09:11:03",
+          "mod": "2012-11-10T09:12:35",
+          "text": "I should just bite the bullet and make Item inherit QGraphicsObject. The only descendents that would need work are GfxImageItem and TextItem. These should contain their QGraphicsPixmapItem and QGraphicsTextItem rather than inherit from them. That way, GfxImageItem can also host SVG, and GfxNoteItem can inherit GfxTextItem. I don't think I need a GfxItem, but I could consider that.",
+          "cc": [ ]
+        }
+      ]
+    },
+    { "typ": "textblock",
+      "cre": "2012-11-10T09:12:53",
+      "mod": "2012-11-10T20:48:06",
+      "sheet": 0,
+      "y0": 262.5,
+      "cc": [
+        { "typ": "text",
+          "cre": "2012-11-10T09:12:53",
+          "mod": "2012-11-10T20:48:06",
+          "text": "Bounding rect of an item should be not just the area that it actually paints itself (which is often nothing, e.g., for the new TextItem), but also the area for which it wants to receive mouse events.",
+          "cc": [ ]
+        }
+      ]
+    }
+  ]
+}

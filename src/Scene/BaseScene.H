@@ -31,7 +31,7 @@ protected:
   virtual QString title() const;
   virtual QString pgNoToString(int) const;
 protected:
-  QGraphicsTextItem *titleItem;
+  QGraphicsItem *titleItem;
   QGraphicsTextItem *pgNoItem;
   QGraphicsTextItem *contdItem; // from prev page
   QGraphicsTextItem *contItem; // to next page

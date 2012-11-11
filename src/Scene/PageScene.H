@@ -82,6 +82,7 @@ private:
 private:
   PageData *data;
   bool writable;
+  class TitleItem *titleItemX;
 };
 
 #endif

@@ -23,19 +23,19 @@ TitleData *TitleItem::data() const {
 }
 
 void TitleItem::docChange() {
-  QString plainText = toPlainText();
+  QString plainText = text->toPlainText();
   if (data_->current()->text() != plainText)
     data_->revise();
 
   TextItem::docChange();
 }
  
-void TitleItem::focusInEvent(QFocusEvent *e) {
-  TextItem::focusInEvent(e);
-  if (toPlainText()==TitleData::defaultTitle()) {
+bool TitleItem::focusIn(QFocusEvent *) {
+  if (text->toPlainText()==TitleData::defaultTitle()) {
     QTextCursor c = textCursor(); //(document());
     c.setPosition(0);
     c.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
     setTextCursor(c);
   }
+  return false;
 }

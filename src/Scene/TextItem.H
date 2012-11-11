@@ -8,8 +8,9 @@
 #include <QTextCursor>
 #include "MarkupData.H"
 #include "Item.H"
+#include "TextItemText.H"
 
-class TextItem: public QGraphicsTextItem, public Item {
+class TextItem: public QGraphicsObject, public Item {
   Q_OBJECT;
 public:
   TextItem(class TextData *data, Item *parent);
@@ -28,10 +29,12 @@ signals:
   /* also emitted for enter press or for delete/backspace at end/start */
   void mousePress(QPointF, Qt::MouseButton);
   void refTextChange(QString oldText, QString newText);
-protected:
-  void mousePressEvent(QGraphicsSceneMouseEvent *);
-  void keyPressEvent(QKeyEvent *);
-  void focusOutEvent(QFocusEvent *);
+private:
+  friend class TextItemText;
+  virtual bool mousePress(QGraphicsSceneMouseEvent *);
+  virtual bool keyPress(QKeyEvent *);
+  virtual bool focusIn(QFocusEvent *);
+  virtual bool focusOut(QFocusEvent *);
 protected slots:
   virtual void docChange();
   void modifierChange(Qt::KeyboardModifiers);
@@ -47,12 +50,25 @@ private:
   bool tryCustomRef();
   bool charBeforeIsLetter(int pos) const;
   bool charAfterIsLetter(int pos) const;
+public: // pass-through
+  void setFont(QFont f) { text->setFont(f); }
+  QColor defaultTextColor() const { return text->defaultTextColor(); }
+  void setDefaultTextColor(QColor c) { text->setDefaultTextColor(c); }
+  QTextDocument *document() const { return text->document(); }
+  void setTextWidth(double d) { text->setTextWidth(d); }
+  QTextCursor textCursor() const { return text->textCursor(); }
+  void setTextCursor(QTextCursor c) { text->setTextCursor(c); }
+public:
+  virtual QRectF boundingRect() const;
+  virtual void paint(QPainter*, const QStyleOptionGraphicsItem*, QWidget*);
+  
 protected:
   TextData *data_;
   bool mayMark;
   bool mayNote;
   bool allowParagraphs_;
   class TextMarkings *markings_;
+  class TextItemText *text;
 };
 
 #endif

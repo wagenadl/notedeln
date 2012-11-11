@@ -90,14 +90,14 @@ void PageScene::makeDateItem() {
 }
 
 void PageScene::makeTitleItem() {
-  TitleItem *tt = new TitleItem(data->title(), 0);
-  titleItem = tt;
-  connect(tt,
+  titleItemX = new TitleItem(data->title(), 0);
+  titleItem = titleItemX;
+  connect(titleItemX,
 	  SIGNAL(futileMovementKey(int, Qt::KeyboardModifiers)),
 	  SLOT(futileTitleMovement(int, Qt::KeyboardModifiers)));
   addItem(titleItem);
 
-  tt->makeWritable();
+  titleItemX->makeWritable();
 
   nOfNItem = addText("n/N",
 		     QFont(style().string("title-font-family"),
@@ -106,7 +106,7 @@ void PageScene::makeTitleItem() {
   
   positionTitleItem();
   
-  connect(tt->document(), SIGNAL(contentsChanged()),
+  connect(titleItemX->document(), SIGNAL(contentsChanged()),
 	  SLOT(titleEdited()));
 }
 
@@ -161,12 +161,12 @@ void PageScene::positionTitleItem() {
     return; // too early in process
 
   double dateX = dateItem->mapToScene(dateItem->boundingRect().topLeft()).x();
-  titleItem->setTextWidth(dateX - style().real("margin-left")
-			  - style().real("title-sep") - 5);
+  titleItemX->setTextWidth(dateX - style().real("margin-left")
+			   - style().real("title-sep") - 5);
   BaseScene::positionTitleItem();
 
   /* Reposition "n/N" */
-  QTextDocument *doc = titleItem->document();
+  QTextDocument *doc = titleItemX->document();
   QTextBlock blk = doc->lastBlock();
   QTextLayout *lay = blk.layout();
   QTextLine l = lay->lineAt(blk.lineCount()-1);

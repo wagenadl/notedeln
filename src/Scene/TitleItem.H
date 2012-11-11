@@ -16,8 +16,8 @@ public:
   TitleData *data() const;
 protected slots:
   virtual void docChange();
-protected:
-  virtual void focusInEvent(QFocusEvent *);
+private:
+  virtual bool focusIn(QFocusEvent *);
 private:
   TitleData *data_;
 };

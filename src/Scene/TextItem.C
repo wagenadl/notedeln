@@ -25,7 +25,9 @@
 #include "LateNoteData.H" 
 
 TextItem::TextItem(TextData *data, Item *parent):
-  QGraphicsTextItem(gi(parent)), Item(data, *this), data_(data) {
+  QGraphicsObject(gi(parent)), Item(data, *this), data_(data) {
+  text = new TextItemText(this);
+  setFocusProxy(text);
 
   foreach (LateNoteData *lnd, data->children<LateNoteData>()) 
     create(lnd, this);
@@ -34,7 +36,7 @@ TextItem::TextItem(TextData *data, Item *parent):
   mayNote = false;
   allowParagraphs_ = true;
 
-  setPlainText(data_->text());  
+  text->setPlainText(data_->text());  
   markings_ = new TextMarkings(data_, this);
 
   initializeFormat();
@@ -53,8 +55,9 @@ void TextItem::setAllowNotes(bool y) {
 
 void TextItem::makeWritable() {
   Item::makeWritable();
-  setTextInteractionFlags(Qt::TextEditorInteraction);
-  setCursor(QCursor(Qt::IBeamCursor));
+  text->setTextInteractionFlags(Qt::TextEditorInteraction);
+  text->setCursor(QCursor(Qt::IBeamCursor));
+  setFlag(ItemIsFocusable);
   acceptModifierChanges();
 }
 
@@ -68,7 +71,7 @@ void TextItem::initializeFormat() {
 }
 
 void TextItem::docChange() {
-  QString plainText = toPlainText();
+  QString plainText = text->toPlainText();
   if (data_->text() == plainText) {
     // trivial change; this happens if markup changes
     return;
@@ -78,22 +81,26 @@ void TextItem::docChange() {
   emit textChanged();
 }
 
-void TextItem::focusOutEvent(QFocusEvent *e) {
-  QGraphicsTextItem::focusOutEvent(e);
-  if (document()->isEmpty()) {
-    emit abandoned();
-  }
+bool TextItem::focusIn(QFocusEvent *) {
+  return false;
 }
 
-void TextItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
+bool TextItem::focusOut(QFocusEvent *) {
+  if (document()->isEmpty()) 
+    emit abandoned();
+  return false;
+}
+
+bool TextItem::mousePress(QGraphicsSceneMouseEvent *e) {
   qDebug() << "TextItem::mousepressevent";
   if (isWritable()) {
     if (moveModPressed()) {
       emit mousePress(e->scenePos(), e->button()); // may send to GfxNote.
       // this is pretty awkward.
       e->accept();
+      return true;
     } else {
-      QGraphicsTextItem::mousePressEvent(e);
+      return false;
     }
   } else {
     if (allowNotes()
@@ -101,13 +108,14 @@ void TextItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
 	&& e->button()==Qt::LeftButton) {
       e->accept();
       createNote(e->pos(), true);
+      return true;
     } else {
-      QGraphicsTextItem::mousePressEvent(e);
+      return false;
     }
   }
 }
 
-void TextItem::keyPressEvent(QKeyEvent *e) {
+bool TextItem::keyPress(QKeyEvent *e) {
   bool pass = true;
   switch (e->key()) {
   case Qt::Key_Escape:
@@ -136,7 +144,7 @@ void TextItem::keyPressEvent(QKeyEvent *e) {
   case Qt::Key_Right: case Qt::Key_Down:
   case Qt::Key_PageUp: case Qt::Key_PageDown: {
     QTextCursor pre = textCursor();
-    QGraphicsTextItem::keyPressEvent(e);
+    text->internalKeyPressEvent(e);
     QTextCursor post = textCursor();
     if (pre.position() == post.position()) {
       emit futileMovementKey(e->key(), e->modifiers());
@@ -166,8 +174,7 @@ void TextItem::keyPressEvent(QKeyEvent *e) {
     }
     break;
   }
-  if (pass)
-    QGraphicsTextItem::keyPressEvent(e);
+  return !pass;
 }
 
 bool TextItem::charBeforeIsLetter(int pos) const {
@@ -400,3 +407,12 @@ void TextItem::updateRefText(QString olds, QString news) {
   qDebug() << "refTextChange" << olds << news;
   emit refTextChange(olds, news);
 }
+
+QRectF TextItem::boundingRect() const {
+  return text->boundingRect();
+}
+ 
+void TextItem::paint(QPainter*, const QStyleOptionGraphicsItem*, QWidget*) {
+}
+
+ 
