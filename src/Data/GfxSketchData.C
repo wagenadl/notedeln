@@ -5,6 +5,7 @@
 static Data::Creator<GfxSketchData> c("gfxsketch");
 
 GfxSketchData::GfxSketchData(Data *parent): GfxPointsData(parent) {
+  setType("gfxsketch");
   col = QColor("black");
   lw = 1;
 }

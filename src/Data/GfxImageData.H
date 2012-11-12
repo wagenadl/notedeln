@@ -16,6 +16,11 @@ class GfxImageData: public GfxData {
   Q_PROPERTY(double cropBottom READ cropBottom WRITE setCropBottom)
   Q_PROPERTY(double cropLeft READ cropLeft WRITE setCropLeft)
   Q_PROPERTY(double cropRight READ cropRight WRITE setCropRight)
+  /* The pos() is the block position of the topleft of the uncropped image.
+     cropXXX() are in pixels in the image, all measured from top left.
+     scale() is page units per image pixel
+     width() and height() are in pixels.
+  */
 public:
   GfxImageData(Data *parent=0);
   GfxImageData(QString resName, QImage img, Data *parent=0);

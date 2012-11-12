@@ -92,7 +92,17 @@ void PageView::keyPressEvent(QKeyEvent *e) {
   case Qt::Key_Delete:
     if (currentSection==Pages && pageScene->focusItem()==0) {
       QPointF p = mapToScene(mapFromGlobal(QCursor::pos()));
-      Item *item = dynamic_cast<Item*>(pageScene->itemAt(p));
+      QGraphicsItem *gi = pageScene->itemAt(p);
+      Item *item;
+      while (true) {
+	item = dynamic_cast<Item*>(gi);
+	if (item)
+	  break;
+	if (gi)
+	  gi = gi->parentItem();
+	else
+	  break;
+      }
       if (item) 
 	deletedStack->grabIfRestorable(item);
       e->accept();

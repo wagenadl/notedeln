@@ -122,6 +122,8 @@ GfxMarkItem *GfxMarkItem::newMark(QPointF p,
   
 void GfxMarkItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
   if (isWritable() && moveModPressed()) {
+    if (itemParent())
+      itemParent()->lockBounds();
     e->accept();
   } else {
     QGraphicsObject::mousePressEvent(e);
@@ -134,6 +136,8 @@ void GfxMarkItem::mouseMoveEvent(QGraphicsSceneMouseEvent *e) {
 }
 
 void GfxMarkItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *e) {
+  if (itemParent())
+    itemParent()->lockBounds();
   d->setPos(pos());
   e->accept();
 }

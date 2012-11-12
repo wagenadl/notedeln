@@ -16,6 +16,7 @@
 #include "FootnoteData.H"
 #include "FootnoteItem.H"
 
+#include <QGraphicsView>
 #include <QGraphicsTextItem>
 #include <QGraphicsLineItem>
 #include <QDateTime>
@@ -31,6 +32,7 @@
 #include <QUrl>
 #include <QNetworkAccessManager>
 #include <QNetworkRequest>
+#include <QClipboard>
 
 PageScene::PageScene(PageData *data, QObject *parent):
   BaseScene(data, parent),
@@ -342,8 +344,9 @@ void PageScene::deleteBlock(int blocki) {
   gotoSheet(iSheet>=nSheets ? nSheets-1 : iSheet);
 }
 
-GfxBlockItem *PageScene::newGfxBlock() {
-  int iAbove = findLastBlockOnSheet(iSheet);
+GfxBlockItem *PageScene::newGfxBlock(int iAbove) {
+  if (iAbove<0)
+    iAbove = findLastBlockOnSheet(iSheet);
   int iNew = (iAbove>=0)
     ? iAbove + 1
     : blockItems.size();
@@ -541,18 +544,25 @@ void PageScene::futileMovement(int block) {
     }
   }
   if (tgtidx<0) {
-    // no target, go to end of previous
+    // no target, go to start/end of current
     QTextCursor c = tbi->text()->textCursor();
-    c.movePosition(QTextCursor::End);
-    tbi->text()->setTextCursor(c);
+    if (fmi.key()==Qt::Key_Down) {
+      c.movePosition(QTextCursor::End);
+      tbi->text()->setTextCursor(c);
+    } else if (fmi.key()==Qt::Key_Up) {
+      c.movePosition(QTextCursor::Start);
+      tbi->text()->setTextCursor(c);
+    }
     return;
   }
 
   if (fmi.key()==Qt::Key_Delete) {
-    joinTextBlocks(block, tgtidx);
+    if (tgtidx==block+1) // do not combine across (e.g.) gfxblocks
+      joinTextBlocks(block, tgtidx);
     return;
   } else if (fmi.key()==Qt::Key_Backspace) {
-    joinTextBlocks(tgtidx, block);
+    if (tgtidx==block-1)
+      joinTextBlocks(tgtidx, block);
     return;
   }
   
@@ -649,7 +659,7 @@ void PageScene::hChanged(int block) {
 }
 
 void PageScene::vChanged(int block) {
-  restackBlocks(block);
+  restackBlocks(block>0 ? block-1 : block);
   gotoSheet(sheetNos[block]);
 }
 
@@ -734,28 +744,30 @@ bool PageScene::tryToPaste() {
   // we get it first.
   // if we don't send the event on to QGraphicsScene, textItems don't get it
   qDebug() << "PageScene::tryToPaste";
-  return false;
+  QList<QGraphicsView*> vv = views();
+  if (vv.isEmpty()) {
+    qDebug() << "PageScene: cannot determine paste position: no view";
+    return false;
+  }
+  if (vv.size()>1) {
+    qDebug() << "PageScene: multiple views: cannot determine paste position";
+    // Of course, this can actually be done just fine, but I haven't
+    // figured it out yet.
+    return false;
+  }
+  QPointF scenePos = vv[0]->mapToScene(vv[0]->mapFromGlobal(QCursor::pos()));
+  
+  QClipboard *cb = QApplication::clipboard();
+  QMimeData const *md = cb->mimeData(QClipboard::Clipboard);
+  bool accept = importDroppedOrPasted(scenePos, md, false);
+  return accept;
 }
 
 void PageScene::dropEvent(QGraphicsSceneDragDropEvent *e) {
-  //qDebug() << " scenePos = " << e->scenePos();
-  //qDebug() << " action = " << e->dropAction();
-  //qDebug() << " modifiers = " << e->modifiers();
-  //qDebug() << " source = " << e->source() << " (views="<<views()<<")";
-
   if (e->source() == 0) {
     // event from outside our application
-    QMimeData const *md = e->mimeData();
-    bool accept = false;
-    if (md->hasImage()) 
-      accept = importDroppedImage(e->scenePos(),
-				   qvariant_cast<QImage>(e->mimeData()
-							 ->imageData()));
-    else if (md->hasUrls()) 
-      accept = importDroppedUrls(e->scenePos(), md->urls());
-    else if (md->hasText())
-      accept = importDroppedText(e->scenePos(), md->text());
-
+    qDebug() << "dropEvent";
+    bool accept = importDroppedOrPasted(e->scenePos(), e->mimeData(), true);
     if (accept) {
       e->setDropAction(Qt::CopyAction);
       e->accept();
@@ -771,25 +783,81 @@ void PageScene::dropEvent(QGraphicsSceneDragDropEvent *e) {
   }
 }
 
+bool PageScene::importDroppedOrPasted(QPointF scenePos,
+				      QMimeData const *md,
+				      bool dropped) {
+  bool accept = false;
+  if (md->hasImage()) 
+    accept = importDroppedImage(scenePos,
+				qvariant_cast<QImage>(md->imageData()));
+  else if (md->hasUrls()) 
+    accept = importDroppedUrls(scenePos, md->urls(), dropped);
+  else if (md->hasText())
+    accept = importDroppedText(scenePos, md->text(), 0, dropped);
+  return accept;
+}
+
 bool PageScene::importDroppedImage(QPointF scenePos, QImage const &img,
 				   QUrl const *source) {
   // Return true if we want it
-  GfxBlockItem *dst = dynamic_cast<GfxBlockItem *>(itemAt(scenePos));
-  if (!dst)
-    dst = newGfxBlock();
-  dst->newImage(img, source, dst->mapFromScene(scenePos));
+  /* If dropped on an existing gfxblock, insert it there.
+     If dropped on belowItem, insert after last block on page.
+     If dropped on text block, insert after that text block.
+     Before creating a new graphics block, consider whether there is
+     a graphics block right after it.
+   */
+  QGraphicsItem *gi = itemAt(scenePos);
+  BlockItem *dst;
+  while (true) {
+    dst = dynamic_cast<BlockItem *>(gi);
+    if (dst)
+      break;
+    if (gi)
+      gi = gi->parentItem();
+    else
+      break;
+  }
+  GfxBlockItem *gdst = dynamic_cast<GfxBlockItem*>(dst);
+  if (dst) {
+    gdst = dynamic_cast<GfxBlockItem*>(dst);
+    if (!gdst)
+      gdst = gfxBlockAfter(indexOfBlock(dst));
+  } else {
+    gdst = gfxBlockAfter(findLastBlockOnSheet(iSheet));
+  } 
+  gdst->newImage(img, source, gdst->mapFromScene(scenePos));
+  int i = indexOfBlock(gdst);
+  Q_ASSERT(i>=0);
+  gotoSheet(sheetNos[i]);
   return true;
 }
 
-bool PageScene::importDroppedUrls(QPointF scenePos, QList<QUrl> const &urls) {
+GfxBlockItem *PageScene::gfxBlockAfter(int iblock) {
+  if (iblock>=0 && iblock+1<blockItems.size()) 
+    if (dynamic_cast<GfxBlockItem*>(blockItems[iblock+1]))
+      return dynamic_cast<GfxBlockItem*>(blockItems[iblock+1]);
+  return newGfxBlock(iblock);
+}
+
+int PageScene::indexOfBlock(BlockItem *bi) const {
+  for (int i=0; i<blockItems.size(); ++i)
+    if (blockItems[i]==bi)
+      return i;
+  return -1;
+}
+
+bool PageScene::importDroppedUrls(QPointF scenePos, QList<QUrl> const &urls,
+				  bool dropped) {
   bool ok = false;
   foreach (QUrl const &u, urls)
-    if (importDroppedUrl(scenePos, u))
+    if (importDroppedUrl(scenePos, u, dropped))
       ok = true;
   return ok;
 }
 
-bool PageScene::importDroppedUrl(QPointF scenePos, QUrl const &url) {
+bool PageScene::importDroppedUrl(QPointF scenePos,
+				 QUrl const &url,
+				 bool dropped) {
   // QGraphicsItem *dst = itemAt(scenePos);
   /* A URL could be any of the following:
      (1) A local image file
@@ -809,14 +877,15 @@ bool PageScene::importDroppedUrl(QPointF scenePos, QUrl const &url) {
     return true;
   } else {
     // no network
-    return importDroppedText(scenePos, url.toString());
+    return importDroppedText(scenePos, url.toString(), 0, dropped);
   }
   return false;
 }
 
 bool PageScene::importDroppedText(QPointF scenePos, QString const &txt,
-					QUrl const *source) {
-  qDebug() << "PageScene: import dropped text: " << scenePos << txt << source;
+				  QUrl const *source, bool dropped) {
+  qDebug() << "PageScene: import dropped text: " << scenePos << txt
+	   << source << dropped;
   return false;
 }
 
@@ -828,7 +897,7 @@ bool PageScene::importDroppedFile(QPointF scenePos, QString const &fn) {
 void PageScene::makeWritable() {
   writable = true;
   belowItem->setCursor(Qt::IBeamCursor);
-  belowItem->setAcceptDrops(true);
+  bgItem->setAcceptDrops(true);
   foreach (BlockItem *bi, blockItems)
     bi->makeWritable();
   foreach (FootnoteGroupItem *fng, footnoteGroups)

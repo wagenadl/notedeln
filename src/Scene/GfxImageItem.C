@@ -7,6 +7,7 @@
 #include "GfxNoteData.H"
 #include "GfxNoteItem.H"
 #include "GfxMarkItem.H"
+#include "GfxSketchItem.H"
 
 #include <QDebug>
 #include <QGraphicsSceneMouseEvent>
@@ -88,31 +89,28 @@ void GfxImageItem::mouseMoveEvent(QGraphicsSceneMouseEvent *e) {
     setPos(data->pos() + moveDelta(e));
     break;
   case ResizeTopLeft: {
-    QPointF xy0 = dragCrop.bottomRight();
+    QPointF xy0 = mapToParent(dragCrop.bottomRight());
     double diag0 = euclideanLength(dragStart - xy0);
     double diag1 = euclideanLength(ppos - xy0);
-    xy0 = mapToParent(xy0);
     setScale(data->scale() * diag1/diag0);
     setPos(pos() + xy0 - mapToParent(imageBoundingRect().bottomRight()));
   } break;
   case ResizeTopRight: {
-    QPointF xy0 = dragCrop.bottomLeft();
+    QPointF xy0 = mapToParent(dragCrop.bottomLeft());
     double diag0 = euclideanLength(dragStart - xy0);
     double diag1 = euclideanLength(ppos - xy0);
-    xy0 = mapToParent(xy0);
     setScale(data->scale() * diag1/diag0);
     setPos(pos() + xy0 - mapToParent(imageBoundingRect().bottomLeft()));
   } break;
   case ResizeBottomLeft: {
-    QPointF xy0 = dragCrop.topRight();
+    QPointF xy0 = mapToParent(dragCrop.topRight());
     double diag0 = euclideanLength(dragStart - xy0);
     double diag1 = euclideanLength(ppos - xy0);
-    xy0 = mapToParent(xy0);
     setScale(data->scale() * diag1/diag0);
     setPos(pos() + xy0 - mapToParent(imageBoundingRect().topRight()));
   } break;
   case ResizeBottomRight: {
-    QPointF xy0 = dragCrop.topLeft();
+    QPointF xy0 = mapToParent(dragCrop.topLeft());
     double diag0 = euclideanLength(dragStart - xy0);
     double diag1 = euclideanLength(ppos - xy0);
     setScale(data->scale() * diag1/diag0);
@@ -199,9 +197,18 @@ void GfxImageItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
 	e->accept();
 	GfxMarkItem *mi = GfxMarkItem::newMark(e->pos(), this);
 	mi->setScale(1./data->scale());
+      } else if (modSnooper()->keyboardModifiers() & Qt::ShiftModifier) {
+	e->accept();
+	GfxSketchItem *mi = GfxSketchItem::newSketch(e->pos(), this);
+	mi->setScale(1./data->scale());
+	mi->build();
+      } else {
+	QGraphicsObject::mousePressEvent(e);
+	e->ignore();
       }
     } else {
       QGraphicsObject::mousePressEvent(e);
+      e->ignore();
     }
   }
 }
@@ -226,7 +233,6 @@ void GfxImageItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *e) {
   }
   if (itemParent()) {
     itemParent()->unlockBounds();
-    itemParent()->childGeometryChanged();
   }
   e->accept();
 }

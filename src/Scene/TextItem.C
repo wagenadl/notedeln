@@ -27,7 +27,6 @@
 TextItem::TextItem(TextData *data, Item *parent):
   Item(data, parent), data_(data) {
   text = new TextItemText(this);
-  setFocusProxy(text);
 
   foreach (LateNoteData *lnd, data->children<LateNoteData>()) 
     create(lnd, this);
@@ -58,6 +57,7 @@ void TextItem::makeWritable() {
   text->setTextInteractionFlags(Qt::TextEditorInteraction);
   text->setCursor(QCursor(Qt::IBeamCursor));
   setFlag(ItemIsFocusable);
+  setFocusProxy(text);
   acceptModifierChanges();
 }
 
@@ -156,9 +156,14 @@ bool TextItem::keyPress(QKeyEvent *e) {
       pass = false;
     }
     break;
+  case Qt::Key_Slash:
+    if (e->modifiers() & Qt::ControlModifier) {
+      pass = !trySimpleStyle("/", MarkupData::Italic);
+      break;
+    } // fall through!
   default:
     if (e->text()=="/") {
-      pass = !trySimpleStyle("/", MarkupData::Italic);
+      pass = true; // !trySimpleStyle("/", MarkupData::Italic);
     } else if (e->text()=="*") {
       pass = !trySimpleStyle("*", MarkupData::Bold);
     } else if (e->text()=="_") {
@@ -256,7 +261,7 @@ bool TextItem::tryURL() {
      of the URL.
   */
   QTextCursor c = textCursor();
-  QTextCursor m = document()->find(QRegExp("https?://"), c,
+  QTextCursor m = document()->find(QRegExp("(file|https?)://"), c,
 					QTextDocument::FindBackward);
   // look for http or https
   if (m.hasSelection()) {
@@ -323,7 +328,9 @@ bool TextItem::trySimpleStyle(QString marker,
      (2) that mark was not preceded by a word character
      (3) that mark was followed by a word character
      (4) we have a word character before us
-     (5) we do not have a word character after us
+     (5) we do not have a word character after us.
+     Note: I am not yet able to avoid nasty italicization in
+     "/home/wagenaar/foo.bar" or "http://www.site.com/somewhere.html".
   */
 
   QTextCursor c = textCursor();
@@ -354,36 +361,20 @@ void TextItem::addMarkup(MarkupData *d) {
 }
  
 bool TextItem::tryToPaste() {
-  qDebug() << "TextItem::tryToPaste";
   QClipboard *cb = QApplication::clipboard();
   QMimeData const *md = cb->mimeData(QClipboard::Clipboard);
-  //  QStringList fmt = md->formats();
-  qDebug() << "Clipboard: ";
-  //foreach (QString s, fmt)
-  //  qDebug() << "  Format: " << s;
-  if (md->hasText())
-    qDebug() << "  Text: " << md->text();
-  if (md->hasHtml())
-    qDebug() << "  Html: " << md->html();
-  if (md->hasUrls())
-    qDebug() << "  Urls: " << md->urls();
-  if (md->hasImage())
-    qDebug() << "  Image!";
-  md = cb->mimeData(QClipboard::Selection);
-  //  fmt = md->formats();
-  qDebug() << "Selection: ";
-  //foreach (QString s, fmt)
-  //  qDebug() << "  Format: " << s;
-  if (md->hasText())
-    qDebug() << "  Text: " << md->text();
-  if (md->hasHtml())
-    qDebug() << "  Html: " << md->html();
-  if (md->hasUrls())
-    qDebug() << "  Urls: " << md->urls();
-  if (md->hasImage())
-    qDebug() << "  Image!";
-
-  return false; // will return true if we decide to import
+  if (md->hasImage()) {
+    return false;
+  } else if (md->hasUrls()) {
+    return false; // perhaps we should allow URLs, but format specially?
+  } else if (md->hasText()) {
+    QString txt = md->text();
+    QTextCursor c = textCursor();
+    c.insertText(txt);
+    return true;
+  } else {
+    return false;
+  }
 }  
 
 bool TextItem::allowParagraphs() const {

@@ -39,12 +39,17 @@ private:
   bool tryToPaste();
   bool tryMakeNote();
   void remap();
+  bool importDroppedOrPasted(QPointF scenePos,
+			     class QMimeData const *md,
+			     bool dropped);
   bool importDroppedImage(QPointF scenePos, QImage const &img,
 			  class QUrl const *source=0);
-  bool importDroppedUrls(QPointF scenePos, QList<class QUrl> const &url);
-  bool importDroppedUrl(QPointF scenePos, class QUrl const &url);
+  bool importDroppedUrls(QPointF scenePos, QList<class QUrl> const &url,
+			 bool dropped);
+  bool importDroppedUrl(QPointF scenePos, class QUrl const &url,
+			bool dropped);
   bool importDroppedText(QPointF scenePos, QString const &txt,
-			 class QUrl const *source=0);
+			 class QUrl const *source=0, bool dropped=false);
   bool importDroppedFile(QPointF scenePos, QString const &fn);
   void makeBackground();
   void makeTitleItem();
@@ -57,14 +62,16 @@ private:
   int findLastBlockOnSheet(int sheet); // returns -1 if none
   bool belowContent(QPointF); // true if point is below any blocks on sheet,
   // whether or not the point is in the margin
-  class GfxBlockItem *newGfxBlock();
+  class GfxBlockItem *newGfxBlock(int after=-1);
   class TextBlockItem *newTextBlock(int after=-1, bool evenIfLastEmpty=false);
   // creates a new text block after the
   // given block or at the bottom of this sheet
+  class GfxBlockItem *gfxBlockAfter(int iblock);
   void deleteBlock(int blocki); // also deletes data!
   class BlockItem *tryMakeGfxBlock(class BlockData *bd);
   class BlockItem *tryMakeTextBlock(class BlockData *bd);
   void joinTextBlocks(int iblock_pre, int iblock_post);
+  int indexOfBlock(class BlockItem *) const; // -1 if none
 private:
   QGraphicsTextItem *dateItem;
   QGraphicsTextItem *nOfNItem;

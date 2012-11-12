@@ -27,7 +27,9 @@ TextBlockItem::TextBlockItem(TextBlockData *data, Item *parent):
   item_->setAllowNotes(true);
   
   connect(item_, SIGNAL(textChanged()),
-	  this, SLOT(checkVbox()));
+	  this, SLOT(checkVbox()), Qt::QueuedConnection);
+  // The non-instantaneous delivery is important, otherwise the check
+  // may happen before the change is processed.
   connect(item_, SIGNAL(futileMovementKey(int, Qt::KeyboardModifiers)),
 	  this, SLOT(futileMovementKey(int, Qt::KeyboardModifiers)));
   connect(item_, SIGNAL(refTextChange(QString, QString)),

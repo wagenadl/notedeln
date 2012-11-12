@@ -21,16 +21,32 @@ QList<double> const &GfxPointsData::yy() const {
   return yy_;
 }
 
-void GfxPointsData::addPoint(QPointF p) {
-  xx_.append(p.x());
-  yy_.append(p.y());
+void GfxPointsData::clear() {
+  xx_.clear();
+  yy_.clear();
   markModified();
 }
 
-void GfxPointsData::addPoint(double x, double y) {
-  xx_.append(x);
-  yy_.append(y);
-  markModified();
+int GfxPointsData::size() const {
+  return xx_.size();
+}
+
+QPointF GfxPointsData::point(int i) const {
+  return QPointF(xx_[i], yy_[i]);
+}
+
+void GfxPointsData::addPoint(QPointF p, bool hush) {
+  xx_.append(p.x());
+  yy_.append(p.y());
+  if (!hush)
+    markModified();
+}
+
+void GfxPointsData::setPoint(int i, QPointF p, bool hush) {
+  xx_[i] = p.x();
+  yy_[i] = p.y();
+  if (!hush)
+    markModified();
 }
 
 void GfxPointsData::removePoint(int i) {

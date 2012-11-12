@@ -92,6 +92,7 @@ void Item::lockBounds() {
 
 void Item::unlockBounds() {
   brLocked = false;
+  childGeometryChanged();
 }
 
 QRectF Item::cachedBounds() const {

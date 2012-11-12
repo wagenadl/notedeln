@@ -11,7 +11,7 @@ TextItemText::~TextItemText() {
 }
 
 TextItem *TextItemText::parent() {
-  return dynamic_cast<TextItem*>(QGraphicsTextItem::parent());
+  return dynamic_cast<TextItem*>(QGraphicsTextItem::parentItem());
 }
 
 void TextItemText::mousePressEvent(QGraphicsSceneMouseEvent *e) {

@@ -99,7 +99,7 @@ void BaseScene::makeContdItems() {
 			   style_->real("contd-font-size")));
   contItem->setDefaultTextColor(style_->color("contd-color"));
   QPointF bl = contItem->boundingRect().bottomLeft();
-  contItem->setPos(style_->real("page-width") - style_->real("margin-right")
+  contItem->setPos(style_->real("margin-left") + style_->real("paragraph-width")
 		   - bl.x(),
 		   style_->real("page-height") - style_->real("margin-bottom")
 		   - bl.y());

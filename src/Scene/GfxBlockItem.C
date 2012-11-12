@@ -16,6 +16,7 @@
 #include <QCursor>
 #include "DragLine.H"
 #include "GfxMarkItem.H"
+#include "GfxSketchItem.H"
 
 GfxBlockItem::GfxBlockItem(GfxBlockData *data, Item *parent):
   BlockItem(data, parent), data_(data) {
@@ -34,12 +35,37 @@ GfxBlockData *GfxBlockItem::data() {
   return data_;
 }
 
-Item *GfxBlockItem::newImage(QImage img, QUrl const *src, QPointF) {
+static QPointF constrainPointToRect(QPointF p, QRectF rect) {
+  if (p.x()<rect.left())
+    p.setX(rect.left());
+  else if (p.x()>rect.right())
+    p.setX(rect.right());
+  if (p.y()<rect.top())
+    p.setY(rect.top());
+  else if (p.y()>rect.bottom())
+    p.setY(rect.bottom());
+  return p;
+}
+
+Item *GfxBlockItem::newImage(QImage img, QUrl const *src, QPointF pos) {
   Q_ASSERT(data()->book());
   Q_ASSERT(data()->resMgr());
+  double maxW = availableWidth();
+  double maxH = maxW;
+  double scale = 1;
+  if (scale*img.width()>maxW)
+    scale = maxW/img.width();
+  if (scale*img.height()>maxH)
+    scale = maxH/img.height();
+  if (itemChildren<Item>().isEmpty())
+    pos = QPointF(18, 18);
+  else
+    pos -= QPointF(img.width(),img.height())*(scale/2);
+  pos = constrainPointToRect(pos, boundingRect());
   QString resName = data()->resMgr()->import(img, src);
   GfxImageData *gid = new GfxImageData(resName, img, data());
-  gid->setPos(QPointF(18, 18)); // should use passed xy?
+  gid->setScale(scale);
+  gid->setPos(pos);
   GfxImageItem *gii = new GfxImageItem(gid, this);
   sizeToFit();
   return gii;
@@ -121,6 +147,10 @@ void GfxBlockItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
       take = true;
     } else if (mod & Qt::ControlModifier && data()->isRecent()) {
       GfxMarkItem::newMark(e->pos(), this);
+      take = true;
+    } else if (mod & Qt::ShiftModifier && data()->isRecent()) {
+      GfxSketchItem *ski = GfxSketchItem::newSketch(e->pos(), this);
+      ski->build();
       take = true;
     }
   }
