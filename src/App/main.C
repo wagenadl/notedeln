@@ -11,10 +11,11 @@
 
 int main(int argc, char **argv) {
   App app(argc, argv);
-  QDir d("test.nb");
+  QString fn = argc>1 ? argv[1] : "eln.nb";
+  QDir d(fn);
   Notebook *nb = d.exists()
-    ? Notebook::load("test.nb")
-    : Notebook::create("test.nb");
+    ? Notebook::load(fn)
+    : Notebook::create(fn);
   Q_ASSERT(nb);
 
   PageEditor *editor = new PageEditor(nb);

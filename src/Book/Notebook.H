@@ -27,6 +27,7 @@ public:
   class ResourceManager *resMgr(int pgno);
   class BookData *bookData() const;
   class Style const &style() const;
+  QString filePath(QString) const;
 public slots:
   void flush();
 private:

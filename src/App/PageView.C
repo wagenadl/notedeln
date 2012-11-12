@@ -28,9 +28,11 @@ PageView::PageView(Notebook *nb, QWidget *parent):
   linePalette->setParent(this);
   markPalette = new GfxMarkPalette();
   markPalette->setParent(this);
+
+  setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+  setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
   
   pageScene = 0;
-
   currentSection = Front;
 }
 
@@ -39,8 +41,11 @@ PageView::~PageView() {
 
 void PageView::resizeEvent(QResizeEvent *e) {
   QGraphicsView::resizeEvent(e);
-  if (scene()) 
-    fitInView(scene()->sceneRect(), Qt::KeepAspectRatio);
+  if (!scene())
+    return;
+  QRectF sr = scene()->sceneRect();
+  sr.adjust(2, 2, -2, -2); // make sure no borders show by default
+  fitInView(sr, Qt::KeepAspectRatio);
 }
 
 void PageView::mousePressEvent(QMouseEvent *e) {

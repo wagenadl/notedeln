@@ -16,7 +16,7 @@ Notebook::Notebook(QString path) {
   bookFile_ = BookFile::load(root.filePath("book.json"), this);
   Q_ASSERT(tocFile_);
   Q_ASSERT(bookFile_);
-  style_ = new Style("-");
+  style_ = new Style(root.filePath("style.json"));
 }
 
 Notebook::~Notebook() {
@@ -35,20 +35,41 @@ Notebook *Notebook::load(QString path) {
     return 0;
 }
 
+QString Notebook::filePath(QString f) const {
+  return root.filePath(f);
+}
+
 Notebook *Notebook::create(QString path) {
   QDir d(path);
-  if (d.exists()) 
+  if (d.exists()) {
+    qDebug() << "Notebook: Cannot create new notebook at existing path" << path;
     return 0;
+  }
 
-  if (!d.mkpath("pages")) 
+  if (!d.mkpath("pages")) {
+    qDebug() << "Notebook: Failed to create 'pages' directory at " << path;
     return 0;
+  }
   
-  if (!d.mkpath("res"))
+  if (!d.mkpath("res")) {
+    qDebug() << "Notebook: Failed to create 'res' directory at " << path;
     return 0;
+  }
 
   delete TOCFile::create(d.filePath("toc.json"));
   delete BookFile::create(d.filePath("book.json"));
-  
+
+  QFile styleIn(":/style.json");
+  Q_ASSERT(styleIn.open(QFile::ReadOnly));
+  QFile styleOut(d.filePath("style.json"));
+  if (!styleOut.open(QFile::WriteOnly)) {
+    qDebug() << "Notebook: Failed to create 'style.json' at " << path;
+    return 0;
+  }
+  styleOut.write(styleIn.readAll());
+  styleIn.close();
+  styleOut.close();
+    
   Notebook *nb = new Notebook(d.absolutePath());
   return nb;
 }

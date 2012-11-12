@@ -7,6 +7,7 @@
 #include "Style.H"
 
 #include <QGraphicsTextItem>
+#include <QGraphicsPixmapItem>
 #include <QDebug>
 
 FrontScene::FrontScene(Notebook *book, QObject *parent):
@@ -23,8 +24,8 @@ FrontScene::~FrontScene() {
 void FrontScene::rebuild() {
   BookData *data = book->bookData();
   title->setPlainText(data->title());
-  author->setPlainText("DAW");
-  address->setPlainText("Caltech");
+  author->setPlainText(data->author());
+  address->setPlainText(data->address());
   QString dateFmt = style.string("front-date-format");
   if (data->startDate() == data->endDate())
     dates->setHtml(data->startDate().toString(dateFmt));
@@ -36,6 +37,8 @@ void FrontScene::rebuild() {
 }
 
 void FrontScene::makeBackground() {
+  bg = 0;
+  
   setSceneRect(0,
 	       0,
 	       style.real("page-width"),
@@ -49,6 +52,19 @@ void FrontScene::makeBackground() {
 	  style.real("page-height"),
 	  QPen(Qt::NoPen),
 	  QBrush(style.color("background-color")));
+
+  if (!book->bookData()->frontImage().isEmpty()) {
+    QImage img(book->filePath(book->bookData()->frontImage()));
+    if (!img.isNull()) {
+      bg = new QGraphicsPixmapItem();
+      bg->setPixmap(QPixmap::fromImage(img));
+      addItem(bg);
+      QTransform t;
+      t.scale(style.real("page-width")/img.width(),
+	      style.real("page-height")/img.height());
+      bg->setTransform(t);
+    }
+  }
 }
 
 void FrontScene::makeItems() {

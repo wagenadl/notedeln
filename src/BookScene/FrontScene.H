@@ -24,8 +24,7 @@ private:
   QGraphicsTextItem *author;
   QGraphicsTextItem *address;
   QGraphicsTextItem *dates;
-
-  
+  class QGraphicsPixmapItem *bg;
 };
 
 #endif
