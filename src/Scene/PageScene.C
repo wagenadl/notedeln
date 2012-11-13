@@ -171,7 +171,7 @@ void PageScene::positionTitleItem() {
   QTextDocument *doc = titleItemX->document();
   QTextBlock blk = doc->lastBlock();
   QTextLayout *lay = blk.layout();
-  QTextLine l = lay->lineAt(blk.lineCount()-1);
+  QTextLine l = lay->lineAt(lay->lineCount()-1);
   QPointF tl(l.cursorToX(blk.length()) + 10, l.y());
   tl = titleItem->mapToScene(tl + lay->position());
   lay = nOfNItem->document()->lastBlock().layout();
@@ -278,7 +278,49 @@ void PageScene::gotoSheet(int i) {
   else
     nOfNItem->setPlainText("");
 
-  // Shape below item
+  reshapeBelowItem();
+  repositionContItem();  
+  
+  if (oldSheet!=iSheet)
+    emit nowOnPage(startPage()+iSheet);
+}
+
+void PageScene::repositionContItem() {
+  if (!contItem->isVisible())
+    return;
+
+  int iLast = findLastBlockOnSheet(iSheet);
+  if (iLast<0) {
+    contItem->setPos(style().real("page-width")
+		     - style().real("margin-right-over"),
+		     style().real("page-height")
+		     - style().real("margin-bottom")
+		     - contItem->boundingRect().height());
+    return;
+  }
+
+  BlockItem *bi = blockItems[iLast];
+  TextBlockItem *tbi = dynamic_cast<TextBlockItem *>(bi);
+  if (tbi) {
+    QTextBlock tb = tbi->text()->document()->lastBlock();
+    QTextLayout *lay = tb.layout();
+    QTextLine l = lay->lineAt(lay->lineCount()-1);
+    QPointF p(l.cursorToX(tb.length()) + 10, l.y());
+    p = tbi->text()->mapToScene(p+lay->position());
+    p.setX(style().real("margin-left") + style().real("paragraph-width"));
+    QTextLayout *clay = contItem->document()->lastBlock().layout();
+    QTextLine cl = clay->lineAt(0);
+    QPointF cp(cl.cursorToX(0), cl.y());
+    cp += clay->position();
+    cp.setX(0);
+    contItem->setPos(p - cp);
+  } else {
+    contItem->setPos(bi->mapToScene(bi->boundingRect().bottomRight())
+		     + QPointF(5, 5-contItem->boundingRect().height()));
+  }
+}
+
+void PageScene::reshapeBelowItem() {
   int iLast = findLastBlockOnSheet(iSheet);
   double ytop = iLast<0
     ? style().real("margin-top")
@@ -291,9 +333,6 @@ void PageScene::gotoSheet(int i) {
 		     style().real("page-height")
 		     - ytop
 		     - style().real("margin-bottom"));
-
-  if (oldSheet!=iSheet)
-    emit nowOnPage(startPage()+iSheet);
 }
 
 int PageScene::findLastBlockOnSheet(int sheet) {

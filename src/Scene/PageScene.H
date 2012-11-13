@@ -72,6 +72,8 @@ private:
   class BlockItem *tryMakeTextBlock(class BlockData *bd);
   void joinTextBlocks(int iblock_pre, int iblock_post);
   int indexOfBlock(class BlockItem *) const; // -1 if none
+  void repositionContItem();
+  void reshapeBelowItem();
 private:
   QGraphicsTextItem *dateItem;
   QGraphicsTextItem *nOfNItem;
