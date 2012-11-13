@@ -9,6 +9,7 @@
 #include <QGraphicsTextItem>
 #include <QGraphicsPixmapItem>
 #include <QDebug>
+#include <QPainter>
 
 FrontScene::FrontScene(Notebook *book, QObject *parent):
   QGraphicsScene(parent),
@@ -99,4 +100,8 @@ void FrontScene::positionItems() {
   centerAt(author, xc, style.real("front-author-y"));
   centerAt(address, xc, style.real("front-address-y"));
   centerAt(dates, xc, style.real("front-dates-y"));
+}
+
+void FrontScene::print(QPrinter *, QPainter *p) {
+  render(p);
 }

@@ -11,6 +11,8 @@
 #include <QTextDocument>
 #include <QDebug>
 #include <QKeyEvent>
+#include <QPainter>
+#include <QPrinter>
 
 #include "Notebook.H"
 #include "ModSnooper.H"
@@ -201,4 +203,29 @@ int BaseScene::sheetCount() const {
 void BaseScene::focusTitle() {
   Q_ASSERT(titleItem);
   titleItem->setFocus();
+}
+
+bool BaseScene::print(QPrinter *prt, QPainter *p,
+		      int firstSheet, int lastSheet) {
+  if (firstSheet<0)
+    firstSheet=0;
+  if (lastSheet>=nSheets)
+    lastSheet = nSheets-1;
+  int oldSheet = iSheet;
+  bool first = true;
+  for (int k=firstSheet; k<=lastSheet; k++) {
+    if (!first)
+      prt->newPage();
+    if (iSheet != k)
+      gotoSheet(k);
+    render(p);
+    first = false;
+  }
+  if (iSheet != oldSheet)
+    gotoSheet(iSheet);
+  return !first;
+}
+
+int BaseScene::currentSheet() const {
+  return iSheet;
 }

@@ -121,6 +121,12 @@ void PageView::keyPressEvent(QKeyEvent *e) {
       return;
     }
     break;
+  case Qt::Key_P:
+    if (e->modifiers() & Qt::ControlModifier) {
+      printDialog();
+      e->accept();
+      return;
+    }
   default:
     break;
   }

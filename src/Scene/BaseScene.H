@@ -14,6 +14,9 @@ public:
   virtual ~BaseScene();
   int sheetCount() const;
   class Style const &style() const;
+  virtual bool print(class QPrinter *, class QPainter *,
+		     int firstSheet=0, int lastSheet=100000000);
+  int currentSheet() const;
 public slots:
   bool nextSheet();
   bool previousSheet();

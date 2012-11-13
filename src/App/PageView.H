@@ -26,6 +26,7 @@ protected:
   void mousePressEvent(QMouseEvent *);
 private:
   void leavePage();
+  void printDialog();
 private slots:
   void nowOnPage(int pgno);
 private:

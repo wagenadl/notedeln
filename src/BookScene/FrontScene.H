@@ -11,6 +11,7 @@ class FrontScene: public QGraphicsScene {
 public:
   FrontScene(class Notebook *book, QObject *parent=0);
   virtual ~FrontScene();
+  void print(class QPrinter *, class QPainter *);
 public slots:
   void rebuild();
 private:
