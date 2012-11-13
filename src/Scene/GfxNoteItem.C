@@ -5,7 +5,6 @@
 #include "TextItem.H"
 #include <QDebug>
 #include <QGraphicsSceneMouseEvent>
-#include <QGraphicsDropShadowEffect>
 #include <QTextDocument>
 
 static Item::Creator<GfxNoteData, GfxNoteItem> c("gfxnote");
@@ -28,14 +27,6 @@ GfxNoteItem::GfxNoteItem(GfxNoteData *data, Item *parent):
   connect(text, SIGNAL(mousePress(QPointF, Qt::MouseButton)),
 	  this, SLOT(childMousePress(QPointF, Qt::MouseButton)));
 		     
-  QGraphicsDropShadowEffect *s = new QGraphicsDropShadowEffect(this);
-  QColor c(style().string("note-shadow-color"));
-  c.setAlphaF(style().real("note-shadow-alpha"));
-  s->setColor(c);
-  s->setBlurRadius(style().real("note-shadow-blur"));
-  s->setOffset(QPointF(0,0));
-  setGraphicsEffect(s);
-
   setFlag(ItemIsFocusable);
   setFocusProxy(text);
   connect(text->document(), SIGNAL(contentsChanged()),

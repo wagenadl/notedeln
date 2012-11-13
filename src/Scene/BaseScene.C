@@ -58,9 +58,9 @@ void BaseScene::makeBackground() {
 		   QPen(Qt::NoPen),
 		   QBrush(style_->color("background-color")));
 
-  leftMarginItem = addLine(style_->real("margin-left"),
+  leftMarginItem = addLine(style_->real("margin-left")-1,
 			   0,
-			   style_->real("margin-left"),
+			   style_->real("margin-left")-1,
 			   height(),
 			   QPen(QBrush(style_->color("margin-left-line-color")),
 				style_->real("margin-left-line-width")));
