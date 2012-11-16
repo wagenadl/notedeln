@@ -50,7 +50,9 @@ private:
   QPointF dragStart; // in parent block's coordinates
   Qt::CursorShape oldCursor;
   QPointF cursorPos;
-  QRectF dragCrop; // in image coords
+  QRectF cropStart; // in parent block's coordinates
+  QRectF imStart; // in parent block's coordinates
+  QRect dragCrop;
   QGraphicsPixmapItem *pixmap;
 };
 

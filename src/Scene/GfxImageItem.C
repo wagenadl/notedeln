@@ -39,8 +39,9 @@ GfxImageItem::GfxImageItem(GfxImageData *data, Item *parent):
   }
   pixmap->setPixmap(QPixmap::fromImage(image.copy(data->cropRect().toRect())));
   setScale(data->scale());
-  setPos(data->pos()); // - data->cropRect().topLeft()*data->scale());
+  setPos(data->pos());
   pixmap->setPos(data->cropRect().topLeft());
+  pixmap->setTransformationMode(Qt::SmoothTransformation);
 
   foreach (GfxData *gd, data->children<GfxData>()) {
     Item *i = create(gd, this);
@@ -55,25 +56,10 @@ GfxImageItem::GfxImageItem(GfxImageData *data, Item *parent):
 GfxImageItem::~GfxImageItem() {
 }
 
-//void GfxImageItem::showCroppedAreas() {
-//  QPixmap pm(QPixmap::fromImage(image));
-//  setPixmap(pm);
-//  setOffset(-data->cropLeft(), -data->cropTop());
-//}
-//
-//void GfxImageItem::hideCroppedAreas() {
-//  setPixmap(QPixmap::fromImage(image.copy(data->cropRect().toRect())));
-//  setOffset(0, 0);
-//}
-
 QPointF GfxImageItem::moveDelta(QGraphicsSceneMouseEvent *e) {
   QPointF delta = mapToParent(e->pos()) - dragStart;
   return delta;
 }
-
-//static double operator*(QPointF a, QPointF b) {
-//  return a.x()*b.x() + a.y()*b.y();
-//}
 
 static double euclideanLength(QPointF a) {
   return sqrt(a.x()*a.x() + a.y()*a.y());
@@ -89,127 +75,135 @@ void GfxImageItem::mouseMoveEvent(QGraphicsSceneMouseEvent *e) {
     setPos(data->pos() + moveDelta(e));
     break;
   case ResizeTopLeft: {
-    QPointF xy0 = mapToParent(dragCrop.bottomRight());
+    QPointF xy0 = cropStart.bottomRight();
     double diag0 = euclideanLength(dragStart - xy0);
     double diag1 = euclideanLength(ppos - xy0);
     setScale(data->scale() * diag1/diag0);
     setPos(pos() + xy0 - mapToParent(imageBoundingRect().bottomRight()));
   } break;
   case ResizeTopRight: {
-    QPointF xy0 = mapToParent(dragCrop.bottomLeft());
+    QPointF xy0 = cropStart.bottomLeft();
     double diag0 = euclideanLength(dragStart - xy0);
     double diag1 = euclideanLength(ppos - xy0);
     setScale(data->scale() * diag1/diag0);
     setPos(pos() + xy0 - mapToParent(imageBoundingRect().bottomLeft()));
   } break;
   case ResizeBottomLeft: {
-    QPointF xy0 = mapToParent(dragCrop.topRight());
+    QPointF xy0 = cropStart.topRight();
     double diag0 = euclideanLength(dragStart - xy0);
     double diag1 = euclideanLength(ppos - xy0);
     setScale(data->scale() * diag1/diag0);
     setPos(pos() + xy0 - mapToParent(imageBoundingRect().topRight()));
   } break;
   case ResizeBottomRight: {
-    QPointF xy0 = mapToParent(dragCrop.topLeft());
+    QPointF xy0 = cropStart.topLeft();
     double diag0 = euclideanLength(dragStart - xy0);
     double diag1 = euclideanLength(ppos - xy0);
     setScale(data->scale() * diag1/diag0);
+    setPos(pos() + xy0 - mapToParent(imageBoundingRect().topLeft()));
   } break;
   case CropLeft: {
     double dx = moveDelta(e).x();
-    dragCrop = data->cropRect();
-    double x0 = dragCrop.left();
+    double x0 = cropStart.left();
     double x = x0 + dx;
-    if (x < 0)
-      x = 0;
-    else if (x > dragCrop.right())
-      x = dragCrop.right();
+    if (x < imStart.left())
+      x = imStart.left();
+    else if (x > cropStart.right())
+      x = cropStart.right();
     dx = x - x0;
-    dragCrop.setLeft(x);
-    pixmap->setPixmap(QPixmap::fromImage(image.copy(dragCrop.toRect())));
-    //setPos(pos() + data->blockRect().bottomRight()
-    //	   - mapRectToParent(imageBoundingRect()).bottomRight());
+    QRectF cr = cropStart; cr.setLeft(x);
+    dragCrop = mapRectFromParent(cr).toRect();
+    pixmap->setPixmap(QPixmap::fromImage(image.copy(dragCrop)));
     pixmap->setPos(dragCrop.topLeft());
   } break;
   case CropRight: {
     double dx = moveDelta(e).x();
-    dragCrop = data->cropRect();
-    double x0 = dragCrop.right();
+    double x0 = cropStart.right();
     double x = x0 + dx;
-    if (x < dragCrop.left())
-      x = dragCrop.left();
-    else if (x > data->width())
-      x = data->width();
+    if (x < cropStart.left())
+      x = cropStart.left();
+    else if (x > imStart.right())
+      x = imStart.right();
     dx = x - x0;
-    dragCrop.setRight(x);
-    pixmap->setPixmap(QPixmap::fromImage(image.copy(dragCrop.toRect())));
+    QRectF cr = cropStart; cr.setRight(x);
+    dragCrop = mapRectFromParent(cr).toRect();
+    pixmap->setPixmap(QPixmap::fromImage(image.copy(dragCrop)));
   } break;
   case CropTop: {
     double dy = moveDelta(e).y();
-    dragCrop = data->cropRect();
-    double y0 = dragCrop.top();
+    double y0 = cropStart.top();
     double y = y0 + dy;
-    if (y < 0)
-      y = 0;
-    else if (y > dragCrop.bottom())
-      y = dragCrop.bottom();
+    if (y < imStart.top())
+      y = imStart.top();
+    else if (y > cropStart.bottom())
+      y = cropStart.bottom();
     dy = y - y0;
-    dragCrop.setTop(y);
-    pixmap->setPixmap(QPixmap::fromImage(image.copy(dragCrop.toRect())));
-    //setPos(pos() + data->blockRect().bottomRight()
-    //	   - mapRectToParent(imageBoundingRect()).bottomRight());
+    QRectF cr = cropStart; cr.setTop(y);
+    dragCrop = mapRectFromParent(cr).toRect();
+    pixmap->setPixmap(QPixmap::fromImage(image.copy(dragCrop)));
     pixmap->setPos(dragCrop.topLeft());
   } break;
   case CropBottom: {
     double dy = moveDelta(e).y();
-    dragCrop = data->cropRect();
-    double y0 = dragCrop.bottom();
+    double y0 = cropStart.bottom();
     double y = y0 + dy;
-    if (y < dragCrop.top())
-      y = dragCrop.top();
-    else if (y > data->height())
-      y = data->height();
+    if (y < cropStart.top())
+      y = cropStart.top();
+    else if (y > imStart.bottom())
+      y = imStart.bottom();
     dy = y - y0;
-    dragCrop.setBottom(y);
-    pixmap->setPixmap(QPixmap::fromImage(image.copy(dragCrop.toRect())));
+    QRectF cr = cropStart; cr.setBottom(y);
+    dragCrop = mapRectFromParent(cr).toRect();
+    pixmap->setPixmap(QPixmap::fromImage(image.copy(dragCrop)));
   } break;
   }
 }
 
 void GfxImageItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
-  if (moveModPressed()) { 
-    dragType = dragTypeForPoint(e->pos());
-    dragStart = mapToParent(e->pos());
-    dragCrop = data->cropRect();
-    //    dragRect = imageBoundingRect();
-    if (itemParent())
-      itemParent()->lockBounds();
-    else
-      qDebug() << "GfxImageItem: no parent";
+  bool take = false;
+  if (isWritable()) {
+    if (moveModPressed()) {
+      dragType = dragTypeForPoint(e->pos());
+      dragStart = mapToParent(e->pos());
+      cropStart = mapRectToParent(data->cropRect());
+      imStart = mapRectToParent(QRectF(QPointF(0,0), data->size()));
+      dragCrop = data->cropRect().toRect();
+      if (itemParent())
+	itemParent()->lockBounds();
+      else
+	qDebug() << "GfxImageItem: no parent";
+      take = true;
+    } else {
+      if (e->button()==Qt::LeftButton) {
+	if (modSnooper()->keyboardModifiers()==0) {
+	  GfxNoteItem *gni = createNote(e->pos(), !data->isRecent());
+	  gni->setScale(1./data->scale());
+	  take = true;
+	} else if (modSnooper()->keyboardModifiers() & Qt::ControlModifier) {
+	  GfxMarkItem *mi = GfxMarkItem::newMark(e->pos(), this);
+	  mi->setScale(1./data->scale());
+	  take = true;
+	} else if (modSnooper()->keyboardModifiers() & Qt::ShiftModifier) {
+	  GfxSketchItem *mi = GfxSketchItem::newSketch(e->pos(), this);
+	  mi->setScale(1./data->scale());
+	  mi->build();
+	  take = true;
+	}
+      }
+    }
+  } else {
+    if (e->button()==Qt::LeftButton &&
+	modSnooper()->keyboardModifiers()==0) {
+      GfxNoteItem *gni = createNote(e->pos(), true);
+      gni->setScale(1./data->scale());
+      take = true;
+    }
+  }
+  
+  if (take) {
     e->accept();
   } else {
-    if (e->button()==Qt::LeftButton) {
-      if (modSnooper()->keyboardModifiers()==0) {
-	e->accept();
-	GfxNoteItem *gni = createNote(e->pos(), !data->isRecent());
-	gni->setScale(1./data->scale());
-      } else if (modSnooper()->keyboardModifiers() & Qt::ControlModifier) {
-	e->accept();
-	GfxMarkItem *mi = GfxMarkItem::newMark(e->pos(), this);
-	mi->setScale(1./data->scale());
-      } else if (modSnooper()->keyboardModifiers() & Qt::ShiftModifier) {
-	e->accept();
-	GfxSketchItem *mi = GfxSketchItem::newSketch(e->pos(), this);
-	mi->setScale(1./data->scale());
-	mi->build();
-      } else {
-	QGraphicsObject::mousePressEvent(e);
-	e->ignore();
-      }
-    } else {
-      QGraphicsObject::mousePressEvent(e);
-      e->ignore();
-    }
+    e->ignore();
   }
 }
 
@@ -228,7 +222,7 @@ void GfxImageItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *e) {
     break;
   case CropLeft: case CropRight:
   case CropTop: case CropBottom:
-    data->setCropRect(dragCrop.toRect()); // round to integers
+    data->setCropRect(dragCrop); // round to integers
     break;
   }
   if (itemParent()) {
@@ -243,6 +237,7 @@ GfxImageItem::DragType GfxImageItem::dragTypeForPoint(QPointF p) {
   double y = p.y();
   double w = imageBoundingRect().width();
   double h = imageBoundingRect().height();
+  qDebug() << "GII: DragTypeForPoint" << x << y << w << h;
   if (x/w < .25 && y/h < .25)
     return ResizeTopLeft;
   else if (x/w < .25 && y/h > .75)
@@ -290,7 +285,7 @@ void GfxImageItem::setCursor(Qt::CursorShape newCursor) {
 }
 
 void GfxImageItem::modifierChange(Qt::KeyboardModifiers) {
-  if (moveModPressed())
+  if (moveModPressed() && isWritable())
     setCursor(cursorForDragType(dragTypeForPoint(cursorPos)));
   else 
     setCursor(Qt::CrossCursor);
@@ -298,7 +293,7 @@ void GfxImageItem::modifierChange(Qt::KeyboardModifiers) {
 
 void GfxImageItem::hoverMoveEvent(QGraphicsSceneHoverEvent *e) {
   cursorPos = e->pos(); // cache for the use of modifierChanged
-  if (moveModPressed())
+  if (moveModPressed() && isWritable())
     setCursor(cursorForDragType(dragTypeForPoint(cursorPos)));
   else
     setCursor(Qt::CrossCursor);
@@ -314,6 +309,7 @@ QRectF GfxImageItem::boundingRect() const {
 }
 
 void GfxImageItem::makeWritable() {
+  qDebug() << "GII:MakeWritable";
   Item::makeWritable();
   foreach (Item *i, itemChildren<Item>())
     i->makeWritable();
