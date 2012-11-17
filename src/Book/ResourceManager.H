@@ -18,21 +18,28 @@ public:
   QString link(QUrl source); // this will complete in b/g
   /* Return from import() and link() is a resource name.
      You must use exists() or complete() to check for success. */
-  QString path(QString name) const; // maps a resource name to an abs. path
-  bool exists(QString name) const; // true even while downloading
-  bool complete(QString name) const; // true only after downloading complete
-  bool outdated(QString name) const; // false for networked resources
+  QString resName(QUrl source) const; // returns resname for a given url, or ""
+  QString path(QString resname) const; // maps a resource name to an abs. path
+  QString thumbPath(QString resname) const; // if a resource has a thumbnail
+  // associated with it, return its abs. path, else ""
+  bool exists(QString resname) const; // true even while downloading
+  bool complete(QString resname) const; // true only after downloading complete
+  bool outdated(QString resname) const; // false for networked resources
 private:
   QString newName() const;
   QString newName(QUrl src) const;
   void saveSources() const;
+  void makePdfAndThumb(QString name);
 private slots:
   void downloadComplete(QString);
+  void processComplete(QString);
 private:
   QDir dir;
   QMap<QString, QUrl> sources;
   QMap<QString, class ResourceLoader *> loaders;
   class QSignalMapper *mapper;
+  QMap<QString, class QProcess *> processes;
+  class QSignalMapper *procMapper;
 };
 
 #endif

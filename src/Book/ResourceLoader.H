@@ -17,6 +17,7 @@ public:
   bool failed() const; // true if finished with error
   // should we offer networkError() from qnr?
   // In case of error, the DST is deleted.
+  QString mimeType() const; // may return "" if not (yet) known
 signals:
   void finished(); // ok or not
   void progress(int); // percent, or -1 if unknown

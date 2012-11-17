@@ -13,6 +13,8 @@ public:
   BlockItem(class BlockData *data, Item *parent);
   virtual ~BlockItem();
   BlockData *data();
+  static BlockItem const *ancestralBlock(Item const *);
+  static BlockItem *ancestralBlock(Item *);
 signals:
   void vboxChanged();
 public slots:
@@ -25,5 +27,6 @@ private:
   QRectF oldBbox;
   // QList<NoteItem *> notes_;
 };
+
 
 #endif

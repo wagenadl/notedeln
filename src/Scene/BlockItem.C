@@ -66,3 +66,23 @@ void BlockItem::refTextChange(QString olds, QString news) {
     }
   }
 }
+
+BlockItem const *BlockItem::ancestralBlock(Item const *i) {
+  while (i) {
+    BlockItem const *bi = dynamic_cast<BlockItem const*>(i);
+    if (bi)
+      return bi;
+    i = i->itemParent();
+  }
+  return 0;
+}
+
+BlockItem *BlockItem::ancestralBlock(Item *i) {
+  while (i) {
+    BlockItem *bi = dynamic_cast<BlockItem*>(i);
+    if (bi)
+      return bi;
+    i = i->itemParent();
+  }
+  return 0;
+}

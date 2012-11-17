@@ -22,6 +22,7 @@ public:
   void addMarkup(MarkupData *); // we appropriate the data!
   bool allowNotes() const;
   void setAllowNotes(bool y=true);
+  TextData *data();
 signals:
   void textChanged();
   void abandoned(); // escape pressed while empty
@@ -43,6 +44,10 @@ public:
   // for use by TextMarkings to signal change of reference text
 private:
   void initializeFormat();
+  MarkupData *markupAt(int pos, MarkupData::Style type);
+  QString markedText(MarkupData *);
+  bool tryLink();
+  bool tryFootnote();
   bool tryToPaste();
   bool trySimpleStyle(QString marker, MarkupData::Style type);
   bool tryScriptStyles();

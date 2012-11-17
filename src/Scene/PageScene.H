@@ -17,6 +17,7 @@ public:
   void focusEnd(); // may create new text block
   bool isWritable() const;
   void gotoSheet(int i);
+  int findBlock(class Item const *) const;
   void newFootnote(int block, QString tag);
 signals:
   void nowOnPage(int);

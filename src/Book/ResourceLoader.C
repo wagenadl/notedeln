@@ -44,6 +44,10 @@ bool ResourceLoader::failed() const {
   return err;
 }
 
+QString ResourceLoader::mimeType() const {
+  return qnr->header(QNetworkRequest::ContentTypeHeader).toString();
+}
+
 void ResourceLoader::qnrProgress(qint64 n, qint64 m) {
   if (m<=0)
     emit progress(-1);

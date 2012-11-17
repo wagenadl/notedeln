@@ -726,9 +726,6 @@ void PageScene::keyPressEvent(QKeyEvent *e) {
     case Qt::Key_V:
       steal = tryToPaste();
       break;
-    case Qt::Key_N:
-      steal = tryMakeNote();
-      break;
     }
     if (steal) {
       e->accept();
@@ -738,46 +735,14 @@ void PageScene::keyPressEvent(QKeyEvent *e) {
   BaseScene::keyPressEvent(e);
 }
 
-bool PageScene::tryMakeNote() {
-  //  qDebug() << "PageScene::tryMakeNote";
-  TextItem *ti = dynamic_cast<TextItem*>(focusItem());
-  if (!ti) {
-    // qDebug() << "Focus not in text item";
-    return false;
-  }
-  
-  TextBlockItem *tbi = dynamic_cast<TextBlockItem*>(ti->parentItem());
-  if (!tbi) {
-    // qDebug() << "Focus not in text block item";
-    return false;
-  }
-  for (int i=0; i<blockItems.size(); i++) {
-    if (blockItems[i] == tbi) {
-      // qDebug() << "  Focus in block " << i;
-      QTextCursor c = ti->textCursor();
-      int pos = c.position();
-      TextData *t = tbi->data()->text();
-      foreach (MarkupData *md, t->children<MarkupData>()) {
-	if (md->style()==MarkupData::CustomRef
-	    && md->end()>=pos
-	    && md->start()<=pos) {
-	  // qDebug() << "  Found a custom ref";
-	  QTextCursor c = ti->textCursor();
-	  c.setPosition(md->start());
-	  c.setPosition(md->end(), QTextCursor::KeepAnchor);
-	  QString tag = c.selectedText();
-	  newFootnote(i, tag);
-	  return true;
-	}
-      }
-      //      qDebug() << "  No customref found";
-      return false;
-    }
-  }
-  //  qDebug() << "  Unknown block!!?";
-  return false;
+int PageScene::findBlock(Item const *i) const {
+  BlockItem const *bi = BlockItem::ancestralBlock(i);
+  for (int i=0; i<blockItems.size(); i++) 
+    if (blockItems[i] == bi)
+      return i;
+  return -1;
 }
-	
+
 
 bool PageScene::tryToPaste() {
   // we get it first.
@@ -953,7 +918,14 @@ bool PageScene::isWritable() const {
 
 void PageScene::newFootnote(int block, QString tag) {
   Q_ASSERT(block>=0 && block<blockItems.size());
-  
+  foreach (FootnoteItem *fni,
+	   footnoteGroups[block]->itemChildren<FootnoteItem>()) {
+    qDebug() << "Comparing" << tag << " against " << fni->data()->tag();
+    if (fni->data()->tag()==tag) {
+      fni->setFocus();
+      return;
+    }
+  }
   FootnoteData *fnd = new FootnoteData(blockItems[block]->data());
   fnd->setTag(tag);
   FootnoteItem *fni = new FootnoteItem(fnd, footnoteGroups[block]);

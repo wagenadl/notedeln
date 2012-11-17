@@ -4,8 +4,10 @@
 #include "TextData.H"
 #include "TextMarkings.H"
 #include "ModSnooper.H"
-
+#include "PageScene.H"
 #include "Style.H"
+#include "ResourceManager.H"
+
 #include <QFont>
 #include <QTextDocument>
 #include <QTextCursor>
@@ -42,6 +44,10 @@ TextItem::TextItem(TextData *data, Item *parent):
 
   connect(document(), SIGNAL(contentsChange(int, int, int)),
 	  this, SLOT(docChange()));
+}
+
+TextData *TextItem::data() {
+  return data_;
 }
 
 bool TextItem::allowNotes() const {
@@ -153,6 +159,18 @@ bool TextItem::keyPress(QKeyEvent *e) {
   case Qt::Key_V:
     if (e->modifiers() & Qt::ControlModifier) {
       tryToPaste();
+      pass = false;
+    }
+    break;
+  case Qt::Key_N:
+    if (e->modifiers() & Qt::ControlModifier) {
+      tryFootnote();
+      pass = false;
+    }
+    break;
+  case Qt::Key_L:
+    if (e->modifiers() & Qt::ControlModifier) {
+      tryLink();
       pass = false;
     }
     break;
@@ -359,7 +377,63 @@ void TextItem::addMarkup(MarkupData::Style t, int start, int end) {
 void TextItem::addMarkup(MarkupData *d) {
   markings_->newMark(d);
 }
- 
+
+MarkupData *TextItem::markupAt(int pos, MarkupData::Style typ) {
+  foreach (MarkupData *md, data_->children<MarkupData>()) 
+    if (md->style()==typ && md->end()>=pos && md->start()<=pos)
+      return md;
+  return 0;
+}
+
+QString TextItem::markedText(MarkupData *md) {
+  Q_ASSERT(md);
+  QTextCursor c = textCursor();
+  c.setPosition(md->start());
+  c.setPosition(md->end(), QTextCursor::KeepAnchor);
+  return c.selectedText();
+}
+
+bool TextItem::tryLink() {
+  qDebug() << "Try link";
+  Q_ASSERT(pageScene());
+  int i = pageScene()->findBlock(this);
+  Q_ASSERT(i>=0);
+
+  MarkupData *md = markupAt(textCursor().position(), MarkupData::URL);
+  if (md) {
+    QString txt = markedText(md);
+    if (txt.startsWith("www."))
+      txt = "http://" + txt;
+    QUrl url(txt);
+    if (!url.isValid()) {
+      qDebug() << "Invalid url:" << txt;
+      return false;
+    }
+    Q_ASSERT(data()->book());
+    Q_ASSERT(data()->resMgr());
+    qDebug() << "Linking" << txt << "as" << data()->resMgr()->link(url);
+    // of course, we should do something more real
+    return true;
+  } else {
+    return false;
+  }
+}
+
+bool TextItem::tryFootnote() {
+  Q_ASSERT(pageScene());
+  int i = pageScene()->findBlock(this);
+  Q_ASSERT(i>=0);
+
+  MarkupData *md = markupAt(textCursor().position(), MarkupData::CustomRef);
+  if (md) {
+    pageScene()->newFootnote(i, markedText(md));
+    return true;
+  } else {
+    qDebug() << "  No customref found";
+    return false;
+  }
+}
+
 bool TextItem::tryToPaste() {
   QClipboard *cb = QApplication::clipboard();
   QMimeData const *md = cb->mimeData(QClipboard::Clipboard);
