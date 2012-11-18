@@ -9,6 +9,7 @@
 #include <QDebug>
 #include <QVariant>
 #include <QProgressDialog>
+#include <QProcess>
 
 QNetworkAccessManager &ResourceLoader::nam() {
   static QNetworkAccessManager n;
@@ -19,21 +20,20 @@ ResourceLoader::ResourceLoader(QUrl const &src0, QString dst0, QObject *parent):
   QObject(parent), src(src0), dst(dst0) {
   QNetworkRequest rq(src);
   ok = err = false;
+  proc = 0;
+  qnr = 0;
+  
   if (!dst.open(QFile::WriteOnly)) {
     qDebug() << "ResourceLoader: Cannot open dst";
     err = true;
-    qnr = 0;
     return;
   }
   
   qnr = nam().get(rq);
-  connect(qnr, SIGNAL(finished()), SLOT(qnrFinished()));
+  connect(qnr, SIGNAL(finished()), SLOT(qnrFinished()), Qt::QueuedConnection);
   connect(qnr, SIGNAL(downloadProgress(qint64, qint64)),
-	  SLOT(qnrProgress(qint64, qint64)));
-  connect(qnr, SIGNAL(readyRead()), SLOT(qnrDataAv()));
-  //if (qnr->isFinished())
-    // in case the signal got emitted before our connection got made
-    //qnrFinished(); 
+	  SLOT(qnrProgress(qint64, qint64)), Qt::QueuedConnection);
+  connect(qnr, SIGNAL(readyRead()), SLOT(qnrDataAv()), Qt::QueuedConnection);
 }
 
 bool ResourceLoader::complete() const {
@@ -92,11 +92,16 @@ void ResourceLoader::qnrFinished() {
   if (!err) {
     QVariant attr = qnr->attribute(QNetworkRequest::RedirectionTargetAttribute);
     if (!attr.toString().isEmpty()) {
-      qDebug() << "ResourceLoader: Got redirect";
+      qDebug() << "ResourceLoader: Got redirect, can't deal";
       err = true;
     }
   }
   
+  if (!err && mimeType().startsWith("text/html")) {
+    makePdfAndThumb();
+    return;
+  }
+
   if (err)
     dst.remove();
   else
@@ -160,4 +165,42 @@ bool ResourceLoader::getNowDialog(double delay_s) {
   dst.remove();
   return false;
 }
+  
+void ResourceLoader::processFinished() {
+  qDebug() << "ResourceLoader: process finished for " << src;
+  qDebug() << proc->readAllStandardOutput();
+  qDebug() << proc->readAllStandardError();
+  if (proc->exitStatus()!=QProcess::NormalExit
+      || proc->exitCode()!=0) {
+    // that didn't work
+    ok = false;
+    err = true;
+    qDebug() << "  failed";
+    QFile pdf(dst.fileName() + ".pdf");
+    pdf.remove();
+    QFile png(dst.fileName() + ".png");
+    png.remove();
+  } else {
+    qDebug() << "  success";
+    ok = true;
+    err = false;
+    // that did work
+  }
+  emit finished();
+}
+
+void ResourceLoader::makePdfAndThumb() {
+  QStringList args;
+  args.append(src.toString());
+  args.append(dst.fileName()+".pdf");
+  args.append(dst.fileName()+".png");
+  proc = new QProcess(this);
+  connect(proc, SIGNAL(finished(int, QProcess::ExitStatus )),
+	  this, SLOT(processFinished()));
+  qDebug() << "starting webgrab";
+  // must deal with stdio from process?
+  proc->start("webgrab", args);
+  proc->closeWriteChannel();
+}
+
   

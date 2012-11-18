@@ -18,21 +18,24 @@ public:
   void newMark(MarkupData::Style t, int start, int end);
   void newMark(MarkupData *); // the data object is appropriated into our text
   TextItem *parent() const;
+  void foundUrl(QString); // recolors the span if it exists
 private slots:
   void update(int, int, int);
 private:
-  void insertMark(MarkupData *);
-  void applyMark(MarkupData const *);
+  class Span;
+  Span &insertMark(MarkupData *);
+  void applyMark(Span const &);
 private:
   class Span {
   public:
     MarkupData *data;
     QString refText;
+    bool archivedUrl;
   public:
     Span(MarkupData *data, TextMarkings *tm=0);
     bool cut(int pos, int len);
     void insert(TextItem *item, int pos, int len);
-    bool update(TextItem *item, int pos, int del, int ins);
+    bool update(TextItem *item, int pos, int del, int ins, TextMarkings *);
     // returns true if the span becomes empty
     bool operator<(Span const &other) const;
     void avoidPropagatingStyle(TextItem *item, int pos, int len);

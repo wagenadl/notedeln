@@ -5,6 +5,7 @@
 #include <QDebug>
 #include "TextItem.H"
 #include "Style.H"
+#include "ResourceManager.H"
 
 TextMarkings::TextMarkings(TextData *data, TextItem *parent):
   QObject(parent), data(data) {
@@ -12,10 +13,8 @@ TextMarkings::TextMarkings(TextData *data, TextItem *parent):
   doc = parent->document();
   connect(doc, SIGNAL(contentsChange(int, int, int)),
 	  SLOT(update(int, int, int)));
-  foreach (MarkupData *m, data->markups()) {
-    applyMark(m);
-    insertMark(m);
-  }    
+  foreach (MarkupData *m, data->markups()) 
+    applyMark(insertMark(m));
 }
 
 TextMarkings::~TextMarkings() {
@@ -25,13 +24,13 @@ TextItem *TextMarkings::parent() const {
   return dynamic_cast<TextItem*>(QObject::parent());
 }
 
-void TextMarkings::applyMark(MarkupData const *data) {
+void TextMarkings::applyMark(Span const &span) {
   QTextCursor c(doc);
   c.beginEditBlock();
-  c.setPosition(data->start());
-  c.setPosition(data->end(), QTextCursor::KeepAnchor);
+  c.setPosition(span.data->start());
+  c.setPosition(span.data->end(), QTextCursor::KeepAnchor);
   QTextCharFormat f(c.charFormat());
-  switch (data->style()) {
+  switch (span.data->style()) {
   case MarkupData::Normal:
     f = QTextCharFormat();
     break;
@@ -57,7 +56,10 @@ void TextMarkings::applyMark(MarkupData const *data) {
     f.setVerticalAlignment(QTextCharFormat::AlignSubScript);
     break;
   case MarkupData::URL:
-    f.setForeground(parent()->style().color("url-color"));
+    if (span.archivedUrl)
+      f.setForeground(parent()->style().color("archived-url-color"));
+    else
+      f.setForeground(parent()->style().color("url-color"));
     break;
   case MarkupData::CustomRef:
     f.setForeground(parent()->style().color("customref-color"));
@@ -69,40 +71,44 @@ void TextMarkings::applyMark(MarkupData const *data) {
   c.endEditBlock();
 }  
 
-void TextMarkings::insertMark(MarkupData *m) {
+TextMarkings::Span &TextMarkings::insertMark(MarkupData *m) {
   Span s(m, this);
+  for (QList<Span>::iterator i=spans.begin(); i!=spans.end(); ++i) 
+    if (s < *i) 
+      return *spans.insert(i, s);
+  spans.append(s);
+  return spans.last();
+}
+
+void TextMarkings::foundUrl(QString url) {
+  TextItem *ti = parent();
   for (QList<Span>::iterator i=spans.begin(); i!=spans.end(); ++i) {
-    if (s < *i) {
-      spans.insert(i, s);
+    MarkupData *md = (*i).data;
+    QString txt = ti->markedText(md);
+    if (txt.startsWith("www."))
+      txt = "http://" + txt;
+    if (md->style()==MarkupData::URL &&	txt==url) {
+      (*i).archivedUrl = true;
+      applyMark(*i);
       return;
     }
   }
-  spans.append(s);
 }
 
-static QString spanText(MarkupData *m, TextItem *ti) {
-  Q_ASSERT(ti);
-  QTextCursor c(ti->document());
-  c.setPosition(m->start());
-  c.setPosition(m->end(), QTextCursor::KeepAnchor);
-  return c.selectedText();
-}
- 
 void TextMarkings::newMark(MarkupData::Style type, int start, int end) {
   newMark(new MarkupData(start, end, type));
 }
 
 void TextMarkings::newMark(MarkupData *m) {
   data->addMarkup(m);
-  applyMark(m);
-  insertMark(m);
+  applyMark(insertMark(m));
   update(m->start(), 0, 0); // this should fix overlaps if any
 }  
 
 void TextMarkings::update(int pos, int del, int ins) {
   // First round: update every span
   for (QList<Span>::iterator i=spans.begin(); i!=spans.end(); ) {
-    if ((*i).update(parent(), pos, del, ins)) {
+    if ((*i).update(parent(), pos, del, ins, this)) {
       data->deleteMarkup((*i).data); // delete empty one
       i = spans.erase(i);
     } else {
@@ -134,8 +140,15 @@ void TextMarkings::update(int pos, int del, int ins) {
 } 
 
 TextMarkings::Span::Span(MarkupData *data, TextMarkings *tm): data(data) {
-  if (tm && data->style()==MarkupData::CustomRef)
-    refText = spanText(data, tm->parent());
+  if (tm && (data->style()==MarkupData::CustomRef
+	     || data->style()==MarkupData::URL))
+    refText = tm->parent()->markedText(data);
+  if (tm && data->style()==MarkupData::URL) {
+    QUrl url = refText.startsWith("www.") ? ("http://" + refText) : refText;
+    archivedUrl = !data->resMgr()->resName(url).isEmpty();
+  } else {
+    archivedUrl = false;
+  }    
 }
 
 bool TextMarkings::Span::operator<(TextMarkings::Span const &other) const {
@@ -143,7 +156,8 @@ bool TextMarkings::Span::operator<(TextMarkings::Span const &other) const {
 }
 
 bool TextMarkings::Span::update(TextItem *item,
-				int pos, int del, int ins) {
+				int pos, int del, int ins,
+				TextMarkings *markings) {
   if (ins>del && data->end()==pos)
     avoidPropagatingStyle(item, pos, ins-del);
   if (ins>del && data->start()==0 && pos==0)
@@ -151,12 +165,22 @@ bool TextMarkings::Span::update(TextItem *item,
   
   data->update(pos, del, ins);
   if (data->style()==MarkupData::CustomRef) {
-    QString newRef = spanText(data, item);
+    QString newRef = item->markedText(data);
     if (newRef != refText) {
       item->updateRefText(refText, newRef);
       refText = newRef;
     }
+  } else if (data->style()==MarkupData::URL) {
+    QString newRef = item->markedText(data);
+    if (newRef != refText) {
+      QUrl url = newRef.startsWith("www.") ? ("http://" + newRef) : newRef;
+      qDebug() << url;
+      archivedUrl = !data->resMgr()->resName(url).isEmpty();
+      markings->applyMark(*this);
+      refText = newRef;
+    }
   }
+
   return data->start() == data->end();
 }
 

@@ -39,13 +39,14 @@ private:
 protected slots:
   virtual void docChange();
   void modifierChange(Qt::KeyboardModifiers);
+  void linkFinished(QString);
 public:
   void updateRefText(QString oldText, QString newText);
   // for use by TextMarkings to signal change of reference text
+  QString markedText(MarkupData *);
 private:
   void initializeFormat();
   MarkupData *markupAt(int pos, MarkupData::Style type);
-  QString markedText(MarkupData *);
   bool tryLink();
   bool tryFootnote();
   bool tryToPaste();

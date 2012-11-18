@@ -402,23 +402,30 @@ bool TextItem::tryLink() {
   MarkupData *md = markupAt(textCursor().position(), MarkupData::URL);
   if (md) {
     QString txt = markedText(md);
-    if (txt.startsWith("www."))
-      txt = "http://" + txt;
-    QUrl url(txt);
+    QUrl url(txt.startsWith("www.") ? ("http://"+txt) : txt);
     if (!url.isValid()) {
-      qDebug() << "Invalid url:" << txt;
+      qDebug() << "Invalid url:" << url;
       return false;
     }
     Q_ASSERT(data()->book());
     Q_ASSERT(data()->resMgr());
-    qDebug() << "Linking" << txt << "as" << data()->resMgr()->link(url);
-    // of course, we should do something more real
+    connect(data()->resMgr(), SIGNAL(finished(QString)),
+	    this, SLOT(linkFinished(QString)),
+	    Qt::UniqueConnection);
+    data()->resMgr()->link(url);
     return true;
   } else {
     return false;
   }
 }
 
+void TextItem::linkFinished(QString resName) {
+  if (!data()->resMgr()->contains(resName))
+    return; // failed
+  QString url = data()->resMgr()->url(resName).toString();
+  markings_->foundUrl(url);
+}
+  
 bool TextItem::tryFootnote() {
   Q_ASSERT(pageScene());
   int i = pageScene()->findBlock(this);

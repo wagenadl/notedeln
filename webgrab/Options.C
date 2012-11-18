@@ -27,6 +27,8 @@ Options::Options(int &argc, char **&argv) {
     usage();
   }
   url = argv[1];
+  if (url.startsWith("www."))
+    url = "http://" + url;
   for (int n=2; n<argc; n++)
     out.append(argv[n]);
 }

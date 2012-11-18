@@ -81,5 +81,6 @@
 "footnote-def-font-size": 9,
 "footnote-def-color": "#000088",
 "url-color": "#2266ff",
+"archived-url-color": "#00bb33",
 "customref-color": "#aa0088"
 }

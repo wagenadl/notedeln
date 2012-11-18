@@ -25,9 +25,13 @@ private slots:
   void qnrFinished();
   void qnrDataAv();
   void qnrProgress(qint64, qint64);
+  void processFinished();
+private:
+  void makePdfAndThumb();
 private:
   static class QNetworkAccessManager &nam();
   class QNetworkReply *qnr;
+  class QProcess *proc;
   bool ok;
   bool err;
   QUrl src;

@@ -9,7 +9,6 @@
 #include <QDateTime>
 #include "ResourceLoader.H"
 #include <QRegExp>
-#include <QProcess>
 
 ResourceManager::ResourceManager(QString resdir, QObject *parent):
   QObject(parent), dir(resdir) {
@@ -19,8 +18,6 @@ ResourceManager::ResourceManager(QString resdir, QObject *parent):
   
   mapper = new QSignalMapper(this);
   connect(mapper, SIGNAL(mapped(QString)), SLOT(downloadComplete(QString)));
-  procMapper = new QSignalMapper(this);
-  connect(procMapper, SIGNAL(mapped(QString)), SLOT(processComplete(QString)));
   
   QFile src(dir.filePath("sources.json"));
   if (src.exists()) {
@@ -35,10 +32,13 @@ ResourceManager::ResourceManager(QString resdir, QObject *parent):
   }
 }
 
-
-bool ResourceManager::exists(QString name) const {
+bool ResourceManager::contains(QString name) const {
   QFile f(dir.filePath(name));
-  return f.exists();
+  return sources.contains(name) && f.exists() && !loaders.contains(name);
+}
+
+bool ResourceManager::mayContain(QString name) const {
+  return sources.contains(name);
 }
 
 static QString mkName(int i) {
@@ -47,18 +47,18 @@ static QString mkName(int i) {
 
 QString ResourceManager::newName() const {
   int i=0;
-  while (exists(mkName(i+100)))
+  while (mayContain(mkName(i+100)))
     i+=100;
-  while (exists(mkName(i+10)))
+  while (mayContain(mkName(i+10)))
     i+=10;
-  while (exists(mkName(i+1)))
+  while (mayContain(mkName(i+1)))
     i+=1;
   return mkName(i+1);
 }
 
-static QString mkName(QString fn, int i) {
+static QString mkName(QString fn, int i, bool isHost) {
   int idx = fn.lastIndexOf(".");
-  if (idx>=0)
+  if (idx>=0 && !isHost)
     return QString("%1-%2.%3").arg(fn.left(idx)).arg(i).arg(fn.mid(idx+1));
   else
     return QString("%1-%2").arg(fn).arg(i);
@@ -66,38 +66,27 @@ static QString mkName(QString fn, int i) {
 
 QString ResourceManager::newName(QUrl src) const {
   QString s = src.host();
-  if (s.isEmpty()) {
+  bool isHost = !s.isEmpty();
+  if (!isHost) {
     QStringList bits = src.path().split("/");
     if (bits.isEmpty())
       return newName();
     s = bits.last();
-  } else {
-    s += ".";
   }
   s = s.replace(QRegExp("[^-A-Za-z0-9_.]+"), "");
   
   int i=0;
-  while (exists(mkName(s, i+100)))
+  while (mayContain(mkName(s, i+100, isHost)))
     i+=100;
-  while (exists(mkName(s, i+10)))
+  while (mayContain(mkName(s, i+10, isHost)))
     i+=10;
-  while (exists(mkName(s, i+1)))
+  while (mayContain(mkName(s, i+1, isHost)))
     i+=1;
-  return mkName(s, i+1);
+  return mkName(s, i+1, isHost);
 }
 
 QString ResourceManager::path(QString name) const {
   return dir.absoluteFilePath(name);
-}
-
-bool ResourceManager::complete(QString name) const {
-  if (!exists(name))
-    return false;
-  if (loaders.contains(name))
-    return false;
-  if (processes.contains(name))
-    return false;
-  return true;
 }
 
 bool ResourceManager::outdated(QString name) const {
@@ -112,6 +101,13 @@ bool ResourceManager::outdated(QString name) const {
   return f.lastModified() > f0.lastModified();
 }
 
+QUrl ResourceManager::url(QString resname) const {
+  if (sources.contains(resname))
+    return sources[resname];
+  else
+    return QUrl();
+}
+ 
 QString ResourceManager::resName(QUrl src) const {
   for (QMap<QString, QUrl>::const_iterator i=sources.begin();
        i!=sources.end(); ++i)
@@ -156,8 +152,10 @@ QString ResourceManager::import(QUrl source) {
 QString ResourceManager::link(QUrl source) {
   QString name = resName(source);
   qDebug() << "ResMgr" << source << name;
-  if (!name.isEmpty())
+  if (!name.isEmpty()) {
+    emit finished(name);
     return name;
+  }
       
   name = newName(source);
   sources[name] = source;
@@ -178,58 +176,15 @@ void ResourceManager::downloadComplete(QString name) {
       res.remove();
       sources.remove(name);
       saveSources();
-    } else {
-      QString mime = loaders[name]->mimeType();
-      qDebug() << "ResourceManager: download" << name << "has type" <<mime;
-      // if mime is html, we will convert to pdf
-      if (mime.startsWith("text/html")) {
-	makePdfAndThumb(name); 
-      }
     }
     loaders[name]->deleteLater();
     loaders.remove(name);
   } else {
     qDebug() << "ResourceManager: download complete for unknown " << name;
   }
+  emit finished(name);
 }
 
-void ResourceManager::processComplete(QString name) {
-  qDebug() << "ResourceManager: process complete " << name;
-  QProcess *p = processes[name];
-  Q_ASSERT(p);
-  if (p->exitStatus()!=QProcess::NormalExit
-      || p->exitCode()!=0) {
-    // that didn't work
-    qDebug() << "  failed";
-    QFile pdf(path(name) + "pdf");
-    pdf.remove();
-    QFile png(path(name) + "png");
-    png.remove();
-    sources.remove(name);
-    saveSources();
-  } else {
-    qDebug() << "  success";
-    // that did work
-  }
-  processes[name]->deleteLater();
-  processes.remove(name);
-}
-
-void ResourceManager::makePdfAndThumb(QString name) {
-  QUrl src = sources[name];
-  processes[name] = new QProcess(this);
-  QStringList args;
-  args.append(src.toString());
-  args.append(path(name)+"pdf");
-  args.append(path(name)+"png");
-  connect(processes[name], SIGNAL(finished(int, QProcess::ExitStatus )),
-	  procMapper, SLOT(map())); // for some reason this doesn't work
-  mapper->setMapping(processes[name], name);
-  qDebug() << "starting webgrab";
-  // must deal with stdio from process?
-  x
-  processes[name]->start("webgrab", args);
-}
 
 void ResourceManager::saveSources() const {
   QVariantMap vm;
