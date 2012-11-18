@@ -17,6 +17,8 @@ public:
   void setTagText(QString);
 private:
   void updateTag();
+private slots:
+  void abandon();
 private:
   FootnoteData *data_;
   QGraphicsTextItem *tag_;

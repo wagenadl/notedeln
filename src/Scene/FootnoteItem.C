@@ -3,6 +3,7 @@
 #include "FootnoteItem.H"
 #include "FootnoteData.H"
 #include "TextItem.H"
+#include "FootnoteGroupItem.H"
 
 FootnoteItem::FootnoteItem(FootnoteData *data, Item *parent):
   TextBlockItem(data, parent), data_(data) {
@@ -29,6 +30,8 @@ FootnoteItem::FootnoteItem(FootnoteData *data, Item *parent):
   fmt.setBottomMargin(0.0);
   tc.setBlockFormat(fmt);
 
+  connect(text(), SIGNAL(abandoned()), this, SLOT(abandon()),
+	  Qt::QueuedConnection);
 }
 
 FootnoteItem::~FootnoteItem() {
@@ -55,4 +58,14 @@ void FootnoteItem::updateTag() {
   double tagwidth = tag_->boundingRect().width();
   text()->setPos(tagwidth, 0);
   text()->setTextWidth(textwidth - tagwidth);
+}
+
+void FootnoteItem::abandon() {
+  // we are now empty. let's delete ourselves
+  itemParent()->deleteChild(this);
+  data_->parent()->takeChild(data_);
+  data_->deleteLater();
+  FootnoteGroupItem *fng = dynamic_cast<FootnoteGroupItem*>(itemParent());
+  if (fng)
+    fng->restack();
 }

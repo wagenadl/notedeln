@@ -43,6 +43,7 @@ public:
   QList<Data *> const &allChildren() const { return children_; }
   template <class T> QList<T *> children() const;
   template <class T> T *firstChild() const;
+  
   void insertChildBefore(Data *newChild, Data *ref, ModType mt=UserVisibleMod);
   void addChild(Data *, ModType mt=UserVisibleMod);
   bool deleteChild(Data *, ModType mt=UserVisibleMod);
