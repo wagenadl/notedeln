@@ -92,8 +92,9 @@ bool TextItem::focusIn(QFocusEvent *) {
 }
 
 bool TextItem::focusOut(QFocusEvent *) {
-  if (document()->isEmpty()) 
+  if (document()->isEmpty()) {
     emit abandoned();
+  }
   return false;
 }
 

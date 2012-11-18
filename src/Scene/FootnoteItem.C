@@ -4,6 +4,7 @@
 #include "FootnoteData.H"
 #include "TextItem.H"
 #include "FootnoteGroupItem.H"
+#include <QDebug>
 
 FootnoteItem::FootnoteItem(FootnoteData *data, Item *parent):
   TextBlockItem(data, parent), data_(data) {
@@ -30,8 +31,7 @@ FootnoteItem::FootnoteItem(FootnoteData *data, Item *parent):
   fmt.setBottomMargin(0.0);
   tc.setBlockFormat(fmt);
 
-  connect(text(), SIGNAL(abandoned()), this, SLOT(abandon()),
-	  Qt::QueuedConnection);
+  connect(text(), SIGNAL(abandoned()), this, SLOT(abandon()));
 }
 
 FootnoteItem::~FootnoteItem() {

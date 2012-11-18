@@ -176,11 +176,10 @@ void PageView::gotoPage(int n) {
   Q_ASSERT(file);
   Q_ASSERT(file->data());
 
+  leavePage();
   if (pageScene)
     delete pageScene;
   pageScene = 0;
-
-  leavePage();
 
   currentSection = Pages;
   currentPage = n;
@@ -215,6 +214,14 @@ void PageView::gotoTOC(int n) {
 }
 
 void PageView::leavePage() {
+  qDebug() << "leavepage";
+  QGraphicsScene *s = scene();
+  if (s) {
+    QGraphicsItem *fi = s->focusItem();
+    if (fi)
+      fi->clearFocus(); // this should cause abandon to happen
+  }
+
   if (currentSection==Pages
       && currentPage>1
       && currentPage==book->toc()->newPageNumber()-1) {
