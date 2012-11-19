@@ -65,7 +65,7 @@ public: // pass-through
   QColor defaultTextColor() const { return text->defaultTextColor(); }
   void setDefaultTextColor(QColor c) { text->setDefaultTextColor(c); }
   QTextDocument *document() const { return text->document(); }
-  void setTextWidth(double d) { text->setTextWidth(d); }
+  void setTextWidth(double d);
   double textWidth() const { return text->textWidth(); }
   QTextCursor textCursor() const { return text->textCursor(); }
   void setTextCursor(QTextCursor c) { text->setTextCursor(c); }

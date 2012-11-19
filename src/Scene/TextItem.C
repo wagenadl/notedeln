@@ -521,3 +521,12 @@ void TextItem::paint(QPainter*, const QStyleOptionGraphicsItem*, QWidget*) {
 void TextItem::setBoxVisible(bool v) {
   text->setBoxVisible(v);
 }
+
+void TextItem::setTextWidth(double d) {
+  text->setTextWidth(d);
+  foreach (QGraphicsItem *i, childItems()) {
+    HoverRegion *hr = dynamic_cast<HoverRegion *>(i);
+    if (hr)
+      hr->updateShape(true);
+  }
+}

@@ -102,14 +102,21 @@ void TextMarkings::newMark(MarkupData::Style type, int start, int end) {
 void TextMarkings::newMark(MarkupData *m) {
   data->addMarkup(m);
   applyMark(insertMark(m));
+  if (m->style()==MarkupData::URL) 
+    regions[m] = new HoverRegion(m, parent());
   update(m->start(), 0, 0); // this should fix overlaps if any
 }  
 
 void TextMarkings::update(int pos, int del, int ins) {
-  // First round: update every span
+  // First round: update every span, deleting empty spans
   for (QList<Span>::iterator i=spans.begin(); i!=spans.end(); ) {
     if ((*i).update(parent(), pos, del, ins, this)) {
-      data->deleteMarkup((*i).data); // delete empty one
+      MarkupData *m = (*i).data;
+      if (regions.contains(m)) {
+	delete regions[m];
+	regions.remove(m);
+      }
+      data->deleteMarkup(m); // delete empty one
       i = spans.erase(i);
     } else {
       ++i;
@@ -122,10 +129,16 @@ void TextMarkings::update(int pos, int del, int ins) {
     for (QList<Span>::iterator j=i+1; j!=spans.end(); ) {
       if ((*j).data->start() > (*i).data->end())
 	break;
-      if (mergeable((*i).data, (*j).data)) {
+      MarkupData *mi = (*i).data;
+      MarkupData *mj = (*j).data;
+      if (mergeable(mi, mj)) {
 	// merge or subsume!
-	(*i).data->merge((*j).data);
-	data->deleteMarkup((*j).data);
+	mi->merge(mj);
+	if (regions.contains(mj)) {
+	  delete regions[mj];
+	  regions.remove(mj);
+	}
+	data->deleteMarkup(mj);
 	j = spans.erase(j);
 	changed = true;
       } else {
@@ -137,6 +150,10 @@ void TextMarkings::update(int pos, int del, int ins) {
   // Finally, resort if needed
   if (changed) 
     qSort(spans.begin(), spans.end());
+
+  // and update regions
+  foreach (HoverRegion *hr, regions)
+    hr->updateShape();
 } 
 
 TextMarkings::Span::Span(MarkupData *data, TextMarkings *tm): data(data) {
