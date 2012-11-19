@@ -21,11 +21,11 @@ GfxNoteItem::GfxNoteItem(GfxNoteData *data, Item *parent):
   }
   text = new TextItem(data->text(), this);
   text->setDefaultTextColor(QColor(style().string("note-text-color")));
+  if (data->textWidth()>1)
+    text->setTextWidth(data->textWidth());
 
   connect(text, SIGNAL(abandoned()),
 	  this, SLOT(abandon()), Qt::QueuedConnection);
-  connect(text, SIGNAL(mousePress(QPointF, Qt::MouseButton)),
-	  this, SLOT(childMousePress(QPointF, Qt::MouseButton)));
 		     
   setFlag(ItemIsFocusable);
   setFocusProxy(text);
@@ -40,7 +40,9 @@ GfxNoteItem::~GfxNoteItem() {
 void GfxNoteItem::abandon() {
   Item *p = itemParent();
   Q_ASSERT(p);
-  p->abandonNote(this);
+  p->deleteChild(this);
+  data()->parent()->deleteChild(data());
+  p->childGeometryChanged();
 }
 
 void GfxNoteItem::updateTextPos() {
@@ -64,13 +66,17 @@ void GfxNoteItem::paint(QPainter *,
 
 void GfxNoteItem::mouseMoveEvent(QGraphicsSceneMouseEvent *e) {
   QPointF delta = e->pos() - e->lastPos();
-  text->setPos(text->pos() + delta);
-  if (line) {
-    QLineF l = line->line(); // origLine;
-    l.setP2(l.p2() + delta);
-    if (e->modifiers() & Qt::ShiftModifier) 
-      l.setP1(l.p1() + delta);
-    line->setLine(l);
+  if (resizing) {
+    text->setTextWidth(text->textWidth() + delta.x());
+  } else {
+    text->setPos(text->pos() + delta);
+    if (line) {
+      QLineF l = line->line(); // origLine;
+      l.setP2(l.p2() + delta);
+      if (e->modifiers() & Qt::ShiftModifier) 
+	l.setP1(l.p1() + delta);
+      line->setLine(l);
+    }
   }
   e->accept();
 }
@@ -78,21 +84,26 @@ void GfxNoteItem::mouseMoveEvent(QGraphicsSceneMouseEvent *e) {
 void GfxNoteItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *e) {
   unlockBounds();
   ungrabMouse();
-  if (line) {
-    QLineF l = line->line();
-    QPointF p0 = mapToParent(l.p1());
-    QPointF p1 = l.p2() - l.p1();
-    data_->setPos(p0);
-    data_->setDelta(p1);
-    setPos(p0);
-    line->setLine(QLineF(QPointF(0,0), p1));
+  if (resizing) {
+    data_->setTextWidth(text->textWidth());
+    text->setBoxVisible(false);
   } else {
-    QPointF p0 = mapToParent(text->pos()
-			     - QPointF(0, style().real("note-y-offset")));
-    data_->setPos(p0);
-    setPos(p0);
+    if (line) {
+      QLineF l = line->line();
+      QPointF p0 = mapToParent(l.p1());
+      QPointF p1 = l.p2() - l.p1();
+      data_->setPos(p0);
+      data_->setDelta(p1);
+      setPos(p0);
+      line->setLine(QLineF(QPointF(0,0), p1));
+    } else {
+      QPointF p0 = mapToParent(text->pos()
+			       - QPointF(0, style().real("note-y-offset")));
+      data_->setPos(p0);
+      setPos(p0);
+    }
+    updateTextPos();
   }
-  updateTextPos();
   if (itemParent())
     itemParent()->childGeometryChanged();
   e->accept();
@@ -104,24 +115,38 @@ GfxNoteItem *GfxNoteItem::newNote(QPointF p0, QPointF p1, Item *parent) {
   d->setPos(p0);
   d->setEndPoint(p1);
 
+  QPointF sp = parent->mapToScene(p1);
+  if (p1.x()<p0.x()) 
+    // item text will stick to the left
+    d->setTextWidth(sp.x() - parent->boundingRect().left());
+  else
+    // item text will stick to the right
+    d->setTextWidth(parent->boundingRect().right() - sp.x());
+
   GfxNoteItem *i = new GfxNoteItem(d, parent);
   i->makeWritable();
   i->setFocus();
   return i;
 }
 
-void GfxNoteItem::childMousePress(QPointF, Qt::MouseButton b) {
+void GfxNoteItem::childMousePress(QPointF, Qt::MouseButton b, bool resizeFlag) {
   if (b==moveButton() && moveModPressed()) {
     text->setFocus();
     text->clearFocus();
     lockBounds();
+    resizing = resizeFlag;
+    if (resizing) {
+      if (data_->textWidth()<1)
+	text->setTextWidth(text->boundingRect().width()+2);
+      text->setBoxVisible(true);
+    }
     grabMouse();
   }
 }
 
 void GfxNoteItem::makeWritable() {
   text->makeWritable();
-  //acceptModifierChanges();
+  text->setAllowMoves();
 }
 
 GfxNoteData *GfxNoteItem::data()  {

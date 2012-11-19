@@ -159,8 +159,12 @@ bool Item::moveModPressed() const {
   return (modSnooper()->keyboardModifiers() & moveModifiers()) != 0;
 }
 
-void Item::acceptModifierChanges() {
-  connect(modSnooper(), SIGNAL(modifiersChanged(Qt::KeyboardModifiers)),
+void Item::acceptModifierChanges(bool acc) {
+  if (acc) 
+    connect(modSnooper(), SIGNAL(modifiersChanged(Qt::KeyboardModifiers)),
+	    this, SLOT(modifierChange(Qt::KeyboardModifiers)));
+  else
+    disconnect(modSnooper(), SIGNAL(modifiersChanged(Qt::KeyboardModifiers)),
 	  this, SLOT(modifierChange(Qt::KeyboardModifiers)));
 }
     
@@ -170,18 +174,6 @@ GfxNoteItem *Item::newNote(QPointF p0, QPointF p1, bool late) {
     : GfxNoteItem::newNote(p0, p1, this);
   childGeometryChanged(); // b/c of the new note
   return n;
-}
-
-bool Item::abandonNote(GfxNoteItem *gni) {
-  Q_ASSERT(gni);
-  GfxNoteData *gnd = gni->data();
-  if (deleteChild(gni)) {
-    d->deleteChild(gnd);
-    childGeometryChanged();
-    return true;
-  } else {
-    return false;
-  }
 }
 
 GfxNoteItem *Item::createNote(QPointF p0, bool late) {

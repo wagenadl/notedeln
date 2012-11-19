@@ -18,17 +18,18 @@ public:
   void paint(QPainter *, const QStyleOptionGraphicsItem *, QWidget *);
   static GfxNoteItem *newNote(QPointF p0, QPointF p1, Item *parent);
   virtual void makeWritable();
+  void childMousePress(QPointF, Qt::MouseButton, bool resizeFlag);
 protected:
   virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *);
   virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *);
 private slots:
   void updateTextPos();
-  void childMousePress(QPointF, Qt::MouseButton);
   void abandon();
 protected:
   GfxNoteData *data_;
   class TextItem *text;
   QGraphicsLineItem *line;
+  bool resizing;
 };
 
 #endif

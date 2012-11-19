@@ -18,6 +18,7 @@ public:
   virtual void makeWritable();
   bool allowParagraphs() const;
   void setAllowParagraphs(bool yes);
+  void setAllowMoves();
   void addMarkup(MarkupData::Style t, int start, int end);
   void addMarkup(MarkupData *); // we appropriate the data!
   bool allowNotes() const;
@@ -38,12 +39,14 @@ private:
   virtual bool focusOut(QFocusEvent *);
 protected slots:
   virtual void docChange();
-  void modifierChange(Qt::KeyboardModifiers);
+  virtual void modifierChange(Qt::KeyboardModifiers);
   void linkFinished(QString);
 public:
   void updateRefText(QString oldText, QString newText);
   // for use by TextMarkings to signal change of reference text
   QString markedText(MarkupData *);
+  void hoverMove(QGraphicsSceneHoverEvent *);
+  void setBoxVisible(bool);
 private:
   void initializeFormat();
   MarkupData *markupAt(int pos, MarkupData::Style type);
@@ -56,18 +59,19 @@ private:
   bool tryCustomRef();
   bool charBeforeIsLetter(int pos) const;
   bool charAfterIsLetter(int pos) const;
+  bool shouldResize(QPointF) const;
 public: // pass-through
   void setFont(QFont f) { text->setFont(f); }
   QColor defaultTextColor() const { return text->defaultTextColor(); }
   void setDefaultTextColor(QColor c) { text->setDefaultTextColor(c); }
   QTextDocument *document() const { return text->document(); }
   void setTextWidth(double d) { text->setTextWidth(d); }
+  double textWidth() const { return text->textWidth(); }
   QTextCursor textCursor() const { return text->textCursor(); }
   void setTextCursor(QTextCursor c) { text->setTextCursor(c); }
 public:
   virtual QRectF boundingRect() const;
   virtual void paint(QPainter*, const QStyleOptionGraphicsItem*, QWidget*);
-  
 protected:
   TextData *data_;
   bool mayMark;
@@ -75,6 +79,8 @@ protected:
   bool allowParagraphs_;
   class TextMarkings *markings_;
   class TextItemText *text;
+  bool mayMove;
+  QPointF cursorPos;
 };
 
 #endif

@@ -42,7 +42,6 @@ public:
   void addChild(Item *);
   bool deleteChild(Item *); // this uses deleteLater if child is an object
   class GfxNoteItem *newNote(QPointF p0, QPointF p1, bool late);
-  virtual bool abandonNote(class GfxNoteItem *);
 public: // but only for use in derived class source files
   template <class DT, class IT> class Creator {
   public:
@@ -58,8 +57,8 @@ public:
   void unlockBounds(); // } geom. update during drags
   QRectF cachedBounds() const; // null if not locked
   virtual void childGeometryChanged(); // children must call this directly
+  void acceptModifierChanges(bool acc=true);
 protected:
-  void acceptModifierChanges();
   bool moveModPressed() const;
   class GfxNoteItem *createNote(QPointF p0, bool late);
 protected:

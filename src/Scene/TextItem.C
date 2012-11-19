@@ -35,6 +35,7 @@ TextItem::TextItem(TextData *data, Item *parent):
 
   mayMark = true;
   mayNote = false;
+  mayMove = false;
   allowParagraphs_ = true;
 
   text->setPlainText(data_->text());  
@@ -64,7 +65,13 @@ void TextItem::makeWritable() {
   text->setCursor(QCursor(Qt::IBeamCursor));
   setFlag(ItemIsFocusable);
   setFocusProxy(text);
-  acceptModifierChanges();
+}
+
+void TextItem::setAllowMoves() {
+  mayMove = true;
+  setAcceptHoverEvents(true);
+  text->  setAcceptHoverEvents(true);
+  acceptModifierChanges();  
 }
 
 TextItem::~TextItem() {
@@ -100,9 +107,11 @@ bool TextItem::focusOut(QFocusEvent *) {
 
 bool TextItem::mousePress(QGraphicsSceneMouseEvent *e) {
   if (isWritable()) {
-    if (moveModPressed()) {
-      emit mousePress(e->scenePos(), e->button()); // may send to GfxNote.
-      // this is pretty awkward.
+    if (moveModPressed() && mayMove) {
+      bool resize = shouldResize(e->pos());
+      GfxNoteItem *gni = dynamic_cast<GfxNoteItem*>(itemParent());
+      if (gni)
+	gni->childMousePress(e->scenePos(), e->button(), resize);
       e->accept();
       return true;
     } else {
@@ -336,6 +345,7 @@ bool TextItem::tryCustomRef() {
    m.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor);
    m.deleteChar(); // remove opening "["
    addMarkup(MarkupData::CustomRef, p0, c.position());
+   tryFootnote();
    return true;
 }   
 
@@ -467,16 +477,37 @@ void TextItem::setAllowParagraphs(bool yes) {
   allowParagraphs_ = yes;
 }
 
+bool TextItem::shouldResize(QPointF p) const {
+  GfxNoteItem *gni = dynamic_cast<GfxNoteItem*>(itemParent());
+  if (!gni)
+    return false;
+  double tw = gni->data()->textWidth();
+  if (tw==0)
+    tw = boundingRect().width();
+  bool should = p.x()-boundingRect().left() > .75*tw;
+  return should;
+}
+ 
 void TextItem::modifierChange(Qt::KeyboardModifiers) {
-  // this will only be called if we are writable
-  if (moveModPressed())
-    text->setCursor(Qt::SizeAllCursor);
-  else
-    text->setCursor(Qt::IBeamCursor);
+  Qt::CursorShape cs = defaultCursor();
+  if (isWritable())
+    cs = Qt::IBeamCursor;
+  if (moveModPressed() && mayMove) {
+    if (shouldResize(cursorPos))
+      cs = Qt::SplitHCursor;
+    else
+      cs = Qt::SizeAllCursor;
+  }
+  text->setCursor(cs);
+}
+
+void TextItem::hoverMove(QGraphicsSceneHoverEvent *e) {
+  cursorPos = e->pos(); // cache for the use of modifierChanged
+  modifierChange(Qt::KeyboardModifiers());
+  e->accept();
 }
 
 void TextItem::updateRefText(QString olds, QString news) {
-  qDebug() << "refTextChange" << olds << news;
   emit refTextChange(olds, news);
 }
 
@@ -487,4 +518,6 @@ QRectF TextItem::boundingRect() const {
 void TextItem::paint(QPainter*, const QStyleOptionGraphicsItem*, QWidget*) {
 }
 
- 
+void TextItem::setBoxVisible(bool v) {
+  text->setBoxVisible(v);
+}
