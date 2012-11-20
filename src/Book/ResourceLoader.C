@@ -191,6 +191,7 @@ void ResourceLoader::processFinished() {
 
 void ResourceLoader::makePdfAndThumb() {
   QStringList args;
+  args.append("-s");
   args.append(src.toString());
   args.append(dst.fileName()+".pdf");
   args.append(dst.fileName()+".png");

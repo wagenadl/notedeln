@@ -4,52 +4,54 @@
 #include "ResourceManager.H"
 #include <QApplication>
 #include <QDesktopWidget>
+#include <QLabel>
+#include <QGraphicsSceneHoverEvent>
+#include <QDebug>
 
 PreviewPopper::PreviewPopper(ResourceManager *resmgr, QString resname,
-	      QPoint center, QObject *parent):
-  resmgr(resmgr), resname(resname), center(center) {
+			     QPoint center, QObject *parent):
+  QObject(parent), resmgr(resmgr), resname(resname), center(center) {
   widget = 0;
-  startTimer(100);
+  timerID = startTimer(100);
 }
 
 PreviewPopper::~PreviewPopper() {
-  stopTimer();
+  killTimer(timerID);
   if (widget)
     delete widget;
 }
 
 void PreviewPopper::timerEvent(QTimerEvent *) {
-  stopTimer();
+  killTimer(timerID);
   popup();
 }
 
 QWidget *PreviewPopper::popup() {
   if (widget) {
-    positionAndShow();
+    smartPosition();
+    widget->show();
     return widget;
   }
 
   QPixmap p;
-  if (!p.load(resmgr->thumbPath(resname)))
+  if (!p.load(resmgr->previewPath(resname)))
     return 0;
   
-  QLabel *label = new QLabel();
+  QLabel *label = new QLabel(0, Qt::FramelessWindowHint);
   label->setPixmap(p);
+  label->resize(label->sizeHint());
   widget = label;
-  positionAndShow();
+  smartPosition();
+  widget->show();
   return widget;
 }
 
-void PreviewPopper::positionAndShow() {
+void PreviewPopper::smartPosition() {
   Q_ASSERT(widget);
   
-  QWidget *p = dynamic_cast<QWidget*>(parent());
-  if (!p)
-    return; // forget it if our parent is no longer around
-  
-  QRect desktop = QApplication::desktop()->screenGeometry(p);
+  QRect desktop = QApplication::desktop()->screenGeometry();
 
-  QSize size = widget->frameSize();
+  QSize s = widget->frameSize();
 
   /* We will attempt to position the popup so that it is away from the
      mouse pointer. There are several options:
@@ -60,8 +62,66 @@ void PreviewPopper::positionAndShow() {
      We try those in order and maximize how much of the popup fits on the
      screen.
   */
-  QPoint bestPos;
+  QPoint dest;
+  QPoint bestDest;
+  QRectF ir;
+  double area;
   double bestArea = 0;
-  
-  QPoint attempt = center + QPoint(-size.width()/3, 64);
-  QRect onScreen 
+  int dy = 25;
+  int dx = 50;
+
+  // below
+  dest = center + QPoint(-s.width()/3, dy);
+  if (dest.x()+s.width()>desktop.right())
+    dest.setX(desktop.right()-s.width());
+  if (dest.x()<desktop.left())
+    dest.setX(desktop.left());
+  ir = QRectF(dest, s).intersected(desktop);
+  area = ir.width()*ir.height();
+  if (area>bestArea) {
+    bestDest = dest;
+    bestArea = area;
+  }
+
+  // above
+  dest = center + QPoint(-s.width()/3, -dy-s.height());
+  if (dest.x()+s.width()>desktop.right())
+    dest.setX(desktop.right()-s.width());
+  if (dest.x()<desktop.left())
+    dest.setX(desktop.left());
+  ir = QRectF(dest, s).intersected(desktop);
+  area = ir.width()*ir.height();
+  if (area>bestArea) {
+    bestDest = dest;
+    bestArea = area;
+  }
+
+  // to the right
+  dest = center + QPoint(dx, -s.height()/3);
+  if (dest.y()+s.height()>desktop.bottom())
+    dest.setY(desktop.bottom()-s.height());
+  if (dest.y()<desktop.top())
+    dest.setY(desktop.top());
+  ir = QRectF(dest, s).intersected(desktop);
+  area = ir.width()*ir.height();
+  if (area>bestArea) {
+    bestDest = dest;
+    bestArea = area;
+  }
+
+  // to the left
+  dest = center + QPoint(-dx-s.width(), -s.height()/3);
+  if (dest.y()+s.height()>desktop.bottom())
+    dest.setY(desktop.bottom()-s.height());
+  if (dest.y()<desktop.top())
+    dest.setY(desktop.top());
+  ir = QRectF(dest, s).intersected(desktop);
+  area = ir.width()*ir.height();
+  if (area>bestArea) {
+    bestDest = dest;
+    bestArea = area;
+  }
+
+  widget->move(bestDest);
+}
+

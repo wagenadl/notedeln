@@ -4,16 +4,18 @@
 
 #define HOVERREGION_H
 
-#include <QGraphicsItem>
+#include <QGraphicsObject>
 
-class HoverRegion: public QGraphicsItem {
+class HoverRegion: public QGraphicsObject {
+  Q_OBJECT;
 public:
   HoverRegion(class MarkupData *md, class TextItem *item);
   virtual ~HoverRegion();
   virtual QRectF boundingRect() const;
   virtual void paint(QPainter*, const QStyleOptionGraphicsItem*, QWidget*);
   virtual QPainterPath shape() const;
-  void updateShape(bool force=false);
+  void calcBounds() const;
+  void forgetBounds();
 protected:
   virtual void hoverEnterEvent(QGraphicsSceneHoverEvent *);
   virtual void hoverLeaveEvent(QGraphicsSceneHoverEvent *);
@@ -22,9 +24,10 @@ private:
 private:
   MarkupData *md;
   TextItem *ti;
-  QPainterPath bounds;
+  mutable QPainterPath bounds;
   class PreviewPopper *popper;
-  int start, end;
+  mutable int start;
+  mutable int end;
 };
 
 #endif

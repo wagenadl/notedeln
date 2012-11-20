@@ -43,7 +43,7 @@ private:
 private:
   TextData *data;
   QList<Span> spans; // kept in order of non-decreasing starts
-  QMap<MarkupData *, HoverRegion *> regions;
+  QMap<class MarkupData *, class HoverRegion *> regions;
   QTextDocument *doc;
 };
 

@@ -6,6 +6,7 @@
 #include "TextItem.H"
 #include "Style.H"
 #include "ResourceManager.H"
+#include "HoverRegion.H"
 
 TextMarkings::TextMarkings(TextData *data, TextItem *parent):
   QObject(parent), data(data) {
@@ -72,6 +73,8 @@ void TextMarkings::applyMark(Span const &span) {
 }  
 
 TextMarkings::Span &TextMarkings::insertMark(MarkupData *m) {
+  if (m->style()==MarkupData::URL) 
+    regions[m] = new HoverRegion(m, parent());
   Span s(m, this);
   for (QList<Span>::iterator i=spans.begin(); i!=spans.end(); ++i) 
     if (s < *i) 
@@ -102,8 +105,6 @@ void TextMarkings::newMark(MarkupData::Style type, int start, int end) {
 void TextMarkings::newMark(MarkupData *m) {
   data->addMarkup(m);
   applyMark(insertMark(m));
-  if (m->style()==MarkupData::URL) 
-    regions[m] = new HoverRegion(m, parent());
   update(m->start(), 0, 0); // this should fix overlaps if any
 }  
 
@@ -153,7 +154,7 @@ void TextMarkings::update(int pos, int del, int ins) {
 
   // and update regions
   foreach (HoverRegion *hr, regions)
-    hr->updateShape();
+    hr->forgetBounds();
 } 
 
 TextMarkings::Span::Span(MarkupData *data, TextMarkings *tm): data(data) {

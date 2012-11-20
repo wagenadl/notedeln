@@ -7,6 +7,7 @@
 #include "PageScene.H"
 #include "Style.H"
 #include "ResourceManager.H"
+#include "HoverRegion.H"
 
 #include <QFont>
 #include <QTextDocument>
@@ -29,7 +30,6 @@
 TextItem::TextItem(TextData *data, Item *parent):
   Item(data, parent), data_(data) {
   text = new TextItemText(this);
-
   foreach (LateNoteData *lnd, data->children<LateNoteData>()) 
     create(lnd, this);
 
@@ -527,6 +527,6 @@ void TextItem::setTextWidth(double d) {
   foreach (QGraphicsItem *i, childItems()) {
     HoverRegion *hr = dynamic_cast<HoverRegion *>(i);
     if (hr)
-      hr->updateShape(true);
+      hr->forgetBounds();
   }
 }
