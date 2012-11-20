@@ -20,7 +20,9 @@ public:
      You must use exists() or complete() to check for success. */
   QString resName(QUrl source) const; // returns resname for a given url, or ""
   QString path(QString resname) const; // maps a resource name to an abs. path
-  QString thumbPath(QString resname) const; // if a resource has a thumbnail
+  QString previewPath(QString resname) const; // if a resource has a preview
+  // (png) associated with it, return its abs. path, else ""
+  QString pdfPath(QString resname) const; // if a resource has a pdf archive
   // associated with it, return its abs. path, else ""
   bool contains(QString resname) const; // true only after downloading complete
   // and successful

@@ -89,6 +89,20 @@ QString ResourceManager::path(QString name) const {
   return dir.absoluteFilePath(name);
 }
 
+QString ResourceManager::previewPath(QString name) const {
+  if (dir.exists(name + ".png"))
+    return dir.absoluteFilePath(name + ".png");
+  else
+    return "";
+}
+
+QString ResourceManager::pdfPath(QString name) const {
+  if (dir.exists(name + ".pdf"))
+    return dir.absoluteFilePath(name + ".pdf");
+  else
+    return "";
+}
+
 bool ResourceManager::outdated(QString name) const {
   if (!sources.contains(name))
     return false;
