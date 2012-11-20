@@ -14,13 +14,13 @@ public:
   virtual QRectF boundingRect() const;
   virtual void paint(QPainter*, const QStyleOptionGraphicsItem*, QWidget*);
   virtual QPainterPath shape() const;
-  void calcBounds() const;
   void forgetBounds();
 protected:
   virtual void hoverEnterEvent(QGraphicsSceneHoverEvent *);
   virtual void hoverLeaveEvent(QGraphicsSceneHoverEvent *);
 private:
   QString refText() const;
+  void calcBounds() const;
 private:
   MarkupData *md;
   TextItem *ti;

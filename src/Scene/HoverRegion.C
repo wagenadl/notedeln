@@ -50,7 +50,9 @@ void HoverRegion::hoverEnterEvent(QGraphicsSceneHoverEvent *e) {
   QString txt = refText();
   if (txt.startsWith("www."))
     txt = "http://" + txt;
-  QString resname = md->resMgr()->resName(txt);
+  QString resname = md->resMgr()->contains(txt)
+    ? txt
+    : md->resMgr()->resName(txt);
   popper = new PreviewPopper(md->resMgr(), resname, e->screenPos(), this);
 }
 
@@ -69,6 +71,7 @@ QString HoverRegion::refText() const {
 
 void HoverRegion::forgetBounds() {
   start = end = -1;
+  update();
 }
 
 void HoverRegion::calcBounds() const {
