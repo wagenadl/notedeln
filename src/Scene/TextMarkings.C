@@ -74,7 +74,7 @@ void TextMarkings::applyMark(Span const &span) {
 }  
 
 TextMarkings::Span &TextMarkings::insertMark(MarkupData *m) {
-  if (m->style()==MarkupData::URL) 
+  if (m->style()==MarkupData::URL || m->style()==MarkupData::CustomRef) 
     regions[m] = new HoverRegion(m, parent(), this);
   Span s(m, this);
   for (QList<Span>::iterator i=spans.begin(); i!=spans.end(); ++i) 
@@ -99,8 +99,10 @@ void TextMarkings::foundUrl(QString url) {
   }
 }
 
-void TextMarkings::newMark(MarkupData::Style type, int start, int end) {
-  newMark(new MarkupData(start, end, type));
+MarkupData *TextMarkings::newMark(MarkupData::Style type, int start, int end) {
+  MarkupData *md = new MarkupData(start, end, type);
+  newMark(md);
+  return md;
 }
 
 void TextMarkings::newMark(MarkupData *m) {

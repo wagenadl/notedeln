@@ -175,14 +175,23 @@ QString ResourceManager::link(QUrl source) {
   sources[name] = source;
   saveSources();
   loaders[name] = new ResourceLoader(source, path(name), this);
-  connect(loaders[name], SIGNAL(finished()),
-	  mapper, SLOT(map()));
+  connect(loaders[name], SIGNAL(finished()), mapper, SLOT(map()));
   mapper->setMapping(loaders[name], name);
   return name;
 }
 
+void ResourceManager::linkCustom(QString name, QUrl source, bool dontArchive) {
+  if (sources.contains(name))
+    return;
+  sources[name] = source;
+  saveSources();
+  loaders[name] = new ResourceLoader(source, path(name), this, dontArchive);
+  connect(loaders[name], SIGNAL(finished()), mapper, SLOT(map()));
+  mapper->setMapping(loaders[name], name);
+}
+
 void ResourceManager::downloadComplete(QString name) {
-  qDebug() << "downloadComplete" << name;
+  qDebug() << "downloadComplete" << name << sources[name] << path(name);
   if (loaders.contains(name)) {
     if (loaders[name]->failed()) {
       qDebug() << "download failed";

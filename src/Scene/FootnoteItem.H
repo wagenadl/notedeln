@@ -14,7 +14,9 @@ public:
   virtual ~FootnoteItem();
   FootnoteData *data();
   class QGraphicsTextItem *tag();
-  void setTagText(QString);
+  void setTagText(QString); // updates data
+  QString tagText() const;
+  bool setAutoContents();
 private:
   void updateTag();
 private slots:

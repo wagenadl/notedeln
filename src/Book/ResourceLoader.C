@@ -16,8 +16,9 @@ QNetworkAccessManager &ResourceLoader::nam() {
   return n;
 }
 
-ResourceLoader::ResourceLoader(QUrl const &src0, QString dst0, QObject *parent):
-  QObject(parent), src(src0), dst(dst0) {
+ResourceLoader::ResourceLoader(QUrl const &src0, QString dst0, QObject *parent,
+			       bool dontArchive):
+  QObject(parent), src(src0), dst(dst0), dontArchive(dontArchive) {
   QNetworkRequest rq(src);
   ok = err = false;
   proc = 0;
@@ -34,6 +35,11 @@ ResourceLoader::ResourceLoader(QUrl const &src0, QString dst0, QObject *parent):
   connect(qnr, SIGNAL(downloadProgress(qint64, qint64)),
 	  SLOT(qnrProgress(qint64, qint64)), Qt::QueuedConnection);
   connect(qnr, SIGNAL(readyRead()), SLOT(qnrDataAv()), Qt::QueuedConnection);
+}
+
+ResourceLoader::~ResourceLoader() {
+  if (dontArchive)
+    dst.remove();
 }
 
 bool ResourceLoader::complete() const {
@@ -73,7 +79,10 @@ void ResourceLoader::qnrDataAv() {
       break;
     } else {
       qDebug() << "ResourceLoader: read<0";
+      qnr->close();
       err = true;
+      dst.remove();
+      emit finished();
       break;
     }
   }
@@ -97,9 +106,13 @@ void ResourceLoader::qnrFinished() {
     }
   }
   
-  if (!err && mimeType().startsWith("text/html")) {
-    makePdfAndThumb();
-    return;
+  if (!err) {
+    if (mimeType().startsWith("text/html")) {
+      makePdfAndThumb();
+      return;
+    } else if (makeThumb(mimeType())) {
+      return;
+    }
   }
 
   if (err)
@@ -165,15 +178,31 @@ bool ResourceLoader::getNowDialog(double delay_s) {
   dst.remove();
   return false;
 }
-  
+
+void ResourceLoader::processError() {
+  qDebug() << "ResourceLoader: process error for " << src << proc->error();
+  qDebug() << proc->exitCode() << proc->exitStatus();
+  qDebug() << proc->readAllStandardOutput();
+  qDebug() << proc->readAllStandardError();
+  exit(1);
+  err = true;
+  qDebug() << "  failed";
+  QFile pdf(dst.fileName() + ".pdf");
+  pdf.remove();
+  QFile png(dst.fileName() + ".png");
+  png.remove();
+  emit finished();
+}  
+
 void ResourceLoader::processFinished() {
   qDebug() << "ResourceLoader: process finished for " << src;
   qDebug() << proc->readAllStandardOutput();
   qDebug() << proc->readAllStandardError();
+  if (ok || err) // that means that processError took care of it already.
+    return; 
   if (proc->exitStatus()!=QProcess::NormalExit
       || proc->exitCode()!=0) {
     // that didn't work
-    ok = false;
     err = true;
     qDebug() << "  failed";
     QFile pdf(dst.fileName() + ".pdf");
@@ -183,25 +212,55 @@ void ResourceLoader::processFinished() {
   } else {
     qDebug() << "  success";
     ok = true;
-    err = false;
     // that did work
   }
   emit finished();
 }
 
+void ResourceLoader::startProcess(QString prog, QStringList args) {
+  proc = new QProcess(this);
+  qDebug() << "startProcess" << prog << args;
+  connect(proc, SIGNAL(finished(int, QProcess::ExitStatus)),
+	  this, SLOT(processFinished()));
+  connect(proc, SIGNAL(error(QProcess::ProcessError)),
+	  this, SLOT(processError()));
+  qDebug() << "starting" << prog;
+  proc->start(prog, args);
+  proc->closeWriteChannel();
+}
+
+bool ResourceLoader::makeThumb(QString mimetype) {
+  qDebug() << "ResourceLoader::makeThumb" << mimetype;
+  if (mimetype.isEmpty()) {
+    QStringList bits = src.path().split(".");
+    if (!bits.isEmpty())
+      mimetype = bits.last();
+  }
+  if (mimetype.contains("application/pdf") ||
+      mimetype.contains("application/x-pdf") || mimetype=="pdf") {
+    QStringList args;
+    args.append("-l");
+    args.append("1");
+    args.append("-singlefile");
+    args.append("-scale-to");
+    args.append("480");
+    args.append("-png");
+    args.append(dst.fileName());
+    args.append(dst.fileName());
+    startProcess("pdftoppm", args);
+    return true;
+  } else {
+    return false;
+  }
+}
+
 void ResourceLoader::makePdfAndThumb() {
   QStringList args;
-  args.append("-s");
+  args.append("-480");
   args.append(src.toString());
   args.append(dst.fileName()+".pdf");
   args.append(dst.fileName()+".png");
-  proc = new QProcess(this);
-  connect(proc, SIGNAL(finished(int, QProcess::ExitStatus )),
-	  this, SLOT(processFinished()));
-  qDebug() << "starting webgrab";
-  // must deal with stdio from process?
-  proc->start("webgrab", args);
-  proc->closeWriteChannel();
+  startProcess("webgrab", args);
 }
 
   

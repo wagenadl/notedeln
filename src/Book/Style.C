@@ -66,3 +66,7 @@ QColor Style::color(QString k) const {
 QVariantMap const &Style::options() const {
   return options_;
 }
+
+bool Style::contains(QString k) const {
+  return options_.contains(k);
+}

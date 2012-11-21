@@ -7,17 +7,27 @@
 
 Options::Options(int &argc, char **&argv) {
   paginate = false;
-  imSize = Medium;
+  imSize = 640;
   while (argc>1 && argv[1][0]=='-') {
     for (int n=1; argv[1][n]; n++) {
       switch (argv[1][n]) {
       case 'p': paginate=true; break;
-      case 't': imSize = Tiny; break;
-      case 's': imSize = Small; break;
-      case 'm': imSize = Medium; break;
-      case 'l': imSize = Large; break;
-      case 'h': imSize = Huge; break;
-      default: usage(); 
+      case 't': imSize = 160; break;
+      case 's': imSize = 320; break;
+      case 'm': imSize = 640; break;
+      case 'l': imSize = 1280; break;
+      case 'h': imSize = 2560; break;
+      default:
+	if (n==1) {
+	  bool ok;
+	  imSize = QString(argv[1]+1).toInt(&ok);
+	  if (!ok)
+	    usage();
+	  n = strlen(argv[1])-1; // awkward way to skip to end
+	} else {
+	  usage();
+	}
+	break;
       }
     }
     argv++;

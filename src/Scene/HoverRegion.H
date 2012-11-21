@@ -17,11 +17,15 @@ public:
   virtual QPainterPath shape() const;
   void forgetBounds();
 protected:
+  virtual void mousePressEvent(QGraphicsSceneMouseEvent *);
+  virtual void mouseDoubleClickEvent(QGraphicsSceneMouseEvent *);
   virtual void hoverEnterEvent(QGraphicsSceneHoverEvent *);
   virtual void hoverLeaveEvent(QGraphicsSceneHoverEvent *);
 private:
   QString refText() const;
   void calcBounds() const;
+  void openURL(QString);
+  void openCustomRef(QString);
 private:
   MarkupData *md;
   TextItem *ti;

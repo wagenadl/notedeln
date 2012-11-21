@@ -19,7 +19,7 @@ public:
   bool allowParagraphs() const;
   void setAllowParagraphs(bool yes);
   void setAllowMoves();
-  void addMarkup(MarkupData::Style t, int start, int end);
+  MarkupData *addMarkup(MarkupData::Style t, int start, int end);
   void addMarkup(MarkupData *); // we appropriate the data!
   bool allowNotes() const;
   void setAllowNotes(bool y=true);
@@ -50,7 +50,7 @@ public:
 private:
   void initializeFormat();
   MarkupData *markupAt(int pos, MarkupData::Style type);
-  bool tryLink();
+  bool tryLink(MarkupData *md=0);
   bool tryFootnote();
   bool tryToPaste();
   bool trySimpleStyle(QString marker, MarkupData::Style type);

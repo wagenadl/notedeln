@@ -123,14 +123,7 @@ void Printer::toSvg(QString fn) {
 
 void Printer::toImg(QString fn) {
   qDebug() << "Rendering to image file" << fn;
-  double maxDim = 640;
-  switch (opt.imSize) {
-  case Options::Tiny: maxDim = 160; break;
-  case Options::Small: maxDim = 320; break;
-  case Options::Medium: maxDim = 640; break;
-  case Options::Large: maxDim = 1280; break;
-  case Options::Huge: maxDim = 2560; break;
-  }
+  double maxDim = opt.imSize;
   QSizeF si = s->sceneRect().size();
   double w = si.width();
   double h = si.height();

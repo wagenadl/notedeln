@@ -907,7 +907,8 @@ void PageScene::newFootnote(int block, QString tag) {
   FootnoteItem *fni = new FootnoteItem(fnd, footnoteGroups[block]);
   connect(fni, SIGNAL(futileMovement()), SLOT(futileNoteMovement()));
   fni->makeWritable();
-  fni->setFocus();
+  if (!fni->setAutoContents())
+    fni->setFocus();
   footnoteGroups[block]->restack();
   restackBlocks(block);
 }

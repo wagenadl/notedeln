@@ -313,7 +313,8 @@ bool TextItem::tryURL() {
     int endpos = c.position();
     if (document()->characterAt(endpos-1)==QChar('.'))
       endpos--;
-    addMarkup(MarkupData::URL, m.selectionStart(), endpos);
+    MarkupData *md = addMarkup(MarkupData::URL, m.selectionStart(), endpos);
+    tryLink(md);
     return true;
   } else {
     return false;
@@ -381,7 +382,7 @@ bool TextItem::trySimpleStyle(QString marker,
   return true;
 }
 
-void TextItem::addMarkup(MarkupData::Style t, int start, int end) {
+MarkupData *TextItem::addMarkup(MarkupData::Style t, int start, int end) {
   markings_->newMark(t, start, end);
 }
 
@@ -404,13 +405,15 @@ QString TextItem::markedText(MarkupData *md) {
   return c.selectedText();
 }
 
-bool TextItem::tryLink() {
+bool TextItem::tryLink(MarkupData *md) {
   qDebug() << "Try link";
   Q_ASSERT(pageScene());
   int i = pageScene()->findBlock(this);
   Q_ASSERT(i>=0);
 
-  MarkupData *md = markupAt(textCursor().position(), MarkupData::URL);
+  if (md==0)
+    md = markupAt(textCursor().position(), MarkupData::URL);
+
   if (md) {
     QString txt = markedText(md);
     QUrl url(txt.startsWith("www.") ? ("http://"+txt) : txt);

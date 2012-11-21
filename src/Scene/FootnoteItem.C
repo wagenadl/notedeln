@@ -4,6 +4,8 @@
 #include "FootnoteData.H"
 #include "TextItem.H"
 #include "FootnoteGroupItem.H"
+#include "AutoNote.H"
+
 #include <QDebug>
 
 FootnoteItem::FootnoteItem(FootnoteData *data, Item *parent):
@@ -37,6 +39,10 @@ FootnoteItem::FootnoteItem(FootnoteData *data, Item *parent):
 FootnoteItem::~FootnoteItem() {
 }
 
+bool FootnoteItem::setAutoContents() {
+  return AutoNote::autoNote(data_->tag(), text(), style());
+}
+
 FootnoteData *FootnoteItem::data() {
   return data_;
 }
@@ -48,6 +54,10 @@ QGraphicsTextItem *FootnoteItem::tag() {
 void FootnoteItem::setTagText(QString t) {
   data_->setTag(t);
   updateTag();
+}
+
+QString FootnoteItem::tagText() const {
+  return data_->tag();
 }
 
 void FootnoteItem::updateTag() {

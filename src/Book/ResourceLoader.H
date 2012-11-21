@@ -6,11 +6,20 @@
 
 #include <QUrl>
 #include <QFile>
+#include <QStringList>
 
 class ResourceLoader: public QObject {
   Q_OBJECT;
 public:
-  ResourceLoader(QUrl const &src, QString dst, QObject *parent=0);
+  ResourceLoader(QUrl const &src, QString dst, QObject *parent=0,
+		 bool dontArchive=false);
+  /* The "dontArchive" flag causes the loader to delete the destination
+     file when the loader is destructed. This is useful if you only want
+     to capture a thumbnail or if you only want to check existence of
+     target. For local files, this prevents the file from being copied at all:
+     instead, a temporary softlink is created (NYI).
+  */
+  virtual ~ResourceLoader();
   bool getNow(double timeout_s=-1); // true if finished without error
   bool getNowDialog(double delay_s = 0.2);
   bool complete() const; // true if finished without error
@@ -26,8 +35,11 @@ private slots:
   void qnrDataAv();
   void qnrProgress(qint64, qint64);
   void processFinished();
+  void processError();
 private:
   void makePdfAndThumb();
+  bool makeThumb(QString mimetype); // return true if we're attempting it
+  void startProcess(QString prog, QStringList args);
 private:
   static class QNetworkAccessManager &nam();
   class QNetworkReply *qnr;
@@ -36,6 +48,7 @@ private:
   bool err;
   QUrl src;
   QFile dst;
+  bool dontArchive;
 };
 
 #endif

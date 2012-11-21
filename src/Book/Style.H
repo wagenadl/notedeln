@@ -16,6 +16,7 @@ public:
   int integer(QString) const;
   QColor color(QString) const;
   QVariantMap const &options() const;
+  bool contains(QString) const;
 private:
   QVariantMap options_;
 };
