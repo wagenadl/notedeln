@@ -9,8 +9,9 @@
 #include "HoverRegion.H"
 
 TextMarkings::TextMarkings(TextData *data, TextItem *parent):
-  QObject(parent), data(data) {
+  QGraphicsObject(parent), data(data) {
   Q_ASSERT(parent);
+  qDebug() << "TextMarkings" << this << parent;
   doc = parent->document();
   connect(doc, SIGNAL(contentsChange(int, int, int)),
 	  SLOT(update(int, int, int)));
@@ -22,7 +23,7 @@ TextMarkings::~TextMarkings() {
 }
 
 TextItem *TextMarkings::parent() const {
-  return dynamic_cast<TextItem*>(QObject::parent());
+  return dynamic_cast<TextItem*>(parentItem());
 }
 
 void TextMarkings::applyMark(Span const &span) {
@@ -74,7 +75,7 @@ void TextMarkings::applyMark(Span const &span) {
 
 TextMarkings::Span &TextMarkings::insertMark(MarkupData *m) {
   if (m->style()==MarkupData::URL) 
-    regions[m] = new HoverRegion(m, parent());
+    regions[m] = new HoverRegion(m, parent(), this);
   Span s(m, this);
   for (QList<Span>::iterator i=spans.begin(); i!=spans.end(); ++i) 
     if (s < *i) 
@@ -238,3 +239,9 @@ void TextMarkings::Span::avoidPropagatingStyle(TextItem *item,
   c.endEditBlock();
 }
 
+QRectF TextMarkings::boundingRect() const {
+  return QRectF();
+}
+
+void TextMarkings::paint(QPainter*, const QStyleOptionGraphicsItem*, QWidget*) {
+}

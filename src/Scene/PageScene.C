@@ -197,6 +197,10 @@ void PageScene::restackBlocks(int starti, bool preferData) {
     return;
   double y0 = style().real("margin-top");
   double y1 = style().real("page-height") - style().real("margin-bottom");
+  if (starti<0) {
+    starti=0;
+    topY[starti] = y0;
+  }
   double y = topY[starti];
   int sheet = sheetNos[starti];
   double y1a = y1;
@@ -419,23 +423,12 @@ void PageScene::splitTextBlock(int iblock, int pos) {
   TextBlockData *orig =
     dynamic_cast<TextBlockData*>(blockItems[iblock]->data());
   Q_ASSERT(orig);
-  TextBlockData *copy = Data::deepCopy(orig);
-  injectTextBlock(copy, iblock);
-  topY[iblock] = topY[iblock+1];
-  TextBlockItem *tbi_pre = dynamic_cast<TextBlockItem*>(blockItems[iblock]);
-  Q_ASSERT(tbi_pre);
-  QTextCursor pre = tbi_pre->text()->textCursor();
-  pre.setPosition(pos);
-  pre.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
-  pre.deleteChar();
-  TextBlockItem *tbi_post = dynamic_cast<TextBlockItem*>(blockItems[iblock+1]);
-  Q_ASSERT(tbi_post);
-  QTextCursor post = tbi_post->text()->textCursor();
-  post.setPosition(pos);
-  post.movePosition(QTextCursor::Start, QTextCursor::KeepAnchor);
-  post.deleteChar();
-  tbi_post->text()->setTextCursor(post);
-  restackBlocks(iblock>0 ? iblock-1 : iblock);
+  TextBlockData *block1 = Data::deepCopy(orig);
+  deleteBlock(iblock);
+  TextBlockData *block2 = block1->split(pos);
+  injectTextBlock(block1, iblock);
+  TextBlockItem *tbi_post = injectTextBlock(block2, iblock+1);
+  restackBlocks(iblock-1);
   gotoSheet(sheetNos[iblock+1]);
   tbi_post->setFocus();
 }
@@ -450,36 +443,19 @@ void PageScene::joinTextBlocks(int iblock_pre, int iblock_post) {
     = dynamic_cast<TextBlockItem*>(blockItems[iblock_post]);
   Q_ASSERT(tbi_pre);
   Q_ASSERT(tbi_post);
-  QTextCursor c_pre = tbi_pre->text()->textCursor();
-  c_pre.movePosition(QTextCursor::End);
-  TextData *td_post = tbi_post->data()->text();
-  int len = c_pre.position();
-  c_pre.insertText(td_post->text());
-  TextItem *ti_pre = tbi_pre->text();
-  foreach (MarkupData *md, td_post->markups()) {
-    MarkupData *copy = Data::deepCopy(md);
-    td_post->takeChild(copy); // unparent it
-    copy->update(0, 0, len);
-    ti_pre->addMarkup(copy);
-  }
-  c_pre.setPosition(len);
-  tbi_pre->text()->setTextCursor(c_pre);
-  TextData *td_pre = tbi_pre->data()->text();
-  if (td_post->created() < td_pre->created())
-    td_pre->setCreated(td_post->created());
-
-  foreach (FootnoteData *fnd, tbi_post->data()->children<FootnoteData>()) {
-    FootnoteData *copy = Data::deepCopy(fnd);
-    tbi_pre->data()->addChild(copy);
-    FootnoteItem *fni = new FootnoteItem(copy, footnoteGroups[iblock_pre]);
-    connect(fni, SIGNAL(futileMovement()), SLOT(futileNoteMovement()));
-    if (writable)
-      fni->makeWritable();
-  }
+  TextBlockData *block1 = Data::deepCopy(tbi_pre->data());
+  TextBlockData *block2 = Data::deepCopy(tbi_post->data());
+  int pos = block1->text()->text().size();
   deleteBlock(iblock_post);
-  footnoteGroups[iblock_pre]->restack();
+  deleteBlock(iblock_pre);
+  block1->join(block2);
+  TextBlockItem *tbi = injectTextBlock(block1, iblock_pre);
+  restackBlocks(iblock_pre-1);
   gotoSheet(sheetNos[iblock_pre]);
-  tbi_pre->setFocus();
+  tbi->setFocus();
+  QTextCursor c(tbi->text()->document());
+  c.setPosition(pos);
+  tbi->text()->setTextCursor(c);
 }  
 
 TextBlockItem *PageScene::injectTextBlock(TextBlockData *tbd, int iblock) {
@@ -495,7 +471,7 @@ TextBlockItem *PageScene::injectTextBlock(TextBlockData *tbd, int iblock) {
 
   blockItems.insert(iblock, tbi);
   sheetNos.insert(iblock, iSheet);
-  topY.insert(iblock, 0); // this topY is just a place holder
+  topY.insert(iblock, 0);
   footnoteGroups.insert(iblock, new FootnoteGroupItem(tbd, this));
   connect(tbi, SIGNAL(vboxChanged()), vChangeMapper, SLOT(map()));
   connect(tbi, SIGNAL(futileMovement()), futileMovementMapper, SLOT(map()));
@@ -933,6 +909,7 @@ void PageScene::newFootnote(int block, QString tag) {
   fni->makeWritable();
   fni->setFocus();
   footnoteGroups[block]->restack();
+  restackBlocks(block);
 }
 
 void PageScene::noteVChanged(int block) {

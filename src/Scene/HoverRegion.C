@@ -14,8 +14,9 @@
 #include <QTextLine>
 #include <QDebug>
 
-HoverRegion::HoverRegion(class MarkupData *md, class TextItem *item):
-  QGraphicsObject(item), md(md), ti(item) {
+HoverRegion::HoverRegion(class MarkupData *md, class TextItem *item,
+			 QGraphicsItem *parent):
+  QGraphicsObject(parent), md(md), ti(item) {
   start = end = -1;
   popper = 0;
   setAcceptHoverEvents(true);

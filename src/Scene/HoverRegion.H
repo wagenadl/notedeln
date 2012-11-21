@@ -9,7 +9,8 @@
 class HoverRegion: public QGraphicsObject {
   Q_OBJECT;
 public:
-  HoverRegion(class MarkupData *md, class TextItem *item);
+  HoverRegion(class MarkupData *md, class TextItem *item,
+	      QGraphicsItem *parent);
   virtual ~HoverRegion();
   virtual QRectF boundingRect() const;
   virtual void paint(QPainter*, const QStyleOptionGraphicsItem*, QWidget*);

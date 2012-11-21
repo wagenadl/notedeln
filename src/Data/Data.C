@@ -154,6 +154,7 @@ bool Data::deleteChild(Data *d, ModType mt) {
 Data *Data::takeChild(Data *d, ModType mt) {
   if (children_.removeOne(d)) {
     markModified(mt);
+    d->setParent(0);
     return d;
   } else {
     return 0;

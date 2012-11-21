@@ -4,13 +4,13 @@
 
 #define TEXTMARKINGS_H
 
-#include <QObject>
+#include <QGraphicsObject>
 #include <QList>
 #include <QTextDocument>
 #include "MarkupData.H"
 #include "TextData.H"
 
-class TextMarkings: public QObject {
+class TextMarkings: public QGraphicsObject {
   Q_OBJECT;
 public:
   TextMarkings(TextData *data, class TextItem *parent);
@@ -19,6 +19,8 @@ public:
   void newMark(MarkupData *); // the data object is appropriated into our text
   TextItem *parent() const;
   void foundUrl(QString); // recolors the span if it exists
+  QRectF boundingRect() const;
+  void paint(QPainter*, const QStyleOptionGraphicsItem*, QWidget*);
 private slots:
   void update(int, int, int);
 private:

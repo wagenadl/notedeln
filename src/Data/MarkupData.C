@@ -65,6 +65,7 @@ bool MarkupData::operator<(MarkupData const &other) const {
 bool mergeable(MarkupData const *a, MarkupData const *b) {
   return a->style_ == b->style_
     && a->style_ != MarkupData::CustomRef
+    && a->style_ != MarkupData::URL
     && a->start_ <= b->end_
     && a->end_ >= b->start_;
 }
