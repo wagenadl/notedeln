@@ -109,8 +109,10 @@ void TextBlockData::join(TextBlockData *block2) {
     QString tag = fnd->tag();
     if (fnd1.contains(tag)) {
       FootnoteData *fnd0 = fnd1[tag];
-      fnd0->text()->setText(fnd0->text()->text() + " " +
-			    fnd->text()->text());
+      QString t0 = fnd0->text()->text();
+      QString t1 = fnd->text()->text();
+      if (t0!=t1)
+	fnd0->text()->setText(t0 + " " + t1);
     } else {
       addChild(fnd);
     }
