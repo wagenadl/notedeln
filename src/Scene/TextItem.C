@@ -383,7 +383,7 @@ bool TextItem::trySimpleStyle(QString marker,
 }
 
 MarkupData *TextItem::addMarkup(MarkupData::Style t, int start, int end) {
-  markings_->newMark(t, start, end);
+  return markings_->newMark(t, start, end);
 }
 
 void TextItem::addMarkup(MarkupData *d) {
