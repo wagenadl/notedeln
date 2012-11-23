@@ -1,6 +1,7 @@
 // MarkupData.C
 
 #include "MarkupData.H"
+#include "TextData.H"
 #include <QDebug>
 
 static Data::Creator<MarkupData> c("markup");
@@ -64,8 +65,8 @@ bool MarkupData::operator<(MarkupData const &other) const {
 
 bool mergeable(MarkupData const *a, MarkupData const *b) {
   return a->style_ == b->style_
-    && a->style_ != MarkupData::CustomRef
-    && a->style_ != MarkupData::URL
+    && a->style_ != MarkupData::FootnoteRef
+    && a->style_ != MarkupData::Link
     && a->start_ <= b->end_
     && a->end_ >= b->start_;
 }
@@ -123,3 +124,11 @@ bool MarkupData::update(int pos, int del, int ins) {
     markModified(InternalMod);
   return chg;
 } 
+
+QString MarkupData::text() const {
+  TextData const *td = dynamic_cast<TextData const *>(parent());
+  if (td) 
+    return td->text().mid(start_, end_-start_);
+  else
+    return "";
+}

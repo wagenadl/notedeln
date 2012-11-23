@@ -71,6 +71,9 @@ void FootnoteItem::updateTag() {
 }
 
 void FootnoteItem::abandon() {
+  // Until we figure out how to unmark references, let's just not
+  // delete abandoned notes.
+#if 0
   // we are now empty. let's delete ourselves
   itemParent()->deleteChild(this);
   data_->parent()->takeChild(data_);
@@ -78,4 +81,6 @@ void FootnoteItem::abandon() {
   FootnoteGroupItem *fng = dynamic_cast<FootnoteGroupItem*>(itemParent());
   if (fng)
     fng->restack();
+  // we should somehow unmark references to us.
+#endif
 }

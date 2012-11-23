@@ -8,6 +8,7 @@
 #include "Style.H"
 #include "ResourceManager.H"
 #include "HoverRegion.H"
+#include "BlockItem.H"
 
 #include <QFont>
 #include <QTextDocument>
@@ -130,83 +131,87 @@ bool TextItem::mousePress(QGraphicsSceneMouseEvent *e) {
   }
 }
 
-bool TextItem::keyPress(QKeyEvent *e) {
-  bool pass = true;
+bool TextItem::keyPressAsMotion(QKeyEvent *e) {
   switch (e->key()) {
   case Qt::Key_Escape:
     clearFocus();
-    pass = false;
-    break;
+    return true;
   case Qt::Key_Return: case Qt::Key_Enter:
     if (!allowParagraphs_) {
       emit futileMovementKey(e->key(), e->modifiers());
-      pass = false;
-    }
-    break;
+      return true;
+    } break;
   case Qt::Key_Backspace:
     if (textCursor().atStart() && !textCursor().hasSelection()) {
       emit futileMovementKey(e->key(), e->modifiers());
-      pass = false;
-    }
-    break;
+      return true;
+    } break;
   case Qt::Key_Delete:
     if (textCursor().atEnd() && !textCursor().hasSelection()) {
       emit futileMovementKey(e->key(), e->modifiers());
-      pass = false;
-    }
-    break;
+      return true;
+    } break;
   case Qt::Key_Left: case Qt::Key_Up:
   case Qt::Key_Right: case Qt::Key_Down:
   case Qt::Key_PageUp: case Qt::Key_PageDown: {
     QTextCursor pre = textCursor();
     text->internalKeyPressEvent(e);
     QTextCursor post = textCursor();
-    if (pre.position() == post.position()) {
+    if (pre.position() == post.position())
       emit futileMovementKey(e->key(), e->modifiers());
-    }
-    pass = false;
+    return true;
   } break;
-  case Qt::Key_V:
-    if (e->modifiers() & Qt::ControlModifier) {
-      tryToPaste();
-      pass = false;
-    }
-    break;
-  case Qt::Key_N:
-    if (e->modifiers() & Qt::ControlModifier) {
-      tryFootnote();
-      pass = false;
-    }
-    break;
-  case Qt::Key_L:
-    if (e->modifiers() & Qt::ControlModifier) {
-      tryLink();
-      pass = false;
-    }
-    break;
-  case Qt::Key_Slash:
-    if (e->modifiers() & Qt::ControlModifier) {
-      pass = !trySimpleStyle("/", MarkupData::Italic);
-      break;
-    } // fall through!
-  default:
-    if (e->text()=="/") {
-      pass = true; // !trySimpleStyle("/", MarkupData::Italic);
-    } else if (e->text()=="*") {
-      pass = !trySimpleStyle("*", MarkupData::Bold);
-    } else if (e->text()=="_") {
-      pass = !trySimpleStyle("_", MarkupData::Underline);
-    } else if (e->text()==".") {
-      pass = !tryScriptStyles();
-    } else if (e->text()=="]") {
-      pass = !tryCustomRef();
-      // should probably offer to create a footnote?
-    } else if (QString(",; \n").contains(e->text())) {
-      tryURL();
-    }
-    break;
   }
-  return !pass;
+  return false;
+}
+
+bool TextItem::keyPressWithControl(QKeyEvent *e) {
+  if (!(e->modifiers() & Qt::ControlModifier))
+    return false;
+  switch (e->key()) {
+  case Qt::Key_V:
+    tryToPaste();
+    return true;
+  case Qt::Key_N:
+    tryFootnote();
+    return true;
+  case Qt::Key_L:
+    tryExplicitLink();
+    return true;
+  case Qt::Key_Slash:
+    toggleSimpleStyle(MarkupData::Italic);
+    return true;
+  case Qt::Key_8:
+    toggleSimpleStyle(MarkupData::Bold);
+    return true;
+  case Qt::Key_Minus:
+    toggleSimpleStyle(MarkupData::Underline);
+    return true;
+  default:
+    return false;
+  }
+}
+
+bool TextItem::keyPressAsSpecialEvent(QKeyEvent *e) {
+  if (e->text()=="*") 
+    return trySimpleStyle("*", MarkupData::Bold);
+  else if (e->text()=="_") 
+    return trySimpleStyle("_", MarkupData::Underline);
+  else if (e->text()==".") 
+    return tryScriptStyles();
+  else if (QString(",; \n").contains(e->text())) 
+    return tryAutoLink() && false; // never gobble these keys
+  else 
+    return false;
+}
+  
+bool TextItem::keyPress(QKeyEvent *e) {
+  bool take = keyPressAsMotion(e);
+  if (!take)
+    take = keyPressWithControl(e);
+  if (!take)
+    take = keyPressAsSpecialEvent(e);
+  return take;
 }
 
 bool TextItem::charBeforeIsLetter(int pos) const {
@@ -279,7 +284,7 @@ bool TextItem::tryScriptStyles() {
   }
 }
 
-bool TextItem::tryURL() {
+bool TextItem::tryAutoLink() {
   /* Returns true if we decide to mark some text as a hyperlink, that is, if
      (1) there is text beginning with "http://", "https://" or "www." before
          us,
@@ -300,7 +305,7 @@ bool TextItem::tryURL() {
   }
   if (!m.hasSelection()) {
     // alternatively, look for just plain www
-    m = document()->find("www.", c, QTextDocument::FindBackward);
+    m = document()->find(QRegExp("\\bwww\\."), c, QTextDocument::FindBackward);
     if (m.hasSelection()) {
       QTextCursor url(c);
       url.setPosition(m.selectionStart(), QTextCursor::KeepAnchor);
@@ -313,42 +318,35 @@ bool TextItem::tryURL() {
     int endpos = c.position();
     if (document()->characterAt(endpos-1)==QChar('.'))
       endpos--;
-    MarkupData *md = addMarkup(MarkupData::URL, m.selectionStart(), endpos);
-    tryLink(md);
+    addMarkup(MarkupData::Link, m.selectionStart(), endpos);
     return true;
   } else {
     return false;
   }
 }
 
-bool TextItem::tryCustomRef() {
-  /* Returns true if we decide to do a custom reference, that is, if
-     (1) there is a preceding "["
-     (2) there are no space characters between it and us
-     (3) there is not a word character after us
-  */
-   QTextCursor c = textCursor();
-   if (charAfterIsLetter(c.position()))
-     return false;
-   QTextCursor m = document()->find("[", c,
-				    QTextDocument::FindBackward);
-   if (!m.hasSelection())
-     return false;
-   int p0 = m.selectionStart();
-   m.setPosition(m.selectionEnd());
-   m.setPosition(c.position(), QTextCursor::KeepAnchor);
-   QString t = m.selectedText();
-   if (t.isEmpty() || t.contains(QRegExp("\\s")))
-     return false;
-
-   // gotcha
-   m.setPosition(p0);
-   m.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor);
-   m.deleteChar(); // remove opening "["
-   addMarkup(MarkupData::CustomRef, p0, c.position());
-   tryFootnote();
-   return true;
-}   
+void TextItem::toggleSimpleStyle(MarkupData::Style type) {
+  QTextCursor c = textCursor();
+  MarkupData *oldmd = markupAt(c.position(), type);
+  int start=-1;
+  int end=-1;
+  if (c.hasSelection()) {
+    start = c.selectionStart();
+    end = c.selectionEnd();
+  } else {
+    QTextCursor m = document()->find(QRegExp("\\W"), c,
+				     QTextDocument::FindBackward);
+    start = m.hasSelection() ? m.selectionEnd() : 0;
+    m = document()->find(QRegExp("\\W"), c);
+    end = m.hasSelection() ? m.selectionStart() : data_->text().size();
+  }
+  
+  if (oldmd && oldmd->start()==start && oldmd->end()==end) 
+    markings_->deleteMark(oldmd);
+  else if (start<end) 
+    addMarkup(type, start, end);
+}
+  
 
 bool TextItem::trySimpleStyle(QString marker,
 			      MarkupData::Style type) {
@@ -364,6 +362,8 @@ bool TextItem::trySimpleStyle(QString marker,
   */
 
   QTextCursor c = textCursor();
+  if (c.hasSelection()) 
+    return false;
   if (charAfterIsLetter(c.position()))
     return false;
   if (!charBeforeIsLetter(c.position()))
@@ -371,7 +371,7 @@ bool TextItem::trySimpleStyle(QString marker,
   
   QTextCursor m = document()->find(marker, c, QTextDocument::FindBackward);
   if (!m.hasSelection())
-    return false; // no slash
+    return false; // no marker
   if (charBeforeIsLetter(m.selectionStart()))
     return false;
   if (!charAfterIsLetter(m.selectionEnd()))
@@ -382,8 +382,8 @@ bool TextItem::trySimpleStyle(QString marker,
   return true;
 }
 
-MarkupData *TextItem::addMarkup(MarkupData::Style t, int start, int end) {
-  return markings_->newMark(t, start, end);
+void TextItem::addMarkup(MarkupData::Style t, int start, int end) {
+  markings_->newMark(t, start, end);
 }
 
 void TextItem::addMarkup(MarkupData *d) {
@@ -397,6 +397,11 @@ MarkupData *TextItem::markupAt(int pos, MarkupData::Style typ) {
   return 0;
 }
 
+static bool approvedMark(QString s) {
+  QString marks = "*@#%$&+"; // add more later
+  return marks.contains(s);
+}
+
 QString TextItem::markedText(MarkupData *md) {
   Q_ASSERT(md);
   QTextCursor c = textCursor();
@@ -405,14 +410,49 @@ QString TextItem::markedText(MarkupData *md) {
   return c.selectedText();
 }
 
-bool TextItem::tryLink(MarkupData *md) {
+bool TextItem::tryExplicitLink() {
   qDebug() << "Try link";
   Q_ASSERT(pageScene());
   int i = pageScene()->findBlock(this);
   Q_ASSERT(i>=0);
+  QTextCursor c = textCursor();
+  MarkupData *oldmd = markupAt(c.position(), MarkupData::Link);
+  int start=-1;
+  int end=-1;
+  if (c.hasSelection()) {
+    start = c.selectionStart();
+    end = c.selectionEnd();
+  } else {
+    // this gets complicated
+    // for now, just grab anything w/o spaces and remove punctuation at end
+    QTextCursor m = document()->find(QRegExp("\\s"), c,
+				     QTextDocument::FindBackward);
+    start = m.hasSelection() ? m.selectionEnd() : 0;
+    m = document()->find(QRegExp("\\s"), c);
+    if (m.hasSelection()) {
+      end = m.selectionStart();
+      m = document()->find(QRegExp("\\w"), m,
+			   QTextDocument::FindBackward);
+      if (m.hasSelection())
+	end = m.selectionEnd();
+      else
+	end = -1;
+    }
+  }
+  if (oldmd && oldmd->start()==start && oldmd->end()==end) {
+    // undo link mark
+    markings_->deleteMark(oldmd);
+    return false;
+  } else if (end>start) {
+    addMarkup(MarkupData::Link, start, end);
+    return true;
+  } else {
+    return false;
+  }
+}
 
-  if (md==0)
-    md = markupAt(textCursor().position(), MarkupData::URL);
+/* Code for actually looking up a link: This is going to be done by
+   TextMarkings/HoverRegion instead.
 
   if (md) {
     QString txt = markedText(md);
@@ -439,18 +479,51 @@ void TextItem::linkFinished(QString resName) {
   QString url = data()->resMgr()->url(resName).toString();
   markings_->foundUrl(url);
 }
-  
+*/
+
 bool TextItem::tryFootnote() {
   Q_ASSERT(pageScene());
   int i = pageScene()->findBlock(this);
   Q_ASSERT(i>=0);
-
-  MarkupData *md = markupAt(textCursor().position(), MarkupData::CustomRef);
-  if (md) {
+  
+  QTextCursor c = textCursor();
+  MarkupData *oldmd = markupAt(c.position(), MarkupData::FootnoteRef);
+  int start=-1;
+  int end=-1;
+  bool mayDelete = false;
+  if (c.hasSelection()) {
+    start = c.selectionStart();
+    end = c.selectionEnd();
+    mayDelete = true;
+  } else {
+    QTextCursor m = document()->find(QRegExp("[^-\\w]"), c,
+				     QTextDocument::FindBackward);
+    QString mrk = m.selectedText();
+    start = m.hasSelection() ? m.selectionEnd() : 0;
+    m = document()->find(QRegExp("[^-\\w]"), c);
+    end = m.hasSelection() ? m.selectionStart() : data_->text().size();
+    if (start==end && start>0) 
+      if (approvedMark(mrk))
+	--start; // markup is a single non-word char like "*".
+  }
+  if (oldmd && oldmd->start()==start && oldmd->end()==end) {
+    if (mayDelete) {
+      // delete old mark
+      BlockItem *bi = BlockItem::ancestralBlock(this);
+      if (bi) 
+	bi->refTextChange(oldmd->text(), ""); // remove any footnotes
+      markings_->deleteMark(oldmd);
+    } else {
+      return false; // should perhaps give focus to the footnote
+    }
+    return false;
+  } else if (start<end) {
+    addMarkup(MarkupData::FootnoteRef, start, end);
+    MarkupData *md = markupAt(end, MarkupData::FootnoteRef);
+    Q_ASSERT(md);
     pageScene()->newFootnote(i, markedText(md));
     return true;
   } else {
-    qDebug() << "  No customref found";
     return false;
   }
 }

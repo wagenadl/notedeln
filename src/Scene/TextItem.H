@@ -19,7 +19,7 @@ public:
   bool allowParagraphs() const;
   void setAllowParagraphs(bool yes);
   void setAllowMoves();
-  MarkupData *addMarkup(MarkupData::Style t, int start, int end);
+  void addMarkup(MarkupData::Style t, int start, int end);
   void addMarkup(MarkupData *); // we appropriate the data!
   bool allowNotes() const;
   void setAllowNotes(bool y=true);
@@ -37,10 +37,13 @@ private:
   virtual bool keyPress(QKeyEvent *);
   virtual bool focusIn(QFocusEvent *);
   virtual bool focusOut(QFocusEvent *);
+private:
+  bool keyPressAsMotion(QKeyEvent *);
+  bool keyPressWithControl(QKeyEvent *);
+  bool keyPressAsSpecialEvent(QKeyEvent *);
 protected slots:
   virtual void docChange();
   virtual void modifierChange(Qt::KeyboardModifiers);
-  void linkFinished(QString);
 public:
   void updateRefText(QString oldText, QString newText);
   // for use by TextMarkings to signal change of reference text
@@ -50,13 +53,13 @@ public:
 private:
   void initializeFormat();
   MarkupData *markupAt(int pos, MarkupData::Style type);
-  bool tryLink(MarkupData *md=0);
+  bool tryExplicitLink();
   bool tryFootnote();
   bool tryToPaste();
   bool trySimpleStyle(QString marker, MarkupData::Style type);
   bool tryScriptStyles();
-  bool tryURL();
-  bool tryCustomRef();
+  bool tryAutoLink();
+  void toggleSimpleStyle(MarkupData::Style type);
   bool charBeforeIsLetter(int pos) const;
   bool charAfterIsLetter(int pos) const;
   bool shouldResize(QPointF) const;

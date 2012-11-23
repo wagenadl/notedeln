@@ -51,11 +51,8 @@ void HoverRegion::mousePressEvent(QGraphicsSceneMouseEvent *e) {
     e->accept();
     qDebug() << "HoverRegion: control mouse press";
     switch (md->style()) {
-    case MarkupData::URL:
-      openURL(refText());
-      break;
-    case MarkupData::CustomRef:
-      openCustomRef(refText());
+    case MarkupData::Link:
+      openLink(refText());
       break;
     default:
       qDebug() << "HoverRegion: Don't know how to open this markup"
@@ -137,13 +134,9 @@ void HoverRegion::calcBounds() const {
   end = md->end();
 }
   
-void HoverRegion::openURL(QString txt) {
+void HoverRegion::openLink(QString txt) {
   if (txt.startsWith("www."))
     txt = "http://" + txt;
   qDebug() << "HoverRegion: openURL " << txt;
 }
 
-void HoverRegion::openCustomRef(QString txt) {
-  qDebug() << "HoverRegion: openCustomRef " << txt;
-}
-  

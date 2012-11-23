@@ -15,8 +15,9 @@ class TextMarkings: public QGraphicsObject {
 public:
   TextMarkings(TextData *data, class TextItem *parent);
   virtual ~TextMarkings();
-  MarkupData *newMark(MarkupData::Style t, int start, int end);
+  void newMark(MarkupData::Style t, int start, int end);
   void newMark(MarkupData *); // the data object is appropriated into our text
+  void deleteMark(MarkupData *); // the data object is deleted from our text 
   TextItem *parent() const;
   void foundUrl(QString); // recolors the span if it exists
   QRectF boundingRect() const;

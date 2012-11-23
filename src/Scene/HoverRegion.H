@@ -24,8 +24,7 @@ protected:
 private:
   QString refText() const;
   void calcBounds() const;
-  void openURL(QString);
-  void openCustomRef(QString);
+  void openLink(QString);
 private:
   MarkupData *md;
   TextItem *ti;

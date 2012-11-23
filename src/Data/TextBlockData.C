@@ -57,14 +57,14 @@ TextBlockData *TextBlockData::split(int pos) {
   }
   QSet<QString> tags1;
   foreach (MarkupData *md, text1->children<MarkupData>()) 
-    if (md->style()==MarkupData::CustomRef)
+    if (md->style()==MarkupData::FootnoteRef)
       tags1.insert(text1->text().mid(md->start(), md->end()-md->start()));
   foreach (FootnoteData *fd, this->children<FootnoteData>())
     if (!tags1.contains(fd->tag()))
       this->deleteChild(fd);
   QSet<QString> tags2;
   foreach (MarkupData *md, text2->children<MarkupData>()) 
-    if (md->style()==MarkupData::CustomRef)
+    if (md->style()==MarkupData::FootnoteRef)
       tags2.insert(text2->text().mid(md->start(), md->end()-md->start()));
   foreach (FootnoteData *fd, block2->children<FootnoteData>())
     if (!tags2.contains(fd->tag()))

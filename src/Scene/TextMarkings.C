@@ -57,13 +57,13 @@ void TextMarkings::applyMark(Span const &span) {
   case MarkupData::Subscript:
     f.setVerticalAlignment(QTextCharFormat::AlignSubScript);
     break;
-  case MarkupData::URL:
+  case MarkupData::Link:
     if (span.archivedUrl)
       f.setForeground(parent()->style().color("archived-url-color"));
     else
       f.setForeground(parent()->style().color("url-color"));
     break;
-  case MarkupData::CustomRef:
+  case MarkupData::FootnoteRef:
     f.setForeground(parent()->style().color("customref-color"));
     break;
   default: 
@@ -74,7 +74,7 @@ void TextMarkings::applyMark(Span const &span) {
 }  
 
 TextMarkings::Span &TextMarkings::insertMark(MarkupData *m) {
-  if (m->style()==MarkupData::URL || m->style()==MarkupData::CustomRef) 
+  if (m->style()==MarkupData::Link)
     regions[m] = new HoverRegion(m, parent(), this);
   Span s(m, this);
   for (QList<Span>::iterator i=spans.begin(); i!=spans.end(); ++i) 
@@ -91,7 +91,7 @@ void TextMarkings::foundUrl(QString url) {
     QString txt = ti->markedText(md);
     if (txt.startsWith("www."))
       txt = "http://" + txt;
-    if (md->style()==MarkupData::URL &&	txt==url) {
+    if (md->style()==MarkupData::Link && txt==url) {
       (*i).archivedUrl = true;
       applyMark(*i);
       return;
@@ -99,17 +99,32 @@ void TextMarkings::foundUrl(QString url) {
   }
 }
 
-MarkupData *TextMarkings::newMark(MarkupData::Style type, int start, int end) {
+void TextMarkings::newMark(MarkupData::Style type, int start, int end) {
   MarkupData *md = new MarkupData(start, end, type);
   newMark(md);
-  return md;
 }
 
 void TextMarkings::newMark(MarkupData *m) {
   data->addMarkup(m);
   applyMark(insertMark(m));
   update(m->start(), 0, 0); // this should fix overlaps if any
-}  
+}
+
+void TextMarkings::deleteMark(MarkupData *m) {
+  if (regions.contains(m)) {
+    delete regions[m];
+    regions.remove(m);
+  }
+  for (QList<Span>::iterator i=spans.begin(); i!=spans.end(); ) {
+    if ((*i).data==m) {
+      (*i).avoidPropagatingStyle(parent(), m->start(), m->end()-m->start());
+      i = spans.erase(i);
+    } else {
+      ++i;
+    }
+  }
+  data->deleteMarkup(m);
+}
 
 void TextMarkings::update(int pos, int del, int ins) {
   // First round: update every span, deleting empty spans
@@ -161,10 +176,10 @@ void TextMarkings::update(int pos, int del, int ins) {
 } 
 
 TextMarkings::Span::Span(MarkupData *data, TextMarkings *tm): data(data) {
-  if (tm && (data->style()==MarkupData::CustomRef
-	     || data->style()==MarkupData::URL))
+  if (tm && (data->style()==MarkupData::FootnoteRef
+	     || data->style()==MarkupData::Link))
     refText = tm->parent()->markedText(data);
-  if (tm && data->style()==MarkupData::URL) {
+  if (tm && data->style()==MarkupData::Link) {
     QUrl url = refText.startsWith("www.") ? ("http://" + refText) : refText;
     archivedUrl = !data->resMgr()->resName(url).isEmpty();
   } else {
@@ -185,13 +200,13 @@ bool TextMarkings::Span::update(TextItem *item,
     avoidPropagatingStyle(item, 0, ins-del);
   
   data->update(pos, del, ins);
-  if (data->style()==MarkupData::CustomRef) {
+  if (data->style()==MarkupData::FootnoteRef) {
     QString newRef = item->markedText(data);
     if (newRef != refText) {
       item->updateRefText(refText, newRef);
       refText = newRef;
     }
-  } else if (data->style()==MarkupData::URL) {
+  } else if (data->style()==MarkupData::Link) {
     QString newRef = item->markedText(data);
     if (newRef != refText) {
       QUrl url = newRef.startsWith("www.") ? ("http://" + newRef) : newRef;
@@ -231,7 +246,7 @@ void TextMarkings::Span::avoidPropagatingStyle(TextItem *item,
   case MarkupData::Superscript: case MarkupData::Subscript:
     f.setVerticalAlignment(QTextCharFormat::AlignNormal);
     break;
-  case MarkupData::URL: case MarkupData::CustomRef:
+  case MarkupData::Link: case MarkupData::FootnoteRef:
     f.setForeground(item->defaultTextColor());
     break;
   default:

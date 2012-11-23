@@ -21,8 +21,8 @@ public:
     Italic,
     Bold,
     Underline,
-    URL,
-    CustomRef,
+    Link,
+    FootnoteRef,
     Superscript,
     Subscript,
     StrikeThrough,
@@ -47,6 +47,7 @@ public:
   bool update(int pos, int del, int ins);
   /* An insertion either immediately before or after our markup will not
      be put inside it. An insertion over an empty markup will go before it. */
+  QString text() const; // only works if our parent is TextData
 private:
   bool cut(int pos, int len);
   bool insert(int pos, int len);
