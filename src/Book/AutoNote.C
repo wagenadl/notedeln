@@ -4,7 +4,7 @@
 #include "AutoNote.H"
 #include "TextItem.H"
 #include "Style.H"
-#include "Resources.H"
+#include "ResManager.H"
 #include "TextData.H"
 #include "JSONFile.H"
 

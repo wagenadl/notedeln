@@ -6,7 +6,7 @@
 #include "Style.H"
 #include <QPainter>
 #include <QDebug>
-#include "Resources.H"
+#include "ResManager.H"
 #include "GfxImageData.H"
 #include "GfxImageItem.H"
 #include "GfxNoteData.H"
@@ -49,7 +49,7 @@ static QPointF constrainPointToRect(QPointF p, QRectF rect) {
 
 Item *GfxBlockItem::newImage(QImage img, QUrl src, QPointF pos) {
   Q_ASSERT(data()->book());
-  Q_ASSERT(data()->resources());
+  Q_ASSERT(data()->resManager());
   double maxW = availableWidth();
   double maxH = maxW;
   double scale = 1;
@@ -62,7 +62,7 @@ Item *GfxBlockItem::newImage(QImage img, QUrl src, QPointF pos) {
   else
     pos -= QPointF(img.width(),img.height())*(scale/2);
   pos = constrainPointToRect(pos, boundingRect());
-  Resource *res = data()->resources()->importImage(img, src);
+  Resource *res = data()->resManager()->importImage(img, src);
   QString resName = res->tag();
   GfxImageData *gid = new GfxImageData(resName, img, data());
   gid->setScale(scale);

@@ -13,7 +13,7 @@
 #include <QGraphicsSceneMouseEvent>
 #include <QGraphicsSceneHoverEvent>
 #include <QKeyEvent>
-#include "Resources.H"
+#include "ResManager.H"
 #include <QCursor>
 #include <math.h>
 
@@ -27,7 +27,7 @@ GfxImageItem::GfxImageItem(GfxImageData *data, Item *parent):
   dragType = None;
 
   // get the image, crop it, etc.
-  Resources *resmgr = data->resources();
+  ResManager *resmgr = data->resManager();
   if (!resmgr) {
     qDebug() << "GfxImageItem: no resource manager";
     return;

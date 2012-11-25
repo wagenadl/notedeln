@@ -1,8 +1,8 @@
-// Resources.H
+// ResManager.H
 
-#ifndef RESOURCES_H
+#ifndef RESMANAGER_H
 
-#define RESOURCES_H
+#define RESMANAGER_H
 
 #include "Data.H"
 #include "Resource.H"
@@ -10,11 +10,11 @@
 #include <QDir>
 #include <QFile>
 
-class Resources: public Data {
+class ResManager: public Data {
   Q_OBJECT;
 public:
-  Resources(Data *parent=0);
-  virtual ~Resources();
+  ResManager(Data *parent=0);
+  virtual ~ResManager();
   Resource *byTag(QString) const; // 0 if not found
   Resource *byURL(QUrl) const; // 0 if not found
   void setRoot(QString);

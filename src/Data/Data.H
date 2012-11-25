@@ -7,6 +7,7 @@
 #include <QObject>
 #include <QDateTime>
 #include <QString>
+#include <QStringList>
 #include <QVariant>
 #include <QMap>
 
@@ -15,6 +16,7 @@ class Data: public QObject {
   Q_PROPERTY(QDateTime cre READ created WRITE setCreated)
   Q_PROPERTY(QDateTime mod READ modified WRITE setModified)
   Q_PROPERTY(QString typ READ type WRITE setType)
+  Q_PROPERTY(QStringList res READ resourceTags WRITE setResourceTags)
 public:
   enum ModType {
     UserVisibleMod,
@@ -51,7 +53,11 @@ public:
   virtual class PageData const *page() const; // pointer to ...
   virtual class PageData *page(); // ... parent page, if any.
   virtual class Notebook *book() const; // pointer to parent book, if any.
-  virtual class Resources *resources() const; // if any.
+  virtual class ResManager *resManager() const; // if any.
+  void attachResource(QString);
+  void detachResource(QString);
+  QStringList const &resourceTags() const;
+  void setResourceTags(QStringList const &);
 signals:
   void mod();
 protected:
@@ -68,6 +74,7 @@ private:
   QDateTime modified_;
   QString type_;
   QList<Data *> children_;
+  QStringList resTags;
 private:
   bool loading_;
 public:

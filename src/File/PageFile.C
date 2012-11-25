@@ -1,13 +1,13 @@
 // PageFile.C
 
 #include "PageFile.H"
-#include "Resources.H"
+#include "ResManager.H"
 #include <QDebug>
 
 PageFile *createPage(QDir const &dir, int n, QObject *parent) {
   QString pfn = dir.absoluteFilePath(QString::number(n) + ".json");
   PageFile *f = PageFile::create(pfn, parent);
-  Resources *r = new Resources(f->data());
+  ResManager *r = new ResManager(f->data());
   QString resfn = dir.absoluteFilePath(QString::number(n) + ".res");
   qDebug()<< "PageFile createPage " << pfn << resfn;
   r->setRoot(resfn);
@@ -18,9 +18,9 @@ PageFile *createPage(QDir const &dir, int n, QObject *parent) {
 PageFile *loadPage(QDir const &dir, int n, QObject *parent) {
   QString pfn = dir.absoluteFilePath(QString::number(n) + ".json");
   PageFile *f = PageFile::load(pfn, parent);
-  Resources *r = f->data()->firstChild<Resources>();
+  ResManager *r = f->data()->firstChild<ResManager>();
   if (!r)
-    r = new Resources(f->data());
+    r = new ResManager(f->data());
   QString resfn = dir.absoluteFilePath(QString::number(n) + ".res");
   r->setRoot(resfn);
   qDebug()<< "PageFile loadPage " << pfn << resfn;

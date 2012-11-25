@@ -9,7 +9,6 @@ static Data::Creator<Resource> c("res");
 
 Resource::Resource(Data *parent): Data(parent) {
   setType("res");
-  refcnt = 0;
   loader = 0;
 }
 
@@ -38,10 +37,6 @@ QString Resource::title() const {
 
 QString Resource::description() const {
   return desc;
-}
-
-int Resource::refCount() const {
-  return refcnt;
 }
 
 void Resource::setTag(QString s) {
@@ -73,23 +68,6 @@ void Resource::setTitle(QString s) {
 void Resource::setDescription(QString s) {
   desc = s;
   markModified();
-}
-
-void Resource::setRefCount(int c) {
-  refcnt = c;
-  markModified();
-}
-
-void Resource::incRefCount() {
-  refcnt++;
-  markModified();
-}
-
-bool Resource::decRefCount() {
-  if (refcnt>0)
-    refcnt--;
-  markModified();
-  return refcnt==0;
 }
 
 //////////////////////////////////////////////////////////////////////

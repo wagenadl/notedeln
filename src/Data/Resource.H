@@ -17,7 +17,6 @@ class Resource: public Data {
   Q_PROPERTY(QString archive READ archiveFilename WRITE setArchiveFilename);
   Q_PROPERTY(QString title READ title WRITE setTitle);
   Q_PROPERTY(QString desc READ description WRITE setDescription);
-  Q_PROPERTY(int refCount READ refCount WRITE setRefCount);
 public: // strict Data functions
   Resource(Data *parent=0);
   virtual ~Resource();
@@ -27,16 +26,12 @@ public: // strict Data functions
   QString archiveFilename() const;
   QString title() const;
   QString description() const;
-  int refCount() const;
   void setTag(QString);
   void setSourceURL(QUrl);
   void setPreviewFilename(QString);
   void setArchiveFilename(QString);
   void setTitle(QString);
   void setDescription(QString);
-  void setRefCount(int);
-  void incRefCount();
-  bool decRefCount(); // true if it becomes zero
 public: // functions to do with using the resource
   void setRoot(QDir); // this must be called before anything else works
   bool hasArchive() const;
@@ -62,7 +57,6 @@ private:
   QString arch;
   QString ttl;
   QString desc;
-  int refcnt;
 private:
   class ResLoader *loader;
   QDir dir;

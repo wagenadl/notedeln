@@ -22,6 +22,7 @@ GfxImageData::GfxImageData(Data *parent): GfxData(parent) {
 GfxImageData::GfxImageData(QString resName, QImage img, Data *parent):
   GfxData(parent) {
   setType("gfximage");
+  attachResource(resName);
   resName_ = resName;
   width_ = img.width();
   height_ = img.height();

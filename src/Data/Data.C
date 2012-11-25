@@ -227,8 +227,7 @@ void Data::saveProps(QVariantMap &dst) const {
     char const *n = metaprop.name();
     QString name = QString::fromLatin1(n);
     if (name!="objectName" && metaprop.isReadable())
-      dst
-	[name] = property(n);
+      dst[name] = property(n);
   }
 }
 
@@ -266,12 +265,35 @@ Notebook *Data::book() const {
   return p ? p->book() : 0;
 }
 
-Resources *Data::resources() const {
+ResManager *Data::resManager() const {
   PageData const *pg = page();
-  return pg ? pg->resources() : 0;
+  return pg ? pg->resManager() : 0;
 }
 
 bool Data::loading() const {
   return loading_;
+}
+
+void Data::attachResource(QString r) {
+  if (resTags.contains(r))
+    return;
+  resTags.append(r);
+  markModified();
+}
+
+void Data::detachResource(QString r) {
+  if (!resTags.contains(r))
+    return;
+  resTags.removeOne(r);
+  markModified();
+}
+
+QStringList const &Data::resourceTags() const {
+  return resTags;
+}
+
+void Data::setResourceTags(QStringList const &l) {
+  resTags = l;
+  markModified();
 }
 

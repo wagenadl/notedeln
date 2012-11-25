@@ -10,7 +10,7 @@
 #include "PageData.H"
 #include "GfxBlockItem.H"
 #include "GfxBlockData.H"
-#include "Resources.H"
+#include "ResManager.H"
 #include "ModSnooper.H"
 #include "FootnoteGroupItem.H"
 #include "FootnoteData.H"

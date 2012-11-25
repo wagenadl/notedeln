@@ -3,7 +3,7 @@
 #include "HoverRegion.H"
 #include "TextItem.H"
 #include "PreviewPopper.H"
-#include "Resources.H"
+#include "ResManager.H"
 
 #include <QPainter>
 #include <QGraphicsSceneHoverEvent>
@@ -83,9 +83,9 @@ void HoverRegion::hoverEnterEvent(QGraphicsSceneHoverEvent *e) {
   QString txt = refText();
   if (txt.startsWith("www."))
     txt = "http://" + txt;
-  Resource *r = md->resources()->byTag(txt);
+  Resource *r = md->resManager()->byTag(txt);
   if (!r)
-    r = md->resources()->byURL(txt);
+    r = md->resManager()->byURL(txt);
   if (r)
     popper = new PreviewPopper(r, e->screenPos(), this);
 }

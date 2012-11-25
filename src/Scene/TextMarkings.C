@@ -5,7 +5,7 @@
 #include <QDebug>
 #include "TextItem.H"
 #include "Style.H"
-#include "Resources.H"
+#include "ResManager.H"
 #include "HoverRegion.H"
 
 TextMarkings::TextMarkings(TextData *data, TextItem *parent):
@@ -78,20 +78,6 @@ TextMarkings::Span &TextMarkings::insertMark(MarkupData *m) {
       return *spans.insert(i, s);
   spans.append(s);
   return spans.last();
-}
-
-void TextMarkings::foundUrl(QString url) {
-  TextItem *ti = parent();
-  for (QList<Span>::iterator i=spans.begin(); i!=spans.end(); ++i) {
-    MarkupData *md = (*i).data;
-    QString txt = ti->markedText(md);
-    if (txt.startsWith("www."))
-      txt = "http://" + txt;
-    if (md->style()==MarkupData::Link && txt==url) {
-      applyMark(*i);
-      return;
-    }
-  }
 }
 
 void TextMarkings::newMark(MarkupData::Style type, int start, int end) {
