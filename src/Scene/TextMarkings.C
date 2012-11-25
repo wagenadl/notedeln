@@ -11,7 +11,6 @@
 TextMarkings::TextMarkings(TextData *data, TextItem *parent):
   QGraphicsObject(parent), data(data) {
   Q_ASSERT(parent);
-  qDebug() << "TextMarkings" << this << parent;
   doc = parent->document();
   connect(doc, SIGNAL(contentsChange(int, int, int)),
 	  SLOT(update(int, int, int)));
@@ -199,8 +198,6 @@ bool TextMarkings::Span::update(TextItem *item,
   } else if (data->style()==MarkupData::Link) {
     QString newRef = item->markedText(data);
     if (newRef != refText) {
-      QUrl url = newRef.startsWith("www.") ? ("http://" + newRef) : newRef;
-      qDebug() << url;
       markings->applyMark(*this);
       refText = newRef;
     }

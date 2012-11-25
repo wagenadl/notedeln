@@ -318,6 +318,9 @@ bool TextItem::tryAutoLink() {
     int endpos = c.position();
     if (document()->characterAt(endpos-1)==QChar('.'))
       endpos--;
+    MarkupData *oldmd = markupAt(endpos, MarkupData::Link);
+    if (oldmd && oldmd->start()==m.selectionStart() && oldmd->end()==endpos)
+      return false; // preexisting
     addMarkup(MarkupData::Link, m.selectionStart(), endpos);
     return true;
   } else {
@@ -437,6 +440,10 @@ bool TextItem::tryExplicitLink() {
 	end = m.selectionEnd();
       else
 	end = -1;
+    } else {
+      m = textCursor();
+      m.movePosition(QTextCursor::End);
+      end = m.position();
     }
   }
   if (oldmd && oldmd->start()==start && oldmd->end()==end) {
