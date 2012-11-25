@@ -1,25 +1,19 @@
-// ResourceLoader.H
+// ResLoader.H
 
-#ifndef RESOURCELOADER_H
+#ifndef RESLOADER_H
 
-#define RESOURCELOADER_H
+#define RESLOADER_H
 
+#include <QObject>
 #include <QUrl>
 #include <QFile>
-#include <QStringList>
 
-class ResourceLoader: public QObject {
+class ResLoader: public QObject {
   Q_OBJECT;
 public:
-  ResourceLoader(QUrl const &src, QString dst, QObject *parent=0,
-		 bool dontArchive=false);
-  /* The "dontArchive" flag causes the loader to delete the destination
-     file when the loader is destructed. This is useful if you only want
-     to capture a thumbnail or if you only want to check existence of
-     target. For local files, this prevents the file from being copied at all:
-     instead, a temporary softlink is created (NYI).
-  */
-  virtual ~ResourceLoader();
+  ResLoader(QUrl const &src, QString dst, QObject *parent=0);
+  ResLoader(QUrl const &src, QString dst, QString prevDst, QObject *parent=0);
+  virtual ~ResLoader();
   bool getNow(double timeout_s=-1); // true if finished without error
   bool getNowDialog(double delay_s = 0.2);
   bool complete() const; // true if finished without error
@@ -37,6 +31,8 @@ private slots:
   void processFinished();
   void processError();
 private:
+  void init();
+  void startDownload();
   void makePdfAndThumb();
   bool makeThumb(QString mimetype); // return true if we're attempting it
   void startProcess(QString prog, QStringList args);
@@ -47,8 +43,9 @@ private:
   bool ok;
   bool err;
   QUrl src;
-  QFile dst;
-  bool dontArchive;
+  QFile *dst;
+  QFile *previewDst;
 };
 
 #endif
+  

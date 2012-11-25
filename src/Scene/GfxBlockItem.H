@@ -6,6 +6,7 @@
 
 #include "BlockItem.H"
 #include <Qt>
+#include <QUrl>
 
 class GfxBlockItem: public BlockItem {
   Q_OBJECT;
@@ -13,7 +14,7 @@ public:
   GfxBlockItem(class GfxBlockData *data, Item *parent=0);
   virtual ~GfxBlockItem();
   GfxBlockData *data(); // benevolently hides inherited version
-  Item *newImage(QImage img, QUrl const *src, QPointF xy);
+  Item *newImage(QImage img, QUrl src, QPointF xy);
   Item *newImage(QUrl src, QPointF xy);
   void paint(QPainter *, const QStyleOptionGraphicsItem *, QWidget *);
   virtual QRectF boundingRect() const;

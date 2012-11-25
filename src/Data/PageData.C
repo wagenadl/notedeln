@@ -5,6 +5,7 @@
 #include "TitleData.H"
 #include <QDebug>
 #include "Notebook.H"
+#include "Resources.H"
 
 static Data::Creator<PageData> c("page");
 
@@ -120,14 +121,10 @@ Notebook *PageData::book() const {
   return nb;
 }
 
-ResourceManager *PageData::resMgr() const {
+Resources *PageData::resources() const {
   if (!this)
     return 0; // for convenience, allow to be called without a page
-  
-  if (nb) 
-    return nb->resMgr(startPage_);
-  else
-    return 0;
+  return firstChild<Resources>();
 }
 
 PageData const *PageData::page() const {

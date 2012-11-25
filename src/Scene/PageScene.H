@@ -44,7 +44,7 @@ private:
 			     class QMimeData const *md,
 			     bool dropped);
   bool importDroppedImage(QPointF scenePos, QImage const &img,
-			  class QUrl const *source=0);
+			  class QUrl const &source);
   bool importDroppedUrls(QPointF scenePos, QList<class QUrl> const &url,
 			 bool dropped);
   bool importDroppedUrl(QPointF scenePos, class QUrl const &url,

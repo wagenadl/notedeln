@@ -5,7 +5,7 @@
 #include <QDebug>
 #include "TextItem.H"
 #include "Style.H"
-#include "ResourceManager.H"
+#include "Resources.H"
 #include "HoverRegion.H"
 
 TextMarkings::TextMarkings(TextData *data, TextItem *parent):
@@ -58,10 +58,7 @@ void TextMarkings::applyMark(Span const &span) {
     f.setVerticalAlignment(QTextCharFormat::AlignSubScript);
     break;
   case MarkupData::Link:
-    if (span.archivedUrl)
-      f.setForeground(parent()->style().color("archived-url-color"));
-    else
-      f.setForeground(parent()->style().color("url-color"));
+    f.setForeground(parent()->style().color("url-color"));
     break;
   case MarkupData::FootnoteRef:
     f.setForeground(parent()->style().color("customref-color"));
@@ -92,7 +89,6 @@ void TextMarkings::foundUrl(QString url) {
     if (txt.startsWith("www."))
       txt = "http://" + txt;
     if (md->style()==MarkupData::Link && txt==url) {
-      (*i).archivedUrl = true;
       applyMark(*i);
       return;
     }
@@ -179,12 +175,6 @@ TextMarkings::Span::Span(MarkupData *data, TextMarkings *tm): data(data) {
   if (tm && (data->style()==MarkupData::FootnoteRef
 	     || data->style()==MarkupData::Link))
     refText = tm->parent()->markedText(data);
-  if (tm && data->style()==MarkupData::Link) {
-    QUrl url = refText.startsWith("www.") ? ("http://" + refText) : refText;
-    archivedUrl = !data->resMgr()->resName(url).isEmpty();
-  } else {
-    archivedUrl = false;
-  }    
 }
 
 bool TextMarkings::Span::operator<(TextMarkings::Span const &other) const {
@@ -211,7 +201,6 @@ bool TextMarkings::Span::update(TextItem *item,
     if (newRef != refText) {
       QUrl url = newRef.startsWith("www.") ? ("http://" + newRef) : newRef;
       qDebug() << url;
-      archivedUrl = !data->resMgr()->resName(url).isEmpty();
       markings->applyMark(*this);
       refText = newRef;
     }

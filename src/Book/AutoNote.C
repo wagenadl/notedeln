@@ -4,7 +4,7 @@
 #include "AutoNote.H"
 #include "TextItem.H"
 #include "Style.H"
-#include "ResourceManager.H"
+#include "Resources.H"
 #include "TextData.H"
 #include "JSONFile.H"
 
@@ -68,10 +68,12 @@ static bool autoNoteBiblio(QString tag, TextItem *dest, Style const &st) {
     }
   }
 
+  /* get the paper? 
   if (st.contains("bib-dir"))
-    dest->data()->resMgr()->linkCustom(tag,
-				       "file://" + st.string("bib-dir")
-				       + "/" + tag + ".pdf");
+    dest->data()->resources()->linkCustom(tag,
+					  "file://" + st.string("bib-dir")
+					  + "/" + tag + ".pdf");
+  */
   return true;
 }
 

@@ -9,8 +9,7 @@
 class PreviewPopper: public QObject {
   Q_OBJECT;
 public:
-  PreviewPopper(class ResourceManager *resmgr, QString resname,
-		QPoint center, QObject *parent);
+  PreviewPopper(class Resource *res, QPoint center, QObject *parent);
   virtual ~PreviewPopper();
   QWidget *popup(); // open popup immediately and return widget pointer
   // or zero if resource not available
@@ -19,8 +18,7 @@ protected:
 private:
   void smartPosition();
 private:
-  ResourceManager *resmgr;
-  QString resname;
+  Resource *res;
   QPoint center;
   class QWidget *widget;
   int timerID;

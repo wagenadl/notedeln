@@ -6,7 +6,7 @@
 #include "ModSnooper.H"
 #include "PageScene.H"
 #include "Style.H"
-#include "ResourceManager.H"
+#include "Resources.H"
 #include "HoverRegion.H"
 #include "BlockItem.H"
 

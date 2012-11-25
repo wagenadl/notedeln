@@ -51,7 +51,7 @@ public:
   virtual class PageData const *page() const; // pointer to ...
   virtual class PageData *page(); // ... parent page, if any.
   virtual class Notebook *book() const; // pointer to parent book, if any.
-  virtual class ResourceManager *resMgr() const; // if any.
+  virtual class Resources *resources() const; // if any.
 signals:
   void mod();
 protected:

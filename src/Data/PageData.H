@@ -28,7 +28,7 @@ public:
   int sheetCount() const;
   void setBook(class Notebook *nb);      // } This is for use by items that 
   Notebook *book() const;                // } wish to use resources. We don't
-  class ResourceManager *resMgr() const; // } use it ourselves.
+  Resources *resources() const;          // } use it ourselves.
   PageData const *page() const;
   PageData *page();
   bool isEmpty() const; // true iff no blocks and title is default

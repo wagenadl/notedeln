@@ -24,7 +24,6 @@ public:
   PageFile *createPage(int pgno); // } sheet of a
   bool deletePage(int pgno);      // } Page
   class TOC *toc() const;
-  class ResourceManager *resMgr(int pgno);
   class BookData *bookData() const;
   class Style const &style() const;
   QString filePath(QString) const;
@@ -37,7 +36,6 @@ private slots:
   void sheetCountMod();
 private:
   QDir root;
-  QMap<int, ResourceManager *> resMgrs;
   QMap<int, PageFile *> pgFiles;
   TOCFile *tocFile_;
   BookFile *bookFile_;

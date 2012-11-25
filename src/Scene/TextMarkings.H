@@ -33,7 +33,6 @@ private:
   public:
     MarkupData *data;
     QString refText;
-    bool archivedUrl;
   public:
     Span(MarkupData *data, TextMarkings *tm=0);
     bool cut(int pos, int len);

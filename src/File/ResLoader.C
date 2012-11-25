@@ -1,6 +1,7 @@
-// ResourceLoader.C
+// ResLoader.C
 
-#include "ResourceLoader.H"
+#include "ResLoader.H"
+
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QNetworkRequest>
@@ -10,25 +11,49 @@
 #include <QVariant>
 #include <QProgressDialog>
 #include <QProcess>
+#include <QTemporaryFile>
 
-QNetworkAccessManager &ResourceLoader::nam() {
+QNetworkAccessManager &ResLoader::nam() {
   static QNetworkAccessManager n;
   return n;
 }
 
-ResourceLoader::ResourceLoader(QUrl const &src0, QString dst0, QObject *parent,
-			       bool dontArchive):
-  QObject(parent), src(src0), dst(dst0), dontArchive(dontArchive) {
-  QNetworkRequest rq(src);
-  ok = err = false;
+void ResLoader::init() {
+  ok = false;
+  err = false;
+  dst = 0;
+  previewDst = 0;
   proc = 0;
   qnr = 0;
-  
-  if (!dst.open(QFile::WriteOnly)) {
-    qDebug() << "ResourceLoader: Cannot open dst";
+}
+
+ResLoader::ResLoader(QUrl const &src0, QString dst0, QObject *parent):
+  QObject(parent), src(src0) {
+  init();
+  dst = new QFile(dst0, this);
+  startDownload();
+}
+
+ResLoader::ResLoader(QUrl const &src0, QString dst0, QString prevDst0,
+		     QObject *parent):
+  QObject(parent), src(src0) {
+  init();
+  if (dst0.isEmpty()) 
+    dst = new QTemporaryFile(this);
+  else
+    dst = new QFile(dst0, this);
+  previewDst = new QFile(prevDst0, this);
+  startDownload();
+}
+
+void ResLoader::startDownload() {
+  if (!dst->open(QFile::WriteOnly)) {
+    qDebug() << "ResLoader: Cannot open dst";
     err = true;
     return;
   }
+
+  QNetworkRequest rq(src);
   
   qnr = nam().get(rq);
   connect(qnr, SIGNAL(finished()), SLOT(qnrFinished()), Qt::QueuedConnection);
@@ -37,24 +62,22 @@ ResourceLoader::ResourceLoader(QUrl const &src0, QString dst0, QObject *parent,
   connect(qnr, SIGNAL(readyRead()), SLOT(qnrDataAv()), Qt::QueuedConnection);
 }
 
-ResourceLoader::~ResourceLoader() {
-  if (dontArchive)
-    dst.remove();
+ResLoader::~ResLoader() {
 }
 
-bool ResourceLoader::complete() const {
+bool ResLoader::complete() const {
   return ok;
 }
 
-bool ResourceLoader::failed() const {
+bool ResLoader::failed() const {
   return err;
 }
 
-QString ResourceLoader::mimeType() const {
+QString ResLoader::mimeType() const {
   return qnr->header(QNetworkRequest::ContentTypeHeader).toString();
 }
 
-void ResourceLoader::qnrProgress(qint64 n, qint64 m) {
+void ResLoader::qnrProgress(qint64 n, qint64 m) {
   if (m<=0)
     emit progress(-1);
   else if (n<0)
@@ -63,36 +86,35 @@ void ResourceLoader::qnrProgress(qint64 n, qint64 m) {
     emit progress(int(100*double(n)/double(m)));
 }
 
-void ResourceLoader::qnrDataAv() {
+void ResLoader::qnrDataAv() {
   if (ok || err)
     return;
   QByteArray buf(65536, 0);
   while (true) {
     qint64 n = qnr->read(buf.data(), 65536);
     if (n>0) {
-      qDebug() << "ResourceLoader: read: " << n;
-      dst.write(buf.data(), n);
+      qDebug() << "ResLoader: read: " << n;
+      dst->write(buf.data(), n);
       if (n<65536)
 	break;
     } else if (n==0) {
-      qDebug() << "ResourceLoader: read=0";
+      qDebug() << "ResLoader: read=0";
       break;
     } else {
-      qDebug() << "ResourceLoader: read<0";
+      qDebug() << "ResLoader: read<0";
       qnr->close();
       err = true;
-      dst.remove();
       emit finished();
       break;
     }
   }
 }
 
-void ResourceLoader::qnrFinished() {
+void ResLoader::qnrFinished() {
   if (ok || err)
     return;
 
-  dst.close();
+  dst->close();
   qnr->close(); // needed?
 
   if (qnr->error())
@@ -101,7 +123,7 @@ void ResourceLoader::qnrFinished() {
   if (!err) {
     QVariant attr = qnr->attribute(QNetworkRequest::RedirectionTargetAttribute);
     if (!attr.toString().isEmpty()) {
-      qDebug() << "ResourceLoader: Got redirect, can't deal";
+      qDebug() << "ResLoader: Got redirect, can't deal";
       err = true;
     }
   }
@@ -115,15 +137,13 @@ void ResourceLoader::qnrFinished() {
     }
   }
 
-  if (err)
-    dst.remove();
-  else
+  if (!err)
     ok = true;
 
   emit finished();
 }
 
-bool ResourceLoader::getNow(double timeout_s) {
+bool ResLoader::getNow(double timeout_s) {
   if (ok)
     return true;
   if (err)
@@ -150,7 +170,7 @@ bool ResourceLoader::getNow(double timeout_s) {
     return false; // this does *not* necessarily mean error
 }
 
-bool ResourceLoader::getNowDialog(double delay_s) {
+bool ResLoader::getNowDialog(double delay_s) {
   if (getNow(delay_s))
     return true;
   if (err)
@@ -172,52 +192,40 @@ bool ResourceLoader::getNowDialog(double delay_s) {
     return true;
 
   qnr->abort();
-  qDebug() << "ResourceLoader: Aborted upon user request";
+  qDebug() << "ResLoader: Aborted upon user request";
   err = true;
-  dst.close();
-  dst.remove();
+  dst->close();
   return false;
 }
 
-void ResourceLoader::processError() {
-  qDebug() << "ResourceLoader: process error for " << src << proc->error();
+void ResLoader::processError() {
+  qDebug() << "ResLoader: process error for " << src << proc->error();
   qDebug() << proc->exitCode() << proc->exitStatus();
   qDebug() << proc->readAllStandardOutput();
   qDebug() << proc->readAllStandardError();
-  exit(1);
   err = true;
   qDebug() << "  failed";
-  QFile pdf(dst.fileName() + ".pdf");
-  pdf.remove();
-  QFile png(dst.fileName() + ".png");
-  png.remove();
   emit finished();
 }  
 
-void ResourceLoader::processFinished() {
-  qDebug() << "ResourceLoader: process finished for " << src;
+void ResLoader::processFinished() {
+  qDebug() << "ResLoader: process finished for " << src;
   qDebug() << proc->readAllStandardOutput();
   qDebug() << proc->readAllStandardError();
   if (ok || err) // that means that processError took care of it already.
     return; 
-  if (proc->exitStatus()!=QProcess::NormalExit
-      || proc->exitCode()!=0) {
+  if (proc->exitStatus()!=QProcess::NormalExit || proc->exitCode()!=0) {
     // that didn't work
     err = true;
     qDebug() << "  failed";
-    QFile pdf(dst.fileName() + ".pdf");
-    pdf.remove();
-    QFile png(dst.fileName() + ".png");
-    png.remove();
   } else {
     qDebug() << "  success";
     ok = true;
-    // that did work
   }
   emit finished();
 }
 
-void ResourceLoader::startProcess(QString prog, QStringList args) {
+void ResLoader::startProcess(QString prog, QStringList args) {
   proc = new QProcess(this);
   qDebug() << "startProcess" << prog << args;
   connect(proc, SIGNAL(finished(int, QProcess::ExitStatus)),
@@ -229,8 +237,10 @@ void ResourceLoader::startProcess(QString prog, QStringList args) {
   proc->closeWriteChannel();
 }
 
-bool ResourceLoader::makeThumb(QString mimetype) {
-  qDebug() << "ResourceLoader::makeThumb" << mimetype;
+bool ResLoader::makeThumb(QString mimetype) {
+  Q_ASSERT(dst);
+  Q_ASSERT(previewDst);
+  qDebug() << "ResLoader::makeThumb" << mimetype;
   if (mimetype.isEmpty()) {
     QStringList bits = src.path().split(".");
     if (!bits.isEmpty())
@@ -245,8 +255,8 @@ bool ResourceLoader::makeThumb(QString mimetype) {
     args.append("-scale-to");
     args.append("480");
     args.append("-png");
-    args.append(dst.fileName());
-    args.append(dst.fileName());
+    args.append(dst->fileName());
+    args.append(previewDst->fileName());
     startProcess("pdftoppm", args);
     return true;
   } else {
@@ -254,12 +264,14 @@ bool ResourceLoader::makeThumb(QString mimetype) {
   }
 }
 
-void ResourceLoader::makePdfAndThumb() {
+void ResLoader::makePdfAndThumb() {
+  Q_ASSERT(dst);
+  Q_ASSERT(previewDst);
   QStringList args;
   args.append("-480");
   args.append(src.toString());
-  args.append(dst.fileName()+".pdf");
-  args.append(dst.fileName()+".png");
+  args.append(dst->fileName());
+  args.append(previewDst->fileName());
   startProcess("webgrab", args);
 }
 

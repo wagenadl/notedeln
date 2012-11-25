@@ -1,16 +1,16 @@
 // PreviewPopper.C
 
 #include "PreviewPopper.H"
-#include "ResourceManager.H"
+#include "Resource.H"
 #include <QApplication>
 #include <QDesktopWidget>
 #include <QLabel>
 #include <QGraphicsSceneHoverEvent>
 #include <QDebug>
 
-PreviewPopper::PreviewPopper(ResourceManager *resmgr, QString resname,
+PreviewPopper::PreviewPopper(Resource *res,
 			     QPoint center, QObject *parent):
-  QObject(parent), resmgr(resmgr), resname(resname), center(center) {
+  QObject(parent), res(res), center(center) {
   widget = 0;
   timerID = startTimer(100);
 }
@@ -27,6 +27,9 @@ void PreviewPopper::timerEvent(QTimerEvent *) {
 }
 
 QWidget *PreviewPopper::popup() {
+  if (!res->hasPreview())
+    return 0;
+  
   if (widget) {
     smartPosition();
     widget->show();
@@ -34,7 +37,7 @@ QWidget *PreviewPopper::popup() {
   }
 
   QPixmap p;
-  if (!p.load(resmgr->previewPath(resname)))
+  if (!p.load(res->previewPath()))
     return 0;
   
   QLabel *label = new QLabel(0, Qt::FramelessWindowHint);

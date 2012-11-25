@@ -266,9 +266,9 @@ Notebook *Data::book() const {
   return p ? p->book() : 0;
 }
 
-ResourceManager *Data::resMgr() const {
+Resources *Data::resources() const {
   PageData const *pg = page();
-  return pg ? pg->resMgr() : 0;
+  return pg ? pg->resources() : 0;
 }
 
 bool Data::loading() const {

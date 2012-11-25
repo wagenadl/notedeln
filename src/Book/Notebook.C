@@ -2,7 +2,6 @@
 
 #include "Notebook.H"
 #include "TOC.H"
-#include "ResourceManager.H"
 #include "PageFile.H"
 #include "TitleData.H"
 #include "Style.H"
@@ -74,16 +73,6 @@ Notebook *Notebook::create(QString path) {
   return nb;
 }
 
-ResourceManager *Notebook::resMgr(int pgno) {
-  if (resMgrs.contains(pgno))
-    return resMgrs[pgno];
-  ResourceManager *r
-    = new ResourceManager(root.absoluteFilePath(QString("res/%1").arg(pgno)),
-			  this);
-  resMgrs[pgno] = r;
-  return r;
-}
-
 TOC *Notebook::toc() const {
   return tocFile_->data();
 }
@@ -95,10 +84,8 @@ bool Notebook::hasPage(int n) const {
 PageFile *Notebook::page(int n)  {
   if (pgFiles.contains(n))
     return pgFiles[n];
-  PageFile *f = PageFile::load(root.filePath(QString("pages/%1.json").arg(n)),
-			       this);
-  if (!f)
-    return 0;
+  PageFile *f = loadPage(QDir(root.filePath("pages")), n, this);
+  Q_ASSERT(f);
   pgFiles[n] = f;
 
   f->data()->setBook(this);
@@ -109,8 +96,7 @@ PageFile *Notebook::page(int n)  {
 
 PageFile *Notebook::createPage(int n) {
   Q_ASSERT(!pgFiles.contains(n));
-  PageFile *f = PageFile::create(root.filePath(QString("pages/%1.json").arg(n)),
-				 this);
+  PageFile *f = ::createPage(root.filePath("pages"), n, this);
   if (!f)
     return 0;
   pgFiles[n] = f;
@@ -136,10 +122,6 @@ bool Notebook::deletePage(int pgno) {
     return false;
   }
 
-  if (resMgrs.contains(pgno)) {
-    delete resMgrs[pgno];
-    resMgrs.remove(pgno);
-  }
   pgFiles[pgno]->cancelSave();
   delete pgFiles[pgno];
   pgFiles.remove(pgno);

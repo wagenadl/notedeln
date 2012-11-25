@@ -10,7 +10,7 @@
 #include "PageData.H"
 #include "GfxBlockItem.H"
 #include "GfxBlockData.H"
-#include "ResourceManager.H"
+#include "Resources.H"
 #include "ModSnooper.H"
 #include "FootnoteGroupItem.H"
 #include "FootnoteData.H"
@@ -769,7 +769,8 @@ bool PageScene::importDroppedOrPasted(QPointF scenePos,
   bool accept = false;
   if (md->hasImage()) 
     accept = importDroppedImage(scenePos,
-				qvariant_cast<QImage>(md->imageData()));
+				qvariant_cast<QImage>(md->imageData()),
+				QUrl());
   else if (md->hasUrls()) 
     accept = importDroppedUrls(scenePos, md->urls(), dropped);
   else if (md->hasText())
@@ -778,7 +779,7 @@ bool PageScene::importDroppedOrPasted(QPointF scenePos,
 }
 
 bool PageScene::importDroppedImage(QPointF scenePos, QImage const &img,
-				   QUrl const *source) {
+				   QUrl const &source) {
   // Return true if we want it
   /* If dropped on an existing gfxblock, insert it there.
      If dropped on belowItem, insert after last block on page.
@@ -849,7 +850,7 @@ bool PageScene::importDroppedUrl(QPointF scenePos,
   if (url.isLocalFile()) {
     QImage image = QImage(url.toLocalFile());
     if (!image.isNull())
-      return importDroppedImage(scenePos, image, &url);
+      return importDroppedImage(scenePos, image, url);
     else
       return importDroppedFile(scenePos, url.toLocalFile());
   } else if (networkManager) {
