@@ -4,6 +4,7 @@
 #include "TextItem.H"
 #include "PreviewPopper.H"
 #include "ResManager.H"
+#include "ResourceMagic.H"
 
 #include <QPainter>
 #include <QGraphicsSceneHoverEvent>
@@ -19,6 +20,8 @@ HoverRegion::HoverRegion(class MarkupData *md, class TextItem *item,
   QGraphicsObject(parent), md(md), ti(item) {
   start = end = -1;
   popper = 0;
+  busy = false;
+  lastRef = "";
   setAcceptHoverEvents(true);
 }
 
@@ -33,9 +36,15 @@ QRectF HoverRegion::boundingRect() const {
 void HoverRegion::paint(QPainter *p,
 			const QStyleOptionGraphicsItem *,
 			QWidget *) {
+  if (!resource())
+    getArchiveAndPreview();
   calcBounds();
   p->setPen(Qt::NoPen);
-  QColor c("#0088ff");
+  QColor c;
+  if (hasArchive() || hasPreview())
+    c = QColor("#0088ff");
+  else
+    c = QColor("#ff0000");    
   c.setAlpha(16);
   p->setBrush(c);
   p->drawPath(bounds); // just for debugging: let's show ourselves
@@ -73,8 +82,6 @@ void HoverRegion::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *e) {
   }
 }
 
-
-
 void HoverRegion::hoverEnterEvent(QGraphicsSceneHoverEvent *e) {
   if (popper) {
     popper->popup();
@@ -94,6 +101,25 @@ void HoverRegion::hoverLeaveEvent(QGraphicsSceneHoverEvent *) {
   if (popper) 
     popper->deleteLater();
   popper = 0;
+}
+
+Resource *HoverRegion::resource() const {
+  ResManager *resmgr = md->resManager();
+  if (!resmgr) {
+    qDebug() << "HoverRegion: no resource manager";
+    return 0;
+  }
+  return resmgr->byTag(refText());
+}
+
+bool HoverRegion::hasArchive() const {
+  Resource *res = resource();
+  return res ? res->hasArchive() : false;
+}
+
+bool HoverRegion::hasPreview() const {
+  Resource *res = resource();
+  return res ? res->hasPreview() : false;
 }
 
 QString HoverRegion::refText() const {
@@ -141,3 +167,54 @@ void HoverRegion::openLink(QString txt) {
   qDebug() << "HoverRegion: openURL " << txt;
 }
 
+void HoverRegion::getArchiveAndPreview() {
+  qDebug() << "HoverRegion: getArchiveAndPreview" << refText() << lastRef << busy;
+  if (refText()==lastRef || busy)
+    return; // we know we can't do it
+
+  ResManager *resmgr = md->resManager();
+  if (!resmgr) {
+    qDebug() << "HoverRegion: no resource manager";
+    return;
+  }
+  lastRef = refText();
+  Resource *r = resmgr->byTag(lastRef);
+  if (r) {
+    lastRefIsNew = false;
+  } else {
+    r = md->resManager()->newResource(lastRef);
+    lastRefIsNew = true;
+  }
+  ResourceMagic::magicLink(r);
+  connect(r, SIGNAL(finished()), SLOT(downloadFinished()));
+  busy = true;
+  r->getArchiveAndPreview();
+}
+
+void HoverRegion::downloadFinished() {
+  qDebug() << "HoverRegion::downloadFinished";
+  Q_ASSERT(resource());
+  Q_ASSERT(busy);
+  if (refText()!=lastRef) {
+    // we have already changed; so we're not interested in the results
+    // anymore
+    if (lastRefIsNew) {
+      ResManager *resmgr = md->resManager();
+      Resource *r = resmgr->byTag(lastRef);
+      resmgr->dropResource(r);
+    }
+  } else {
+    if (hasArchive() || hasPreview()) {
+      // at least somewhat successful
+      update();
+    } else {
+      // failure
+      if (lastRefIsNew) {
+	ResManager *resmgr = md->resManager();
+	Resource *r = resmgr->byTag(lastRef);
+	resmgr->dropResource(r);
+      }
+    }
+  }
+  busy = false;
+}

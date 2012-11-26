@@ -113,11 +113,21 @@ bool Resource::import() {
   return ok;
 }
 
+static QString safeFileName(QString fn) {
+  qDebug() << "safeFileName" << fn;
+  fn.replace(QRegExp("[^-\\w._]"), "-");
+  if (fn.isEmpty())
+    fn = "_empty_";
+  qDebug() << " -> " << fn;
+  return fn;
+}
+
 void Resource::getArchive() {
   if (loader)
     return; // can't start another one
   if (arch.isEmpty())
-    arch = tag_;
+    arch = safeFileName(tag_);
+  ensureDir();
   loader = new ResLoader(src, archivePath(), this);
   connect(loader, SIGNAL(finished()), SLOT(downloadFinished()));
 }
@@ -126,9 +136,10 @@ void Resource::getArchiveAndPreview() {
   if (loader)
     return; // can't start another one
   if (arch.isEmpty())
-    arch = tag_;
+    arch = safeFileName(tag_);
   if (prev.isEmpty())
-    prev = tag_ + ".png";
+    prev = safeFileName(tag_ + ".png");
+  ensureDir();
   loader = new ResLoader(src, archivePath(), previewPath(), this);
   connect(loader, SIGNAL(finished()), SLOT(downloadFinished()));
 }
@@ -137,7 +148,7 @@ void Resource::getPreviewOnly() {
   if (loader)
     return; // can't start another one
   if (prev.isEmpty())
-    prev = tag_ + ".png";
+    prev = safeFileName(tag_ + ".png");
   ensureDir();
   loader = new ResLoader(src, "", previewPath(), this);
   connect(loader, SIGNAL(finished()), SLOT(downloadFinished()));

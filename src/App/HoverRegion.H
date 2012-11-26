@@ -21,10 +21,16 @@ protected:
   virtual void mouseDoubleClickEvent(QGraphicsSceneMouseEvent *);
   virtual void hoverEnterEvent(QGraphicsSceneHoverEvent *);
   virtual void hoverLeaveEvent(QGraphicsSceneHoverEvent *);
+private slots:
+  void downloadFinished();
 private:
   QString refText() const;
   void calcBounds() const;
   void openLink(QString);
+  void getArchiveAndPreview();
+  bool hasArchive() const;
+  bool hasPreview() const;
+  class Resource *resource() const;
 private:
   MarkupData *md;
   TextItem *ti;
@@ -32,6 +38,9 @@ private:
   class PreviewPopper *popper;
   mutable int start;
   mutable int end;
+  QString lastRef;
+  bool lastRefIsNew;
+  bool busy;
 };
 
 #endif

@@ -29,7 +29,7 @@ readfiles();
 readscholar();
 
 chdir("$ENV{HOME}/bib");
-mkdir("abstracts");
+mkdir("abstracts") unless -d "abstracts";
 open OUT,">bib.json" or die "Cannot open bib.json\n";
 header();
 body();
@@ -37,7 +37,7 @@ footer();
 close OUT;
 
 sub readfiles {
-  opendir DIR, "$ENV{HOME}/papers" or die "Cannot open papers directory\n";
+  opendir DIR, "$ENV{HOME}/papers" or opendir DIR, "$ENV{HOME}/werk/papers" or die "Cannot open papers directory\n";
   for my $f (readdir DIR) {
     chomp $f;
     $f =~ /^([CK]?\d\d-[A-Za-z0-9]+)(.*)/ and $files{$1} = $f;
@@ -63,9 +63,25 @@ sub body {
   biblio();
 }
 
+sub idcmp {
+  my $a = shift;
+  my $b = shift;
+  $a =~ s/^[A-Z]?(\d+)/$1/;
+  my $ya = $1;
+  $b =~ s/^[A-Z]?(\d+)/$1/;
+  my $yb = $1;
+  $ya+=2000 if $ya<30;
+  $yb+=2000 if $yb<30;
+  $ya+=1900 if $ya<100;
+  $yb+=1900 if $yb<100;
+  my $yd = $ya <=> $yb;
+  return $yd if $yd;
+  return $a cmp $b;
+}
+
 sub biblio {
   my @arts = sort { cfauthors($a,$b) } (values %writings);
-  for (@arts) {
+  for (sort { idcmp($a->{id}, $b->{id}) } @arts) {
     my $ty = $_->{ty};
     my $id = $_->{id};
     next if $id =~ /^D/;

@@ -11,6 +11,9 @@
 class ResLoader: public QObject {
   Q_OBJECT;
 public:
+  /* These constructors should be replaced by constructors that just
+     take a Resource *, and that have the option of changing the
+     archive filename. */
   ResLoader(QUrl const &src, QString dst, QObject *parent=0);
   ResLoader(QUrl const &src, QString dst, QString prevDst, QObject *parent=0);
   virtual ~ResLoader();

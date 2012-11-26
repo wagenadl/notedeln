@@ -9,6 +9,7 @@
 #include "ResManager.H"
 #include "HoverRegion.H"
 #include "BlockItem.H"
+#include "ResourceMagic.H"
 
 #include <QFont>
 #include <QTextDocument>
@@ -293,39 +294,18 @@ bool TextItem::tryAutoLink() {
      Additionally, if the character before us is ".", it will not be part
      of the URL.
   */
-  QTextCursor c = textCursor();
-  QTextCursor m = document()->find(QRegExp("(file|https?)://"), c,
-					QTextDocument::FindBackward);
-  // look for http or https
-  if (m.hasSelection()) {
-    QTextCursor url(c);
-    url.setPosition(m.selectionStart(), QTextCursor::KeepAnchor);
-    if (url.selectedText().contains(QRegExp("[,;\\s]")))
-      m.clearSelection();
-  }
-  if (!m.hasSelection()) {
-    // alternatively, look for just plain www
-    m = document()->find(QRegExp("\\bwww\\."), c, QTextDocument::FindBackward);
-    if (m.hasSelection()) {
-      QTextCursor url(c);
-      url.setPosition(m.selectionStart(), QTextCursor::KeepAnchor);
-      if (url.selectedText().contains(QRegExp("[,;\\s]")))
-	m.clearSelection();
-    }
-  }
-  if (m.hasSelection()) {
-    // gotcha
-    int endpos = c.position();
-    if (document()->characterAt(endpos-1)==QChar('.'))
-      endpos--;
-    MarkupData *oldmd = markupAt(endpos, MarkupData::Link);
-    if (oldmd && oldmd->start()==m.selectionStart() && oldmd->end()==endpos)
-      return false; // preexisting
-    addMarkup(MarkupData::Link, m.selectionStart(), endpos);
-    return true;
-  } else {
+  QTextCursor m = ResourceMagic::autoLinkAt(textCursor(), style());
+  if (!m.hasSelection())
     return false;
-  }
+  
+  // gotcha
+  int start = m.selectionStart();
+  int end = m.selectionEnd();
+  MarkupData *oldmd = markupAt(end, MarkupData::Link);
+  if (oldmd && oldmd->start()==start && oldmd->end()==end)
+    return false; // preexisting
+  addMarkup(MarkupData::Link, start, end);
+  return true;
 }
 
 void TextItem::toggleSimpleStyle(MarkupData::Style type) {
@@ -414,38 +394,12 @@ QString TextItem::markedText(MarkupData *md) {
 }
 
 bool TextItem::tryExplicitLink() {
-  qDebug() << "Try link";
-  Q_ASSERT(pageScene());
-  int i = pageScene()->findBlock(this);
-  Q_ASSERT(i>=0);
-  QTextCursor c = textCursor();
-  MarkupData *oldmd = markupAt(c.position(), MarkupData::Link);
-  int start=-1;
-  int end=-1;
-  if (c.hasSelection()) {
-    start = c.selectionStart();
-    end = c.selectionEnd();
-  } else {
-    // this gets complicated
-    // for now, just grab anything w/o spaces and remove punctuation at end
-    QTextCursor m = document()->find(QRegExp("\\s"), c,
-				     QTextDocument::FindBackward);
-    start = m.hasSelection() ? m.selectionEnd() : 0;
-    m = document()->find(QRegExp("\\s"), c);
-    if (m.hasSelection()) {
-      end = m.selectionStart();
-      m = document()->find(QRegExp("\\w"), m,
-			   QTextDocument::FindBackward);
-      if (m.hasSelection())
-	end = m.selectionEnd();
-      else
-	end = -1;
-    } else {
-      m = textCursor();
-      m.movePosition(QTextCursor::End);
-      end = m.position();
-    }
-  }
+  QTextCursor m = ResourceMagic::explicitLinkAt(textCursor(), style());
+  if (!m.hasSelection())
+    return false;
+  int start = m.selectionStart();
+  int end = m.selectionEnd();
+  MarkupData *oldmd = markupAt(end, MarkupData::Link);
   if (oldmd && oldmd->start()==start && oldmd->end()==end) {
     // undo link mark
     markings_->deleteMark(oldmd);
@@ -457,36 +411,6 @@ bool TextItem::tryExplicitLink() {
     return false;
   }
 }
-
-/* Code for actually looking up a link: This is going to be done by
-   TextMarkings/HoverRegion instead.
-
-  if (md) {
-    QString txt = markedText(md);
-    QUrl url(txt.startsWith("www.") ? ("http://"+txt) : txt);
-    if (!url.isValid()) {
-      qDebug() << "Invalid url:" << url;
-      return false;
-    }
-    Q_ASSERT(data()->book());
-    Q_ASSERT(data()->resMgr());
-    connect(data()->resMgr(), SIGNAL(finished(QString)),
-	    this, SLOT(linkFinished(QString)),
-	    Qt::UniqueConnection);
-    data()->resMgr()->link(url);
-    return true;
-  } else {
-    return false;
-  }
-}
-
-void TextItem::linkFinished(QString resName) {
-  if (!data()->resMgr()->contains(resName))
-    return; // failed
-  QString url = data()->resMgr()->url(resName).toString();
-  markings_->foundUrl(url);
-}
-*/
 
 bool TextItem::tryFootnote() {
   Q_ASSERT(pageScene());

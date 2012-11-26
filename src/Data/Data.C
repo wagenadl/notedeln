@@ -87,11 +87,25 @@ QVariantMap Data::save() const {
   return dst;
 }
 
+void Data::loadResTags(QVariantMap const &src) {
+  resTags.clear();
+
+  if (!src.contains("res"))
+    return;
+
+  QVariantList l = src["res"].toList();
+  foreach (QVariant v, l) 
+    resTags.append(v.toString());
+}
+
 void Data::loadChildren(QVariantMap const &src) {
   foreach (Data *d, children_)
     delete d;
   children_.clear();
 
+  if (!src.contains("cc"))
+    return;
+  
   QVariantList l = src["cc"].toList();
   foreach (QVariant v, l) {
     QVariantMap m = v.toMap();
@@ -105,7 +119,20 @@ void Data::loadChildren(QVariantMap const &src) {
   }
 }
 
+void Data::saveResTags(QVariantMap &dst) const {
+  if (resTags.isEmpty())
+    return;
+  
+  QVariantList l;
+  foreach (QString s, resTags)
+    l.append(s);
+  dst["res"] = l;
+}
+
 void Data::saveChildren(QVariantMap &dst) const {
+  if (children_.isEmpty())
+    return;
+  
   QVariantList l;
   foreach (Data *d, children_) {
     QVariantMap m = d->save();
@@ -226,7 +253,7 @@ void Data::saveProps(QVariantMap &dst) const {
     QMetaProperty metaprop = metaobj->property(i);
     char const *n = metaprop.name();
     QString name = QString::fromLatin1(n);
-    if (name!="objectName" && metaprop.isReadable())
+    if (name!="objectName" && metaprop.isReadable()) 
       dst[name] = property(n);
   }
 }
