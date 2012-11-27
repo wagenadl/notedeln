@@ -74,7 +74,9 @@ bool ResLoader::failed() const {
 }
 
 QString ResLoader::mimeType() const {
-  return qnr->header(QNetworkRequest::ContentTypeHeader).toString();
+  QString mime = qnr->header(QNetworkRequest::ContentTypeHeader).toString();
+  int idx = mime.indexOf(";");
+  return (idx>=0) ? mime.left(idx) : mime;
 }
 
 void ResLoader::qnrProgress(qint64 n, qint64 m) {
@@ -129,7 +131,7 @@ void ResLoader::qnrFinished() {
   }
   
   if (!err) {
-    if (mimeType().startsWith("text/html")) {
+    if (mimeType()=="text/html") {
       makePdfAndThumb();
       return;
     } else if (makeThumb(mimeType())) {
@@ -246,8 +248,8 @@ bool ResLoader::makeThumb(QString mimetype) {
     if (!bits.isEmpty())
       mimetype = bits.last();
   }
-  if (mimetype.contains("application/pdf") ||
-      mimetype.contains("application/x-pdf") || mimetype=="pdf") {
+  if (mimetype=="application/pdf" ||
+      mimetype=="application/x-pdf") {
     QStringList args;
     args.append("-l");
     args.append("1");
@@ -267,12 +269,30 @@ bool ResLoader::makeThumb(QString mimetype) {
 void ResLoader::makePdfAndThumb() {
   Q_ASSERT(dst);
   Q_ASSERT(previewDst);
+  QString fn = dst->fileName();
+  if (!fn.endsWith(".pdf")) {
+    fn += ".pdf";
+    dst->setFileName(fn);
+  }
   QStringList args;
   args.append("-480");
   args.append(src.toString());
-  args.append(dst->fileName());
-  args.append(previewDst->fileName());
+  args.append(fn);
+  QString pfn = previewDst->fileName();
+  if (!pfn.isEmpty())
+    args.append(pfn);
   startProcess("webgrab", args);
 }
 
-  
+QString ResLoader::archiveFilename() const {
+  return dst ? dst->fileName() : "";
+}
+
+QString ResLoader::mime2ext(QString mime) {
+  if (mime=="application/pdf" || mime=="application/x-pdf")
+    return "pdf";
+  else if (mime=="text/html")
+    return "html";
+  else
+    return "";
+}

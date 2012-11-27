@@ -155,6 +155,10 @@ void Resource::getPreviewOnly() {
 }
 
 void Resource::downloadFinished() {
+  QString newArch = dir.relativeFilePath(loader->archiveFilename());
+  if (newArch!=arch)
+    setArchiveFilename(newArch);
+  
   if (loader->failed()) {
     if (!arch.isEmpty())
       dir.remove(arch);

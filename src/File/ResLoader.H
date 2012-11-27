@@ -11,9 +11,6 @@
 class ResLoader: public QObject {
   Q_OBJECT;
 public:
-  /* These constructors should be replaced by constructors that just
-     take a Resource *, and that have the option of changing the
-     archive filename. */
   ResLoader(QUrl const &src, QString dst, QObject *parent=0);
   ResLoader(QUrl const &src, QString dst, QString prevDst, QObject *parent=0);
   virtual ~ResLoader();
@@ -24,6 +21,13 @@ public:
   // should we offer networkError() from qnr?
   // In case of error, the DST is deleted.
   QString mimeType() const; // may return "" if not (yet) known
+  QString archiveFilename() const;
+  /* ResLoader may change the name of the destination file by appending
+     a mimetype-dependent extension. Use archiveFilename() upon receiving the
+     finished() signal to check. The preview is never renamed, and no
+     corresponding previewFilename() method is available.
+   */
+  static QString mime2ext(QString);
 signals:
   void finished(); // ok or not
   void progress(int); // percent, or -1 if unknown
