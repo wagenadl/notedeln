@@ -21,7 +21,7 @@ HoverRegion::HoverRegion(class MarkupData *md, class TextItem *item,
   start = end = -1;
   popper = 0;
   busy = false;
-  lastRef = "";
+  lastRef = refText();
   setAcceptHoverEvents(true);
 }
 
@@ -130,6 +130,8 @@ QString HoverRegion::refText() const {
 }
 
 void HoverRegion::forgetBounds() {
+  if (refText() != lastRef) 
+    md->detachResource(lastRef);
   start = end = -1;
   update();
 }
@@ -159,6 +161,8 @@ void HoverRegion::calcBounds() const {
 
   start = md->start();
   end = md->end();
+  if (resource() && !md->resourceTags().contains(refText())) 
+    md->attachResource(refText());
 }
   
 void HoverRegion::openLink(QString txt) {
@@ -193,7 +197,6 @@ void HoverRegion::getArchiveAndPreview() {
 
 void HoverRegion::downloadFinished() {
   qDebug() << "HoverRegion::downloadFinished";
-  Q_ASSERT(resource());
   Q_ASSERT(busy);
   if (refText()!=lastRef) {
     // we have already changed; so we're not interested in the results
@@ -206,6 +209,8 @@ void HoverRegion::downloadFinished() {
   } else {
     if (hasArchive() || hasPreview()) {
       // at least somewhat successful
+      qDebug() << "Attaching new resource" << lastRef;
+      md->attachResource(lastRef);
       update();
     } else {
       // failure

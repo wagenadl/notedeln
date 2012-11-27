@@ -55,6 +55,7 @@ public:
   virtual class ResManager *resManager() const; // if any.
   void attachResource(QString);
   void detachResource(QString);
+  void detachAllResources();
   QStringList const &resourceTags() const;
   void setResourceTags(QStringList const &);
 signals:

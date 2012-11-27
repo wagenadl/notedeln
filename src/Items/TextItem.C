@@ -301,9 +301,13 @@ bool TextItem::tryAutoLink() {
   // gotcha
   int start = m.selectionStart();
   int end = m.selectionEnd();
-  MarkupData *oldmd = markupAt(end, MarkupData::Link);
-  if (oldmd && oldmd->start()==start && oldmd->end()==end)
-    return false; // preexisting
+  MarkupData *oldmd = markupAt(start, end, MarkupData::Link);
+  if (oldmd) {
+    if (oldmd->start()==start && oldmd->end()==end)
+      return false; // preexisting, no significant change
+    else
+      markings_->deleteMark(oldmd);
+  }
   addMarkup(MarkupData::Link, start, end);
   return true;
 }
@@ -374,8 +378,12 @@ void TextItem::addMarkup(MarkupData *d) {
 }
 
 MarkupData *TextItem::markupAt(int pos, MarkupData::Style typ) {
+  return markupAt(pos, pos, typ);
+}
+
+MarkupData *TextItem::markupAt(int start, int end, MarkupData::Style typ) {
   foreach (MarkupData *md, data_->children<MarkupData>()) 
-    if (md->style()==typ && md->end()>=pos && md->start()<=pos)
+    if (md->style()==typ && md->end()>=start && md->start()<=end)
       return md;
   return 0;
 }
@@ -399,7 +407,7 @@ bool TextItem::tryExplicitLink() {
     return false;
   int start = m.selectionStart();
   int end = m.selectionEnd();
-  MarkupData *oldmd = markupAt(end, MarkupData::Link);
+  MarkupData *oldmd = markupAt(start, end, MarkupData::Link);
   if (oldmd && oldmd->start()==start && oldmd->end()==end) {
     // undo link mark
     markings_->deleteMark(oldmd);
@@ -450,7 +458,7 @@ bool TextItem::tryFootnote() {
     return false;
   } else if (start<end) {
     addMarkup(MarkupData::FootnoteRef, start, end);
-    MarkupData *md = markupAt(end, MarkupData::FootnoteRef);
+    MarkupData *md = markupAt(start, end, MarkupData::FootnoteRef);
     Q_ASSERT(md);
     pageScene()->newFootnote(i, markedText(md));
     return true;

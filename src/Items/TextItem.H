@@ -53,6 +53,7 @@ public:
 private:
   void initializeFormat();
   MarkupData *markupAt(int pos, MarkupData::Style type);
+  MarkupData *markupAt(int start, int end, MarkupData::Style type);
   bool tryExplicitLink();
   bool tryFootnote();
   bool tryToPaste();

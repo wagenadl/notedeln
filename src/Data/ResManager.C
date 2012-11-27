@@ -2,6 +2,7 @@
 
 #include "ResManager.H"
 #include <QImage>
+#include <QDebug>
 
 static Data::Creator<ResManager> c("resources");
 
@@ -61,9 +62,20 @@ Resource *ResManager::getPreviewOnly(QUrl source, QString altRes) {
 }
 
 void ResManager::dropResource(Resource *r) {
-  QFile a(r->archivePath()); a.remove();
-  QFile p(r->previewPath()); p.remove();
-  Q_ASSERT(deleteChild(r));
+  if (!r)
+    return;
+  QString ap = r->hasArchive() ? r->archivePath() : "";
+  QString pp = r->hasPreview() ?  r->previewPath() : "";
+  if (!deleteChild(r))
+    qDebug() << "Dropping resource that isn't a child" << r;
+  if (!ap.isEmpty()) {
+    QFile a(ap);
+    a.remove();
+  }
+  if (!pp.isEmpty()) {
+    QFile a(pp);
+    a.remove();
+  }
 }
 
 Resource *ResManager::newResource(QString altRes) {

@@ -1,6 +1,7 @@
 // ResLoader.C
 
 #include "ResLoader.H"
+#include "Resource.H"
 
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
@@ -12,37 +13,27 @@
 #include <QProgressDialog>
 #include <QProcess>
 #include <QTemporaryFile>
+#include <QTextDocument>
+#include <QTextStream>
 
-QNetworkAccessManager &ResLoader::nam() {
+QNetworkAccessManager &ResLoader::networkAccessManager() {
   static QNetworkAccessManager n;
   return n;
 }
 
-void ResLoader::init() {
+ResLoader::ResLoader(Resource *parent): QObject(parent), parentRes(parent) {
+  Q_ASSERT(parentRes);
+  
   ok = false;
   err = false;
   dst = 0;
-  previewDst = 0;
   proc = 0;
   qnr = 0;
-}
+  redirectCount = 0;
 
-ResLoader::ResLoader(QUrl const &src0, QString dst0, QObject *parent):
-  QObject(parent), src(src0) {
-  init();
-  dst = new QFile(dst0, this);
-  startDownload();
-}
+  src = parentRes->sourceURL();
+  dst = new QFile(parentRes->archivePath(), this);
 
-ResLoader::ResLoader(QUrl const &src0, QString dst0, QString prevDst0,
-		     QObject *parent):
-  QObject(parent), src(src0) {
-  init();
-  if (dst0.isEmpty()) 
-    dst = new QTemporaryFile(this);
-  else
-    dst = new QFile(dst0, this);
-  previewDst = new QFile(prevDst0, this);
   startDownload();
 }
 
@@ -55,7 +46,7 @@ void ResLoader::startDownload() {
 
   QNetworkRequest rq(src);
   
-  qnr = nam().get(rq);
+  qnr = networkAccessManager().get(rq);
   connect(qnr, SIGNAL(finished()), SLOT(qnrFinished()), Qt::QueuedConnection);
   connect(qnr, SIGNAL(downloadProgress(qint64, qint64)),
 	  SLOT(qnrProgress(qint64, qint64)), Qt::QueuedConnection);
@@ -63,6 +54,10 @@ void ResLoader::startDownload() {
 }
 
 ResLoader::~ResLoader() {
+  qDebug() << "~ResLoader" << this << qnr;
+  if (qnr)
+    delete qnr; // really? doubtful
+  qDebug() << "~ResLoader done";
 }
 
 bool ResLoader::complete() const {
@@ -104,6 +99,7 @@ void ResLoader::qnrDataAv() {
       break;
     } else {
       qDebug() << "ResLoader: read<0";
+      dst->close();
       qnr->close();
       err = true;
       emit finished();
@@ -113,7 +109,7 @@ void ResLoader::qnrDataAv() {
 }
 
 void ResLoader::qnrFinished() {
-  if (ok || err)
+  if (ok || err) // already finished
     return;
 
   dst->close();
@@ -122,26 +118,49 @@ void ResLoader::qnrFinished() {
   if (qnr->error())
     err = true;
 
-  if (!err) {
-    QVariant attr = qnr->attribute(QNetworkRequest::RedirectionTargetAttribute);
-    if (!attr.toString().isEmpty()) {
-      qDebug() << "ResLoader: Got redirect, can't deal";
-      err = true;
-    }
+  if (err) {
+    emit finished();
+    return;
   }
   
-  if (!err) {
-    if (mimeType()=="text/html") {
-      makePdfAndThumb();
-      return;
-    } else if (makeThumb(mimeType())) {
-      return;
+  QVariant attr = qnr->attribute(QNetworkRequest::RedirectionTargetAttribute);
+  if (!attr.toString().isEmpty()) {
+    qDebug() << "ResLoader: Got redirect";
+    if (++redirectCount >= 10) {
+      qDebug() << "Too many redirects";
+      err = true;
+    } else {
+      qnr->deleteLater();
+      qnr = 0;
+      QUrl newUrl(attr.toString());
+      if (newUrl.host() == src.host() && parentAlive()) {
+	qDebug() << "Accepting redirect of " << src.toString()
+		 << "to" << newUrl.toString();
+	src = newUrl;
+	parentRes->setSourceURL(src);
+	startDownload();
+	return;
+      } else {
+	qDebug() << "Cross-site redirect: refusing" << newUrl.toString();
+	err = true;
+      }
     }
   }
 
-  if (!err)
-    ok = true;
+  if (err) {
+    emit finished();
+    return;
+  }
+  
+  if (mimeType()=="text/html") {
+    getTitleFromHtml();
+    if (makePdfAndPreview())
+      return;
+  } else if (makePreview(mimeType())) {
+    return;
+  }
 
+  ok = true;
   emit finished();
 }
 
@@ -239,17 +258,24 @@ void ResLoader::startProcess(QString prog, QStringList args) {
   proc->closeWriteChannel();
 }
 
-bool ResLoader::makeThumb(QString mimetype) {
-  Q_ASSERT(dst);
-  Q_ASSERT(previewDst);
-  qDebug() << "ResLoader::makeThumb" << mimetype;
+bool ResLoader::parentAlive() const {
+  return parent() == parentRes;
+}
+
+bool ResLoader::makePreview(QString mimetype) {
+  if (!parentAlive())
+    return false;
+  if (parentRes->previewFilename().isEmpty())
+    return false;
+
+  qDebug() << "ResLoader::makePreview" << mimetype;
   if (mimetype.isEmpty()) {
     QStringList bits = src.path().split(".");
     if (!bits.isEmpty())
       mimetype = bits.last();
   }
-  if (mimetype=="application/pdf" ||
-      mimetype=="application/x-pdf") {
+  if (mimetype=="application/pdf" || mimetype=="application/x-pdf"
+      || mimetype=="pdf") {
     QStringList args;
     args.append("-l");
     args.append("1");
@@ -258,7 +284,7 @@ bool ResLoader::makeThumb(QString mimetype) {
     args.append("480");
     args.append("-png");
     args.append(dst->fileName());
-    args.append(previewDst->fileName());
+    args.append(parentRes->previewPath());
     startProcess("pdftoppm", args);
     return true;
   } else {
@@ -266,26 +292,24 @@ bool ResLoader::makeThumb(QString mimetype) {
   }
 }
 
-void ResLoader::makePdfAndThumb() {
-  Q_ASSERT(dst);
-  Q_ASSERT(previewDst);
-  QString fn = dst->fileName();
-  if (!fn.endsWith(".pdf")) {
-    fn += ".pdf";
-    dst->setFileName(fn);
-  }
+bool ResLoader::makePdfAndPreview() {
+  if (!parentAlive())
+    return false;
+
+  dst->remove(); // Remove the html file that we downloaded;
+                 // we archive pdf instead.
+  
+  if (!parentRes->archiveFilename().endsWith(".pdf"))
+    parentRes->setArchiveFilename(parentRes->archiveFilename() + ".pdf");
+
   QStringList args;
   args.append("-480");
   args.append(src.toString());
-  args.append(fn);
-  QString pfn = previewDst->fileName();
-  if (!pfn.isEmpty())
-    args.append(pfn);
+  args.append(parentRes->archivePath());
+  if (!parentRes->previewFilename().isEmpty())
+    args.append(parentRes->previewPath());
   startProcess("webgrab", args);
-}
-
-QString ResLoader::archiveFilename() const {
-  return dst ? dst->fileName() : "";
+  return true;
 }
 
 QString ResLoader::mime2ext(QString mime) {
@@ -295,4 +319,23 @@ QString ResLoader::mime2ext(QString mime) {
     return "html";
   else
     return "";
+}
+
+void ResLoader::getTitleFromHtml() {
+  if (!parentAlive())
+    return;
+  if (!parentRes->title().isEmpty())
+    return;
+
+  if (!dst->open(QFile::ReadOnly))
+    return;
+  { QTextStream ts(dst);
+    QString txt = ts.readAll();
+    QTextDocument doc;
+    doc.setHtml(txt);
+    QString ttl = doc.metaInformation(QTextDocument::DocumentTitle);
+    if (!ttl.isEmpty())
+      parentRes->setTitle(ttl);
+  }
+  dst->close();
 }

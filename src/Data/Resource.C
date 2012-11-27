@@ -92,9 +92,17 @@ QString Resource::previewPath() const {
 }
 
 //////////////////////////////////////////////////////////////////////
+
+static QString safeFileName(QString fn) {
+  fn.replace(QRegExp("[^-\\w._]"), "-");
+  if (fn.isEmpty())
+    fn = "_empty_";
+  return fn;
+}
+
 bool Resource::importImage(QImage img) {
   if (arch.isEmpty())
-    arch = tag_ + ".png";
+    arch = safeFileName(tag_ + ".png");
   ensureDir();
   bool ok = img.save(archivePath());
   markModified();
@@ -103,23 +111,14 @@ bool Resource::importImage(QImage img) {
 
 bool Resource::import() {
   if (arch.isEmpty())
-    arch = tag_;
+    arch = safeFileName(tag_);
   ensureDir();
-  ResLoader *l = new ResLoader(src, archivePath(), this);
+  ResLoader *l = new ResLoader(this);
   bool ok = l->getNowDialog();
   if (!ok)
     dir.remove(arch);
   delete l;
   return ok;
-}
-
-static QString safeFileName(QString fn) {
-  qDebug() << "safeFileName" << fn;
-  fn.replace(QRegExp("[^-\\w._]"), "-");
-  if (fn.isEmpty())
-    fn = "_empty_";
-  qDebug() << " -> " << fn;
-  return fn;
 }
 
 void Resource::getArchive() {
@@ -128,7 +127,7 @@ void Resource::getArchive() {
   if (arch.isEmpty())
     arch = safeFileName(tag_);
   ensureDir();
-  loader = new ResLoader(src, archivePath(), this);
+  loader = new ResLoader(this);
   connect(loader, SIGNAL(finished()), SLOT(downloadFinished()));
 }
   
@@ -140,7 +139,7 @@ void Resource::getArchiveAndPreview() {
   if (prev.isEmpty())
     prev = safeFileName(tag_ + ".png");
   ensureDir();
-  loader = new ResLoader(src, archivePath(), previewPath(), this);
+  loader = new ResLoader(this);
   connect(loader, SIGNAL(finished()), SLOT(downloadFinished()));
 }
 
@@ -149,16 +148,14 @@ void Resource::getPreviewOnly() {
     return; // can't start another one
   if (prev.isEmpty())
     prev = safeFileName(tag_ + ".png");
+  if (!arch.isEmpty())
+    setArchiveFilename("");
   ensureDir();
-  loader = new ResLoader(src, "", previewPath(), this);
+  loader = new ResLoader(this);
   connect(loader, SIGNAL(finished()), SLOT(downloadFinished()));
 }
 
 void Resource::downloadFinished() {
-  QString newArch = dir.relativeFilePath(loader->archiveFilename());
-  if (newArch!=arch)
-    setArchiveFilename(newArch);
-  
   if (loader->failed()) {
     if (!arch.isEmpty())
       dir.remove(arch);

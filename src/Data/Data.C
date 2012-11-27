@@ -72,6 +72,7 @@ void Data::markModified(Data::ModType mt) {
 void Data::load(QVariantMap const &src) {
   loading_ = true;
   loadProps(src);
+  loadResTags(src);
   loadChildren(src);
   loadMore(src);
   setCreated(src["cre"].toDateTime());
@@ -82,6 +83,7 @@ void Data::load(QVariantMap const &src) {
 QVariantMap Data::save() const {
   QVariantMap dst;
   saveProps(dst);
+  saveResTags(dst);
   saveChildren(dst);
   saveMore(dst);
   return dst;
@@ -302,13 +304,17 @@ bool Data::loading() const {
 }
 
 void Data::attachResource(QString r) {
-  if (resTags.contains(r))
+  qDebug() << "Data" << this << "Attach resource" << r;
+  if (resTags.contains(r)) {
+    qDebug() << "Already contained";
     return;
+  }
   resTags.append(r);
   markModified();
 }
 
 void Data::detachResource(QString r) {
+  qDebug() << "Data" << this << "Detach resource" << r;
   if (!resTags.contains(r))
     return;
   resTags.removeOne(r);
@@ -324,3 +330,9 @@ void Data::setResourceTags(QStringList const &l) {
   markModified();
 }
 
+void Data::detachAllResources() {
+  if (resTags.isEmpty())
+    return;
+  resTags.clear();
+  markModified();
+}
