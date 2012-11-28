@@ -3,6 +3,7 @@
 #include "ResourceMagic.H"
 #include "Style.H"
 #include "Resource.H"
+#include "MagicBiblio.H"
 
 #include <QTextCursor>
 #include <QTextDocument>
@@ -130,46 +131,26 @@ QTextCursor ResourceMagic::explicitLinkAt(QTextCursor const &c,
 }
 
 bool ResourceMagic::magicLink(Resource *r) {
-  if (r->tag().startsWith("www.")) 
-    r->setSourceURL("http://" + r->tag());
-  else if (r->tag().startsWith("http://")
-	   || r->tag().startsWith("https://")
-	   || r->tag().startsWith("file://"))
-    r->setSourceURL(r->tag());
-  else if (r->tag().startsWith("/"))
-    r->setSourceURL("file://" + r->tag());
+  QString tag = r->tag();
+  qDebug() << "magicLink" << tag;
+  if (tag.startsWith("www.")) 
+    r->setSourceURL("http://" + tag);
+  else if (tag.startsWith("http://")
+	   || tag.startsWith("https://")
+	   || tag.startsWith("file://"))
+    r->setSourceURL(tag);
+  else if (tag.startsWith("/"))
+    r->setSourceURL("file://" + tag);
+  else if (QRegExp("[A-Z]?\\d\\d(\\d\\d)?-[A-Za-z0-9]+")
+	   .exactMatch(tag)) {
+    qDebug() << "Magic link: shaped like a DW biblio ref";
+    MagicBiblio bib(tag, r->style());
+    if (bib.ok()) {
+      qDebug() << "  -> got it";
+      r->setSourceURL(bib.url());
+      r->setTitle(bib.ref());
+    }
+  }
   // add other stuff later
   return !r->sourceURL().isEmpty();
 }
-
-
-/* Code for actually looking up a link: This is going to be done by
-   TextMarkings/HoverRegion instead.
-
-   if (md) {
-   QString txt = markedText(md);
-   QUrl url(txt.startsWith("www.") ? ("http://"+txt) : txt);
-   if (!url.isValid()) {
-   qDebug() << "Invalid url:" << url;
-   return false;
-   }
-   Q_ASSERT(data()->book());
-   Q_ASSERT(data()->resMgr());
-   connect(data()->resMgr(), SIGNAL(finished(QString)),
-   this, SLOT(linkFinished(QString)),
-   Qt::UniqueConnection);
-   data()->resMgr()->link(url);
-   return true;
-   } else {
-   return false;
-   }
-   }
-
-   void TextItem::linkFinished(QString resName) {
-   if (!data()->resMgr()->contains(resName))
-   return; // failed
-   QString url = data()->resMgr()->url(resName).toString();
-   markings_->foundUrl(url);
-   }
-*/
-

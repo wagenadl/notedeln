@@ -24,6 +24,8 @@ public:
   bool allowNotes() const;
   void setAllowNotes(bool y=true);
   TextData *data();
+  void insertBasicHtml(QString html, int pos);
+  // Only <b> and <i> tags are supported at present
 signals:
   void textChanged();
   void abandoned(); // escape pressed while empty

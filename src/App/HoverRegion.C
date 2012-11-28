@@ -21,7 +21,7 @@ HoverRegion::HoverRegion(class MarkupData *md, class TextItem *item,
   start = end = -1;
   popper = 0;
   busy = false;
-  lastRef = refText();
+  lastRef = "";
   setAcceptHoverEvents(true);
 }
 
@@ -61,7 +61,10 @@ void HoverRegion::mousePressEvent(QGraphicsSceneMouseEvent *e) {
     qDebug() << "HoverRegion: control mouse press";
     switch (md->style()) {
     case MarkupData::Link:
-      openLink(refText());
+      if (e->modifiers() & Qt::ShiftModifier || !hasArchive()) 
+	openLink();
+      else 
+	openArchive();
       break;
     default:
       qDebug() << "HoverRegion: Don't know how to open this markup"
@@ -165,11 +168,21 @@ void HoverRegion::calcBounds() const {
     md->attachResource(refText());
 }
   
-void HoverRegion::openLink(QString txt) {
-  if (txt.startsWith("www."))
-    txt = "http://" + txt;
-  qDebug() << "HoverRegion: openURL " << txt;
+void HoverRegion::openLink() {
+  Resource *r = resource();
+  if (r)
+    qDebug() << "HoverRegion: openURL" << r->sourceURL();
+  else
+    qDebug() << "HoverRegion: openURL" << refText() <<  "(no url)";
 }
+
+void HoverRegion::openArchive() {
+  Resource *r = resource();
+  if (r)
+    qDebug() << "HoverRegion: openArchive" << r->archivePath();
+  else
+    qDebug() << "HoverRegion: openArchive" << refText() << "(no arch)";
+}  
 
 void HoverRegion::getArchiveAndPreview() {
   qDebug() << "HoverRegion: getArchiveAndPreview" << refText() << lastRef << busy;

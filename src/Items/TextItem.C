@@ -545,3 +545,35 @@ void TextItem::setTextWidth(double d) {
       hr->forgetBounds();
   }
 }
+
+void TextItem::insertBasicHtml(QString html, int pos) {
+  QTextCursor c(document());
+  c.setPosition(pos);
+  QRegExp tag("<(.*)>");
+  tag.setMinimal(true);
+  QList<int> italicStarts;
+  QList<int> boldStarts;
+  while (!html.isEmpty()) {
+    int idx = tag.indexIn(html);
+    if (idx>=0) {
+      QString cap = tag.cap(1);
+      c.insertText(html.left(idx));
+      html = html.mid(idx + tag.matchedLength());
+      if (cap=="i") 
+	italicStarts.append(c.position());
+      else if (cap=="b")
+	boldStarts.append(c.position());
+      else if (cap=="/i" && !italicStarts.isEmpty()) 
+	addMarkup(MarkupData::Italic, italicStarts.takeLast(), c.position());
+      else if (cap=="/b" && !boldStarts.isEmpty()) 
+	addMarkup(MarkupData::Bold, boldStarts.takeLast(), c.position());
+    } else {
+      c.insertText(html);
+      break;
+    }
+  }
+  while (!italicStarts.isEmpty())
+    addMarkup(MarkupData::Italic, italicStarts.takeLast(), c.position());
+  while (!boldStarts.isEmpty())
+    addMarkup(MarkupData::Bold, boldStarts.takeLast(), c.position());
+}

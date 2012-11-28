@@ -26,7 +26,8 @@ private slots:
 private:
   QString refText() const;
   void calcBounds() const;
-  void openLink(QString);
+  void openLink();
+  void openArchive();
   void getArchiveAndPreview();
   bool hasArchive() const;
   bool hasPreview() const;

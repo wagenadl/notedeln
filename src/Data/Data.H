@@ -52,6 +52,7 @@ public:
   virtual class PageData const *page() const; // pointer to ...
   virtual class PageData *page(); // ... parent page, if any.
   virtual class Notebook *book() const; // pointer to parent book, if any.
+  class Style const &style() const;
   virtual class ResManager *resManager() const; // if any.
   void attachResource(QString);
   void detachResource(QString);

@@ -32,6 +32,12 @@ QString const &Data::type() const {
   return type_;
 }
 
+Style const &Data::style() const {
+  Notebook *b = book();
+  Q_ASSERT(b);
+  return b->style();
+}
+
 bool Data::isRecent() const {
   Notebook *b = book();
   double thr_h = b ? b->style().real("recency-threshold") : 24;

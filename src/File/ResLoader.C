@@ -277,6 +277,10 @@ bool ResLoader::makePreview(QString mimetype) {
   if (mimetype=="application/pdf" || mimetype=="application/x-pdf"
       || mimetype=="pdf") {
     QStringList args;
+    QString prevFn = parentRes->previewFilename();
+    if (!prevFn.endsWith(".png"))
+      parentRes->setPreviewFilename(prevFn + ".png");
+    QString prevPath = parentRes->previewPath();
     args.append("-l");
     args.append("1");
     args.append("-singlefile");
@@ -284,7 +288,7 @@ bool ResLoader::makePreview(QString mimetype) {
     args.append("480");
     args.append("-png");
     args.append(dst->fileName());
-    args.append(parentRes->previewPath());
+    args.append(prevPath.left(prevPath.size()-4));
     startProcess("pdftoppm", args);
     return true;
   } else {

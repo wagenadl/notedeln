@@ -50,6 +50,7 @@ private slots:
   void downloadFinished();
 private:
   void ensureDir();
+  void ensureArchiveFilename();
 private:
   QString tag_;
   QUrl src;

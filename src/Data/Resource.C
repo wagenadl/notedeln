@@ -100,9 +100,28 @@ static QString safeFileName(QString fn) {
   return fn;
 }
 
+void Resource::ensureArchiveFilename() {
+  if (!arch.isEmpty())
+    return;
+  QString base = tag_;
+  if (src.isLocalFile()) {
+    // use extension from local file
+    QStringList bits = src.path().split("/");
+    QString leaf = bits.last();
+    int idx = leaf.lastIndexOf(".");
+    if (idx>=0) {
+      int tagIdx = tag_.lastIndexOf(".");
+      if (tagIdx>=0)
+	base = base.left(tagIdx);
+      base += leaf.mid(idx);
+    }
+  }
+  setArchiveFilename(safeFileName(base));
+}
+
 bool Resource::importImage(QImage img) {
   if (arch.isEmpty())
-    arch = safeFileName(tag_ + ".png");
+    setArchiveFilename(safeFileName(tag_ + ".png"));
   ensureDir();
   bool ok = img.save(archivePath());
   markModified();
@@ -110,8 +129,7 @@ bool Resource::importImage(QImage img) {
 }
 
 bool Resource::import() {
-  if (arch.isEmpty())
-    arch = safeFileName(tag_);
+  ensureArchiveFilename();
   ensureDir();
   ResLoader *l = new ResLoader(this);
   bool ok = l->getNowDialog();
@@ -124,8 +142,7 @@ bool Resource::import() {
 void Resource::getArchive() {
   if (loader)
     return; // can't start another one
-  if (arch.isEmpty())
-    arch = safeFileName(tag_);
+  ensureArchiveFilename();
   ensureDir();
   loader = new ResLoader(this);
   connect(loader, SIGNAL(finished()), SLOT(downloadFinished()));
@@ -134,10 +151,9 @@ void Resource::getArchive() {
 void Resource::getArchiveAndPreview() {
   if (loader)
     return; // can't start another one
-  if (arch.isEmpty())
-    arch = safeFileName(tag_);
+  ensureArchiveFilename();
   if (prev.isEmpty())
-    prev = safeFileName(tag_ + ".png");
+    setPreviewFilename(safeFileName(tag_ + ".png"));
   ensureDir();
   loader = new ResLoader(this);
   connect(loader, SIGNAL(finished()), SLOT(downloadFinished()));
@@ -147,7 +163,7 @@ void Resource::getPreviewOnly() {
   if (loader)
     return; // can't start another one
   if (prev.isEmpty())
-    prev = safeFileName(tag_ + ".png");
+    setPreviewFilename(safeFileName(tag_ + ".png"));
   if (!arch.isEmpty())
     setArchiveFilename("");
   ensureDir();
