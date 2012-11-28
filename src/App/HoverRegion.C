@@ -36,8 +36,11 @@ QRectF HoverRegion::boundingRect() const {
 void HoverRegion::paint(QPainter *p,
 			const QStyleOptionGraphicsItem *,
 			QWidget *) {
-  if (!resource() && ti->isWritable())
-    getArchiveAndPreview();
+  if (!hasArchive() || !hasPreview()) {
+    if (ti->isWritable() /* || ti->style().bool("fetch-old-links") */) {
+      getArchiveAndPreview();
+    }
+  }
   calcBounds();
   p->setPen(Qt::NoPen);
   QColor c;
@@ -135,9 +138,6 @@ QString HoverRegion::refText() const {
 }
 
 void HoverRegion::forgetBounds() {
-  if (refText() != lastRef)
-    if (!lastRef.isEmpty())
-      md->detachResource(lastRef);
   start = end = -1;
   update();
 }
@@ -197,6 +197,9 @@ void HoverRegion::getArchiveAndPreview() {
     qDebug() << "HoverRegion: no resource manager";
     return;
   }
+  if (refText()!=lastRef && !lastRef.isEmpty())
+    md->detachResource(lastRef);
+  
   lastRef = refText();
   Resource *r = resmgr->byTag(lastRef);
   if (r) {
