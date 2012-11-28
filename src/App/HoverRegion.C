@@ -36,16 +36,18 @@ QRectF HoverRegion::boundingRect() const {
 void HoverRegion::paint(QPainter *p,
 			const QStyleOptionGraphicsItem *,
 			QWidget *) {
-  if (!resource())
+  if (!resource() && ti->isWritable())
     getArchiveAndPreview();
   calcBounds();
   p->setPen(Qt::NoPen);
   QColor c;
-  if (hasArchive() || hasPreview())
-    c = QColor("#0088ff");
-  else
-    c = QColor("#ff0000");    
-  c.setAlpha(16);
+  if (hasArchive() || hasPreview()) {
+    c = ti->style().color("hover-found-color");
+    c.setAlpha(int(255*ti->style().real("hover-found-alpha")));
+  } else {
+    c = ti->style().color("hover-not-found-color");
+    c.setAlpha(int(255*ti->style().real("hover-not-found-alpha")));
+  }    
   p->setBrush(c);
   p->drawPath(bounds); // just for debugging: let's show ourselves
 }
@@ -133,8 +135,9 @@ QString HoverRegion::refText() const {
 }
 
 void HoverRegion::forgetBounds() {
-  if (refText() != lastRef) 
-    md->detachResource(lastRef);
+  if (refText() != lastRef)
+    if (!lastRef.isEmpty())
+      md->detachResource(lastRef);
   start = end = -1;
   update();
 }

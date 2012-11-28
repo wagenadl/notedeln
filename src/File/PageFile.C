@@ -7,6 +7,7 @@
 PageFile *createPage(QDir const &dir, int n, QObject *parent) {
   QString pfn = dir.absoluteFilePath(QString::number(n) + ".json");
   PageFile *f = PageFile::create(pfn, parent);
+  Q_ASSERT(f);
   ResManager *r = new ResManager(f->data());
   QString resfn = dir.absoluteFilePath(QString::number(n) + ".res");
   qDebug()<< "PageFile createPage " << pfn << resfn;
@@ -18,6 +19,7 @@ PageFile *createPage(QDir const &dir, int n, QObject *parent) {
 PageFile *loadPage(QDir const &dir, int n, QObject *parent) {
   QString pfn = dir.absoluteFilePath(QString::number(n) + ".json");
   PageFile *f = PageFile::load(pfn, parent);
+  Q_ASSERT(f);
   ResManager *r = f->data()->firstChild<ResManager>();
   if (!r)
     r = new ResManager(f->data());

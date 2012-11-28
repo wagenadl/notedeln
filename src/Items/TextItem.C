@@ -539,6 +539,7 @@ void TextItem::setBoxVisible(bool v) {
 
 void TextItem::setTextWidth(double d) {
   text->setTextWidth(d);
+  qDebug() << "TextItem::settextwidth -> forgetBounds";
   foreach (QGraphicsItem *i, childItems()) {
     HoverRegion *hr = dynamic_cast<HoverRegion *>(i);
     if (hr)

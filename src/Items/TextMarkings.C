@@ -57,7 +57,7 @@ void TextMarkings::applyMark(Span const &span) {
     f.setVerticalAlignment(QTextCharFormat::AlignSubScript);
     break;
   case MarkupData::Link:
-    f.setForeground(parent()->style().color("url-color"));
+    // f.setForeground(parent()->style().color("url-color"));
     break;
   case MarkupData::FootnoteRef:
     f.setForeground(parent()->style().color("customref-color"));
@@ -152,6 +152,7 @@ void TextMarkings::update(int pos, int del, int ins) {
     qSort(spans.begin(), spans.end());
 
   // and update regions
+  qDebug() << "TextMarkings::update -> forgetBounds";
   foreach (HoverRegion *hr, regions)
     hr->forgetBounds();
 } 
@@ -218,7 +219,10 @@ void TextMarkings::Span::avoidPropagatingStyle(TextItem *item,
   case MarkupData::Superscript: case MarkupData::Subscript:
     f.setVerticalAlignment(QTextCharFormat::AlignNormal);
     break;
-  case MarkupData::Link: case MarkupData::FootnoteRef:
+  case MarkupData::Link:
+    // f.setForeground(item->defaultTextColor());
+    break;
+  case MarkupData::FootnoteRef:
     f.setForeground(item->defaultTextColor());
     break;
   default:
