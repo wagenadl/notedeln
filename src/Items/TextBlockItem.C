@@ -50,7 +50,9 @@ TextBlockItem::~TextBlockItem() {
 }
 
 void TextBlockItem::initializeFormat() {
-  item_->setTextWidth(style().real("paragraph-width"));
+  item_->setTextWidth(style().real("page-width")
+		      - style().real("margin-left")
+		      - style().real("margin-right"));
   item_->setPos(0, style().real("text-block-above"));
 
   QTextCursor tc(item_->document());

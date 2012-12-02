@@ -311,7 +311,7 @@ void PageScene::repositionContItem() {
     QTextLine l = lay->lineAt(lay->lineCount()-1);
     QPointF p(l.cursorToX(tb.length()) + 10, l.y());
     p = tbi->text()->mapToScene(p+lay->position());
-    p.setX(style().real("margin-left") + style().real("paragraph-width"));
+    p.setX(style().real("page-width") - style().real("margin-right"));
     QTextLayout *clay = contItem->document()->lastBlock().layout();
     QTextLine cl = clay->lineAt(0);
     QPointF cp(cl.cursorToX(0), cl.y());
