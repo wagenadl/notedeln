@@ -38,6 +38,7 @@ TextItem::TextItem(TextData *data, Item *parent):
   mayMark = true;
   mayNote = false;
   mayMove = false;
+  lateMarkType = MarkupData::Normal;
   allowParagraphs_ = true;
 
   text->setPlainText(data_->text());  
@@ -126,10 +127,112 @@ bool TextItem::mousePress(QGraphicsSceneMouseEvent *e) {
       e->accept();
       createNote(e->pos(), true);
       return true;
+    } else if (e->button()==Qt::LeftButton
+	       && (modSnooper()->keyboardModifiers()
+		   & ((Qt::ShiftModifier | Qt::ControlModifier)))) {
+      e->accept();
+      attemptMarkup(e->pos(), modSnooper()->keyboardModifiers());
+      return true;
     } else {
       return false;
     }
   }
+}
+
+int TextItem::pointToPos(QPointF p) const {
+  p = text->mapFromParent(p);
+  QTextDocument *doc = text->document();
+  for (QTextBlock b = doc->begin(); b!=doc->end(); b=b.next()) {
+    QTextLayout *lay = b.layout();
+    if (lay->boundingRect().contains(p)) {
+      p -= lay->position();
+      int nLines = lay->lineCount();
+      for (int i=0; i<nLines; i++) {
+	QTextLine line = lay->lineAt(i); // yes, this returns the i-th line
+	if (line.rect().contains(p)) 
+	  return line.xToCursor(p.x());
+      }
+      qDebug() << "TextItem: point in block but not in a line!?";
+      return -1;
+    }
+  }
+  return -1;
+}
+      
+
+void TextItem::attemptMarkup(QPointF p, Qt::KeyboardModifiers m) {
+  qDebug() << "TextItem::attemptMarkup" << p << m;
+  int pos = pointToPos(p);
+  qDebug() << "  pos:"<<pos;
+  if (pos<0)
+    return;
+
+  MarkupData::Style mds = MarkupData::Normal;
+  if (m & Qt::ShiftModifier)
+    mds = MarkupData::Emphasize;
+  else if (m & Qt::ControlModifier)
+    mds = MarkupData::StrikeThrough;
+  else
+    return;
+
+  MarkupData::Style opp = mds==MarkupData::Emphasize
+    ? MarkupData::StrikeThrough
+    : MarkupData::Emphasize;
+  qDebug() << "  mds="<<mds<<"; opp="<<opp;
+
+  MarkupData *oppData = markupAt(pos, opp);
+  if (oppData && oppData->isRecent()) {
+    lateMarkType = opp;
+    unmark = true;
+  } else {
+    lateMarkType = mds;
+    unmark =  false;
+  }
+  markStart = pos;
+  grabMouse();
+}
+
+void TextItem::mouseMoveEvent(QGraphicsSceneMouseEvent *evt) {
+  qDebug() << "TextItem::mouseMove" << evt->pos() << lateMarkType << unmark;
+  if (lateMarkType==MarkupData::Normal) 
+    return;
+  int pos = pointToPos(evt->pos());
+  if (pos<0)
+    return;
+  qDebug() << "  " << markStart << pos;
+  int s, e;
+  if (markStart<pos) {
+    s = markStart;
+    e = pos;
+  } else {
+    s = pos;
+    e = markStart;
+  }
+
+  MarkupData *md = markupAt(s, e, lateMarkType);
+  if (unmark) {
+    // Must make sure there are no markings of type lateMarkType in the region.
+    if (!md || md->end()<=s || md->start()>=e)
+      return;
+    // so this markup genuinely overlaps with our region
+    // get rid of it, and possibly replace it with something else
+    qDebug() << "unmark" << md->start() << md->end() << s << e;
+    markings_->deleteMark(md);
+    if (md->end()>e)
+      markings_->newMark(lateMarkType, e, md->end());
+    if (md->start()<s)
+      markings_->newMark(lateMarkType, md->start(), s);
+  } else {
+    if (md && md->start()<=s && md->end()>=e)
+      return;
+    // so no existing markup covers us perfectly yet
+    addMarkup(lateMarkType, s, e); // will be auto-merged
+  }
+}
+
+void TextItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *) {
+  ungrabMouse();
+  lateMarkType = MarkupData::Normal;
 }
 
 bool TextItem::keyPressAsMotion(QKeyEvent *e) {
@@ -539,7 +642,6 @@ void TextItem::setBoxVisible(bool v) {
 
 void TextItem::setTextWidth(double d) {
   text->setTextWidth(d);
-  qDebug() << "TextItem::settextwidth -> forgetBounds";
   foreach (QGraphicsItem *i, childItems()) {
     HoverRegion *hr = dynamic_cast<HoverRegion *>(i);
     if (hr)

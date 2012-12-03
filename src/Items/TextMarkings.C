@@ -48,7 +48,7 @@ void TextMarkings::applyMark(Span const &span) {
     f.setFontStrikeOut(true);
     break;
   case MarkupData::Emphasize:
-    f.setTextOutline(QPen(QBrush("yellow"), 5)); // or something like that
+    f.setBackground(QColor("yellow")); // or something like that
     break;
   case MarkupData::Superscript:
     f.setVerticalAlignment(QTextCharFormat::AlignSuperScript);
@@ -152,7 +152,6 @@ void TextMarkings::update(int pos, int del, int ins) {
     qSort(spans.begin(), spans.end());
 
   // and update regions
-  qDebug() << "TextMarkings::update -> forgetBounds";
   foreach (HoverRegion *hr, regions)
     hr->forgetBounds();
 } 
@@ -214,7 +213,7 @@ void TextMarkings::Span::avoidPropagatingStyle(TextItem *item,
     f.setFontStrikeOut(false);
     break;
   case MarkupData::Emphasize:
-    f.setTextOutline(QPen(Qt::NoPen));
+    f.clearBackground();
     break;
   case MarkupData::Superscript: case MarkupData::Subscript:
     f.setVerticalAlignment(QTextCharFormat::AlignNormal);

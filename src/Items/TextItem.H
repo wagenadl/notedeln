@@ -33,6 +33,9 @@ signals:
   /* also emitted for enter press or for delete/backspace at end/start */
   void mousePress(QPointF, Qt::MouseButton);
   void refTextChange(QString oldText, QString newText);
+protected:
+  void mouseMoveEvent(QGraphicsSceneMouseEvent *);
+  void mouseReleaseEvent(QGraphicsSceneMouseEvent *);
 private:
   friend class TextItemText;
   virtual bool mousePress(QGraphicsSceneMouseEvent *);
@@ -66,6 +69,8 @@ private:
   bool charBeforeIsLetter(int pos) const;
   bool charAfterIsLetter(int pos) const;
   bool shouldResize(QPointF) const;
+  int pointToPos(QPointF) const;
+  void attemptMarkup(QPointF p, Qt::KeyboardModifiers m);
 public: // pass-through
   void setFont(QFont f) { text->setFont(f); }
   QColor defaultTextColor() const { return text->defaultTextColor(); }
@@ -87,6 +92,9 @@ protected:
   class TextItemText *text;
   bool mayMove;
   QPointF cursorPos;
+  MarkupData::Style lateMarkType;
+  bool unmark;
+  int markStart;
 };
 
 #endif

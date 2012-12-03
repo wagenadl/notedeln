@@ -214,7 +214,6 @@ void PageView::gotoTOC(int n) {
 }
 
 void PageView::leavePage() {
-  qDebug() << "leavepage";
   QGraphicsScene *s = scene();
   if (s) {
     QGraphicsItem *fi = s->focusItem();
