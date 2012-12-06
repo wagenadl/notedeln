@@ -200,17 +200,26 @@ void TextItem::mouseMoveEvent(QGraphicsSceneMouseEvent *evt) {
   if (lateMarkType==MarkupData::Normal) {
     // unmark
     foreach (MarkupData *md, data_->children<MarkupData>()) {
-      if (md->style()==MarkupData::Emphasize
-	  || md->style()==MarkupData::StrikeThrough) {
+      if (md->isRecent() && (md->style()==MarkupData::Emphasize
+                             || md->style()==MarkupData::StrikeThrough)) {
         int mds = md->start();
         int mde = md->end();
 	if (mds<e && mde>s) {
           MarkupData::Style mdst = md->style();
+          QDateTime cre = md->created();
           markings_->deleteMark(md);
-          if (mde>e) 
+          if (mde>e) {
             markings_->newMark(mdst, e, mde);
-          if (mds<s) 
+            MarkupData *md1 = markupAt(e, mdst);
+            if (md1)
+              md1->setCreated(cre);
+          }
+          if (mds<s) {
             markings_->newMark(mdst, mds, s);
+            MarkupData *md1 = markupAt(s, mdst);
+            if (md1)
+              md1->setCreated(cre);
+          }
         }
       }
     }
