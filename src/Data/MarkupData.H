@@ -48,6 +48,7 @@ public:
   /* An insertion either immediately before or after our markup will not
      be put inside it. An insertion over an empty markup will go before it. */
   QString text() const; // only works if our parent is TextData
+  static QString styleName(Style);
 private:
   bool cut(int pos, int len);
   bool insert(int pos, int len);

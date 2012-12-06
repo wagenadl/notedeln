@@ -167,67 +167,60 @@ void TextItem::attemptMarkup(QPointF p, Qt::KeyboardModifiers m) {
   if (pos<0)
     return;
 
-  MarkupData::Style mds = MarkupData::Normal;
-  if (m & Qt::ShiftModifier)
-    mds = MarkupData::Emphasize;
-  else if (m & Qt::ControlModifier)
-    mds = MarkupData::StrikeThrough;
+  bool shift = m & Qt::ShiftModifier;
+  bool ctrl = m & Qt::ControlModifier;
+  if (shift && ctrl)
+    lateMarkType = MarkupData::Normal;
+  else if (shift) 
+    lateMarkType = MarkupData::Emphasize;
+  else if (ctrl)
+    lateMarkType = MarkupData::StrikeThrough;
   else
     return;
 
-  MarkupData::Style opp = mds==MarkupData::Emphasize
-    ? MarkupData::StrikeThrough
-    : MarkupData::Emphasize;
-  qDebug() << "  mds="<<mds<<"; opp="<<opp;
-
-  MarkupData *oppData = markupAt(pos, opp);
-  if (oppData && oppData->isRecent()) {
-    lateMarkType = opp;
-    unmark = true;
-  } else {
-    lateMarkType = mds;
-    unmark =  false;
-  }
-  markStart = pos;
+  lateMarkStart = pos;
   grabMouse();
 }
 
 void TextItem::mouseMoveEvent(QGraphicsSceneMouseEvent *evt) {
-  qDebug() << "TextItem::mouseMove" << evt->pos() << lateMarkType << unmark;
-  if (lateMarkType==MarkupData::Normal) 
-    return;
   int pos = pointToPos(evt->pos());
+  qDebug() << "TextItem::mouseMove" << lateMarkStart << evt->pos() << pos
+	   << MarkupData::styleName(lateMarkType);
   if (pos<0)
     return;
-  qDebug() << "  " << markStart << pos;
   int s, e;
-  if (markStart<pos) {
-    s = markStart;
+  if (lateMarkStart<pos) {
+    s = lateMarkStart;
     e = pos;
   } else {
     s = pos;
-    e = markStart;
+    e = lateMarkStart;
   }
-
-  MarkupData *md = markupAt(s, e, lateMarkType);
-  if (unmark) {
-    // Must make sure there are no markings of type lateMarkType in the region.
-    if (!md || md->end()<=s || md->start()>=e)
-      return;
-    // so this markup genuinely overlaps with our region
-    // get rid of it, and possibly replace it with something else
-    qDebug() << "unmark" << md->start() << md->end() << s << e;
-    markings_->deleteMark(md);
-    if (md->end()>e)
-      markings_->newMark(lateMarkType, e, md->end());
-    if (md->start()<s)
-      markings_->newMark(lateMarkType, md->start(), s);
+  
+  if (lateMarkType==MarkupData::Normal) {
+    // unmark
+    foreach (MarkupData *md, data_->children<MarkupData>()) {
+      if (md->style()==MarkupData::Emphasize
+	  || md->style()==MarkupData::StrikeThrough) {
+        int mds = md->start();
+        int mde = md->end();
+	if (mds<e && mde>s) {
+          MarkupData::Style mdst = md->style();
+          markings_->deleteMark(md);
+          if (mde>e) 
+            markings_->newMark(mdst, e, mde);
+          if (mds<s) 
+            markings_->newMark(mdst, mds, s);
+        }
+      }
+    }
   } else {
-    if (md && md->start()<=s && md->end()>=e)
-      return;
-    // so no existing markup covers us perfectly yet
     addMarkup(lateMarkType, s, e); // will be auto-merged
   }
+  qDebug() << "  -> markings now:";
+  foreach (MarkupData *md, data_->children<MarkupData>()) 
+    qDebug() << "    " << md->styleName(md->style())
+             << md->start() << md->end();
 }
 
 void TextItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *) {

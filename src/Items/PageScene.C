@@ -689,7 +689,7 @@ void PageScene::mousePressEvent(QGraphicsSceneMouseEvent *e) {
     if (writable)
       newTextBlock();
     else
-      qDebug() << "PageScene::mousePressEvent: Not writable";
+      titleItemX->createNote(titleItem->mapFromScene(sp), true);
   } else {
     QGraphicsScene::mousePressEvent(e);
   }

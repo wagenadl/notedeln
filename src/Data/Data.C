@@ -179,7 +179,7 @@ void Data::addChild(Data *d, ModType mt) {
 
 bool Data::deleteChild(Data *d, ModType mt) {
   if (takeChild(d, mt)) {
-    delete d;
+    d->deleteLater();
     return true;
   } else {
     return false;

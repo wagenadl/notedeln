@@ -9,6 +9,7 @@
 #include <QTextDocument>
 #include "MarkupData.H"
 #include "TextData.H"
+#include <QSet>
 
 class TextMarkings: public QGraphicsObject {
   Q_OBJECT;
@@ -26,7 +27,7 @@ private slots:
 private:
   class Span;
   Span &insertMark(MarkupData *);
-  void applyMark(Span const &);
+  void applyMark(Span const &, QSet<int> edges=QSet<int>());
 private:
   class Span {
   public:

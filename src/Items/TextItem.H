@@ -93,8 +93,7 @@ protected:
   bool mayMove;
   QPointF cursorPos;
   MarkupData::Style lateMarkType;
-  bool unmark;
-  int markStart;
+  int lateMarkStart;
 };
 
 #endif

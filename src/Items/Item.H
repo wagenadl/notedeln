@@ -58,9 +58,9 @@ public:
   QRectF cachedBounds() const; // null if not locked
   virtual void childGeometryChanged(); // children must call this directly
   void acceptModifierChanges(bool acc=true);
+  class GfxNoteItem *createNote(QPointF p0, bool late);
 protected:
   bool moveModPressed() const;
-  class GfxNoteItem *createNote(QPointF p0, bool late);
 protected:
   static Qt::CursorShape defaultCursor();
   static Qt::KeyboardModifiers moveModifiers(); // mask of modifier keys ...

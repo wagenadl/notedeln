@@ -7,6 +7,7 @@
 #include "Style.H"
 #include "ResManager.H"
 #include "HoverRegion.H"
+#include <QSet>
 
 TextMarkings::TextMarkings(TextData *data, TextItem *parent):
   QGraphicsObject(parent), data(data) {
@@ -14,8 +15,14 @@ TextMarkings::TextMarkings(TextData *data, TextItem *parent):
   doc = parent->document();
   connect(doc, SIGNAL(contentsChange(int, int, int)),
 	  SLOT(update(int, int, int)));
-  foreach (MarkupData *m, data->markups()) 
-    applyMark(insertMark(m));
+  QSet<int> edges;
+  foreach (MarkupData *m, data->markups()) {
+    insertMark(m);
+    edges.insert(m->start());
+    edges.insert(m->end());
+  }
+  for (QList<Span>::iterator i=spans.begin(); i!=spans.end(); ++i) 
+    applyMark(*i, edges);
 }
 
 TextMarkings::~TextMarkings() {
@@ -25,47 +32,60 @@ TextItem *TextMarkings::parent() const {
   return dynamic_cast<TextItem*>(parentItem());
 }
 
-void TextMarkings::applyMark(Span const &span) {
+void TextMarkings::applyMark(Span const &span, QSet<int> edges) {
+  if (edges.isEmpty()) {
+    foreach (MarkupData *m, data->markups()) {
+      edges.insert(m->start());
+      edges.insert(m->end());
+    }
+  }
+  QList<int> edg = edges.toList();
+  qSort(edg.begin(), edg.end());
+
   QTextCursor c(doc);
   c.beginEditBlock();
-  c.setPosition(span.data->start());
-  c.setPosition(span.data->end(), QTextCursor::KeepAnchor);
-  QTextCharFormat f(c.charFormat());
-  switch (span.data->style()) {
-  case MarkupData::Normal:
-    f = QTextCharFormat();
-    break;
-  case MarkupData::Italic: 
-    f.setFontItalic(true);
-    break;
-  case MarkupData::Bold: 
-    f.setFontWeight(QFont::Bold);
-    break;
-  case MarkupData::Underline: 
-    f.setUnderlineStyle(QTextCharFormat::SingleUnderline);
-    break;
-  case MarkupData::StrikeThrough: 
-    f.setFontStrikeOut(true);
-    break;
-  case MarkupData::Emphasize:
-    f.setBackground(QColor("yellow")); // or something like that
-    break;
-  case MarkupData::Superscript:
-    f.setVerticalAlignment(QTextCharFormat::AlignSuperScript);
-    break;
-  case MarkupData::Subscript:
-    f.setVerticalAlignment(QTextCharFormat::AlignSubScript);
-    break;
-  case MarkupData::Link:
-    // f.setForeground(parent()->style().color("url-color"));
-    break;
-  case MarkupData::FootnoteRef:
-    f.setForeground(parent()->style().color("customref-color"));
-    break;
-  default: 
-    break;
+  for (int i=0; i<edg.size()-1; i++) {
+    if (edg[i]>=span.data->start() && edg[i+1]<=span.data->end()) {
+      c.setPosition(edg[i]);
+      c.setPosition(edg[i+1], QTextCursor::KeepAnchor);
+      QTextCharFormat f(c.charFormat());
+      switch (span.data->style()) {
+      case MarkupData::Normal:
+        f = QTextCharFormat();
+        break;
+      case MarkupData::Italic: 
+        f.setFontItalic(true);
+        break;
+      case MarkupData::Bold: 
+        f.setFontWeight(QFont::Bold);
+        break;
+      case MarkupData::Underline: 
+        f.setUnderlineStyle(QTextCharFormat::SingleUnderline);
+        break;
+      case MarkupData::StrikeThrough: 
+        f.setFontStrikeOut(true);
+        break;
+      case MarkupData::Emphasize:
+        f.setBackground(QColor("yellow")); // or something like that
+        break;
+      case MarkupData::Superscript:
+        f.setVerticalAlignment(QTextCharFormat::AlignSuperScript);
+        break;
+      case MarkupData::Subscript:
+        f.setVerticalAlignment(QTextCharFormat::AlignSubScript);
+        break;
+      case MarkupData::Link:
+        // f.setForeground(parent()->style().color("url-color"));
+        break;
+      case MarkupData::FootnoteRef:
+        f.setForeground(parent()->style().color("customref-color"));
+        break;
+      default: 
+        break;
+      }
+      c.setCharFormat(f);
+    }
   }
-  c.setCharFormat(f);
   c.endEditBlock();
 }  
 
@@ -93,7 +113,7 @@ void TextMarkings::newMark(MarkupData *m) {
 
 void TextMarkings::deleteMark(MarkupData *m) {
   if (regions.contains(m)) {
-    delete regions[m];
+    regions[m]->deleteLater();
     regions.remove(m);
   }
   for (QList<Span>::iterator i=spans.begin(); i!=spans.end(); ) {
@@ -196,38 +216,54 @@ void TextMarkings::Span::avoidPropagatingStyle(TextItem *item,
 					       int pos, int len) {
   QTextCursor c(item->document());
   c.beginEditBlock();
-  c.setPosition(pos);
-  c.setPosition(pos+len, QTextCursor::KeepAnchor);
-  QTextCharFormat f = c.charFormat();
-  switch (data->style()) {
-  case MarkupData::Italic:
-    f.setFontItalic(false);
-    break;
-  case MarkupData::Bold:
-    f.setFontWeight(QFont::Normal);
-    break;
-  case MarkupData::Underline:
-    f.setUnderlineStyle(QTextCharFormat::NoUnderline);
-    break;
-  case MarkupData::StrikeThrough:
-    f.setFontStrikeOut(false);
-    break;
-  case MarkupData::Emphasize:
-    f.clearBackground();
-    break;
-  case MarkupData::Superscript: case MarkupData::Subscript:
-    f.setVerticalAlignment(QTextCharFormat::AlignNormal);
-    break;
-  case MarkupData::Link:
-    // f.setForeground(item->defaultTextColor());
-    break;
-  case MarkupData::FootnoteRef:
-    f.setForeground(item->defaultTextColor());
-    break;
-  default:
-    break;
+
+  QSet<int> edges;
+  if (data->parent()) {
+    foreach (MarkupData *m, data->parent()->children<MarkupData>()) {
+      edges.insert(m->start());
+      edges.insert(m->end());
+    }
   }
-  c.setCharFormat(f);
+  edges.insert(pos);
+  edges.insert(pos+len);
+  QList<int> edg = edges.toList();
+  qSort(edg.begin(), edg.end());
+  for (int i=0; i<edg.size()-1; i++) {
+    if (edg[i]>=pos && edg[i+1]<=pos+len) {
+      c.setPosition(edg[i]);
+      c.setPosition(edg[i+1], QTextCursor::KeepAnchor);
+      QTextCharFormat f = c.charFormat();
+      switch (data->style()) {
+      case MarkupData::Italic:
+        f.setFontItalic(false);
+        break;
+      case MarkupData::Bold:
+        f.setFontWeight(QFont::Normal);
+        break;
+      case MarkupData::Underline:
+        f.setUnderlineStyle(QTextCharFormat::NoUnderline);
+        break;
+      case MarkupData::StrikeThrough:
+        f.setFontStrikeOut(false);
+        break;
+      case MarkupData::Emphasize:
+        f.clearBackground();
+        break;
+      case MarkupData::Superscript: case MarkupData::Subscript:
+        f.setVerticalAlignment(QTextCharFormat::AlignNormal);
+        break;
+      case MarkupData::Link:
+        // f.setForeground(item->defaultTextColor());
+        break;
+      case MarkupData::FootnoteRef:
+        f.setForeground(item->defaultTextColor());
+        break;
+      default:
+        break;
+      }
+      c.setCharFormat(f);
+    }
+  }
   c.endEditBlock();
 }
 

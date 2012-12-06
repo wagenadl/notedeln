@@ -132,3 +132,29 @@ QString MarkupData::text() const {
   else
     return "";
 }
+
+QString MarkupData::styleName(Style s) {
+  switch (s) {
+  case Normal:
+    return "rm";
+  case Italic:
+    return "it";
+  case Bold:
+    return "bf";
+  case Underline:
+    return "ul";
+  case Link:
+    return "link";
+  case FootnoteRef:
+    return "fnref";
+  case Superscript:
+    return "sup";
+  case Subscript:
+    return "sub";
+  case StrikeThrough:
+    return "so";
+  case Emphasize:
+    return "emph";
+  }
+  return "?";
+}
