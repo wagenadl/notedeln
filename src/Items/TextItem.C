@@ -73,7 +73,7 @@ void TextItem::makeWritable() {
 void TextItem::setAllowMoves() {
   mayMove = true;
   setAcceptHoverEvents(true);
-  text->  setAcceptHoverEvents(true);
+  text->setAcceptHoverEvents(true);
   acceptModifierChanges();  
 }
 

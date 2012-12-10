@@ -68,7 +68,18 @@ Notebook *Notebook::create(QString path) {
   styleOut.write(styleIn.readAll());
   styleIn.close();
   styleOut.close();
-    
+
+  QFile jpegIn(":/front.jpg");
+  Q_ASSERT(jpegIn.open(QFile::ReadOnly));
+  QFile jpegOut(d.filePath("front.jpg"));
+  if (!jpegOut.open(QFile::WriteOnly)) {
+    qDebug() << "Notebook: Failed to create 'front.jpg' at " << path;
+    return 0;
+  }
+  jpegOut.write(jpegIn.readAll());
+  jpegIn.close();
+  jpegOut.close();
+
   Notebook *nb = new Notebook(d.absolutePath());
   return nb;
 }

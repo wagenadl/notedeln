@@ -18,6 +18,9 @@ private:
   void makeBackground();
   void makeItems();
   void positionItems();
+  void makeWritable();
+private slots:
+  void textChange();
 private:
   Notebook *book; // we do not own
   class Style const &style;

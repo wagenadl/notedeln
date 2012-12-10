@@ -242,7 +242,7 @@ GfxImageItem::DragType GfxImageItem::dragTypeForPoint(QPointF p) {
   double y = p.y();
   double w = imageBoundingRect().width();
   double h = imageBoundingRect().height();
-  qDebug() << "GII: DragTypeForPoint" << x << y << w << h;
+  //  qDebug() << "GII: DragTypeForPoint" << x << y << w << h;
   if (x/w < .25 && y/h < .25)
     return ResizeTopLeft;
   else if (x/w < .25 && y/h > .75)
@@ -314,7 +314,7 @@ QRectF GfxImageItem::boundingRect() const {
 }
 
 void GfxImageItem::makeWritable() {
-  qDebug() << "GII:MakeWritable";
+  //  qDebug() << "GII:MakeWritable";
   Item::makeWritable();
   foreach (Item *i, itemChildren<Item>())
     i->makeWritable();

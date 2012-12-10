@@ -68,6 +68,7 @@ Item *GfxBlockItem::newImage(QImage img, QUrl src, QPointF pos) {
   gid->setScale(scale);
   gid->setPos(pos);
   GfxImageItem *gii = new GfxImageItem(gid, this);
+  gii->makeWritable();
   sizeToFit();
   return gii;
 }
