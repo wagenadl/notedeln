@@ -28,6 +28,7 @@ QString findANotebook() {
 
 int main(int argc, char **argv) {
   App app(argc, argv);
+  app.setWindowIcon(QIcon(":/eln.png"));
 
   QString fn;
   int argi=1;
