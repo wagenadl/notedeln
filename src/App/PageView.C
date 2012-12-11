@@ -81,14 +81,14 @@ void PageView::keyPressEvent(QKeyEvent *e) {
     e->accept();
     return;
   case Qt::Key_Home:
-    if (currentSection!=Pages || (e->modifiers() & Qt::ControlModifier)) {
+    if (e->modifiers() & Qt::ControlModifier) {
       gotoTOC();
       e->accept();
       return;
     }
     break;
   case Qt::Key_End:
-    if (currentSection!=Pages || (e->modifiers() & Qt::ControlModifier)) {
+    if (e->modifiers() & Qt::ControlModifier) {
       lastPage();
       e->accept();
       return;

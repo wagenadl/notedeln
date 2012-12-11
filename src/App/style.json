@@ -70,10 +70,10 @@
 "front-dates-font-size": 20,
 "front-dates-color": "black",
 "front-date-format": "M/dd/yyyy",
-"front-title-y": 150,
-"front-author-y": 580,
-"front-address-y": 650,
-"front-dates-y": 250,
+"front-title-y": 170,
+"front-author-y": 590,
+"front-address-y": 645,
+"front-dates-y": 260,
 "footnote-tag-font-family": "Ubuntu",
 "footnote-tag-font-size": 9,
 "footnote-tag-color": "#aa0088",
@@ -82,5 +82,6 @@
 "footnote-def-color": "#000088",
 "url-color": "#2266ff",
 "archived-url-color": "#00bb33",
-"customref-color": "#aa0088"
+"customref-color": "#aa0088",
+"front-recolor": "#7f7f7f"
 }
