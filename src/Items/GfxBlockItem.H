@@ -20,7 +20,7 @@ public:
   virtual QRectF boundingRect() const;
   virtual void childGeometryChanged();
   virtual void makeWritable();
-protected:
+public: // should be protected, but PageScene calls it
   virtual void mousePressEvent(QGraphicsSceneMouseEvent *);
 protected slots:
   virtual void modifierChange(Qt::KeyboardModifiers);

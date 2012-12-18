@@ -681,18 +681,33 @@ void PageScene::vChanged(int block) {
 void PageScene::mousePressEvent(QGraphicsSceneMouseEvent *e) {
   // qDebug() << "PageScene::mousePressEvent";
   QPointF sp = e->scenePos();
+  bool take = false;
   if (inMargin(sp)) {
     //qDebug() << "  in margin";
-    QGraphicsScene::mousePressEvent(e);
   } else if (belowContent(sp)) {
     //qDebug() << "  below content";
-    if (writable)
-      newTextBlock();
-    else
-      titleItemX->createNote(titleItem->mapFromScene(sp), true);
-  } else {
-    QGraphicsScene::mousePressEvent(e);
+    bool ctrl = ModSnooper::instance()->anyControl();
+    bool shft = ModSnooper::instance()->anyShift();
+    bool alt = ModSnooper::instance()->anyAlt();
+    if (!alt) {
+      if (ctrl || shft) {
+	GfxBlockItem *blk = newGfxBlock();
+	e->setPos(blk->mapFromScene(e->scenePos())); // brutal!
+	blk->mousePressEvent(e);
+	take = true;
+      } else {
+	if (writable) 
+	  newTextBlock();
+	else
+	  titleItemX->createNote(titleItem->mapFromScene(sp), true);
+	take = true;
+      }
+    }
   }
+  if (take)
+    e->accept();
+  else
+    QGraphicsScene::mousePressEvent(e);
 }
 
 void PageScene::keyPressEvent(QKeyEvent *e) {

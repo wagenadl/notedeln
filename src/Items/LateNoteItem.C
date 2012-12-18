@@ -33,9 +33,13 @@ void LateNoteItem::prepDateItem() {
   dateItem->setDefaultTextColor(QColor(style().string("latenote-text-color")));
   QDateTime myDate = data()->created();
   QDateTime pgDate = data()->page()->created();
-  QString lbl = myDate.date().year() == pgDate.date().year()
-    ? myDate.toString(style().string("date-format-yearless"))
-    : myDate.toString(style().string("date-format"));
+  QString lbl;
+  if (myDate.date()==pgDate.date())
+    lbl = "";
+  else if (myDate.date().year() == pgDate.date().year())
+    lbl = myDate.toString(style().string("date-format-yearless"));
+  else
+    lbl = myDate.toString(style().string("date-format"));
   dateItem->setPlainText(lbl);
   setDateItemPosition();
 }

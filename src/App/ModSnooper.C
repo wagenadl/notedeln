@@ -2,6 +2,7 @@
 
 #include "ModSnooper.H"
 #include <QDebug>
+#include "App.H"
 
 #if QQ_X11
   #include <X11/Xlib.h>
@@ -123,4 +124,12 @@ Qt::KeyboardModifiers ModSnooper::keyboardModifiers() const {
  
 void ModSnooper::emitMC() {
   emit modifiersChanged(keyboardModifiers());
+}
+
+ModSnooper *ModSnooper::instance() {
+  App *app = App::instance();
+  Q_ASSERT(app);
+  ModSnooper *ms = app->modSnooper();
+  Q_ASSERT(ms);
+  return ms;
 }

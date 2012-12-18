@@ -18,7 +18,8 @@ public:
   bool anyShift() const;
   bool anyControl() const; 
   bool anyAlt() const;
-  Qt::KeyboardModifiers keyboardModifiers() const;  
+  Qt::KeyboardModifiers keyboardModifiers() const;
+  static ModSnooper *instance();
 signals:
   void modifiersChanged(Qt::KeyboardModifiers);
 private:
