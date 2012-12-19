@@ -9,6 +9,7 @@
 #include "GfxPalette.H"
 #include <QCursor>
 #include <QEventLoop>
+#include "Assert.H"
 
 #define MAX_DISTORT 3
 
@@ -28,7 +29,7 @@ GfxSketchItem::~GfxSketchItem() {
 void GfxSketchItem::rebuildPath() {
   QList<double> const &xx = d->xx();
   QList<double> const &yy = d->yy();
-  Q_ASSERT(xx.size() == yy.size());
+  ASSERT(xx.size() == yy.size());
   if (xx.isEmpty()) {
     path = QPainterPath();
   } else {

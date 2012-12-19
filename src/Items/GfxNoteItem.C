@@ -6,6 +6,7 @@
 #include <QDebug>
 #include <QGraphicsSceneMouseEvent>
 #include <QTextDocument>
+#include "Assert.H"
 
 static Item::Creator<GfxNoteData, GfxNoteItem> c("gfxnote");
 
@@ -39,7 +40,7 @@ GfxNoteItem::~GfxNoteItem() {
 
 void GfxNoteItem::abandon() {
   Item *p = itemParent();
-  Q_ASSERT(p);
+  ASSERT(p);
   p->deleteChild(this);
   data()->parent()->deleteChild(data());
   p->childGeometryChanged();
@@ -110,7 +111,7 @@ void GfxNoteItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *e) {
 }
 
 GfxNoteItem *GfxNoteItem::newNote(QPointF p0, QPointF p1, Item *parent) {
-  Q_ASSERT(parent);
+  ASSERT(parent);
   GfxNoteData *d = new GfxNoteData(parent->data());
   d->setPos(p0);
   d->setEndPoint(p1);

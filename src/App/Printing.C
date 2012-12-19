@@ -4,6 +4,7 @@
 #include "TOCScene.H"
 #include "FrontScene.H"
 #include "PageScene.H"
+#include "Assert.H"
 
 #include <QPrinter>
 #include <QPrintDialog>
@@ -46,7 +47,7 @@ void PageView::printDialog() {
     tocScene->print(&printer, &p);
     foreach (int startPage, book->toc()->entries().keys()) {
       gotoPage(startPage);
-      Q_ASSERT(pageScene);
+      ASSERT(pageScene);
       printer.newPage();
       pageScene->print(&printer, &p);
     }
@@ -85,7 +86,7 @@ void PageView::printDialog() {
       if (to>=startPage &&
 	  from<startPage+book->toc()->entry(startPage)->sheetCount()) {
 	gotoPage(startPage);
-	Q_ASSERT(pageScene);
+	ASSERT(pageScene);
 	if (!first)
 	  printer.newPage();
 	first = !pageScene->print(&printer, &p, from-startPage, to-startPage);

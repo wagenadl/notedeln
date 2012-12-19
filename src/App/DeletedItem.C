@@ -1,15 +1,16 @@
 // DeletedItem.C
 
 #include "DeletedItem.H"
+#include "Assert.H"
 
 DeletedItem::DeletedItem(Item *item) {
-  Q_ASSERT(item);
+  ASSERT(item);
   data = item->data();
-  Q_ASSERT(data);
+  ASSERT(data);
   parentItem = item->itemParent();
-  Q_ASSERT(parentItem);
+  ASSERT(parentItem);
   QObject *parentObject = parentItem;
-  Q_ASSERT(parentObject);  
+  ASSERT(parentObject);  
   connect(parentObject, SIGNAL(destroyed()), this, SLOT(parentDestroyed()));
 }
 
@@ -31,8 +32,8 @@ bool DeletedItem::isRestored() const {
 }
 
 Item *DeletedItem::restoreToParent() {
-  Q_ASSERT(!isOrphaned());
-  Q_ASSERT(!isRestored());
+  ASSERT(!isOrphaned());
+  ASSERT(!isRestored());
   parentItem->data()->addChild(data);
   Item *item = Item::create(data, parentItem);
   parentItem->childGeometryChanged();

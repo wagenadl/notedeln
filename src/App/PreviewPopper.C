@@ -7,6 +7,7 @@
 #include <QLabel>
 #include <QGraphicsSceneHoverEvent>
 #include <QDebug>
+#include "Assert.H"
 
 PreviewPopper::PreviewPopper(Resource *res,
 			     QPoint center, QObject *parent):
@@ -50,7 +51,7 @@ QWidget *PreviewPopper::popup() {
 }
 
 void PreviewPopper::smartPosition() {
-  Q_ASSERT(widget);
+  ASSERT(widget);
   
   QRect desktop = QApplication::desktop()->screenGeometry();
 

@@ -2,6 +2,7 @@
 
 #include "MarkupData.H"
 #include "TextData.H"
+#include "Assert.H"
 #include <QDebug>
 
 static Data::Creator<MarkupData> c("markup");
@@ -72,7 +73,7 @@ bool mergeable(MarkupData const *a, MarkupData const *b) {
 }
 
 void MarkupData::merge(MarkupData const *other) {
-  Q_ASSERT(style_ == other->style_);
+  ASSERT(style_ == other->style_);
   if (other->created()<created())
     setCreated(other->created());
   if (other->modified()>modified())

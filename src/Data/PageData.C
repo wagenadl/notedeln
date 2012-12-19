@@ -6,6 +6,7 @@
 #include <QDebug>
 #include "Notebook.H"
 #include "ResManager.H"
+#include "Assert.H"
 
 static Data::Creator<PageData> c("page");
 
@@ -81,7 +82,7 @@ void PageData::loadMore(QVariantMap const &src) {
   Data::loadMore(src);
   title_ = firstChild<TitleData>();
   // Any old title has already been destructed by Data's loadChildren()
-  Q_ASSERT(title_);
+  ASSERT(title_);
   connect(title_, SIGNAL(mod()), SIGNAL(titleMod()));
 
   maxSheet = 0;

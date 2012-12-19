@@ -5,6 +5,7 @@
 #include "PreviewPopper.H"
 #include "ResManager.H"
 #include "ResourceMagic.H"
+#include "Assert.H"
 
 #include <QPainter>
 #include <QGraphicsSceneHoverEvent>
@@ -149,7 +150,7 @@ void HoverRegion::calcBounds() const {
   int pos = md->start();
   while (pos<md->end()) {
     QTextBlock tb(ti->document()->findBlock(pos));
-    Q_ASSERT(tb.isValid());
+    ASSERT(tb.isValid());
     int rpos = pos-tb.position();
     QTextLayout *tlay = tb.layout();
     QTextLine line = tlay->lineForTextPosition(rpos);
@@ -216,7 +217,7 @@ void HoverRegion::getArchiveAndPreview() {
 
 void HoverRegion::downloadFinished() {
   qDebug() << "HoverRegion::downloadFinished";
-  Q_ASSERT(busy);
+  ASSERT(busy);
   if (refText()!=lastRef) {
     // we have already changed; so we're not interested in the results
     // anymore

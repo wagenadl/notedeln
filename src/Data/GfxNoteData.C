@@ -1,6 +1,7 @@
 // GfxNoteData.C
 
 #include "GfxNoteData.H"
+#include "Assert.H"
 #include <math.h>
 
 static Data::Creator<GfxNoteData> c("gfxnote");
@@ -84,5 +85,5 @@ TextData *GfxNoteData::text() {
 void GfxNoteData::loadMore(QVariantMap const &src) {
   GfxData::loadMore(src);
   text_ = firstChild<TextData>();
-  Q_ASSERT(text_);
+  ASSERT(text_);
 }

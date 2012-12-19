@@ -11,11 +11,12 @@
 #include <QTextLayout>
 #include <QTextDocument>
 #include <QDebug>
+#include "Assert.H"
 
 TextBlockItem::TextBlockItem(TextBlockData *data, Item *parent):
   BlockItem(data, parent),
   data_(data) {
-  Q_ASSERT(data);
+  ASSERT(data);
   item_ = 0;
 
   setPos(style().real("margin-left"), 0);
@@ -75,7 +76,7 @@ void TextBlockItem::setFocus() {
 }
 
 QTextDocument *TextBlockItem::document() const {
-  Q_ASSERT(item_);
+  ASSERT(item_);
   return item_->document();
 }
 

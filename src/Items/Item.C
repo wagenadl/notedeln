@@ -12,9 +12,10 @@
 #include "App.H"
 #include "GfxData.H"
 #include "GfxNoteData.H"
+#include "Assert.H"
 
 Item::Item(Data *d, Item *parent): QGraphicsObject(parent), d(d) {
-  Q_ASSERT(d);
+  ASSERT(d);
   if (parent)
     parent->addChild(this);
   brLocked = false;
@@ -31,7 +32,7 @@ Data *Item::data() {
 
 Style const &Item::style() const {
   Notebook *n = d->book();
-  Q_ASSERT(n);
+  ASSERT(n);
   return n->style();
 }
 
@@ -52,11 +53,11 @@ PageScene *Item::pageScene() const {
 }
 
 Item *Item::create(Data *d, Item *parent) {
-  Q_ASSERT(d);
+  ASSERT(d);
   if (creators().contains(d->type()))
     return creators()[d->type()](d, parent);
   qDebug() << "Item::create: No creator for " << d->type();
-  Q_ASSERT(0);
+  ASSERT(0);
   return 0;
 }
 
@@ -67,7 +68,7 @@ QMap<QString, Item *(*)(Data *, Item *)> &Item::creators() {
   
 void Item::addChild(Item *i) {
   bool haveAlready = children_.contains(i);
-  Q_ASSERT(!haveAlready); // is this too aggressive?
+  ASSERT(!haveAlready); // is this too aggressive?
   if (!haveAlready)
     children_.append(i);
 }
@@ -149,9 +150,9 @@ void Item::childGeometryChanged() {
 
 ModSnooper *Item::modSnooper() {
   App *app = App::instance();
-  Q_ASSERT(app);
+  ASSERT(app);
   ModSnooper *ms = app->modSnooper();
-  Q_ASSERT(ms);
+  ASSERT(ms);
   return ms;
 }
 

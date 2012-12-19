@@ -4,6 +4,7 @@
 
 #include "Style.H"
 #include "Data.H"
+#include "Assert.H"
 
 #include <QGraphicsTextItem>
 #include <QGraphicsLineItem>
@@ -20,9 +21,9 @@
 BaseScene::BaseScene(Data *data, QObject *parent):
   QGraphicsScene(parent),
   data(data) {
-  Q_ASSERT(data);
+  ASSERT(data);
   Notebook *book = data->book();
-  Q_ASSERT(book);
+  ASSERT(book);
   style_ = &book->style();
   nSheets = 1;
 
@@ -201,7 +202,7 @@ int BaseScene::sheetCount() const {
 }
 
 void BaseScene::focusTitle() {
-  Q_ASSERT(titleItem);
+  ASSERT(titleItem);
   titleItem->setFocus();
 }
 

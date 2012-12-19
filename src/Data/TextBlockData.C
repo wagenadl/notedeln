@@ -3,6 +3,7 @@
 #include "TextBlockData.H"
 #include <QDebug>
 #include "FootnoteData.H"
+#include "Assert.H"
 
 static Data::Creator<TextBlockData> c("textblock");
 
@@ -27,7 +28,7 @@ void TextBlockData::loadMore(QVariantMap const &src) {
   // Our old text_ pointer is now invalidated: since it was part of
   // Data's children array, it has already been deleted.
   text_ = firstChild<TextData>();
-  Q_ASSERT(text_);
+  ASSERT(text_);
 }
 
 bool TextBlockData::isEmpty() const {

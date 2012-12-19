@@ -7,6 +7,7 @@
 #include <QDebug>
 #include "Style.H"
 #include "Notebook.H"
+#include "Assert.H"
 
 Data::Data(Data *parent0): QObject(parent0) {
   loading_ = false;
@@ -34,7 +35,7 @@ QString const &Data::type() const {
 
 Style const &Data::style() const {
   Notebook *b = book();
-  Q_ASSERT(b);
+  ASSERT(b);
   return b->style();
 }
 
@@ -150,8 +151,8 @@ void Data::saveChildren(QVariantMap &dst) const {
 }  
 
 void Data::insertChildBefore(Data *d, Data *ref, ModType mt) {
-  Q_ASSERT(!children_.contains(d));
-  Q_ASSERT(d->parent()==0);
+  ASSERT(!children_.contains(d));
+  ASSERT(d->parent()==0);
   if (ref==0) {
     addChild(d, mt);
     return;
@@ -165,13 +166,13 @@ void Data::insertChildBefore(Data *d, Data *ref, ModType mt) {
     }
   }
   qDebug() << "Data::insertChildBefore failed: not found " << ref;
-  Q_ASSERT(0);
+  ASSERT(0);
 }  
 
 
 void Data::addChild(Data *d, ModType mt) {
-  Q_ASSERT(!children_.contains(d));
-  Q_ASSERT(d->parent()==0 || d->parent()==this);
+  ASSERT(!children_.contains(d));
+  ASSERT(d->parent()==0 || d->parent()==this);
   children_.append(d);
   d->setParent(this);
   markModified(mt);
@@ -247,9 +248,9 @@ void Data::loadProps(QVariantMap const &src) {
       if (enumprops.contains(i.key()))
 	// This ridiculous trick is needed to make qt load enum values,
 	// because qt doesn't like longlong variants for enum.
-	Q_ASSERT(setProperty(i.key().toLatin1(), i.value().toInt()));
+	ASSERT(setProperty(i.key().toLatin1(), i.value().toInt()));
       else
-	Q_ASSERT(setProperty(i.key().toLatin1(), i.value()));
+	ASSERT(setProperty(i.key().toLatin1(), i.value()));
     }
   }
 }

@@ -5,13 +5,14 @@
 #include "TextItem.H"
 #include "FootnoteGroupItem.H"
 #include "AutoNote.H"
+#include "Assert.H"
 
 #include <QDebug>
 
 FootnoteItem::FootnoteItem(FootnoteData *data, Item *parent):
   TextBlockItem(data, parent), data_(data) {
-  Q_ASSERT(data);
-  Q_ASSERT(data->book());
+  ASSERT(data);
+  ASSERT(data->book());
   tag_ = new QGraphicsTextItem(this);
 
   tag_->setFont(QFont(style().string("footnote-tag-font-family"),

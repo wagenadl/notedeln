@@ -8,10 +8,11 @@
 #include "ResManager.H"
 #include "HoverRegion.H"
 #include <QSet>
+#include "Assert.H"
 
 TextMarkings::TextMarkings(TextData *data, TextItem *parent):
   QGraphicsObject(parent), data(data) {
-  Q_ASSERT(parent);
+  ASSERT(parent);
   doc = parent->document();
   connect(doc, SIGNAL(contentsChange(int, int, int)),
 	  SLOT(update(int, int, int)));

@@ -2,6 +2,7 @@
 
 #include "ResLoader.H"
 #include "Resource.H"
+#include "Assert.H"
 
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
@@ -22,7 +23,7 @@ QNetworkAccessManager &ResLoader::networkAccessManager() {
 }
 
 ResLoader::ResLoader(Resource *parent): QObject(parent), parentRes(parent) {
-  Q_ASSERT(parentRes);
+  ASSERT(parentRes);
   
   ok = false;
   err = false;

@@ -13,6 +13,7 @@
 #include "GfxLinePalette.H"
 #include "GfxMarkPalette.H"
 #include "DeletedStack.H"
+#include "Assert.H"
 
 #include <QKeyEvent>
 #include <QDebug>
@@ -153,7 +154,7 @@ void PageView::gotoPage(int n) {
     if (te) {
       // let's look at page before end
       PageFile *file = book->page(te->startPage());
-      Q_ASSERT(file);
+      ASSERT(file);
       if (file->data()->isEmpty()) {
 	// previous page is empty -> go there instead
 	gotoPage(n-1);
@@ -173,8 +174,8 @@ void PageView::gotoPage(int n) {
   }
 
   PageFile *file = book->page(te->startPage());
-  Q_ASSERT(file);
-  Q_ASSERT(file->data());
+  ASSERT(file);
+  ASSERT(file->data());
 
   leavePage();
   if (pageScene)
@@ -227,10 +228,10 @@ void PageView::leavePage() {
     // Leaving the last page in the notebook, not being the only page.
     // If the page is empty, we'll delete it.   
     TOCEntry *te = book->toc()->find(currentPage);
-    Q_ASSERT(te);
+    ASSERT(te);
     PageFile *file = book->page(te->startPage());
-    Q_ASSERT(file);
-    Q_ASSERT(file->data());
+    ASSERT(file);
+    ASSERT(file->data());
     if (file->data()->isEmpty()) {
       // Leaving an empty page
       if (pageScene)

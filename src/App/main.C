@@ -9,6 +9,7 @@
 #include <QDesktopWidget>
 #include <QDebug>
 #include <stdlib.h>
+#include "Assert.H"
 
 QString findANotebook() {
   // we could try to remember our most recent one
@@ -65,7 +66,7 @@ int main(int argc, char **argv) {
     }
     nb = Notebook::load(fn);
   }
-  Q_ASSERT(nb);
+  ASSERT(nb);
   QObject::connect(&app, SIGNAL(aboutToQuit()), nb, SLOT(flush()));
   
   PageEditor *editor = new PageEditor(nb);

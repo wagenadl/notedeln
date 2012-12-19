@@ -7,6 +7,7 @@
 #include <QDebug>
 #include <QColor>
 #include <qjson/parser.h>
+#include "Assert.H"
 
 Style::Style(QString fn) {
   if (fn=="-")
@@ -34,7 +35,7 @@ QVariant Style::operator[](QString k) const {
   if (options_.contains(k))
     return options_[k];
   qDebug() << "Style: No value for " << k;
-  // Q_ASSERT(0);
+  // ASSERT(0);
   return QVariant();
 }
 
@@ -58,7 +59,7 @@ QColor Style::color(QString k) const {
   QColor c(string(k));
   if (!c.isValid()) {
     qDebug() << "Not a valid color: " << k << string(k);
-    Q_ASSERT(0); // this is not actually fatal, so don't crash unless debug
+    ASSERT(0); // this is not actually fatal, so don't crash unless debug
   }
   return c;    
 }

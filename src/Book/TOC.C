@@ -5,6 +5,7 @@
 #include "TOCEntry.H"
 #include "PageData.H"
 #include "TitleData.H"
+#include "Assert.H"
 
 static Data::Creator<TOC> c("toc");
 
@@ -27,7 +28,7 @@ QMap<int, TOCEntry *> const &TOC::entries() const {
 }
 
 TOCEntry *TOC::entry(int startPage) const {
-  Q_ASSERT(entries_.contains(startPage));
+  ASSERT(entries_.contains(startPage));
   return entries_[startPage];
 }
 

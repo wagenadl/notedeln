@@ -17,6 +17,7 @@
 #include "DragLine.H"
 #include "GfxMarkItem.H"
 #include "GfxSketchItem.H"
+#include "Assert.H"
 
 GfxBlockItem::GfxBlockItem(GfxBlockData *data, Item *parent):
   BlockItem(data, parent), data_(data) {
@@ -48,8 +49,8 @@ static QPointF constrainPointToRect(QPointF p, QRectF rect) {
 }
 
 Item *GfxBlockItem::newImage(QImage img, QUrl src, QPointF pos) {
-  Q_ASSERT(data()->book());
-  Q_ASSERT(data()->resManager());
+  ASSERT(data()->book());
+  ASSERT(data()->resManager());
   double maxW = availableWidth();
   double maxH = maxW;
   double scale = 1;
@@ -111,15 +112,19 @@ void GfxBlockItem::paint(QPainter *p,
 			 QWidget *) {
   // paint background grid; items draw themselves  
   QRectF bb = boundingRect();
-
-  p->setPen(QPen(QBrush(style().color("canvas-grid-color")),
+  QColor c(style().color("canvas-grid-color"));
+  c.setAlpha(style().real("canvas-grid-alpha"));
+  p->setPen(QPen(c,
 		 style().real("canvas-grid-line-width"),
 		 Qt::SolidLine,
 		 Qt::FlatCap));
   double dx = style().real("canvas-grid-spacing");
   drawGrid(p, bb, dx);
 
-  p->setPen(QPen(QBrush(style().color("canvas-grid-major-color")),
+  c = style().color("canvas-grid-major-color");
+  c.setAlpha(style().real("canvas-grid-major-alpha"));
+
+  p->setPen(QPen(c,
 		 style().real("canvas-grid-major-line-width"),
 		 Qt::SolidLine,
 		 Qt::FlatCap));

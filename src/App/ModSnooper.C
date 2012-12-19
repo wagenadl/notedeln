@@ -3,6 +3,7 @@
 #include "ModSnooper.H"
 #include <QDebug>
 #include "App.H"
+#include "Assert.H"
 
 #if QQ_X11
   #include <X11/Xlib.h>
@@ -128,8 +129,8 @@ void ModSnooper::emitMC() {
 
 ModSnooper *ModSnooper::instance() {
   App *app = App::instance();
-  Q_ASSERT(app);
+  ASSERT(app);
   ModSnooper *ms = app->modSnooper();
-  Q_ASSERT(ms);
+  ASSERT(ms);
   return ms;
 }

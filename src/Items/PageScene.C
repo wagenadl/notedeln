@@ -15,6 +15,7 @@
 #include "FootnoteGroupItem.H"
 #include "FootnoteData.H"
 #include "FootnoteItem.H"
+#include "Assert.H"
 
 #include <QGraphicsView>
 #include <QGraphicsTextItem>
@@ -117,7 +118,7 @@ void PageScene::makeBlockItems() {
     BlockItem *bi = tryMakeTextBlock(bd);
     if (!bi)
       bi = tryMakeGfxBlock(bd);
-    Q_ASSERT(bi);
+    ASSERT(bi);
     connect(bi, SIGNAL(vboxChanged()), vChangeMapper, SLOT(map()));
     blockItems.append(bi);
     sheetNos.append(bd->sheet());
@@ -422,7 +423,7 @@ void PageScene::splitTextBlock(int iblock, int pos) {
   // block number iblock is going to be split
   TextBlockData *orig =
     dynamic_cast<TextBlockData*>(blockItems[iblock]->data());
-  Q_ASSERT(orig);
+  ASSERT(orig);
   TextBlockData *block1 = Data::deepCopy(orig);
   deleteBlock(iblock);
   TextBlockData *block2 = block1->split(pos);
@@ -434,15 +435,15 @@ void PageScene::splitTextBlock(int iblock, int pos) {
 }
 
 void PageScene::joinTextBlocks(int iblock_pre, int iblock_post) {
-  Q_ASSERT(iblock_pre<iblock_post);
-  Q_ASSERT(iblock_pre>=0);
-  Q_ASSERT(iblock_post<blockItems.size());
+  ASSERT(iblock_pre<iblock_post);
+  ASSERT(iblock_pre>=0);
+  ASSERT(iblock_post<blockItems.size());
   TextBlockItem *tbi_pre
     = dynamic_cast<TextBlockItem*>(blockItems[iblock_pre]);
   TextBlockItem *tbi_post
     = dynamic_cast<TextBlockItem*>(blockItems[iblock_post]);
-  Q_ASSERT(tbi_pre);
-  Q_ASSERT(tbi_post);
+  ASSERT(tbi_pre);
+  ASSERT(tbi_post);
   TextBlockData *block1 = Data::deepCopy(tbi_pre->data());
   TextBlockData *block2 = Data::deepCopy(tbi_post->data());
   int pos = block1->text()->text().size();
@@ -582,7 +583,7 @@ void PageScene::futileMovement(int block) {
   }
   
   TextBlockItem *tgt = dynamic_cast<TextBlockItem*>(blockItems[tgtidx]);
-  Q_ASSERT(tgt);
+  ASSERT(tgt);
   if (sheetNos[tgtidx]!=iSheet)
     gotoSheet(sheetNos[tgtidx]);
   tgt->setFocus();
@@ -823,7 +824,7 @@ bool PageScene::importDroppedImage(QPointF scenePos, QImage const &img,
   } 
   gdst->newImage(img, source, gdst->mapFromScene(scenePos));
   int i = indexOfBlock(gdst);
-  Q_ASSERT(i>=0);
+  ASSERT(i>=0);
   gotoSheet(sheetNos[i]);
   return true;
 }
@@ -909,7 +910,7 @@ bool PageScene::isWritable() const {
 }
 
 void PageScene::newFootnote(int block, QString tag) {
-  Q_ASSERT(block>=0 && block<blockItems.size());
+  ASSERT(block>=0 && block<blockItems.size());
   foreach (FootnoteItem *fni,
 	   footnoteGroups[block]->itemChildren<FootnoteItem>()) {
     qDebug() << "Comparing" << tag << " against " << fni->data()->tag();
@@ -930,7 +931,7 @@ void PageScene::newFootnote(int block, QString tag) {
 }
 
 void PageScene::noteVChanged(int block) {
-  Q_ASSERT(block>=0 && block<blockItems.size());
+  ASSERT(block>=0 && block<blockItems.size());
   int s = sheetNos[block];
   for (int i=0; i<block; i++) {
     if (sheetNos[i]==s) {

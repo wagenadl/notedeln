@@ -4,6 +4,7 @@
 #include <QDebug>
 #include <QTimer>
 #include "JSONFile.H"
+#include "Assert.H"
 
 double DataFile0::saveDelay_ = 10; // save every 10 s
 bool DataFile0::saveImmediatelyToo_ = false;
@@ -49,7 +50,7 @@ DataFile0::DataFile0(Data *data, QString fn, QObject *parent):
   needToSave_(false),
   saveTimer_(0) {
   ok_ = data_ != 0;
-  Q_ASSERT(data_);
+  ASSERT(data_);
   if (!ok_)
     return;
   data_->setParent(this);

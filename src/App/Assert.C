@@ -38,7 +38,7 @@ void eln_backtrace(int skip) {
       abi::__cxa_demangle(begin_name, demangled,
 			  &dm_length,&status);
       if (status==0) {
-	fprintf(stderr, "  %s +0x%x\n", demangled, begin_offset);
+	fprintf(stderr, "  %s +%s\n", demangled, begin_offset);
       } else {
 	*--begin_name='(';
 	*--begin_offset='+';

@@ -4,6 +4,7 @@
 #include "LateNoteData.H"
 #include "TextItem.H"
 #include "PageData.H"
+#include "Assert.H"
 
 #include <QBrush>
 #include <QDebug>
@@ -56,7 +57,7 @@ void LateNoteItem::setDateItemPosition() {
 }
 
 LateNoteItem *LateNoteItem::newNote(QPointF p0, QPointF p1, Item *parent) {
-  Q_ASSERT(parent);
+  ASSERT(parent);
   LateNoteData *d = new LateNoteData(parent->data());
   d->setPos(p0);
   d->setEndPoint(p1);

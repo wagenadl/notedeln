@@ -5,6 +5,7 @@
 #include "PageFile.H"
 #include "TitleData.H"
 #include "Style.H"
+#include "Assert.H"
 
 #include <QDebug>
 
@@ -13,8 +14,8 @@ Notebook::Notebook(QString path) {
   tocFile_ = TOCFile::load(root.filePath("toc.json"), this);
   tocFile_->data()->setBook(this);
   bookFile_ = BookFile::load(root.filePath("book.json"), this);
-  Q_ASSERT(tocFile_);
-  Q_ASSERT(bookFile_);
+  ASSERT(tocFile_);
+  ASSERT(bookFile_);
   style_ = new Style(root.filePath("style.json"));
 }
 
@@ -59,7 +60,7 @@ Notebook *Notebook::create(QString path) {
   delete BookFile::create(d.filePath("book.json"));
 
   QFile styleIn(":/style.json");
-  Q_ASSERT(styleIn.open(QFile::ReadOnly));
+  ASSERT(styleIn.open(QFile::ReadOnly));
   QFile styleOut(d.filePath("style.json"));
   if (!styleOut.open(QFile::WriteOnly)) {
     qDebug() << "Notebook: Failed to create 'style.json' at " << path;
@@ -70,7 +71,7 @@ Notebook *Notebook::create(QString path) {
   styleOut.close();
 
   QFile jpegIn(":/front.jpg");
-  Q_ASSERT(jpegIn.open(QFile::ReadOnly));
+  ASSERT(jpegIn.open(QFile::ReadOnly));
   QFile jpegOut(d.filePath("front.jpg"));
   if (!jpegOut.open(QFile::WriteOnly)) {
     qDebug() << "Notebook: Failed to create 'front.jpg' at " << path;
@@ -96,7 +97,7 @@ PageFile *Notebook::page(int n)  {
   if (pgFiles.contains(n))
     return pgFiles[n];
   PageFile *f = loadPage(QDir(root.filePath("pages")), n, this);
-  Q_ASSERT(f);
+  ASSERT(f);
   pgFiles[n] = f;
 
   f->data()->setBook(this);
@@ -106,7 +107,7 @@ PageFile *Notebook::page(int n)  {
 }
 
 PageFile *Notebook::createPage(int n) {
-  Q_ASSERT(!pgFiles.contains(n));
+  ASSERT(!pgFiles.contains(n));
   PageFile *f = ::createPage(root.filePath("pages"), n, this);
   if (!f)
     return 0;
@@ -127,7 +128,7 @@ bool Notebook::deletePage(int pgno) {
     qDebug() << "Notebook: cannot delete nonexistent page";
     return false;
   }
-  Q_ASSERT(pf->data());
+  ASSERT(pf->data());
   if (!pf->data()->isEmpty()) {
     qDebug() << "Notebook: refusing to delete non-empty page";
     return false;
@@ -137,27 +138,27 @@ bool Notebook::deletePage(int pgno) {
   delete pgFiles[pgno];
   pgFiles.remove(pgno);
 
-  Q_ASSERT(toc()->deleteEntry(toc()->find(pgno)));
+  ASSERT(toc()->deleteEntry(toc()->find(pgno)));
   QString fn = QString("pages/%1.json").arg(pgno);
   QString fn0 = fn + "~";
   root.remove(fn0);
-  Q_ASSERT(root.rename(fn, fn0));
+  ASSERT(root.rename(fn, fn0));
   return true;
 }
 
 void Notebook::titleMod() {
   PageData *pg = dynamic_cast<PageData *>(sender());
-  Q_ASSERT(pg);
+  ASSERT(pg);
   TOCEntry *e = toc()->entry(pg->startPage());
-  Q_ASSERT(e);
+  ASSERT(e);
   e->setTitle(pg->title()->current()->text());
 }
 
 void Notebook::sheetCountMod() {
   PageData *pg = dynamic_cast<PageData *>(sender());
-  Q_ASSERT(pg);
+  ASSERT(pg);
   TOCEntry *e = toc()->entry(pg->startPage());
-  Q_ASSERT(e);
+  ASSERT(e);
   e->setSheetCount(pg->sheetCount());
 }
 

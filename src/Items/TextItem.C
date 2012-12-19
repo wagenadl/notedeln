@@ -10,6 +10,7 @@
 #include "HoverRegion.H"
 #include "BlockItem.H"
 #include "ResourceMagic.H"
+#include "Assert.H"
 
 #include <QFont>
 #include <QTextDocument>
@@ -92,7 +93,7 @@ void TextItem::docChange() {
     // trivial change; this happens if markup changes
     return;
   }
-  Q_ASSERT(isWritable());
+  ASSERT(isWritable());
   data_->setText(plainText);
   emit textChanged();
 }
@@ -499,7 +500,7 @@ static bool approvedMark(QString s) {
 }
 
 QString TextItem::markedText(MarkupData *md) {
-  Q_ASSERT(md);
+  ASSERT(md);
   QTextCursor c = textCursor();
   c.setPosition(md->start());
   c.setPosition(md->end(), QTextCursor::KeepAnchor);
@@ -526,9 +527,9 @@ bool TextItem::tryExplicitLink() {
 }
 
 bool TextItem::tryFootnote() {
-  Q_ASSERT(pageScene());
+  ASSERT(pageScene());
   int i = pageScene()->findBlock(this);
-  Q_ASSERT(i>=0);
+  ASSERT(i>=0);
   
   QTextCursor c = textCursor();
   MarkupData *oldmd = markupAt(c.position(), MarkupData::FootnoteRef);
@@ -564,7 +565,7 @@ bool TextItem::tryFootnote() {
   } else if (start<end) {
     addMarkup(MarkupData::FootnoteRef, start, end);
     MarkupData *md = markupAt(start, end, MarkupData::FootnoteRef);
-    Q_ASSERT(md);
+    ASSERT(md);
     pageScene()->newFootnote(i, markedText(md));
     return true;
   } else {
