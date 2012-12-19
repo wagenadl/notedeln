@@ -66,6 +66,7 @@ int main(int argc, char **argv) {
     nb = Notebook::load(fn);
   }
   Q_ASSERT(nb);
+  QObject::connect(&app, SIGNAL(aboutToQuit()), nb, SLOT(flush()));
   
   PageEditor *editor = new PageEditor(nb);
   QSizeF size = editor->sizeHint();
@@ -75,6 +76,5 @@ int main(int argc, char **argv) {
   editor->show();
   int r = app.exec();
   delete editor;
-  delete nb; // this flushes
   return r;
 }

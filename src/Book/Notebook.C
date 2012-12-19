@@ -170,4 +170,5 @@ void Notebook::flush() {
   bookFile_->save(true);
   foreach (PageFile *pf, pgFiles)
     pf->save(true);
+  qDebug() << "Notebook flushed to disk";
 }
