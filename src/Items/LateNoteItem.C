@@ -17,8 +17,7 @@ LateNoteItem::LateNoteItem(LateNoteData *data, Item *parent):
     line->setPen(QPen(QBrush(QColor(style().string("latenote-line-color"))),
 		      style().real("latenote-line-width")));
   text->setDefaultTextColor(QColor(style().string("latenote-text-color")));
-  text->setFont(QFont(style().string("latenote-font-family"),
-		style().real("latenote-font-size")));
+  text->setFont(style().font("latenote-font"));
   prepDateItem();
   if (data->isRecent())
     makeWritable();
@@ -29,8 +28,7 @@ LateNoteItem::~LateNoteItem() {
 
 void LateNoteItem::prepDateItem() {
   dateItem = new QGraphicsTextItem(this);
-  dateItem->setFont(QFont(style().string("latenote-font-family"),
-			  style().real("latenote-font-size")));
+  dateItem->setFont(style().font("latenote-font"));
   dateItem->setDefaultTextColor(QColor(style().string("latenote-text-color")));
   QDateTime myDate = data()->created();
   QDateTime pgDate = data()->page()->created();

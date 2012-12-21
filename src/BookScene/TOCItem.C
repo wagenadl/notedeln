@@ -22,12 +22,10 @@ void TOCItem::makeItems() {
   titleItem = new QGraphicsTextItem(this);
   pgnoItem = new QGraphicsTextItem(this);
 
-  dateItem->setFont(QFont(style().string("toc-font-family"),
-			  style().real("toc-font-size")));
-  titleItem->setFont(QFont(style().string("toc-font-family"),
-			   style().real("toc-font-size")));
-  pgnoItem->setFont(QFont(style().string("toc-font-family"),
-			  style().real("toc-font-size")));
+  QFont f = style().font("toc-font");
+  dateItem->setFont(f);
+  titleItem->setFont(f);
+  pgnoItem->setFont(f);
 
   dateItem->setDefaultTextColor(style().color("toc-date-color"));
   titleItem->setDefaultTextColor(style().color("toc-title-color"));

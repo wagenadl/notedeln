@@ -8,9 +8,8 @@
 TitleItem::TitleItem(TitleData *data, Item *parent):
   TextItem(data->current(), parent), data_(data) {
 
-  setFont(QFont(style("title-font-family").toString(),
-		style("title-font-size").toDouble()));
-  setDefaultTextColor(QColor(style("title-color").toString()));
+  setFont(style().font("title-font"));
+  setDefaultTextColor(style().color("title-color"));
   setAllowParagraphs(false);
 }
 

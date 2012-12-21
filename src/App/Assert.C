@@ -69,12 +69,12 @@ void eln_assert(char const *assertion, char const *file, int line) {
 
   if (prior_failure) {
     fprintf(stderr, "Assertion failed while quitting. Terminating hard.\n");
-    exit(2);
+    abort();
   } else {
     prior_failure = true;
     App::quit();
     fprintf(stderr, "Application shut down OK. Terminating.\n");
-    exit(1);
+    abort();
   }
 }
 

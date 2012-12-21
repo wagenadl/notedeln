@@ -59,7 +59,7 @@ void FrontScene::rebuild() {
     dates->setHtml(data->startDate().toString(dateFmt));
   else
     dates->setHtml(data->startDate().toString(dateFmt)
-		   + "&ndash;" +
+		   + QString::fromUtf8("‒") +
 		   data->endDate().toString(dateFmt));
 
   positionItems();
@@ -120,20 +120,16 @@ void FrontScene::makeBackground() {
 }
 
 void FrontScene::makeItems() {
-  title = addText("title", QFont(style.string("front-font-family"),
-				 style.real("front-title-font-size")));
+  title = addText("title", style.font("front-title-font"));
   title->setDefaultTextColor(style.color("front-title-color"));
   
-  author = addText("author", QFont(style.string("front-font-family"),
-				 style.real("front-author-font-size")));
+  author = addText("author", style.font("front-author-font"));
   author->setDefaultTextColor(style.color("front-author-color"));
 
-  address = addText("address", QFont(style.string("front-font-family"),
-				 style.real("front-address-font-size")));
+  address = addText("address", style.font("front-address-font"));
   address->setDefaultTextColor(style.color("front-address-color"));
 
-  dates = addText("dates", QFont(style.string("front-font-family"),
-				 style.real("front-dates-font-size")));
+  dates = addText("dates", style.font("front-dates-font"));
   dates->setDefaultTextColor(style.color("front-dates-color"));
 }
 

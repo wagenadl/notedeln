@@ -81,25 +81,20 @@ QString BaseScene::pgNoToString(int n) const {
 
 void BaseScene::makePgNoItem() {
   pgNoItem = addText(pgNoToString(startPage() + iSheet),
-		     QFont(style_->string("pgno-font-family"),
-			   style_->real("pgno-font-size")));
+		     style_->font("pgno-font"));
   pgNoItem->setDefaultTextColor(style_->color("pgno-color"));
   positionPgNoItem();
 }
 
 
 void BaseScene::makeContdItems() {
-  contdItem = addText(">",
-		      QFont(style_->string("contd-font-family"),
-			    style_->real("contd-font-size")));
+  contdItem = addText(">", style_->font("contd-font"));
   contdItem->setDefaultTextColor(style_->color("contd-color"));
   QPointF tr = contdItem->boundingRect().topRight();
   contdItem->setPos(style_->real("margin-left") - tr.x(),
 		    style_->real("margin-top") - tr.y());
 
-  contItem = addText(">",
-		     QFont(style_->string("contd-font-family"),
-			   style_->real("contd-font-size")));
+  contItem = addText(">",style_->font("contd-font"));
   contItem->setDefaultTextColor(style_->color("contd-color"));
   QPointF bl = contItem->boundingRect().bottomLeft();
   contItem->setPos(style_->real("page-width") - style_->real("margin-right")
@@ -122,8 +117,7 @@ void BaseScene::positionPgNoItem() {
 void BaseScene::makeTitleItem() {
   QGraphicsTextItem *tt = new QGraphicsTextItem(title());
   titleItem = tt;
-  tt->setFont(QFont(style().string("title-font-family"),
-			   style().real("title-font-size")));
+  tt->setFont(style().font("title-font"));
   tt->setDefaultTextColor(style().color("title-color"));
   addItem(titleItem);
   tt->setTextWidth(style_->real("page-width")

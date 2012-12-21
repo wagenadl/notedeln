@@ -113,7 +113,7 @@ void GfxBlockItem::paint(QPainter *p,
   // paint background grid; items draw themselves  
   QRectF bb = boundingRect();
   QColor c(style().color("canvas-grid-color"));
-  c.setAlpha(style().real("canvas-grid-alpha"));
+  c.setAlphaF(style().real("canvas-grid-alpha"));
   p->setPen(QPen(c,
 		 style().real("canvas-grid-line-width"),
 		 Qt::SolidLine,
@@ -122,7 +122,7 @@ void GfxBlockItem::paint(QPainter *p,
   drawGrid(p, bb, dx);
 
   c = style().color("canvas-grid-major-color");
-  c.setAlpha(style().real("canvas-grid-major-alpha"));
+  c.setAlphaF(style().real("canvas-grid-major-alpha"));
 
   p->setPen(QPen(c,
 		 style().real("canvas-grid-major-line-width"),

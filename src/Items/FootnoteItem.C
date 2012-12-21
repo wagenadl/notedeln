@@ -15,12 +15,10 @@ FootnoteItem::FootnoteItem(FootnoteData *data, Item *parent):
   ASSERT(data->book());
   tag_ = new QGraphicsTextItem(this);
 
-  tag_->setFont(QFont(style().string("footnote-tag-font-family"),
-		     style().real("footnote-tag-font-size")));
+  tag_->setFont(style().font("footnote-tag-font"));
   tag_->setDefaultTextColor(style().color("footnote-tag-color"));
 
-  text()->setFont(QFont(style().string("footnote-def-font-family"),
-		     style().real("footnote-def-font-size")));
+  text()->setFont(style().font("footnote-def-font"));
   text()->setDefaultTextColor(style().color("footnote-def-color"));
 
   updateTag();

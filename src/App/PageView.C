@@ -165,7 +165,7 @@ void PageView::gotoPage(int n) {
   }
 
   if (currentSection==Pages && currentPage==n)
-    return; // don't move (special case must be checked to avoid deleting tgt)
+      return; // don't move (special case must be checked to avoid deleting tgt)
   
   TOCEntry *te = book->toc()->find(n);
   if (!te) {
@@ -173,27 +173,35 @@ void PageView::gotoPage(int n) {
     return;
   }
 
-  PageFile *file = book->page(te->startPage());
-  ASSERT(file);
-  ASSERT(file->data());
-
-  leavePage();
-  if (pageScene)
-    delete pageScene;
-  pageScene = 0;
-
-  currentSection = Pages;
-  currentPage = n;
-
-  pageScene = new PageScene(file->data(), this);
-  pageScene->populate();
-  connect(pageScene, SIGNAL(nowOnPage(int)), SLOT(nowOnPage(int)));
-  if (book->toc()->isLast(te) && file->data()->isRecent())
-    pageScene->makeWritable(); // this should be even more sophisticated
-  setScene(pageScene);
+  if (currentSection==Pages
+      && currentPage>=te->startPage()
+      && currentPage<te->startPage()+te->sheetCount()) {
+    // already in the right page, let's just go to the right sheet
+    currentPage = n;
+  } else {
+    PageFile *file = book->page(te->startPage());
+    ASSERT(file);
+    ASSERT(file->data());
+    
+    leavePage();
+    if (pageScene)
+      delete pageScene;
+    pageScene = 0;
+    
+    currentSection = Pages;
+    currentPage = n;
+    
+    pageScene = new PageScene(file->data(), this);
+    pageScene->populate();
+    connect(pageScene, SIGNAL(nowOnPage(int)), SLOT(nowOnPage(int)));
+    if (book->toc()->isLast(te) && file->data()->isRecent())
+      pageScene->makeWritable(); // this should be even more sophisticated
+    setScene(pageScene);
+  }
+  
   pageScene->gotoSheet(currentPage - te->startPage());
   
-  if (file->data()->title()->isDefault())
+  if (pageScene->data()->title()->isDefault())
     pageScene->focusTitle();
   else
     pageScene->focusEnd();

@@ -1,13 +1,6 @@
 <!DOCTYPE RCC><RCC version="1.0">
  <qresource>
+     <file>icons/browse.svg</file>
      <file>icons/type.svg</file>
-     <file>icons/canvas.svg</file>
-     <file>icons/line.svg</file>
-     <file>icons/arrow.svg</file>
-     <file>icons/emph.svg</file>
-     <file>icons/strikeout.svg</file>
-     <file>icons/plain.svg</file>
-     <file>icons/camera-photo.svg</file>
-     <file>icons/insert-image.png</file>
  </qresource>
 </RCC>

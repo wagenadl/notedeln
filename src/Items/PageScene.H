@@ -13,6 +13,7 @@ public:
   PageScene(class PageData *data, QObject *parent=0);
   virtual void populate();
   virtual ~PageScene();
+  class PageData *data() const;
   void makeWritable();
   void focusEnd(); // may create new text block
   bool isWritable() const;
@@ -90,7 +91,7 @@ private:
   QList<double> topY; // top Y position for each block
   QList<class FootnoteGroupItem *> footnoteGroups; // one for each block
 private:
-  PageData *data;
+  PageData *data_;
   bool writable;
   class TitleItem *titleItemX;
 };

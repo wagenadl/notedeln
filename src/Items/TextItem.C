@@ -82,8 +82,7 @@ TextItem::~TextItem() {
 }
 
 void TextItem::initializeFormat() {
-  setFont(QFont(style().string("text-font-family"),
-		style().real("text-font-size")));
+  setFont(style().font("text-font"));
   setDefaultTextColor(style().color("text-color"));
 }
 

@@ -37,7 +37,7 @@
 
 PageScene::PageScene(PageData *data, QObject *parent):
   BaseScene(data, parent),
-  data(data) {
+  data_(data) {
   networkManager = 0;
   writable = false;
   
@@ -79,9 +79,8 @@ void PageScene::makeBackground() {
 }
 
 void PageScene::makeDateItem() {
-  dateItem = addText(data->created().toString(style().string("date-format")),
-		     QFont(style().string("date-font-family"),
-			   style().real("date-font-size")));
+  dateItem = addText(data_->created().toString(style().string("date-format")),
+		     style().font("date-font"));
   dateItem->setDefaultTextColor(style().color("date-color"));
   QPointF br = dateItem->boundingRect().bottomRight();
   dateItem->setPos(style().real("page-width") -
@@ -93,7 +92,7 @@ void PageScene::makeDateItem() {
 }
 
 void PageScene::makeTitleItem() {
-  titleItemX = new TitleItem(data->title(), 0);
+  titleItemX = new TitleItem(data_->title(), 0);
   titleItem = titleItemX;
   connect(titleItemX,
 	  SIGNAL(futileMovementKey(int, Qt::KeyboardModifiers)),
@@ -102,9 +101,7 @@ void PageScene::makeTitleItem() {
 
   titleItemX->makeWritable();
 
-  nOfNItem = addText("n/N",
-		     QFont(style().string("title-font-family"),
-			   style().real("title-font-size")));
+  nOfNItem = addText("n/N", style().font("title-font"));
   nOfNItem->setDefaultTextColor(style().color("pgno-color"));
   
   positionTitleItem();
@@ -114,7 +111,7 @@ void PageScene::makeTitleItem() {
 }
 
 void PageScene::makeBlockItems() {
-  foreach (BlockData *bd, data->blocks()) {
+  foreach (BlockData *bd, data_->blocks()) {
     BlockItem *bi = tryMakeTextBlock(bd);
     if (!bi)
       bi = tryMakeGfxBlock(bd);
@@ -378,9 +375,12 @@ void PageScene::deleteBlock(int blocki) {
   topY.removeAt(blocki);
   footnoteGroups.removeAt(blocki);
   remap();
-  
+
+  qDebug() << "PageScene: deletblock" << blocki << bi << bd << fng;
+  removeItem(bi);
   bi->deleteLater();
-  data->deleteBlock(bd);
+  data_->deleteBlock(bd);
+  removeItem(fng);
   fng->deleteLater();
 
   restackBlocks();
@@ -399,7 +399,7 @@ GfxBlockItem *PageScene::newGfxBlock(int iAbove) {
     : style().real("margin-top");
 
   GfxBlockData *gbd = new GfxBlockData();
-  data->addBlock(gbd);
+  data_->addBlock(gbd);
   GfxBlockItem *gbi = new GfxBlockItem(gbd);
   addItem(gbi);
   gbi->makeWritable();
@@ -463,9 +463,9 @@ TextBlockItem *PageScene::injectTextBlock(TextBlockData *tbd, int iblock) {
   // creates a new text block immediately before iblock (or at end if iblock
   // points past the last text block)
   BlockData *tbd_next =  iblock<blockItems.size()
-    ? data->blocks()[iblock]
+    ? data_->blocks()[iblock]
     : 0;
-  data->insertBlockBefore(tbd, tbd_next);
+  data_->insertBlockBefore(tbd, tbd_next);
   TextBlockItem *tbi = new TextBlockItem(tbd);
   addItem(tbi);
   tbi->makeWritable();
@@ -902,7 +902,7 @@ void PageScene::makeWritable() {
 }
 
 int PageScene::startPage() const {
-  return data->startPage();
+  return data_->startPage();
 }
 
 bool PageScene::isWritable() const {
@@ -943,4 +943,8 @@ void PageScene::noteVChanged(int block) {
 }
 
 void PageScene::futileNoteMovement() {
+}
+
+PageData *PageScene::data() const {
+  return data_;
 }

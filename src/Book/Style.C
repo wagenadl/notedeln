@@ -55,6 +55,12 @@ int Style::integer(QString k) const {
   return (*this)[k].toInt();
 }
 
+QFont Style::font(QString k) const {
+  QFont f(string(k + "-family"));
+  f.setPointSizeF(real(k + "-size"));
+  return f;
+}
+
 QColor Style::color(QString k) const {
   QColor c(string(k));
   if (!c.isValid()) {

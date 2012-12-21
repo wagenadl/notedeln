@@ -4,31 +4,42 @@
 
 #define TOOLBAR_H
 
-#include <QToolBar>
+#include <QGraphicsObject>
+#include <QGraphicsView>
+#include <Qt>
 #include <QMap>
-#include <QAction>
 
-class Toolbar: public QToolBar {
+class Toolbar: public QGraphicsObject {
   Q_OBJECT;
 public:
-  enum Action {
-    Act_Type,
-    Act_Canvas,
-    Act_Line,
-    Act_Arrow,
-    Act_Emph,
-    Act_Strikeout,
-    Act_Plain,
-    Act_InsertImage,
-    Act_Screenshot,
-  };
-public:
-  Toolbar(QWidget *parent);
-  virtual ~Toolbar();
-  QAction *action(Action);
+  Toolbar(QGraphicsView *view);
+  ~Toolbar();
+  Qt::Orientation orientation() const;
+  void setOrientation(Qt::Orientation);
+  void addTool(QString id, class ToolItem *item);
+  QString selection() const;
+  void select(QString);
+  virtual void paint(QPainter *, const QStyleOptionGraphicsItem *, QWidget *);
+  virtual QRectF boundingRect() const;
+signals:
+  void selectionChanged(QString id);
+  void rightClick(QString id);
+protected:
+  virtual void doLeftClick(QString id);
+  virtual void doRightClick(QString id);
+private slots:
+  void leftClicked();
+  void rightClicked();
+  void childGone();
 private:
-  void add(Action, QString, QString);
-  QMap<Action, QAction *> actions;
+  void arrangeTools();
+private:
+  QGraphicsView *view;
+  Qt::Orientation orient;
+  QStringList ids;
+  QMap<QString, ToolItem *> tools;
+  QMap<ToolItem *, QString> revmap;
+  QString sel;
 };
 
 #endif

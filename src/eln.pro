@@ -14,7 +14,7 @@ CONFIG += debug
 MOC_DIR = .moc
 OBJECTS_DIR = .obj
 RCC_DIR = .rcc
-QT += network
+QT += network svg
 
 DEPENDPATH +=  $$sourcedirs
 INCLUDEPATH += $$sourcedirs
