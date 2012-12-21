@@ -5,10 +5,11 @@
 #include "Assert.H"
 #include "ToolItem.H"
 
-Toolbar::Toolbar(QGraphicsView *view): view(view) {
-  ASSERT(view);
+#define TOOLGRID 32.0
+#define TOOLOFFSET 2
+
+Toolbar::Toolbar(QGraphicsItem *parent): QGraphicsObject(parent) {
   orient = Qt::Vertical;
-  view->scene()->addItem(this);
 }
 
 Toolbar::~Toolbar() {
@@ -59,6 +60,7 @@ void Toolbar::leftClicked() {
   ToolItem *t = dynamic_cast<ToolItem*>(sender());
   if (t && revmap.contains(t)) {
     QString id = revmap[t];
+    doLeftClick(id);
     select(id);
   } else {
     qDebug() << "Toolbar: left click on unknown tool";
@@ -67,10 +69,13 @@ void Toolbar::leftClicked() {
 
 void Toolbar::rightClicked() {
   ToolItem *t = dynamic_cast<ToolItem*>(sender());
-  if (t && revmap.contains(t))
-    emit rightClick(revmap[t]);
-  else
+  if (t && revmap.contains(t)) {
+    QString id = revmap[t];
+    doRightClick(id);
+    emit rightClick(id);
+  } else {
     qDebug() << "Toolbar: right click on unknown tool";
+  }
 }
 void Toolbar::childGone() {
   ToolItem *t = dynamic_cast<ToolItem*>(sender());
@@ -86,14 +91,14 @@ void Toolbar::childGone() {
 }
 
 void Toolbar::arrangeTools() {
-  double y = 0;
-  double x = 0;
+  double y = TOOLOFFSET;
+  double x = TOOLOFFSET;
   foreach (QString id, ids) {
     tools[id]->setPos(x, y);
     if (orient==Qt::Horizontal)
-      x += tools[id]->boundingRect().width();
+      x += TOOLGRID;
     else
-      y += tools[id]->boundingRect().height();
+      y += TOOLGRID;
   }
 }
 

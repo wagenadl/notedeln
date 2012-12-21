@@ -47,14 +47,14 @@ DataFile0::DataFile0(Data *data, QString fn, QObject *parent):
   QObject(parent),
   data_(data),
   fn_(fn),
-  needToSave_(false),
+  needToSave_(true),
   saveTimer_(0) {
   ok_ = data_ != 0;
   ASSERT(data_);
   if (!ok_)
     return;
   data_->setParent(this);
-  ok_ = save();
+  ok_ = saveNow();
   connect(data_, SIGNAL(mod()), this, SLOT(saveSoon()));
 }
 
@@ -62,10 +62,10 @@ bool DataFile0::ok() const {
   return ok_;
 }
 
-bool DataFile0::save(bool onlyIfNeeded) const {
-  if (onlyIfNeeded && !needToSave_) {
+bool DataFile0::saveNow() const {
+  if (!needToSave_) {
     ok_ = data_!=0;
-    return true;
+    return ok_;
   }
   
   if (!data_) {
@@ -77,6 +77,10 @@ bool DataFile0::save(bool onlyIfNeeded) const {
   if (ok_)
     needToSave_ = false;
   return ok_;
+}
+
+bool DataFile0::needToSave() const {
+  return needToSave_;
 }
 
 void DataFile0::cancelSave() {
@@ -97,7 +101,7 @@ void DataFile0::saveSoon() {
   } else {
     // saveTimer not active: activate it, and optionally save right away
     if (saveImmediatelyToo_) {
-      save(); 
+      saveNow(); 
       needToSave_ = false;
     } else {
       needToSave_ = true;
@@ -109,13 +113,13 @@ void DataFile0::saveSoon() {
 
 void DataFile0::saveTimerTimeout() {
   if (needToSave_)
-    save();
+    saveNow();
 }
 
 DataFile0::~DataFile0() {
   if (needToSave_) {
     qDebug() << "DataFile0: Caution: DataFile0 destructed while waiting to save";
-    save();
+    saveNow();
   }
 }
 

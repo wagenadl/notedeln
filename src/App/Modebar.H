@@ -8,14 +8,15 @@
 #include "Mode.H"
 
 class Modebar: public Toolbar {
+  Q_OBJECT;
 public:
-  Modebar(Mode *mode, QGraphicsView *view);
+  Modebar(Mode *mode, QGraphicsItem *parent);
   virtual ~Modebar();
 protected:
   virtual void doLeftClick(QString id);
 private:
-  static Mode::M stringToMode(QString);
-  static QString modeToString(Mode::M);
+  static Mode::M idToMode(QString);
+  static QString modeToId(Mode::M);
 private:
   Mode *mode;
   

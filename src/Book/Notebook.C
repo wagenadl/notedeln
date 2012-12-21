@@ -167,9 +167,28 @@ BookData *Notebook::bookData() const {
 }
 
 void Notebook::flush() {
-  tocFile_->save(true);
-  bookFile_->save(true);
-  foreach (PageFile *pf, pgFiles)
-    pf->save(true);
-  qDebug() << "Notebook flushed to disk";
+  bool actv = false;
+  bool ok = true;
+  if (tocFile_->needToSave()) {
+    actv = true;
+    ok = ok && tocFile_->saveNow();
+  }
+  if (bookFile_->needToSave()) {
+    actv = true;
+    ok = ok && bookFile_->saveNow();
+  }
+  foreach (PageFile *pf, pgFiles) {
+    if (pf->needToSave()) {
+      actv = true;
+      ok = ok && pf->saveNow();
+    }
+  }
+  if (actv) {
+    if (ok)
+      qDebug() << "Notebook flushed to disk";
+    else
+      qDebug() << "Notebook flushed, with errors";
+  } else {
+    qDebug() << "(No changes to save)";
+  }
 }

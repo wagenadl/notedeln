@@ -14,12 +14,16 @@
 #include "GfxMarkPalette.H"
 #include "DeletedStack.H"
 #include "Assert.H"
+#include "Toolbars.H"
+#include "Mode.H"
 
 #include <QKeyEvent>
 #include <QDebug>
 
 PageView::PageView(Notebook *nb, QWidget *parent):
   QGraphicsView(parent), book(nb) {
+  mode_ = new Mode(this);
+  toolbars = new Toolbars(mode_, 0); // toolbars is unparented except when viewing a page
   deletedStack = new DeletedStack(this);
   frontScene = new FrontScene(nb, this);
   tocScene = new TOCScene(nb->toc(), this);
@@ -38,6 +42,8 @@ PageView::PageView(Notebook *nb, QWidget *parent):
 }
 
 PageView::~PageView() {
+  if (!pageScene)
+    delete toolbars; // othw. pageScene will take care of it
 }
 
 void PageView::resizeEvent(QResizeEvent *e) {
@@ -197,6 +203,7 @@ void PageView::gotoPage(int n) {
     if (book->toc()->isLast(te) && file->data()->isRecent())
       pageScene->makeWritable(); // this should be even more sophisticated
     setScene(pageScene);
+    pageScene->addItem(toolbars);
   }
   
   pageScene->gotoSheet(currentPage - te->startPage());
@@ -229,6 +236,9 @@ void PageView::leavePage() {
     if (fi)
       fi->clearFocus(); // this should cause abandon to happen
   }
+
+  if (pageScene)
+    pageScene->removeItem(toolbars);
 
   if (currentSection==Pages
       && currentPage>1

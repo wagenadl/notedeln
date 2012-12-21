@@ -9,8 +9,8 @@
    xmlns="http://www.w3.org/2000/svg"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="36"
-   height="36"
+   width="32"
+   height="32"
    id="svg2"
    version="1.1"
    inkscape:version="0.48.3.1 r9886"
@@ -24,7 +24,7 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="3.8780388"
+     inkscape:zoom="7.7560776"
      inkscape:cx="14.769231"
      inkscape:cy="33.839034"
      inkscape:document-units="px"
@@ -41,11 +41,13 @@
      inkscape:snap-intersection-paths="true"
      inkscape:object-nodes="true"
      inkscape:snap-smooth-nodes="true"
-     inkscape:window-width="1245"
+     inkscape:window-width="1198"
      inkscape:window-height="1031"
-     inkscape:window-x="645"
+     inkscape:window-x="0"
      inkscape:window-y="24"
-     inkscape:window-maximized="0">
+     inkscape:window-maximized="0"
+     inkscape:snap-grids="false"
+     inkscape:snap-global="false">
     <inkscape:grid
        type="xygrid"
        id="grid3968"
@@ -70,10 +72,10 @@
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
      id="layer1"
-     transform="translate(0,-1016.3622)">
+     transform="translate(0,-1020.3622)">
     <g
        id="g3034"
-       transform="matrix(0.55319157,0,0,0.55319157,1.9718611,470.84262)">
+       transform="matrix(0.33862259,0,0,0.33862259,5.4435197,691.3471)">
       <text
          sodipodi:linespacing="125%"
          id="text3970"

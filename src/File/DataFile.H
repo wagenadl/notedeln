@@ -11,9 +11,10 @@ class DataFile0: public QObject {
 public:  virtual ~DataFile0();
   bool ok() const; // true if last save or creation worked
   Data *data() const;
-  bool save(bool onlyIfNeeded=false) const;
+  bool saveNow() const; // won't do anything if needToSave() is false
   // returns true if ok, even if nothing was saved
   QString fileName() const;
+  bool needToSave() const;
 public slots:
   void cancelSave();
   void saveSoon();

@@ -2,30 +2,60 @@
 
 #include "Modebar.H"
 #include "ToolItem.H"
+#include "Mode.H"
+#include "MarkSizeItem.H"
+#include "LineWidthItem.H"
 
-Modebar::Modebar(Mode *mode, QGraphicsView *view): Toolbar(view), mode(mode) {
+Modebar::Modebar(Mode *mode, QGraphicsItem *parent):
+  Toolbar(parent), mode(mode) {
   ToolItem *t = new ToolItem();
   t->setSvg(":icons/browse.svg");
-  addTool(modeToString(Mode::Browse), t);
+  addTool(modeToId(Mode::Browse), t);
 
   t = new ToolItem();
   t->setSvg(":icons/type.svg");
-  addTool(modeToString(Mode::Type), t);
+  addTool(modeToId(Mode::Type), t);
 
-  select(modeToString(mode->mode()));
+  t = new ToolItem();
+  t->setSvg(":icons/move.svg");
+  addTool(modeToId(Mode::MoveResize), t);
+
+  MarkSizeItem *mst = new MarkSizeItem(mode->markSize());
+  mst->setShape(mode->shape());
+  mst->setColor(mode->color());
+  addTool(modeToId(Mode::Mark), mst);
+  connect(mode, SIGNAL(shapeChanged(GfxMarkData::Shape)),
+	  mst, SLOT(setShape(GfxMarkData::Shape)));
+  connect(mode, SIGNAL(markSizeChanged(double)),
+	  mst, SLOT(setMarkSize(double)));
+  connect(mode, SIGNAL(colorChanged(QColor)),
+	  mst, SLOT(setColor(QColor)));
+
+  LineWidthItem *lwt = new LineWidthItem(mode->lineWidth());
+  connect(mode, SIGNAL(colorChanged(QColor)),
+	  lwt, SLOT(setColor(QColor)));
+  connect(mode, SIGNAL(lineWidthChanged(double)),
+	  lwt, SLOT(setLineWidth(double)));
+  addTool(modeToId(Mode::Freehand), lwt);
+  
+  t = new ToolItem();
+  t->setSvg(":icons/note.svg");
+  addTool(modeToId(Mode::Annotate), t);
+
+  select(modeToId(mode->mode()));
 }
 
 Modebar::~Modebar() {
 }
 
-Mode::M Modebar::stringToMode(QString s) {
+Mode::M Modebar::idToMode(QString s) {
   return Mode::M(s.toInt());
 }
 
-QString Modebar::modeToString(Mode::M m) {
+QString Modebar::modeToId(Mode::M m) {
   return QString::number(m);
 }
 
 void Modebar::doLeftClick(QString id) {
-  mode->setMode(stringToMode(id));
+  mode->setMode(idToMode(id));
 }
