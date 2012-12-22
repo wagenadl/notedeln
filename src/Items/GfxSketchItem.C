@@ -18,7 +18,6 @@ static Item::Creator<GfxSketchData, GfxSketchItem> c("gfxsketch");
 GfxSketchItem::GfxSketchItem(GfxSketchData *data, Item *parent):
   Item(data, parent), d(data) {
   setPos(d->pos());
-  acceptModifierChanges();
   rebuildPath();
   building = false;
 }
@@ -106,7 +105,7 @@ void GfxSketchItem::build() {
 void GfxSketchItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
   if (building)
     return;
-  if (isWritable() && moveModPressed()) {
+  if (isWritable() && mode()->mode()==Mode::MoveResize) {
     if (itemParent())
       itemParent()->lockBounds();
     e->accept();
@@ -196,9 +195,15 @@ void GfxSketchItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *e) {
 }
 
 
-void GfxSketchItem::modifierChange(Qt::KeyboardModifiers) {
-  if (moveModPressed())
+void GfxSketchItem::modeChange(Mode::M m) {
+  if (m==Mode::MoveResize)
     setCursor(Qt::SizeAllCursor);
   else 
     setCursor(Qt::CrossCursor);
+}
+
+void GfxSketchItem::makeWritable() {
+  connect(mode(), SIGNAL(modeChanged(Mode::M)),
+	  SLOT(modeChange(Mode::M)));
+  Item::makeWritable();
 }

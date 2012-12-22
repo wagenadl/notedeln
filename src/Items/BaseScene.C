@@ -5,6 +5,7 @@
 #include "Style.H"
 #include "Data.H"
 #include "Assert.H"
+#include "PageView.H"
 
 #include <QGraphicsTextItem>
 #include <QGraphicsLineItem>
@@ -16,7 +17,6 @@
 #include <QPrinter>
 
 #include "Notebook.H"
-#include "ModSnooper.H"
 
 BaseScene::BaseScene(Data *data, QObject *parent):
   QGraphicsScene(parent),
@@ -224,3 +224,16 @@ bool BaseScene::print(QPrinter *prt, QPainter *p,
 int BaseScene::currentSheet() const {
   return iSheet;
 }
+
+class Mode const *BaseScene::mode() const {
+  Mode const *m = 0;
+  foreach (QGraphicsView const *v, views()) {
+    PageView const *pv = dynamic_cast<PageView const *>(v);
+    if (pv) {
+      m = pv->mode();
+      break;
+    }
+  }
+  return m ? m : PageView::mode(); // use static. ouch.
+}
+      

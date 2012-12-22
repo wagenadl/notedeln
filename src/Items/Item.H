@@ -17,6 +17,7 @@ public:
   Data *data();
   Item *itemParent() const;
   class PageScene *pageScene() const;
+  class Mode const *mode() const;
   QRectF netBoundingRect() const; // potentially cached if locked
   QRectF netSceneRect() const; // in scene coords
   bool isExtraneous() const;
@@ -57,16 +58,9 @@ public:
   void unlockBounds(); // } geom. update during drags
   QRectF cachedBounds() const; // null if not locked
   virtual void childGeometryChanged(); // children must call this directly
-  void acceptModifierChanges(bool acc=true);
   class GfxNoteItem *createNote(QPointF p0, bool late);
 protected:
-  bool moveModPressed() const;
-protected:
   static Qt::CursorShape defaultCursor();
-  static Qt::KeyboardModifiers moveModifiers(); // mask of modifier keys ...
-  static Qt::MouseButton moveButton(); // ... and mouse button that should
-                                       // trigger a move
-  static class ModSnooper *modSnooper();
 private:
   static QMap<QString, Item *(*)(Data *, Item *)> &creators();
 private:

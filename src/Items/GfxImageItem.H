@@ -7,6 +7,7 @@
 #include <QGraphicsPixmapItem>
 #include <QGraphicsObject>
 #include "Item.H"
+#include "Mode.H"
 
 class GfxImageItem: public Item {
   Q_OBJECT;
@@ -37,7 +38,7 @@ private:
     CropBottom,
   };
 private slots:
-  void modifierChange(Qt::KeyboardModifiers);
+  void modeChange(Mode::M);
 private:
   QPointF moveDelta(QGraphicsSceneMouseEvent *);
   DragType dragTypeForPoint(QPointF);

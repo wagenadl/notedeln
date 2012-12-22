@@ -1,8 +1,8 @@
 // GfxBlockItem.C
 
-#include "ModSnooper.H"
 #include "GfxBlockItem.H"
 #include "GfxBlockData.H"
+#include "Mode.H"
 #include "Style.H"
 #include <QPainter>
 #include <QDebug>
@@ -145,17 +145,17 @@ void GfxBlockItem::drawGrid(QPainter *p, QRectF const &bb, double dx) {
 }
 
 void GfxBlockItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
-  Qt::KeyboardModifiers mod = modSnooper()->keyboardModifiers();
+  Mode::M mod = mode()->mode();
   Qt::MouseButton but = e->button();
   bool take = false;
   if (but==Qt::LeftButton) {
-    if (mod==0) {
+    if (mod==Mode::Annotate || mod==Mode::Type) {
       createNote(e->pos(), !data()->isRecent());
       take = true;
-    } else if (mod & Qt::ControlModifier && data()->isRecent()) {
+    } else if (mod==Mode::Mark && isWritable()) {
       GfxMarkItem::newMark(e->pos(), this);
       take = true;
-    } else if (mod & Qt::ShiftModifier && data()->isRecent()) {
+    } else if (mod==Mode::Freehand && isWritable()) {
       GfxSketchItem *ski = GfxSketchItem::newSketch(e->pos(), this);
       ski->build();
       take = true;
@@ -171,18 +171,8 @@ void GfxBlockItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
 void GfxBlockItem::makeWritable() {
   BlockItem::makeWritable();
   setCursor(Qt::CrossCursor);
-  acceptModifierChanges();
 
   // is it really right to make all children writable?
   foreach (Item *i, itemChildren<Item>())
     i->makeWritable();
 }
-
-void GfxBlockItem::modifierChange(Qt::KeyboardModifiers) {
-  // this will only be called if we are writable
-  if (moveModPressed())
-    setCursor(Qt::ForbiddenCursor);
-  else
-    setCursor(Qt::CrossCursor);
-}
-

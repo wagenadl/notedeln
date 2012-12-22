@@ -3,7 +3,7 @@
 #include "TextItem.H"
 #include "TextData.H"
 #include "TextMarkings.H"
-#include "ModSnooper.H"
+#include "Mode.H"
 #include "PageScene.H"
 #include "Style.H"
 #include "ResManager.H"
@@ -75,7 +75,8 @@ void TextItem::setAllowMoves() {
   mayMove = true;
   setAcceptHoverEvents(true);
   text->setAcceptHoverEvents(true);
-  acceptModifierChanges();  
+  connect(mode(), SIGNAL(modeChanged(Mode::M)),
+	  SLOT(modeChange(Mode::M)));
 }
 
 TextItem::~TextItem() {
@@ -109,34 +110,41 @@ bool TextItem::focusOut(QFocusEvent *) {
 }
 
 bool TextItem::mousePress(QGraphicsSceneMouseEvent *e) {
-  if (isWritable()) {
-    if (moveModPressed() && mayMove) {
+  if (e->button()!=Qt::LeftButton)
+    return false;
+
+  bool take = false;
+  switch (mode()->mode()) {
+  case Mode::Type:
+    break; // TextItemText will decide whether to edit or not
+  case Mode::MoveResize:
+    if (mayMove) {
       bool resize = shouldResize(e->pos());
       GfxNoteItem *gni = dynamic_cast<GfxNoteItem*>(itemParent());
       if (gni)
 	gni->childMousePress(e->scenePos(), e->button(), resize);
-      e->accept();
-      return true;
-    } else {
-      return false;
     }
-  } else {
-    if (allowNotes()
-	&& modSnooper()->keyboardModifiers()==0
-	&& e->button()==Qt::LeftButton) {
-      e->accept();
+    take = true;
+    break;
+  case Mode::Annotate:
+    if (allowNotes())
       createNote(e->pos(), true);
-      return true;
-    } else if (e->button()==Qt::LeftButton
-	       && (modSnooper()->keyboardModifiers()
-		   & ((Qt::ShiftModifier | Qt::ControlModifier)))) {
-      e->accept();
-      attemptMarkup(e->pos(), modSnooper()->keyboardModifiers());
-      return true;
-    } else {
-      return false;
+    take = true;
+    break;
+  case Mode::Browse:
+    if (e->modifiers()
+	& ((Qt::ShiftModifier | Qt::ControlModifier))) {
+      attemptMarkup(e->pos(), e->modifiers());
+      take = true;
     }
+    break;
+  case Mode::Mark: case Mode::Freehand:
+    take = true;
+    break;
   }
+  if (take)
+    e->accept();
+  return take;
 }
 
 int TextItem::pointToPos(QPointF p) const {
@@ -608,11 +616,11 @@ bool TextItem::shouldResize(QPointF p) const {
   return should;
 }
  
-void TextItem::modifierChange(Qt::KeyboardModifiers) {
+void TextItem::modeChange(Mode::M m) {
   Qt::CursorShape cs = defaultCursor();
   if (isWritable())
     cs = Qt::IBeamCursor;
-  if (moveModPressed() && mayMove) {
+  if (m==Mode::MoveResize && mayMove) {
     if (shouldResize(cursorPos))
       cs = Qt::SplitHCursor;
     else
@@ -623,7 +631,7 @@ void TextItem::modifierChange(Qt::KeyboardModifiers) {
 
 void TextItem::hoverMove(QGraphicsSceneHoverEvent *e) {
   cursorPos = e->pos(); // cache for the use of modifierChanged
-  modifierChange(Qt::KeyboardModifiers());
+  modeChange(mode()->mode());
   e->accept();
 }
 

@@ -11,7 +11,7 @@
 #include "GfxBlockItem.H"
 #include "GfxBlockData.H"
 #include "ResManager.H"
-#include "ModSnooper.H"
+#include "Mode.H"
 #include "FootnoteGroupItem.H"
 #include "FootnoteData.H"
 #include "FootnoteItem.H"
@@ -34,6 +34,7 @@
 #include <QNetworkAccessManager>
 #include <QNetworkRequest>
 #include <QClipboard>
+#include <QApplication>
 
 PageScene::PageScene(PageData *data, QObject *parent):
   BaseScene(data, parent),
@@ -98,8 +99,7 @@ void PageScene::makeTitleItem() {
 	  SIGNAL(futileMovementKey(int, Qt::KeyboardModifiers)),
 	  SLOT(futileTitleMovement(int, Qt::KeyboardModifiers)));
   addItem(titleItem);
-
-  titleItemX->makeWritable();
+  titleItemX->makeWritable(); // this makes the late notes writable as well
 
   nOfNItem = addText("n/N", style().font("title-font"));
   nOfNItem->setDefaultTextColor(style().color("pgno-color"));
@@ -398,6 +398,15 @@ GfxBlockItem *PageScene::newGfxBlock(int iAbove) {
     ? blockItems[iAbove]->netSceneRect().bottom()
     : style().real("margin-top");
 
+  if (iAbove>=0) {
+    // perhaps not create a new one after all
+    GfxBlockItem *tbi = dynamic_cast<GfxBlockItem *>(blockItems[iAbove]);
+    if (tbi && tbi->isWritable()) {
+      // Previous block is writable, use it instead
+      return tbi;
+    }
+  }
+
   GfxBlockData *gbd = new GfxBlockData();
   data_->addBlock(gbd);
   GfxBlockItem *gbi = new GfxBlockItem(gbd);
@@ -683,26 +692,35 @@ void PageScene::mousePressEvent(QGraphicsSceneMouseEvent *e) {
   // qDebug() << "PageScene::mousePressEvent";
   QPointF sp = e->scenePos();
   bool take = false;
-  if (inMargin(sp)) {
+  if (inMargin(sp) && !itemAt(sp)) {
     //qDebug() << "  in margin";
+    if (mode()->mode()==Mode::Annotate) {
+      titleItemX->createNote(titleItem->mapFromScene(sp), !data()->isRecent());
+      take = true;
+    }
   } else if (belowContent(sp)) {
     //qDebug() << "  below content";
-    bool ctrl = ModSnooper::instance()->anyControl();
-    bool shft = ModSnooper::instance()->anyShift();
-    bool alt = ModSnooper::instance()->anyAlt();
-    if (!alt) {
-      if (ctrl || shft) {
+    switch (mode()->mode()) {
+    case Mode::Mark: case Mode::Freehand:
+      if (isWritable()) {
 	GfxBlockItem *blk = newGfxBlock();
 	e->setPos(blk->mapFromScene(e->scenePos())); // brutal!
 	blk->mousePressEvent(e);
 	take = true;
-      } else {
-	if (writable) 
-	  newTextBlock();
-	else
-	  titleItemX->createNote(titleItem->mapFromScene(sp), true);
+      }
+      break;
+    case Mode::Type:
+      if (writable) {
+	newTextBlock();
 	take = true;
       }
+      break;
+    case Mode::Annotate:
+      titleItemX->createNote(titleItem->mapFromScene(sp), !data()->isRecent());
+      take = true;
+      break;
+    default:
+      break;
     }
   }
   if (take)

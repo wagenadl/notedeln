@@ -6,7 +6,8 @@
 #include "FootnoteGroupItem.H"
 #include "FootnoteItem.H"
 #include "FootnoteData.H"
-#include "ModSnooper.H"
+#include "Mode.H"
+
 #include <QGraphicsSceneMouseEvent>
 #include <QDebug>
 

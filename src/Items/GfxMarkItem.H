@@ -6,6 +6,7 @@
 
 #include "Item.H"
 #include "GfxMarkData.H"
+#include "Mode.H"
 
 #include <QGraphicsObject>
 
@@ -17,6 +18,7 @@ public:
   GfxMarkData *data();
   QRectF boundingRect() const;
   void paint(QPainter *, const QStyleOptionGraphicsItem *, QWidget *);
+  virtual void makeWritable();
   static GfxMarkItem *newMark(QPointF p,
 			      QColor c, double siz, GfxMarkData::Shape shp,
 			      Item *parent);
@@ -29,7 +31,7 @@ protected:
   virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *);
   virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *);
 private slots:
-  void modifierChange(Qt::KeyboardModifiers);
+  void modeChange(Mode::M);
 private:
   GfxMarkData *d;
 };

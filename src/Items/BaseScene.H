@@ -17,6 +17,7 @@ public:
   virtual bool print(class QPrinter *, class QPainter *,
 		     int firstSheet=0, int lastSheet=100000000);
   int currentSheet() const;
+  class Mode const *mode() const;
 public slots:
   bool nextSheet();
   bool previousSheet();

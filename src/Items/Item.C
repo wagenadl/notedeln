@@ -8,7 +8,6 @@
 #include "PageScene.H"
 #include <QGraphicsSceneMouseEvent>
 #include "DragLine.H"
-#include "ModSnooper.H"
 #include "App.H"
 #include "GfxData.H"
 #include "GfxNoteData.H"
@@ -50,6 +49,12 @@ void Item::makeWritable() {
 
 PageScene *Item::pageScene() const {
   return dynamic_cast<PageScene*>(scene());
+}
+
+Mode const *Item::mode() const {
+  PageScene const *scene = pageScene();
+  ASSERT(scene);
+  return scene->mode();
 }
 
 Item *Item::create(Data *d, Item *parent) {
@@ -131,14 +136,6 @@ Qt::CursorShape Item::defaultCursor() {
   return Qt::ArrowCursor;
 }
 
-Qt::KeyboardModifiers Item::moveModifiers() {
-  return Qt::AltModifier;
-}
-
-Qt::MouseButton Item::moveButton() {
-  return Qt::LeftButton;
-}
-
 Item *Item::itemParent() const {
   return dynamic_cast<Item*>(parentItem());
 }
@@ -148,27 +145,6 @@ void Item::childGeometryChanged() {
     itemParent()->childGeometryChanged();
 }
 
-ModSnooper *Item::modSnooper() {
-  App *app = App::instance();
-  ASSERT(app);
-  ModSnooper *ms = app->modSnooper();
-  ASSERT(ms);
-  return ms;
-}
-
-bool Item::moveModPressed() const {
-  return (modSnooper()->keyboardModifiers() & moveModifiers()) != 0;
-}
-
-void Item::acceptModifierChanges(bool acc) {
-  if (acc) 
-    connect(modSnooper(), SIGNAL(modifiersChanged(Qt::KeyboardModifiers)),
-	    this, SLOT(modifierChange(Qt::KeyboardModifiers)));
-  else
-    disconnect(modSnooper(), SIGNAL(modifiersChanged(Qt::KeyboardModifiers)),
-	  this, SLOT(modifierChange(Qt::KeyboardModifiers)));
-}
-    
 GfxNoteItem *Item::newNote(QPointF p0, QPointF p1, bool late) {
   GfxNoteItem *n = late
     ? LateNoteItem::newNote(p0, p1, this)

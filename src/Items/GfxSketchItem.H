@@ -6,6 +6,7 @@
 
 #include "Item.H"
 #include "GfxSketchData.H"
+#include "Mode.H"
 
 #include <QGraphicsObject>
 
@@ -18,6 +19,7 @@ public:
   virtual QRectF boundingRect() const;
   virtual QPainterPath shape() const;
   virtual void paint(QPainter *, const QStyleOptionGraphicsItem *, QWidget *);
+  virtual void makeWritable();
   static GfxSketchItem *newSketch(QPointF p,
 				  QColor c, double lw,
 				  Item *parent);
@@ -28,7 +30,7 @@ protected:
   virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *);
   virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *);
 private slots:
-  void modifierChange(Qt::KeyboardModifiers);
+  void modeChange(Mode::M);
 private:
   void rebuildPath();
 signals:

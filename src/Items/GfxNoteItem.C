@@ -131,7 +131,7 @@ GfxNoteItem *GfxNoteItem::newNote(QPointF p0, QPointF p1, Item *parent) {
 }
 
 void GfxNoteItem::childMousePress(QPointF, Qt::MouseButton b, bool resizeFlag) {
-  if (b==moveButton() && moveModPressed()) {
+  if (mode()->mode()==Mode::MoveResize && b==Qt::LeftButton) {
     text->setFocus();
     text->clearFocus();
     lockBounds();

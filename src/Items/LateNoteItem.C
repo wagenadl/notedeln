@@ -19,8 +19,12 @@ LateNoteItem::LateNoteItem(LateNoteData *data, Item *parent):
   text->setDefaultTextColor(QColor(style().string("latenote-text-color")));
   text->setFont(style().font("latenote-font"));
   prepDateItem();
-  if (data->isRecent())
-    makeWritable();
+  if (data->isRecent()) {
+    if (pageScene())
+      makeWritable();
+    else
+      qDebug() << "Caution: LateNoteItem: cannot make writable w/o scene";
+  }
 }
 
 LateNoteItem::~LateNoteItem() {

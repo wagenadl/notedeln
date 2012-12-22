@@ -11,7 +11,7 @@ class PageView: public QGraphicsView {
 public:
   PageView(class Notebook *nb, QWidget *parent=0);
   virtual ~PageView();
-  class Mode const *mode() const { return mode_; }
+  static class Mode *mode(); // really, this should not be static, but for now
 public slots:
   void gotoPage(int pgno);
   void gotoTOC(int pgno=1);
@@ -46,7 +46,6 @@ private:
   } currentSection;
   class DeletedStack *deletedStack;
   class Toolbars *toolbars;
-  class Mode *mode_;
 };
 
 #endif

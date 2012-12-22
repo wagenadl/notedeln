@@ -3,7 +3,7 @@
 #include "GfxImageItem.H"
 #include "GfxImageData.H"
 #include "PageScene.H"
-#include "ModSnooper.H"
+#include "Mode.H"
 #include "GfxNoteData.H"
 #include "GfxNoteItem.H"
 #include "GfxMarkItem.H"
@@ -55,7 +55,6 @@ GfxImageItem::GfxImageItem(GfxImageData *data, Item *parent):
 
   oldCursor = Qt::ArrowCursor;
   setCursor(defaultCursor());
-  acceptModifierChanges();
 }
 
 GfxImageItem::~GfxImageItem() {
@@ -166,8 +165,9 @@ void GfxImageItem::mouseMoveEvent(QGraphicsSceneMouseEvent *e) {
 
 void GfxImageItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
   bool take = false;
-  if (isWritable()) {
-    if (moveModPressed()) {
+  if (isWritable() && e->button()==Qt::LeftButton) {
+    switch (mode()->mode()) {
+    case Mode::MoveResize:
       dragType = dragTypeForPoint(e->pos());
       dragStart = mapToParent(e->pos());
       cropStart = mapRectToParent(data->cropRect());
@@ -178,27 +178,28 @@ void GfxImageItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
       else
 	qDebug() << "GfxImageItem: no parent";
       take = true;
-    } else {
-      if (e->button()==Qt::LeftButton) {
-	if (modSnooper()->keyboardModifiers()==0) {
-	  GfxNoteItem *gni = createNote(e->pos(), !data->isRecent());
-	  gni->setScale(1./data->scale());
-	  take = true;
-	} else if (modSnooper()->keyboardModifiers() & Qt::ControlModifier) {
-	  GfxMarkItem *mi = GfxMarkItem::newMark(e->pos(), this);
-	  mi->setScale(1./data->scale());
-	  take = true;
-	} else if (modSnooper()->keyboardModifiers() & Qt::ShiftModifier) {
-	  GfxSketchItem *mi = GfxSketchItem::newSketch(e->pos(), this);
-	  mi->setScale(1./data->scale());
-	  mi->build();
-	  take = true;
-	}
-      }
+      break;
+    case Mode::Annotate: {
+      GfxNoteItem *gni = createNote(e->pos(), !isWritable());
+      gni->setScale(1./data->scale());
+      take = true;
+    } break;
+    case Mode::Mark: {
+      GfxMarkItem *mi = GfxMarkItem::newMark(e->pos(), this);
+      mi->setScale(1./data->scale());
+      take = true;
+    } break;
+    case Mode::Freehand: {
+      GfxSketchItem *mi = GfxSketchItem::newSketch(e->pos(), this);
+      mi->setScale(1./data->scale());
+      mi->build();
+      take = true;
+    } break;
+    default:
+      break;
     }
   } else {
-    if (e->button()==Qt::LeftButton &&
-	modSnooper()->keyboardModifiers()==0) {
+    if (e->button()==Qt::LeftButton && mode()->mode()==Mode::Annotate) {
       GfxNoteItem *gni = createNote(e->pos(), true);
       gni->setScale(1./data->scale());
       take = true;
@@ -289,8 +290,8 @@ void GfxImageItem::setCursor(Qt::CursorShape newCursor) {
   oldCursor = newCursor;
 }
 
-void GfxImageItem::modifierChange(Qt::KeyboardModifiers) {
-  if (moveModPressed() && isWritable())
+void GfxImageItem::modeChange(Mode::M m) {
+  if (m==Mode::MoveResize)
     setCursor(cursorForDragType(dragTypeForPoint(cursorPos)));
   else 
     setCursor(Qt::CrossCursor);
@@ -298,7 +299,7 @@ void GfxImageItem::modifierChange(Qt::KeyboardModifiers) {
 
 void GfxImageItem::hoverMoveEvent(QGraphicsSceneHoverEvent *e) {
   cursorPos = e->pos(); // cache for the use of modifierChanged
-  if (moveModPressed() && isWritable())
+  if (mode()->mode()==Mode::MoveResize)
     setCursor(cursorForDragType(dragTypeForPoint(cursorPos)));
   else
     setCursor(Qt::CrossCursor);
@@ -314,6 +315,8 @@ QRectF GfxImageItem::boundingRect() const {
 }
 
 void GfxImageItem::makeWritable() {
+  connect(mode(), SIGNAL(modeChanged(Mode::M)),
+	  SLOT(modeChange(Mode::M)));
   //  qDebug() << "GII:MakeWritable";
   Item::makeWritable();
   foreach (Item *i, itemChildren<Item>())

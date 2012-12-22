@@ -9,6 +9,7 @@
 #include "MarkupData.H"
 #include "Item.H"
 #include "TextItemText.H"
+#include "Mode.H"
 
 class TextItem: public Item {
   Q_OBJECT;
@@ -48,7 +49,7 @@ private:
   bool keyPressAsSpecialEvent(QKeyEvent *);
 protected slots:
   virtual void docChange();
-  virtual void modifierChange(Qt::KeyboardModifiers);
+  virtual void modeChange(Mode::M);
 public:
   void updateRefText(QString oldText, QString newText);
   // for use by TextMarkings to signal change of reference text

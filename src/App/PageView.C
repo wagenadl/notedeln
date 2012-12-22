@@ -2,7 +2,6 @@
 
 #include "PageView.H"
 #include "App.H"
-#include "ModSnooper.H"
 #include "PageScene.H"
 #include "Notebook.H"
 #include "PageFile.H"
@@ -20,10 +19,14 @@
 #include <QKeyEvent>
 #include <QDebug>
 
+Mode *PageView::mode() {
+  static Mode *m = new Mode();
+  return m;
+}
+
 PageView::PageView(Notebook *nb, QWidget *parent):
   QGraphicsView(parent), book(nb) {
-  mode_ = new Mode(this);
-  toolbars = new Toolbars(mode_, 0); // toolbars is unparented except when viewing a page
+  toolbars = new Toolbars(mode(), 0); // toolbars is unparented except when viewing a page
   deletedStack = new DeletedStack(this);
   frontScene = new FrontScene(nb, this);
   tocScene = new TOCScene(nb->toc(), this);
@@ -77,7 +80,6 @@ void PageView::mousePressEvent(QMouseEvent *e) {
 }
   
 void PageView::keyPressEvent(QKeyEvent *e) {
-  App::instance()->modSnooper()->keyPress(e->key());
   switch (e->key()) {
   case Qt::Key_PageUp:
     previousPage();
@@ -141,7 +143,6 @@ void PageView::keyPressEvent(QKeyEvent *e) {
 }
 
 void PageView::keyReleaseEvent(QKeyEvent *e) {
-  App::instance()->modSnooper()->keyRelease(e->key());
   QGraphicsView::keyReleaseEvent(e);
 }
 
@@ -212,6 +213,11 @@ void PageView::gotoPage(int n) {
     pageScene->focusTitle();
   else
     pageScene->focusEnd();
+
+  if (pageScene->isWritable())
+    mode()->setMode(Mode::Type);
+  else
+    mode()->setMode(Mode::Browse);    
 }
 
 void PageView::gotoFront() {

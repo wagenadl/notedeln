@@ -12,11 +12,7 @@ public:
   App(int &argc, char **argv);
   virtual ~App();
 public:
-  class ModSnooper *modSnooper();
   static App *instance();
-  virtual bool x11EventFilter(XEvent *event);
-private:
-  ModSnooper *ms;
 };
 
 #endif
