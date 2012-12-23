@@ -113,10 +113,9 @@ bool TextItem::mousePress(QGraphicsSceneMouseEvent *e) {
   if (e->button()!=Qt::LeftButton)
     return false;
 
-  bool take = false;
   switch (mode()->mode()) {
   case Mode::Type:
-    break; // TextItemText will decide whether to edit or not
+    return false; // TextItemText will decide whether to edit or not
   case Mode::MoveResize:
     if (mayMove) {
       bool resize = shouldResize(e->pos());
@@ -124,27 +123,24 @@ bool TextItem::mousePress(QGraphicsSceneMouseEvent *e) {
       if (gni)
 	gni->childMousePress(e->scenePos(), e->button(), resize);
     }
-    take = true;
     break;
   case Mode::Annotate:
-    if (allowNotes())
+    if (e->modifiers()
+	& ((Qt::ShiftModifier | Qt::ControlModifier))) 
+      attemptMarkup(e->pos(), e->modifiers());
+    else if (allowNotes()) 
       createNote(e->pos(), true);
-    take = true;
     break;
   case Mode::Browse:
     if (e->modifiers()
-	& ((Qt::ShiftModifier | Qt::ControlModifier))) {
+	& ((Qt::ShiftModifier | Qt::ControlModifier))) 
       attemptMarkup(e->pos(), e->modifiers());
-      take = true;
-    }
     break;
   case Mode::Mark: case Mode::Freehand:
-    take = true;
     break;
   }
-  if (take)
-    e->accept();
-  return take;
+  e->accept();
+  return true;
 }
 
 int TextItem::pointToPos(QPointF p) const {

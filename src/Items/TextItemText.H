@@ -15,6 +15,8 @@ public:
   void setBoxVisible(bool);
 protected:
   void mousePressEvent(QGraphicsSceneMouseEvent *);
+  void mouseReleaseEvent(QGraphicsSceneMouseEvent *);
+  void mouseDoubleClickEvent(QGraphicsSceneMouseEvent *);
   void keyPressEvent(QKeyEvent *);
   void focusInEvent(QFocusEvent *);
   void focusOutEvent(QFocusEvent *);
