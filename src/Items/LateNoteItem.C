@@ -20,10 +20,7 @@ LateNoteItem::LateNoteItem(LateNoteData *data, Item *parent):
   text->setFont(style().font("latenote-font"));
   prepDateItem();
   if (data->isRecent()) {
-    if (pageScene())
-      makeWritable();
-    else
-      qDebug() << "Caution: LateNoteItem: cannot make writable w/o scene";
+    makeWritable();
   }
 }
 

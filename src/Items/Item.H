@@ -61,6 +61,8 @@ public:
   class GfxNoteItem *createNote(QPointF p0, bool late);
 protected:
   static Qt::CursorShape defaultCursor();
+  virtual void hoverEnterEvent(QGraphicsSceneHoverEvent *);
+  virtual void hoverLeaveEvent(QGraphicsSceneHoverEvent *);
 private:
   static QMap<QString, Item *(*)(Data *, Item *)> &creators();
 private:

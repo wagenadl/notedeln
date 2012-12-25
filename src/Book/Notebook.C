@@ -6,6 +6,7 @@
 #include "TitleData.H"
 #include "Style.H"
 #include "Assert.H"
+#include "Mode.H"
 
 #include <QDebug>
 
@@ -17,6 +18,7 @@ Notebook::Notebook(QString path) {
   ASSERT(tocFile_);
   ASSERT(bookFile_);
   style_ = new Style(root.filePath("style.json"));
+  mode_ = new Mode(this);
 }
 
 Notebook::~Notebook() {
@@ -191,4 +193,8 @@ void Notebook::flush() {
   } else {
     qDebug() << "(No changes to save)";
   }
+}
+
+Mode *Notebook::mode() const {
+  return mode_;
 }

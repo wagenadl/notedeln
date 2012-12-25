@@ -42,10 +42,27 @@ Modebar::Modebar(Mode *mode, QGraphicsItem *parent):
   t->setSvg(":icons/note.svg");
   addTool(modeToId(Mode::Annotate), t);
 
+  t = new ToolItem();
+  t->setSvg(":icons/highlight.svg");
+  addTool(modeToId(Mode::Highlight), t);
+
+  t = new ToolItem();
+  t->setSvg(":icons/strikeout.svg");
+  addTool(modeToId(Mode::Strikeout), t);
+
+  t = new ToolItem();
+  t->setSvg(":icons/plain.svg");
+  addTool(modeToId(Mode::Plain), t);
+  
   select(modeToId(mode->mode()));
+  connect(mode, SIGNAL(modeChanged(Mode::M)), SLOT(updateMode()));
 }
 
 Modebar::~Modebar() {
+}
+
+void Modebar::updateMode() {
+  select(modeToId(mode->mode()));
 }
 
 Mode::M Modebar::idToMode(QString s) {

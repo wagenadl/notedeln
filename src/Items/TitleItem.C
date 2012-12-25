@@ -11,7 +11,7 @@ TitleItem::TitleItem(TitleData *data, Item *parent):
   setFont(style().font("title-font"));
   setDefaultTextColor(style().color("title-color"));
   setAllowParagraphs(false);
-  // setZValue(10); // stack before other stuff so that late notes go in front
+ setZValue(10); // stack before other stuff so that late notes go in front
 }
 
 

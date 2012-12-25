@@ -26,6 +26,7 @@ public:
   class TOC *toc() const;
   class BookData *bookData() const;
   class Style const &style() const;
+  class Mode *mode() const;
   QString filePath(QString) const;
 public slots:
   void flush();
@@ -40,6 +41,7 @@ private:
   TOCFile *tocFile_;
   BookFile *bookFile_;
   Style const *style_;
+  Mode *mode_;
 };
 
 #endif

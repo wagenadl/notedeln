@@ -36,6 +36,7 @@ Item *DeletedItem::restoreToParent() {
   ASSERT(!isRestored());
   parentItem->data()->addChild(data);
   Item *item = Item::create(data, parentItem);
+  item->makeWritable();
   parentItem->childGeometryChanged();
   return item;
 }

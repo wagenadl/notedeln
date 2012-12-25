@@ -4,5 +4,8 @@
      <file>icons/type.svg</file>
      <file>icons/move.svg</file>
      <file>icons/note.svg</file>
+     <file>icons/highlight.svg</file>
+     <file>icons/strikeout.svg</file>
+     <file>icons/plain.svg</file>
  </qresource>
 </RCC>

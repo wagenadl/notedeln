@@ -12,6 +12,8 @@ class Modebar: public Toolbar {
 public:
   Modebar(Mode *mode, QGraphicsItem *parent);
   virtual ~Modebar();
+public slots:
+  void updateMode();
 protected:
   virtual void doLeftClick(QString id);
 private:

@@ -4,6 +4,7 @@
 
 Mode::Mode(QObject *parent): QObject(parent) {
   m = Browse;
+  overridden = Browse;
   lw = 2;
   ms = 10;
   shp = GfxMarkData::SolidCircle;
@@ -56,3 +57,12 @@ void Mode::setMarkSize(double ms1) {
   emit markSizeChanged(ms);
 }
 
+void Mode::temporaryOverride(Mode::M m1) {
+  overridden = m;
+  setMode(m1);
+}
+
+void Mode::temporaryRelease(Mode::M m1) {
+  if (m==m1)
+    setMode(overridden);
+}

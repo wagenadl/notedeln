@@ -63,7 +63,8 @@ void TextMarkings::applyMark(Span const &span, QSet<int> edges) {
       case MarkupData::Underline: 
         f.setUnderlineStyle(QTextCharFormat::SingleUnderline);
         break;
-      case MarkupData::StrikeThrough: 
+      case MarkupData::StrikeThrough:
+        // setting underline color doesn't affect the strikeout. Oh well
         f.setFontStrikeOut(true);
         break;
       case MarkupData::Emphasize:

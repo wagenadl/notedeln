@@ -16,6 +16,7 @@
 #include "FootnoteData.H"
 #include "FootnoteItem.H"
 #include "Assert.H"
+#include "Notebook.H"
 
 #include <QGraphicsView>
 #include <QGraphicsTextItem>
@@ -376,7 +377,6 @@ void PageScene::deleteBlock(int blocki) {
   footnoteGroups.removeAt(blocki);
   remap();
 
-  qDebug() << "PageScene: deletblock" << blocki << bi << bd << fng;
   removeItem(bi);
   bi->deleteLater();
   data_->deleteBlock(bd);
@@ -692,15 +692,15 @@ void PageScene::mousePressEvent(QGraphicsSceneMouseEvent *e) {
   // qDebug() << "PageScene::mousePressEvent";
   QPointF sp = e->scenePos();
   bool take = false;
-  if (inMargin(sp) && !itemAt(sp)) {
+  if (inMargin(sp) && itemAt(sp)==bgItem) {
     //qDebug() << "  in margin";
-    if (mode()->mode()==Mode::Annotate) {
+    if (data_->book()->mode()->mode()==Mode::Annotate) {
       titleItemX->createNote(titleItem->mapFromScene(sp), !data()->isRecent());
       take = true;
     }
   } else if (belowContent(sp)) {
     //qDebug() << "  below content";
-    switch (mode()->mode()) {
+    switch (data_->book()->mode()->mode()) {
     case Mode::Mark: case Mode::Freehand:
       if (isWritable()) {
 	GfxBlockItem *blk = newGfxBlock();

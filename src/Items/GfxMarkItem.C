@@ -6,7 +6,6 @@
 #include <QBrush>
 #include <math.h>
 #include <QGraphicsSceneMouseEvent>
-#include "GfxPalette.H"
 #include <QCursor>
 
 static Item::Creator<GfxMarkData, GfxMarkItem> c("gfxmark");
@@ -100,9 +99,9 @@ void GfxMarkItem::renderMark(QPointF p0,
 
 GfxMarkItem *GfxMarkItem::newMark(QPointF p, Item *parent) {
   return newMark(p,
-		 GfxPalette::color(),
-		 GfxPalette::markSize(),
-		 GfxPalette::markShape(),
+		 parent->mode()->color(),
+		 parent->mode()->markSize(),
+		 parent->mode()->shape(),
 		 parent);
 }
 

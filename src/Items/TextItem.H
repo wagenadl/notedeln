@@ -40,6 +40,7 @@ protected:
 private:
   friend class TextItemText;
   virtual bool mousePress(QGraphicsSceneMouseEvent *);
+  virtual bool mouseDoubleClick(QGraphicsSceneMouseEvent *);
   virtual bool keyPress(QKeyEvent *);
   virtual bool focusIn(QFocusEvent *);
   virtual bool focusOut(QFocusEvent *);
@@ -71,7 +72,7 @@ private:
   bool charAfterIsLetter(int pos) const;
   bool shouldResize(QPointF) const;
   int pointToPos(QPointF) const;
-  void attemptMarkup(QPointF p, Qt::KeyboardModifiers m);
+  void attemptMarkup(QPointF p, MarkupData::Style);
 public: // pass-through
   void setFont(QFont f) { text->setFont(f); }
   QColor defaultTextColor() const { return text->defaultTextColor(); }

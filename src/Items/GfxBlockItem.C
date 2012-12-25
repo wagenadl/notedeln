@@ -149,7 +149,7 @@ void GfxBlockItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
   Qt::MouseButton but = e->button();
   bool take = false;
   if (but==Qt::LeftButton) {
-    if (mod==Mode::Annotate || mod==Mode::Type) {
+    if (mod==Mode::Annotate) {
       createNote(e->pos(), !data()->isRecent());
       take = true;
     } else if (mod==Mode::Mark && isWritable()) {

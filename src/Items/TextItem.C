@@ -35,6 +35,9 @@ TextItem::TextItem(TextData *data, Item *parent):
   text = new TextItemText(this);
   foreach (LateNoteData *lnd, data->children<LateNoteData>()) 
     create(lnd, this);
+  foreach (GfxNoteData *gnd,  data->children<GfxNoteData>())
+    if (!dynamic_cast<LateNoteData *>(gnd))
+      create(gnd, this); // ugly, but hey.
 
   mayMark = true;
   mayNote = false;
@@ -65,6 +68,8 @@ void TextItem::setAllowNotes(bool y) {
 
 void TextItem::makeWritable() {
   Item::makeWritable();
+  foreach (GfxNoteItem *gni, itemChildren<GfxNoteItem>())
+    gni->makeWritable();
   text->setTextInteractionFlags(Qt::TextEditorInteraction);
   text->setCursor(QCursor(Qt::IBeamCursor));
   setFlag(ItemIsFocusable);
@@ -109,6 +114,17 @@ bool TextItem::focusOut(QFocusEvent *) {
   return false;
 }
 
+bool TextItem::mouseDoubleClick(QGraphicsSceneMouseEvent *e) {
+  if (e->button()!=Qt::LeftButton)
+    return false;
+  if (mode()->mode()==Mode::Type)
+    return false;
+  if (text->hasFocus())
+    text->clearFocus();
+  e->ignore();
+  return true;
+}
+
 bool TextItem::mousePress(QGraphicsSceneMouseEvent *e) {
   if (e->button()!=Qt::LeftButton)
     return false;
@@ -125,21 +141,26 @@ bool TextItem::mousePress(QGraphicsSceneMouseEvent *e) {
     }
     break;
   case Mode::Annotate:
-    if (e->modifiers()
-	& ((Qt::ShiftModifier | Qt::ControlModifier))) 
-      attemptMarkup(e->pos(), e->modifiers());
-    else if (allowNotes()) 
+    if (allowNotes()) 
       createNote(e->pos(), true);
     break;
-  case Mode::Browse:
-    if (e->modifiers()
-	& ((Qt::ShiftModifier | Qt::ControlModifier))) 
-      attemptMarkup(e->pos(), e->modifiers());
+  case Mode::Highlight:
+    attemptMarkup(e->pos(), MarkupData::Emphasize);
     break;
+  case Mode::Strikeout:
+    attemptMarkup(e->pos(), MarkupData::StrikeThrough);
+    break;
+  case Mode::Plain:
+    attemptMarkup(e->pos(), MarkupData::Normal);
+    break;
+  case Mode::Browse:
+    break; // is this OK, or should we support links here?
   case Mode::Mark: case Mode::Freehand:
     break;
   }
   e->accept();
+  if (text->hasFocus())
+    text->clearFocus();
   return true;
 }
 
@@ -164,24 +185,13 @@ int TextItem::pointToPos(QPointF p) const {
 }
       
 
-void TextItem::attemptMarkup(QPointF p, Qt::KeyboardModifiers m) {
+void TextItem::attemptMarkup(QPointF p, MarkupData::Style m) {
   qDebug() << "TextItem::attemptMarkup" << p << m;
   int pos = pointToPos(p);
   qDebug() << "  pos:"<<pos;
   if (pos<0)
     return;
-
-  bool shift = m & Qt::ShiftModifier;
-  bool ctrl = m & Qt::ControlModifier;
-  if (shift && ctrl)
-    lateMarkType = MarkupData::Normal;
-  else if (shift) 
-    lateMarkType = MarkupData::Emphasize;
-  else if (ctrl)
-    lateMarkType = MarkupData::StrikeThrough;
-  else
-    return;
-
+  lateMarkType = m;
   lateMarkStart = pos;
   grabMouse();
 }
@@ -606,7 +616,7 @@ bool TextItem::shouldResize(QPointF p) const {
   if (!gni)
     return false;
   double tw = gni->data()->textWidth();
-  if (tw==0)
+  if (tw<=0)
     tw = boundingRect().width();
   bool should = p.x()-boundingRect().left() > .75*tw;
   return should;
@@ -614,7 +624,7 @@ bool TextItem::shouldResize(QPointF p) const {
  
 void TextItem::modeChange(Mode::M m) {
   Qt::CursorShape cs = defaultCursor();
-  if (isWritable())
+  if (m==Mode::Type && isWritable())
     cs = Qt::IBeamCursor;
   if (m==Mode::MoveResize && mayMove) {
     if (shouldResize(cursorPos))

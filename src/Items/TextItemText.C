@@ -19,21 +19,13 @@ TextItem *TextItemText::parent() {
 }
 
 void TextItemText::mousePressEvent(QGraphicsSceneMouseEvent *e) {
-  qDebug() << "TextItemText: mousePress";
-  if (parent() && !parent()->mousePress(e)) {
-    qDebug() << "  to GTI";
+  if (parent() && !parent()->mousePress(e)) 
     QGraphicsTextItem::mousePressEvent(e);
-  }
-}
-
-void TextItemText::mouseReleaseEvent(QGraphicsSceneMouseEvent *e) {
-  qDebug() << "TextItemText: mouseRelease";
-  e->accept();
 }
 
 void TextItemText::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *e) {
-  qDebug() << "TextItemText: mouseDblClk";
-  e->accept();
+  if (parent() && !parent()->mouseDoubleClick(e)) 
+    QGraphicsTextItem::mouseDoubleClickEvent(e);
 }
 
 void TextItemText::keyPressEvent(QKeyEvent *e) {

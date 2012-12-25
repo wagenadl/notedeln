@@ -11,7 +11,6 @@ class PageView: public QGraphicsView {
 public:
   PageView(class Notebook *nb, QWidget *parent=0);
   virtual ~PageView();
-  static class Mode *mode(); // really, this should not be static, but for now
 public slots:
   void gotoPage(int pgno);
   void gotoTOC(int pgno=1);
@@ -20,6 +19,8 @@ public slots:
   void nextPage();
   void previousPage();
   void lastPage();
+public:
+  class Mode *mode() const;
 protected:
   void resizeEvent(QResizeEvent *);
   void keyPressEvent(QKeyEvent *);

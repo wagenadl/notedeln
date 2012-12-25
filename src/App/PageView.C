@@ -9,8 +9,6 @@
 #include "TOCScene.H"
 #include "FrontScene.H"
 #include "TitleData.H"
-#include "GfxLinePalette.H"
-#include "GfxMarkPalette.H"
 #include "DeletedStack.H"
 #include "Assert.H"
 #include "Toolbars.H"
@@ -19,11 +17,6 @@
 #include <QKeyEvent>
 #include <QDebug>
 
-Mode *PageView::mode() {
-  static Mode *m = new Mode();
-  return m;
-}
-
 PageView::PageView(Notebook *nb, QWidget *parent):
   QGraphicsView(parent), book(nb) {
   toolbars = new Toolbars(mode(), 0); // toolbars is unparented except when viewing a page
@@ -31,11 +24,6 @@ PageView::PageView(Notebook *nb, QWidget *parent):
   frontScene = new FrontScene(nb, this);
   tocScene = new TOCScene(nb->toc(), this);
   tocScene->populate();
-
-  linePalette = new GfxLinePalette();
-  linePalette->setParent(this);
-  markPalette = new GfxMarkPalette();
-  markPalette->setParent(this);
 
   setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
   setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -59,52 +47,35 @@ void PageView::resizeEvent(QResizeEvent *e) {
 }
 
 void PageView::mousePressEvent(QMouseEvent *e) {
-  bool take = false;
-  if (e->button()==Qt::RightButton) {
-    QPointF p = mapToScene(e->pos());
-    if (currentSection==Pages) {
-      if (e->modifiers() & Qt::ControlModifier) {
-	markPalette->letUserChoose(pageScene, p);
-	take = true;
-      } else if (e->modifiers() & Qt::ShiftModifier) {
-	if (linePalette->letUserChoose(pageScene, p))
-	  markPalette->setColor(linePalette->color());
-	take = true;
-      }
-    } 
-  }
-  if (take)
-    e->accept();
-  else
-    QGraphicsView::mousePressEvent(e);
+  QGraphicsView::mousePressEvent(e);
 }
   
 void PageView::keyPressEvent(QKeyEvent *e) {
+  bool take = false;
   switch (e->key()) {
   case Qt::Key_PageUp:
     previousPage();
-    e->accept();
-    return;
+    take = true;
+    break;
   case Qt::Key_PageDown:
     nextPage();
-    e->accept();
-    return;
+    take = true;
+    break;
   case Qt::Key_Home:
     if (e->modifiers() & Qt::ControlModifier) {
       gotoTOC();
-      e->accept();
-      return;
+      take = true;
     }
     break;
   case Qt::Key_End:
     if (e->modifiers() & Qt::ControlModifier) {
       lastPage();
-      e->accept();
-      return;
+      take = true;
     }
     break;
   case Qt::Key_Delete:
-    if (currentSection==Pages && pageScene->focusItem()==0) {
+    if (currentSection==Pages && pageScene->focusItem()==0
+        && mode()->mode()==Mode::MoveResize) {
       QPointF p = mapToScene(mapFromGlobal(QCursor::pos()));
       QGraphicsItem *gi = pageScene->itemAt(p);
       Item *item;
@@ -117,32 +88,44 @@ void PageView::keyPressEvent(QKeyEvent *e) {
 	else
 	  break;
       }
-      if (item) 
+      if (item && item->isWritable()) 
 	deletedStack->grabIfRestorable(item);
-      e->accept();
-      return;
+      take = true;
     }
     break;
   case Qt::Key_Insert:
     if (currentSection==Pages && pageScene->focusItem()==0) {
       deletedStack->restoreTop();
-      e->accept();
-      return;
+      take = true;
     }
     break;
   case Qt::Key_P:
     if (e->modifiers() & Qt::ControlModifier) {
       printDialog();
-      e->accept();
-      return;
+      take = true;
     }
+    break;
+  case Qt::Key_Alt:
+    mode()->temporaryOverride(Mode::MoveResize);
+    break;
   default:
     break;
   }
-  QGraphicsView::keyPressEvent(e);
+  if (take)
+    e->accept();
+  else    
+    QGraphicsView::keyPressEvent(e);
 }
 
 void PageView::keyReleaseEvent(QKeyEvent *e) {
+  switch (e->key()) {
+  case Qt::Key_Alt:
+    mode()->temporaryRelease(Mode::MoveResize);
+    break;
+  default:
+    break;
+  }
+    
   QGraphicsView::keyReleaseEvent(e);
 }
 
@@ -311,4 +294,9 @@ void PageView::nextPage() {
 
 void PageView::lastPage() {
   gotoPage(book->toc()->newPageNumber()-1);
+}
+
+Mode *PageView::mode() const {
+  ASSERT(book);
+  return book->mode();
 }

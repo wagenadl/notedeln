@@ -12,6 +12,8 @@
 #include "GfxData.H"
 #include "GfxNoteData.H"
 #include "Assert.H"
+#include <QGraphicsDropShadowEffect>
+#include "Mode.H"
 
 Item::Item(Data *d, Item *parent): QGraphicsObject(parent), d(d) {
   ASSERT(d);
@@ -20,6 +22,7 @@ Item::Item(Data *d, Item *parent): QGraphicsObject(parent), d(d) {
   brLocked = false;
   extraneous = false;
   writable = false;
+  setAcceptHoverEvents(true);
 }
 
 Item::~Item() {
@@ -52,9 +55,10 @@ PageScene *Item::pageScene() const {
 }
 
 Mode const *Item::mode() const {
-  PageScene const *scene = pageScene();
-  ASSERT(scene);
-  return scene->mode();
+  ASSERT(d);
+  Notebook *nb = d->book();
+  ASSERT(nb);
+  return nb->mode();
 }
 
 Item *Item::create(Data *d, Item *parent) {
@@ -157,3 +161,25 @@ GfxNoteItem *Item::createNote(QPointF p0, bool late) {
   QPointF p1 = DragLine::drag(this, p0);
   return newNote(p0, p1, late);
 }
+
+static bool shouldGlow(Data *d) {
+  return dynamic_cast<GfxData*>(d)
+    || (dynamic_cast<TextData*>(d) &&
+        dynamic_cast<GfxData*>(d->parent()));
+}
+
+void Item::hoverEnterEvent(QGraphicsSceneHoverEvent *) {
+  if (writable && shouldGlow(d) && mode()->mode()==Mode::MoveResize) {
+    QGraphicsDropShadowEffect *eff = new QGraphicsDropShadowEffect(this);
+    eff->setColor(QColor("#00ff33"));
+    eff->setOffset(QPointF(0, 0));
+    eff->setBlurRadius(4);
+    setGraphicsEffect(eff);
+  }
+}
+
+void Item::hoverLeaveEvent(QGraphicsSceneHoverEvent *) {
+  setGraphicsEffect(0);
+}
+
+

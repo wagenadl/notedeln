@@ -6,7 +6,6 @@
 #include <QBrush>
 #include <math.h>
 #include <QGraphicsSceneMouseEvent>
-#include "GfxPalette.H"
 #include <QCursor>
 #include <QEventLoop>
 #include "Assert.H"
@@ -65,8 +64,8 @@ void GfxSketchItem::paint(QPainter *p,
 
 GfxSketchItem *GfxSketchItem::newSketch(QPointF p, Item *parent) {
   return newSketch(p,
-		   GfxPalette::color(),
-		   GfxPalette::lineWidth(),
+		   parent->mode()->color(),
+		   parent->mode()->lineWidth(),
 		   parent);
 }
 

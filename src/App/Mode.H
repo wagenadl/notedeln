@@ -16,7 +16,10 @@ public:
     MoveResize,
     Mark,
     Freehand,
-    Annotate
+    Annotate,
+    Highlight,
+    Strikeout,
+    Plain,
   };
 public:
   Mode(QObject *parent=0);
@@ -32,6 +35,8 @@ public slots:
   void setColor(QColor);
   void setShape(GfxMarkData::Shape);
   void setMarkSize(double);
+  void temporaryOverride(Mode::M);
+  void temporaryRelease(Mode::M);
 signals:
   void modeChanged(Mode::M);
   void lineWidthChanged(double);
@@ -44,6 +49,7 @@ private:
   QColor c;
   GfxMarkData::Shape shp;
   double ms;
+  M overridden;
 };
 
 #endif

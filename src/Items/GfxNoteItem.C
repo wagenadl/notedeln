@@ -53,6 +53,27 @@ void GfxNoteItem::updateTextPos() {
   if (data_->dx() < 0)
     p -= QPointF(text->boundingRect().width(), 0);
   text->setPos(p);
+
+  QRectF sr = text->sceneBoundingRect();
+  if (data_->textWidth()<1) {
+    if (data_->dx()>=0) {
+      if (sr.right() >= style().real("page-width")
+          - style().real("margin-right-over")) {
+        double tw = style().real("page-width")
+          - style().real("margin-right-over")
+          - sr.left();
+        data_->setTextWidth(tw);
+        text->setTextWidth(tw);
+      }
+    } else {
+      if (sr.left() <= style().real("margin-left")/2) {
+        double tw = sr.right()
+          - style().real("margin-left")/2;
+        data_->setTextWidth(tw);
+        text->setTextWidth(tw);
+      }
+    }
+  }        
 }
 
 QRectF GfxNoteItem::boundingRect() const {
@@ -115,14 +136,7 @@ GfxNoteItem *GfxNoteItem::newNote(QPointF p0, QPointF p1, Item *parent) {
   GfxNoteData *d = new GfxNoteData(parent->data());
   d->setPos(p0);
   d->setEndPoint(p1);
-
-  QPointF sp = parent->mapToScene(p1);
-  if (p1.x()<p0.x()) 
-    // item text will stick to the left
-    d->setTextWidth(sp.x() - parent->boundingRect().left());
-  else
-    // item text will stick to the right
-    d->setTextWidth(parent->boundingRect().right() - sp.x());
+  d->setTextWidth(0);
 
   GfxNoteItem *i = new GfxNoteItem(d, parent);
   i->makeWritable();
