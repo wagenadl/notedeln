@@ -51,27 +51,52 @@ void PageView::mousePressEvent(QMouseEvent *e) {
 }
   
 void PageView::keyPressEvent(QKeyEvent *e) {
-  bool take = false;
+  bool take = true;
   switch (e->key()) {
+  case Qt::Key_F1:
+    mode()->setMode(Mode::Browse);
+    break;
+  case Qt::Key_F2:
+    mode()->setMode(Mode::Type);
+    break;
+  case Qt::Key_F3:
+    mode()->setMode(Mode::MoveResize);
+    break;
+  case Qt::Key_F4:
+    mode()->setMode(Mode::Mark);
+    break;
+  case Qt::Key_F5:
+    mode()->setMode(Mode::Freehand);
+    break;
+  case Qt::Key_F6:
+    mode()->setMode(Mode::Annotate);
+    break;
+  case Qt::Key_F7:
+    mode()->setMode(Mode::Highlight);
+    break;
+  case Qt::Key_F8:
+    mode()->setMode(Mode::Strikeout);
+    break;
+  case Qt::Key_F9:
+    mode()->setMode(Mode::Plain);
+    break;
   case Qt::Key_PageUp:
     previousPage();
-    take = true;
     break;
   case Qt::Key_PageDown:
     nextPage();
-    take = true;
     break;
   case Qt::Key_Home:
-    if (e->modifiers() & Qt::ControlModifier) {
+    if (e->modifiers() & Qt::ControlModifier) 
       gotoTOC();
-      take = true;
-    }
+    else
+      take = false;
     break;
   case Qt::Key_End:
-    if (e->modifiers() & Qt::ControlModifier) {
+    if (e->modifiers() & Qt::ControlModifier) 
       lastPage();
-      take = true;
-    }
+    else
+      take = false;
     break;
   case Qt::Key_Delete:
     if (currentSection==Pages && pageScene->focusItem()==0
@@ -90,27 +115,31 @@ void PageView::keyPressEvent(QKeyEvent *e) {
       }
       if (item && item->isWritable()) 
 	deletedStack->grabIfRestorable(item);
-      take = true;
-    }
+    } else {
+      take = false;
+    }      
     break;
   case Qt::Key_Insert:
-    if (currentSection==Pages && pageScene->focusItem()==0) {
+    if (currentSection==Pages && pageScene->focusItem()==0) 
       deletedStack->restoreTop();
-      take = true;
-    }
+    else
+      take = false;
     break;
   case Qt::Key_P:
-    if (e->modifiers() & Qt::ControlModifier) {
+    if (e->modifiers() & Qt::ControlModifier) 
       printDialog();
-      take = true;
-    }
+    else
+      take = false;
     break;
   case Qt::Key_Alt:
     mode()->temporaryOverride(Mode::MoveResize);
+    take = false;
     break;
   default:
+    take = false;
     break;
   }
+  
   if (take)
     e->accept();
   else    

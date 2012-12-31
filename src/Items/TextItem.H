@@ -46,6 +46,7 @@ private:
   virtual bool focusOut(QFocusEvent *);
 private:
   bool keyPressAsMotion(QKeyEvent *);
+  bool keyPressAsSpecialChar(QKeyEvent *);
   bool keyPressWithControl(QKeyEvent *);
   bool keyPressAsSpecialEvent(QKeyEvent *);
 protected slots:

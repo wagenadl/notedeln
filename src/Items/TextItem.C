@@ -254,6 +254,7 @@ void TextItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *) {
 bool TextItem::keyPressAsMotion(QKeyEvent *e) {
   switch (e->key()) {
   case Qt::Key_Escape:
+    textCursor().clearSelection();
     clearFocus();
     return true;
   case Qt::Key_Return: case Qt::Key_Enter:
@@ -324,14 +325,54 @@ bool TextItem::keyPressAsSpecialEvent(QKeyEvent *e) {
   else 
     return false;
 }
+
+bool TextItem::keyPressAsSpecialChar(QKeyEvent *e) {
+  QTextCursor c(textCursor());
+  QString charBefore = document()->characterAt(c.position()-1);
+  if (e->text()=="'") {
+    if (charBefore==QString::fromUtf8("’")) {
+      c.deletePreviousChar();
+      c.insertHtml(QString::fromUtf8("”"));
+    } else {
+      c.insertHtml(QString::fromUtf8("’"));
+    }
+    return true;
+  } else if (e->text()=="`") {
+    if (charBefore==QString::fromUtf8("‘")) {
+      c.deletePreviousChar();
+      c.insertHtml(QString::fromUtf8("“"));
+    } else {
+      c.insertHtml(QString::fromUtf8("‘"));
+    }
+    return true;
+  } else if (e->text()=="-") {
+    if (charBefore==QString::fromUtf8("-")) {
+      c.deletePreviousChar();
+      if (document()->characterAt(c.position()-1).isDigit()) {
+        c.insertHtml(QString::fromUtf8("‒")); // figure dash
+      } else {
+        c.insertHtml(QString::fromUtf8("–")); // en dash
+      }
+      return true;
+    } else if (charBefore==QString::fromUtf8("–") ||
+               charBefore==QString::fromUtf8("‒")) {
+      c.deletePreviousChar();
+      c.insertHtml(QString::fromUtf8("—")); // em dash
+      return true;
+    } else {
+      return false;
+    }
+  } else {
+    return false;
+  }
+}
+
   
 bool TextItem::keyPress(QKeyEvent *e) {
-  bool take = keyPressAsMotion(e);
-  if (!take)
-    take = keyPressWithControl(e);
-  if (!take)
-    take = keyPressAsSpecialEvent(e);
-  return take;
+  return keyPressAsMotion(e) 
+    || keyPressWithControl(e)
+    || keyPressAsSpecialEvent(e)
+    || keyPressAsSpecialChar(e);
 }
 
 bool TextItem::charBeforeIsLetter(int pos) const {
