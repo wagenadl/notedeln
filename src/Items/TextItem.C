@@ -11,6 +11,8 @@
 #include "BlockItem.H"
 #include "ResourceMagic.H"
 #include "Assert.H"
+#include "TeXCodes.H"
+#include "Digraphs.H"
 
 #include <QFont>
 #include <QTextDocument>
@@ -253,10 +255,12 @@ void TextItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *) {
 
 bool TextItem::keyPressAsMotion(QKeyEvent *e) {
   switch (e->key()) {
-  case Qt::Key_Escape:
-    textCursor().clearSelection();
+  case Qt::Key_Escape: {
+    QTextCursor c = textCursor();
+    c.clearSelection();
+    setTextCursor(c);
     clearFocus();
-    return true;
+  } return true;
   case Qt::Key_Return: case Qt::Key_Enter:
     if (!allowParagraphs_) {
       emit futileMovementKey(e->key(), e->modifiers());
@@ -308,9 +312,37 @@ bool TextItem::keyPressWithControl(QKeyEvent *e) {
   case Qt::Key_Minus:
     toggleSimpleStyle(MarkupData::Underline);
     return true;
+  case Qt::Key_Backslash:
+    tryTeXCode();
+    return true;
   default:
     return false;
   }
+}
+
+bool TextItem::tryTeXCode() {
+  QTextCursor c(textCursor());
+  if (!c.hasSelection()) {
+    QTextCursor m = document()->find(QRegExp("([^A-Za-z])"),
+				     c, QTextDocument::FindBackward);
+    int start = m.hasSelection() ? m.selectionEnd() : 0;
+    m = document()->find(QRegExp("([^A-Za-z])"),
+			 c);
+    int end = m.hasSelection() ? m.selectionEnd() : data_->text().size();
+    c.setPosition(start);
+    c.setPosition(end, QTextCursor::KeepAnchor);
+  }
+  // got a word
+  QString key = c.selectedText();
+  qDebug() << key << TeXCodes::map(key);
+  if (!TeXCodes::contains(key))
+    return false;
+  QString val = TeXCodes::map(key);
+  c.deleteChar(); // delete the word
+  if (document()->characterAt(c.position()-1)=='\\')
+    c.deletePreviousChar(); // delete any preceding backslash
+  c.insertHtml(val); // insert the replacement code
+  return true;
 }
 
 bool TextItem::keyPressAsSpecialEvent(QKeyEvent *e) {
@@ -328,40 +360,36 @@ bool TextItem::keyPressAsSpecialEvent(QKeyEvent *e) {
 
 bool TextItem::keyPressAsSpecialChar(QKeyEvent *e) {
   QTextCursor c(textCursor());
-  QString charBefore = document()->characterAt(c.position()-1);
-  if (e->text()=="'") {
-    if (charBefore==QString::fromUtf8("’")) {
-      c.deletePreviousChar();
-      c.insertHtml(QString::fromUtf8("”"));
-    } else {
-      c.insertHtml(QString::fromUtf8("’"));
-    }
+  QChar charBefore = document()->characterAt(c.position()-1);
+  QString charNow = e->text();
+  QString digraph = QString(charBefore) + charNow;
+  if (Digraphs::contains(digraph)) {
+    c.deletePreviousChar();
+    c.insertHtml(Digraphs::map(digraph));
     return true;
-  } else if (e->text()=="`") {
-    if (charBefore==QString::fromUtf8("‘")) {
-      c.deletePreviousChar();
+  } else if (Digraphs::contains(charNow)) {
+    c.insertHtml(Digraphs::map(charNow));
+    return true;
+  } else if (charNow=="\"") {
+    if (charBefore.isSpace() || charBefore.isNull()
+	|| digraph=="(\"" || digraph=="[\"" || digraph=="{\""
+	|| digraph==QString::fromUtf8("‘\"")) 
       c.insertHtml(QString::fromUtf8("“"));
-    } else {
-      c.insertHtml(QString::fromUtf8("‘"));
-    }
+    else
+      c.insertHtml(QString::fromUtf8("”"));
     return true;
-  } else if (e->text()=="-") {
-    if (charBefore==QString::fromUtf8("-")) {
-      c.deletePreviousChar();
-      if (document()->characterAt(c.position()-1).isDigit()) {
-        c.insertHtml(QString::fromUtf8("‒")); // figure dash
-      } else {
-        c.insertHtml(QString::fromUtf8("–")); // en dash
-      }
-      return true;
-    } else if (charBefore==QString::fromUtf8("–") ||
-               charBefore==QString::fromUtf8("‒")) {
-      c.deletePreviousChar();
-      c.insertHtml(QString::fromUtf8("—")); // em dash
-      return true;
-    } else {
-      return false;
-    }
+  } else if (digraph==QString::fromUtf8("--")) {
+    c.deletePreviousChar();
+    if (document()->characterAt(c.position()-1).isDigit()) 
+      c.insertHtml(QString::fromUtf8("‒")); // figure dash
+    else 
+      c.insertHtml(QString::fromUtf8("–")); // en dash
+    return true;
+  } else if (digraph==".."
+	     && document()->characterAt(c.position()-2) == QChar('.')) {
+    c.deletePreviousChar();
+    c.insertHtml(QString::fromUtf8("…"));
+    return true;
   } else {
     return false;
   }

@@ -68,6 +68,7 @@ private:
   bool trySimpleStyle(QString marker, MarkupData::Style type);
   bool tryScriptStyles();
   bool tryAutoLink();
+  bool tryTeXCode();
   void toggleSimpleStyle(MarkupData::Style type);
   bool charBeforeIsLetter(int pos) const;
   bool charAfterIsLetter(int pos) const;
