@@ -1,0 +1,6 @@
+<!DOCTYPE RCC><RCC version="1.0">
+ <qresource>
+     <file>TeXCodes.json</file>
+     <file>Digraphs.json</file>
+ </qresource>
+</RCC>
