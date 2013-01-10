@@ -19,7 +19,7 @@ Item::Item(Data *d, Item *parent): QGraphicsObject(parent), d(d) {
   ASSERT(d);
   if (parent)
     parent->addChild(this);
-  qDebug() << "Item::Item" << this << parent << d;
+  //  qDebug() << "Item::Item" << this << parent << d;
   brLocked = false;
   extraneous = false;
   writable = false;
@@ -27,7 +27,7 @@ Item::Item(Data *d, Item *parent): QGraphicsObject(parent), d(d) {
 }
 
 Item::~Item() {
-  qDebug() << "Item::~Item" << this;
+  //  qDebug() << "Item::~Item" << this;
 }
 
 Data *Item::data() {
