@@ -19,6 +19,7 @@ Item::Item(Data *d, Item *parent): QGraphicsObject(parent), d(d) {
   ASSERT(d);
   if (parent)
     parent->addChild(this);
+  qDebug() << "Item::Item" << this << parent << d;
   brLocked = false;
   extraneous = false;
   writable = false;
@@ -26,6 +27,7 @@ Item::Item(Data *d, Item *parent): QGraphicsObject(parent), d(d) {
 }
 
 Item::~Item() {
+  qDebug() << "Item::~Item" << this;
 }
 
 Data *Item::data() {
@@ -33,9 +35,12 @@ Data *Item::data() {
 }
 
 Style const &Item::style() const {
+  static Style dflt("-");
   Notebook *n = d->book();
-  ASSERT(n);
-  return n->style();
+  if (n)
+    return n->style();
+  else
+    return dflt; // this happens during item deletion. horrible, but true.
 }
 
 QVariant Item::style(QString k) const {
@@ -84,6 +89,7 @@ void Item::addChild(Item *i) {
 
 bool Item::deleteChild(Item *i) {
   if (children_.removeOne(i)) {
+    i->setParent(0);
     i->deleteLater();
     return true;
   } else {

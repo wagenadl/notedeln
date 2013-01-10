@@ -113,8 +113,12 @@ void PageView::keyPressEvent(QKeyEvent *e) {
 	else
 	  break;
       }
-      if (item && item->isWritable()) 
+      if (item && item->isWritable()) {
 	deletedStack->grabIfRestorable(item);
+	Item *parent = item->itemParent();
+	if (parent && parent->childless() && parent->pageScene())
+	    parent->pageScene()->notifyChildless(parent);
+      }
     } else {
       take = false;
     }      

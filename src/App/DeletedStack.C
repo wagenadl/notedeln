@@ -5,6 +5,8 @@
 #include "GfxNoteItem.H"
 #include "TextItem.H"
 
+#include <QDebug>
+
 DeletedStack::DeletedStack(QObject *parent): QObject(parent) {
 }
 
@@ -26,6 +28,7 @@ bool DeletedStack::grabIfRestorable(Item *item) {
   }
   if (!dynamic_cast<GfxData*>(item->data()))
     return false;
+  qDebug() << "DeletedStack: taking item " << item;
   DeletedItem *dd = DeletedItem::takeFromParent(item);
   dd->setParent(this);
   stack.append(dd);

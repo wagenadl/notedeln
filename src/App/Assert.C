@@ -6,9 +6,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define ASSERT_BACKTRACE
+#define ASSERT_BACKTRACE 0
 
-#ifdef ASSERT_BACKTRACE
+#if ASSERT_BACKTRACE
 
 #include <execinfo.h>
 #include <cxxabi.h>
@@ -54,8 +54,8 @@ void eln_backtrace(int skip) {
 }
 
 #else
-void eln_backtrace(int skip) {
-  fprintf(stderr, "Backtrace info not available.\n");
+void eln_backtrace(int) {
+  //  fprintf(stderr, "Backtrace info not available.\n");
 }
 #endif
 

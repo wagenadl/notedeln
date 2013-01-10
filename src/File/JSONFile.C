@@ -150,9 +150,9 @@ namespace JSONFile {
     QVariant doc = parser.parse(&f, &ok1);
     f.close();
     if (!ok1) {
-      qDebug() << "JSONFile: Parse failed: "
-	       << parser.errorString()
-	       << " at line " << parser.errorLine();
+      qDebug() << "JSONFile: Parse failed:" << parser.errorString()
+	       << "at line" << parser.errorLine()
+	       << "in file" << fn;
       return QVariantMap();
     }
 

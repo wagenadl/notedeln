@@ -362,6 +362,25 @@ bool PageScene::belowContent(QPointF sp) {
   //  return sp.y() >= blockItems[iAbove]->netSceneRect().bottom();
 }
 
+void PageScene::notifyChildless(Item *item) {
+  /* This is a mechanism for deleting graphics blocks that no longer have
+     any items in them.
+   */
+  if (!writable)
+    return;
+  if (!dynamic_cast<GfxBlockItem*>(item))
+    return; // We don't want to do this to text blocks, because they typically
+  // have contents even if they don't have children.
+
+  qDebug() << "childless" << this << item;
+  for (int i=0; i<blockItems.size(); ++i) {
+    if (blockItems[i] == item) {
+      qDebug() << "deleting block " << i;
+      deleteBlock(i);
+    }
+  }
+}
+  
 void PageScene::deleteBlock(int blocki) {
   if (blocki>=blockItems.size()) {
     qDebug() << "PageScene: deleting nonexisting block " << blocki;
@@ -378,14 +397,20 @@ void PageScene::deleteBlock(int blocki) {
   remap();
 
   removeItem(bi);
+  qDebug() << "removed block from scene" << bi;
   bi->deleteLater();
   data_->deleteBlock(bd);
   removeItem(fng);
   fng->deleteLater();
+  qDebug() << "remaining items:";
+  foreach (QGraphicsItem *it, items())
+    qDebug() << "  " << it;
 
+  qDebug() << "restacking";
   restackBlocks();
 
   gotoSheet(iSheet>=nSheets ? nSheets-1 : iSheet);
+  qDebug() << "all done" << iSheet << nSheets;
 }
 
 GfxBlockItem *PageScene::newGfxBlock(int iAbove) {
