@@ -136,6 +136,9 @@ BlockItem *PageScene::tryMakeGfxBlock(BlockData *bd) {
     return 0;
   GfxBlockItem *gbi = new GfxBlockItem(gbd);
   addItem(gbi);
+  connect(gbi, SIGNAL(childless()),
+          SLOT(notifyChildless()),
+          Qt::QueuedConnection);
   return gbi;
 }
 
@@ -362,23 +365,29 @@ bool PageScene::belowContent(QPointF sp) {
   //  return sp.y() >= blockItems[iAbove]->netSceneRect().bottom();
 }
 
-void PageScene::notifyChildless(Item *item) {
+void PageScene::notifyChildless() {
+  qDebug() << "notifyChildless";
+  GfxBlockItem *gbi = dynamic_cast<GfxBlockItem*>(sender());
+  if (!gbi)
+    return;
   /* This is a mechanism for deleting graphics blocks that no longer have
      any items in them.
    */
   if (!writable)
     return;
-  if (!dynamic_cast<GfxBlockItem*>(item))
-    return; // We don't want to do this to text blocks, because they typically
-  // have contents even if they don't have children.
-
-  qDebug() << "childless" << this << item;
+  qDebug() << "childless" << this << gbi;
   for (int i=0; i<blockItems.size(); ++i) {
-    if (blockItems[i] == item) {
+    if (blockItems[i] == gbi) {
       qDebug() << "deleting block " << i;
       deleteBlock(i);
+      break;
     }
   }
+  qDebug() << "restacking";
+  restackBlocks();
+
+  gotoSheet(iSheet>=nSheets ? nSheets-1 : iSheet);
+  qDebug() << "all done" << iSheet << nSheets;
 }
   
 void PageScene::deleteBlock(int blocki) {
@@ -396,21 +405,14 @@ void PageScene::deleteBlock(int blocki) {
   footnoteGroups.removeAt(blocki);
   remap();
 
-  removeItem(bi);
+  //  removeItem(bi);
   qDebug() << "removed block from scene" << bi;
-  bi->deleteLater();
+  //  bi->deleteLater();
+  delete bi;
   data_->deleteBlock(bd);
-  removeItem(fng);
-  fng->deleteLater();
-  qDebug() << "remaining items:";
-  foreach (QGraphicsItem *it, items())
-    qDebug() << "  " << it;
-
-  qDebug() << "restacking";
-  restackBlocks();
-
-  gotoSheet(iSheet>=nSheets ? nSheets-1 : iSheet);
-  qDebug() << "all done" << iSheet << nSheets;
+  //  removeItem(fng);
+  // fng->deleteLater();
+  delete fng;
 }
 
 GfxBlockItem *PageScene::newGfxBlock(int iAbove) {
@@ -436,6 +438,9 @@ GfxBlockItem *PageScene::newGfxBlock(int iAbove) {
   data_->addBlock(gbd);
   GfxBlockItem *gbi = new GfxBlockItem(gbd);
   addItem(gbi);
+  connect(gbi, SIGNAL(childless()),
+          SLOT(notifyChildless()),
+          Qt::QueuedConnection);
   gbi->makeWritable();
   FootnoteGroupItem *fng =  new FootnoteGroupItem(gbd, this);
   

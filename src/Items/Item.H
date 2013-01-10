@@ -11,6 +11,7 @@
 #include "Style.H"
 
 class Item: public QGraphicsObject {
+  Q_OBJECT;
 public:
   Item(Data *d, Item *parent);
   virtual ~Item();
@@ -43,6 +44,8 @@ public:
   void addChild(Item *);
   bool deleteChild(Item *); // this uses deleteLater if child is an object
   class GfxNoteItem *newNote(QPointF p0, QPointF p1, bool late);
+signals:
+  void childless();
 public: // but only for use in derived class source files
   template <class DT, class IT> class Creator {
   public:

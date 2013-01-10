@@ -39,8 +39,8 @@ Style const &Item::style() const {
   Notebook *n = d->book();
   if (n)
     return n->style();
-  else
-    return dflt; // this happens during item deletion. horrible, but true.
+  qDebug() << "Item" << this << "not connected to notebook";
+  return dflt; // this happens during item deletion. horrible, but true.
 }
 
 QVariant Item::style(QString k) const {
@@ -89,8 +89,10 @@ void Item::addChild(Item *i) {
 
 bool Item::deleteChild(Item *i) {
   if (children_.removeOne(i)) {
-    i->setParent(0);
+    i->setParentItem(0);
     i->deleteLater();
+    if (children_.isEmpty())
+      emit childless();
     return true;
   } else {
     return false;
@@ -175,6 +177,7 @@ static bool shouldGlow(Data *d) {
 }
 
 void Item::hoverEnterEvent(QGraphicsSceneHoverEvent *) {
+  qDebug() << "hoverEnterEvent" << this;
   if (writable && shouldGlow(d) && mode()->mode()==Mode::MoveResize) {
     QGraphicsDropShadowEffect *eff = new QGraphicsDropShadowEffect(this);
     eff->setColor(QColor("#00ff33"));
@@ -185,6 +188,7 @@ void Item::hoverEnterEvent(QGraphicsSceneHoverEvent *) {
 }
 
 void Item::hoverLeaveEvent(QGraphicsSceneHoverEvent *) {
+  qDebug() << "hoverLeaveEvent" << this;
   setGraphicsEffect(0);
 }
 

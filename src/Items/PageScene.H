@@ -20,8 +20,8 @@ public:
   void gotoSheet(int i);
   int findBlock(class Item const *) const;
   void newFootnote(int block, QString tag);
-public slots:
-  void notifyChildless(Item *);
+private slots:
+  void notifyChildless();
 signals:
   void nowOnPage(int);
 protected:
