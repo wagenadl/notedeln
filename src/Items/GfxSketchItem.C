@@ -9,6 +9,7 @@
 #include <QCursor>
 #include <QEventLoop>
 #include "Assert.H"
+#include "BlockItem.H"
 
 #define MAX_DISTORT 3
 
@@ -83,8 +84,8 @@ GfxSketchItem *GfxSketchItem::newSketch(QPointF p,
 
 void GfxSketchItem::build() {
   building = true;
-  if (itemParent())
-    itemParent()->lockBounds();
+  if (ancestralBlock())
+    ancestralBlock()->lockBounds();
   d->clear();
   d->addPoint(QPointF(0, 0), true); // by definition, we start at the origin
   droppedPoints.clear();
@@ -96,8 +97,8 @@ void GfxSketchItem::build() {
   el.exec();
   ungrabMouse();
   building = false;
-  if (itemParent())
-    itemParent()->unlockBounds();
+  if (ancestralBlock())
+    ancestralBlock()->unlockBounds();
   d->markModified();
 }
   
@@ -105,8 +106,8 @@ void GfxSketchItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
   if (building)
     return;
   if (isWritable() && mode()->mode()==Mode::MoveResize) {
-    if (itemParent())
-      itemParent()->lockBounds();
+    if (ancestralBlock())
+      ancestralBlock()->lockBounds();
     e->accept();
   } else {
     QGraphicsObject::mousePressEvent(e);
@@ -187,8 +188,8 @@ void GfxSketchItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *e) {
     emit doneBuilding();
   } else {
     d->setPos(pos());
-    if (itemParent())
-      itemParent()->unlockBounds();
+    if (ancestralBlock())
+      ancestralBlock()->unlockBounds();
     e->accept();
   }
 }

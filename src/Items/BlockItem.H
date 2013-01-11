@@ -13,19 +13,21 @@ public:
   BlockItem(class BlockData *data, Item *parent);
   virtual ~BlockItem();
   BlockData *data();
-  static BlockItem const *ancestralBlock(Item const *);
-  static BlockItem *ancestralBlock(Item *);
+  virtual BlockItem const *ancestralBlock() const;
+  virtual BlockItem *ancestralBlock();
+  QRectF boundingRect() const;
+  virtual QRectF fittedRect() const;
 signals:
-  void vboxChanged();
+  void boundsChanged();
 public slots:
-  void checkVbox();
+  void sizeToFit();
+  void lockBounds();
+  void unlockBounds();
   void refTextChange(QString olds, QString news);
-protected:
-  void resetBbox(); // size change w/o emitting signals
 private:
   BlockData *data_;
-  QRectF oldBbox;
-  // QList<NoteItem *> notes_;
+  QRectF bbox;
+  bool bbLocked;
 };
 
 

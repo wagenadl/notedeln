@@ -7,6 +7,7 @@
 #include <QGraphicsSceneMouseEvent>
 #include <QTextDocument>
 #include "Assert.H"
+#include "BlockItem.H"
 
 static Item::Creator<GfxNoteData, GfxNoteItem> c("gfxnote");
 
@@ -39,11 +40,10 @@ GfxNoteItem::~GfxNoteItem() {
 }
 
 void GfxNoteItem::abandon() {
-  Item *p = itemParent();
-  ASSERT(p);
-  p->deleteChild(this);
-  data()->parent()->deleteChild(data());
-  p->childGeometryChanged();
+  BlockItem *ancestor = ancestralBlock();
+  deleteLater();
+  if (ancestor)
+    ancestor->sizeToFit();
 }
 
 void GfxNoteItem::updateTextPos() {
@@ -78,7 +78,6 @@ void GfxNoteItem::updateTextPos() {
 
 QRectF GfxNoteItem::boundingRect() const {
   return QRectF();
-  //  return childrenBoundingRect(); // this is not really how it's supposed to go, but otherwise, we don't seem to matter for
 }
 
 void GfxNoteItem::paint(QPainter *,
@@ -104,7 +103,7 @@ void GfxNoteItem::mouseMoveEvent(QGraphicsSceneMouseEvent *e) {
 }
 
 void GfxNoteItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *e) {
-  unlockBounds();
+  //  unlockBounds();
   ungrabMouse();
   if (resizing) {
     data_->setTextWidth(text->textWidth());
@@ -126,8 +125,8 @@ void GfxNoteItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *e) {
     }
     updateTextPos();
   }
-  if (itemParent())
-    itemParent()->childGeometryChanged();
+  if (ancestralBlock())
+    ancestralBlock()->sizeToFit();
   e->accept();
 }
 
@@ -148,7 +147,7 @@ void GfxNoteItem::childMousePress(QPointF, Qt::MouseButton b, bool resizeFlag) {
   if (mode()->mode()==Mode::MoveResize && b==Qt::LeftButton) {
     text->setFocus();
     text->clearFocus();
-    lockBounds();
+    //    lockBounds();
     resizing = resizeFlag;
     if (resizing) {
       if (data_->textWidth()<1)

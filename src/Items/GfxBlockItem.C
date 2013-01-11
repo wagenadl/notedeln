@@ -24,6 +24,7 @@ GfxBlockItem::GfxBlockItem(GfxBlockData *data, Item *parent):
 
   foreach (GfxData *g, data->gfx()) 
     create(g, this);
+  sizeToFit();
 
   setPos(style().real("margin-left"), 0);
   setCursor(defaultCursor());
@@ -58,7 +59,7 @@ Item *GfxBlockItem::newImage(QImage img, QUrl src, QPointF pos) {
     scale = maxW/img.width();
   if (scale*img.height()>maxH)
     scale = maxH/img.height();
-  if (itemChildren<Item>().isEmpty())
+  if (allChildren().isEmpty())
     pos = QPointF(18, 18);
   else
     pos -= QPointF(img.width(),img.height())*(scale/2);
@@ -80,33 +81,14 @@ double GfxBlockItem::availableWidth() const {
     style().real("margin-right");
 }
 
-void GfxBlockItem::childGeometryChanged() {
-  BlockItem::childGeometryChanged();
-  sizeToFit();
-}
-
-void GfxBlockItem::sizeToFit() {
-  prepareGeometryChange();
-  checkVbox();
-  data_->setRef(-netBoundingRect().topLeft());
-}
-
-QRectF GfxBlockItem::boundingRect() const {
-  QRectF bb(cachedBounds());
-  if (bb.isNull()) {
-    bb = QRectF(0, 0, availableWidth(), 72);
-    // must do this here, because I cannot use our netBoundingRect...
-    foreach (Item *i, itemChildren<Item>()) {
-      if (!i->isExtraneous()) {
-	bb |= i->mapRectToParent(i->netBoundingRect());
-      }
-    }
-  }
-  bb.setLeft(0);
-  bb.setWidth(availableWidth());
+QRectF GfxBlockItem::fittedRect() const {
+  QRectF bb = BlockItem::fittedRect();
+  bb |= QRectF(0, 0, availableWidth(), 72);
+  // bb.setLeft(0);
+  // bb.setWidth(availableWidth());
   return bb;
 }
-  
+   
 void GfxBlockItem::paint(QPainter *p,
 			 const QStyleOptionGraphicsItem *,
 			 QWidget *) {
@@ -173,6 +155,6 @@ void GfxBlockItem::makeWritable() {
   setCursor(Qt::CrossCursor);
 
   // is it really right to make all children writable?
-  foreach (Item *i, itemChildren<Item>())
+  foreach (Item *i, allChildren())
     i->makeWritable();
 }

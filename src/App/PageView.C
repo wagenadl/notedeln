@@ -13,6 +13,7 @@
 #include "Assert.H"
 #include "Toolbars.H"
 #include "Mode.H"
+#include "BlockItem.H"
 
 #include <QKeyEvent>
 #include <QDebug>
@@ -99,22 +100,22 @@ void PageView::keyPressEvent(QKeyEvent *e) {
       take = false;
     break;
   case Qt::Key_Delete:
-    if (currentSection==Pages && pageScene->focusItem()==0
-        && mode()->mode()==Mode::MoveResize) {
+    if (currentSection==Pages && mode()->mode()==Mode::MoveResize) {
       QPointF p = mapToScene(mapFromGlobal(QCursor::pos()));
-      QGraphicsItem *gi = pageScene->itemAt(p);
-      Item *item;
-      while (true) {
+      Item *item = 0;
+      for (QGraphicsItem *gi = pageScene->itemAt(p); gi!=0;
+	   gi = gi->parentItem()) {
 	item = dynamic_cast<Item*>(gi);
 	if (item)
 	  break;
-	if (gi)
-	  gi = gi->parentItem();
-	else
-	  break;
       }
-      if (item && item->isWritable()) 
-	deletedStack->grabIfRestorable(item);
+      if (item && item->isWritable()) {
+	BlockItem *block = item->ancestralBlock();
+	if (block->allChildren().isEmpty())
+	  block->pageScene()->notifyChildless(block);
+	else
+	  deletedStack->grabIfRestorable(item);
+      }
     } else {
       take = false;
     }      

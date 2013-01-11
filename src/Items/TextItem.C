@@ -70,7 +70,7 @@ void TextItem::setAllowNotes(bool y) {
 
 void TextItem::makeWritable() {
   Item::makeWritable();
-  foreach (GfxNoteItem *gni, itemChildren<GfxNoteItem>())
+  foreach (GfxNoteItem *gni, children<GfxNoteItem>())
     gni->makeWritable();
   text->setTextInteractionFlags(Qt::TextEditorInteraction);
   text->setCursor(QCursor(Qt::IBeamCursor));
@@ -137,7 +137,7 @@ bool TextItem::mousePress(QGraphicsSceneMouseEvent *e) {
   case Mode::MoveResize:
     if (mayMove) {
       bool resize = shouldResize(e->pos());
-      GfxNoteItem *gni = dynamic_cast<GfxNoteItem*>(itemParent());
+      GfxNoteItem *gni = dynamic_cast<GfxNoteItem*>(parent());
       if (gni)
 	gni->childMousePress(e->scenePos(), e->button(), resize);
     }
@@ -636,7 +636,7 @@ bool TextItem::tryFootnote() {
   if (oldmd && oldmd->start()==start && oldmd->end()==end) {
     if (mayDelete) {
       // delete old mark
-      BlockItem *bi = BlockItem::ancestralBlock(this);
+      BlockItem *bi = ancestralBlock();
       if (bi) 
 	bi->refTextChange(oldmd->text(), ""); // remove any footnotes
       markings_->deleteMark(oldmd);
@@ -681,7 +681,7 @@ void TextItem::setAllowParagraphs(bool yes) {
 }
 
 bool TextItem::shouldResize(QPointF p) const {
-  GfxNoteItem *gni = dynamic_cast<GfxNoteItem*>(itemParent());
+  GfxNoteItem *gni = dynamic_cast<GfxNoteItem*>(parent());
   if (!gni)
     return false;
   double tw = gni->data()->textWidth();
@@ -727,11 +727,7 @@ void TextItem::setBoxVisible(bool v) {
 
 void TextItem::setTextWidth(double d) {
   text->setTextWidth(d);
-  foreach (QGraphicsItem *i, childItems()) {
-    HoverRegion *hr = dynamic_cast<HoverRegion *>(i);
-    if (hr)
-      hr->forgetBounds();
-  }
+  emit widthChanged();
 }
 
 void TextItem::insertBasicHtml(QString html, int pos) {

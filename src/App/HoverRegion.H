@@ -15,6 +15,7 @@ public:
   virtual QRectF boundingRect() const;
   virtual void paint(QPainter*, const QStyleOptionGraphicsItem*, QWidget*);
   virtual QPainterPath shape() const;
+public slots:
   void forgetBounds();
 protected:
   virtual void mousePressEvent(QGraphicsSceneMouseEvent *);

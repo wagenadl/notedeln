@@ -17,13 +17,11 @@ public:
   Item *newImage(QImage img, QUrl src, QPointF xy);
   Item *newImage(QUrl src, QPointF xy);
   void paint(QPainter *, const QStyleOptionGraphicsItem *, QWidget *);
-  virtual QRectF boundingRect() const;
-  virtual void childGeometryChanged();
+  virtual QRectF fittedRect() const;
   virtual void makeWritable();
 public: // should be protected, but PageScene calls it
   virtual void mousePressEvent(QGraphicsSceneMouseEvent *);
 private:
-  void sizeToFit();
   double availableWidth() const;
   void drawGrid(QPainter *p, QRectF const &bb, double dx);
   void createMark(QPointF pos);

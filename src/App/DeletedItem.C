@@ -2,27 +2,29 @@
 
 #include "DeletedItem.H"
 #include "Assert.H"
+#include "BlockItem.H"
 
 DeletedItem::DeletedItem(Item *item) {
   ASSERT(item);
   data = item->data();
   ASSERT(data);
-  parentItem = item->itemParent();
+  parentItem = item->parent();
   ASSERT(parentItem);
-  QObject *parentObject = parentItem;
-  ASSERT(parentObject);  
-  connect(parentObject, SIGNAL(destroyed()), this, SLOT(parentDestroyed()));
+  connect(parentItem, SIGNAL(destroyed()), this, SLOT(parentDestroyed()));
 }
 
 DeletedItem::~DeletedItem() {
 }
 
 DeletedItem *DeletedItem::takeFromParent(Item *item) {
+  ASSERT(item);
+  BlockItem *ancestor = item->ancestralBlock();
   DeletedItem *dd = new DeletedItem(item);
   item->data()->parent()->takeChild(item->data());
-  item->itemParent()->deleteChild(item);
-  dd->parentItem->childGeometryChanged();
-  return dd;
+  item->deleteLater();
+ if (ancestor)
+    ancestor->sizeToFit();
+   return dd;
 }
 
 bool DeletedItem::isRestored() const {
@@ -37,7 +39,9 @@ Item *DeletedItem::restoreToParent() {
   parentItem->data()->addChild(data);
   Item *item = Item::create(data, parentItem);
   item->makeWritable();
-  parentItem->childGeometryChanged();
+  BlockItem *ancestor = item->ancestralBlock();
+  if (ancestor)
+    ancestor->sizeToFit();
   return item;
 }
 

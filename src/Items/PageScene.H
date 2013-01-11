@@ -20,8 +20,8 @@ public:
   void gotoSheet(int i);
   int findBlock(class Item const *) const;
   void newFootnote(int block, QString tag);
-private slots:
-  void notifyChildless();
+public slots:
+  void notifyChildless(class BlockItem *);
 signals:
   void nowOnPage(int);
 protected:
@@ -31,7 +31,6 @@ protected:
   virtual int startPage() const;
 private slots:
   void titleEdited();
-  void hChanged(int block);
   void vChanged(int block);
   void noteVChanged(int block);
   void futileMovement(int block);
@@ -82,7 +81,6 @@ private:
   QGraphicsTextItem *dateItem;
   QGraphicsTextItem *nOfNItem;
   QGraphicsRectItem *belowItem;
-  class QSignalMapper *hChangeMapper;
   class QSignalMapper *vChangeMapper;
   class QSignalMapper *noteVChangeMapper;
   class QSignalMapper *futileMovementMapper;

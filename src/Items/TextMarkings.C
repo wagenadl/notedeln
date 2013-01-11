@@ -92,8 +92,11 @@ void TextMarkings::applyMark(Span const &span, QSet<int> edges) {
 }  
 
 TextMarkings::Span &TextMarkings::insertMark(MarkupData *m) {
-  if (m->style()==MarkupData::Link)
+  if (m->style()==MarkupData::Link) {
     regions[m] = new HoverRegion(m, parent(), this);
+    connect(parent(), SIGNAL(widthChanged()),
+	    regions[m], SLOT(forgetBounds()));
+  }
   Span s(m, this);
   for (QList<Span>::iterator i=spans.begin(); i!=spans.end(); ++i) 
     if (s < *i) 

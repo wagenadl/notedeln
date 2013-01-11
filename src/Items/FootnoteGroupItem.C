@@ -24,7 +24,7 @@ FootnoteGroupItem::~FootnoteGroupItem() {
 void FootnoteGroupItem::restack() {
   // qDebug() << "FootnoteGroupItem::restack";
   int y = 0;
-  foreach (FootnoteItem *fni, itemChildren<FootnoteItem>()) {
+  foreach (FootnoteItem *fni, children<FootnoteItem>()) {
     fni->setPos(0, y);
     fni->data()->setY0(mapToScene(QPointF(0,y)).y());
     y += fni->childrenBoundingRect().height();
@@ -33,7 +33,7 @@ void FootnoteGroupItem::restack() {
 }
 
 void FootnoteGroupItem::makeWritable() {
-  foreach (Item *c, itemChildren<FootnoteItem>())
+  foreach (Item *c, children<FootnoteItem>())
     c->makeWritable();
 }
 

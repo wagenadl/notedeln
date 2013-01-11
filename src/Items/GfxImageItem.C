@@ -8,6 +8,7 @@
 #include "GfxNoteItem.H"
 #include "GfxMarkItem.H"
 #include "GfxSketchItem.H"
+#include "BlockItem.H"
 
 #include <QDebug>
 #include <QGraphicsSceneMouseEvent>
@@ -173,8 +174,8 @@ void GfxImageItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
       cropStart = mapRectToParent(data->cropRect());
       imStart = mapRectToParent(QRectF(QPointF(0,0), data->size()));
       dragCrop = data->cropRect().toRect();
-      if (itemParent())
-	itemParent()->lockBounds();
+      if (ancestralBlock())
+	ancestralBlock()->lockBounds();
       else
 	qDebug() << "GfxImageItem: no parent";
       take = true;
@@ -231,8 +232,8 @@ void GfxImageItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *e) {
     data->setCropRect(dragCrop); // round to integers
     break;
   }
-  if (itemParent()) {
-    itemParent()->unlockBounds();
+  if (ancestralBlock()) {
+    ancestralBlock()->unlockBounds();
   }
   e->accept();
 }
@@ -319,14 +320,14 @@ void GfxImageItem::makeWritable() {
 	  SLOT(modeChange(Mode::M)));
   //  qDebug() << "GII:MakeWritable";
   Item::makeWritable();
-  foreach (Item *i, itemChildren<Item>())
+  foreach (Item *i, allChildren())
     i->makeWritable();
   setAcceptHoverEvents(true);
 }
 
 void GfxImageItem::setScale(double s) {
   QGraphicsObject::setScale(s);
-  foreach (Item *i, itemChildren<Item>())
+  foreach (Item *i, allChildren())
     i->setScale(1./s);
 }
 

@@ -15,12 +15,12 @@ class Item: public QGraphicsObject {
 public:
   Item(Data *d, Item *parent);
   virtual ~Item();
+ void deleteLater();
   Data *data();
-  Item *itemParent() const;
+  Item *parent() const;
   class PageScene *pageScene() const;
   class Mode const *mode() const;
-  QRectF netBoundingRect() const; // potentially cached if locked
-  QRectF netSceneRect() const; // in scene coords
+  QRectF netChildBoundingRect() const;
   bool isExtraneous() const;
   void setExtraneous(bool e=true); // extraneous items are not used for
                                    // calculations of netBoundingRect
@@ -28,24 +28,22 @@ public:
   virtual void makeWritable();
   Style const &style() const;
   QVariant style(QString) const;
-  bool childless() const;
-  template<class T> QList<T*> itemChildren() const {
+  virtual class BlockItem const *ancestralBlock() const;
+  virtual class BlockItem *ancestralBlock();
+  QList<Item*> allChildren() const;
+  template<class T> QList<T*> children() const {
     QList<T *> res;
-    for (QList<Item*>::const_iterator i=children_.begin();
-	 i!=children_.end(); ++i) {
-      T *c = dynamic_cast<T*>(*i);
+    foreach (QGraphicsItem *c0, QGraphicsObject::childItems()) {
+      T *c = dynamic_cast<T*>(c0);
       if (c)
-	res.append(c);
+ 	res.append(c);
     }
     return res;
   }
 public:
   static Item *create(Data *d, Item *parent=0);
-  void addChild(Item *);
-  bool deleteChild(Item *); // this uses deleteLater if child is an object
+  class GfxNoteItem *createNote(QPointF p0, bool late);
   class GfxNoteItem *newNote(QPointF p0, QPointF p1, bool late);
-signals:
-  void childless();
 public: // but only for use in derived class source files
   template <class DT, class IT> class Creator {
   public:
@@ -56,26 +54,23 @@ public: // but only for use in derived class source files
       return new IT(dynamic_cast<DT*>(d), parent);
     }
   };
-public:
-  void lockBounds();   // } children call these to prevent 
-  void unlockBounds(); // } geom. update during drags
-  QRectF cachedBounds() const; // null if not locked
-  virtual void childGeometryChanged(); // children must call this directly
-  class GfxNoteItem *createNote(QPointF p0, bool late);
 protected:
   static Qt::CursorShape defaultCursor();
   virtual void hoverEnterEvent(QGraphicsSceneHoverEvent *);
   virtual void hoverLeaveEvent(QGraphicsSceneHoverEvent *);
 private:
   static QMap<QString, Item *(*)(Data *, Item *)> &creators();
-private:
-  Item(Item const &); // this must never be called
+private: // these must never be called
+  Item(Item const &); // copy constructor
+  QGraphicsObject *parentObject() const; // hide from QGraphicsObject
+  QGraphicsItem *parentItem() const; // hide from QGraphicsObject
+  QList<QGraphicsItem *> childItems() const; // hide from QGraphicsItem
+  const QObjectList &children() const; // hide from QObject
+  // QObject's parent() has been overridden
+  void setParent(QObject *); // hide from QObject
 private:
   Data *d;
-  QList<Item *> children_; // do I really want these?
   bool extraneous;
-  bool brLocked;
-  QRectF brCache;
   bool writable;
 };
 

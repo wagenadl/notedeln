@@ -13,6 +13,7 @@
 
 BlockItem::BlockItem(BlockData *data, Item *parent):
   Item(data, parent), data_(data) {
+  bbLocked = false;
 }
 
 BlockItem::~BlockItem() {
@@ -22,18 +23,44 @@ BlockData *BlockItem::data() {
   return data_;
 }
 
-void BlockItem::checkVbox() {
-  QRectF newBbox = netBoundingRect();
-
-  if (newBbox.top()==oldBbox.top() && newBbox.bottom()==oldBbox.bottom())
-    return;
-  
-  emit vboxChanged();
-  oldBbox = newBbox;
+QRectF BlockItem::boundingRect() const {
+  return bbox;
 }
 
-void BlockItem::resetBbox() {
-  oldBbox = netBoundingRect();
+void BlockItem::sizeToFit() {
+  if (bbLocked)
+    return;
+  
+  QRectF newBbox = fittedRect();
+  bool chg = newBbox != bbox;
+  // newBbox.top()!=bbox.top() || newBbox.bottom()!=bbox.bottom();
+  bbox = newBbox;
+  if (chg) {
+    prepareGeometryChange();
+    qDebug() << "BlockItem"<<this<<"emitting vboxChanged";
+    emit boundsChanged();
+  }
+}
+
+QRectF BlockItem::fittedRect() const {
+  return netChildBoundingRect();
+}
+
+void BlockItem::lockBounds() {
+  bbLocked = true;
+}
+
+void BlockItem::unlockBounds() {
+  bbLocked = false;
+  sizeToFit();
+}
+
+BlockItem const *BlockItem::ancestralBlock() const {
+  return this;
+}
+
+BlockItem *BlockItem::ancestralBlock() {
+  return this;
 }
 
 void BlockItem::refTextChange(QString olds, QString news) {
@@ -46,11 +73,11 @@ void BlockItem::refTextChange(QString olds, QString news) {
 	foreach (QGraphicsItem *i, s->items()) {
 	  FootnoteGroupItem *fng = dynamic_cast<FootnoteGroupItem*>(i);
 	  if (fng) {
-	    foreach (FootnoteItem *fni, fng->itemChildren<FootnoteItem>()) {
+	    foreach (FootnoteItem *fni, fng->children<FootnoteItem>()) {
 	      if (fni->data()==fnd) {
 		// found the note!
 		if (news.isEmpty()) {
-		  fng->deleteChild(fni);
+		  fni->deleteLater();
 		} else {
 		  fni->setTagText(news);
 		}
@@ -69,22 +96,3 @@ void BlockItem::refTextChange(QString olds, QString news) {
 }
 
 
-BlockItem const *BlockItem::ancestralBlock(Item const *i) {
-  while (i) {
-    BlockItem const *bi = dynamic_cast<BlockItem const*>(i);
-    if (bi)
-      return bi;
-    i = i->itemParent();
-  }
-  return 0;
-}
-
-BlockItem *BlockItem::ancestralBlock(Item *i) {
-  while (i) {
-    BlockItem *bi = dynamic_cast<BlockItem*>(i);
-    if (bi)
-      return bi;
-    i = i->itemParent();
-  }
-  return 0;
-}

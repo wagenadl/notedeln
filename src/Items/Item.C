@@ -14,20 +14,23 @@
 #include "Assert.H"
 #include <QGraphicsDropShadowEffect>
 #include "Mode.H"
+#include "BlockItem.H"
 
 Item::Item(Data *d, Item *parent): QGraphicsObject(parent), d(d) {
   ASSERT(d);
-  if (parent)
-    parent->addChild(this);
-  //  qDebug() << "Item::Item" << this << parent << d;
-  brLocked = false;
   extraneous = false;
   writable = false;
   setAcceptHoverEvents(true);
 }
 
 Item::~Item() {
-  //  qDebug() << "Item::~Item" << this;
+}
+
+void Item::deleteLater() {
+  QGraphicsObject::setParentItem(0);
+  if (scene()) 
+    scene()->removeItem(this);
+  QGraphicsObject::deleteLater();
 }
 
 Data *Item::data() {
@@ -80,60 +83,25 @@ QMap<QString, Item *(*)(Data *, Item *)> &Item::creators() {
   return m;
 }
   
-void Item::addChild(Item *i) {
-  bool haveAlready = children_.contains(i);
-  ASSERT(!haveAlready); // is this too aggressive?
-  if (!haveAlready)
-    children_.append(i);
-}
-
-bool Item::deleteChild(Item *i) {
-  if (children_.removeOne(i)) {
-    i->setParentItem(0);
-    i->deleteLater();
-    if (children_.isEmpty())
-      emit childless();
-    return true;
-  } else {
-    return false;
-  }
-}
-
-bool Item::childless() const {
-  return children_.isEmpty();
-}
-
-void Item::lockBounds() {
-  brCache = netBoundingRect();
-  brLocked = true;
-}
-
-void Item::unlockBounds() {
-  brLocked = false;
-  childGeometryChanged();
-}
-
-QRectF Item::cachedBounds() const {
-  if (brLocked)
-    return brCache;
-  else
-    return QRectF();
-}
-
-QRectF Item::netBoundingRect() const {
-  if (brLocked)
-    return brCache;
-  QRectF bb = boundingRect();
-  foreach (Item *i, children_) {
-    if (!i->extraneous) {
-      bb |= i->mapRectToParent(i->netBoundingRect());
+QRectF Item::netChildBoundingRect() const {
+  QRectF bb;
+  foreach (Item *i, allChildren()) {
+    if (!i->isExtraneous()) {
+      QRectF b = i->boundingRect();
+      b |= i->netChildBoundingRect();
+      bb |= i->mapRectToParent(b);
     }
   }
   return bb;
 }
 
-QRectF Item::netSceneRect() const {
-  return mapRectToScene(netBoundingRect());
+
+Item *Item::parent() const {
+  return dynamic_cast<Item*>(QGraphicsObject::parentItem());
+}
+
+QList<Item*> Item::allChildren() const {
+  return children<Item>();
 }
 
 void Item::setExtraneous(bool e) {
@@ -148,20 +116,12 @@ Qt::CursorShape Item::defaultCursor() {
   return Qt::ArrowCursor;
 }
 
-Item *Item::itemParent() const {
-  return dynamic_cast<Item*>(parentItem());
-}
-
-void Item::childGeometryChanged() {
-  if (itemParent())
-    itemParent()->childGeometryChanged();
-}
-
 GfxNoteItem *Item::newNote(QPointF p0, QPointF p1, bool late) {
   GfxNoteItem *n = late
     ? LateNoteItem::newNote(p0, p1, this)
     : GfxNoteItem::newNote(p0, p1, this);
-  childGeometryChanged(); // b/c of the new note
+  if (ancestralBlock())
+    ancestralBlock()->sizeToFit();
   return n;
 }
 
@@ -193,3 +153,10 @@ void Item::hoverLeaveEvent(QGraphicsSceneHoverEvent *) {
 }
 
 
+BlockItem const *Item::ancestralBlock() const {
+  return parent() ? parent()->ancestralBlock() : 0;
+}
+
+BlockItem *Item::ancestralBlock() {
+  return parent() ? parent()->ancestralBlock() : 0;
+}

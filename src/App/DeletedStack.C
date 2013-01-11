@@ -22,7 +22,7 @@ bool DeletedStack::grabIfRestorable(Item *item) {
   if (!item)
     return false;
   if (dynamic_cast<TextItem*>(item)) {
-    item = item->itemParent();
+    item = item->parent();
     if (!dynamic_cast<GfxNoteItem*>(item))
       return false;
   }

@@ -28,14 +28,14 @@ TextBlockItem::TextBlockItem(TextBlockData *data, Item *parent):
   item_->setAllowNotes(true);
   
   connect(item_, SIGNAL(textChanged()),
-	  this, SLOT(checkVbox()), Qt::QueuedConnection);
+	  this, SLOT(sizeToFit()), Qt::QueuedConnection);
   // The non-instantaneous delivery is important, otherwise the check
   // may happen before the change is processed.
   connect(item_, SIGNAL(futileMovementKey(int, Qt::KeyboardModifiers)),
 	  this, SLOT(futileMovementKey(int, Qt::KeyboardModifiers)));
   connect(item_, SIGNAL(refTextChange(QString, QString)),
 	  this, SLOT(refTextChange(QString, QString)));
-  resetBbox();
+  sizeToFit();
 }
 
 void TextBlockItem::makeWritable() {
@@ -48,6 +48,10 @@ void TextBlockItem::makeWritable() {
 
 TextBlockItem::~TextBlockItem() {
   // I assume the item_ is deleted by Qt?
+}
+
+QRectF TextBlockItem::fittedRect() const {
+  return item_->mapRectToParent(item_->boundingRect());
 }
 
 void TextBlockItem::initializeFormat() {
@@ -134,10 +138,6 @@ void TextBlockItem::acceptFocus(QPointF p) {
     }
   }
   qDebug() << " failed";
-}
-
-QRectF TextBlockItem::boundingRect() const {
-  return QRectF(0, 0, 1, 1);
 }
 
 void TextBlockItem::paint(QPainter *,

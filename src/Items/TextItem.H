@@ -29,6 +29,7 @@ public:
   // Only <b> and <i> tags are supported at present
 signals:
   void textChanged();
+  void widthChanged();
   void abandoned(); // escape pressed while empty
   void futileMovementKey(int, Qt::KeyboardModifiers);
   /* also emitted for enter press or for delete/backspace at end/start */
