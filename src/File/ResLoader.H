@@ -11,7 +11,7 @@
 class ResLoader: public QObject {
   Q_OBJECT;
 public:
-  ResLoader(class Resource *parent);
+  ResLoader(class Resource *parent, bool convertHtmlToPdf=true);
   virtual ~ResLoader();
   bool getNow(double timeout_s=-1); // true if finished without error
   bool getNowDialog(double delay_s = 0.2);
@@ -47,6 +47,7 @@ private:
   QUrl src;
   QFile *dst;
   int redirectCount;
+  bool convertHtmlToPdf;
 };
 
 #endif

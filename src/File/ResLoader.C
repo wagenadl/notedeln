@@ -22,7 +22,8 @@ QNetworkAccessManager &ResLoader::networkAccessManager() {
   return n;
 }
 
-ResLoader::ResLoader(Resource *parent): QObject(parent), parentRes(parent) {
+ResLoader::ResLoader(Resource *parent, bool convertHtmlToPdf):
+  QObject(parent), parentRes(parent), convertHtmlToPdf(convertHtmlToPdf) {
   ASSERT(parentRes);
   
   ok = false;
@@ -153,12 +154,15 @@ void ResLoader::qnrFinished() {
     return;
   }
   
-  if (mimeType()=="text/html") {
+  if (mimeType()=="text/html") 
     getTitleFromHtml();
+
+  if (mimeType()=="text/html" && convertHtmlToPdf) {
     if (makePdfAndPreview())
       return;
-  } else if (makePreview(mimeType())) {
-    return;
+  } else {
+    if (makePreview(mimeType()))
+      return;
   }
 
   ok = true;

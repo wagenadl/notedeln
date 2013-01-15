@@ -3,7 +3,7 @@
 #include "ResourceMagic.H"
 #include "Style.H"
 #include "Resource.H"
-#include "MagicBiblio.H"
+#include "Magician.H"
 
 #include <QTextCursor>
 #include <QTextDocument>
@@ -50,85 +50,81 @@ static QTextCursor matchBackward(QRegExp const &re, QTextCursor const &e) {
     return QTextCursor();
   if (s.selectionEnd()>e.position())
     s.setPosition(e.position(), QTextCursor::KeepAnchor);
-  qDebug() << "matchBackward" << s.selectionStart() << s.selectionEnd() << s.selectedText() << e.position();
+  qDebug() << "matchBackward" << s.selectionStart() << s.selectionEnd()
+	   << s.selectedText() << e.position();
   return s;
 }
 
 QTextCursor ResourceMagic::explicitLinkAt(QTextCursor const &c,
 					  Style const &) {
-  if (c.hasSelection()) {
+  if (c.hasSelection()) 
     return c;
-  } else {
-    QTextDocument *doc = c.document();
-    QTextCursor e = doc->find(QRegExp("\\s"), c);
-    if (!e.hasSelection()) {
-      e = c;
-      e.movePosition(QTextCursor::End);
-    }
-    qDebug() << e.position();
-    e = doc->find(QRegExp("[-\\w/]"), e,
-		  QTextDocument::FindBackward);
-    if (!e.hasSelection())
-      return QTextCursor();
-    e.setPosition(e.selectionEnd());
-    qDebug() << e.position();
-      
-    // OK. Now we have a valid end pointer. Let's see what kind of link
-    // we can find.
-    // Standard url
-    QTextCursor s = matchBackward(QRegExp("\\b(file|http|https)://[^\\s]+"), e);
-    if (s.hasSelection())
-      return s;
 
-    // starting with "www."
-    s = matchBackward(QRegExp("\\bwww\\.[^\\s]+"), e);
-    if (s.hasSelection())
-      return s;
-
-    // full path name without spaces
-    { int start = e.position();
-      s = matchBackward(QRegExp("/"), e); // optional final slash
-      if (s.hasSelection()) {
-	start = s.selectionStart();
-	s.setPosition(start);
-      } else {
-	s = e;
-      }
-      while (true) {
-	s = matchBackward(QRegExp("/[^/\\s]+"), s);
-	if (s.hasSelection()) {
-	  start = s.selectionStart();
-	  s.setPosition(start);
-	} else {
-	  break;
-	}
-      }
-      if (start<e.position()) {
-	s = e;
-	s.setPosition(start, QTextCursor::KeepAnchor);
-	if (matchBackward(QRegExp("^|\\s"), s).hasSelection())
-	  return s;
-      }
-    }
-
-    // DW bibliography style
-    s = matchBackward(QRegExp("\\b[A-Z]?\\d\\d-[A-Za-z0-9]{1,4}"), e);
-    if (s.hasSelection())
-      return s;
-
-    // pubmed as pm.12367812
-    s = matchBackward(QRegExp("\\bpm\\.\\d+"), e);
-    if (s.hasSelection())
-      return s;
-
-    // Thor Labs part as Thor #BA2
-    s = matchBackward(QRegExp("\\bThor ?# ?\\w+"), e);
-    if (s.hasSelection())
-      return s;
-      
+  int end;
+  QTextDocument *doc = c.document();
+  QTextCursor e = doc->find(QRegExp("\\s"), c);
+  int end = e.hasSelection() ? e.selectionStart() : doc->characterCount();
+  while (end>0
+	 && QString.fromUtf8(";:.,)]}’”!?—").contains(doc->characterAt(end-1)))
+    end--;
+  QTextCursor s = doc->find(QRegExp("\\s"), c);
+  int start = s.hasSelection() ? s.selectionStart() : 0;
+  while (start<end
+	 && QString.fromUtf8("([{‘“¡¿—").contains(doc->characterAt(start)))
+    start++;
+  if (start>=end)
     return QTextCursor();
-  }
+  QTextCursor m(doc->textCursor());
+  m.setPosition(start);
+  m.movePosition(end, QTextCursor::KeepAnchor);
+  return m;
 }
+
+ResourceMagic::ResourceMagic(QString refText, QObject *parent):
+  QObject(parent), refText(refText) {
+  iter = -1;
+  next();
+}
+
+void ResourceMagic::next() {
+  ++iter;
+  while (!isExhausted() && magicians()[iter].matches(refText))
+    ++iter;
+}
+
+bool ResourceMagic::isExhausted() const {
+  return iter >= magicians().size();
+}
+
+QUrl ResourceMagic::webUrl() const {
+  if (isExhausted())
+    return QUrl();
+  else
+    return magicians()[iter]->webUrl(refText);
+}
+
+QUrl ResourceMagic::objectUrl() const {
+  if (isExhausted())
+    return QUrl();
+  else
+    return magicians[iter]->objectUrl(refText);
+}
+
+QString ResourceMagic::title() const {
+  if (isExhausted())
+    return QString();
+  else
+    return magicians[iter]->title(refText);
+}
+
+QString ResourceMagic::desc() const {
+  if (isExhausted())
+    return QString();
+  else
+    return magicians[iter]->desc(refText);
+}
+
+/*  
 
 bool ResourceMagic::magicLink(Resource *r) {
   QString tag = r->tag();
@@ -153,4 +149,15 @@ bool ResourceMagic::magicLink(Resource *r) {
   }
   // add other stuff later
   return !r->sourceURL().isEmpty();
+}
+
+*/
+
+QList<Magician *> const &ResourceMagic::magicians() {
+  static QList<Magician *> list;
+  if (!list.isEmpty())
+    return list;
+
+  // let's create a bunch of magicians
+  return list;
 }

@@ -19,7 +19,9 @@ public:
   QFont font(QString) const;
   QVariantMap const &options() const;
   bool contains(QString) const;
+  static Style const &defaultStyle();
 private:
+  Style();
   QVariantMap options_;
 };
 

@@ -140,6 +140,7 @@ QString HoverRegion::refText() const {
 
 void HoverRegion::forgetBounds() {
   start = end = -1;
+  prepareGeometryChange();
   update();
 }
 

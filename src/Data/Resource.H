@@ -39,15 +39,18 @@ public: // functions to do with using the resource
   QString archivePath() const;
   QString previewPath() const;
 public: // functions to do with actually acquiring a resource
-  bool importImage(QImage); // true if successful. requires tag
-  bool import(); // true if successful. requires tag, sourceUrl
-  void getArchive(); // completes in b/g. requires tag, sourceUrl
-  void getArchiveAndPreview(); // completes in b/g. requires tag, sourceUrl
-  void getPreviewOnly(); // completes in b/g. requires tag, sourceUrl
+  bool importImage(QImage); // true if successful. Requires tag.
+  bool import(); // true if successful. Requires tag, sourceUrl.
+  void getArchive(); // completes in b/g. Requires tag, sourceUrl.
+  void getArchiveAndPreview(); // completes in b/g. Requires tag, sourceUrl.
+  void getPreviewOnly(); // completes in b/g. Requires tag, sourceUrl.
+  void getByMagic(); // complets in b/g. Requires only tag.
 signals:
   void finished(); // emitted when one of the getXX functions finishes
 private slots:
   void downloadFinished();
+  void magicWebUrlFinished();
+  void magicObjectUrlFinished();
 private:
   void ensureDir();
   void ensureArchiveFilename();
@@ -60,6 +63,7 @@ private:
   QString desc;
 private:
   class ResLoader *loader;
+  class ResourceMagic *magic;
   QDir dir;
 };
 

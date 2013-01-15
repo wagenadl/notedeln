@@ -9,11 +9,12 @@
 #include <qjson/parser.h>
 #include "Assert.H"
 
-Style::Style(QString fn) {
-  if (fn=="-")
-    fn = ":/style.json";
-    //    fn = "/home/wagenaar/.config/eln/style.json";
+Style const &Style::defaultStyle() {
+  static Style s;
+  return s;
+}
 
+Style::Style(QString fn) {
   QFile f(fn);
   if (f.open(QFile::ReadOnly)) {
     QJson::Parser p;
@@ -27,15 +28,20 @@ Style::Style(QString fn) {
     options_ = v.toMap();
   } else {
     qDebug() << "Style: File not found: " << fn;
-    qFatal("style error");
   }
+
+  // fill in missing values from default style
+  Style const &s0 = defaultStyle();
+  foreach (QString k, s0.options_.keys()) 
+    if (!options_.contains(k))
+      options_[k] = s0[k];
 }
 
 QVariant Style::operator[](QString k) const {
   if (options_.contains(k))
     return options_[k];
   qDebug() << "Style: No value for " << k;
-  // ASSERT(0);
+  ASSERT(0);
   return QVariant();
 }
 

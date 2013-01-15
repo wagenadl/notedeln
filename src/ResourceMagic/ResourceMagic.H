@@ -5,8 +5,19 @@
 #define RESOURCEMAGIC_H
 
 #include <QTextCursor>
+#include <QObject>
 
-class ResourceMagic {
+class ResourceMagic: public QObject {
+  Q_OBJECT;
+public:
+  ResourceMagic(QString refText, QObject *parent=0);
+  virtual ~ResourceMagic();
+  QUrl webUrl() const;
+  QUrl objectUrl() const;
+  QString title() const;
+  QString desc() const;
+  bool isExhausted() const;
+  void next();
 public:
   static QTextCursor explicitLinkAt(QTextCursor const &, class Style const &);
   /*:F explicitLinkAt
@@ -20,16 +31,13 @@ public:
   static QTextCursor autoLinkAt(QTextCursor const &, class Style const &);
   /*:F autoLinkAt
    *:D Scans the vicinity of the given text cursor for anything that can only
-       be interpreted as a link. The "vicinity" is:
-       (2) the contiguous non-white space area around the cursor otherwise,
-           with punctutation at end removed.
+       be interpreted as a link. The "vicinity" is the contiguous non-white
+       space area around the cursor, with punctutation at end removed.
    */
-  static bool magicLink(class Resource *);
-  /*:F magicLink
-   *:D Given a resource with a tag defined, fills out the URL, title, and
-       description fields if the tag can be interpreted as a magic link.
-       Returns true if successful.
-  */
+private:
+  QString refText;
+private:
+  static QList<class Magician *> const &magicians();
 };
 
 #endif

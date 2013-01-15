@@ -38,12 +38,12 @@ Data *Item::data() {
 }
 
 Style const &Item::style() const {
-  static Style dflt("-");
   Notebook *n = d->book();
   if (n)
     return n->style();
   qDebug() << "Item" << this << "not connected to notebook";
-  return dflt; // this happens during item deletion. horrible, but true.
+  // This appears to happens during item deletion. horrible, but true.
+  return Style::defaultStyle();
 }
 
 QVariant Item::style(QString k) const {

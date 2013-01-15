@@ -32,12 +32,11 @@ void BlockItem::sizeToFit() {
     return;
   
   QRectF newBbox = fittedRect();
-  bool chg = newBbox != bbox;
-  // newBbox.top()!=bbox.top() || newBbox.bottom()!=bbox.bottom();
   bbox = newBbox;
-  if (chg) {
+  if (newBbox != bbox) {
+    bbox = newBbox;
     prepareGeometryChange();
-    qDebug() << "BlockItem"<<this<<"emitting vboxChanged";
+    qDebug() << "BlockItem"<<this<<"emitting boundsChanged";
     emit boundsChanged();
   }
 }
