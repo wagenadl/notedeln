@@ -42,9 +42,9 @@ public: // functions to do with actually acquiring a resource
   bool importImage(QImage); // true if successful. Requires tag.
   bool import(); // true if successful. Requires tag, sourceUrl.
   void getArchive(); // completes in b/g. Requires tag, sourceUrl.
-  void getArchiveAndPreview(); // completes in b/g. Requires tag, sourceUrl.
+  void getArchiveAndPreview(); // completes in b/g. Requires tag, but uses
+  // sourceUrl if present.
   void getPreviewOnly(); // completes in b/g. Requires tag, sourceUrl.
-  void getByMagic(); // complets in b/g. Requires only tag.
 signals:
   void finished(); // emitted when one of the getXX functions finishes
 private slots:
@@ -54,6 +54,7 @@ private slots:
 private:
   void ensureDir();
   void ensureArchiveFilename();
+  void doMagic();
 private:
   QString tag_;
   QUrl src;
@@ -64,6 +65,7 @@ private:
 private:
   class ResLoader *loader;
   class ResourceMagic *magic;
+  class Magician *iter;
   QDir dir;
 };
 

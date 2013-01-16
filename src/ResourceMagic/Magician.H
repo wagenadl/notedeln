@@ -4,6 +4,9 @@
 
 #define MAGICIAN_H
 
+#include <QString>
+#include <QUrl>
+
 class Magician {
 public:
   Magician();
@@ -13,6 +16,10 @@ public:
   virtual QUrl objectUrl(QString) const; // base version returns null
   virtual QString title(QString) const; // returns "" if unable to build
   virtual QString desc(QString) const; // returns "" if unable to build
+  /* It is fine for a magician to provide no Urls, but it may only give
+     a webUrl if it also provides an objectUrl.
+     Perhaps that's not what I ultimately want, but that's how it is now.
+  */
 };
 
 class SimpleMagician: public Magician {
@@ -26,6 +33,11 @@ public:
 private:
   QString webUrlBuilder;
   QString objectUrlBuilder;
+};
+
+class UrlMagician: public Magician {
+public:
+  virtual QUrl objectUrl(QString) const;
 };
 
 #endif

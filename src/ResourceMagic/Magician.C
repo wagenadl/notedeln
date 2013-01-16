@@ -33,6 +33,9 @@ SimpleMagician::SimpleMagician() {
   objectUrlBuilder = "";
 }
 
+SimpleMagician::~SimpleMagician() {
+}
+
 QUrl SimpleMagician::webUrl(QString ref) const {
   if (webUrlBuilder.isEmpty())
     return QUrl();
@@ -53,4 +56,13 @@ void SimpleMagician::setWebUrlBuilder(QString s) {
 
 void SimpleMagician::setObjectUrlBuilder(QString s) {
   objectUrlBuilder = s;
+}
+
+QUrl UrlMagician::objectUrl(QString s) const {
+  if (s.startsWith("www"))
+    return QUrl("http://" + s);
+  else if (s.startsWith("/"))
+    return QUrl("file://" + s);
+  else
+    return QUrl(s);
 }

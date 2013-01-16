@@ -14,6 +14,20 @@ Style const &Style::defaultStyle() {
   return s;
 }
 
+Style::Style() {
+  QFile f(":/style.json");
+  ASSERT(f.open(QFile::ReadOnly));
+  QJson::Parser p;
+  bool ok = true;
+  QVariant v = p.parse(&f, &ok);
+  if (!ok) {
+    qDebug() << "Style: JSON parse of :/style.json failed: " 
+	     << p.errorString() << " at line " << p.errorLine();
+    qFatal("style error");
+  }
+  options_ = v.toMap();
+}
+
 Style::Style(QString fn) {
   QFile f(fn);
   if (f.open(QFile::ReadOnly)) {

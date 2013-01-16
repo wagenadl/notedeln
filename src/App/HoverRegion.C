@@ -97,11 +97,7 @@ void HoverRegion::hoverEnterEvent(QGraphicsSceneHoverEvent *e) {
     return;
   }
   QString txt = refText();
-  if (txt.startsWith("www."))
-    txt = "http://" + txt;
   Resource *r = md->resManager()->byTag(txt);
-  if (!r)
-    r = md->resManager()->byURL(txt);
   if (r)
     popper = new PreviewPopper(r, e->screenPos(), this);
 }
@@ -210,7 +206,6 @@ void HoverRegion::getArchiveAndPreview() {
     r = md->resManager()->newResource(lastRef);
     lastRefIsNew = true;
   }
-  ResourceMagic::magicLink(r);
   connect(r, SIGNAL(finished()), SLOT(downloadFinished()));
   busy = true;
   r->getArchiveAndPreview();

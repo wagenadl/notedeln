@@ -4,12 +4,15 @@
 #include "ResLoader.H"
 #include <QImage>
 #include <QDebug>
+#include "ResourceMagic.H"
+#include "Magician.H"
 
 static Data::Creator<Resource> c("res");
 
 Resource::Resource(Data *parent): Data(parent) {
   setType("res");
   loader = 0;
+  magic = 0;
 }
 
 Resource::~Resource() {
@@ -155,8 +158,15 @@ void Resource::getArchiveAndPreview() {
   if (prev.isEmpty())
     setPreviewFilename(safeFileName(tag_ + ".png"));
   ensureDir();
-  loader = new ResLoader(this);
-  connect(loader, SIGNAL(finished()), SLOT(downloadFinished()));
+  if (src.isValid()) {
+    loader = new ResLoader(this);
+    connect(loader, SIGNAL(finished()), SLOT(downloadFinished()));
+  } else {
+    if (magic)
+      delete magic;
+    magic = 0;
+    doMagic();
+  }    
 }
 
 void Resource::getPreviewOnly() {
@@ -184,7 +194,72 @@ void Resource::downloadFinished() {
 }
 
 void Resource::ensureDir() {
-  qDebug() << "Resource::ensureDir" << dir.absolutePath();
   if (!dir.exists())
     QDir::root().mkpath(dir.absolutePath());
 }
+
+void Resource::doMagic() {
+  if (magic)
+    magic->next();
+  else
+    magic = new ResourceMagic(tag_, this);
+
+  while (!magic->isExhausted()) {
+    if (magic->webUrl().isValid()) {
+      src = magic->webUrl();
+      ensureArchiveFilename();
+      ensureDir();
+      loader = new ResLoader(this, false);
+      connect(loader, SIGNAL(finished()), SLOT(magicWebUrlFinished()));
+      return;
+    } else if (magic->objectUrl().isValid()) {
+      src = magic->objectUrl();
+      ensureArchiveFilename();
+      if (prev.isEmpty())
+	setPreviewFilename(safeFileName(tag_ + ".png"));
+      ensureDir();
+      loader = new ResLoader(this);
+      connect(loader, SIGNAL(finished()), SLOT(magicObjectUrlFinished()));
+      return;
+    } else {
+      magic->next();
+    }
+  }
+  if (!arch.isEmpty())
+    dir.remove(arch);
+  if (!prev.isEmpty())
+    prev.remove(arch);
+  emit finished(); // oh well
+}
+
+void Resource::magicWebUrlFinished() {
+  if (loader->complete()) {
+    // good work!
+    loader->deleteLater();
+    loader = 0;
+    if (magic->objectUrl().isValid()) {
+      src = magic->objectUrl();
+      ensureArchiveFilename();
+      loader = new ResLoader(this);
+      connect(loader, SIGNAL(finished()), SLOT(magicObjectUrlFinished()));
+    } else {
+      emit finished();
+    }
+  } else {
+    doMagic(); // try next magician
+  }
+}
+
+void Resource::magicObjectUrlFinished() {
+  if (loader->complete()) {
+    // good work!
+    loader->deleteLater();
+    loader = 0;
+    if (magic->webUrl().isValid()) 
+      src = magic->webUrl(); // restore web url
+    emit finished();
+  } else {
+    doMagic(); // try next magician
+  }
+}
+

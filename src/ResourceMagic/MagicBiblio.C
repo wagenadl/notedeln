@@ -40,6 +40,7 @@ MagicBiblio::MagicBiblio(QString tag, Style const &st) {
     else if (tag_!=tag && dir.exists(tag_ + ".pdf"))
       url_ = QUrl("file://" + dir.absoluteFilePath(tag_ + ".pdf"));
   }
+  // otherwise, url_ will be null
 }
 
 bool MagicBiblio::ok() const {

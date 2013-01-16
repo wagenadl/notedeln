@@ -137,7 +137,6 @@ static bool shouldGlow(Data *d) {
 }
 
 void Item::hoverEnterEvent(QGraphicsSceneHoverEvent *) {
-  qDebug() << "hoverEnterEvent" << this;
   if (writable && shouldGlow(d) && mode()->mode()==Mode::MoveResize) {
     QGraphicsDropShadowEffect *eff = new QGraphicsDropShadowEffect(this);
     eff->setColor(QColor("#00ff33"));
@@ -148,7 +147,6 @@ void Item::hoverEnterEvent(QGraphicsSceneHoverEvent *) {
 }
 
 void Item::hoverLeaveEvent(QGraphicsSceneHoverEvent *) {
-  qDebug() << "hoverLeaveEvent" << this;
   setGraphicsEffect(0);
 }
 

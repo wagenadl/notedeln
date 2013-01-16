@@ -42,7 +42,7 @@ protected:
   void timerEvent(QTimerEvent *);
 private:
   Message();
-  static QMap<QGraphicsScene *, QList<Message *> > messages;
+  static QMap<QGraphicsScene const *, QList<Message *> >&messages();
   static bool contains(Message *);
   /* Caution: use of contains() may not be thread-safe */
   static void reap(Message *);

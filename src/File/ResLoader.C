@@ -56,10 +56,8 @@ void ResLoader::startDownload() {
 }
 
 ResLoader::~ResLoader() {
-  qDebug() << "~ResLoader" << this << qnr;
   if (qnr)
     delete qnr; // really? doubtful
-  qDebug() << "~ResLoader done";
 }
 
 bool ResLoader::complete() const {
@@ -100,7 +98,7 @@ void ResLoader::qnrDataAv() {
       qDebug() << "ResLoader: read=0";
       break;
     } else {
-      qDebug() << "ResLoader: read<0";
+      qDebug() << "ResLoader: read<0 !?";
       dst->close();
       qnr->close();
       err = true;

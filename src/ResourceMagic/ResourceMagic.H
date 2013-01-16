@@ -5,12 +5,12 @@
 #define RESOURCEMAGIC_H
 
 #include <QTextCursor>
-#include <QObject>
+#include "Data.H"
 
 class ResourceMagic: public QObject {
   Q_OBJECT;
 public:
-  ResourceMagic(QString refText, QObject *parent=0);
+  ResourceMagic(QString refText, Data *parent=0);
   virtual ~ResourceMagic();
   QUrl webUrl() const;
   QUrl objectUrl() const;
@@ -36,8 +36,8 @@ public:
    */
 private:
   QString refText;
-private:
-  static QList<class Magician *> const &magicians();
+  class Magicians const &magicians;
+  class Magician const *iter;
 };
 
 #endif

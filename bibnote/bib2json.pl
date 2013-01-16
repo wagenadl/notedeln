@@ -190,52 +190,6 @@ sub proceedings {
 }
 
 sub morestuff {
-  my $a = shift;
-  my $id = $a->{id};
-  if (exists($a->{ab})) {
-    # Create an abstract
-    open AB, ">abstracts/$id.html";
-    print AB <<'EOF';
-<html>
-  <head>
-  </head>
-  <body>
-EOF
-    print AB "<p class=\"abtitle\">";
-    #print AB "<i>" if defined $a->{IT};
-    print AB htmlify(titlecase($a->{ti}));
-    #print AB "</i>" if defined $a->{IT};
-    print AB "</p>\n";
-    print AB "<p class=\"abauthors\">";
-    print AB htmlify(authors($a->{au}));
-    print AB "</p>\n";
-    print AB "<p class=\"abreference\">";
-    print AB $a->{RE};
-    #my $pubm = ""; $pubm = mkpubmed($a->{pm}) if exists $a->{pm};
-    #my $gsch = ""; $gsch = mkgscholar($a->{ti}) if exists($scholar{$id}) && !exists($files{$a->{id}});
-    #my $ref = ""; $ref = mkref($a->{id},"../") if exists($files{$a->{id}});
-    #print AB "." if $pubm || $gsch || $ref;
-    #print AB " $pubm";
-    #print AB " $gsch";
-    #print AB " $ref";
-    print AB "</p>\n";
-
-    print AB "<p class=\"abstract\">\n";
-    print AB htmlify($a->{ab},"abstract"), "\n";
-    print AB "</p>\n";
-
-    if (exists($a->{fn})) {
-      my @fns = split(/;;/,$a->{fn});
-      print AB "<p class=\"abstractnotes\">\n";
-      for (@fns) {
-        my $sym = substr($_,0,1);
-        my $num = "_" . ord($sym);
-        print AB "<a name=\"fn$num\"><sup>$sym</sup></a>&nbsp;", substr($_,1), "<br>\n";
-      }
-      print AB "</p>";
-    }
-    close AB;
-  }
 }
 
 sub titlecase {
@@ -262,7 +216,6 @@ sub parsere {
 
 sub jlink {
   my $journal = shift;
-  $journal =~ s/J\. /J\.\&nbsp;/;
   return $journal;
 }
 

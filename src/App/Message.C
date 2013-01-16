@@ -1,10 +1,18 @@
 // Message.C
 
 #include "Message.H"
+#include <QDebug>
+#include "Assert.H"
+#include <QGraphicsScene>
+
+QMap<QGraphicsScene const *, QList<Message *> >&Message::messages() {
+  static QMap<QGraphicsScene const *, QList<Message *> > mm;
+  return mm;
+}
 
 bool Message::contains(Message *m) {
-  for (QMap<QGraphicsScene *, QList<Message *> >::iterator i = messages.begin();
-       i != messages.end(); ++i) 
+  for (QMap<QGraphicsScene const *, QList<Message *> >::iterator i = messages().begin();
+       i != messages().end(); ++i) 
     if (i.value().contains(m))
       return true;
   return false;
@@ -19,11 +27,11 @@ Message *Message::report(QString msg, Item *reporter) {
     return 0;
   }
   Message *m = new Message();
-  QList<Message *> &lst = messages[scene];
+  QList<Message *> &lst = messages()[scene];
   lst.append(m);
   m->setHtml(msg);
   scene->addItem(m);
-  stylize(item->style());
+  m->stylize(reporter->style());
   QRectF sr = scene->sceneRect();
   double y_b = sr.bottom();
   double x_l = sr.left();
@@ -38,17 +46,15 @@ Message *Message::report(QString msg, Item *reporter) {
 
 Message::Message() {
   timerID = 0;
-  connect(this, SIGNAL(destroyed(QObject*)),
-	  reaper(), SLOT(reap()));
 }
 
 void Message::reap(Message *m) {
-  QMap<QGraphicsScene *, QList<Message *> >::iterator j;
-  for (QMap<QGraphicsScene *, QList<Message *> >::iterator i = messages.begin();
-       i != messages.end(); i=j) {
+  QMap<QGraphicsScene const *, QList<Message *> >::iterator j;
+  for (QMap<QGraphicsScene const *, QList<Message *> >::iterator i = messages().begin();
+       i != messages().end(); i=j) {
     i.value().removeAll(m);
     if (i.value().isEmpty())
-      j = messages.remove(i.key());
+      j = messages().erase(i);
     else
       j = ++i;
   }
@@ -59,7 +65,7 @@ Message::~Message() {
 }
 
 Message *Message::replace(Message *toBeReplaced,
-			  Qstring newMessage, Item *reporter) {
+			  QString newMessage, Item *reporter) {
   if (contains(toBeReplaced)) {
     toBeReplaced->rejuvenate();
     toBeReplaced->setHtml(newMessage);
