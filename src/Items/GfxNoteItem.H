@@ -19,6 +19,7 @@ public:
   static GfxNoteItem *newNote(QPointF p0, QPointF p1, Item *parent);
   virtual void makeWritable();
   void childMousePress(QPointF, Qt::MouseButton, bool resizeFlag);
+  class TextItem *textItem() { return text; }
 protected:
   virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *);
   virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *);

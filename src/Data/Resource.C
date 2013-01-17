@@ -190,6 +190,7 @@ void Resource::downloadFinished() {
   }
   loader->deleteLater();
   loader = 0;
+  markModified();
   emit finished();
 }
 
@@ -205,6 +206,9 @@ void Resource::doMagic() {
     magic = new ResourceMagic(tag_, this);
 
   while (!magic->isExhausted()) {
+    src = QUrl();
+    ttl = magic->title();
+    desc = magic->desc();
     if (magic->webUrl().isValid()) {
       src = magic->webUrl();
       ensureArchiveFilename();
@@ -221,14 +225,25 @@ void Resource::doMagic() {
       loader = new ResLoader(this);
       connect(loader, SIGNAL(finished()), SLOT(magicObjectUrlFinished()));
       return;
+    //} else if (magic->keepAlways()) {
+    //  markModified();
+    //  emit finished();
     } else {
+      ttl = "";
+      desc = "";
       magic->next();
     }
   }
   if (!arch.isEmpty())
     dir.remove(arch);
   if (!prev.isEmpty())
-    prev.remove(arch);
+    dir.remove(prev);
+  src = QUrl();
+  arch = "";
+  prev = "";
+  ttl = "";
+  desc = "";
+  markModified();
   emit finished(); // oh well
 }
 
@@ -243,6 +258,7 @@ void Resource::magicWebUrlFinished() {
       loader = new ResLoader(this);
       connect(loader, SIGNAL(finished()), SLOT(magicObjectUrlFinished()));
     } else {
+      markModified();
       emit finished();
     }
   } else {
@@ -251,12 +267,13 @@ void Resource::magicWebUrlFinished() {
 }
 
 void Resource::magicObjectUrlFinished() {
-  if (loader->complete()) {
+  if (loader->complete() /* || magic->keepAlways()*/) {
     // good work!
     loader->deleteLater();
     loader = 0;
     if (magic->webUrl().isValid()) 
       src = magic->webUrl(); // restore web url
+    markModified();
     emit finished();
   } else {
     doMagic(); // try next magician

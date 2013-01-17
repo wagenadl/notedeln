@@ -107,4 +107,9 @@ QString ResourceMagic::desc() const {
     return iter->desc(refText);
 }
 
-
+//bool ResourceMagic::keepAlways() const {
+//  if (isExhausted())
+//    return false;
+//  else
+//    return iter->keepAlways(refText);
+//}

@@ -28,9 +28,6 @@ void PreviewPopper::timerEvent(QTimerEvent *) {
 }
 
 QWidget *PreviewPopper::popup() {
-  if (!res->hasPreview())
-    return 0;
-  
   if (widget) {
     smartPosition();
     widget->show();
@@ -38,15 +35,24 @@ QWidget *PreviewPopper::popup() {
   }
 
   QPixmap p;
-  if (!p.load(res->previewPath()))
-    return 0;
-  
-  QLabel *label = new QLabel(0, Qt::FramelessWindowHint);
-  label->setPixmap(p);
-  label->resize(label->sizeHint());
-  widget = label;
-  smartPosition();
-  widget->show();
+  if (res->hasPreview())
+    p.load(res->previewPath());
+
+  if (!p.isNull()) {
+    QLabel *label = new QLabel(0, Qt::FramelessWindowHint);
+    label->setPixmap(p);
+    label->resize(label->sizeHint());
+    widget = label;
+  } else if (!res->title().isEmpty()) {
+    QLabel *label = new QLabel(0, Qt::FramelessWindowHint);
+    label->setText(res->title());
+    label->resize(label->sizeHint());
+    widget = label;
+  }
+  if (widget) {
+    smartPosition();
+    widget->show();
+  }
   return widget;
 }
 

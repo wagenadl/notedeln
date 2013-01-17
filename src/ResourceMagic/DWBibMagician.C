@@ -27,3 +27,7 @@ QString DWBibMagician::title(QString s) const {
   return b.ref();
 }
 
+
+//bool DWBibMagician::keepAlways(QString) const {
+//  return true;
+//}

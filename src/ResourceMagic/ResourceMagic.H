@@ -17,6 +17,7 @@ public:
   QString title() const;
   QString desc() const;
   bool isExhausted() const;
+  //  bool keepAlways() const; // true if a resource should be kept even if nothing can be downloaded
   void next();
 public:
   static QTextCursor explicitLinkAt(QTextCursor const &, class Style const &);

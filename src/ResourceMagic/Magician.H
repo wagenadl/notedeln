@@ -6,6 +6,7 @@
 
 #include <QString>
 #include <QUrl>
+#include <QRegExp>
 
 class Magician {
 public:
@@ -20,23 +21,29 @@ public:
      a webUrl if it also provides an objectUrl.
      Perhaps that's not what I ultimately want, but that's how it is now.
   */
+  //  virtual bool keepAlways(QString) const; // true to cause Resource to
+  // tolerate failure of objectUrl loading
 };
 
 class SimpleMagician: public Magician {
 public:
   SimpleMagician();
   virtual ~SimpleMagician();
+  virtual bool matches(QString) const;
   virtual QUrl webUrl(QString) const;
   virtual QUrl objectUrl(QString) const;
+  void setMatcher(QRegExp);
   void setWebUrlBuilder(QString); // arg must contain "%1" to receive refText
   void setObjectUrlBuilder(QString); // arg must contain "%1" to receive refText
 private:
+  QRegExp re;
   QString webUrlBuilder;
   QString objectUrlBuilder;
 };
 
 class UrlMagician: public Magician {
 public:
+  virtual bool matches(QString) const;
   virtual QUrl objectUrl(QString) const;
 };
 

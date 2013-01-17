@@ -27,6 +27,7 @@ public:
   TextData *data();
   void insertBasicHtml(QString html, int pos);
   // Only <b> and <i> tags are supported at present
+  int pointToPos(QPointF) const;
 signals:
   void textChanged();
   void widthChanged();
@@ -74,7 +75,6 @@ private:
   bool charBeforeIsLetter(int pos) const;
   bool charAfterIsLetter(int pos) const;
   bool shouldResize(QPointF) const;
-  int pointToPos(QPointF) const;
   void attemptMarkup(QPointF p, MarkupData::Style);
 public: // pass-through
   void setFont(QFont f) { text->setFont(f); }

@@ -1,6 +1,7 @@
 // Magician.C
 
 #include "Magician.H"
+#include <QDebug>
 
 Magician::Magician() {
 }
@@ -28,12 +29,29 @@ QString Magician::desc(QString) const {
   return QString();
 }
 
+//bool Magician::keepAlways(QString) const {
+//  return false;
+//}
+
+//////////////////////////////////////////////////////////////////////
+
 SimpleMagician::SimpleMagician() {
+  re = QRegExp(".*"); // match anything
   webUrlBuilder = "";
   objectUrlBuilder = "";
 }
 
 SimpleMagician::~SimpleMagician() {
+}
+
+bool SimpleMagician::matches(QString ref) const {
+  bool ok = re.exactMatch(ref);
+  qDebug() << "SimpleMagician" << re.pattern() << ref << ok;
+  return ok;
+}
+
+void SimpleMagician::setMatcher(QRegExp r) {
+  re = r;
 }
 
 QUrl SimpleMagician::webUrl(QString ref) const {
@@ -58,8 +76,16 @@ void SimpleMagician::setObjectUrlBuilder(QString s) {
   objectUrlBuilder = s;
 }
 
+bool UrlMagician::matches(QString s) const {
+  return s.startsWith("http://")
+    || s.startsWith("https://")
+    || s.startsWith("file://")
+    || s.startsWith("www.")
+    || s.startsWith("/");
+}
+
 QUrl UrlMagician::objectUrl(QString s) const {
-  if (s.startsWith("www"))
+  if (s.startsWith("www."))
     return QUrl("http://" + s);
   else if (s.startsWith("/"))
     return QUrl("file://" + s);

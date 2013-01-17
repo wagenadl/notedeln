@@ -128,42 +128,65 @@ bool TextItem::mouseDoubleClick(QGraphicsSceneMouseEvent *e) {
 }
 
 bool TextItem::mousePress(QGraphicsSceneMouseEvent *e) {
-  if (e->button()!=Qt::LeftButton)
-    return false;
-
-  switch (mode()->mode()) {
-  case Mode::Type:
-    return false; // TextItemText will decide whether to edit or not
-  case Mode::MoveResize:
-    if (mayMove) {
-      bool resize = shouldResize(e->pos());
-      GfxNoteItem *gni = dynamic_cast<GfxNoteItem*>(parent());
-      if (gni)
-	gni->childMousePress(e->scenePos(), e->button(), resize);
+  switch (e->button()) {
+  case Qt::LeftButton:
+    switch (mode()->mode()) {
+    case Mode::Type:
+      return false; // TextItemText will decide whether to edit or not
+    case Mode::MoveResize:
+      if (mayMove) {
+        bool resize = shouldResize(e->pos());
+        GfxNoteItem *gni = dynamic_cast<GfxNoteItem*>(parent());
+        if (gni)
+  	gni->childMousePress(e->scenePos(), e->button(), resize);
+      }
+      break;
+    case Mode::Annotate:
+      if (allowNotes()) 
+        createNote(e->pos(), true);
+      break;
+    case Mode::Highlight:
+      attemptMarkup(e->pos(), MarkupData::Emphasize);
+      break;
+    case Mode::Strikeout:
+      attemptMarkup(e->pos(), MarkupData::StrikeThrough);
+      break;
+    case Mode::Plain:
+      attemptMarkup(e->pos(), MarkupData::Normal);
+      break;
+    case Mode::Browse:
+      break; // is this OK, or should we support links here?
+    case Mode::Mark: case Mode::Freehand:
+      break;
     }
-    break;
-  case Mode::Annotate:
-    if (allowNotes()) 
-      createNote(e->pos(), true);
-    break;
-  case Mode::Highlight:
-    attemptMarkup(e->pos(), MarkupData::Emphasize);
-    break;
-  case Mode::Strikeout:
-    attemptMarkup(e->pos(), MarkupData::StrikeThrough);
-    break;
-  case Mode::Plain:
-    attemptMarkup(e->pos(), MarkupData::Normal);
-    break;
-  case Mode::Browse:
-    break; // is this OK, or should we support links here?
-  case Mode::Mark: case Mode::Freehand:
-    break;
+    e->accept();
+    if (text->hasFocus())
+      text->clearFocus();
+    return true;
+  case Qt::MiddleButton:
+    if (mode()->mode() == Mode::Type) {
+      QClipboard *cb = QApplication::clipboard();
+      QString txt = cb->text(QClipboard::Selection);
+      if (!txt.isEmpty()) {
+      	QTextCursor c = textCursor();
+      	int pos = pointToPos(e->pos());
+      	if (pos>=0) 
+      	  c.setPosition(pos);
+      	c.insertText(txt);
+      	setFocus();
+      	setTextCursor(c);
+      }
+      return false;
+      // Bizarrely, if I call accept() and return true, the text is inserted
+      // yet again, but with unwanted formatting.
+      //   e->accept();
+      //   return true;
+    } else {
+      return false;
+    }
+  default:
+    return false;
   }
-  e->accept();
-  if (text->hasFocus())
-    text->clearFocus();
-  return true;
 }
 
 int TextItem::pointToPos(QPointF p) const {

@@ -205,7 +205,7 @@ void PageView::gotoPage(int n) {
     
     leavePage();
     if (pageScene)
-      delete pageScene;
+      pageScene->deleteLater();
     pageScene = 0;
     
     currentSection = Pages;

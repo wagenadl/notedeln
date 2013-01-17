@@ -13,7 +13,7 @@ FootnoteGroupItem::FootnoteGroupItem(BlockData *data, PageScene *parent):
   parent->addItem(this);
   foreach (FootnoteData *fd, data->children<FootnoteData>()) {
     FootnoteItem *fni = new FootnoteItem(fd, this);
-    connect(fni, SIGNAL(vboxChanged()), SLOT(restack()));
+    connect(fni, SIGNAL(boundsChanged()), SLOT(restack()));
   }
   restack();
 }

@@ -1,7 +1,6 @@
 // Magicians.C
 
 #include "Magicians.H"
-#include "PubMedMagician.H"
 #include "DWBibMagician.H"
 
 QMap<Style const *, Magicians *> &Magicians::stylemap() {
@@ -42,6 +41,15 @@ Magician const *Magicians::next(QString refText, Magician const *m0) const {
 // ----------------------------------------------------------------------
 Magicians::Magicians(Style const &st) {
   mm.append(new UrlMagician());
-  mm.append(new PubMedMagician);
+
+  QVariantMap vm = st["magicians"].toMap();
+  foreach (QVariant v, vm) {
+    QVariantMap m = v.toMap();
+    SimpleMagician *sm = new SimpleMagician;
+    sm->setMatcher(QRegExp(m["re"].toString()));
+    sm->setWebUrlBuilder(m["web"].toString());
+    sm->setObjectUrlBuilder(m["object"].toString());
+    mm.append(sm);
+  }
   mm.append(new DWBibMagician(st));
 }

@@ -6,6 +6,7 @@
 #include "ResManager.H"
 #include "ResourceMagic.H"
 #include "Assert.H"
+#include "PageView.H"
 
 #include <QPainter>
 #include <QGraphicsSceneHoverEvent>
@@ -15,6 +16,7 @@
 #include <QTextLayout>
 #include <QTextLine>
 #include <QDebug>
+#include <QProcess>
 
 HoverRegion::HoverRegion(class MarkupData *md, class TextItem *item,
 			 QGraphicsItem *parent):
@@ -62,33 +64,31 @@ QPainterPath HoverRegion::shape() const {
 }
 
 void HoverRegion::mousePressEvent(QGraphicsSceneMouseEvent *e) {
-  if (e->modifiers() & Qt::ControlModifier) {
-    e->accept();
-    qDebug() << "HoverRegion: control mouse press";
-    switch (md->style()) {
-    case MarkupData::Link:
-      if (e->modifiers() & Qt::ShiftModifier || !hasArchive()) 
-	openLink();
-      else 
-	openArchive();
-      break;
-    default:
-      qDebug() << "HoverRegion: Don't know how to open this markup"
-	       << md->style() << refText();
-      break;
-    }
-  } else {
+  if (ti->mode()->mode()==Mode::Browse
+      || (e->modifiers() & Qt::ControlModifier)) 
+    activate(e);
+  else
     e->ignore();
+}
+
+void HoverRegion::activate(QGraphicsSceneMouseEvent *e) {
+  e->accept();
+  switch (md->style()) {
+  case MarkupData::Link:
+    if (e->modifiers() & Qt::ShiftModifier)
+      openLink();
+    else 
+      openArchive();
+    break;
+  default:
+    qDebug() << "HoverRegion: Don't know how to open this markup"
+	       << md->style() << refText();
+    break;
   }
 }
 
 void HoverRegion::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *e) {
-  if (e->modifiers() & Qt::ControlModifier) {
-    e->accept();
-    qDebug() << "HoverRegion: mouse double click";
-  } else {
-    e->ignore();
-  }
+  activate(e);
 }
 
 void HoverRegion::hoverEnterEvent(QGraphicsSceneHoverEvent *e) {
@@ -171,22 +171,59 @@ void HoverRegion::calcBounds() const {
   
 void HoverRegion::openLink() {
   Resource *r = resource();
-  if (r)
-    qDebug() << "HoverRegion: openURL" << r->sourceURL();
-  else
+  if (!r) {
     qDebug() << "HoverRegion: openURL" << refText() <<  "(no url)";
+    return;
+  }
+  qDebug() << "HoverRegion: openURL" << r->sourceURL();
+  if (r->sourceURL().scheme() == "page") {
+    openPage();
+  } else {
+    QStringList args;
+    args << r->sourceURL().toString();
+    bool ok = QProcess::startDetached("gnome-open", args);
+    if (!ok)
+      qDebug() << "Failed to start external process 'gnome-open'";
+  }
+}
+
+void HoverRegion::openPage() {
+  Resource *r = resource();
+  ASSERT(r);
+  int pgno = r->tag().toInt();
+  ASSERT(ti);
+  ASSERT(ti->scene());
+  QList<QGraphicsView *> views = ti->scene()->views();
+  ASSERT(!views.isEmpty());
+  PageView *pv = dynamic_cast<PageView *>(views[0]);
+  ASSERT(pv);
+  pv->gotoPage(pgno);
 }
 
 void HoverRegion::openArchive() {
   Resource *r = resource();
-  if (r)
-    qDebug() << "HoverRegion: openArchive" << r->archivePath();
-  else
+  if (!r) {
     qDebug() << "HoverRegion: openArchive" << refText() << "(no arch)";
+    return;
+  }
+  if (!hasArchive()) {
+    openLink();
+    return;
+  }
+
+  qDebug() << "HoverRegion: openArchive" << r->archivePath();
+  if (r->sourceURL().scheme() == "page") {
+    openPage();
+  } else {
+    QStringList args;
+    args << r->archivePath();
+    bool ok = QProcess::startDetached("gnome-open", args);
+    if (!ok)
+      qDebug() << "Failed to start external process 'gnome-open'";
+  }
 }  
 
 void HoverRegion::getArchiveAndPreview() {
-  qDebug() << "HoverRegion: getArchiveAndPreview" << refText() << lastRef << busy;
   if (refText()==lastRef || busy)
     return; // we know we can't do it
 
@@ -212,7 +249,11 @@ void HoverRegion::getArchiveAndPreview() {
 }
 
 void HoverRegion::downloadFinished() {
-  qDebug() << "HoverRegion::downloadFinished";
+  qDebug() << "HoverRegion::downloadFinished" << refText();
+  if (!busy) {
+    qDebug() << "not busy";
+    return;
+  }
   ASSERT(busy);
   if (refText()!=lastRef) {
     // we have already changed; so we're not interested in the results
@@ -223,16 +264,21 @@ void HoverRegion::downloadFinished() {
       resmgr->dropResource(r);
     }
   } else {
-    if (hasArchive() || hasPreview()) {
+    ResManager *resmgr = md->resManager();
+    ASSERT(resmgr);
+    Resource *r = resmgr->byTag(lastRef);
+    ASSERT(r);
+    if (r->hasArchive() || r->hasPreview()
+	|| !r->title().isEmpty() || !r->description().isEmpty()) {
       // at least somewhat successful
       qDebug() << "Attaching new resource" << lastRef;
       md->attachResource(lastRef);
       update();
     } else {
-      // failure
+      // utter failure
       if (lastRefIsNew) {
-	ResManager *resmgr = md->resManager();
-	Resource *r = resmgr->byTag(lastRef);
+      	ResManager *resmgr = md->resManager();
+      	Resource *r = resmgr->byTag(lastRef);
 	resmgr->dropResource(r);
       }
     }

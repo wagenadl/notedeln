@@ -18,7 +18,8 @@ public:
   void focusEnd(); // may create new text block
   bool isWritable() const;
   void gotoSheet(int i);
-  int findBlock(class Item const *) const;
+  int findBlock(class Item const *) const; // -1 if none
+  int findBlock(QPointF scenePos) const; // -1 if none
   void newFootnote(int block, QString tag);
 public slots:
   void notifyChildless(class BlockItem *);

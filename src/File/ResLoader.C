@@ -46,6 +46,18 @@ void ResLoader::startDownload() {
     return;
   }
 
+  if (src.scheme() == "page") {
+    dst->close();
+    ok = true;
+    QTimer *t = new QTimer(this);
+    connect(t, SIGNAL(timeout()), SIGNAL(finished()));
+    t->setSingleShot(true);
+    t->start(1);
+    return;
+    // This absurd code ensures that Resource (and others?) have a chance to
+    // connect to our finished() signal before we emit it.
+  }
+
   QNetworkRequest rq(src);
   
   qnr = networkAccessManager().get(rq);

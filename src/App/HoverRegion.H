@@ -33,6 +33,8 @@ private:
   bool hasArchive() const;
   bool hasPreview() const;
   class Resource *resource() const;
+  void activate(QGraphicsSceneMouseEvent *);
+  void openPage();
 private:
   MarkupData *md;
   TextItem *ti;

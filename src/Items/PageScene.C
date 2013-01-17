@@ -17,6 +17,7 @@
 #include "FootnoteItem.H"
 #include "Assert.H"
 #include "Notebook.H"
+#include "GfxNoteItem.H"
 
 #include <QGraphicsView>
 #include <QGraphicsTextItem>
@@ -730,7 +731,8 @@ void PageScene::keyPressEvent(QKeyEvent *e) {
     bool steal = false;
     switch (e->key()) {
     case Qt::Key_V:
-      steal = tryToPaste();
+      if (writable)
+	steal = tryToPaste();
       break;
     }
     if (steal) {
@@ -749,6 +751,15 @@ int PageScene::findBlock(Item const *i) const {
   return -1;
 }
 
+int PageScene::findBlock(QPointF scenepos) const {
+  Item *item;
+  for (QGraphicsItem *gi = itemAt(scenepos); gi!=0; gi = gi->parentItem()) {
+    item = dynamic_cast<Item *>(gi);
+    if (item)
+      return findBlock(item);
+  }
+  return -1;
+}
 
 bool PageScene::tryToPaste() {
   // we get it first.
@@ -774,6 +785,10 @@ bool PageScene::tryToPaste() {
 }
 
 void PageScene::dropEvent(QGraphicsSceneDragDropEvent *e) {
+  if (!writable) {
+    e->ignore();
+    return;
+  }
   if (e->source() == 0) {
     // event from outside our application
     qDebug() << "dropEvent";
@@ -782,6 +797,7 @@ void PageScene::dropEvent(QGraphicsSceneDragDropEvent *e) {
       e->setDropAction(Qt::CopyAction);
       e->accept();
     } else {
+      e->setDropAction(Qt::IgnoreAction);
       e->ignore(); // this does not seem to graphically refuse the offering
     }
   } else {
@@ -902,7 +918,43 @@ bool PageScene::importDroppedText(QPointF scenePos, QString const &txt,
 
 bool PageScene::importDroppedFile(QPointF scenePos, QString const &fn) {
   qDebug() << "PageScene: import dropped file: " << scenePos << fn;
-  return false;
+  if (!fn.startsWith("/"))
+    return false;
+  TextItem *ti = 0;
+  if (belowContent(scenePos)) {
+    TextBlockItem *tbi = newTextBlock();
+    if (!tbi)
+      return false;
+    ti = tbi->text();
+  } else {
+    int blk = findBlock(scenePos);
+    if (!blk || !blockItems[blk]->isWritable())
+      return false;
+    GfxBlockItem *gbi = dynamic_cast<GfxBlockItem*>(blockItems[blk]);
+    TextBlockItem *tbi = dynamic_cast<TextBlockItem*>(blockItems[blk]);
+    if (gbi) {
+      // let's create a new note at the target position
+      GfxNoteItem *note = gbi->createNote(gbi->mapFromScene(scenePos), false);
+      ti = note->textItem();
+    } else if (tbi) {
+      ti = tbi->text();
+    }
+  }
+  if (!ti)
+    return false;
+  QTextCursor c = ti->textCursor();
+  int pos = ti->pointToPos(ti->mapFromScene(scenePos));
+  if (pos>=0)
+    c.setPosition(pos);
+  else
+    c.clearSelection();
+  int start = c.position();
+  c.insertText(fn);
+  int end = c.position();
+  ti->addMarkup(MarkupData::Link, start, end);
+  ti->setFocus();
+  ti->setTextCursor(c);
+  return true;
 }
     
 void PageScene::makeWritable() {
