@@ -351,7 +351,7 @@ bool TextItem::tryTeXCode() {
     int start = m.hasSelection() ? m.selectionEnd() : 0;
     m = document()->find(QRegExp("([^A-Za-z])"),
 			 start);
-    int end = m.hasSelection() ? m.selectionEnd() : data_->text().size();
+    int end = m.hasSelection() ? m.selectionStart() : data_->text().size();
     c.setPosition(start);
     c.setPosition(end, QTextCursor::KeepAnchor);
   }
