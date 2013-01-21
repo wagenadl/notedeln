@@ -338,6 +338,9 @@ bool TextItem::keyPressWithControl(QKeyEvent *e) {
   case Qt::Key_Backslash:
     tryTeXCode();
     return true;
+  case Qt::Key_Space:
+    insertBasicHtml(QString::fromUtf8(" "), textCursor().position());
+    return true;
   default:
     return false;
   }

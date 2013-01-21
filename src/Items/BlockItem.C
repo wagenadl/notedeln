@@ -28,11 +28,11 @@ QRectF BlockItem::boundingRect() const {
 }
 
 void BlockItem::sizeToFit() {
-  if (bbLocked)
+  qDebug() << "BlockItem"<<this<<"sizeToFit() lock="<<bbLocked;
+  if (bbLocked) 
     return;
   
   QRectF newBbox = fittedRect();
-  bbox = newBbox;
   if (newBbox != bbox) {
     bbox = newBbox;
     prepareGeometryChange();
