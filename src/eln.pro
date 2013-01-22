@@ -14,7 +14,7 @@ CONFIG += debug
 MOC_DIR = .moc
 OBJECTS_DIR = .obj
 RCC_DIR = .rcc
-QT += network svg
+QT += network svg webkit
 
 DEPENDPATH +=  $$sourcedirs
 INCLUDEPATH += $$sourcedirs

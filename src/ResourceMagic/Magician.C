@@ -29,16 +29,23 @@ QString Magician::desc(QString) const {
   return QString();
 }
 
-//bool Magician::keepAlways(QString) const {
-//  return false;
-//}
+bool Magician::objectUrlNeedsWebPage(QString) const {
+  return false;
+}
+
+QUrl Magician::objectUrlFromWebPage(QString tag, QString) const {
+  return objectUrl(tag);
+}
 
 //////////////////////////////////////////////////////////////////////
 
 SimpleMagician::SimpleMagician() {
-  re = QRegExp(".*"); // match anything
-  webUrlBuilder = "";
-  objectUrlBuilder = "";
+}
+
+SimpleMagician::SimpleMagician(QVariantMap const &dict) {
+  setMatcher(QRegExp(dict["re"].toString()));
+  setWebUrlBuilder(dict["web"].toString());
+  setObjectUrlBuilder(dict["object"].toString());
 }
 
 SimpleMagician::~SimpleMagician() {
@@ -92,3 +99,4 @@ QUrl UrlMagician::objectUrl(QString s) const {
   else
     return QUrl(s);
 }
+

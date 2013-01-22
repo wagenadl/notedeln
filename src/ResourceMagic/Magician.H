@@ -7,6 +7,7 @@
 #include <QString>
 #include <QUrl>
 #include <QRegExp>
+#include <QVariant>
 
 class Magician {
 public:
@@ -21,12 +22,18 @@ public:
      a webUrl if it also provides an objectUrl.
      Perhaps that's not what I ultimately want, but that's how it is now.
   */
-  //  virtual bool keepAlways(QString) const; // true to cause Resource to
-  // tolerate failure of objectUrl loading
+  virtual bool objectUrlNeedsWebPage(QString) const;
+  virtual QUrl objectUrlFromWebPage(QString, QString) const;
 };
 
 class SimpleMagician: public Magician {
 public:
+  SimpleMagician(QVariantMap const &dict);
+  /* dict must contain keys:
+       "re": a regexp
+       "web": a url with %1 (optional)
+       "object": a url with %1
+  */
   SimpleMagician();
   virtual ~SimpleMagician();
   virtual bool matches(QString) const;

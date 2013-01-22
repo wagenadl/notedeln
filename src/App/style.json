@@ -97,13 +97,20 @@
 "bib-file": "/home/wagenaar/bib/bib.json",
 "bib-dir": "/home/wagenaar/papers",
 "magicians": {
-  "page": { "re": "\\d\\d?\\d?",
+  "page": {
+    "re": "\\d\\d?\\d?",
     "object": "page://%1"
     },
-  "pubmed": { "re": "\\d\\d\\d\\d\\d*",
+  "pubmed": {
+    "re": "\\d\\d\\d\\d\\d*",
     "web": "http://www.ncbi.nlm.nih.gov/pubmed/%1",
     "object": "http://www.ncbi.nlm.nih.gov/pmc/articles/pmid/%1/pdf"
-    }
-  },
+    },
+  "thorlabs": {
+    "re": "[A-Z][-A-Z0-9a-z]*",
+    "web": "http://www.thorlabs.us/thorProduct.cfm?partNumber=%1",
+    "link-key": "title",
+    "link-value": "Auto CAD PDF"
+  }
 "front-recolor": "#7f7f7f"
 }

@@ -2,6 +2,7 @@
 
 #include "Magicians.H"
 #include "DWBibMagician.H"
+#include "WebPageMagician.H"
 
 QMap<Style const *, Magicians *> &Magicians::stylemap() {
   static QMap<Style const *, Magicians *> map;
@@ -45,11 +46,10 @@ Magicians::Magicians(Style const &st) {
   QVariantMap vm = st["magicians"].toMap();
   foreach (QVariant v, vm) {
     QVariantMap m = v.toMap();
-    SimpleMagician *sm = new SimpleMagician;
-    sm->setMatcher(QRegExp(m["re"].toString()));
-    sm->setWebUrlBuilder(m["web"].toString());
-    sm->setObjectUrlBuilder(m["object"].toString());
-    mm.append(sm);
+    if (m.contains("link-key")) 
+      mm.append(new WebPageLinkMagician(m));
+    else
+      mm.append(new SimpleMagician(m));
   }
   mm.append(new DWBibMagician(st));
 }

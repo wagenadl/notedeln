@@ -93,6 +93,20 @@ QUrl ResourceMagic::objectUrl() const {
     return iter->objectUrl(refText);
 }
 
+QUrl ResourceMagic::objectUrlFromWebPage(QString page) const {
+  if (isExhausted())
+    return QUrl();
+  else
+    return iter->objectUrlFromWebPage(refText, page);
+}
+
+bool ResourceMagic::objectUrlNeedsWebPage() const {
+  if (isExhausted())
+    return false;
+  else
+    return iter->objectUrlNeedsWebPage(refText);
+}
+
 QString ResourceMagic::title() const {
   if (isExhausted())
     return QString();

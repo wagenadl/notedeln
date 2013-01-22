@@ -14,6 +14,8 @@ public:
   virtual ~ResourceMagic();
   QUrl webUrl() const;
   QUrl objectUrl() const;
+  QUrl objectUrlFromWebPage(QString) const;
+  bool objectUrlNeedsWebPage() const;
   QString title() const;
   QString desc() const;
   bool isExhausted() const;
