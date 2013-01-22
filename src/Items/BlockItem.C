@@ -28,7 +28,7 @@ QRectF BlockItem::boundingRect() const {
 }
 
 void BlockItem::sizeToFit() {
-  qDebug() << "BlockItem"<<this<<"sizeToFit() lock="<<bbLocked;
+  //  qDebug() << "BlockItem"<<this<<"sizeToFit() lock="<<bbLocked;
   if (bbLocked) 
     return;
   
@@ -36,7 +36,7 @@ void BlockItem::sizeToFit() {
   if (newBbox != bbox) {
     bbox = newBbox;
     prepareGeometryChange();
-    qDebug() << "BlockItem"<<this<<"emitting boundsChanged";
+    //    qDebug() << "BlockItem"<<this<<"emitting boundsChanged";
     emit boundsChanged();
   }
 }

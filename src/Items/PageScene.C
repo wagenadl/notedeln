@@ -202,8 +202,8 @@ void PageScene::restackBlocks(int starti, bool preferData) {
   double y = topY[starti];
   int sheet = sheetNos[starti];
   double y1a = y1;
-  qDebug() << "PageScene: restack" << starti << endi;
-  qDebug() << "  y="<<y << " y1a="<<y1a;
+  //  qDebug() << "PageScene: restack" << starti << endi;
+  //  qDebug() << "  y="<<y << " y1a="<<y1a;
 
   // we are assuming that the blockitems and footnotegroups are unscaled!
   for (int i=0; i<starti; i++)
@@ -233,7 +233,7 @@ void PageScene::restackBlocks(int starti, bool preferData) {
       }
       updateData = true;
     }
-    qDebug() << "  i"<<i<<" h="<<h <<" fnh="<<fnh << " y="<<y;
+    //    qDebug() << "  i"<<i<<" h="<<h <<" fnh="<<fnh << " y="<<y;
     topY[i] = y;
     sheetNos[i] = sheet;
     bi->moveBy(0, y - bi->sceneBoundingRect().top());
@@ -370,19 +370,19 @@ void PageScene::notifyChildless(BlockItem *gbi) {
     return;
   if (!writable)
     return;
-  qDebug() << "childless" << this << gbi;
+  //  qDebug() << "childless" << this << gbi;
   for (int i=0; i<blockItems.size(); ++i) {
     if (blockItems[i] == gbi) {
-      qDebug() << "deleting block " << i;
+      //      qDebug() << "deleting block " << i;
       deleteBlock(i);
       break;
     }
   }
-  qDebug() << "restacking";
+  //  qDebug() << "restacking";
   restackBlocks();
 
   gotoSheet(iSheet>=nSheets ? nSheets-1 : iSheet);
-  qDebug() << "all done" << iSheet << nSheets;
+  //  qDebug() << "all done" << iSheet << nSheets;
 }
   
 void PageScene::deleteBlock(int blocki) {
@@ -401,9 +401,9 @@ void PageScene::deleteBlock(int blocki) {
   remap();
 
     removeItem(bi);
-  qDebug() << "removed block from scene" << bi;
+    // qDebug() << "removed block from scene" << bi;
     bi->deleteLater();
-    qDebug() << "queued for deletion: " << bi;
+    //    qDebug() << "queued for deletion: " << bi;
     //delete bi;
   data_->deleteBlock(bd);
   //  removeItem(fng);
@@ -765,7 +765,7 @@ int PageScene::findBlock(QPointF scenepos) const {
 bool PageScene::tryToPaste() {
   // we get it first.
   // if we don't send the event on to QGraphicsScene, textItems don't get it
-  qDebug() << "PageScene::tryToPaste";
+  //  qDebug() << "PageScene::tryToPaste";
   QList<QGraphicsView*> vv = views();
   if (vv.isEmpty()) {
     qDebug() << "PageScene: cannot determine paste position: no view";
@@ -792,7 +792,7 @@ void PageScene::dropEvent(QGraphicsSceneDragDropEvent *e) {
   }
   if (e->source() == 0) {
     // event from outside our application
-    qDebug() << "dropEvent";
+    //    qDebug() << "dropEvent";
     bool accept = importDroppedOrPasted(e->scenePos(), e->mimeData(), true);
     if (accept) {
       e->setDropAction(Qt::CopyAction);
@@ -805,7 +805,7 @@ void PageScene::dropEvent(QGraphicsSceneDragDropEvent *e) {
     // event from inside our application
     // we may be dragging some image around
     // not yet implemented
-    qDebug() << "PageScene: internal drop";
+    //    qDebug() << "PageScene: internal drop";
     QGraphicsScene::dropEvent(e);
   }
 }
@@ -912,13 +912,13 @@ bool PageScene::importDroppedUrl(QPointF scenePos,
 
 bool PageScene::importDroppedText(QPointF scenePos, QString const &txt,
 				  QUrl const *source, bool dropped) {
-  qDebug() << "PageScene: import dropped text: " << scenePos << txt
-	   << source << dropped;
+  // qDebug() << "PageScene: import dropped text: " << scenePos << txt
+  //	   << source << dropped;
   return false;
 }
 
 bool PageScene::importDroppedFile(QPointF scenePos, QString const &fn) {
-  qDebug() << "PageScene: import dropped file: " << scenePos << fn;
+  //  qDebug() << "PageScene: import dropped file: " << scenePos << fn;
   if (!fn.startsWith("/"))
     return false;
   TextItem *ti = 0;
@@ -979,7 +979,7 @@ bool PageScene::isWritable() const {
 void PageScene::newFootnote(int block, QString tag) {
   ASSERT(block>=0 && block<blockItems.size());
   foreach (FootnoteItem *fni, footnoteGroups[block]->children<FootnoteItem>()) {
-    qDebug() << "Comparing" << tag << " against " << fni->data()->tag();
+    //    qDebug() << "Comparing" << tag << " against " << fni->data()->tag();
     if (fni->data()->tag()==tag) {
       fni->setFocus();
       return;
