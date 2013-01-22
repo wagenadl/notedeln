@@ -29,7 +29,8 @@ QUrl WebPageLinkMagician::objectUrlFromWebPage(QString tag,
   QWebFrame *frm = pg.mainFrame();
   frm->setHtml(html);
   ASSERT(frm);
-  QString query = QString("a[%1=%2]").arg(key).arg(val);
+  QString query = QString("a[%1=\"%2\"]").arg(key).arg(val);
+  qDebug() << "Querying " << query;
   QWebElement elt = frm->findFirstElement(query);
   qDebug() << "elt = " << !elt.isNull() << elt.attribute("href");
   if (elt.isNull())

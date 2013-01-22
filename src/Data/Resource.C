@@ -252,7 +252,21 @@ void Resource::magicWebUrlFinished() {
     // good work!
     loader->deleteLater();
     loader = 0;
-    if (magic->objectUrl().isValid()) {
+    if (magic->objectUrlNeedsWebPage()) {
+      QFile a(archivePath());
+      if (a.open(QFile::ReadOnly)) {
+	QString html = a.readAll();
+	qDebug() << "magicurlfromwebpage" << html;
+	src = magic->objectUrlFromWebPage(html);
+	qDebug() << "  src = " << src.toString();
+	a.close();
+	loader = new ResLoader(this);
+	connect(loader, SIGNAL(finished()), SLOT(magicObjectUrlFinished()));
+      } else {
+	markModified();
+	emit finished();
+      }
+    } else if (magic->objectUrl().isValid()) {
       src = magic->objectUrl();
       ensureArchiveFilename();
       loader = new ResLoader(this);

@@ -42,6 +42,7 @@ Magician const *Magicians::next(QString refText, Magician const *m0) const {
 // ----------------------------------------------------------------------
 Magicians::Magicians(Style const &st) {
   mm.append(new UrlMagician());
+  mm.append(new DWBibMagician(st));
 
   QVariantMap vm = st["magicians"].toMap();
   foreach (QVariant v, vm) {
@@ -51,5 +52,4 @@ Magicians::Magicians(Style const &st) {
     else
       mm.append(new SimpleMagician(m));
   }
-  mm.append(new DWBibMagician(st));
 }
