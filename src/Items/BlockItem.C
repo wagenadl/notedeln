@@ -63,6 +63,7 @@ BlockItem *BlockItem::ancestralBlock() {
 }
 
 void BlockItem::refTextChange(QString olds, QString news) {
+  qDebug() << "BlockItem" << this<< "refTextChange";
   foreach (FootnoteData *fnd, data()->children<FootnoteData>()) {
     if (fnd->tag()==olds) {
       // Found a footnote that is affected by this. Let's find the

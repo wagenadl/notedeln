@@ -400,10 +400,11 @@ void PageScene::deleteBlock(int blocki) {
   footnoteGroups.removeAt(blocki);
   remap();
 
-  //  removeItem(bi);
+    removeItem(bi);
   qDebug() << "removed block from scene" << bi;
-  //  bi->deleteLater();
-  delete bi;
+    bi->deleteLater();
+    qDebug() << "queued for deletion: " << bi;
+    //delete bi;
   data_->deleteBlock(bd);
   //  removeItem(fng);
   // fng->deleteLater();
