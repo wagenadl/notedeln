@@ -912,8 +912,8 @@ bool PageScene::importDroppedUrl(QPointF scenePos,
 
 bool PageScene::importDroppedText(QPointF scenePos, QString const &txt,
 				  QUrl const *source, bool dropped) {
-  // qDebug() << "PageScene: import dropped text: " << scenePos << txt
-  //	   << source << dropped;
+  qDebug() << "PageScene: import dropped text: " << scenePos << txt
+  	   << source << dropped;
   return false;
 }
 
