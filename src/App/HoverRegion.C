@@ -7,6 +7,7 @@
 #include "ResourceMagic.H"
 #include "Assert.H"
 #include "PageView.H"
+#include "TextData.H"
 
 #include <QPainter>
 #include <QGraphicsSceneHoverEvent>
@@ -151,6 +152,13 @@ void HoverRegion::calcBounds() const {
     int rpos = pos-tb.position();
     QTextLayout *tlay = tb.layout();
     QTextLine line = tlay->lineForTextPosition(rpos);
+    if (!line.isValid()) {
+      qDebug() << "Invalid line";
+      qDebug() << "md:" << md->start() << md->end();
+      qDebug() << "pos:" << pos << "rpos:" << rpos;
+      qDebug() << "data length: " << ti->data()->text().size();
+      break;
+    }
     double y0 = tlay->position().y() + line.y();
     double y1 = y0 + line.height();
     double x0 = tlay->position().x() + line.cursorToX(rpos);
