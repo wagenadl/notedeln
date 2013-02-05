@@ -161,6 +161,27 @@ namespace JSONFile {
     return doc.toMap();
   }
 
+  QVariantMap read(QString json, bool *ok) {
+    if (ok)
+      *ok = false;
+    QJson::Parser parser;
+    bool ok1;
+    QVariant doc = parser.parse(json.toUtf8(), &ok1);
+    if (!ok1) {
+      qDebug() << "JSONFile: Parse failed:" << parser.errorString()
+	       << "at line" << parser.errorLine()
+	       << "in string";
+      return QVariantMap();
+    }
+    if (ok)
+      *ok = true;
+    return doc.toMap();
+  }
+
+  QString write(QVariantMap const &src) {
+    return serialize(src, 0, true);
+  }
+  
   bool save(QVariantMap const &src, QString fn) {
     //    QJson::Serializer s;
     //    QByteArray ba = s.serialize(QVariant(src));

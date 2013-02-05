@@ -5,6 +5,7 @@
 #include <QFile>
 #include <QDir>
 #include "Notebook.H"
+#include "RecentBooks.H"
 #include "App.H"
 #include <QDesktopWidget>
 #include <QDebug>
@@ -77,5 +78,6 @@ int main(int argc, char **argv) {
   editor->show();
   int r = app.exec();
   delete editor;
+  delete RecentBooks::instance();
   return r;
 }

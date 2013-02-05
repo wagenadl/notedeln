@@ -28,6 +28,7 @@ public:
   class Style const &style() const;
   class Mode *mode() const;
   QString filePath(QString) const;
+  QString dirPath() const;
 public slots:
   void flush();
 private:

@@ -7,6 +7,7 @@
 #include "Style.H"
 #include "Assert.H"
 #include "Mode.H"
+#include "RecentBooks.H"
 
 #include <QDebug>
 
@@ -19,6 +20,8 @@ Notebook::Notebook(QString path) {
   ASSERT(bookFile_);
   style_ = new Style(root.filePath("style.json"));
   mode_ = new Mode(this);
+
+  RecentBooks::instance()->addBook(this);
 }
 
 Notebook::~Notebook() {
@@ -39,6 +42,10 @@ Notebook *Notebook::load(QString path) {
 
 QString Notebook::filePath(QString f) const {
   return root.filePath(f);
+}
+
+QString Notebook::dirPath() const {
+  return root.path();
 }
 
 Notebook *Notebook::create(QString path) {
