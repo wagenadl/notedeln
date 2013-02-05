@@ -185,6 +185,7 @@ void Notebook::flush() {
   if (bookFile_->needToSave()) {
     actv = true;
     ok = ok && bookFile_->saveNow();
+    RecentBooks::instance()->addBook(this);
   }
   foreach (PageFile *pf, pgFiles) {
     if (pf->needToSave()) {
