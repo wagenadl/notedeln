@@ -2,10 +2,35 @@
 
 #include "RecentBooks.H"
 #include "Notebook.H"
+#include "BookFile.H"
 #include <QSettings>
 #include "Assert.H"
 
 #define MAXLISTLENGTH 20
+
+BookInfo::BookInfo(Notebook const *nb) {
+  BookData const *bd = nb->bookData();
+  title = bd->title();
+  author = bd->author();
+  address = bd->address();
+  created = bd->created();
+  modified = bd->modified();
+}
+
+BookInfo::BookInfo(QString dirname) {
+  BookFile *bf = BookFile::load(dirname + "/book.json");
+  if (bf) {
+    BookData const *bd = bf->data();
+    title = bd->title();
+    author = bd->author();
+    address = bd->address();
+    created = bd->created();
+    modified = bd->modified();
+    delete bf;
+  }
+}
+
+//////////////////////////////////////////////////////////////////////
 
 QString RecentBooks::keyname(int idx, QString key) {
   return QString("book-%1/%2").arg(idx).arg(key);
@@ -67,13 +92,7 @@ void RecentBooks::addBook(Notebook const *nb) {
     idx = revmap.size();
   }
 
-  BookData const *bd = nb->bookData();
-
-  data[dirname].title = bd->title();
-  data[dirname].author = bd->author();
-  data[dirname].address = bd->address();
-  data[dirname].created = bd->created();
-  data[dirname].modified = bd->modified();
+  data[dirname] = BookInfo(nb);
   data[dirname].accessed = QDateTime::currentDateTime();
 
   revmap[dirname] = idx;
