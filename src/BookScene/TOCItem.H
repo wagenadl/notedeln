@@ -17,6 +17,7 @@ public:
   void paint(QPainter*, const QStyleOptionGraphicsItem*, QWidget*);
 signals:
   void vboxChanged();
+  void clicked(int); // page number
 public slots:
   void entryChanged();
 protected:

@@ -193,14 +193,9 @@ void Notebook::flush() {
       ok = ok && pf->saveNow();
     }
   }
-  if (actv) {
-    if (ok)
-      qDebug() << "Notebook flushed to disk";
-    else
+  if (actv) 
+    if (!ok)
       qDebug() << "Notebook flushed, with errors";
-  } else {
-    qDebug() << "(No changes to save)";
-  }
 }
 
 Mode *Notebook::mode() const {

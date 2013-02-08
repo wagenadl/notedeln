@@ -53,7 +53,7 @@ void TOCItem::fillItems() {
 }
 
 QRectF TOCItem::boundingRect() const {
-  return QRectF();
+  return childrenBoundingRect(); //QRectF();
 }
 
 TOCEntry *TOCItem::data() {
@@ -69,6 +69,7 @@ void TOCItem::entryChanged() {
 
 void TOCItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
   qDebug() << "TOCItem::mousePress" << e;
+  emit clicked(data_->startPage());
 }
 
 void TOCItem::paint(QPainter*, const QStyleOptionGraphicsItem*, QWidget*) {

@@ -33,7 +33,7 @@ int main(int argc, char **argv) {
     if (QDir(argv[2]).exists()) {
       qDebug() << "eln: Cannot create new notebook '" << argv[2]
 	       << "': found existing notebook";
-      exit(1);
+      return 1;
     }
     nb = Notebook::create(argv[2]);
   } else {
@@ -41,10 +41,10 @@ int main(int argc, char **argv) {
     qDebug() << "Usage: eln notebook";
     qDebug() << "Usage: eln -new notebook";
     qDebug() << "Usage: eln -splash";
-    exit(1);
+    return 1;
   }
   if (!nb)
-    exit(2);
+    return 0;
 
   QObject::connect(&app, SIGNAL(aboutToQuit()), nb, SLOT(flush()));
   

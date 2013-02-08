@@ -25,6 +25,8 @@ PageView::PageView(Notebook *nb, QWidget *parent):
   frontScene = new FrontScene(nb, this);
   tocScene = new TOCScene(nb->toc(), this);
   tocScene->populate();
+  connect(tocScene, SIGNAL(pageNumberClicked(int)),
+          SLOT(gotoPage(int)));
 
   setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
   setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -256,7 +258,7 @@ void PageView::leavePage() {
       fi->clearFocus(); // this should cause abandon to happen
   }
 
-  if (pageScene)
+  if (pageScene && toolbars->scene()==pageScene)
     pageScene->removeItem(toolbars);
 
   if (currentSection==Pages

@@ -162,8 +162,10 @@ void BaseScene::gotoSheet(int i) {
     iSheet = 0;
 
   // Set visibility of continuation markers
-  contdItem->setVisible(iSheet>0);
-  contItem->setVisible(iSheet+1 < nSheets);
+  if (contdItem)
+    contdItem->setVisible(iSheet>0);
+  if (contItem)
+    contItem->setVisible(iSheet+1 < nSheets);
 
   // Set page number
   pgNoItem->setPlainText(pgNoToString(startPage() + iSheet));

@@ -37,8 +37,8 @@ private:
   void set(int idx, QString key, QVariant const &value);
   static QString keyname(int idx, QString key);
 private:
-  QMap<QString, BookInfo> data;
-  QMap<QString, int> revmap; // map to file keys
+  QMap<QString, BookInfo> data; // map filename to info
+  QMap<QString, int> revmap; // map filename to index in settings file
   class QSettings *s;
 };
 

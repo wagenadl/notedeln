@@ -6,6 +6,7 @@
 
 #include <QGraphicsScene>
 #include <QStringList>
+#include <QPointer>
 
 class SplashScene: public QGraphicsScene {
   Q_OBJECT;
@@ -23,10 +24,12 @@ signals:
 private:
   void makeBackground();
   void makeItems();
+  void setWidget(QWidget *); // mark our view, lazy method
 private:
   bool newRequested;
   bool openRequested;
   QString named;
+  QPointer<QWidget> widget;
 };
 
 #endif

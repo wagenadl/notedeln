@@ -7,6 +7,7 @@
 #include "Style.H"
 
 #include <QFileDialog>
+#include <QMessageBox>
 #include <QApplication>
 #include <QDesktopWidget>
 #include <QGraphicsView>
@@ -17,7 +18,6 @@
 SplashScene::SplashScene(QObject *parent):
   QGraphicsScene(parent) {
   newRequested = false;
-  openRequested = false;
   makeBackground();
   makeItems();
 }
@@ -118,12 +118,53 @@ QStringList SplashScene::localNotebooks() {
 }
 
 void SplashScene::createNew() {
+  QString fn = QFileDialog::getSaveFileName(0, "Create new notebook...",
+                                            "",
+                                            "Notebooks (*.nb)");
+  if (fn.isEmpty())
+    return; // aborted by user, we'll go back to splash screen
+  if (!fn.endsWith(".nb"))
+    fn += ".nb";
+  if (QDir::current().exists(fn)) {
+    QMessageBox::warning(widget, "eln",
+                         "Will not create a new notebook '" + fn
+                         + "': file exists.",
+                         QMessageBox::Cancel);
+    return; // go back to splash screen
+  }
   newRequested = true;
+  named = fn;
   emit done();
 }
 
 void SplashScene::openExisting() {
-  openRequested = true;
+  QFileDialog qfd(widget);
+  qfd.setWindowTitle("Open existing notebook...");
+  qfd.setFileMode(QFileDialog::Directory);
+  qfd.setOptions(QFileDialog::ShowDirsOnly);
+  if (!qfd.exec()) 
+    return;
+  QStringList fns = qfd.selectedFiles();
+  if (fns.isEmpty())
+    return;
+  if (fns.size()>1)
+    qDebug() << "Multiple files selected; using only the first.";
+  QString fn = fns[0];
+  QDir d(fn);
+  if (!d.exists()) {
+    QMessageBox::warning(widget, "eln",
+                         "'" + fn + "' does not exist.",
+                         QMessageBox::Cancel);
+    return;
+  }
+  if (!d.exists("book.json") || !d.exists("toc.json")
+      || !d.exists("pages")) {
+    QMessageBox::warning(widget, "eln",
+                         "'" + fn + "' is not a notebook.",
+                         QMessageBox::Cancel);
+    return;
+  }
+  named = fn;
   emit done();
 }
 
@@ -132,6 +173,10 @@ void SplashScene::openNamed(QString dir) {
   emit done();
 }
 
+ void SplashScene::setWidget(QWidget *w) {
+   widget = w;
+ }
+ 
 Notebook *SplashScene::openNotebook() {
   SplashScene *ss = new SplashScene();
   QEventLoop el;
@@ -141,6 +186,7 @@ Notebook *SplashScene::openNotebook() {
 
   SplashView *gv = new SplashView();
   gv->setScene(ss);
+  ss->setWidget(gv);
   connect(gv, SIGNAL(closing()), &el, SLOT(quit()));
   gv->show();
   
@@ -148,29 +194,29 @@ Notebook *SplashScene::openNotebook() {
   double dpiX = QApplication::desktop()->logicalDpiX();
   double dpiY = QApplication::desktop()->logicalDpiY();
   gv->resize(size.width()*dpiX/72, size.height()*dpiY/72);
- 
-  el.exec();
-
-  delete gv;
 
   Notebook *nb = 0;
-  if (ss->newRequested) {
-    QString fn = QFileDialog::getSaveFileName(0, "Create new notebook...",
-                                              "",
-                                              "Notebooks (*.nb)");
-    if (!fn.isEmpty() && !QDir::current().exists(fn)) 
-      nb = Notebook::create(fn);
-  } else if (ss->openRequested) {
-    QString fn = QFileDialog::getExistingDirectory(0,
-                                                   "Open existing notebook...");
-    qDebug() << fn;
-    if (!fn.isEmpty() && QDir(fn).exists("book.json"))
-      nb = Notebook::load(fn);
-  } else if (!ss->named.isEmpty()) {
-    nb = Notebook::load(ss->named);
+  while (nb==0) {
+    el.exec();
+    if (ss->named.isEmpty())
+      break;
+    if (ss->newRequested) {
+      nb = Notebook::create(ss->named);
+      if (!nb) 
+        QMessageBox::warning(gv, "eln",
+                             "'" + ss->named + "' could not be created.",
+                             QMessageBox::Cancel);
+    } else {
+      nb = Notebook::load(ss->named);
+      if (!nb) 
+        QMessageBox::warning(gv, "eln",
+                             "'" + ss->named + "' could not be loaded.",
+                             QMessageBox::Cancel);
+    }
   }
-  
+
+  delete gv;
   delete ss;
-  
+
   return nb;
 }

@@ -622,11 +622,15 @@ bool TextItem::tryExplicitLink() {
   int start = m.selectionStart();
   int end = m.selectionEnd();
   MarkupData *oldmd = markupAt(start, end, MarkupData::Link);
-  if (oldmd && oldmd->start()==start && oldmd->end()==end) {
+  if (oldmd) {
     // undo link mark
     markings_->deleteMark(oldmd);
-    return false;
-  } else if (end>start) {
+    // if the old link exactly matches our selection, just drop it;
+    // otherwise, replace it.
+    if  (oldmd->start()==start && oldmd->end()==end) 
+      return false;
+  }
+  if (end>start) {
     addMarkup(MarkupData::Link, start, end);
     return true;
   } else {

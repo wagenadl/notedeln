@@ -166,16 +166,11 @@ void PageScene::positionTitleItem() {
   BaseScene::positionTitleItem();
 
   /* Reposition "n/N" */
-  QTextDocument *doc = titleItemX->document();
-  QTextBlock blk = doc->lastBlock();
-  QTextLayout *lay = blk.layout();
-  QTextLine l = lay->lineAt(lay->lineCount()-1);
-  QPointF tl(l.cursorToX(blk.length()) + 10, l.y());
-  tl = titleItem->mapToScene(tl + lay->position());
-  lay = nOfNItem->document()->lastBlock().layout();
-  l = lay->lineAt(0);
-  tl -= lay->position() - QPointF(l.cursorToX(0), l.y());
-  nOfNItem->setPos(tl);
+  QPointF br = nOfNItem->boundingRect().bottomRight();
+  nOfNItem->setPos(style().real("margin-left") - br.x()
+                   - style().real("title-sep"),
+                   style().real("margin-top") - br.y()
+                   - style().real("title-sep"));
 }
 
 void PageScene::stackBlocks() {
@@ -283,7 +278,7 @@ void PageScene::gotoSheet(int i) {
     nOfNItem->setPlainText(QString("(%1/%2)").arg(iSheet+1).arg(nSheets));
   else
     nOfNItem->setPlainText("");
-
+  positionTitleItem();
   reshapeBelowItem();
   repositionContItem();  
   

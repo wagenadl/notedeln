@@ -47,7 +47,8 @@ void TOCScene::rebuild() {
   foreach (TOCEntry *e, data->entries()) {
     TOCItem *i = new TOCItem(e, this);
     items.append(i);
-    connect(i, SIGNAL(vboxChanged()), this, SLOT(itemChanged()));
+    connect(i, SIGNAL(vboxChanged()), SLOT(itemChanged()));
+    connect(i, SIGNAL(clicked(int)), SIGNAL(pageNumberClicked(int)));
     
     sheetNos.append(0);
     lines.append(addLine(0, 0, style().real("page-width"), 0,
@@ -92,3 +93,6 @@ QString TOCScene::pgNoToString(int n) const {
   return Roman(n).lc();
 }
   
+void TOCScene::makeContdItems() {
+  // simply don't make tem
+}

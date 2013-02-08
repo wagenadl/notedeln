@@ -85,7 +85,6 @@ void FrontScene::makeBackground() {
   QImage img(book->filePath("front.jpg"));
   if (!img.isNull()) {
     if (style.contains("front-recolor")) {
-      qDebug() << "Recolor";
       QColor c(style.color("front-recolor"));
       unsigned char lookup[3][256];
       qreal cc[3]; c.getRgbF(cc, cc+1, cc+2);

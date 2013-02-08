@@ -109,7 +109,9 @@ void RecentBooks::addBook(Notebook const *nb) {
 QStringList RecentBooks::byDate() const {
   QMultiMap<QDateTime, QString> dd;
   foreach (QString s, data.keys())
-    dd.insert(data[s].accessed, s);
+    if (QDir().exists(s))
+      dd.insert(data[s].accessed, s);
+
   QStringList l;
   foreach (QString s, dd.values())
     l.push_front(s);

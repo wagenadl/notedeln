@@ -16,9 +16,12 @@ public slots:
   void tocChanged();
   void itemChanged();
   virtual void gotoSheet(int);
+signals:
+  void pageNumberClicked(int);
 protected:
   virtual QString title() const;
   virtual QString pgNoToString(int) const;
+  virtual void makeContdItems();
 private:
   void rebuild();
   void relayout();
