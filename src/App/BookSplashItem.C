@@ -117,7 +117,7 @@ void BookSplashItem::paint(QPainter *p,
               Qt::AlignRight | Qt::AlignVCenter | Qt::TextSingleLine,
               "Last modified: " + info.modified.toString(datefmt));
   if (info.accessed.isValid())
-    p->drawText(QRectF(8, 17, BOXWIDTH-16, 24),
+    p->drawText(QRectF(8, 21, BOXWIDTH-16, 24),
                 Qt::AlignRight | Qt::AlignVCenter | Qt::TextSingleLine,
                 "Last access: " + info.accessed.toString(datefmt));
 }
