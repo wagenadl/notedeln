@@ -4,14 +4,17 @@
 
 #define MESSAGE_H
 
-#include "Item.H"
 #include <QMap>
 #include <QList>
+#include <QObject>
+#include <QPointer>
+#include "Notebook.H"
+#include <QGraphicsScene>
 
-class Message: public QGraphicsTextItem {
+class Message: public QObject {
   Q_OBJECT;
 public:
-  static Message *report(QString message, Item *reporter);
+  static Message *report(QString message, Data const *reporter);
   /*:F report
    *:D Reports a new message
    *:N Do not use the return value to attempt to manipulate the message
@@ -21,7 +24,7 @@ public:
        functions replace(), remove(), and removeAfter().
   */
   static Message *replace(Message *toBeReplaced,
-			  QString newMessage, Item *reporter);
+			  QString newMessage, Data const *reporter);
   /*:F replace
    *:D Replaces a previous message.
    *:N It's OK if the previous message no longer exists; a new one will be
@@ -38,19 +41,28 @@ public:
    *:N It's OK if the message doesn't exist.
    */
   virtual ~Message();
+public:
+  static void associate(class Notebook const *, class QGraphicsScene *);
+  static void disassociate(class Notebook const *, class QGraphicsScene *);
 protected:
   void timerEvent(QTimerEvent *);
 private:
-  Message();
-  static QMap<QGraphicsScene const *, QList<Message *> >&messages();
+  Message(QString msg, Notebook /*const*/ *);
+  static QMap<Notebook const *, QList<Message *> >&messages();
+  static QMap<Notebook const *,
+              QSet<QPointer<QGraphicsScene> > > &scenes();
   static bool contains(Message *);
   /* Caution: use of contains() may not be thread-safe */
-  static void reap(Message *);
   void rejuvenate();
   void setMortality(double t_s);
-  void stylize(class Style const &);
+  void addToScene(QGraphicsScene *);
+  void deleteFromScene(QGraphicsScene *);
+  void setHtml(QString);
 private:
+  QString msg;
   int timerID;
+  QPointer<Notebook> book;
+  QMap<QGraphicsScene *, QPointer<class MessageObject> > objects;
 };
 
 #endif
