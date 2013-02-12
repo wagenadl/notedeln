@@ -1,5 +1,6 @@
 Makefile
 *.o
+*.pri
 *~
 
 eln
