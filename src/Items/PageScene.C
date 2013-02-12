@@ -44,22 +44,23 @@ PageScene::PageScene(PageData *data, QObject *parent):
   networkManager = 0;
   writable = false;
   
+  nOfNItem = 0;
+  dateItem = 0;
+
   vChangeMapper = new QSignalMapper(this);
   noteVChangeMapper = new QSignalMapper(this);
   futileMovementMapper = new QSignalMapper(this);
   connect(vChangeMapper, SIGNAL(mapped(int)), SLOT(vChanged(int)));
   connect(noteVChangeMapper, SIGNAL(mapped(int)), SLOT(noteVChanged(int)));
   connect(futileMovementMapper, SIGNAL(mapped(int)), SLOT(futileMovement(int)));
-
-  nOfNItem = 0;
-  dateItem = 0;
 }
 
 void PageScene::populate() {
   BaseScene::populate();
   makeDateItem();
-  positionTitleItem();
   makeBlockItems();
+  positionNofNAndDateItems();
+  positionTitleItem();
   stackBlocks();
   iSheet = -1; // cheat to force signal
   gotoSheet(0);
@@ -83,13 +84,6 @@ void PageScene::makeDateItem() {
   dateItem = addText(data_->created().toString(style().string("date-format")),
 		     style().font("date-font"));
   dateItem->setDefaultTextColor(style().color("date-color"));
-  QPointF br = dateItem->boundingRect().bottomRight();
-  dateItem->setPos(style().real("page-width") -
-		   style().real("margin-right-over") -
-		   br.x(),
-		   style().real("margin-top") -
-		   style().real("title-sep") -
-		   br.y());
 }
 
 void PageScene::makeTitleItem() {
@@ -101,11 +95,9 @@ void PageScene::makeTitleItem() {
   addItem(titleItem);
   titleItemX->makeWritable(); // this makes the late notes writable as well
 
-  nOfNItem = addText("n/N", style().font("title-font"));
+  nOfNItem = addText("n/N", style().font("pgno-font"));
   nOfNItem->setDefaultTextColor(style().color("pgno-color"));
-  
-  positionTitleItem();
-  
+    
   connect(titleItemX->document(), SIGNAL(contentsChanged()),
 	  SLOT(titleEdited()));
 }
@@ -165,12 +157,29 @@ void PageScene::positionTitleItem() {
 			   - style().real("title-sep") - 5);
   BaseScene::positionTitleItem();
 
-  /* Reposition "n/N" */
-  QPointF br = nOfNItem->boundingRect().bottomRight();
-  nOfNItem->setPos(style().real("margin-left") - br.x()
-                   - style().real("title-sep"),
-                   style().real("margin-top") - br.y()
-                   - style().real("title-sep"));
+}
+
+void PageScene::positionNofNAndDateItems() {
+  if (nSheets>1) {
+    QPointF br = nOfNItem->boundingRect().bottomRight();
+    nOfNItem->setPos(style().real("page-width") -
+		     style().real("margin-right-over") -
+		     br.x(),
+		     style().real("margin-top") -
+		     style().real("title-sep") -
+		     br.y() + 8);
+    QPointF tr = nOfNItem->sceneBoundingRect().topRight();
+    br = dateItem->boundingRect().bottomRight();
+    dateItem->setPos(tr - br + QPointF(0, 8));
+  } else {
+    QPointF br = dateItem->boundingRect().bottomRight();
+    dateItem->setPos(style().real("page-width") -
+		     style().real("margin-right-over") -
+		     br.x(),
+		     style().real("margin-top") -
+		     style().real("title-sep") -
+		     br.y());
+  }
 }
 
 void PageScene::stackBlocks() {
@@ -278,7 +287,7 @@ void PageScene::gotoSheet(int i) {
     nOfNItem->setPlainText(QString("(%1/%2)").arg(iSheet+1).arg(nSheets));
   else
     nOfNItem->setPlainText("");
-  positionTitleItem();
+  positionNofNAndDateItems();
   reshapeBelowItem();
   repositionContItem();  
   

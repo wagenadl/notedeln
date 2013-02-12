@@ -63,6 +63,7 @@ private:
   void restackBlocks(int starti=0, bool preferData=false);
   void restackFootnotes(int sheet);
   void positionTitleItem();
+  void positionNofNAndDateItems();
   int findLastBlockOnSheet(int sheet); // returns -1 if none
   bool belowContent(QPointF); // true if point is below any blocks on sheet,
   // whether or not the point is in the margin

@@ -26,6 +26,7 @@ BaseScene::BaseScene(Data *data, QObject *parent):
   ASSERT(book);
   style_ = &book->style();
   nSheets = 1;
+  iSheet = 0;
 
   titleItem = pgNoItem = contdItem = contItem = 0;
   leftMarginItem = topMarginItem = 0;
@@ -38,7 +39,8 @@ void BaseScene::populate() {
   makePgNoItem();
   makeContdItems();
   makeTitleItem();
-  gotoSheet(0);
+  positionTitleItem();
+  positionPgNoItem();
 }
 
 BaseScene::~BaseScene() {
@@ -83,7 +85,6 @@ void BaseScene::makePgNoItem() {
   pgNoItem = addText(pgNoToString(startPage() + iSheet),
 		     style_->font("pgno-font"));
   pgNoItem->setDefaultTextColor(style_->color("pgno-color"));
-  positionPgNoItem();
 }
 
 
@@ -124,7 +125,6 @@ void BaseScene::makeTitleItem() {
 		   - style_->real("margin-left")
 		   - style_->real("title-sep")
 		   - style_->real("margin-right"));
-  positionTitleItem();
 }
 
 void BaseScene::positionTitleItem() {
