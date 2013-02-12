@@ -6,17 +6,14 @@
 #include <QGraphicsScene>
 #include "MessageObject.H"
 
-uint qHash(QPointer<QGraphicsScene> const &p) {
-  return qHash(p.data());
-}
 
 QMap<Notebook const *, QList<Message *> >&Message::messages() {
   static QMap<Notebook const *, QList<Message *> > mm;
   return mm;
 }
 
-QMap<Notebook const *, QSet<QPointer<QGraphicsScene> > > &Message::scenes() {
-  static QMap<Notebook const *, QSet<QPointer<QGraphicsScene> > > sc;
+QMap<Notebook const *, QList<QPointer<QGraphicsScene> > > &Message::scenes() {
+  static QMap<Notebook const *, QList<QPointer<QGraphicsScene> > > sc;
   return sc;
 }
 
@@ -140,19 +137,19 @@ void Message::timerEvent(QTimerEvent *) {
 }
 
 void Message::associate(Notebook const *nb, QGraphicsScene *scene) {
-  QSet<QPointer<QGraphicsScene> > &sc(scenes()[nb]);
+  QList<QPointer<QGraphicsScene> > &sc(scenes()[nb]);
   foreach (QPointer<QGraphicsScene> p, sc) 
     if (p==scene)
       return; // already contained
 
-  sc.insert(scene);
+  sc.append(scene);
   foreach (Message *m, messages()[nb]) 
     m->addToScene(scene);
 }
 
 void Message::disassociate(Notebook const *nb, QGraphicsScene *scene) {
-  QSet<QPointer<QGraphicsScene> > &sc(scenes()[nb]);
-  for (QSet<QPointer<QGraphicsScene> >::iterator
+  QList<QPointer<QGraphicsScene> > &sc(scenes()[nb]);
+  for (QList<QPointer<QGraphicsScene> >::iterator
          i = sc.begin(); i!=sc.end(); ++i) {
     QPointer<QGraphicsScene> p = *i;
     if (p==scene) {

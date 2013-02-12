@@ -50,7 +50,7 @@ private:
   Message(QString msg, Notebook /*const*/ *);
   static QMap<Notebook const *, QList<Message *> >&messages();
   static QMap<Notebook const *,
-              QSet<QPointer<QGraphicsScene> > > &scenes();
+              QList<QPointer<QGraphicsScene> > > &scenes();
   static bool contains(Message *);
   /* Caution: use of contains() may not be thread-safe */
   void rejuvenate();
