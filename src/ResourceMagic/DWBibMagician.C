@@ -13,7 +13,9 @@ DWBibMagician::DWBibMagician(Style const &style): style(style) {
 
 bool DWBibMagician::matches(QString s) const {
   MagicBiblio b(s, style);
-  qDebug() << "DWBibMagician"<<s<<b.ok();
+  bool res = b.ok();
+  if (res)
+    qDebug() << "DWBibMagician matches " << s;
   return b.ok();
 }
 

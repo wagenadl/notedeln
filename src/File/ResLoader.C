@@ -59,7 +59,8 @@ void ResLoader::startDownload() {
   }
 
   QNetworkRequest rq(src);
-  
+  rq.setRawHeader("User-Agent", "Mozilla Firefox");
+
   qnr = networkAccessManager().get(rq);
   connect(qnr, SIGNAL(finished()), SLOT(qnrFinished()), Qt::QueuedConnection);
   connect(qnr, SIGNAL(downloadProgress(qint64, qint64)),
@@ -127,8 +128,11 @@ void ResLoader::qnrFinished() {
   dst->close();
   qnr->close(); // needed?
 
-  if (qnr->error())
+  if (qnr->error()) {
+    qDebug() << "ResLoader " << src.toString() << ": qnr error" << qnr->error();
+    dst->copy("/tmp/resloader.error");
     err = true;
+  }
 
   if (err) {
     emit finished();
@@ -252,8 +256,8 @@ void ResLoader::processFinished() {
     return; 
   if (proc->exitStatus()!=QProcess::NormalExit || proc->exitCode()!=0) {
     // that didn't work
-    err = true;
     qDebug() << "  failed";
+    err = true;
   } else {
     qDebug() << "  success";
     ok = true;

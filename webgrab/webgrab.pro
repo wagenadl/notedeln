@@ -7,5 +7,5 @@ QT += svg
 CONFIG += debug
 
 # Input
-HEADERS += Printer.H Options.H
-SOURCES += Printer.C Options.C webgrab.C
+HEADERS += Printer.H Options.H MozillaPage.H
+SOURCES += Printer.C Options.C MozillaPage.C webgrab.C

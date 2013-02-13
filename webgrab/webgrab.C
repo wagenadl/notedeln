@@ -4,7 +4,7 @@
 #include <QGraphicsScene>
 #include <QWebPage>
 #include <QDebug>
-
+#include "MozillaPage.H"
 #include "Printer.H"
 #include "Options.H"
 
@@ -16,6 +16,7 @@ int main(int argc, char **argv) {
   QGraphicsScene scene;
   view.setScene(&scene);
   QGraphicsWebView webview;
+  webview.setPage(new MozillaPage());
   webview.page()->setLinkDelegationPolicy(QWebPage::DelegateAllLinks);
   webview.setResizesToContents(true);
   Printer p(&webview, options);
