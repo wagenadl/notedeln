@@ -15,7 +15,7 @@ class Item: public QGraphicsObject {
 public:
   Item(Data *d, Item *parent);
   virtual ~Item();
- void deleteLater();
+  void deleteLater();
   Data *data();
   Item *parent() const;
   class PageScene *pageScene() const;
