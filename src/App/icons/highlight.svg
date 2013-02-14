@@ -25,7 +25,7 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="7.7560776"
-     inkscape:cx="-7.2779956"
+     inkscape:cx="-16.240271"
      inkscape:cy="33.839034"
      inkscape:document-units="px"
      inkscape:current-layer="g3034"
@@ -42,9 +42,9 @@
      inkscape:object-nodes="true"
      inkscape:snap-smooth-nodes="true"
      inkscape:window-width="1198"
-     inkscape:window-height="1031"
+     inkscape:window-height="744"
      inkscape:window-x="0"
-     inkscape:window-y="24"
+     inkscape:window-y="0"
      inkscape:window-maximized="0"
      inkscape:snap-grids="false"
      inkscape:snap-global="false">
@@ -77,7 +77,7 @@
        id="g3034"
        transform="matrix(0.33862259,0,0,0.33862259,5.4435197,691.3471)">
       <rect
-         style="color:#000000;fill:#ffff00;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
+         style="color:#000000;fill:#ffff00;fill-opacity:0.09615385000000000;fill-rule:nonzero;stroke:#ffff00;stroke-width:2.95314025;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;stroke-opacity:1;opacity:1;stroke-miterlimit:4;stroke-dasharray:none"
          id="rect3824"
          width="71.962082"
          height="50.259235"
