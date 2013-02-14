@@ -138,7 +138,7 @@ bool TextItem::mousePress(QGraphicsSceneMouseEvent *e) {
         bool resize = shouldResize(e->pos());
         GfxNoteItem *gni = dynamic_cast<GfxNoteItem*>(parent());
         if (gni)
-  	gni->childMousePress(e->scenePos(), e->button(), resize);
+          gni->childMousePress(e->scenePos(), e->button(), resize);
       }
       break;
     case Mode::Annotate:
@@ -716,8 +716,8 @@ bool TextItem::shouldResize(QPointF p) const {
     return false;
   double tw = gni->data()->textWidth();
   if (tw<=0)
-    tw = boundingRect().width();
-  bool should = p.x()-boundingRect().left() > .75*tw;
+    tw = fittedRect().width();
+  bool should = p.x()-fittedRect().left() > .75*tw;
   return should;
 }
  
@@ -745,6 +745,11 @@ void TextItem::updateRefText(QString olds, QString news) {
 }
 
 QRectF TextItem::boundingRect() const {
+  return QRectF();
+  //  return text->boundingRect();
+}
+
+QRectF TextItem::fittedRect() const {
   return text->boundingRect();
 }
  

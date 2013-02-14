@@ -167,7 +167,9 @@ void HoverRegion::calcBounds() const {
     double x1 = tlay->position().x() + (rend<lineEnd
 					? line.cursorToX(rend)
 					: line.cursorToX(lineEnd));
-    bounds.addRect(QRectF(QPointF(x0, y0), QPointF(x1, y1)));
+    QRectF bit(QPointF(x0, y0), QPointF(x1, y1));
+    bit = mapRectFromScene(ti->mapRectToScene(bit));
+    bounds.addRect(bit);
     pos = tb.position() + lineEnd;
   }
 
@@ -263,32 +265,23 @@ void HoverRegion::downloadFinished() {
     return;
   }
   ASSERT(busy);
-  if (refText()!=lastRef) {
-    // we have already changed; so we're not interested in the results
-    // anymore
-    if (lastRefIsNew) {
-      ResManager *resmgr = md->resManager();
-      Resource *r = resmgr->byTag(lastRef);
+  ResManager *resmgr = md->resManager();
+  Resource *r = resmgr->byTag(lastRef);
+  if (!r || refText()!=lastRef) {
+    /* Either the resource got destroyed somehow, or we have already
+       changed; so we're not interested in the results anymore. */
+    if (lastRefIsNew) 
       resmgr->dropResource(r);
-    }
+  } else if (r->hasArchive() || r->hasPreview()
+             || !r->title().isEmpty() || !r->description().isEmpty()) {
+    // at least somewhat successful
+    qDebug() << "Attaching new resource" << lastRef;
+    md->attachResource(lastRef);
+    update();
   } else {
-    ResManager *resmgr = md->resManager();
-    ASSERT(resmgr);
-    Resource *r = resmgr->byTag(lastRef);
-    ASSERT(r);
-    if (r->hasArchive() || r->hasPreview()
-	|| !r->title().isEmpty() || !r->description().isEmpty()) {
-      // at least somewhat successful
-      qDebug() << "Attaching new resource" << lastRef;
-      md->attachResource(lastRef);
-      update();
-    } else {
-      // utter failure
-      if (lastRefIsNew) {
-      	ResManager *resmgr = md->resManager();
-      	Resource *r = resmgr->byTag(lastRef);
-	resmgr->dropResource(r);
-      }
+    // utter failure
+    if (lastRefIsNew) {
+      resmgr->dropResource(r);
     }
   }
   busy = false;

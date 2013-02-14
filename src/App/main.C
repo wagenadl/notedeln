@@ -19,10 +19,17 @@ int main(int argc, char **argv) {
 
   Notebook *nb = 0;
   if (argc==1) {
-    QStringList lb = SplashScene::localNotebooks();
-    if (lb.size()==1)
-      nb = Notebook::load(lb[0]);
-    else
+    QDir here(QDir::current());
+    if (here.path().endsWith(".nb") && here.exists("toc.json") && here.exists("book.json") && here.exists("pages")) {
+      // inside a notebook
+      nb = Notebook::load(here.path());
+    }
+    if (!nb) {
+      QStringList lb = SplashScene::localNotebooks();
+      if (lb.size()==1)
+        nb = Notebook::load(lb[0]);
+    }
+    if (!nb)
       nb = SplashScene::openNotebook();
   } else if (argc==2) {
     if (argv[1]==QString("-splash"))

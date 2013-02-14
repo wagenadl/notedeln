@@ -51,7 +51,7 @@ TextBlockItem::~TextBlockItem() {
 }
 
 QRectF TextBlockItem::fittedRect() const {
-  return item_->mapRectToParent(item_->boundingRect());
+  return item_->mapRectToParent(item_->fittedRect());
 }
 
 void TextBlockItem::initializeFormat() {

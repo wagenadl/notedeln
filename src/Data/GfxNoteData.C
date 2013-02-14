@@ -9,6 +9,7 @@ static Data::Creator<GfxNoteData> c("gfxnote");
 GfxNoteData::GfxNoteData(Data *parent): GfxData(parent) {
   setType("gfxnote");
   text_ = new TextData(this);
+  sheet_ = 0;
 }
 
 GfxNoteData::~GfxNoteData() {
@@ -26,6 +27,10 @@ double GfxNoteData::textWidth() const {
   return textWidth_;
 }
 
+int GfxNoteData::sheet() const {
+  return sheet_;
+}
+
 void GfxNoteData::setDx(double d) {
   dx_ = d;
   markModified();
@@ -38,6 +43,11 @@ void GfxNoteData::setDy(double d) {
 
 void GfxNoteData::setTextWidth(double d) {
   textWidth_ = d;
+  markModified();
+}
+
+void GfxNoteData::setSheet(int s) {
+  sheet_ = s;
   markModified();
 }
 

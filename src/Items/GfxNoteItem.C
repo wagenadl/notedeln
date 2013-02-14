@@ -41,6 +41,9 @@ GfxNoteItem::~GfxNoteItem() {
 
 void GfxNoteItem::abandon() {
   BlockItem *ancestor = ancestralBlock();
+  Item *p = parent();
+  if (p)
+    p->data()->deleteChild(data());
   deleteLater();
   if (ancestor)
     ancestor->sizeToFit();

@@ -6,6 +6,7 @@
 #include <QGraphicsSceneHoverEvent>
 #include <QStyleOptionGraphicsItem>
 #include <QStyle>
+#include <QGraphicsScene>
 
 TextItemText::TextItemText(TextItem *parent): QGraphicsTextItem(parent) {
   forcebox = false;
@@ -19,6 +20,21 @@ TextItem *TextItemText::parent() {
 }
 
 void TextItemText::mousePressEvent(QGraphicsSceneMouseEvent *e) {
+  // Following is an ugly way to clear selection from previously
+  // focused text. Can I do better?
+  foreach (QGraphicsItem *i, scene()->items()) {
+    QGraphicsTextItem *gti = dynamic_cast<QGraphicsTextItem*>(i);
+    if (gti && gti!=this) {
+      QTextCursor c = gti->textCursor();
+      if (c.hasSelection()) {
+        c.clearSelection();
+        gti->setTextCursor(c);
+        break;
+      }
+    }
+  }
+  // End of ugly code
+  
   if (parent() && !parent()->mousePress(e)) 
     QGraphicsTextItem::mousePressEvent(e);
 }

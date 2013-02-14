@@ -113,7 +113,7 @@ void PageView::keyPressEvent(QKeyEvent *e) {
       }
       if (item && item->isWritable()) {
 	BlockItem *block = item->ancestralBlock();
-	if (block->allChildren().isEmpty())
+	if (block && block->allChildren().isEmpty())
 	  block->pageScene()->notifyChildless(block);
 	else
 	  deletedStack->grabIfRestorable(item);

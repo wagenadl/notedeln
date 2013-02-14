@@ -31,7 +31,8 @@ BaseScene::BaseScene(Data *data, QObject *parent):
   titleItem = pgNoItem = contdItem = contItem = 0;
   leftMarginItem = topMarginItem = 0;
   bgItem = 0;
-  // must populate!
+
+  setItemIndexMethod(NoIndex);
 }
 
 void BaseScene::populate() {

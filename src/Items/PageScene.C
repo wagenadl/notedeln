@@ -18,6 +18,7 @@
 #include "Assert.H"
 #include "Notebook.H"
 #include "GfxNoteItem.H"
+#include "GfxNoteData.H"
 
 #include <QGraphicsView>
 #include <QGraphicsTextItem>
@@ -155,7 +156,13 @@ void PageScene::positionTitleItem() {
   double dateX = dateItem->mapToScene(dateItem->boundingRect().topLeft()).x();
   titleItemX->setTextWidth(dateX - style().real("margin-left")
 			   - style().real("title-sep") - 5);
-  BaseScene::positionTitleItem();
+  //  BaseScene::positionTitleItem();
+  QPointF bl = titleItemX->fittedRect().bottomLeft();
+  titleItemX->setPos(style_->real("margin-left") -
+		    bl.x() + style_->real("title-sep"),
+		    style_->real("margin-top") -
+		    style_->real("title-sep") -
+		    bl.y());
 
 }
 
@@ -289,7 +296,11 @@ void PageScene::gotoSheet(int i) {
     nOfNItem->setPlainText("");
   positionNofNAndDateItems();
   reshapeBelowItem();
-  repositionContItem();  
+  repositionContItem();
+
+  // Set visibility for title-attached notes
+  foreach (GfxNoteItem *gni, titleItemX->children<GfxNoteItem>()) 
+    gni->setVisible(gni->data()->sheet()==iSheet);
   
   if (oldSheet!=iSheet)
     emit nowOnPage(startPage()+iSheet);
@@ -404,15 +415,15 @@ void PageScene::deleteBlock(int blocki) {
   footnoteGroups.removeAt(blocki);
   remap();
 
-    removeItem(bi);
-    // qDebug() << "removed block from scene" << bi;
-    bi->deleteLater();
-    //    qDebug() << "queued for deletion: " << bi;
-    //delete bi;
+  removeItem(bi);
+  // qDebug() << "removed block from scene" << bi;
+  bi->deleteLater();
+  qDebug() << "queued for deletion: " << bi;
+  //delete bi;
   data_->deleteBlock(bd);
-  //  removeItem(fng);
-  // fng->deleteLater();
-  delete fng;
+  removeItem(fng);
+  fng->deleteLater();
+   // delete fng;
 }
 
 GfxBlockItem *PageScene::newGfxBlock(int iAbove) {
@@ -697,7 +708,12 @@ void PageScene::mousePressEvent(QGraphicsSceneMouseEvent *e) {
   if (inMargin(sp) && itemAt(sp)==bgItem) {
     //qDebug() << "  in margin";
     if (data_->book()->mode()->mode()==Mode::Annotate) {
-      titleItemX->createNote(titleItem->mapFromScene(sp), !data()->isRecent());
+      GfxNoteItem *note = 
+        titleItemX->createNote(titleItem->mapFromScene(sp),
+                               !data()->isRecent());
+      if (note)
+        note->data()->setSheet(iSheet);
+      qDebug() << "created note" << note << iSheet;
       take = true;
     }
   } else if (belowContent(sp)) {
@@ -717,10 +733,14 @@ void PageScene::mousePressEvent(QGraphicsSceneMouseEvent *e) {
 	take = true;
       }
       break;
-    case Mode::Annotate:
-      titleItemX->createNote(titleItem->mapFromScene(sp), !data()->isRecent());
+    case Mode::Annotate: {
+      GfxNoteItem *note = 
+        titleItemX->createNote(titleItem->mapFromScene(sp),
+                               !data()->isRecent());
+      if (note)
+        note->data()->setSheet(iSheet);
       take = true;
-      break;
+    } break;
     default:
       break;
     }

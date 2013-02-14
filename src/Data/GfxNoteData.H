@@ -12,15 +12,18 @@ class GfxNoteData: public GfxData {
   Q_PROPERTY(double dx READ dx WRITE setDx);
   Q_PROPERTY(double dy READ dy WRITE setDy);
   Q_PROPERTY(double textWidth READ textWidth WRITE setTextWidth);
+  Q_PROPERTY(int sheet READ sheet WRITE setSheet);
 public:
   GfxNoteData(class Data *parent=0);
   virtual ~GfxNoteData();
   double dx() const;
   double dy() const;
   double textWidth() const;
+  int sheet() const;
   void setDx(double);
   void setDy(double);
   void setTextWidth(double);
+  void setSheet(int);
   TextData const *text() const;
   TextData *text();
   QPointF endPoint() const;
@@ -38,6 +41,7 @@ private:
   TextData *text_;
   double dx_, dy_;
   double textWidth_;
+  int sheet_;
 };
 
 #endif

@@ -31,6 +31,7 @@ FootnoteItem::FootnoteItem(FootnoteData *data, Item *parent):
   fmt.setTopMargin(0.0);
   fmt.setBottomMargin(0.0);
   tc.setBlockFormat(fmt);
+  text()->setTextWidth(text()->textWidth()); // crazy way to fix HoverRegions
 
   connect(text(), SIGNAL(abandoned()), this, SLOT(abandon()));
 }
