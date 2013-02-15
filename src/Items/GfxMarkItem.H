@@ -15,7 +15,7 @@ class GfxMarkItem: public Item {
 public:
   GfxMarkItem(GfxMarkData *data, Item *parent=0);
   virtual ~GfxMarkItem();
-  GfxMarkData *data();
+  DATAACCESS(GfxMarkData);
   QRectF boundingRect() const;
   void paint(QPainter *, const QStyleOptionGraphicsItem *, QWidget *);
   virtual void makeWritable();
@@ -32,8 +32,6 @@ protected:
   virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *);
 private slots:
   void modeChange(Mode::M);
-private:
-  GfxMarkData *d;
 };
 
 #endif

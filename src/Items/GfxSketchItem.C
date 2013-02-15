@@ -16,8 +16,8 @@
 static Item::Creator<GfxSketchData, GfxSketchItem> c("gfxsketch");
 
 GfxSketchItem::GfxSketchItem(GfxSketchData *data, Item *parent):
-  Item(data, parent), d(data) {
-  setPos(d->pos());
+  Item(data, parent) {
+  setPos(data->pos());
   rebuildPath();
   building = false;
 }
@@ -26,8 +26,8 @@ GfxSketchItem::~GfxSketchItem() {
 }
 
 void GfxSketchItem::rebuildPath() {
-  QList<double> const &xx = d->xx();
-  QList<double> const &yy = d->yy();
+  QList<double> const &xx = data()->xx();
+  QList<double> const &yy = data()->yy();
   ASSERT(xx.size() == yy.size());
   if (xx.isEmpty()) {
     path = QPainterPath();
@@ -37,15 +37,10 @@ void GfxSketchItem::rebuildPath() {
       path.lineTo(xx[i], yy[i]);
   }
   QPainterPathStroker stroker;
-  stroker.setWidth(d->lineWidth() + 1);
+  stroker.setWidth(data()->lineWidth() + 1);
   stroked = stroker.createStroke(path);
 }
   
-
-GfxSketchData *GfxSketchItem::data() {
-  return d;
-}
-
 QRectF GfxSketchItem::boundingRect() const {
   return path.boundingRect();
 }
@@ -57,8 +52,8 @@ QPainterPath GfxSketchItem::shape() const {
 void GfxSketchItem::paint(QPainter *p,
 			  const QStyleOptionGraphicsItem *,
 			  QWidget *) {
-  QPen pen(d->color());
-  pen.setWidthF(d->lineWidth());
+  QPen pen(data()->color());
+  pen.setWidthF(data()->lineWidth());
   p->setPen(pen);
   p->drawPath(path);
 }
@@ -86,8 +81,8 @@ void GfxSketchItem::build() {
   building = true;
   if (ancestralBlock())
     ancestralBlock()->lockBounds();
-  d->clear();
-  d->addPoint(QPointF(0, 0), true); // by definition, we start at the origin
+  data()->clear();
+  data()->addPoint(QPointF(0, 0), true); // by def., we start at the origin
   droppedPoints.clear();
   QEventLoop el;
   connect(this, SIGNAL(doneBuilding()),
@@ -99,7 +94,7 @@ void GfxSketchItem::build() {
   building = false;
   if (ancestralBlock())
     ancestralBlock()->unlockBounds();
-  d->markModified();
+  data()->markModified();
 }
   
 void GfxSketchItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
@@ -150,8 +145,8 @@ static double distance(QLineF l, QPointF p) {
 void GfxSketchItem::mouseMoveEvent(QGraphicsSceneMouseEvent *e) {
   if (building) {
     QPointF p = e->pos();
-    QList<double> const &xx = d->xx();
-    QList<double> const &yy = d->yy();
+    QList<double> const &xx = data()->xx();
+    QList<double> const &yy = data()->yy();
     int N = xx.size();
     bool okToDropPrevious = false;
     if (N>=2) {
@@ -169,10 +164,10 @@ void GfxSketchItem::mouseMoveEvent(QGraphicsSceneMouseEvent *e) {
       }
     }
     if (okToDropPrevious) {
-      d->setPoint(N-1, p, true);
+      data()->setPoint(N-1, p, true);
     } else {
       droppedPoints.clear();
-      d->addPoint(p, true);
+      data()->addPoint(p, true);
     }
     prepareGeometryChange();
     rebuildPath();
@@ -187,7 +182,7 @@ void GfxSketchItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *e) {
   if (building) {
     emit doneBuilding();
   } else {
-    d->setPos(pos());
+    data()->setPos(pos());
     if (ancestralBlock())
       ancestralBlock()->unlockBounds();
     e->accept();

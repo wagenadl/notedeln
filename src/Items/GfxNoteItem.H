@@ -6,13 +6,14 @@
 
 #include "Item.H"
 #include <QGraphicsObject>
+#include "GfxNoteData.H"
 
 class GfxNoteItem: public Item {
   Q_OBJECT;  
 public:
-  GfxNoteItem(class GfxNoteData *data, Item *parent=0);
+  GfxNoteItem(GfxNoteData *data, Item *parent=0);
   virtual ~GfxNoteItem();
-  GfxNoteData *data();
+  DATAACCESS(GfxNoteData);
   QRectF boundingRect() const;
   QRectF netBoundingRect() const;
   void paint(QPainter *, const QStyleOptionGraphicsItem *, QWidget *);
@@ -27,7 +28,6 @@ private slots:
   void updateTextPos();
   void abandon();
 protected:
-  GfxNoteData *data_;
   class TextItem *text;
   QGraphicsLineItem *line;
   bool resizing;

@@ -9,14 +9,18 @@
 #include <QObject>
 #include <Qt>
 #include "Style.H"
+#include "Assert.H"
+
+#define DATAACCESS(T) T const *data() const { return constCastData<T>(); } \
+                      T *data() { return castData<T>(); }
 
 class Item: public QGraphicsObject {
   Q_OBJECT;
 public:
   Item(Data *d, Item *parent);
   virtual ~Item();
-  void deleteLater();
-  Data *data();
+  virtual void deleteLater();
+  DATAACCESS(Data);
   Item *parent() const;
   class PageScene *pageScene() const;
   class Mode const *mode() const;
@@ -58,6 +62,16 @@ protected:
   static Qt::CursorShape defaultCursor();
   virtual void hoverEnterEvent(QGraphicsSceneHoverEvent *);
   virtual void hoverLeaveEvent(QGraphicsSceneHoverEvent *);
+  template<class T> T *castData() {
+    T *d1 = dynamic_cast<T *>(d);
+    ASSERT(d1);
+    return d1;
+  }
+  template<class T> T const *constCastData() const {
+    T const *d1 = dynamic_cast<T const*>(d);
+    ASSERT(d1);
+    return d1;
+  }
 private:
   static QMap<QString, Item *(*)(Data *, Item *)> &creators();
 private: // these must never be called

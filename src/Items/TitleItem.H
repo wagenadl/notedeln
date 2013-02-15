@@ -13,13 +13,14 @@ class TitleItem: public TextItem {
 public:
   TitleItem(TitleData *data, Item *parent=0);
   virtual ~TitleItem();
-  TitleData *data() const;
+  TitleData const *data() const { ASSERT(d); return d; }
+  TitleData *data() { ASSERT(d); return d; }
+  virtual void deleteLater();
 protected slots:
   virtual void docChange();
 private:
   virtual bool focusIn(QFocusEvent *);
-private:
-  TitleData *data_;
+  TitleData *d;
 };
 
 #endif

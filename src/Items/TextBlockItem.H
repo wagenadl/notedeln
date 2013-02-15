@@ -6,16 +6,15 @@
 
 #include "BlockItem.H"
 #include "FutileMovementInfo.H"
-
+#include "TextBlockData.H"
 #include <QTextCursor>
 
 class TextBlockItem: public BlockItem {
   Q_OBJECT;
 public:
-public:
-  TextBlockItem(class TextBlockData *data, Item *parent=0);
+  TextBlockItem(TextBlockData *data, Item *parent=0);
   virtual ~TextBlockItem();
-  TextBlockData *data(); // benevolently hides inherited version
+  DATAACCESS(TextBlockData);
   QTextDocument *document() const;
   class TextItem *text();
   void setFocus();
@@ -35,7 +34,6 @@ private slots:
 private:
   void initializeFormat();
 private:
-  TextBlockData *data_; // we don't own
   class TextItem *item_; // we do own
   FutileMovementInfo fmi;
 };

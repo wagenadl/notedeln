@@ -7,13 +7,14 @@
 #include "BlockItem.H"
 #include <Qt>
 #include <QUrl>
+#include "GfxBlockData.H"
 
 class GfxBlockItem: public BlockItem {
   Q_OBJECT;
 public:
-  GfxBlockItem(class GfxBlockData *data, Item *parent=0);
+  GfxBlockItem(GfxBlockData *data, Item *parent=0);
   virtual ~GfxBlockItem();
-  GfxBlockData *data(); // benevolently hides inherited version
+  DATAACCESS(GfxBlockData);
   Item *newImage(QImage img, QUrl src, QPointF xy);
   Item *newImage(QUrl src, QPointF xy);
   void paint(QPainter *, const QStyleOptionGraphicsItem *, QWidget *);
@@ -25,8 +26,6 @@ private:
   double availableWidth() const;
   void drawGrid(QPainter *p, QRectF const &bb, double dx);
   void createMark(QPointF pos);
-private:
-  GfxBlockData *data_;
 };
 
 #endif

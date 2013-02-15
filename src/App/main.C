@@ -15,6 +15,7 @@
 
 int main(int argc, char **argv) {
   App app(argc, argv);
+  eln_grabsignals();
   app.setWindowIcon(QIcon(":/eln.png"));
 
   Notebook *nb = 0;

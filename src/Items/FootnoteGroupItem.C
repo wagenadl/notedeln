@@ -9,7 +9,7 @@
 #include <QDebug>
 
 FootnoteGroupItem::FootnoteGroupItem(BlockData *data, PageScene *parent):
-  Item(data, 0), data(data) {
+  Item(data, 0) {
   parent->addItem(this);
   foreach (FootnoteData *fd, data->children<FootnoteData>()) {
     FootnoteItem *fni = new FootnoteItem(fd, this);

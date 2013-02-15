@@ -12,7 +12,7 @@
 static Item::Creator<GfxNoteData, GfxNoteItem> c("gfxnote");
 
 GfxNoteItem::GfxNoteItem(GfxNoteData *data, Item *parent):
-  Item(data, parent), data_(data) {
+  Item(data, parent) {
   setPos(data->pos());
   if (data->lineLengthIsZero()) {
     line = 0;
@@ -50,29 +50,29 @@ void GfxNoteItem::abandon() {
 }
 
 void GfxNoteItem::updateTextPos() {
-  QPointF p = data_->delta();
+  QPointF p = data()->delta();
   double yof = style().real("note-y-offset");
   p += QPointF(0, yof);
-  if (data_->dx() < 0)
+  if (data()->dx() < 0)
     p -= QPointF(text->boundingRect().width(), 0);
   text->setPos(p);
 
   QRectF sr = text->sceneBoundingRect();
-  if (data_->textWidth()<1) {
-    if (data_->dx()>=0) {
+  if (data()->textWidth()<1) {
+    if (data()->dx()>=0) {
       if (sr.right() >= style().real("page-width")
           - style().real("margin-right-over")) {
         double tw = style().real("page-width")
           - style().real("margin-right-over")
           - sr.left();
-        data_->setTextWidth(tw);
+        data()->setTextWidth(tw);
         text->setTextWidth(tw);
       }
     } else {
       if (sr.left() <= style().real("margin-left")/2) {
         double tw = sr.right()
           - style().real("margin-left")/2;
-        data_->setTextWidth(tw);
+        data()->setTextWidth(tw);
         text->setTextWidth(tw);
       }
     }
@@ -109,21 +109,21 @@ void GfxNoteItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *e) {
   //  unlockBounds();
   ungrabMouse();
   if (resizing) {
-    data_->setTextWidth(text->textWidth());
+    data()->setTextWidth(text->textWidth());
     text->setBoxVisible(false);
   } else {
     if (line) {
       QLineF l = line->line();
       QPointF p0 = mapToParent(l.p1());
       QPointF p1 = l.p2() - l.p1();
-      data_->setPos(p0);
-      data_->setDelta(p1);
+      data()->setPos(p0);
+      data()->setDelta(p1);
       setPos(p0);
       line->setLine(QLineF(QPointF(0,0), p1));
     } else {
       QPointF p0 = mapToParent(text->pos()
 			       - QPointF(0, style().real("note-y-offset")));
-      data_->setPos(p0);
+      data()->setPos(p0);
       setPos(p0);
     }
     updateTextPos();
@@ -153,7 +153,7 @@ void GfxNoteItem::childMousePress(QPointF, Qt::MouseButton b, bool resizeFlag) {
     //    lockBounds();
     resizing = resizeFlag;
     if (resizing) {
-      if (data_->textWidth()<1)
+      if (data()->textWidth()<1)
 	text->setTextWidth(text->boundingRect().width()+2);
       text->setBoxVisible(true);
     }
@@ -164,8 +164,4 @@ void GfxNoteItem::childMousePress(QPointF, Qt::MouseButton b, bool resizeFlag) {
 void GfxNoteItem::makeWritable() {
   text->makeWritable();
   text->setAllowMoves();
-}
-
-GfxNoteData *GfxNoteItem::data()  {
-  return data_;
 }

@@ -6,13 +6,14 @@
 
 #include "TextBlockItem.H"
 #include "FutileMovementInfo.H"
+#include "FootnoteData.H"
 
 class FootnoteItem: public TextBlockItem {
   Q_OBJECT;
 public:
-  FootnoteItem(class FootnoteData *data, Item *parent);
+  FootnoteItem(FootnoteData *data, Item *parent);
   virtual ~FootnoteItem();
-  FootnoteData *data();
+  DATAACCESS(FootnoteData);
   class QGraphicsTextItem *tag();
   void setTagText(QString); // updates data
   QString tagText() const;
@@ -22,7 +23,6 @@ private:
 private slots:
   void abandon();
 private:
-  FootnoteData *data_;
   QGraphicsTextItem *tag_;
 };
 

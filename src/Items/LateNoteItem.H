@@ -5,11 +5,13 @@
 #define LATENOTEITEM_H
 
 #include "GfxNoteItem.H"
+#include "LateNoteData.H"
 
 class LateNoteItem: public GfxNoteItem {
 public:
-  LateNoteItem(class LateNoteData *data, Item *parent=0);
+  LateNoteItem(LateNoteData *data, Item *parent=0);
   virtual ~LateNoteItem();
+  DATAACCESS(LateNoteData);
   static LateNoteItem *newNote(QPointF p0, QPointF p1, Item *parent);
 protected:
   virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *);

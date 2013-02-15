@@ -6,13 +6,14 @@
 
 #include <QGraphicsObject>
 #include "Item.H"
+#include "BlockData.H"
 
 class BlockItem: public Item {
   Q_OBJECT;
 public:
-  BlockItem(class BlockData *data, Item *parent);
+  BlockItem(BlockData *data, Item *parent);
   virtual ~BlockItem();
-  BlockData *data();
+  DATAACCESS(BlockData);
   virtual BlockItem const *ancestralBlock() const;
   virtual BlockItem *ancestralBlock();
   QRectF boundingRect() const;
@@ -25,7 +26,6 @@ public slots:
   void unlockBounds();
   void refTextChange(QString olds, QString news);
 private:
-  BlockData *data_;
   QRectF bbox;
   bool bbLocked;
 };

@@ -13,19 +13,15 @@
 static Item::Creator<GfxMarkData, GfxMarkItem> c("gfxmark");
 
 GfxMarkItem::GfxMarkItem(GfxMarkData *data, Item *parent):
-  Item(data, parent), d(data) {
-  setPos(d->pos());
+  Item(data, parent) {
+  setPos(data->pos());
 }
 
 GfxMarkItem::~GfxMarkItem() {
 }
 
-GfxMarkData *GfxMarkItem::data() {
-  return d;
-}
-
 QRectF GfxMarkItem::boundingRect() const {
-  double s = d->size() + 1; // add +1 for line width
+  double s = data()->size() + 1; // add +1 for line width
   return QRectF(-s,-s,2*s,2*s);
 }
 
@@ -33,7 +29,7 @@ void GfxMarkItem::paint(QPainter *p,
 			const QStyleOptionGraphicsItem *,
 			QWidget *) {
   renderMark(QPointF(0,0),
-	     d->color(), d->size(), d->shape(),
+	     data()->color(), data()->size(), data()->shape(),
 	     p);
 }
 
@@ -136,7 +132,7 @@ void GfxMarkItem::mouseMoveEvent(QGraphicsSceneMouseEvent *e) {
 }
 
 void GfxMarkItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *e) {
-  d->setPos(pos());
+  data()->setPos(pos());
   if (ancestralBlock())
     ancestralBlock()->unlockBounds();
   e->accept();

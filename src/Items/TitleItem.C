@@ -6,7 +6,7 @@
 #include <QTextDocument>
 
 TitleItem::TitleItem(TitleData *data, Item *parent):
-  TextItem(data->current(), parent), data_(data) {
+  TextItem(data->current(), parent), d(data) {
 
   setFont(style().font("title-font"));
   setDefaultTextColor(style().color("title-color"));
@@ -18,14 +18,16 @@ TitleItem::TitleItem(TitleData *data, Item *parent):
 TitleItem::~TitleItem() {
 }
 
-TitleData *TitleItem::data() const {
-  return data_;
+void TitleItem::deleteLater() {
+  ASSERT(d);
+  d = 0;
+  TextItem::deleteLater();
 }
 
 void TitleItem::docChange() {
   QString plainText = text->toPlainText();
-  if (data_->current()->text() != plainText)
-    data_->revise();
+  if (data()->current()->text() != plainText)
+    data()->revise();
 
   TextItem::docChange();
 }

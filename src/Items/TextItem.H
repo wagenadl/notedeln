@@ -10,12 +10,14 @@
 #include "Item.H"
 #include "TextItemText.H"
 #include "Mode.H"
+#include "TextData.H"
 
 class TextItem: public Item {
   Q_OBJECT;
 public:
-  TextItem(class TextData *data, Item *parent);
+  TextItem(TextData *data, Item *parent);
   ~TextItem();
+  DATAACCESS(TextData);
   virtual void makeWritable();
   bool allowParagraphs() const;
   void setAllowParagraphs(bool yes);
@@ -24,7 +26,6 @@ public:
   void addMarkup(MarkupData *); // we appropriate the data!
   bool allowNotes() const;
   void setAllowNotes(bool y=true);
-  TextData *data();
   void insertBasicHtml(QString html, int pos);
   // Only <b> and <i> tags are supported at present
   int pointToPos(QPointF) const;
@@ -90,7 +91,6 @@ public:
   virtual QRectF boundingRect() const;
   virtual void paint(QPainter*, const QStyleOptionGraphicsItem*, QWidget*);
 protected:
-  TextData *data_;
   bool mayMark;
   bool mayNote;
   bool allowParagraphs_;

@@ -33,7 +33,7 @@
 #include "LateNoteData.H" 
 
 TextItem::TextItem(TextData *data, Item *parent):
-  Item(data, parent), data_(data) {
+  Item(data, parent) {
   text = new TextItemText(this);
   foreach (LateNoteData *lnd, data->children<LateNoteData>()) 
     create(lnd, this);
@@ -47,17 +47,13 @@ TextItem::TextItem(TextData *data, Item *parent):
   lateMarkType = MarkupData::Normal;
   allowParagraphs_ = true;
 
-  text->setPlainText(data_->text());  
-  markings_ = new TextMarkings(data_, this);
+  text->setPlainText(data->text());  
+  markings_ = new TextMarkings(data, this);
 
   initializeFormat();
 
   connect(document(), SIGNAL(contentsChange(int, int, int)),
 	  this, SLOT(docChange()));
-}
-
-TextData *TextItem::data() {
-  return data_;
 }
 
 bool TextItem::allowNotes() const {
@@ -96,12 +92,12 @@ void TextItem::initializeFormat() {
 
 void TextItem::docChange() {
   QString plainText = text->toPlainText();
-  if (data_->text() == plainText) {
+  if (data()->text() == plainText) {
     // trivial change; this happens if markup changes
     return;
   }
   ASSERT(isWritable());
-  data_->setText(plainText);
+  data()->setText(plainText);
   emit textChanged();
 }
 
@@ -238,7 +234,7 @@ void TextItem::mouseMoveEvent(QGraphicsSceneMouseEvent *evt) {
   
   if (lateMarkType==MarkupData::Normal) {
     // unmark
-    foreach (MarkupData *md, data_->children<MarkupData>()) {
+    foreach (MarkupData *md, data()->children<MarkupData>()) {
       if (md->isRecent() && (md->style()==MarkupData::Emphasize
                              || md->style()==MarkupData::StrikeThrough)) {
         int mds = md->start();
@@ -266,7 +262,7 @@ void TextItem::mouseMoveEvent(QGraphicsSceneMouseEvent *evt) {
     addMarkup(lateMarkType, s, e); // will be auto-merged
   }
   qDebug() << "  -> markings now:";
-  foreach (MarkupData *md, data_->children<MarkupData>()) 
+  foreach (MarkupData *md, data()->children<MarkupData>()) 
     qDebug() << "    " << md->styleName(md->style())
              << md->start() << md->end();
 }
@@ -354,7 +350,7 @@ bool TextItem::tryTeXCode() {
     int start = m.hasSelection() ? m.selectionEnd() : 0;
     m = document()->find(QRegExp("([^A-Za-z])"),
 			 start);
-    int end = m.hasSelection() ? m.selectionStart() : data_->text().size();
+    int end = m.hasSelection() ? m.selectionStart() : data()->text().size();
     c.setPosition(start);
     c.setPosition(end, QTextCursor::KeepAnchor);
   }
@@ -539,7 +535,7 @@ void TextItem::toggleSimpleStyle(MarkupData::Style type) {
 				     QTextDocument::FindBackward);
     start = m.hasSelection() ? m.selectionEnd() : 0;
     m = document()->find(QRegExp("\\W"), c);
-    end = m.hasSelection() ? m.selectionStart() : data_->text().size();
+    end = m.hasSelection() ? m.selectionStart() : data()->text().size();
   }
   
   if (oldmd && oldmd->start()==start && oldmd->end()==end) 
@@ -596,7 +592,7 @@ MarkupData *TextItem::markupAt(int pos, MarkupData::Style typ) {
 }
 
 MarkupData *TextItem::markupAt(int start, int end, MarkupData::Style typ) {
-  foreach (MarkupData *md, data_->children<MarkupData>()) 
+  foreach (MarkupData *md, data()->children<MarkupData>()) 
     if (md->style()==typ && md->end()>=start && md->start()<=end)
       return md;
   return 0;
@@ -658,7 +654,7 @@ bool TextItem::tryFootnote() {
     QString mrk = m.selectedText();
     start = m.hasSelection() ? m.selectionEnd() : 0;
     m = document()->find(QRegExp("[^-\\w]"), c);
-    end = m.hasSelection() ? m.selectionStart() : data_->text().size();
+    end = m.hasSelection() ? m.selectionStart() : data()->text().size();
     if (start==end && start>0) 
       if (approvedMark(mrk))
 	--start; // markup is a single non-word char like "*".

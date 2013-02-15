@@ -110,8 +110,10 @@ void Data::loadResTags(QVariantMap const &src) {
 }
 
 void Data::loadChildren(QVariantMap const &src) {
-  foreach (Data *d, children_)
+  foreach (Data *d, children_) {
+    d->setParent(0); // prevent warning
     delete d;
+  }
   children_.clear();
 
   if (!src.contains("cc"))

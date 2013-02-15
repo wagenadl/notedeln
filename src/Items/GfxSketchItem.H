@@ -15,7 +15,7 @@ class GfxSketchItem: public Item {
 public:
   GfxSketchItem(GfxSketchData *data, Item *parent=0);
   virtual ~GfxSketchItem();
-  GfxSketchData *data();
+  DATAACCESS(GfxSketchData);
   virtual QRectF boundingRect() const;
   virtual QPainterPath shape() const;
   virtual void paint(QPainter *, const QStyleOptionGraphicsItem *, QWidget *);
@@ -36,7 +36,6 @@ private:
 signals:
   void doneBuilding();
 private:
-  GfxSketchData *d;
   bool building;
   QList<QPointF> droppedPoints; // used during building
   QPainterPath path;

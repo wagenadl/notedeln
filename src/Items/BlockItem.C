@@ -12,15 +12,11 @@
 #include <QDebug>
 
 BlockItem::BlockItem(BlockData *data, Item *parent):
-  Item(data, parent), data_(data) {
+  Item(data, parent) {
   bbLocked = false;
 }
 
 BlockItem::~BlockItem() {
-}
-
-BlockData *BlockItem::data() {
-  return data_;
 }
 
 QRectF BlockItem::boundingRect() const {

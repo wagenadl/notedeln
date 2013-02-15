@@ -14,14 +14,12 @@
 #include "Assert.H"
 
 TextBlockItem::TextBlockItem(TextBlockData *data, Item *parent):
-  BlockItem(data, parent),
-  data_(data) {
-  ASSERT(data);
+  BlockItem(data, parent) {
   item_ = 0;
 
   setPos(style().real("margin-left"), 0);
 
-  item_ = new TextItem(data_->text(), this);
+  item_ = new TextItem(data->text(), this);
 
   initializeFormat();
   item_->setAllowParagraphs(false);
@@ -69,10 +67,6 @@ void TextBlockItem::initializeFormat() {
   //  fmt.setBottomMargin(style().real("paragraph-bottom-margin"));
   tc.setBlockFormat(fmt);
 }  
-
-TextBlockData *TextBlockItem::data() {
-  return data_;
-}
 
 void TextBlockItem::setFocus() {
   // do we need to check whether we want it?

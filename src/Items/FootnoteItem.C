@@ -10,8 +10,7 @@
 #include <QDebug>
 
 FootnoteItem::FootnoteItem(FootnoteData *data, Item *parent):
-  TextBlockItem(data, parent), data_(data) {
-  ASSERT(data);
+  TextBlockItem(data, parent) {
   ASSERT(data->book());
   tag_ = new QGraphicsTextItem(this);
 
@@ -40,11 +39,7 @@ FootnoteItem::~FootnoteItem() {
 }
 
 bool FootnoteItem::setAutoContents() {
-  return AutoNote::autoNote(data_->tag(), text(), style());
-}
-
-FootnoteData *FootnoteItem::data() {
-  return data_;
+  return AutoNote::autoNote(data()->tag(), text(), style());
 }
 
 QGraphicsTextItem *FootnoteItem::tag() {
@@ -52,12 +47,12 @@ QGraphicsTextItem *FootnoteItem::tag() {
 }
 
 void FootnoteItem::setTagText(QString t) {
-  data_->setTag(t);
+  data()->setTag(t);
   updateTag();
 }
 
 QString FootnoteItem::tagText() const {
-  return data_->tag();
+  return data()->tag();
 }
 
 void FootnoteItem::updateTag() {
@@ -73,14 +68,4 @@ void FootnoteItem::updateTag() {
 void FootnoteItem::abandon() {
   // Until we figure out how to unmark references, let's just not
   // delete abandoned notes.
-#if 0
-  // we are now empty. let's delete ourselves
-  itemParent()->deleteChild(this);
-  data_->parent()->takeChild(data_);
-  data_->deleteLater();
-  FootnoteGroupItem *fng = dynamic_cast<FootnoteGroupItem*>(itemParent());
-  if (fng)
-    fng->restack();
-  // we should somehow unmark references to us.
-#endif
 }

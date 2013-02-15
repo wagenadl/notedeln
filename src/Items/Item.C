@@ -27,17 +27,16 @@ Item::~Item() {
 }
 
 void Item::deleteLater() {
+  ASSERT(d);
+  d = 0;
   QGraphicsObject::setParentItem(0);
   if (scene()) 
     scene()->removeItem(this);
   QGraphicsObject::deleteLater();
 }
 
-Data *Item::data() {
-  return d;
-}
-
 Style const &Item::style() const {
+  ASSERT(d);
   Notebook *n = d->book();
   if (n)
     return n->style();
@@ -55,6 +54,7 @@ bool Item::isWritable() const {
 }
 
 void Item::makeWritable() {
+  ASSERT(d);
   writable = true;
 }
 
@@ -84,6 +84,7 @@ QMap<QString, Item *(*)(Data *, Item *)> &Item::creators() {
 }
   
 QRectF Item::netChildBoundingRect() const {
+  ASSERT(d);
   QRectF bb;
   foreach (Item *i, allChildren()) {
     if (!i->isExtraneous()) {
@@ -117,6 +118,7 @@ Qt::CursorShape Item::defaultCursor() {
 }
 
 GfxNoteItem *Item::newNote(QPointF p0, QPointF p1, bool late) {
+  ASSERT(d);
   GfxNoteItem *n = late
     ? LateNoteItem::newNote(p0, p1, this)
     : GfxNoteItem::newNote(p0, p1, this);
@@ -126,6 +128,7 @@ GfxNoteItem *Item::newNote(QPointF p0, QPointF p1, bool late) {
 }
 
 GfxNoteItem *Item::createNote(QPointF p0, bool late) {
+  ASSERT(d);
   QPointF p1 = DragLine::drag(this, p0);
   return newNote(p0, p1, late);
 }
@@ -137,6 +140,7 @@ static bool shouldGlow(Data *d) {
 }
 
 void Item::hoverEnterEvent(QGraphicsSceneHoverEvent *) {
+  ASSERT(d);
   if (writable && shouldGlow(d) && mode()->mode()==Mode::MoveResize) {
     QGraphicsDropShadowEffect *eff = new QGraphicsDropShadowEffect(this);
     eff->setColor(QColor("#00ff33"));
@@ -147,6 +151,7 @@ void Item::hoverEnterEvent(QGraphicsSceneHoverEvent *) {
 }
 
 void Item::hoverLeaveEvent(QGraphicsSceneHoverEvent *) {
+  ASSERT(d);
   setGraphicsEffect(0);
 }
 

@@ -5,8 +5,15 @@
 #define ASSERT_H
 
 #include <QObject>
+#include <QStringList>
 
 void eln_backtrace(int skip=0);
+
+QStringList eln_calltrace();
+QString eln_quickcalltrace();
+
+void eln_grabsignals();
+void eln_ungrabsignals();
 
 void eln_assert(char const *assertion, char const *file, int line);
 

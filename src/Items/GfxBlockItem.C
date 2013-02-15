@@ -20,7 +20,7 @@
 #include "Assert.H"
 
 GfxBlockItem::GfxBlockItem(GfxBlockData *data, Item *parent):
-  BlockItem(data, parent), data_(data) {
+  BlockItem(data, parent) {
 
   foreach (GfxData *g, data->gfx()) 
     create(g, this);
@@ -31,10 +31,6 @@ GfxBlockItem::GfxBlockItem(GfxBlockData *data, Item *parent):
 }
 
 GfxBlockItem::~GfxBlockItem() {
-}
-
-GfxBlockData *GfxBlockItem::data() {
-  return data_;
 }
 
 static QPointF constrainPointToRect(QPointF p, QRectF rect) {
