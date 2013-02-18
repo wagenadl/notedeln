@@ -53,11 +53,11 @@ void GfxNoteItem::updateTextPos() {
   QPointF p = data()->delta();
   double yof = style().real("note-y-offset");
   p += QPointF(0, yof);
+  QRectF sr = text->mapRectToScene(text->fittedRect());
   if (data()->dx() < 0)
-    p -= QPointF(text->boundingRect().width(), 0);
+    p -= QPointF(sr.width(), 0);
   text->setPos(p);
 
-  QRectF sr = text->sceneBoundingRect();
   if (data()->textWidth()<1) {
     if (data()->dx()>=0) {
       if (sr.right() >= style().real("page-width")
@@ -89,9 +89,12 @@ void GfxNoteItem::paint(QPainter *,
 }
 
 void GfxNoteItem::mouseMoveEvent(QGraphicsSceneMouseEvent *e) {
-  QPointF delta = e->pos() - e->lastPos();
+  QPointF delta = e->pos() - e->buttonDownPos(Qt::LeftButton);
   if (resizing) {
-    text->setTextWidth(text->textWidth() + delta.x());
+    double w = initialTextWidth + delta.x();
+    if (w<30)
+      w = 30;
+    text->setTextWidth(w);
   } else {
     text->setPos(text->pos() + delta);
     if (line) {
@@ -109,7 +112,12 @@ void GfxNoteItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *e) {
   //  unlockBounds();
   ungrabMouse();
   if (resizing) {
-    data()->setTextWidth(text->textWidth());
+    QPointF delta = e->pos() - e->buttonDownPos(Qt::LeftButton);
+    double w = initialTextWidth + delta.x();
+    if (w<30) // Arb. minimum to prevent strangeness when a single character
+      w = 30; // doesn't fit.
+    text->setTextWidth(w);
+    data()->setTextWidth(w);
     text->setBoxVisible(false);
   } else {
     if (line) {
@@ -153,8 +161,13 @@ void GfxNoteItem::childMousePress(QPointF, Qt::MouseButton b, bool resizeFlag) {
     //    lockBounds();
     resizing = resizeFlag;
     if (resizing) {
-      if (data()->textWidth()<1)
-	text->setTextWidth(text->boundingRect().width()+2);
+      qDebug() << "Start note resize";
+      initialTextWidth = data()->textWidth();
+      if (initialTextWidth<1) {
+	initialTextWidth = text->fittedRect().width()+2;
+	text->setTextWidth(initialTextWidth);
+      }
+      qDebug() << "  initial width = " << initialTextWidth;
       text->setBoxVisible(true);
     }
     grabMouse();

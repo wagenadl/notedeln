@@ -31,6 +31,7 @@ protected:
   class TextItem *text;
   QGraphicsLineItem *line;
   bool resizing;
+  double initialTextWidth;
 };
 
 #endif
