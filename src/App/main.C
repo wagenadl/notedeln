@@ -57,7 +57,8 @@ int main(int argc, char **argv) {
   QObject::connect(&app, SIGNAL(aboutToQuit()), nb, SLOT(flush()));
   
   PageEditor *editor = new PageEditor(nb);
-  editor->setWindowTitle(nb->bookData()->title() + " - eln");
+  QString ttl = nb->bookData()->title();
+  editor->setWindowTitle(ttl.replace(QRegExp("\\s\\s*"), " ") + " - eln");
   QSizeF size = editor->sizeHint();
   double dpiX = app.desktop()->logicalDpiX();
   double dpiY = app.desktop()->logicalDpiY();
