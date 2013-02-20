@@ -446,7 +446,11 @@ GfxBlockItem *PageScene::newGfxBlock(int iAbove) {
   }
 
   GfxBlockData *gbd = new GfxBlockData();
-  data_->addBlock(gbd);
+  QList<BlockData *> existingBlocks = data_->blocks();
+  if (iNew<existingBlocks.size())
+    data_->insertBlockBefore(gbd, existingBlocks[iNew]);
+  else
+    data_->addBlock(gbd);
   GfxBlockItem *gbi = new GfxBlockItem(gbd);
   addItem(gbi);
   gbi->makeWritable();
