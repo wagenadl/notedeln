@@ -89,13 +89,14 @@ void GfxNoteItem::paint(QPainter *,
 }
 
 void GfxNoteItem::mouseMoveEvent(QGraphicsSceneMouseEvent *e) {
-  QPointF delta = e->pos() - e->buttonDownPos(Qt::LeftButton);
   if (resizing) {
+    QPointF delta = e->pos() - e->buttonDownPos(Qt::LeftButton);
     double w = initialTextWidth + delta.x();
     if (w<30)
       w = 30;
     text->setTextWidth(w);
   } else {
+    QPointF delta = e->pos() - e->lastPos();
     text->setPos(text->pos() + delta);
     if (line) {
       QLineF l = line->line(); // origLine;
@@ -112,12 +113,7 @@ void GfxNoteItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *e) {
   //  unlockBounds();
   ungrabMouse();
   if (resizing) {
-    QPointF delta = e->pos() - e->buttonDownPos(Qt::LeftButton);
-    double w = initialTextWidth + delta.x();
-    if (w<30) // Arb. minimum to prevent strangeness when a single character
-      w = 30; // doesn't fit.
-    text->setTextWidth(w);
-    data()->setTextWidth(w);
+    data()->setTextWidth(text->textWidth());
     text->setBoxVisible(false);
   } else {
     if (line) {
