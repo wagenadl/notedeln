@@ -5,6 +5,7 @@
 #include "BookData.H"
 #include "Notebook.H"
 #include "Style.H"
+#include "RoundedRect.H"
 
 #include <math.h>
 #include <QTextBlockFormat>
@@ -15,6 +16,7 @@
 #include <QDebug>
 #include <QPainter>
 #include <QTextDocument>
+
 
 FrontScene::FrontScene(Notebook *book, QObject *parent):
   QGraphicsScene(parent),
@@ -83,6 +85,10 @@ void FrontScene::makeBackground() {
 	  QBrush(style.color("background-color")));
 
   QImage img(book->filePath("front.jpg"));
+  bool customFront = !img.isNull();
+  if (!customFront)
+    img = QImage(":/front.jpg");
+  
   if (!img.isNull()) {
     if (style.contains("front-recolor")) {
       QColor c(style.color("front-recolor"));
@@ -115,6 +121,16 @@ void FrontScene::makeBackground() {
     t.scale(style.real("page-width")/img.width(),
 	    style.real("page-height")/img.height());
     bg->setTransform(t);
+  }
+
+  if (customFront) {
+    toprect = 0;
+    bottomrect = 0;
+  } else {
+    toprect = new RoundedRect();
+    addItem(toprect);
+    bottomrect = new RoundedRect();
+    addItem(bottomrect);
   }
 }
 
@@ -157,6 +173,22 @@ void FrontScene::positionItems() {
   centerAt(author, xc, style.real("front-author-y"));
   centerAt(address, xc, style.real("front-address-y"));
   centerAt(dates, xc, style.real("front-dates-y"));
+
+  if (toprect) {
+    QRectF tr = title->sceneBoundingRect();
+    tr |= dates->sceneBoundingRect();
+    tr.adjust(-36, -18, 36, 18); // to be improved
+    toprect->setPos(tr.topLeft());
+    toprect->resize(tr.size());
+  }
+
+  if (bottomrect) {
+    QRectF br = author->sceneBoundingRect();
+    br |= address->sceneBoundingRect();
+    br.adjust(-36, -18, 36, 18); // to be improved
+    bottomrect->setPos(br.topLeft());
+    bottomrect->resize(br.size());
+  } 
 }
 
 void FrontScene::print(QPrinter *, QPainter *p) {

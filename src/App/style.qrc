@@ -2,6 +2,5 @@
  <qresource>
      <file>style.json</file>
      <file>front.jpg</file>
-     <file>splash.jpg</file>
  </qresource>
 </RCC>

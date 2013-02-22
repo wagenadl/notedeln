@@ -48,7 +48,7 @@ void SplashScene::makeBackground() {
 	  QPen(Qt::NoPen),
 	  QBrush(style.color("background-color")));
 
-  QImage img(":/splash.jpg");
+  QImage img(":/front.jpg");
   QGraphicsPixmapItem *bg = new QGraphicsPixmapItem();
   bg->setPixmap(QPixmap::fromImage(img));
   addItem(bg);

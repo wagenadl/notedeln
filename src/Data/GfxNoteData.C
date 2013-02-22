@@ -51,10 +51,6 @@ void GfxNoteData::setSheet(int s) {
   markModified();
 }
 
-QPointF GfxNoteData::endPoint() const {
-  return pos() + delta();
-}
-
 QPointF GfxNoteData::delta() const {
   return QPointF(dx(), dy());
 }
@@ -65,12 +61,6 @@ double GfxNoteData::lineLength() const {
 
 bool GfxNoteData::lineLengthIsZero() const {
   return dx()==0 && dy()==0;
-}
-
-void GfxNoteData::setEndPoint(QPointF p) {
-  dx_ = p.x() - x();
-  dy_ = p.y() - y();
-  markModified();
 }
 
 void GfxNoteData::setDelta(QPointF p) {

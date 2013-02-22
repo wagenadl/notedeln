@@ -163,3 +163,7 @@ BlockItem const *Item::ancestralBlock() const {
 BlockItem *Item::ancestralBlock() {
   return parent() ? parent()->ancestralBlock() : 0;
 }
+
+void Item::setScale(qreal f) {
+  QGraphicsObject::setScale(f);
+}

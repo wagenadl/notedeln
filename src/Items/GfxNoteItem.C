@@ -115,6 +115,7 @@ void GfxNoteItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *e) {
   if (resizing) {
     data()->setTextWidth(text->textWidth());
     text->setBoxVisible(false);
+    updateTextPos();
   } else {
     if (line) {
       QLineF l = line->line();
@@ -140,8 +141,10 @@ void GfxNoteItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *e) {
 GfxNoteItem *GfxNoteItem::newNote(QPointF p0, QPointF p1, Item *parent) {
   ASSERT(parent);
   GfxNoteData *d = new GfxNoteData(parent->data());
+  QPointF sp0 = parent->mapToScene(p0);
+  QPointF sp1 = parent->mapToScene(p1);
   d->setPos(p0);
-  d->setEndPoint(p1);
+  d->setDelta(sp1-sp0);
   d->setTextWidth(0);
 
   GfxNoteItem *i = new GfxNoteItem(d, parent);
@@ -173,4 +176,9 @@ void GfxNoteItem::childMousePress(QPointF, Qt::MouseButton b, bool resizeFlag) {
 void GfxNoteItem::makeWritable() {
   text->makeWritable();
   text->setAllowMoves();
+}
+
+void GfxNoteItem::setScale(qreal f) {
+  Item::setScale(f);
+  updateTextPos();
 }

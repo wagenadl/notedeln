@@ -26,15 +26,11 @@ public:
   void setSheet(int);
   TextData const *text() const;
   TextData *text();
-  QPointF endPoint() const;
-  QPointF delta() const;
+   QPointF delta() const;
   double lineLength() const;
   bool lineLengthIsZero() const;
-  void setEndPoint(QPointF);
   void setDelta(QPointF);
   void setLineLengthToZero();
-  /* endPoint is calculated from pos() and (dx,dy); setEndPoint sets (dx,dy).
-  */
 protected:
   void loadMore(QVariantMap const &src);
 private:

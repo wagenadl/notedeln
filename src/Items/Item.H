@@ -44,6 +44,7 @@ public:
     }
     return res;
   }
+  virtual void setScale(qreal);
 public:
   static Item *create(Data *d, Item *parent=0);
   class GfxNoteItem *createNote(QPointF p0, bool late);

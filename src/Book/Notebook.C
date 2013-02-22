@@ -79,6 +79,7 @@ Notebook *Notebook::create(QString path) {
   styleIn.close();
   styleOut.close();
 
+  /*
   QFile jpegIn(":/front.jpg");
   ASSERT(jpegIn.open(QFile::ReadOnly));
   QFile jpegOut(d.filePath("front.jpg"));
@@ -89,6 +90,7 @@ Notebook *Notebook::create(QString path) {
   jpegOut.write(jpegIn.readAll());
   jpegIn.close();
   jpegOut.close();
+  */
 
   Notebook *nb = new Notebook(d.absolutePath());
   return nb;

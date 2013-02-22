@@ -21,11 +21,12 @@ public:
   virtual void makeWritable();
   void childMousePress(QPointF, Qt::MouseButton, bool resizeFlag);
   class TextItem *textItem() { return text; }
+  virtual void setScale(qreal f);
 protected:
   virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *);
   virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *);
 private slots:
-  void updateTextPos();
+  void updateTextPos(); // must be called after scale change
   void abandon();
 protected:
   class TextItem *text;

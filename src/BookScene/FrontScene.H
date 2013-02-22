@@ -24,6 +24,8 @@ private slots:
 private:
   Notebook *book; // we do not own
   class Style const &style;
+  class RoundedRect *toprect;
+  class RoundedRect *bottomrect;
   QGraphicsTextItem *title;
   QGraphicsTextItem *author;
   QGraphicsTextItem *address;
