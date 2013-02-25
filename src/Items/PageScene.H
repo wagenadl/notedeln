@@ -52,9 +52,9 @@ private:
 			 bool dropped);
   bool importDroppedUrl(QPointF scenePos, class QUrl const &url,
 			bool dropped);
-  bool importDroppedText(QPointF scenePos, QString const &txt,
-			 class QUrl const *source=0, bool dropped=false);
+  bool importDroppedText(QPointF scenePos, QString const &txt);
   bool importDroppedFile(QPointF scenePos, QString const &fn);
+  bool importDroppedSvg(QPointF scenePos, class QUrl const &url);
   void makeBackground();
   void makeTitleItem();
   void makeDateItem();
@@ -86,7 +86,6 @@ private:
   class QSignalMapper *vChangeMapper;
   class QSignalMapper *noteVChangeMapper;
   class QSignalMapper *futileMovementMapper;
-  class QNetworkAccessManager *networkManager;
 private:
   QList<class BlockItem *> blockItems;
   QList<int> sheetNos; // sheet number for each block

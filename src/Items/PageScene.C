@@ -20,6 +20,8 @@
 #include "GfxNoteItem.H"
 #include "GfxNoteData.H"
 
+#include <QTemporaryFile>
+#include <QProcess>
 #include <QGraphicsView>
 #include <QGraphicsTextItem>
 #include <QGraphicsLineItem>
@@ -42,7 +44,6 @@
 PageScene::PageScene(PageData *data, QObject *parent):
   BaseScene(data, parent),
   data_(data) {
-  networkManager = 0;
   writable = false;
   
   nOfNItem = 0;
@@ -820,7 +821,6 @@ void PageScene::dropEvent(QGraphicsSceneDragDropEvent *e) {
   }
   if (e->source() == 0) {
     // event from outside our application
-    //    qDebug() << "dropEvent";
     bool accept = importDroppedOrPasted(e->scenePos(), e->mimeData(), true);
     if (accept) {
       e->setDropAction(Qt::CopyAction);
@@ -849,8 +849,22 @@ bool PageScene::importDroppedOrPasted(QPointF scenePos,
   else if (md->hasUrls()) 
     accept = importDroppedUrls(scenePos, md->urls(), dropped);
   else if (md->hasText())
-    accept = importDroppedText(scenePos, md->text(), 0, dropped);
+    accept = importDroppedText(scenePos, md->text());
   return accept;
+}
+
+bool PageScene::importDroppedSvg(QPointF scenePos, QUrl const &source) {
+  QTemporaryFile f(QDir::tempPath() + "/eln_XXXXXX.png");
+  f.open(); // without this, no filename is generated
+  QStringList args; args << "-l" << source.toString() << f.fileName();
+  int res = QProcess::execute("webgrab", args);
+  if (res==0) {
+    // success
+    QImage img(f.fileName());
+    return importDroppedImage(scenePos, img, source);
+  }
+  qDebug() << "importDroppedSvg: failed";
+  return importDroppedText(scenePos, source.toString());
 }
 
 bool PageScene::importDroppedImage(QPointF scenePos, QImage const &img,
@@ -913,7 +927,7 @@ bool PageScene::importDroppedUrls(QPointF scenePos, QList<QUrl> const &urls,
 
 bool PageScene::importDroppedUrl(QPointF scenePos,
 				 QUrl const &url,
-				 bool dropped) {
+				 bool /*dropped*/) {
   // QGraphicsItem *dst = itemAt(scenePos);
   /* A URL could be any of the following:
      (1) A local image file
@@ -922,27 +936,56 @@ bool PageScene::importDroppedUrl(QPointF scenePos,
      (4) A web-page
      (5) Anything else
   */
+  qDebug() << "importdroppedurl" << url.toString();
   if (url.isLocalFile()) {
-    QImage image = QImage(url.toLocalFile());
+    QString path = url.toLocalFile();
+    if (path.endsWith(".svg")) 
+      return importDroppedSvg(scenePos, url);
+    QImage image = QImage(path);
     if (!image.isNull())
       return importDroppedImage(scenePos, image, url);
     else
-      return importDroppedFile(scenePos, url.toLocalFile());
-  } else if (networkManager) {
-    networkManager->get(QNetworkRequest(url));
-    return true;
+      return importDroppedFile(scenePos, path);
   } else {
-    // no network
-    return importDroppedText(scenePos, url.toString(), 0, dropped);
+    // Right now, we import all network urls as text
+    return importDroppedText(scenePos, url.toString());
   }
   return false;
 }
 
-bool PageScene::importDroppedText(QPointF scenePos, QString const &txt,
-				  QUrl const *source, bool dropped) {
-  qDebug() << "PageScene: import dropped text: " << scenePos << txt
-  	   << source << dropped;
-  return false;
+bool PageScene::importDroppedText(QPointF scenePos, QString const &txt) {
+  TextItem *ti = 0;
+  if (belowContent(scenePos)) {
+    TextBlockItem *tbi = newTextBlock();
+    if (!tbi)
+      return false;
+    ti = tbi->text();
+  } else {
+    int blk = findBlock(scenePos);
+    if (!blk || !blockItems[blk]->isWritable())
+      return false;
+    GfxBlockItem *gbi = dynamic_cast<GfxBlockItem*>(blockItems[blk]);
+    TextBlockItem *tbi = dynamic_cast<TextBlockItem*>(blockItems[blk]);
+    if (gbi) {
+      // let's create a new note at the target position
+      GfxNoteItem *note = gbi->createNote(gbi->mapFromScene(scenePos), false);
+      ti = note->textItem();
+    } else if (tbi) {
+      ti = tbi->text();
+    }
+  }
+  if (!ti)
+    return false;
+  QTextCursor c = ti->textCursor();
+  int pos = ti->pointToPos(ti->mapFromScene(scenePos));
+  if (pos>=0)
+    c.setPosition(pos);
+  else
+    c.clearSelection();
+  c.insertText(txt);
+  ti->setFocus();
+  ti->setTextCursor(c);
+  return true;
 }
 
 bool PageScene::importDroppedFile(QPointF scenePos, QString const &fn) {
