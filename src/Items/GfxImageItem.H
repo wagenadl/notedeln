@@ -24,6 +24,7 @@ public:
 protected:
   virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *);
   virtual void mousePressEvent(QGraphicsSceneMouseEvent *);
+  virtual void mouseDoubleClickEvent(QGraphicsSceneMouseEvent *);
   virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *);
   virtual void hoverMoveEvent(QGraphicsSceneHoverEvent *);
 private:

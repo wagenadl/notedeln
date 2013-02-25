@@ -10,6 +10,7 @@
 #include "GfxSketchItem.H"
 #include "BlockItem.H"
 
+#include <QProcess>
 #include <QDebug>
 #include <QGraphicsSceneMouseEvent>
 #include <QGraphicsSceneHoverEvent>
@@ -164,9 +165,28 @@ void GfxImageItem::mouseMoveEvent(QGraphicsSceneMouseEvent *e) {
   }
 }
 
+void GfxImageItem::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *e) {
+  Resource *r = data()->resManager()->byTag(data()->resName());
+  if (!r) {
+    qDebug() << "GfxImageItem: double click: no resource";
+  } else {
+    QStringList args;
+    if (e->modifiers() & Qt::ShiftModifier)
+      args << r->sourceURL().toString();
+    else
+      args << r->archivePath();
+    bool ok = QProcess::startDetached("gnome-open", args);
+    if (!ok)
+      qDebug() << "GfxImageItem: Failed to start external process 'gnome-open'";
+  }
+  e->accept();
+}
+
 void GfxImageItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
   bool take = false;
-  if (isWritable() && e->button()==Qt::LeftButton) {
+  if (e->modifiers() & Qt::ControlModifier) {
+    //take = true; // we will not process this, but consider a double click
+  } else if (isWritable() && e->button()==Qt::LeftButton) {
     switch (mode()->mode()) {
     case Mode::MoveResize:
       dragType = dragTypeForPoint(e->pos());
