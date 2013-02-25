@@ -23,16 +23,16 @@ struct BasicTOCEntry {
   QDateTime created;
   QDateTime modified;
   bool operator<(BasicTOCEntry const &b) const {
-    if (startPage<b.startPage)
-      return true;
-    else if (startPage>b.startPage)
-      return false;
-
     if (created<b.created)
       return true;
     else if (created>b.created)
       return false;
 
+    if (startPage<b.startPage)
+      return true;
+    else if (startPage>b.startPage)
+      return false;
+    
     if (modified<b.modified)
       return true;
     else if (modified>b.modified)
