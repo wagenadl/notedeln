@@ -82,8 +82,20 @@ bool commit(QString path, QString program) {
   QString cwd = QDir::currentPath();
   QDir::setCurrent(path);
   if (program == "bzr") {
-    success = runBzr("add", QStringList(), "Adding files to bzr...");
-    if (success) {
+    QProcess s;
+    QStringList args; args << "status";
+    s.start("bzr", args);
+    s.waitForStarted();
+    s.closeWriteChannel();
+    s.waitForFinished();
+    success = s.state()==QProcess::NotRunning
+      && s.exitStatus()==QProcess::NormalExit;
+    bool need = false;
+    if (success)
+      need = !s.readAll().isEmpty();
+    if (need && success) 
+      success = runBzr("add", QStringList(), "Adding files to bzr...");
+    if (need && success) {
       QStringList args;
       args << "-meln autocommit";
       success = runBzr("commit", args, "Committing with bzr...");
