@@ -111,6 +111,8 @@ int main(int argc, char **argv) {
   QStringList pagefilenames = pages.entryList(nameflt,
 					      QDir::Files | QDir::Readable);
   foreach (QString fn, pagefilenames) {
+    if (fn.endsWith("~"))
+      continue;
     bool pageReadable;
     QVariantMap page = JSONFile::load(pages.filePath(fn),
 				      &pageReadable);
@@ -250,7 +252,7 @@ int main(int argc, char **argv) {
     QVariantMap page = JSONFile::load(pages.filePath(bte.filename),
 				      &pageReadable);
     if (!pageReadable) {
-      qDebug() << "Surprisingly, " << bte.filename << " could not be parsed.";
+      qDebug() << "Unfortunately, " << bte.filename << " could not be parsed.";
       qDebug() << "Aborting.";
       return 2;
     }
@@ -264,7 +266,7 @@ int main(int argc, char **argv) {
     res.replace("json", "res");
     if (pages.exists(res + ".tmp")) {
       qDebug() << "Existence of " << (res+".tmp")
-	       << "indicates a problem that I cannot fix.";
+	       << "indicates a problem that repairtoc cannot fix.";
       qDebug() << "Aborting.";
       return 2;
     }
@@ -274,6 +276,8 @@ int main(int argc, char **argv) {
   foreach (BasicTOCEntry const &bte, toBeRenumbered) {
     pages.remove(bte.filename + "~");
     if (!pages.rename(bte.filename, bte.filename + "~")) {
+      // This should be replaced with "bzr move" if there is a
+      // "vc": "bzr" key in style.json.
       qDebug() << "Failed to rename " << bte.filename
 	       << " as " << (bte.filename+"~");
       qDebug() << "Aborting.";
@@ -285,6 +289,8 @@ int main(int argc, char **argv) {
     res.replace("json", "res");
     if (pages.exists(res)) {
       if (!pages.rename(res, res+".tmp")) {
+        // This should be replaced with "bzr move" if there is a
+        // "vc": "bzr" key in style.json.
 	qDebug() << "Failed to rename " << res
 		 << " as " << (res+".tmp");
 	qDebug() << "Aborting.";
@@ -304,6 +310,7 @@ int main(int argc, char **argv) {
       return 2;
     }
     if (JSONFile::save(pg, pages.filePath(QString("%1.json").arg(pgno)))) {
+      // We should recall which "~" this came from, and bzr move as appropriate.
       qDebug() << "Renumbered " << origfn << " as " << pgno;
     } else {
       qDebug() << "Failed to renumber " << origfn << " as " << pgno;
@@ -319,6 +326,8 @@ int main(int argc, char **argv) {
 	return 2;
       }
       if (!pages.rename(res + ".tmp", QString("%1.res").arg(pgno))) {
+        // This should be replaced with "bzr move" if there is a
+        // "vc": "bzr" key in style.json.
 	qDebug() << "Failed to rename " << (res+".tmp")
 		 << " to " << QString("%1.res").arg(pgno);
 	qDebug() << "Aborting.";

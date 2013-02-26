@@ -66,6 +66,7 @@ int main(int argc, char **argv) {
   editor->show();
   int r = app.exec();
   delete editor;
+  delete nb;
   delete RecentBooks::instance();
   return r;
 }

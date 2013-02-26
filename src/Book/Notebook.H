@@ -30,7 +30,7 @@ public:
   QString filePath(QString) const;
   QString dirPath() const;
 public slots:
-  void flush();
+  void flush(bool mustcommit=false);
 private:
   Notebook(QString path);
 private slots:
@@ -43,6 +43,8 @@ private:
   BookFile *bookFile_;
   Style const *style_;
   Mode *mode_;
+  bool uncommitted;
+  QDateTime lastCommit;
 };
 
 #endif

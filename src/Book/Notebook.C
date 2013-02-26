@@ -8,11 +8,19 @@
 #include "Assert.H"
 #include "Mode.H"
 #include "RecentBooks.H"
+#include "VersionControl.H"
 
 #include <QDebug>
 
+#define COMMIT_IVAL_S 600 // if vc, commit every once in a while
+
 Notebook::Notebook(QString path) {
+  uncommitted = false;
+  lastCommit = QDateTime::currentDateTime();
   root = QDir(path);
+  Style s0(root.filePath("style.json"));
+  if (s0.contains("vc"))
+    VersionControl::update(root.path(), s0.string("vc"));
   tocFile_ = TOCFile::load(root.filePath("toc.json"), this);
   tocFile_->data()->setBook(this);
   bookFile_ = BookFile::load(root.filePath("book.json"), this);
@@ -25,7 +33,7 @@ Notebook::Notebook(QString path) {
 }
 
 Notebook::~Notebook() {
-  flush();
+  flush(true);
 }
 
 Style const &Notebook::style() const {
@@ -177,7 +185,8 @@ BookData *Notebook::bookData() const {
   return bookFile_->data();
 }
 
-void Notebook::flush() {
+void Notebook::flush(bool mustcommit) {
+  qDebug() << "Notebook::flush" << mustcommit;
   bool actv = false;
   bool ok = true;
   if (tocFile_->needToSave()) {
@@ -195,9 +204,18 @@ void Notebook::flush() {
       ok = ok && pf->saveNow();
     }
   }
-  if (actv) 
+  if (actv) {
+    uncommitted = true;
     if (!ok)
       qDebug() << "Notebook flushed, with errors";
+  }
+  if (mustcommit 
+      || (uncommitted
+          && lastCommit.secsTo(QDateTime::currentDateTime()) > COMMIT_IVAL_S)) {
+    VersionControl::commit(root.path(), style_->string("vc"));
+    uncommitted = false;
+    lastCommit = QDateTime::currentDateTime();
+  }
 }
 
 Mode *Notebook::mode() const {
