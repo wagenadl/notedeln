@@ -212,7 +212,8 @@ void Notebook::flush(bool mustcommit) {
   if (mustcommit 
       || (uncommitted
           && lastCommit.secsTo(QDateTime::currentDateTime()) > COMMIT_IVAL_S)) {
-    VersionControl::commit(root.path(), style_->string("vc"));
+    if (style_->contains("vc"))
+      VersionControl::commit(root.path(), style_->string("vc"));
     uncommitted = false;
     lastCommit = QDateTime::currentDateTime();
   }
