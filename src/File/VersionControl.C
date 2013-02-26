@@ -14,7 +14,8 @@
 #define VC_TIMEOUT 300 // seconds
 
 namespace VersionControl {
-bool runBzr(char const *cmd, QStringList args, QString label) {
+  bool runBzr(char const *cmd, QStringList args, QString label,
+              QString *stdout=0) {
   QMessageBox box;
   // We're not using a progressdialog, because we have no clue
   // how long things will take.
@@ -47,17 +48,22 @@ bool runBzr(char const *cmd, QStringList args, QString label) {
       
       break;
     }
-    QString stdout = process.readAllStandardOutput();
+    QString so = process.readAllStandardOutput();
     QString stderr = process.readAllStandardError();
-    if (!stdout.isEmpty())
-      qDebug() << "(bzr " << cmd << ") " << stdout;
+    if (stdout)
+      *stdout += so;
+    else if (!so.isEmpty())
+      qDebug() << "(bzr " << cmd << ") " << so;
     if (!stderr.isEmpty())
       qDebug() << "(bzr " << cmd << ") " << stderr;
   }
-  QString stdout = process.readAllStandardOutput();
+
+  QString so = process.readAllStandardOutput();
+  if (stdout)
+    *stdout += so;
+  else if (!so.isEmpty())
+    qDebug() << "(bzr " << cmd << ") " << so;
   QString stderr = process.readAllStandardError();
-  if (!stdout.isEmpty())
-    qDebug() << "(bzr " << cmd << ") " << stdout;
   if (!stderr.isEmpty())
     qDebug() << "(bzr " << cmd << ") " << stderr;
   if (process.state()!=QProcess::NotRunning) {
@@ -82,17 +88,14 @@ bool commit(QString path, QString program) {
   QString cwd = QDir::currentPath();
   QDir::setCurrent(path);
   if (program == "bzr") {
-    QProcess s;
-    QStringList args; args << "status";
-    s.start("bzr", args);
-    s.waitForStarted();
-    s.closeWriteChannel();
-    s.waitForFinished();
-    success = s.state()==QProcess::NotRunning
-      && s.exitStatus()==QProcess::NormalExit;
-    bool need = false;
-    if (success)
-      need = !s.readAll().isEmpty();
+    /* The logic is:
+       (1) we run bzr status
+       (2) if that returns any text at all, we first do "add", then "commit".
+       (3) errors at any stage cause us to give up immediately
+    */
+    QString out;
+    success = runBzr("status", QStringList(), "Checking bzr status...", &out);
+    bool need = !out.isEmpty();
     if (need && success) 
       success = runBzr("add", QStringList(), "Adding files to bzr...");
     if (need && success) {
