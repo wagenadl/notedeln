@@ -962,7 +962,7 @@ bool PageScene::importDroppedText(QPointF scenePos, QString const &txt) {
     ti = tbi->text();
   } else {
     int blk = findBlock(scenePos);
-    if (!blk || !blockItems[blk]->isWritable())
+    if (blk<0 || !blockItems[blk]->isWritable())
       return false;
     GfxBlockItem *gbi = dynamic_cast<GfxBlockItem*>(blockItems[blk]);
     TextBlockItem *tbi = dynamic_cast<TextBlockItem*>(blockItems[blk]);

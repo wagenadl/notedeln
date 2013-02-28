@@ -682,6 +682,7 @@ bool TextItem::tryFootnote() {
 }
 
 bool TextItem::tryToPaste() {
+  qDebug() << "TextItem::tryToPaste";
   QClipboard *cb = QApplication::clipboard();
   QMimeData const *md = cb->mimeData(QClipboard::Clipboard);
   if (md->hasImage()) {
