@@ -22,11 +22,12 @@
 GfxBlockItem::GfxBlockItem(GfxBlockData *data, Item *parent):
   BlockItem(data, parent) {
 
+  setPos(style().real("margin-left"), 0); // doing this first aids LateNoteItems
+
   foreach (GfxData *g, data->gfx()) 
     create(g, this);
   sizeToFit();
 
-  setPos(style().real("margin-left"), 0);
   setCursor(defaultCursor());
 }
 

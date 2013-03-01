@@ -84,3 +84,8 @@ void LateNoteItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *e) {
   GfxNoteItem::mouseReleaseEvent(e);
   setDateItemPosition();
 }
+
+void LateNoteItem::setScale(qreal f) {
+  GfxNoteItem::setScale(f);
+  setDateItemPosition();
+}

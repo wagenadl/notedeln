@@ -16,7 +16,7 @@
 #include <QDebug>
 #include <QPainter>
 #include <QTextDocument>
-
+#include <QGraphicsView>
 
 FrontScene::FrontScene(Notebook *book, QObject *parent):
   QGraphicsScene(parent),

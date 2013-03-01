@@ -13,6 +13,7 @@ public:
   virtual ~LateNoteItem();
   DATAACCESS(LateNoteData);
   static LateNoteItem *newNote(QPointF p0, QPointF p1, Item *parent);
+  virtual void setScale(qreal f);
 protected:
   virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *);
   virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *);
