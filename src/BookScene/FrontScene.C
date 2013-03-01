@@ -49,6 +49,12 @@ void FrontScene::textChange() {
   data->setTitle(title->toPlainText());
   data->setAuthor(author->toPlainText());
   data->setAddress(address->toPlainText());
+  foreach (QGraphicsView *view, views()) {
+    QWidget *toplevel = view->window();
+    if (toplevel)
+      toplevel->setWindowTitle(title->toPlainText()
+			       .replace(QRegExp("\\s\\s*"), " ") + " - eln");
+  }
 }
 
 void FrontScene::rebuild() {
