@@ -6,7 +6,7 @@
 #include <QGraphicsSceneMouseEvent>
 #include <QPainter>
 
-#define TOOLSIZE 32.0
+#define TOOLSIZE 31.5
 #define TOOLRAD 3.0
 #define HOVERDX 1.5
 #define HOVERDX1 0.5

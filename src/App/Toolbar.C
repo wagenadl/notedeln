@@ -5,7 +5,7 @@
 #include "Assert.H"
 #include "ToolItem.H"
 
-#define TOOLGRID 31.0
+#define TOOLGRID 31.5
 #define TOOLOFFSET 2
 
 Toolbar::Toolbar(QGraphicsItem *parent): QGraphicsObject(parent) {

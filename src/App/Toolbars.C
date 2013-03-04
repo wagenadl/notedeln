@@ -92,9 +92,11 @@ void Toolbars::placeChildren() {
   mcolors->setPos(modes->pos()
 		 + QPointF(0, modes->childrenBoundingRect().height()+10));
   
-  sizes->setPos(mcolors->pos() + QPointF(36, 0));
+  sizes->setPos(mcolors->pos()
+		+ QPointF(36, mcolors->childrenBoundingRect().height()
+			  - sizes->childrenBoundingRect().height()));
   shapes->setPos(sizes->pos()
-		+ QPointF(0, sizes->childrenBoundingRect().height()+10));
+		- QPointF(0, shapes->childrenBoundingRect().height()+10));
 
   widths->setPos(lcolors->pos() + QPointF(36, 0));
 }
