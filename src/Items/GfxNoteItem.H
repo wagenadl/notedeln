@@ -28,6 +28,8 @@ protected:
 private slots:
   void updateTextPos(); // must be called after scale change
   void abandon();
+private:
+  QPointF nearestCorner(QPointF pbase=QPointF());
 protected:
   class TextItem *text;
   QGraphicsLineItem *line;

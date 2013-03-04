@@ -26,11 +26,8 @@ public:
   void setSheet(int);
   TextData const *text() const;
   TextData *text();
-   QPointF delta() const;
-  double lineLength() const;
-  bool lineLengthIsZero() const;
+  QPointF delta() const;
   void setDelta(QPointF);
-  void setLineLengthToZero();
 protected:
   void loadMore(QVariantMap const &src);
 private:

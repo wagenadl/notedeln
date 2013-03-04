@@ -55,22 +55,9 @@ QPointF GfxNoteData::delta() const {
   return QPointF(dx(), dy());
 }
 
-double GfxNoteData::lineLength() const {
-  return sqrt(dx()*dx() + dy()*dy());
-}
-
-bool GfxNoteData::lineLengthIsZero() const {
-  return dx()==0 && dy()==0;
-}
-
 void GfxNoteData::setDelta(QPointF p) {
   dx_ = p.x();
   dy_ = p.y();
-  markModified();
-}
-
-void GfxNoteData::setLineLengthToZero() {
-  dx_ = dy_ = 0;
   markModified();
 }
 

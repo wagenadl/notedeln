@@ -8,19 +8,16 @@
 #include <QTextDocument>
 #include "Assert.H"
 #include "BlockItem.H"
+#include <QTextBlock>
+#include <QTextLayout>
+#include <QTextLine>
 
 static Item::Creator<GfxNoteData, GfxNoteItem> c("gfxnote");
 
 GfxNoteItem::GfxNoteItem(GfxNoteData *data, Item *parent):
   Item(data, parent) {
   setPos(data->pos());
-  if (data->lineLengthIsZero()) {
-    line = 0;
-  } else {
-    line = new QGraphicsLineItem(QLineF(QPointF(0,0), data->delta()), this);
-    line->setPen(QPen(QBrush(QColor(style().string("note-line-color"))),
-		      style().real("note-line-width")));
-  }
+  line = 0;
   text = new TextItem(data->text(), this);
   text->setDefaultTextColor(QColor(style().string("note-text-color")));
   if (data->textWidth()>1)
@@ -49,34 +46,74 @@ void GfxNoteItem::abandon() {
     ancestor->sizeToFit();
 }
 
+static double euclideanLength2(QPointF p) {
+  return p.x()*p.x() + p.y()*p.y();
+}
+
+QPointF GfxNoteItem::nearestCorner(QPointF pbase) {
+  double yof = style().real("note-y-offset");
+  QTextBlock b = text->document()->firstBlock();
+  QTextLayout *lay = b.layout();
+  QPointF p0 = lay->position() + text->pos() - pbase;
+  if (lay->lineCount()==0) { // this shouldn't happen, I think
+    return pbase;
+  } else {
+    QRectF l0rect = lay->lineAt(0).naturalTextRect();
+    l0rect.translate(p0);
+    QRectF lnrect = lay->lineAt(lay->lineCount()-1).naturalTextRect();
+    lnrect.translate(p0);
+    QPointF tl = l0rect.topLeft() + QPointF(-3, -yof);
+    QPointF tr = l0rect.topRight() + QPointF(3, -yof);
+    QPointF bl = lnrect.topLeft() + QPointF(-3, -yof);
+    QPointF br = lnrect.topRight() + QPointF(3, -yof);
+    QList<QPointF> pl; pl << tl << tr << bl << br;
+    int idx = -1;
+    double dmin = 0;
+    for (int i=0; i<4; i++) {
+      double d = euclideanLength2(pl[i]);
+      if (idx<0 || d<dmin) {
+	idx = i;
+	dmin = d;
+      }
+    }
+    return pbase + pl[idx];
+  }
+}
+  
+
 void GfxNoteItem::updateTextPos() {
+  // Position text at delta (with note offset for compatibility)
   QPointF p = data()->delta();
   double yof = style().real("note-y-offset");
   p += QPointF(0, yof);
-  QRectF sr = text->mapRectToScene(text->fittedRect());
-  if (data()->dx() < 0)
-    p -= QPointF(sr.width(), 0);
   text->setPos(p);
 
+  // Auto limit text width
   if (data()->textWidth()<1) {
-    if (data()->dx()>=0) {
-      if (sr.right() >= style().real("page-width")
-          - style().real("margin-right-over")) {
-        double tw = style().real("page-width")
-          - style().real("margin-right-over")
-          - sr.left();
-        data()->setTextWidth(tw);
-        text->setTextWidth(tw);
-      }
-    } else {
-      if (sr.left() <= style().real("margin-left")/2) {
-        double tw = sr.right()
-          - style().real("margin-left")/2;
-        data()->setTextWidth(tw);
-        text->setTextWidth(tw);
-      }
+    QRectF sr = text->mapRectToScene(text->fittedRect());
+    if (sr.right() >= style().real("page-width")
+	- style().real("margin-right-over")) {
+      double tw = style().real("page-width")
+	- style().real("margin-right-over")
+	- sr.left();
+      data()->setTextWidth(tw);
+      text->setTextWidth(tw);
     }
-  }        
+  }
+
+  // Arrange line to be shortest
+  if (data()->delta().manhattanLength()>2) { // minimum line length
+    if (!line) {
+      line = new QGraphicsLineItem(QLineF(QPointF(0,0), QPointF(1,1)), this);
+      line->setPen(QPen(QBrush(QColor(style().string("note-line-color"))),
+			style().real("note-line-width")));
+    }
+    line->setLine(QLineF(QPointF(0,0), nearestCorner()));
+    line->show();
+  } else {
+      if (line)
+	line->hide();
+    }
 }
 
 QRectF GfxNoteItem::boundingRect() const {
@@ -98,11 +135,16 @@ void GfxNoteItem::mouseMoveEvent(QGraphicsSceneMouseEvent *e) {
   } else {
     QPointF delta = e->pos() - e->lastPos();
     text->setPos(text->pos() + delta);
+    if (e->modifiers() & Qt::ShiftModifier && !line) {
+      line = new QGraphicsLineItem(QLineF(QPointF(0,0), QPointF(1,1)), this);
+      line->setPen(QPen(QBrush(QColor(style().string("note-line-color"))),
+			style().real("note-line-width")));
+    }      
     if (line) {
       QLineF l = line->line(); // origLine;
-      l.setP2(l.p2() + delta);
       if (e->modifiers() & Qt::ShiftModifier) 
 	l.setP1(l.p1() + delta);
+      l.setP2(nearestCorner(l.p1()));
       line->setLine(l);
     }
   }
@@ -117,20 +159,17 @@ void GfxNoteItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *e) {
     text->setBoxVisible(false);
     updateTextPos();
   } else {
+    QPointF ptext = text->pos() - QPointF(0, style().real("note-y-offset"));
+    QPointF p0 = mapToParent(ptext);
     if (line) {
-      QLineF l = line->line();
-      QPointF p0 = mapToParent(l.p1());
-      QPointF p1 = l.p2() - l.p1();
-      data()->setPos(p0);
-      data()->setDelta(p1);
-      setPos(p0);
-      line->setLine(QLineF(QPointF(0,0), p1));
+      QPointF pbase = line->line().p1();
+      p0 = mapToParent(pbase);
+      data()->setDelta(ptext - pbase);
     } else {
-      QPointF p0 = mapToParent(text->pos()
-			       - QPointF(0, style().real("note-y-offset")));
-      data()->setPos(p0);
-      setPos(p0);
+      data()->setDelta(QPointF(0, 0));
     }
+    data()->setPos(p0);
+    setPos(p0);
     updateTextPos();
   }
   if (ancestralBlock())

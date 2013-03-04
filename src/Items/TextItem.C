@@ -383,8 +383,10 @@ bool TextItem::keyPressAsSpecialEvent(QKeyEvent *e) {
 bool TextItem::keyPressAsSpecialChar(QKeyEvent *e) {
   QTextCursor c(textCursor());
   QChar charBefore = document()->characterAt(c.position()-1);
+  QChar charBefore2 = document()->characterAt(c.position()-2);
   QString charNow = e->text();
   QString digraph = QString(charBefore) + charNow;
+  QString trigraph = QString(charBefore2) + digraph;
   if (Digraphs::contains(digraph)) {
     c.deletePreviousChar();
     c.insertHtml(Digraphs::map(digraph));
@@ -407,11 +409,20 @@ bool TextItem::keyPressAsSpecialChar(QKeyEvent *e) {
     else 
       c.insertHtml(QString::fromUtf8("–")); // en dash
     return true;
-  } else if (digraph==".."
-	     && document()->characterAt(c.position()-2) == QChar('.')) {
+  } else if (trigraph=="...") {
+    c.deletePreviousChar();
     c.deletePreviousChar();
     c.insertHtml(QString::fromUtf8("…"));
     return true;
+  } else if (trigraph==" - ") {
+    c.deletePreviousChar();
+    c.insertHtml(QString::fromUtf8("− "));
+    return true;
+  } else if (charNow[0].isDigit() && charBefore==QChar('-')
+	     && !charBefore2.isLetter()) {
+    c.deletePreviousChar();
+    c.insertHtml(QString::fromUtf8("−")); // replace minus sign
+    return false; // insert digit as normal
   } else {
     return false;
   }
