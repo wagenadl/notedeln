@@ -66,17 +66,25 @@ QPointF GfxNoteItem::nearestCorner(QPointF pbase) {
     QPointF tr = l0rect.topRight() + QPointF(3, -yof);
     QPointF bl = lnrect.topLeft() + QPointF(-3, -yof);
     QPointF br = lnrect.topRight() + QPointF(3, -yof);
-    QList<QPointF> pl; pl << tl << tr << bl << br;
-    int idx = -1;
-    double dmin = 0;
-    for (int i=0; i<4; i++) {
-      double d = euclideanLength2(pl[i]);
-      if (idx<0 || d<dmin) {
-	idx = i;
-	dmin = d;
-      }
+    double dyt = tl.y() - p0.y();
+    double dyb = bl.y() - p0.y();
+    QPointF p;
+    if (dyt*dyt<dyb*dyb) {
+      double dxl = tl.x() - p0.x();
+      double dxr = tr.x() - p0.x();
+      if (dxl*dxl<dxr*dxr)
+        p = tl;
+      else
+        p = tr;
+    } else {
+      double dxl = bl.x() - p0.x();
+      double dxr = br.x() - p0.x();
+      if (dxl*dxl<dxr*dxr)
+        p = bl;
+      else
+        p = br;
     }
-    return pbase + pl[idx];
+    return pbase + p;
   }
 }
   
