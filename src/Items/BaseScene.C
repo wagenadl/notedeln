@@ -86,6 +86,7 @@ void BaseScene::makePgNoItem() {
   pgNoItem = addText(pgNoToString(startPage() + iSheet),
 		     style_->font("pgno-font"));
   pgNoItem->setDefaultTextColor(style_->color("pgno-color"));
+  pgNoItem->setZValue(10); // page number on top
 }
 
 

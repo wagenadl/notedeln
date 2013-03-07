@@ -419,7 +419,7 @@ bool TextItem::keyPressAsSpecialChar(QKeyEvent *e) {
     c.insertHtml(QString::fromUtf8("− "));
     return true;
   } else if (charNow[0].isDigit() && charBefore==QChar('-')
-	     && !charBefore2.isLetter()) {
+	     && QString(" ([{^_@$/").contains(charBefore2)) {
     c.deletePreviousChar();
     c.insertHtml(QString::fromUtf8("−")); // replace minus sign
     return false; // insert digit as normal

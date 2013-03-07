@@ -195,7 +195,7 @@ void PageScene::stackBlocks() {
   topY.clear();
   double y0 = style().real("margin-top");
   for (int n=0; n<blockItems.size(); n++) {
-    sheetNos.append(0);
+    sheetNos.append(blockItems[n]->data()->sheet());
     topY.append(y0);
   }
   restackBlocks(0, true);
@@ -214,8 +214,6 @@ void PageScene::restackBlocks(int starti, bool preferData) {
   double y = topY[starti];
   int sheet = sheetNos[starti];
   double y1a = y1;
-  //  qDebug() << "PageScene: restack" << starti << endi;
-  //  qDebug() << "  y="<<y << " y1a="<<y1a;
 
   // we are assuming that the blockitems and footnotegroups are unscaled!
   for (int i=0; i<starti; i++)
@@ -245,7 +243,6 @@ void PageScene::restackBlocks(int starti, bool preferData) {
       }
       updateData = true;
     }
-    //    qDebug() << "  i"<<i<<" h="<<h <<" fnh="<<fnh << " y="<<y;
     topY[i] = y;
     sheetNos[i] = sheet;
     bi->moveBy(0, y - bi->sceneBoundingRect().top());
@@ -271,6 +268,7 @@ void PageScene::restackFootnotes(int sheet) {
   double y = style().real("page-height")
     - style().real("margin-bottom")
     - accumh;
+
   for (int k=0; k<footnoteGroups.size(); k++) {
     if (sheetNos[k] == sheet) {
       footnoteGroups[k]->setPos(style().real("margin-left"), y);

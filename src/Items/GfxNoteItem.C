@@ -46,10 +46,10 @@ void GfxNoteItem::abandon() {
     ancestor->sizeToFit();
 }
 
-static double euclideanLength2(QPointF p) {
-  return p.x()*p.x() + p.y()*p.y();
-}
-
+// static double euclideanLength2(QPointF p) {
+//   return p.x()*p.x() + p.y()*p.y();
+// }
+ 
 QPointF GfxNoteItem::nearestCorner(QPointF pbase) {
   double yof = style().real("note-y-offset");
   QTextBlock b = text->document()->firstBlock();
@@ -66,19 +66,19 @@ QPointF GfxNoteItem::nearestCorner(QPointF pbase) {
     QPointF tr = l0rect.topRight() + QPointF(3, -yof);
     QPointF bl = lnrect.topLeft() + QPointF(-3, -yof);
     QPointF br = lnrect.topRight() + QPointF(3, -yof);
-    double dyt = tl.y() - p0.y();
-    double dyb = bl.y() - p0.y();
+    double dyt = tl.y();
+    double dyb = bl.y();
     QPointF p;
     if (dyt*dyt<dyb*dyb) {
-      double dxl = tl.x() - p0.x();
-      double dxr = tr.x() - p0.x();
+      double dxl = tl.x();
+      double dxr = tr.x();
       if (dxl*dxl<dxr*dxr)
         p = tl;
       else
         p = tr;
     } else {
-      double dxl = bl.x() - p0.x();
-      double dxr = br.x() - p0.x();
+      double dxl = bl.x();
+      double dxr = br.x();
       if (dxl*dxl<dxr*dxr)
         p = bl;
       else
@@ -119,9 +119,9 @@ void GfxNoteItem::updateTextPos() {
     line->setLine(QLineF(QPointF(0,0), nearestCorner()));
     line->show();
   } else {
-      if (line)
-	line->hide();
-    }
+    if (line)
+      line->hide();
+  }
 }
 
 QRectF GfxNoteItem::boundingRect() const {
@@ -207,13 +207,11 @@ void GfxNoteItem::childMousePress(QPointF, Qt::MouseButton b, bool resizeFlag) {
     //    lockBounds();
     resizing = resizeFlag;
     if (resizing) {
-      qDebug() << "Start note resize";
       initialTextWidth = data()->textWidth();
       if (initialTextWidth<1) {
 	initialTextWidth = text->fittedRect().width()+2;
 	text->setTextWidth(initialTextWidth);
       }
-      qDebug() << "  initial width = " << initialTextWidth;
       text->setBoxVisible(true);
     }
     grabMouse();
