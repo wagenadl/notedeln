@@ -66,13 +66,11 @@ void TextItem::setAllowNotes(bool y) {
 
 void TextItem::makeWritable() {
   Item::makeWritable();
-  text->setTextInteractionFlags(Qt::TextEditorInteraction);
-  text->setCursor(QCursor(Qt::IBeamCursor));
-  setFlag(ItemIsFocusable);
-  setFocusProxy(text);
+  makeWritableNoRecurse();
 }
 
 void TextItem::makeWritableNoRecurse() {
+  // this ugliness is for the sake of title items that have notes attached
   Item::makeWritableNoRecurse();
   text->setTextInteractionFlags(Qt::TextEditorInteraction);
   text->setCursor(QCursor(Qt::IBeamCursor));
