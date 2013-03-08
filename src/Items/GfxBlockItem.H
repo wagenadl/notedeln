@@ -19,6 +19,9 @@ public:
   Item *newImage(QUrl src, QPointF xy);
   void paint(QPainter *, const QStyleOptionGraphicsItem *, QWidget *);
   virtual QRectF netChildBoundingRect() const;
+  /* Our "netChildBoundingRect" also includes a basic 6"x1" rectangle; a
+     place holder so that empty GfxBlockItems retain finite size.
+   */
   virtual void makeWritable();
 public: // should be protected, but PageScene calls it
   virtual void mousePressEvent(QGraphicsSceneMouseEvent *);

@@ -95,7 +95,7 @@ void PageScene::makeTitleItem() {
 	  SIGNAL(futileMovementKey(int, Qt::KeyboardModifiers)),
 	  SLOT(futileTitleMovement(int, Qt::KeyboardModifiers)));
   addItem(titleItem);
-  titleItemX->makeWritable(); // this makes the late notes writable as well
+  titleItemX->makeWritable(); // this improperly makes notes writable
 
   nOfNItem = addText("n/N", style().font("pgno-font"));
   nOfNItem->setDefaultTextColor(style().color("pgno-color"));
@@ -1034,6 +1034,7 @@ void PageScene::makeWritable() {
   writable = true;
   belowItem->setCursor(Qt::IBeamCursor);
   bgItem->setAcceptDrops(true);
+  titleItemX->makeWritable();
   foreach (BlockItem *bi, blockItems)
     bi->makeWritable();
   foreach (FootnoteGroupItem *fng, footnoteGroups)

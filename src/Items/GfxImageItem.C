@@ -340,8 +340,6 @@ void GfxImageItem::makeWritable() {
 	  SLOT(modeChange(Mode::M)));
   //  qDebug() << "GII:MakeWritable";
   Item::makeWritable();
-  foreach (Item *i, allChildren())
-    i->makeWritable();
   setAcceptHoverEvents(true);
 }
 

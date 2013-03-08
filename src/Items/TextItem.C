@@ -66,8 +66,6 @@ void TextItem::setAllowNotes(bool y) {
 
 void TextItem::makeWritable() {
   Item::makeWritable();
-  foreach (GfxNoteItem *gni, children<GfxNoteItem>())
-    gni->makeWritable();
   text->setTextInteractionFlags(Qt::TextEditorInteraction);
   text->setCursor(QCursor(Qt::IBeamCursor));
   setFlag(ItemIsFocusable);

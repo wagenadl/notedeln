@@ -5,7 +5,7 @@
 #define DRAGLINE_H
 
 #include <QGraphicsLineItem>
-#include <QGraphicsItem>
+#include "BaseScene.H"
 
 class DragLine: public QObject, public QGraphicsLineItem {
   Q_OBJECT;
@@ -19,7 +19,7 @@ public:
 signals:
   void release();
 public:
-  static QPointF drag(class Item *parent, QPointF p0, QColor c=QColor());
+  static QPointF drag(BaseScene *scene, QPointF p0, QColor c=QColor());
   /* drag() returns the end point of the dragged line, except if the line
      is short (according to isShort), in which case the start point is
      returned.

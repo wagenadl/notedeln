@@ -234,6 +234,8 @@ void HoverRegion::openArchive() {
 }  
 
 void HoverRegion::getArchiveAndPreview() {
+  qDebug() << "HoverRegion::getArchiveAndPreview" << refText() << lastRef;
+
   if (refText()==lastRef || busy)
     return; // we know we can't do it
 
@@ -244,7 +246,6 @@ void HoverRegion::getArchiveAndPreview() {
   }
   if (refText()!=lastRef && !lastRef.isEmpty())
     md->detachResource(lastRef);
-  
   lastRef = refText();
   Resource *r = resmgr->byTag(lastRef);
   if (r) {

@@ -219,7 +219,7 @@ void GfxNoteItem::childMousePress(QPointF, Qt::MouseButton b, bool resizeFlag) {
 }
 
 void GfxNoteItem::makeWritable() {
-  text->makeWritable();
+  Item::makeWritable();
   text->setAllowMoves();
 }
 

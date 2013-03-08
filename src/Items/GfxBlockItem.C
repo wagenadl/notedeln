@@ -14,7 +14,6 @@
 #include <math.h>
 #include <QGraphicsSceneMouseEvent>
 #include <QCursor>
-#include "DragLine.H"
 #include "GfxMarkItem.H"
 #include "GfxSketchItem.H"
 #include "Assert.H"
@@ -148,8 +147,4 @@ void GfxBlockItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
 void GfxBlockItem::makeWritable() {
   BlockItem::makeWritable();
   setCursor(Qt::CrossCursor);
-
-  // is it really right to make all children writable?
-  foreach (Item *i, allChildren())
-    i->makeWritable();
 }

@@ -57,23 +57,26 @@ bool DragLine::isShort(QPointF p0, QPointF p1) {
 }
 
 
-QPointF DragLine::drag(Item *parent, QPointF p0, QColor c) {
-  ASSERT(parent);
-  double pw = parent->style().real("drag-line-width");
+QPointF DragLine::drag(BaseScene *scene, QPointF p0, QColor c) {
+  ASSERT(scene);
+  double pw = scene->style().real("drag-line-width");
   if (!c.isValid())
-    c = parent->style().color("drag-line-color");
+    c = scene->style().color("drag-line-color");
   
-  DragLine dl(p0, parent);
+  DragLine *dl = new DragLine(p0, 0);
+  scene->addItem(dl);
   dl.setPen(QPen(c, pw));
   QEventLoop el;
-  QObject::connect(&dl, SIGNAL(release()),
+  QObject::connect(dl, SIGNAL(release()),
 		   &el, SLOT(quit()),
 		   Qt::QueuedConnection);
   // Use queued connection so that we don't try to destruct the dragline
   // prematurely.
-  dl.grabMouse();
+  dl->grabMouse();
   el.exec();
-  dl.ungrabMouse();
-  QPointF p1 = dl.endPoint();
+  dl->ungrabMouse();
+  QPointF p1 = dl->endPoint();
+  scene->removeItem(dl);
+  delete dl;
   return p1;
 }

@@ -55,6 +55,8 @@ bool Item::isWritable() const {
 void Item::makeWritable() {
   ASSERT(d);
   writable = true;
+  foreach (Item *i, allChildren())
+    i->makeWritable();
 }
 
 PageScene *Item::pageScene() const {

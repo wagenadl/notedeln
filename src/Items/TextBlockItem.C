@@ -36,9 +36,12 @@ TextBlockItem::TextBlockItem(TextBlockData *data, Item *parent):
   sizeToFit();
 }
 
+QRectF TextBlockItem::netChildBoundingRect() const {
+  return text->netChildBoundingRect();
+}
+
 void TextBlockItem::makeWritable() {
   BlockItem::makeWritable();
-  item_->makeWritable();
   item_->setAllowNotes(false);
   setFlag(ItemIsFocusable);
   setFocusProxy(item_);
