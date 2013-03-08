@@ -37,7 +37,7 @@ TextBlockItem::TextBlockItem(TextBlockData *data, Item *parent):
 }
 
 QRectF TextBlockItem::netChildBoundingRect() const {
-  return text->netChildBoundingRect();
+  return item_->netChildBoundingRect();
 }
 
 void TextBlockItem::makeWritable() {

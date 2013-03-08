@@ -65,7 +65,7 @@ QPointF DragLine::drag(BaseScene *scene, QPointF p0, QColor c) {
   
   DragLine *dl = new DragLine(p0, 0);
   scene->addItem(dl);
-  dl.setPen(QPen(c, pw));
+  dl->setPen(QPen(c, pw));
   QEventLoop el;
   QObject::connect(dl, SIGNAL(release()),
 		   &el, SLOT(quit()),
