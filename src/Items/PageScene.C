@@ -158,7 +158,7 @@ void PageScene::positionTitleItem() {
   titleItemX->setTextWidth(dateX - style().real("margin-left")
 			   - style().real("title-sep") - 5);
   //  BaseScene::positionTitleItem();
-  QPointF bl = titleItemX->fittedRect().bottomLeft();
+  QPointF bl = titleItemX->netChildBoundingRect().bottomLeft();
   titleItemX->setPos(style_->real("margin-left") -
 		    bl.x() + style_->real("title-sep"),
 		    style_->real("margin-top") -
@@ -219,6 +219,9 @@ void PageScene::restackBlocks(int starti, bool preferData) {
   for (int i=0; i<starti; i++)
     if (sheetNos[i]==sheet)
       y1a -= footnoteGroups[i]->netChildBoundingRect().height();
+
+  for (int i=starti; i<endi; i++)
+    sheetNos[i] = -1;    
   
   for (int i=starti; i<endi; i++) {
     BlockItem *bi = blockItems[i];
@@ -230,13 +233,13 @@ void PageScene::restackBlocks(int starti, bool preferData) {
     if (preferData && bd->sheet()>=0) {
       // (sheet,y) information stored in data, we'll use it
       if (bd->sheet()!=sheet) {
-	restackFootnotes(sheet);
+	restackFootnotes(sheet); // about to move away from sheet, so do it now
 	sheet = bd->sheet();
       }
       y = bd->y0();
     } else {
       if (y>y0 && y+h>y1a - fnh) {
-	restackFootnotes(sheet);
+	restackFootnotes(sheet); // about to move away from sheet, so do it now
 	y = y0;
 	y1a = y1;
 	sheet++;
@@ -255,7 +258,7 @@ void PageScene::restackBlocks(int starti, bool preferData) {
 
     y = y + h;
   }
-  restackFootnotes(sheet);
+  restackFootnotes(sheet); // do last sheet in the entry
   nSheets = sheet + 1;
 }
 

@@ -18,7 +18,7 @@ public:
   Item *newImage(QImage img, QUrl src, QPointF xy);
   Item *newImage(QUrl src, QPointF xy);
   void paint(QPainter *, const QStyleOptionGraphicsItem *, QWidget *);
-  virtual QRectF fittedRect() const;
+  virtual QRectF netChildBoundingRect() const;
   virtual void makeWritable();
 public: // should be protected, but PageScene calls it
   virtual void mousePressEvent(QGraphicsSceneMouseEvent *);

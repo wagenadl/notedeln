@@ -28,17 +28,13 @@ void BlockItem::sizeToFit() {
   if (bbLocked) 
     return;
   
-  QRectF newBbox = fittedRect();
+  QRectF newBbox = netChildBoundingRect();
   if (newBbox != bbox) {
     bbox = newBbox;
     prepareGeometryChange();
     //    qDebug() << "BlockItem"<<this<<"emitting boundsChanged";
     emit boundsChanged();
   }
-}
-
-QRectF BlockItem::fittedRect() const {
-  return netChildBoundingRect();
 }
 
 void BlockItem::lockBounds() {

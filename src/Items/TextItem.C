@@ -724,8 +724,8 @@ bool TextItem::shouldResize(QPointF p) const {
     return false;
   double tw = gni->data()->textWidth();
   if (tw<=0)
-    tw = fittedRect().width();
-  bool should = p.x()-fittedRect().left() > .75*tw;
+    tw = netChildBoundingRect().width();
+  bool should = p.x()-netChildBoundingRect().left() > .75*tw;
   return should;
 }
  
@@ -757,7 +757,7 @@ QRectF TextItem::boundingRect() const {
   //  return text->boundingRect();
 }
 
-QRectF TextItem::fittedRect() const {
+QRectF TextItem::netChildBoundingRect() const {
   return text->boundingRect();
 }
  

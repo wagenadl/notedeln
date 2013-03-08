@@ -24,10 +24,7 @@ public:
   Item *parent() const;
   class PageScene *pageScene() const;
   class Mode const *mode() const;
-  QRectF netChildBoundingRect() const;
-  bool isExtraneous() const;
-  void setExtraneous(bool e=true); // extraneous items are not used for
-                                   // calculations of netBoundingRect
+  virtual QRectF netChildBoundingRect() const;
   bool isWritable() const;
   virtual void makeWritable();
   Style const &style() const;

@@ -78,11 +78,9 @@ double GfxBlockItem::availableWidth() const {
     style().real("margin-right");
 }
 
-QRectF GfxBlockItem::fittedRect() const {
-  QRectF bb = BlockItem::fittedRect();
+QRectF GfxBlockItem::netChildBoundingRect() const {
+  QRectF bb = BlockItem::netChildBoundingRect();
   bb |= QRectF(0, 0, availableWidth(), 72);
-  // bb.setLeft(0);
-  // bb.setWidth(availableWidth());
   return bb;
 }
    

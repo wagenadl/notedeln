@@ -30,6 +30,7 @@ public:
   // Only <b> and <i> tags are supported at present
   int pointToPos(QPointF) const;
   QRectF fittedRect() const;
+  QRectF netChildBoundingRect() const;
 signals:
   void textChanged();
   void widthChanged();

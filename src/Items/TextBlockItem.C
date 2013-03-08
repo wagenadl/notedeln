@@ -48,10 +48,6 @@ TextBlockItem::~TextBlockItem() {
   // I assume the item_ is deleted by Qt?
 }
 
-QRectF TextBlockItem::fittedRect() const {
-  return item_->mapRectToParent(item_->fittedRect());
-}
-
 void TextBlockItem::initializeFormat() {
   item_->setTextWidth(style().real("page-width")
 		      - style().real("margin-left")

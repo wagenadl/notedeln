@@ -26,7 +26,6 @@ public:
   FutileMovementInfo const &lastFutileMovement() const;
   void paint(QPainter *p, const QStyleOptionGraphicsItem *o, QWidget *w);
   virtual void makeWritable();
-  virtual QRectF fittedRect() const;
 signals:
   void futileMovement(); // up key on top line etc
 private slots:

@@ -17,7 +17,6 @@ public:
   virtual BlockItem const *ancestralBlock() const;
   virtual BlockItem *ancestralBlock();
   QRectF boundingRect() const;
-  virtual QRectF fittedRect() const;
 signals:
   void boundsChanged();
 public slots:

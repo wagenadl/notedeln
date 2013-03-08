@@ -18,7 +18,6 @@
 
 Item::Item(Data *d, Item *parent): QGraphicsObject(parent), d(d) {
   ASSERT(d);
-  extraneous = false;
   writable = false;
   setAcceptHoverEvents(true);
 }
@@ -87,11 +86,9 @@ QRectF Item::netChildBoundingRect() const {
   ASSERT(d);
   QRectF bb;
   foreach (Item *i, allChildren()) {
-    if (!i->isExtraneous()) {
-      QRectF b = i->boundingRect();
-      b |= i->netChildBoundingRect();
-      bb |= i->mapRectToParent(b);
-    }
+    QRectF b = i->boundingRect();
+    b |= i->netChildBoundingRect();
+    bb |= i->mapRectToParent(b);
   }
   return bb;
 }
@@ -103,14 +100,6 @@ Item *Item::parent() const {
 
 QList<Item*> Item::allChildren() const {
   return children<Item>();
-}
-
-void Item::setExtraneous(bool e) {
-  extraneous = e;
-}
-
-bool Item::isExtraneous() const {
-  return extraneous;
 }
 
 Qt::CursorShape Item::defaultCursor() {

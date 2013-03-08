@@ -98,7 +98,7 @@ void GfxNoteItem::updateTextPos() {
 
   // Auto limit text width
   if (data()->textWidth()<1) {
-    QRectF sr = text->mapRectToScene(text->fittedRect());
+    QRectF sr = text->mapRectToScene(text->netChildBoundingRect());
     if (sr.right() >= style().real("page-width")
 	- style().real("margin-right-over")) {
       double tw = style().real("page-width")
@@ -209,7 +209,7 @@ void GfxNoteItem::childMousePress(QPointF, Qt::MouseButton b, bool resizeFlag) {
     if (resizing) {
       initialTextWidth = data()->textWidth();
       if (initialTextWidth<1) {
-	initialTextWidth = text->fittedRect().width()+2;
+	initialTextWidth = text->netChildBoundingRect().width()+2;
 	text->setTextWidth(initialTextWidth);
       }
       text->setBoxVisible(true);
