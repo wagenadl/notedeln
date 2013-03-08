@@ -95,7 +95,7 @@ void PageScene::makeTitleItem() {
 	  SIGNAL(futileMovementKey(int, Qt::KeyboardModifiers)),
 	  SLOT(futileTitleMovement(int, Qt::KeyboardModifiers)));
   addItem(titleItem);
-  titleItemX->makeWritable(); // this improperly makes notes writable
+  titleItemX->makeWritableNoRecurse();
 
   nOfNItem = addText("n/N", style().font("pgno-font"));
   nOfNItem->setDefaultTextColor(style().color("pgno-color"));
@@ -1082,6 +1082,7 @@ void PageScene::noteVChanged(int block) {
 }
 
 void PageScene::futileNoteMovement() {
+  // not yet implemented
 }
 
 PageData *PageScene::data() const {

@@ -19,6 +19,7 @@ public:
   ~TextItem();
   DATAACCESS(TextData);
   virtual void makeWritable();
+  virtual void makeWritableNoRecurse();
   bool allowParagraphs() const;
   void setAllowParagraphs(bool yes);
   void setAllowMoves();

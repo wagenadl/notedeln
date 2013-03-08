@@ -72,6 +72,14 @@ void TextItem::makeWritable() {
   setFocusProxy(text);
 }
 
+void TextItem::makeWritableNoRecurse() {
+  Item::makeWritableNoRecurse();
+  text->setTextInteractionFlags(Qt::TextEditorInteraction);
+  text->setCursor(QCursor(Qt::IBeamCursor));
+  setFlag(ItemIsFocusable);
+  setFocusProxy(text);
+}
+
 void TextItem::setAllowMoves() {
   mayMove = true;
   setAcceptHoverEvents(true);

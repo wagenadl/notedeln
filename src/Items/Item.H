@@ -27,6 +27,7 @@ public:
   virtual QRectF netChildBoundingRect() const;
   bool isWritable() const;
   virtual void makeWritable();
+  virtual void makeWritableNoRecurse();
   Style const &style() const;
   QVariant style(QString) const;
   virtual class BlockItem const *ancestralBlock() const;

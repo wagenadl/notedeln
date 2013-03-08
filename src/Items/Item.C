@@ -52,6 +52,11 @@ bool Item::isWritable() const {
   return writable;
 }
 
+void Item::makeWritableNoRecurse() {
+  ASSERT(d);
+  writable = true;
+}
+
 void Item::makeWritable() {
   ASSERT(d);
   writable = true;
