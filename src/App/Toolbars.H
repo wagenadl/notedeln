@@ -18,6 +18,9 @@ public:
   Qt::Orientation orientation() const;
   QRectF boundingRect() const { return QRectF(); }
   void paint(QPainter *, const QStyleOptionGraphicsItem *, QWidget *) { }
+  class Navbar *navBar() const; // use this to connect to its signals
+  void hideTools();
+  void showTools();
 public slots:
   void setMode(Mode::M);
 private:
@@ -29,6 +32,8 @@ private:
   class Toolbar *shapes;
   class Toolbar *sizes;
   class Toolbar *widths;
+  class Toolbar *nav;
+  Mode::M m;
 };
 
 #endif

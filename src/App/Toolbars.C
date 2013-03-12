@@ -6,6 +6,7 @@
 #include "MarkSizeBar.H"
 #include "MarkShapeBar.H"
 #include "ColorBar.H"
+#include "Navbar.H"
 
 #include <QDebug>
 
@@ -13,6 +14,7 @@
 
 Toolbars::Toolbars(Mode *mode, QGraphicsItem *parent): QGraphicsObject(parent) {
   orient = Qt::Vertical;
+  m = Mode::Browse;
 
   modes = new Modebar(mode, this);
 
@@ -55,6 +57,8 @@ Toolbars::Toolbars(Mode *mode, QGraphicsItem *parent): QGraphicsObject(parent) {
   connect(mode, SIGNAL(colorChanged(QColor)),
 	  widths, SLOT(setColor(QColor)));
 #endif
+
+  nav = new Navbar(this);
 
   placeChildren();
   
@@ -99,9 +103,27 @@ void Toolbars::placeChildren() {
 		- QPointF(0, shapes->childrenBoundingRect().height()+10));
 
   widths->setPos(lcolors->pos() + QPointF(36, 0));
+
+  nav->setPos(modes->pos()
+		 + QPointF(0, modes->childrenBoundingRect().height()+10));
 }
 
-void Toolbars::setMode(Mode::M m) {
+void Toolbars::hideTools() {
+  shapes->hide();
+  sizes->hide();
+  mcolors->hide();
+  widths->hide();
+  lcolors->hide();
+  modes->hide();
+}
+
+void Toolbars::showTools() {
+  modes->show();
+  setMode(m);
+}
+
+void Toolbars::setMode(Mode::M m1) {
+  m = m1;
   if (m==Mode::Mark) {
     shapes->show();
     sizes->show();
@@ -118,6 +140,12 @@ void Toolbars::setMode(Mode::M m) {
   } else {
     widths->hide();
     lcolors->hide();
+  }
+
+  if (m==Mode::Freehand || m==Mode::Mark) {
+    nav->hide();
+  } else {
+    nav->show();
   }
 }
       

@@ -12,7 +12,15 @@ class Toolbar: public QGraphicsObject {
   Q_OBJECT;
 public:
   Toolbar(QGraphicsItem *parent);
-  ~Toolbar();
+  virtual ~Toolbar();
+  void enableSelect(bool t=true);
+  void disableSelect();
+  /* Even if selecting is disabled, clicking a button still causes the
+     selectionChanged() signal to be emitted.
+     The only difference is that the button is deselected upon mouse
+     release.
+  */
+  bool isSelectEnabled() const;
   Qt::Orientation orientation() const;
   void setOrientation(Qt::Orientation);
   void addTool(QString id, class ToolItem *item);
@@ -30,6 +38,7 @@ protected:
 private slots:
   void leftClicked();
   void rightClicked();
+  void released();
   void childGone();
 private:
   void arrangeTools();
@@ -39,6 +48,7 @@ private:
   QMap<QString, ToolItem *> tools;
   QMap<ToolItem *, QString> revmap;
   QString sel;
+  bool selEna;
 };
 
 #endif

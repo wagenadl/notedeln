@@ -1,6 +1,6 @@
 #!/bin/zsh
 
-SUBDIRS="App Book Data File Items BookScene ResourceMagic"
+SUBDIRS="App Book Data File Items Scenes ResourceMagic"
 
 cd `dirname $0`
 cd ../src

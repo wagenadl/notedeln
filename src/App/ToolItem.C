@@ -104,6 +104,11 @@ void ToolItem::hoverLeaveEvent(QGraphicsSceneHoverEvent *) {
   update();
 }
 
+void ToolItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *e) {
+  emit release();
+  e->accept();
+}
+
 void ToolItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
   switch (e->button()) {
   case Qt::LeftButton:

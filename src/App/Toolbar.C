@@ -10,12 +10,30 @@
 
 Toolbar::Toolbar(QGraphicsItem *parent): QGraphicsObject(parent) {
   orient = Qt::Vertical;
+  selEna = true;
 }
 
 Toolbar::~Toolbar() {
 }
 Qt::Orientation Toolbar::orientation() const {
   return orient;
+}
+
+void Toolbar::enableSelect(bool t) {
+  if (t) 
+    selEna = true;
+  else
+    disableSelect();
+}
+
+void Toolbar::disableSelect() {
+  select("");
+  selEna = false;
+  update();
+}
+
+bool Toolbar::isSelectEnabled() const {
+  return selEna;
 }
 
 void Toolbar::setOrientation(Qt::Orientation o) {
@@ -32,6 +50,7 @@ void Toolbar::addTool(QString id, ToolItem *item) {
   connect(item, SIGNAL(destroyed(QObject*)), SLOT(childGone()));
   connect(item, SIGNAL(leftClick()), SLOT(leftClicked()));
   connect(item, SIGNAL(rightClick()), SLOT(rightClicked()));
+  connect(item, SIGNAL(release()), SLOT(released()));
   arrangeTools();
 }
     
@@ -52,8 +71,12 @@ void Toolbar::select(QString s) {
     sel = "";
     qDebug() << "Toolbar: selecting nonexistent tool";
   }
-   
   emit selectionChanged(sel);
+}
+
+void Toolbar::released() {
+  if (!selEna)
+    select("");
 }
 
 void Toolbar::leftClicked() {

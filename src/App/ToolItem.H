@@ -20,10 +20,12 @@ public:
 signals:
   void leftClick();
   void rightClick();
+  void release();
 protected:
   void hoverEnterEvent(QGraphicsSceneHoverEvent *);
   void hoverLeaveEvent(QGraphicsSceneHoverEvent *);
   void mousePressEvent(QGraphicsSceneMouseEvent *);
+  void mouseReleaseEvent(QGraphicsSceneMouseEvent *);
 private:
   bool sel;
   bool hov;
