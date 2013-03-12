@@ -17,6 +17,7 @@ public slots:
   void gotoFront();
   //  void gotoIndex();
   void nextPage();
+  void goRelative(int n);
   void previousPage();
   void lastPage();
 public:

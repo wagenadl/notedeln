@@ -12,6 +12,7 @@
 #include "DeletedStack.H"
 #include "Assert.H"
 #include "Toolbars.H"
+#include "Navbar.H"
 #include "Mode.H"
 #include "BlockItem.H"
 
@@ -21,6 +22,9 @@
 PageView::PageView(Notebook *nb, QWidget *parent):
   QGraphicsView(parent), book(nb) {
   toolbars = new Toolbars(mode(), 0); // toolbars is unparented except when viewing a page
+  connect(toolbars->navbar(), SIGNAL(goTOC()), SLOT(gotoTOC()));
+  connect(toolbars->navbar(), SIGNAL(goEnd()), SLOT(lastPage()));
+  connect(toolbars->navbar(), SIGNAL(goRelative(int)), SLOT(goRelative(int)));
   deletedStack = new DeletedStack(this);
   frontScene = new FrontScene(nb, this);
   tocScene = new TOCScene(nb->toc(), this);
@@ -298,6 +302,37 @@ void PageView::previousPage() {
       gotoPage(currentPage-1);
     break;
   }
+}
+
+void PageView::goRelative(int n) {
+  switch (currentSection) {
+  case Front:
+    break;
+  case TOC:
+    n += currentPage;
+    break;
+  case Pages:
+    n += tocScene->sheetCount() + currentPage;
+    break;
+  }
+  
+  // now n is an absolute page number; title=0; toc=1..N; pages=N+1..
+  if (n<=0) {
+    gotoFront();
+    return;
+  }
+
+  // n=1 is the first toc page
+  if (n<=tocScene->sheetCount()) {
+    gotoTOC(n);
+    return;
+  }
+
+  n -= tocScene->sheetCount(); // now n=1 is the first page
+  if (n<book->toc()->newPageNumber())
+    gotoPage(n);
+  else
+    lastPage();
 }
 
 void PageView::nextPage() {

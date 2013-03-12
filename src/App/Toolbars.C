@@ -104,8 +104,14 @@ void Toolbars::placeChildren() {
 
   widths->setPos(lcolors->pos() + QPointF(36, 0));
 
-  nav->setPos(modes->pos()
-		 + QPointF(0, modes->childrenBoundingRect().height()+10));
+  nav->setPos(mcolors->pos()
+	      + QPointF(0,
+			mcolors->childrenBoundingRect().height()
+			- nav->childrenBoundingRect().height()));
+}
+
+Navbar *Toolbars::navbar() const {
+  return nav;
 }
 
 void Toolbars::hideTools() {

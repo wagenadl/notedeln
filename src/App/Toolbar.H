@@ -35,6 +35,7 @@ public slots:
 protected:
   virtual void doLeftClick(QString id);
   virtual void doRightClick(QString id);
+  void timerEvent(QTimerEvent *);
 private slots:
   void leftClicked();
   void rightClicked();

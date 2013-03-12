@@ -4,6 +4,7 @@
 #include <QDebug>
 #include "Assert.H"
 #include "ToolItem.H"
+#include <QTimerEvent>
 
 #define TOOLGRID 31.5
 #define TOOLOFFSET 2
@@ -85,9 +86,16 @@ void Toolbar::leftClicked() {
     QString id = revmap[t];
     doLeftClick(id);
     select(id);
+    if (!selEna)
+      startTimer(100); // will deslect after 100 ms
   } else {
     qDebug() << "Toolbar: left click on unknown tool";
   }
+}
+
+void Toolbar::timerEvent(QTimerEvent *e) {
+  killTimer(e->timerId());
+  select("");
 }
 
 void Toolbar::rightClicked() {
