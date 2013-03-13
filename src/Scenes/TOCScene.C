@@ -94,5 +94,7 @@ QString TOCScene::pgNoToString(int n) const {
 }
   
 void TOCScene::makeContdItems() {
-  // simply don't make tem
+  // Simply don't make them??
+  BaseScene::makeContdItems();
+  contdItem->setPos(4, style().real("margin-top"));
 }

@@ -27,6 +27,7 @@ protected:
   virtual void makeBackground();
   virtual void makeTitleItem();
   virtual void makePgNoItem();
+  virtual void makeNofNItem();
   virtual void makeContdItems();
   virtual void positionPgNoItem();
   virtual void positionTitleItem();
@@ -38,6 +39,7 @@ protected:
   QGraphicsTextItem *pgNoItem;
   QGraphicsTextItem *contdItem; // from prev page
   QGraphicsTextItem *contItem; // to next page
+  QGraphicsTextItem *nOfNItem;
   QGraphicsLineItem *leftMarginItem;
   QGraphicsLineItem *topMarginItem;
   QGraphicsRectItem *bgItem;

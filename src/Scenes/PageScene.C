@@ -46,7 +46,6 @@ PageScene::PageScene(PageData *data, QObject *parent):
   data_(data) {
   writable = false;
   
-  nOfNItem = 0;
   dateItem = 0;
 
   vChangeMapper = new QSignalMapper(this);
@@ -97,9 +96,6 @@ void PageScene::makeTitleItem() {
   addItem(titleItem);
   titleItemX->makeWritableNoRecurse();
 
-  nOfNItem = addText("n/N", style().font("pgno-font"));
-  nOfNItem->setDefaultTextColor(style().color("pgno-color"));
-    
   connect(titleItemX->document(), SIGNAL(contentsChanged()),
 	  SLOT(titleEdited()));
 }
@@ -292,10 +288,6 @@ void PageScene::gotoSheet(int i) {
   for (int k=0; k<nBlocks; k++)
     footnoteGroups[k]->setVisible(sheetNos[k]==iSheet);
 
-  if (nSheets>1) 
-    nOfNItem->setPlainText(QString("(%1/%2)").arg(iSheet+1).arg(nSheets));
-  else
-    nOfNItem->setPlainText("");
   positionNofNAndDateItems();
   reshapeBelowItem();
   repositionContItem();
@@ -309,38 +301,7 @@ void PageScene::gotoSheet(int i) {
 }
 
 void PageScene::repositionContItem() {
-  if (!contItem->isVisible())
-    return;
-
-  int iLast = findLastBlockOnSheet(iSheet);
-  if (iLast<0) {
-    contItem->setPos(style().real("page-width")
-		     - style().real("margin-right-over"),
-		     style().real("page-height")
-		     - style().real("margin-bottom")
-		     - contItem->boundingRect().height());
-    return;
-  }
-
-  BlockItem *bi = blockItems[iLast];
-  TextBlockItem *tbi = dynamic_cast<TextBlockItem *>(bi);
-  if (tbi) {
-    QTextBlock tb = tbi->text()->document()->lastBlock();
-    QTextLayout *lay = tb.layout();
-    QTextLine l = lay->lineAt(lay->lineCount()-1);
-    QPointF p(l.cursorToX(tb.length()) + 10, l.y());
-    p = tbi->text()->mapToScene(p+lay->position());
-    p.setX(style().real("page-width") - style().real("margin-right"));
-    QTextLayout *clay = contItem->document()->lastBlock().layout();
-    QTextLine cl = clay->lineAt(0);
-    QPointF cp(cl.cursorToX(0), cl.y());
-    cp += clay->position();
-    cp.setX(0);
-    contItem->setPos(p - cp);
-  } else {
-    contItem->setPos(bi->mapToScene(bi->boundingRect().bottomRight())
-		     + QPointF(5, 5-contItem->boundingRect().height()));
-  }
+  // just leave the thing in place
 }
 
 void PageScene::reshapeBelowItem() {

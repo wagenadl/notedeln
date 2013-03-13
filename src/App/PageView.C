@@ -12,6 +12,7 @@
 #include "DeletedStack.H"
 #include "Assert.H"
 #include "Toolbars.H"
+#include "SimpleNavbar.H"
 #include "Navbar.H"
 #include "Mode.H"
 #include "BlockItem.H"
@@ -29,6 +30,8 @@ PageView::PageView(Notebook *nb, QWidget *parent):
   frontScene = new FrontScene(nb, this);
   tocScene = new TOCScene(nb->toc(), this);
   tocScene->populate();
+  simpleNavbar = new SimpleNavbar(tocScene);
+  connect(simpleNavbar, SIGNAL(goRelative(int)), SLOT(goRelative(int)));
   connect(tocScene, SIGNAL(pageNumberClicked(int)),
           SLOT(gotoPage(int)));
 

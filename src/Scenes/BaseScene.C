@@ -28,7 +28,7 @@ BaseScene::BaseScene(Data *data, QObject *parent):
   nSheets = 1;
   iSheet = 0;
 
-  titleItem = pgNoItem = contdItem = contItem = 0;
+  titleItem = pgNoItem = contdItem = contItem = nOfNItem = 0;
   leftMarginItem = topMarginItem = 0;
   bgItem = 0;
 
@@ -40,6 +40,7 @@ void BaseScene::populate() {
   makePgNoItem();
   makeContdItems();
   makeTitleItem();
+  makeNofNItem();
   positionTitleItem();
   positionPgNoItem();
 }
@@ -61,7 +62,8 @@ void BaseScene::makeBackground() {
 		   style_->real("page-height"),
 		   QPen(Qt::NoPen),
 		   QBrush(style_->color("background-color")));
-
+  bgItem->setZValue(-100);
+  
   leftMarginItem = addLine(style_->real("margin-left")-1,
 			   0,
 			   style_->real("margin-left")-1,
@@ -99,12 +101,25 @@ void BaseScene::makeContdItems() {
 
   contItem = addText(">",style_->font("contd-font"));
   contItem->setDefaultTextColor(style_->color("contd-color"));
-  QPointF bl = contItem->boundingRect().bottomLeft();
-  contItem->setPos(style_->real("page-width") - style_->real("margin-right")
-		   - bl.x(),
-		   style_->real("page-height") - style_->real("margin-bottom")
-		   - bl.y());
+  contItem->setPos(style().real("page-width")
+		   - style().real("margin-right-over"),
+		   style().real("page-height")
+		   - style().real("margin-bottom")
+		   + style().real("pgno-sep"));
 }
+
+void BaseScene::makeNofNItem() {
+  nOfNItem = addText("n/N", style().font("pgno-font"));
+  nOfNItem->setDefaultTextColor(style().color("pgno-color"));
+
+  QPointF br = nOfNItem->boundingRect().bottomRight();
+  nOfNItem->setPos(style().real("page-width") -
+		   style().real("margin-right-over") -
+		   br.x(),
+		   style().real("margin-top") -
+		   style().real("title-sep") -
+		   br.y() + 8);
+}  
 
 void BaseScene::positionPgNoItem() {
   QPointF tr = pgNoItem->boundingRect().topRight();
@@ -172,6 +187,11 @@ void BaseScene::gotoSheet(int i) {
   // Set page number
   pgNoItem->setPlainText(pgNoToString(startPage() + iSheet));
   positionPgNoItem();
+
+  if (nSheets>1) 
+    nOfNItem->setPlainText(QString("(%1/%2)").arg(iSheet+1).arg(nSheets));
+  else
+    nOfNItem->setPlainText("");
 }
   
 bool BaseScene::inMargin(QPointF sp) {

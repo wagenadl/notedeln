@@ -81,7 +81,6 @@ private:
   void reshapeBelowItem();
 private:
   QGraphicsTextItem *dateItem;
-  QGraphicsTextItem *nOfNItem;
   QGraphicsRectItem *belowItem;
   class QSignalMapper *vChangeMapper;
   class QSignalMapper *noteVChangeMapper;
