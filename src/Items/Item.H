@@ -25,6 +25,12 @@ public:
   class PageScene *pageScene() const;
   class Mode const *mode() const;
   virtual QRectF netChildBoundingRect() const;
+  /* netChildBoundingRect includes most children, but it could
+     exclude certain children. The base implementation excludes LateNoteItems,
+     and overloads are allowed to do their own thing. They may even add some
+     rects, but those should be static and not depend on the item itself.
+     (I've seen crashes due to Qt's confusion about resizing items.)
+  */
   bool isWritable() const;
   virtual void makeWritable();
   virtual void makeWritableNoRecurse();

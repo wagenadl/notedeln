@@ -202,6 +202,8 @@ void PageScene::stackBlocks() {
 }
 
 void PageScene::restackBlocks(int starti, bool preferData) {
+  if (!writable)
+    preferData = true;
   int endi = sheetNos.size();
   if (starti>=endi)
     return;

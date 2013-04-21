@@ -93,6 +93,8 @@ QRectF Item::netChildBoundingRect() const {
   ASSERT(d);
   QRectF bb;
   foreach (Item *i, allChildren()) {
+    if (dynamic_cast<LateNoteItem*>(i))
+      continue;
     QRectF b = i->boundingRect();
     b |= i->netChildBoundingRect();
     bb |= i->mapRectToParent(b);
