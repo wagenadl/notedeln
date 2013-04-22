@@ -798,21 +798,32 @@ bool PageScene::tryToPaste() {
   // we get it first.
   // if we don't send the event on to QGraphicsScene, textItems don't get it
   //  qDebug() << "PageScene::tryToPaste";
-  QList<QGraphicsView*> vv = views();
-  if (vv.isEmpty()) {
-    qDebug() << "PageScene: cannot determine paste position: no view";
-    return false;
+
+  QPointF scenePos;
+
+  QGraphicsTextItem *fi = dynamic_cast<QGraphicsTextItem*>(focusItem());
+  if (fi) {
+    QPointF p = posToPoint(fi, fi->textCursor().position());
+    qDebug() << "PageScene::tryToPaste: have focusItem " << fi << p;
+    scenePos = fi->mapToScene(p);
+  } else {
+    QList<QGraphicsView*> vv = views();
+    if (vv.isEmpty()) {
+      qDebug() << "PageScene: cannot determine paste position: no view";
+      return false;
+    }
+    if (vv.size()>1) {
+      qDebug() << "PageScene: multiple views: cannot determine paste position";
+      // Of course, this can actually be done just fine, but I haven't
+      // figured it out yet.
+      return false;
+    }
+    scenePos = vv[0]->mapToScene(vv[0]->mapFromGlobal(QCursor::pos()));
   }
-  if (vv.size()>1) {
-    qDebug() << "PageScene: multiple views: cannot determine paste position";
-    // Of course, this can actually be done just fine, but I haven't
-    // figured it out yet.
-    return false;
-  }
-  QPointF scenePos = vv[0]->mapToScene(vv[0]->mapFromGlobal(QCursor::pos()));
   
   QClipboard *cb = QApplication::clipboard();
   QMimeData const *md = cb->mimeData(QClipboard::Clipboard);
+  qDebug() << "PageScene::trytopaste" << md;
   bool accept = importDroppedOrPasted(scenePos, md, false);
   return accept;
 }

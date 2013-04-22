@@ -28,4 +28,18 @@ private:
   bool forcebox;
 };
 
+int pointToPos(QGraphicsTextItem const *item, QPointF p);
+/*:F pointToPos
+ *:D Converts a point P in the textitem's coordinates to a cursor position
+     (index into the text document).
+ *:R Returns -1 if the point is not in the text block
+*/
+QPointF posToPoint(QGraphicsTextItem const *item, int i);
+/*:F posToPoint
+ *:D Converts a cursor position to a point in the textitem's coordinates.
+     The point vertical position will be the midpoint of the line in which
+     the cursor position resides.
+ *:R Returns QPointF() if i is not a valid cursor position.
+*/
+
 #endif

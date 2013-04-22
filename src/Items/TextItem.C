@@ -190,23 +190,7 @@ bool TextItem::mousePress(QGraphicsSceneMouseEvent *e) {
 }
 
 int TextItem::pointToPos(QPointF p) const {
-  p = text->mapFromParent(p);
-  QTextDocument *doc = text->document();
-  for (QTextBlock b = doc->begin(); b!=doc->end(); b=b.next()) {
-    QTextLayout *lay = b.layout();
-    if (lay->boundingRect().contains(p)) {
-      p -= lay->position();
-      int nLines = lay->lineCount();
-      for (int i=0; i<nLines; i++) {
-	QTextLine line = lay->lineAt(i); // yes, this returns the i-th line
-	if (line.rect().contains(p)) 
-	  return line.xToCursor(p.x());
-      }
-      qDebug() << "TextItem: point in block but not in a line!?";
-      return -1;
-    }
-  }
-  return -1;
+  return ::pointToPos(text, text->mapFromParent(p));
 }
       
 
@@ -697,9 +681,9 @@ bool TextItem::tryFootnote() {
 }
 
 bool TextItem::tryToPaste() {
-  qDebug() << "TextItem::tryToPaste";
   QClipboard *cb = QApplication::clipboard();
   QMimeData const *md = cb->mimeData(QClipboard::Clipboard);
+  qDebug() << "TextItem::tryToPaste" << md;
   if (md->hasImage()) {
     return false;
   } else if (md->hasUrls()) {
