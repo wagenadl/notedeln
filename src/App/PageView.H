@@ -48,6 +48,7 @@ private:
   } currentSection;
   class DeletedStack *deletedStack;
   class Toolbars *toolbars;
+  class SimpleNavbar *simpleNavbar;
 };
 
 #endif

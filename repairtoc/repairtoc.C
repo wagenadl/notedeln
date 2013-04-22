@@ -11,7 +11,7 @@
 #include <stdlib.h>
 
 void usage() {
-  fprintf(stderr, "Usage: repairtoc [notebookdir]\n");
+  fprintf(stderr, "Usage: repairtoc -v [notebookdir]\n");
   exit(1);
 }
 
@@ -73,6 +73,12 @@ QString findANotebook() {
 }
 
 int main(int argc, char **argv) {
+  bool verbose = false;
+  if (argc>=2 && QString(argv[1]) == "-v") {
+    verbose = true;
+    argc--;
+    argv++;
+  }
   if (argc>2)
     usage();
   QDir root(argc==2 ? argv[1] : findANotebook());
@@ -83,7 +89,8 @@ int main(int argc, char **argv) {
 					       &originalReadable);
   QMap<BasicTOCEntry, int> originalTOC;
   if (originalReadable && originalTOCFile.contains("cc")) {
-    qDebug() << "Original TOC file parsed";
+    if (verbose)
+      qDebug() << "Original TOC file parsed";
     QVariantList originalEntries = originalTOCFile["cc"].toList();
     foreach (QVariant e0, originalEntries) {
       BasicTOCEntry bte;
@@ -95,7 +102,8 @@ int main(int argc, char **argv) {
       bte.title = e["title"].toString();
       bte.filename = QString("%1.json").arg(bte.startPage);
       if (pages.exists(bte.filename)) {
-	qDebug() << "Original TOC entry for " << bte.filename << " read";
+	if (verbose)
+	  qDebug() << "Original TOC entry for " << bte.filename << " read";
 	originalTOC[bte] = 1;
       } else {
 	qDebug() << "Original TOC entry for " << bte.filename
@@ -110,6 +118,7 @@ int main(int argc, char **argv) {
   QStringList nameflt; nameflt << "*.json" << "*.json.*";
   QStringList pagefilenames = pages.entryList(nameflt,
 					      QDir::Files | QDir::Readable);
+  QStringList renameList; // these files will have to be moved
   foreach (QString fn, pagefilenames) {
     if (fn.endsWith("~"))
       continue;
@@ -117,7 +126,8 @@ int main(int argc, char **argv) {
     QVariantMap page = JSONFile::load(pages.filePath(fn),
 				      &pageReadable);
     if (pageReadable) {
-      qDebug() << "Parsed page file " << fn;
+      if (verbose)
+	qDebug() << "Parsed page file " << fn;
       BasicTOCEntry bte;
       bte.filename = fn;
       bool startPageOK;
@@ -140,18 +150,25 @@ int main(int argc, char **argv) {
 	}
       }
       if (startPageOK) {
-	qDebug() << "File " << fn
-		 << " is titled " << bte.title
-		 << ", starts at page " << bte.startPage 
-		 << ", and contains " << bte.sheetCount << " sheets.";
+	if (verbose)
+	  qDebug() << "File " << fn
+		   << " is titled " << bte.title
+		   << ", starts at page " << bte.startPage 
+		   << ", and contains " << bte.sheetCount << " sheets.";
 	actualTOC.append(bte);
       } else {
 	qDebug() << "File " << fn
 		 << " does not mention a start page. Ignored";
       }
     } else {
-      qDebug() << "File " << fn
-	       << " cannot be parsed as a page file. Ignored.";
+      if (fn.endsWith(".json")) {
+	qDebug() << "File " << fn
+		 << " cannot be parsed as a page file. Will be renamed.";
+	renameList << fn;
+      } else {
+	qDebug() << "File " << fn
+		 << " cannot be parsed as a page file. Ignored.";
+      }
     }
   }
 
@@ -210,6 +227,10 @@ int main(int argc, char **argv) {
   if (!toBeRenumbered.isEmpty())
     qDebug() << "In addition, " << toBeRenumbered.size()
 	     << "file(s) will be renumbered.";
+  if (!renameList.isEmpty())
+    qDebug() << "In addition, " << renameList.size()
+	     << "unparsable file(s) will be renamed.";
+    
 
   qDebug() << "Press Enter to proceed";
 
@@ -218,6 +239,18 @@ int main(int argc, char **argv) {
     qDebug() << "Not confirmed. Terminating without action.";
     return 1;
   }
+
+  foreach (QString fn, renameList) {
+    QString nw = fn + ".unparsed~";
+    if (pages.rename(fn, nw)) {
+      qDebug() << "Renamed " << fn << " as " << nw;
+    } else {
+      qDebug() << "Unfortunately, " << fn << " could not be renamed as " << nw;
+      qDebug() << "Aborting.";
+      return 2;
+    }      
+  }
+  
 
   qDebug() << "Rebuilding TOC file";
   QVariantMap toc;

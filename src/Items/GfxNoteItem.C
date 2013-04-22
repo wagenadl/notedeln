@@ -11,6 +11,7 @@
 #include <QTextBlock>
 #include <QTextLayout>
 #include <QTextLine>
+#include <math.h>
 
 static Item::Creator<GfxNoteData, GfxNoteItem> c("gfxnote");
 
@@ -46,43 +47,58 @@ void GfxNoteItem::abandon() {
     ancestor->sizeToFit();
 }
 
-// static double euclideanLength2(QPointF p) {
-//   return p.x()*p.x() + p.y()*p.y();
-// }
- 
+static double euclideanLength2(QPointF p) {
+  return p.x()*p.x() + p.y()*p.y();
+}
+
+static QPointF retract(QPointF p, double d) {
+  double l = sqrt(euclideanLength2(p))+.001;
+  QPointF p0 = (1/l) * p; // normalized
+  return p - d * p0;
+}
+
 QPointF GfxNoteItem::nearestCorner(QPointF pbase) {
   double yof = style().real("note-y-offset");
-  QTextBlock b = text->document()->firstBlock();
-  QTextLayout *lay = b.layout();
-  QPointF p0 = lay->position() + text->pos() - pbase;
-  if (lay->lineCount()==0) { // this shouldn't happen, I think
+  double xof = style().real("note-x-inset");
+  QTextBlock b0 = text->document()->firstBlock();
+  QTextLayout *lay0 = b0.layout();
+  QPointF p0 = lay0->position() + text->pos() - pbase;
+  QTextBlock bn = text->document()->lastBlock();
+  QTextLayout *layn = bn.layout();
+  QPointF pn = layn->position() + text->pos() - pbase;
+  if (lay0->lineCount()==0) { // this shouldn't happen, I think
     return pbase;
   } else {
-    QRectF l0rect = lay->lineAt(0).naturalTextRect();
+    QRectF l0rect = lay0->lineAt(0).naturalTextRect();
     l0rect.translate(p0);
-    QRectF lnrect = lay->lineAt(lay->lineCount()-1).naturalTextRect();
-    lnrect.translate(p0);
-    QPointF tl = l0rect.topLeft() + QPointF(-3, -yof);
-    QPointF tr = l0rect.topRight() + QPointF(3, -yof);
-    QPointF bl = lnrect.topLeft() + QPointF(-3, -yof);
-    QPointF br = lnrect.topRight() + QPointF(3, -yof);
+    QRectF lnrect = layn->lineAt(layn->lineCount()-1).naturalTextRect();
+    lnrect.translate(pn);
+    QPointF tl = l0rect.topLeft() + QPointF(xof, -yof);
+    QPointF tr = l0rect.topRight() + QPointF(-xof, -yof);
+    QPointF bl = lnrect.topLeft() + QPointF(xof, -yof);
+    QPointF br = lnrect.topRight() + QPointF(-xof, -yof);
     double dyt = tl.y();
     double dyb = bl.y();
+    qDebug() << "nearestCorner" << tl << tr << bl << br;
     QPointF p;
-    if (dyt*dyt<dyb*dyb) {
+    if (fabs(dyt)<fabs(dyb)) {
       double dxl = tl.x();
       double dxr = tr.x();
-      if (dxl*dxl<dxr*dxr)
-        p = tl;
+      if (dxl>0) 
+	p = retract(tl, xof*1.5);
+      else if (dxr<0)
+	p = retract(tr, xof*1.5);
       else
-        p = tr;
+	p = retract((tl+tr)/2, xof*1.5);
     } else {
       double dxl = bl.x();
       double dxr = br.x();
-      if (dxl*dxl<dxr*dxr)
-        p = bl;
+      if (dxl>0) 
+	p = retract(bl, xof*1.5);
+      else if (dxr<0)
+	p = retract(br, xof*1.5);
       else
-        p = br;
+	p = retract((bl+br)/2, xof*1.5);
     }
     return pbase + p;
   }
