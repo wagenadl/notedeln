@@ -1,13 +1,15 @@
 // JSONFile.C
 
 #include "JSONFile.H"
-#include <qjson/parser.h>
 #include <QFile>
 #include <QDebug>
 
+#include "JSONParser.H"
+  
+
 namespace JSONFile {
 
-  /* Major portions of this file have been adapted from the source code to
+  /* The following portion of this file has been adapted from the source code of
      qjson. The following copyright message applies:
    */
 /* This file is part of qjson
@@ -135,7 +137,9 @@ namespace JSONFile {
     else
       return QString();
   }
-  
+
+  /* End of adapted section. The rest of this file was written by Daniel Wagenaar. */
+
   QVariantMap load(QString fn, bool *ok) {
     if (ok)
       *ok = false;
@@ -144,38 +148,32 @@ namespace JSONFile {
       qDebug() << "JSONFile::load: file not found";
       return QVariantMap();
     }
-    
-    QJson::Parser parser;
-    bool ok1;
-    QVariant doc = parser.parse(&f, &ok1);
-    f.close();
-    if (!ok1) {
-      qDebug() << "JSONFile: Parse failed:" << parser.errorString()
-	       << "at line" << parser.errorLine()
-	       << "in file" << fn;
-      return QVariantMap();
-    }
 
+    bool ok1;
+    QTextStream ts(&f);
+    ts.setCodec("UTF-8");
+    QVariantMap res = read(ts.readAll(), &ok1);
+    if (!ok1) 
+      qDebug() << "(while reading: " << fn << ")";
     if (ok)
-      *ok = true;
-    return doc.toMap();
+      *ok = ok1;
+    return res;
   }
 
   QVariantMap read(QString json, bool *ok) {
     if (ok)
       *ok = false;
-    QJson::Parser parser;
-    bool ok1;
-    QVariant doc = parser.parse(json.toUtf8(), &ok1);
-    if (!ok1) {
-      qDebug() << "JSONFile: Parse failed:" << parser.errorString()
-	       << "at line" << parser.errorLine()
-	       << "in string";
+    JSONParser parser(json);
+    try {
+      QVariantMap v = parser.readObject();
+      parser.assertEnd();
+      if (ok)
+	*ok = true;
+      return v;
+    } catch (JSONParser::Error e) {
+      e.report();
       return QVariantMap();
     }
-    if (ok)
-      *ok = true;
-    return doc.toMap();
   }
 
   QString write(QVariantMap const &src) {

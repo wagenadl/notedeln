@@ -4,7 +4,7 @@
 
 TEMPLATE = app
 TARGET = eln
-LIBS += -lqjson
+#LIBS += -lqjson
 
 include(eln.pri)
 

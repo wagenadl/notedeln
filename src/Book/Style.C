@@ -6,7 +6,7 @@
 #include <QFileInfo>
 #include <QDebug>
 #include <QColor>
-#include <qjson/parser.h>
+#include "JSONParser.H"
 #include "Assert.H"
 
 Style const &Style::defaultStyle() {
@@ -17,29 +17,31 @@ Style const &Style::defaultStyle() {
 Style::Style() {
   QFile f(":/style.json");
   ASSERT(f.open(QFile::ReadOnly));
-  QJson::Parser p;
-  bool ok = true;
-  QVariant v = p.parse(&f, &ok);
-  if (!ok) {
-    qDebug() << "Style: JSON parse of :/style.json failed: " 
-	     << p.errorString() << " at line " << p.errorLine();
+  QTextStream ts(&f);
+  ts.setCodec("UTF-8");
+  JSONParser p(ts.readAll());
+  try {
+    options_ = p.readObject();
+    p.assertEnd();
+  } catch (JSONParser::Error e) {
+    e.report();
     qFatal("style error");
   }
-  options_ = v.toMap();
 }
 
 Style::Style(QString fn) {
   QFile f(fn);
   if (f.open(QFile::ReadOnly)) {
-    QJson::Parser p;
-    bool ok = true;
-    QVariant v = p.parse(&f, &ok);
-    if (!ok) {
-      qDebug() << "Style: JSON parse of " << fn << " failed: " 
-	       << p.errorString() << " at line " << p.errorLine();
+    QTextStream ts(&f);
+    ts.setCodec("UTF-8");
+    JSONParser p(ts.readAll());
+    try {
+      options_ = p.readObject();
+      p.assertEnd();
+    } catch (JSONParser::Error e) {
+      e.report();
       qFatal("style error");
     }
-    options_ = v.toMap();
   } else {
     qDebug() << "Style: File not found: " << fn;
   }
