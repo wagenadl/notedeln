@@ -1044,14 +1044,17 @@ void PageScene::newFootnote(int block, QString tag) {
 }
 
 void PageScene::noteVChanged(int block) {
+  qDebug() << "noteVChanged" << block;
   ASSERT(block>=0 && block<blockItems.size());
   int s = sheetNos[block];
   for (int i=0; i<block; i++) {
     if (sheetNos[i]==s) {
+      qDebug() << " -> restacking blocks from " << i;
       restackBlocks(i);
       return;
     }
   }
+  qDebug() << " -> restacking blocks from " << block;
   restackBlocks(block);
 }
 
