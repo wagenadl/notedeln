@@ -262,8 +262,9 @@ void PageScene::restackBlocks(int starti, bool preferData) {
 
 void PageScene::restackFootnotes(int sheet) {
   double accumh = 0;
+  qDebug() << "PageScene::restackFootnotes sheet="<<sheet;
   for (int k=0; k<footnoteGroups.size(); k++) 
-    if (sheetNos[k] == sheet)
+    if (sheetNos[k] == sheet) 
       accumh += footnoteGroups[k]->netChildBoundingRect().height();
 
   double y = style().real("page-height")
@@ -272,8 +273,10 @@ void PageScene::restackFootnotes(int sheet) {
 
   for (int k=0; k<footnoteGroups.size(); k++) {
     if (sheetNos[k] == sheet) {
+      double h = footnoteGroups[k]->netChildBoundingRect().height();
       footnoteGroups[k]->setPos(style().real("margin-left"), y);
-      y += footnoteGroups[k]->netChildBoundingRect().height();
+      qDebug() << "group" << k << " y=" << y << " h="<<h;
+      y += h;
     }
   }
 }
@@ -489,7 +492,9 @@ TextBlockItem *PageScene::injectTextBlock(TextBlockData *tbd, int iblock) {
   blockItems.insert(iblock, tbi);
   sheetNos.insert(iblock, iSheet);
   topY.insert(iblock, 0);
-  footnoteGroups.insert(iblock, new FootnoteGroupItem(tbd, this));
+  FootnoteGroupItem *fng = new FootnoteGroupItem(tbd, this);
+  footnoteGroups.insert(iblock, fng);
+  fng->makeWritable();
   connect(tbi, SIGNAL(boundsChanged()), vChangeMapper, SLOT(map()));
   connect(tbi, SIGNAL(futileMovement()), futileMovementMapper, SLOT(map()));
   remap();

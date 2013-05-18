@@ -5,6 +5,7 @@
 #include <QDebug>
 #include "Notebook.H"
 #include "LateNoteItem.H"
+#include "FootnoteItem.H" // for debug
 #include "PageScene.H"
 #include <QGraphicsSceneMouseEvent>
 #include "DragLine.H"
@@ -96,7 +97,10 @@ QRectF Item::netChildBoundingRect() const {
     if (dynamic_cast<LateNoteItem*>(i))
       continue;
     QRectF b = i->boundingRect();
-    b |= i->netChildBoundingRect();
+    QRectF n = i->netChildBoundingRect();
+    if (dynamic_cast<FootnoteItem const*>(this))
+      qDebug() << "fni:ncbr add " << b << n;
+    b |= n;
     bb |= i->mapRectToParent(b);
   }
   return bb;

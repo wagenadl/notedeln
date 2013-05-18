@@ -22,13 +22,19 @@ FootnoteGroupItem::~FootnoteGroupItem() {
 }
 
 void FootnoteGroupItem::restack() {
-  // qDebug() << "FootnoteGroupItem::restack";
+  qDebug() << "FootnoteGroupItem::restack";
   int y = 0;
   foreach (FootnoteItem *fni, children<FootnoteItem>()) {
     fni->setPos(0, y);
     fni->data()->setY0(mapToScene(QPointF(0,y)).y());
-    y += fni->childrenBoundingRect().height();
+    double h = fni->netChildBoundingRect().height();
+    QRectF r0 = fni->netChildBoundingRect();
+    QRectF r1 = fni->boundingRect();
+    qDebug() << "fngi: child y="<<y << " h="<<h;
+    qDebug() << "  r0="<<r0 << " r1="<<r1;
+    y += h;
   }
+  qDebug() << "fngi h="<<netChildBoundingRect().height();
   emit vChanged();
 }
 

@@ -746,7 +746,7 @@ QRectF TextItem::boundingRect() const {
 }
 
 QRectF TextItem::netChildBoundingRect() const {
-  return text->boundingRect();
+  return text->mapRectToParent(text->boundingRect());
 }
  
 void TextItem::paint(QPainter*, const QStyleOptionGraphicsItem*, QWidget*) {

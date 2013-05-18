@@ -24,12 +24,13 @@ QRectF BlockItem::boundingRect() const {
 }
 
 void BlockItem::sizeToFit() {
-  //  qDebug() << "BlockItem"<<this<<"sizeToFit() lock="<<bbLocked;
+  qDebug() << "BlockItem"<<this<<"sizeToFit() lock="<<bbLocked;
   if (bbLocked) 
     return;
   
   QRectF newBbox = netChildBoundingRect();
   if (newBbox != bbox) {
+    qDebug() << " -> chg old="<<bbox << " new="<<newBbox;
     bbox = newBbox;
     prepareGeometryChange();
     //    qDebug() << "BlockItem"<<this<<"emitting boundsChanged";
