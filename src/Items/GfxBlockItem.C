@@ -93,8 +93,14 @@ void GfxBlockItem::sizeToFit() {
   if (r.height() < 72)
     r.setHeight(72);
 
+  double yref = data()->yref();
   double h = data()->height();
+  if (yref!=r.top()) {
+    prepareGeometryChange();
+    data()->setYref(r.top());
+  }
   if (h!=r.height()) {
+    prepareGeometryChange();
     data()->setHeight(r.height());
     emit heightChanged();
   }
@@ -103,7 +109,7 @@ void GfxBlockItem::sizeToFit() {
 QRectF GfxBlockItem::boundingRect() const {
   /* This returns the bounds of our grid and has nothing to do with children.
    */
-  return QRectF(0, 0, availableWidth(), data()->height());
+  return QRectF(0, data()->yref(), availableWidth(), data()->height());
 }
    
 void GfxBlockItem::paint(QPainter *p,

@@ -15,7 +15,7 @@ FootnoteGroupItem::FootnoteGroupItem(BlockData *data, PageScene *parent):
     FootnoteItem *fni = new FootnoteItem(fd, this);
     if (fd->height()==0)
       fni->sizeToFit();
-    connect(fni, SIGNAL(heightChanged()), this, SIGNAL(heightChanged()));
+    //    connect(fni, SIGNAL(heightChanged()), this, SIGNAL(heightChanged()));
     fni->resetPosition();
   }
 }
@@ -58,4 +58,6 @@ void FootnoteGroupItem::moveTo(double y) {
   resetPosition();
 }
 
-  
+void FootnoteGroupItem::childChanged() {
+  emit heightChanged();
+}

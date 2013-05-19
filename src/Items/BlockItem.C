@@ -40,26 +40,23 @@ void BlockItem::refTextChange(QString olds, QString news) {
 	    foreach (FootnoteItem *fni, fng->children<FootnoteItem>()) {
 	      if (fni->data()==fnd) {
 		// found the note!
-		if (news.isEmpty()) {
+                fni->setTagText(news);
+		if (news.isEmpty()) 
 		  fni->deleteLater();
-		} else {
-		  fni->setTagText(news);
-		}
 	      }
 	    }
 	  }
 	}
       }
 	
-      if (news.isEmpty()) {
+      if (news.isEmpty()) 
 	data()->deleteChild(fnd);
-      }
     }
   }
 }
 
 void BlockItem::resetPosition() {
-  QRectF r = netBounds();//item_->mapRectToParent(item_->netBounds());
+  QRectF r = mapRectToScene(netBounds());
   double y0 = data()->y0();
   if (y0!=r.top())
     setPos(pos().x(), pos().y() + y0 - r.top());

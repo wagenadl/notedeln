@@ -32,6 +32,12 @@ FootnoteItem::FootnoteItem(FootnoteData *data, Item *parent):
   tc.setBlockFormat(fmt);
   text()->setTextWidth(text()->textWidth()); // crazy way to fix HoverRegions
   connect(text(), SIGNAL(abandoned()), this, SLOT(abandon()));
+
+  FootnoteGroupItem *fng = dynamic_cast<FootnoteGroupItem*>(parent);
+  if (fng) {
+    connect(this, SIGNAL(heightChanged()), fng, SLOT(childChanged()));
+    connect(this, SIGNAL(destroyed()), fng, SLOT(childChanged()));
+  }
 }
 
 FootnoteItem::~FootnoteItem() {
@@ -69,4 +75,16 @@ void FootnoteItem::updateTag() {
 void FootnoteItem::abandon() {
   // Until we figure out how to unmark references, let's just not
   // delete abandoned notes.
+}
+
+void FootnoteItem::sizeToFit() {
+  qDebug() << "FNI: sizetofit" << data()->tag();
+  if (data()->tag().isEmpty()) {
+    // we're going to be deleted
+    data()->setHeight(0);
+    qDebug() << " -> zero";
+    emit heightChanged();
+  } else {
+    TextBlockItem::sizeToFit();
+  }
 }

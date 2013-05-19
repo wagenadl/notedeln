@@ -26,6 +26,8 @@ signals:
   /* Emitted when the height of any of the constituent footnotes has changed.
      Receiver is responsible for repositioning footnotes
    */
+public slots:
+  void childChanged();
 };
 
 #endif

@@ -112,7 +112,7 @@ void PageScene::makeBlockItems() {
     foreach (FootnoteItem *fni, fng->children<FootnoteItem>())
       connect(fni, SIGNAL(futileMovement()), SLOT(futileNoteMovement()));
     footnoteGroups.append(fng);
-    connect(fng, SIGNAL(vChanged()), noteVChangeMapper, SLOT(map()));    
+    connect(fng, SIGNAL(heightChanged()), noteVChangeMapper, SLOT(map()));    
   }
   remap();
 }
@@ -190,10 +190,14 @@ void PageScene::positionNofNAndDateItems() {
 }
 
 void PageScene::positionBlocks() {
-  foreach (BlockItem *bi, blockItems)
+  int isheet = 0;
+  foreach (BlockItem *bi, blockItems) {
     bi->resetPosition();
+    isheet = bi->data()->sheet();
+  }
   foreach (FootnoteGroupItem *fngi, footnoteGroups)
     fngi->resetPosition();
+  nSheets = isheet+1;
 }
 
 void PageScene::restackBlocks() {
@@ -441,6 +445,7 @@ TextBlockItem *PageScene::injectTextBlock(TextBlockData *tbd, int iblock) {
     : 0;
   data_->insertBlockBefore(tbd, tbd_next);
   TextBlockItem *tbi = new TextBlockItem(tbd);
+  tbi->sizeToFit();
   addItem(tbi);
   tbi->makeWritable();
 
@@ -990,6 +995,8 @@ void PageScene::newFootnote(int block, QString tag) {
   connect(fni, SIGNAL(futileMovement()), SLOT(futileNoteMovement()));
   fni->makeWritable();
   fni->sizeToFit();
+  restackBlocks();
+  gotoSheetOfBlock(block);
   if (!fni->setAutoContents())
     fni->setFocus();
 }

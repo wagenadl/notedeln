@@ -18,6 +18,8 @@ public:
   void setTagText(QString); // updates data
   QString tagText() const;
   bool setAutoContents();
+public slots:
+  void sizeToFit();
 private:
   void updateTag();
 private slots:
