@@ -90,22 +90,17 @@ QMap<QString, Item *(*)(Data *, Item *)> &Item::creators() {
   return m;
 }
   
-QRectF Item::netChildBoundingRect() const {
-  ASSERT(d);
-  QRectF bb;
-  foreach (Item *i, allChildren()) {
-    if (dynamic_cast<LateNoteItem*>(i))
-      continue;
-    QRectF b = i->boundingRect();
-    QRectF n = i->netChildBoundingRect();
-    if (dynamic_cast<FootnoteItem const*>(this))
-      qDebug() << "fni:ncbr add " << b << n;
-    b |= n;
-    bb |= i->mapRectToParent(b);
-  }
-  return bb;
+QRectF Item::netBounds() const {
+  QRectF b = boundingRect();
+  foreach (Item *i, allChildren()) 
+    if (!i->excludeFromNet())
+      b |= i->mapRectToParent(i->netBounds());
+  return b;
 }
 
+bool Item::excludeFromNet() const {
+  return false;
+}
 
 Item *Item::parent() const {
   return dynamic_cast<Item*>(QGraphicsObject::parentItem());

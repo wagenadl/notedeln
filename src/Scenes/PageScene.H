@@ -18,6 +18,7 @@ public:
   void focusEnd(); // may create new text block
   bool isWritable() const;
   void gotoSheet(int i);
+  void gotoSheetOfBlock(int blocki);
   int findBlock(class Item const *) const; // -1 if none
   int findBlock(QPointF scenePos) const; // -1 if none
   void newFootnote(int block, QString tag);
@@ -59,9 +60,9 @@ private:
   void makeTitleItem();
   void makeDateItem();
   void makeBlockItems();
-  void stackBlocks();
-  void restackBlocks(int starti=0, bool preferData=false);
-  void restackFootnotes(int sheet);
+  void positionBlocks();
+  void restackBlocks();
+  void restackNotes(int sheet);
   void positionTitleItem();
   void positionNofNAndDateItems();
   int findLastBlockOnSheet(int sheet); // returns -1 if none
@@ -87,8 +88,6 @@ private:
   class QSignalMapper *futileMovementMapper;
 private:
   QList<class BlockItem *> blockItems;
-  QList<int> sheetNos; // sheet number for each block
-  QList<double> topY; // top Y position for each block
   QList<class FootnoteGroupItem *> footnoteGroups; // one for each block
 private:
   PageData *data_;

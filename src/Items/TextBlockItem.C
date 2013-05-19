@@ -33,11 +33,6 @@ TextBlockItem::TextBlockItem(TextBlockData *data, Item *parent):
 	  this, SLOT(futileMovementKey(int, Qt::KeyboardModifiers)));
   connect(item_, SIGNAL(refTextChange(QString, QString)),
 	  this, SLOT(refTextChange(QString, QString)));
-  sizeToFit();
-}
-
-QRectF TextBlockItem::netChildBoundingRect() const {
-  return item_->mapRectToParent(item_->netChildBoundingRect());
 }
 
 void TextBlockItem::makeWritable() {
@@ -133,6 +128,11 @@ void TextBlockItem::acceptFocus(QPointF p) {
   qDebug() << " failed";
 }
 
+QRectF TextBlockItem::boundingRect() const {
+  return QRectF();
+  // text draws itself
+}
+
 void TextBlockItem::paint(QPainter *,
 		      const QStyleOptionGraphicsItem *,
 		      QWidget *) {
@@ -142,3 +142,14 @@ void TextBlockItem::paint(QPainter *,
 TextItem *TextBlockItem::text() {
   return item_;
 }
+
+void TextBlockItem::sizeToFit() {
+  QRectF r = item_->mapRectToParent(item_->netBounds());
+  double h = data()->height();
+  if (h!=r.height()) {
+    data()->setHeight(r.height());
+    emit heightChanged();
+  }
+}
+
+  

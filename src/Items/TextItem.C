@@ -712,8 +712,8 @@ bool TextItem::shouldResize(QPointF p) const {
     return false;
   double tw = gni->data()->textWidth();
   if (tw<=0)
-    tw = netChildBoundingRect().width();
-  bool should = p.x()-netChildBoundingRect().left() > .75*tw;
+    tw = netBounds().width();
+  bool should = p.x()-netBounds().left() > .75*tw;
   return should;
 }
  
@@ -745,10 +745,6 @@ QRectF TextItem::boundingRect() const {
   //  return text->boundingRect();
 }
 
-QRectF TextItem::netChildBoundingRect() const {
-  return text->mapRectToParent(text->boundingRect());
-}
- 
 void TextItem::paint(QPainter*, const QStyleOptionGraphicsItem*, QWidget*) {
 }
 
@@ -791,4 +787,8 @@ void TextItem::insertBasicHtml(QString html, int pos) {
     addMarkup(MarkupData::Italic, italicStarts.takeLast(), c.position());
   while (!boldStarts.isEmpty())
     addMarkup(MarkupData::Bold, boldStarts.takeLast(), c.position());
+}
+
+QRectF TextItem::netBounds() const {
+  return text->mapRectToParent(text->boundingRect());
 }

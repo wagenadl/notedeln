@@ -25,8 +25,6 @@ GfxBlockItem::GfxBlockItem(GfxBlockData *data, Item *parent):
 
   foreach (GfxData *g, data->gfx()) 
     create(g, this);
-  sizeToFit();
-
   setCursor(defaultCursor());
 }
 
@@ -67,6 +65,7 @@ Item *GfxBlockItem::newImage(QImage img, QUrl src, QPointF pos) {
   gid->setPos(pos);
   GfxImageItem *gii = new GfxImageItem(gid, this);
   gii->makeWritable();
+  resetPosition();
   sizeToFit();
   return gii;
 }
@@ -77,10 +76,34 @@ double GfxBlockItem::availableWidth() const {
     style().real("margin-right");
 }
 
-QRectF GfxBlockItem::netChildBoundingRect() const {
-  QRectF bb = BlockItem::netChildBoundingRect();
-  bb |= QRectF(0, 0, availableWidth(), 72);
-  return bb;
+QRectF GfxBlockItem::generousChildrenBounds() const {
+  QRectF r;
+  foreach (Item *i, allChildren())
+    if (!i->excludeFromNet())
+      r |= i->mapRectToParent(i->netBounds());
+  if (r.isEmpty())
+    return r;
+  r.setTop(r.top()-9); // 1/6"
+  r.setBottom(r.bottom()+9); // 1/6"
+  return r;
+}
+
+void GfxBlockItem::sizeToFit() {
+  QRectF r = generousChildrenBounds();
+  if (r.height() < 72)
+    r.setHeight(72);
+
+  double h = data()->height();
+  if (h!=r.height()) {
+    data()->setHeight(r.height());
+    emit heightChanged();
+  }
+}
+
+QRectF GfxBlockItem::boundingRect() const {
+  /* This returns the bounds of our grid and has nothing to do with children.
+   */
+  return QRectF(0, 0, availableWidth(), data()->height());
 }
    
 void GfxBlockItem::paint(QPainter *p,

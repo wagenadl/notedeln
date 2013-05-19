@@ -24,11 +24,13 @@ public:
   bool lastParIsEmpty() const;
   void dropEmptyLastPar();
   FutileMovementInfo const &lastFutileMovement() const;
+  QRectF boundingRect() const;
   void paint(QPainter *p, const QStyleOptionGraphicsItem *o, QWidget *w);
   virtual void makeWritable();
-  QRectF netChildBoundingRect() const; // excludes notes
 signals:
   void futileMovement(); // up key on top line etc
+public slots:
+  void sizeToFit();
 private slots:
   void futileMovementKey(int, Qt::KeyboardModifiers);
 private:

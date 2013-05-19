@@ -9,6 +9,7 @@
 class BlockData: public Data {
   Q_OBJECT;
   Q_PROPERTY(double y0 READ y0 WRITE setY0)
+  Q_PROPERTY(double h READ height WRITE setHeight)
   Q_PROPERTY(int sheet READ sheet WRITE setSheet)
 public:
   // constructor and destructor  
@@ -16,10 +17,12 @@ public:
   virtual ~BlockData();
   // read properties
   double y0() const;
+  double height() const;
   int sheet() const;
   // QList<class NoteData *> notes() const;
   // write properties
   void setY0(double);
+  void setHeight(double);
   void setSheet(int);
   // other
   // void addNote(NoteData *);
@@ -29,6 +32,7 @@ signals:
   void newSheet(int); // not emitted during loading
 private:
   double y0_;
+  double h_;
   int sheet_;
 };
 

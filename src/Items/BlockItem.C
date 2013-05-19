@@ -13,38 +13,9 @@
 
 BlockItem::BlockItem(BlockData *data, Item *parent):
   Item(data, parent) {
-  bbLocked = false;
 }
 
 BlockItem::~BlockItem() {
-}
-
-QRectF BlockItem::boundingRect() const {
-  return bbox;
-}
-
-void BlockItem::sizeToFit() {
-  qDebug() << "BlockItem"<<this<<"sizeToFit() lock="<<bbLocked;
-  if (bbLocked) 
-    return;
-  
-  QRectF newBbox = netChildBoundingRect();
-  if (newBbox != bbox) {
-    qDebug() << " -> chg old="<<bbox << " new="<<newBbox;
-    bbox = newBbox;
-    prepareGeometryChange();
-    //    qDebug() << "BlockItem"<<this<<"emitting boundsChanged";
-    emit boundsChanged();
-  }
-}
-
-void BlockItem::lockBounds() {
-  bbLocked = true;
-}
-
-void BlockItem::unlockBounds() {
-  bbLocked = false;
-  sizeToFit();
 }
 
 BlockItem const *BlockItem::ancestralBlock() const {
@@ -74,7 +45,6 @@ void BlockItem::refTextChange(QString olds, QString news) {
 		} else {
 		  fni->setTagText(news);
 		}
-		fng->restack();
 	      }
 	    }
 	  }
@@ -88,4 +58,10 @@ void BlockItem::refTextChange(QString olds, QString news) {
   }
 }
 
+void BlockItem::resetPosition() {
+  QRectF r = netBounds();//item_->mapRectToParent(item_->netBounds());
+  double y0 = data()->y0();
+  if (y0!=r.top())
+    setPos(pos().x(), pos().y() + y0 - r.top());
+}
 

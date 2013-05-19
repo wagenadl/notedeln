@@ -89,3 +89,7 @@ void LateNoteItem::setScale(qreal f) {
   GfxNoteItem::setScale(f);
   setDateItemPosition();
 }
+
+bool LateNoteItem::excludeFromNet() const {
+  return true;
+}

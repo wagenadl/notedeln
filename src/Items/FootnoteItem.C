@@ -31,7 +31,6 @@ FootnoteItem::FootnoteItem(FootnoteData *data, Item *parent):
   fmt.setBottomMargin(0.0);
   tc.setBlockFormat(fmt);
   text()->setTextWidth(text()->textWidth()); // crazy way to fix HoverRegions
-
   connect(text(), SIGNAL(abandoned()), this, SLOT(abandon()));
 }
 
@@ -63,6 +62,8 @@ void FootnoteItem::updateTag() {
   double tagwidth = tag_->boundingRect().width();
   text()->setPos(tagwidth, 0);
   text()->setTextWidth(textwidth - tagwidth);
+  if (isWritable())
+    sizeToFit();
 }
 
 void FootnoteItem::abandon() {

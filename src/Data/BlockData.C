@@ -6,6 +6,7 @@
 
 BlockData::BlockData(Data *parent): Data(parent) {
   y0_ = 0;
+  h_ = 0;
   sheet_ = -1;
   setType("block");
 }
@@ -18,12 +19,21 @@ double BlockData::y0() const {
   return y0_;
 }
 
+double BlockData::height() const {
+  return h_;
+}
+
 int BlockData::sheet() const {
   return sheet_;
 }
 
 void BlockData::setY0(double y0) {
   y0_ = y0;
+  markModified(InternalMod);
+}
+
+void BlockData::setHeight(double h) {
+  h_ = h;
   markModified(InternalMod);
 }
 

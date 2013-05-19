@@ -14,6 +14,7 @@ public:
   DATAACCESS(LateNoteData);
   static LateNoteItem *newNote(QPointF p0, QPointF p1, Item *parent);
   virtual void setScale(qreal f);
+  virtual bool excludeFromNet() const;
 protected:
   virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *);
   virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *);

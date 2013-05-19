@@ -13,35 +13,33 @@ FootnoteGroupItem::FootnoteGroupItem(BlockData *data, PageScene *parent):
   parent->addItem(this);
   foreach (FootnoteData *fd, data->children<FootnoteData>()) {
     FootnoteItem *fni = new FootnoteItem(fd, this);
-    connect(fni, SIGNAL(boundsChanged()), SLOT(restack()));
+    if (fd->height()==0)
+      fni->sizeToFit();
+    connect(fni, SIGNAL(heightChanged()), this, SIGNAL(heightChanged()));
+    fni->resetPosition();
   }
-  restack();
 }
 
 FootnoteGroupItem::~FootnoteGroupItem() {
-}
-
-void FootnoteGroupItem::restack() {
-  qDebug() << "FootnoteGroupItem::restack";
-  int y = 0;
-  foreach (FootnoteItem *fni, children<FootnoteItem>()) {
-    fni->setPos(0, y);
-    fni->data()->setY0(mapToScene(QPointF(0,y)).y());
-    double h = fni->netChildBoundingRect().height();
-    QRectF r0 = fni->netChildBoundingRect();
-    QRectF r1 = fni->boundingRect();
-    qDebug() << "fngi: child y="<<y << " h="<<h;
-    qDebug() << "  r0="<<r0 << " r1="<<r1;
-    y += h;
-  }
-  qDebug() << "fngi h="<<netChildBoundingRect().height();
-  emit vChanged();
 }
 
 void FootnoteGroupItem::makeWritable() {
   foreach (Item *c, children<FootnoteItem>())
     c->makeWritable();
 }
+
+double FootnoteGroupItem::netHeight() const {
+  double h = 0;
+  foreach (FootnoteData *fd, data()->children<FootnoteData>()) 
+    h += fd->height();
+  return h;
+}  
+
+void FootnoteGroupItem::resetPosition() {
+  foreach (FootnoteItem *c, children<FootnoteItem>())
+    c->resetPosition();
+}  
+
 
 QRectF FootnoteGroupItem::boundingRect() const {
   return QRectF();
@@ -51,3 +49,13 @@ void FootnoteGroupItem::paint(QPainter *, const QStyleOptionGraphicsItem *,
 			 QWidget *) {
 }
 
+void FootnoteGroupItem::moveTo(double y) {
+  foreach (FootnoteItem *c, children<FootnoteItem>()) {
+    if (c->data()->y0() != y)
+      c->data()->setY0(y);
+    y += c->data()->height();
+  }
+  resetPosition();
+}
+
+  

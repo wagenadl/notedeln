@@ -118,8 +118,6 @@ GfxMarkItem *GfxMarkItem::newMark(QPointF p,
   
 void GfxMarkItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
   if (isWritable() && mode()->mode()==Mode::MoveResize) {
-    if (ancestralBlock())
-      ancestralBlock()->lockBounds();
     e->accept();
   } else {
     QGraphicsObject::mousePressEvent(e);
@@ -134,7 +132,7 @@ void GfxMarkItem::mouseMoveEvent(QGraphicsSceneMouseEvent *e) {
 void GfxMarkItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *e) {
   data()->setPos(pos());
   if (ancestralBlock())
-    ancestralBlock()->unlockBounds();
+    ancestralBlock()->sizeToFit();
   e->accept();
 }
 

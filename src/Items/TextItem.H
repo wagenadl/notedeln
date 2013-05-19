@@ -30,8 +30,8 @@ public:
   void insertBasicHtml(QString html, int pos);
   // Only <b> and <i> tags are supported at present
   int pointToPos(QPointF) const;
-  QRectF fittedRect() const;
-  QRectF netChildBoundingRect() const;
+  //  QRectF fittedRect() const;
+  QRectF netBounds() const;
 signals:
   void textChanged();
   void widthChanged();

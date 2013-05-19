@@ -194,10 +194,6 @@ void GfxImageItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
       cropStart = mapRectToParent(data()->cropRect());
       imStart = mapRectToParent(QRectF(QPointF(0,0), data()->size()));
       dragCrop = data()->cropRect().toRect();
-      if (ancestralBlock())
-	ancestralBlock()->lockBounds();
-      else
-	qDebug() << "GfxImageItem: no parent";
       take = true;
       break;
     case Mode::Annotate: {
@@ -252,9 +248,8 @@ void GfxImageItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *e) {
     data()->setCropRect(dragCrop); // round to integers
     break;
   }
-  if (ancestralBlock()) {
-    ancestralBlock()->unlockBounds();
-  }
+  if (ancestralBlock()) 
+    ancestralBlock()->sizeToFit();
   e->accept();
 }
 

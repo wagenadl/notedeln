@@ -79,8 +79,6 @@ GfxSketchItem *GfxSketchItem::newSketch(QPointF p,
 
 void GfxSketchItem::build() {
   building = true;
-  if (ancestralBlock())
-    ancestralBlock()->lockBounds();
   data()->clear();
   data()->addPoint(QPointF(0, 0), true); // by def., we start at the origin
   droppedPoints.clear();
@@ -93,7 +91,7 @@ void GfxSketchItem::build() {
   ungrabMouse();
   building = false;
   if (ancestralBlock())
-    ancestralBlock()->unlockBounds();
+    ancestralBlock()->sizeToFit();
   data()->markModified();
 }
   
@@ -101,8 +99,6 @@ void GfxSketchItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
   if (building)
     return;
   if (isWritable() && mode()->mode()==Mode::MoveResize) {
-    if (ancestralBlock())
-      ancestralBlock()->lockBounds();
     e->accept();
   } else {
     QGraphicsObject::mousePressEvent(e);
@@ -184,7 +180,7 @@ void GfxSketchItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *e) {
   } else {
     data()->setPos(pos());
     if (ancestralBlock())
-      ancestralBlock()->unlockBounds();
+      ancestralBlock()->sizeToFit();
     e->accept();
   }
 }
