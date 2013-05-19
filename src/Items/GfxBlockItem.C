@@ -97,11 +97,17 @@ void GfxBlockItem::sizeToFit() {
   double h = data()->height();
   if (yref!=r.top()) {
     prepareGeometryChange();
-    data()->setYref(r.top());
+    if (isWritable())
+      data()->setYref(r.top());
+    else
+      data()->sneakilySetYref(r.top());
   }
   if (h!=r.height()) {
     prepareGeometryChange();
-    data()->setHeight(r.height());
+    if (isWritable())
+      data()->setHeight(r.height());
+    else
+      data()->sneakilySetHeight(r.height());        
     emit heightChanged();
   }
 }

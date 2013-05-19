@@ -147,7 +147,10 @@ void TextBlockItem::sizeToFit() {
   QRectF r = item_->mapRectToParent(item_->netBounds());
   double h = data()->height();
   if (h!=r.height()) {
-    data()->setHeight(r.height());
+    if (isWritable())
+      data()->setHeight(r.height());
+    else
+      data()->sneakilySetHeight(r.height());      
     emit heightChanged();
   }
 }

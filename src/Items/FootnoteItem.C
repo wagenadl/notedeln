@@ -68,8 +68,7 @@ void FootnoteItem::updateTag() {
   double tagwidth = tag_->boundingRect().width();
   text()->setPos(tagwidth, 0);
   text()->setTextWidth(textwidth - tagwidth);
-  if (isWritable())
-    sizeToFit();
+  sizeToFit();
 }
 
 void FootnoteItem::abandon() {
@@ -77,14 +76,3 @@ void FootnoteItem::abandon() {
   // delete abandoned notes.
 }
 
-void FootnoteItem::sizeToFit() {
-  qDebug() << "FNI: sizetofit" << data()->tag();
-  if (data()->tag().isEmpty()) {
-    // we're going to be deleted
-    data()->setHeight(0);
-    qDebug() << " -> zero";
-    emit heightChanged();
-  } else {
-    TextBlockItem::sizeToFit();
-  }
-}

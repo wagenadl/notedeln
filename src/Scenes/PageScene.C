@@ -195,9 +195,14 @@ void PageScene::positionBlocks() {
     bi->resetPosition();
     isheet = bi->data()->sheet();
   }
+  bool mustRestack = false;
   foreach (FootnoteGroupItem *fngi, footnoteGroups)
-    fngi->resetPosition();
+    if (fngi->resetPosition())
+      mustRestack = true;
   nSheets = isheet+1;
+  if (mustRestack) 
+    for (int i=0; i<nSheets; i++)
+      restackNotes(i);
 }
 
 void PageScene::restackBlocks() {

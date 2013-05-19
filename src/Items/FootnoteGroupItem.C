@@ -13,9 +13,8 @@ FootnoteGroupItem::FootnoteGroupItem(BlockData *data, PageScene *parent):
   parent->addItem(this);
   foreach (FootnoteData *fd, data->children<FootnoteData>()) {
     FootnoteItem *fni = new FootnoteItem(fd, this);
-    if (fd->height()==0)
+    if (fd->height()==0) 
       fni->sizeToFit();
-    //    connect(fni, SIGNAL(heightChanged()), this, SIGNAL(heightChanged()));
     fni->resetPosition();
   }
 }
@@ -35,9 +34,14 @@ double FootnoteGroupItem::netHeight() const {
   return h;
 }  
 
-void FootnoteGroupItem::resetPosition() {
-  foreach (FootnoteItem *c, children<FootnoteItem>())
+bool FootnoteGroupItem::resetPosition() {
+  bool anyzeros = false;
+  foreach (FootnoteItem *c, children<FootnoteItem>()) {
+    if (c->data()->y0()==0)
+      anyzeros = true;
     c->resetPosition();
+  }
+  return anyzeros;
 }  
 
 
@@ -51,8 +55,12 @@ void FootnoteGroupItem::paint(QPainter *, const QStyleOptionGraphicsItem *,
 
 void FootnoteGroupItem::moveTo(double y) {
   foreach (FootnoteItem *c, children<FootnoteItem>()) {
-    if (c->data()->y0() != y)
-      c->data()->setY0(y);
+    if (c->data()->y0() != y) {
+      if (isWritable())
+        c->data()->setY0(y);
+      else
+        c->data()->sneakilySetY0(y);
+    }
     y += c->data()->height();
   }
   resetPosition();

@@ -18,6 +18,7 @@ public:
   QPointF ref() const;
   void setXref(double);
   void setYref(double);
+  void sneakilySetYref(double); // see BlockData.H for comment
   void setRef(QPointF);
   QList<class GfxData *> gfx() const;
   virtual bool isEmpty() const;

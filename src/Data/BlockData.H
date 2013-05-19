@@ -23,6 +23,24 @@ public:
   // write properties
   void setY0(double);
   void setHeight(double);
+  void sneakilySetY0(double); 
+  void sneakilySetHeight(double);
+  /* The two "sneakilySet" functions serve to change the stored y0 and
+     height on objects that were created before the height of blocks or
+     the y0 of notes was stored in the data structure.
+     In the spirit of never writing to old files, we are careful to not
+     write those data when such files are opened. But the modern PageScene
+     and friends cannot function without meaningful height and y0 information,
+     so we do write the information into the Data tree. We just do not
+     write it to file.
+     These functions should never be called on blocks created after May 18,
+     2013, but I am not at present explicitly ASSERTing that in the code.
+     At some point, I should think more carefully about allowing the Data
+     tree to write changes to old files at all. At present, this protection
+     doesn't exist, and it is up to the Items to behave well. That is not
+     such a great idea, if only because the Items comprise twice as much code
+     as the Data.
+  */
   void setSheet(int);
   // other
   // void addNote(NoteData *);

@@ -37,6 +37,14 @@ void BlockData::setHeight(double h) {
   markModified(InternalMod);
 }
 
+void BlockData::sneakilySetY0(double y0) {
+  y0_ = y0;
+}
+
+void BlockData::sneakilySetHeight(double h) {
+  h_ = h;
+}
+
 void BlockData::setSheet(int sheet) {
   sheet_ = sheet;
   markModified(InternalMod);

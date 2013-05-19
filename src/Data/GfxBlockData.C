@@ -42,6 +42,10 @@ void GfxBlockData::setYref(double y) {
   markModified();
 }
 
+void GfxBlockData::sneakilySetYref(double y) {
+  yref_ = y;
+}
+
 
 void GfxBlockData::setRef(QPointF xy) {
   xref_ = xy.x();

@@ -18,7 +18,8 @@ public:
   QRectF boundingRect() const;
   void paint(QPainter *, const QStyleOptionGraphicsItem *, QWidget *);
   double netHeight() const; // sum height of all notes
-  void resetPosition(); // position all footnotes at the y0 stored in their data
+  bool resetPosition(); // position all footnotes at the y0 stored in their data
+  // returns true if any were at y0=0
   void moveTo(double y); // change the y0 for all footnotes is the group
   // arg. is the top of the first note. This changes the data
 signals:
