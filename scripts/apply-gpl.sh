@@ -2,7 +2,7 @@
 
 FN=$1
 
-grep -q "This file is part of eln" && exit 0
+grep -q "This file is part of eln" $FN && exit 0
 
 /bin/mv $FN $FN~
 echo "// $FN - This file is part of eln" > $FN
