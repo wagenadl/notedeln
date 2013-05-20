@@ -18,3 +18,4 @@ userguide.log
 userguide.aux
 userguide.pdf
 debian/eln.substvars
+debian/files
