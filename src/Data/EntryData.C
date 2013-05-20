@@ -9,6 +9,8 @@
 #include "Assert.H"
 
 static Data::Creator<EntryData> c("page");
+// I would *like* to rename the typ:page to typ:entry, but I cannot, because
+// TOCEntry already uses that. So I'll leave that for now.
 
 EntryData::EntryData(Data *parent): Data(parent) {
   nb = 0;
