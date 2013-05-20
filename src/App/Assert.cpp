@@ -6,12 +6,16 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+
+#ifdef Q_OS_LINUX
 #include <signal.h>
 #include <execinfo.h>
 #include <cxxabi.h>
+#endif
 
 #define ASSERT_BACKTRACE 0
 
+#ifdef Q_OS_LINUX
 QStringList eln_calltrace() {
   QStringList fns;
   void *backtrace_data[1024];
@@ -55,6 +59,14 @@ QString eln_quickcalltrace() {
   trc.replace("  ", " ");
   return trc;
 }
+#else
+QStringList eln_calltrace() {
+  return QStringList();
+}
+QString eln_quickcalltrace() {
+  return QString();
+}
+#endif
 
 #if ASSERT_BACKTRACE
 void eln_backtrace(int skip) {
@@ -90,6 +102,7 @@ void eln_assert(char const *assertion, char const *file, int line) {
   }
 }
 
+#ifdef Q_OS_LINUX
 void eln_sighandler(int sig) {
   fprintf(stderr, "Signal %i caught.\n", sig);
 
@@ -110,3 +123,16 @@ void eln_grabsignals() {
   sigaction(SIGSEGV, &newHdlr, 0);
   sigaction(SIGABRT, &newHdlr, 0);
 }
+
+void eln_ungrabsignals() {
+  // not implemented, but not critical thanks to the SA_RESETHAND flag
+}
+
+#else
+void eln_grabsignals() {
+}
+
+void eln_ungrabsignals() {
+}
+#endif
+

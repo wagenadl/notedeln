@@ -5,7 +5,10 @@ INCLUDEPATH += .
 QT += webkit
 QT += svg
 CONFIG += debug
+MOC_DIR = .moc
+OBJECTS_DIR = .obj
+RCC_DIR = .rcc
 
 # Input
 HEADERS += Printer.H Options.H MozillaPage.H
-SOURCES += Printer.C Options.C MozillaPage.C webgrab.C
+SOURCES += Printer.cpp Options.cpp MozillaPage.cpp webgrab.cpp

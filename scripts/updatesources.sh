@@ -23,7 +23,7 @@ for DIR in $=SUBDIRS; do
     echo "" >> $DIR/$DIR.pri
 
     echo "SOURCES += \\" >> $DIR/$DIR.pri
-    for C in $DIR/*.C; do
+    for C in $DIR/*.cpp; do
 	echo "    $C \\" >> $DIR/$DIR.pri
     done
     echo "" >> $DIR/$DIR.pri

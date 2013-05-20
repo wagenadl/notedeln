@@ -6,9 +6,11 @@ TEMPLATE = app
 TARGET = repairtoc
 LIBS += -lqjson
 
-SOURCES = repairtoc.C
-SOURCES += JSONFile.C
+SOURCES = repairtoc.cpp
+SOURCES += JSONFile.cpp
 HEADERS += JSONFile.H
+SOURCES += JSONParser.cpp
+HEADERS += JSONParser.H
 
 CONFIG += debug
 MOC_DIR = .moc

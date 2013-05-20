@@ -9,8 +9,10 @@
 #include <QDebug>
 #include <QDir>
 
+#ifdef Q_OS_LINUX
 #include <sys/types.h>
 #include <signal.h>
+#endif
 
 #define VC_TIMEOUT 300 // seconds
 
@@ -47,7 +49,13 @@ namespace VersionControl {
     }
     if (box.isHidden()) {
       qDebug() << "killing process";
+#ifdef Q_OS_LINUX
       ::kill(process.pid(), SIGINT);
+      // Killing bzr with INT produces cleaner exit than with TERM...
+#else
+      process.kill();
+      // ... but if we don't have POSIX, we have no choice.
+#endif
       bool x = process.waitForFinished(500); // allow it some time to respond to signal
       qDebug() << "process finished" << x;
       break; // not good, but oh well
