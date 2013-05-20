@@ -4,7 +4,6 @@
 
 TEMPLATE = app
 TARGET = repairtoc
-LIBS += -lqjson
 
 SOURCES = repairtoc.cpp
 SOURCES += JSONFile.cpp
