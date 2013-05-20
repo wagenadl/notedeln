@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=eln
+GenericName=Electronic Lab Notebook
+Comment=Electronic Lab Notebook
+Exec=eln
+Terminal=false
+Type=Application
+Categories=Office
+Icon=/usr/share/pixmaps/eln.png
+

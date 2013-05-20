@@ -1,12 +1,20 @@
-Makefile
+src/Makefile
+webgrab/Makefile
+repairtoc/Makefile
 Makefile.*
 *.pri
 *~
+
 debug
 release
 
 eln
-
-
 webgrab/webgrab
-repairtoc/repairtoc
+repairtoc/eln-repairtoc
+
+debian/eln.debhelper.log
+debian/eln
+userguide.log
+userguide.aux
+userguide.pdf
+debian/eln.substvars

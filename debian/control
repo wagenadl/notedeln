@@ -1,0 +1,13 @@
+Source: eln
+Section: editors
+Priority: optional
+Maintainer: Daniel Wagenaar <daw@caltech.edu>
+Build-Depends: debhelper (>= 8.0.0), libqt4-dev (>= 4.8.0), qt4-qmake (>= 4.8.0)
+Standards-Version: 3.9.3
+Homepage: http://www.danielwagenaar.net
+
+Package: eln
+Architecture: any
+Depends: ${shlibs:Depends},${misc:Depends}, libqtcore4 (>= 4.8), libqtgui4 (>= 4.8)
+Description: Electronic Lab Notebook
+ ELN is a simple electronic lab notebook with an emphasis on solid data storage.

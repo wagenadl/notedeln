@@ -3,7 +3,7 @@
 # When adding source files, run scripts/updatesources to include them
 
 TEMPLATE = app
-TARGET = repairtoc
+TARGET = eln-repairtoc
 
 SOURCES = repairtoc.cpp
 SOURCES += JSONFile.cpp
