@@ -15,6 +15,7 @@ MOC_DIR = .moc
 OBJECTS_DIR = .obj
 RCC_DIR = .rcc
 QT += network svg webkit
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets printsupport webkitwidgets
 
 DEPENDPATH +=  $$sourcedirs
 INCLUDEPATH += $$sourcedirs

@@ -18,7 +18,7 @@
 
 namespace VersionControl {
   bool runBzr(char const *cmd, QStringList args, QString label,
-              QString *stdout=0, QString *stderr=0) {
+              QString *stdo=0, QString *stde=0) {
   QMessageBox box;
   // We're not using a progressdialog, because we have no clue
   // how long things will take.
@@ -36,8 +36,8 @@ namespace VersionControl {
   process.start("bzr", args);
   process.closeWriteChannel();
   if (!process.waitForStarted()) {
-    if (stderr)
-      *stderr += "bzr: could not start command: " + args.join(" ") + "\n";
+    if (stde)
+      *stde += "bzr: could not start command: " + args.join(" ") + "\n";
     qDebug() << "runbzr: could not start command" << args.join(" ");
     return false;
   }
@@ -62,15 +62,15 @@ namespace VersionControl {
     }
     QString se = process.readAllStandardError();
     allout += se;
-    if (stderr)
-      *stderr += se;
+    if (stde)
+      *stde += se;
     if (!se.isEmpty())
       qDebug() << "(bzr " << cmd << ") " << se;
 
     QString so = process.readAllStandardOutput();
     allout += so;
-    if (stdout)
-      *stdout += so;
+    if (stdo)
+      *stdo += so;
     if (!so.isEmpty())
       qDebug() << "(bzr " << cmd << ") " << so;
 
@@ -79,19 +79,19 @@ namespace VersionControl {
   }
 
   QString se = process.readAllStandardError();
-  if (stderr)
-    *stderr += se;
+  if (stde)
+    *stde += se;
   if (!se.isEmpty())
     qDebug() << "(bzr " << cmd << ") " << se;
   
   QString so = process.readAllStandardOutput();
-  if (stdout)
-    *stdout += so;
+  if (stdo)
+    *stdo += so;
   if (!so.isEmpty())
     qDebug() << "(bzr " << cmd << ") " << so;
 
-  if (stderr)
-    stderr->replace(QRegExp("\\s*Traceback.*"), "");
+  if (stde)
+    stde->replace(QRegExp("\\s*Traceback.*"), "");
   
   if (process.state()!=QProcess::NotRunning) {
     qDebug() << "bzr " << cmd << " failed\n";

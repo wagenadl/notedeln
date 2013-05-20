@@ -248,3 +248,7 @@ bool BaseScene::print(QPrinter *prt, QPainter *p,
 int BaseScene::currentSheet() const {
   return iSheet;
 }
+
+QGraphicsItem *BaseScene::itemAt(const QPointF &p) const {
+  return QGraphicsScene::itemAt(p, QTransform());
+}

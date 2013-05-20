@@ -3,7 +3,7 @@
 #include "MessageObject.H"
 #include "Style.H"
 
-MessageObject::MessageObject(QString msg, Style const &style):
+MessageObject::MessageObject(QString msg, Style const &):
   QGraphicsTextItem() {
   setHtml(msg);
   // stylize right here

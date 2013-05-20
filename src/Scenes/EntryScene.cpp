@@ -40,6 +40,7 @@
 #include <QNetworkRequest>
 #include <QClipboard>
 #include <QApplication>
+#include <QMimeData>
 
 EntryScene::EntryScene(EntryData *data, QObject *parent):
   BaseScene(data, parent),
