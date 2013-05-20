@@ -1,20 +1,12 @@
 Makefile
-*.o
+Makefile.*
 *.pri
 *~
+debug
+release
 
 eln
-jtest
-.obj
-.moc
-.rcc
-test.nb
 
-oldtest.nb
-test.nb.moved
-moc_Printer.cpp
+
 webgrab/webgrab
-src/frontimage.xcf
-eln-deletion-crash
-eln-deletion-nocrash
 repairtoc/repairtoc

@@ -10,19 +10,16 @@ include(eln.pri)
 
 # Nothing below this line is particularly interesting
 
-#CONFIG += debug
-MOC_DIR = .moc
-OBJECTS_DIR = .obj
-RCC_DIR = .rcc
+CONFIG += debug_and_release
 QT += network svg webkit
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets printsupport webkitwidgets
 
 DEPENDPATH +=  $$sourcedirs
 INCLUDEPATH += $$sourcedirs
 
-unix: DEFINES += QQ_X11
-
 for(sd, sourcedirs): include($${sd}/$${sd}.pri)
+
+CONFIG(debug, debug|release) { TARGET=$${TARGET}_debug }
 
 message("HEADERS: $$HEADERS" )
 message("SOURCES: $$SOURCES" )
