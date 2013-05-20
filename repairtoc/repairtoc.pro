@@ -11,7 +11,7 @@ HEADERS += JSONFile.H
 SOURCES += JSONParser.cpp
 HEADERS += JSONParser.H
 
-CONFIG += debug
+# CONFIG += debug
 MOC_DIR = .moc
 OBJECTS_DIR = .obj
 RCC_DIR = .rcc

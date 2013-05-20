@@ -10,7 +10,7 @@ include(eln.pri)
 
 # Nothing below this line is particularly interesting
 
-CONFIG += debug
+#CONFIG += debug
 MOC_DIR = .moc
 OBJECTS_DIR = .obj
 RCC_DIR = .rcc
