@@ -1,4 +1,4 @@
-// PageData.H
+// EntryData.H
 
 #ifndef PAGEDATA_H
 
@@ -7,13 +7,13 @@
 #include "Data.H"
 #include <QList>
 
-class PageData: public Data {
+class EntryData: public Data {
   Q_OBJECT;
   Q_PROPERTY(int startPage READ startPage WRITE setStartPage)
 public:
   // constructor and destructor  
-  PageData(Data *parent=0);
-  virtual ~PageData();
+  EntryData(Data *parent=0);
+  virtual ~EntryData();
   // read properties
   int startPage() const;
   // write properties
@@ -29,8 +29,8 @@ public:
   void setBook(class Notebook *nb);      // } This is for use by items that 
   Notebook *book() const;                // } wish to use resources. We don't
   ResManager *resManager() const;          // } use it ourselves.
-  PageData const *page() const;
-  PageData *page();
+  EntryData const *page() const;
+  EntryData *page();
   bool isEmpty() const; // true iff no blocks and title is default
 signals:
   void titleMod();

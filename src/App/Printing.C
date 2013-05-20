@@ -3,7 +3,7 @@
 #include "TOC.H"
 #include "TOCScene.H"
 #include "FrontScene.H"
-#include "PageScene.H"
+#include "EntryScene.H"
 #include "Assert.H"
 #include "Toolbars.H"
 #include "SimpleNavbar.H"

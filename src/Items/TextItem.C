@@ -4,7 +4,7 @@
 #include "TextData.H"
 #include "TextMarkings.H"
 #include "Mode.H"
-#include "PageScene.H"
+#include "EntryScene.H"
 #include "Style.H"
 #include "ResManager.H"
 #include "HoverRegion.H"

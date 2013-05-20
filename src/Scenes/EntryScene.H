@@ -1,4 +1,4 @@
-// PageScene.H
+// EntryScene.H
 
 #ifndef PAGESCENE_H
 
@@ -7,13 +7,13 @@
 #include "BaseScene.H"
 #include <QTextCursor>
 
-class PageScene: public BaseScene {
+class EntryScene: public BaseScene {
   Q_OBJECT;
 public:
-  PageScene(class PageData *data, QObject *parent=0);
+  EntryScene(class EntryData *data, QObject *parent=0);
   virtual void populate();
-  virtual ~PageScene();
-  class PageData *data() const;
+  virtual ~EntryScene();
+  class EntryData *data() const;
   void makeWritable();
   void focusEnd(); // may create new text block
   bool isWritable() const;
@@ -90,7 +90,7 @@ private:
   QList<class BlockItem *> blockItems;
   QList<class FootnoteGroupItem *> footnoteGroups; // one for each block
 private:
-  PageData *data_;
+  EntryData *data_;
   bool writable;
   class TitleItem *titleItemX;
 };

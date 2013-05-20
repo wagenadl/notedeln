@@ -2,7 +2,7 @@
 
 #include "GfxImageItem.H"
 #include "GfxImageData.H"
-#include "PageScene.H"
+#include "EntryScene.H"
 #include "Mode.H"
 #include "GfxNoteData.H"
 #include "GfxNoteItem.H"

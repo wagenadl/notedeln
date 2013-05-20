@@ -11,7 +11,7 @@
 class FootnoteGroupItem: public Item {
   Q_OBJECT;
 public:
-  FootnoteGroupItem(BlockData *data, class PageScene *parent);
+  FootnoteGroupItem(BlockData *data, class EntryScene *parent);
   virtual ~FootnoteGroupItem();
   DATAACCESS(BlockData);
   virtual void makeWritable();

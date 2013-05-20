@@ -1,7 +1,7 @@
 // BlockData.C
 
 #include "BlockData.H"
-#include "PageData.H"
+#include "EntryData.H"
 #include "NoteData.H"
 
 BlockData::BlockData(Data *parent): Data(parent) {

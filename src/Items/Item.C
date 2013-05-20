@@ -1,12 +1,12 @@
 // Item.C
 
 #include "Item.H"
-#include "PageScene.H"
+#include "EntryScene.H"
 #include <QDebug>
 #include "Notebook.H"
 #include "LateNoteItem.H"
 #include "FootnoteItem.H" // for debug
-#include "PageScene.H"
+#include "EntryScene.H"
 #include <QGraphicsSceneMouseEvent>
 #include "DragLine.H"
 #include "App.H"
@@ -65,8 +65,8 @@ void Item::makeWritable() {
     i->makeWritable();
 }
 
-PageScene *Item::pageScene() const {
-  return dynamic_cast<PageScene*>(scene());
+EntryScene *Item::pageScene() const {
+  return dynamic_cast<EntryScene*>(scene());
 }
 
 Mode const *Item::mode() const {

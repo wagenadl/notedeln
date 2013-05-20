@@ -22,7 +22,7 @@ public:
   virtual void deleteLater();
   DATAACCESS(Data);
   Item *parent() const;
-  class PageScene *pageScene() const;
+  class EntryScene *pageScene() const;
   class Mode const *mode() const;
   virtual QRectF netBounds() const;
   virtual bool excludeFromNet() const;

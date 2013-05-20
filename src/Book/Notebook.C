@@ -2,7 +2,7 @@
 
 #include "Notebook.H"
 #include "TOC.H"
-#include "PageFile.H"
+#include "EntryFile.H"
 #include "TitleData.H"
 #include "Style.H"
 #include "Assert.H"
@@ -112,10 +112,10 @@ bool Notebook::hasPage(int n) const {
   return toc()->contains(n);
 }
 
-PageFile *Notebook::page(int n)  {
+EntryFile *Notebook::page(int n)  {
   if (pgFiles.contains(n))
     return pgFiles[n];
-  PageFile *f = loadPage(QDir(root.filePath("pages")), n, this);
+  EntryFile *f = loadPage(QDir(root.filePath("pages")), n, this);
   ASSERT(f);
   pgFiles[n] = f;
 
@@ -125,9 +125,9 @@ PageFile *Notebook::page(int n)  {
   return f;
 }
 
-PageFile *Notebook::createPage(int n) {
+EntryFile *Notebook::createPage(int n) {
   ASSERT(!pgFiles.contains(n));
-  PageFile *f = ::createPage(root.filePath("pages"), n, this);
+  EntryFile *f = ::createPage(root.filePath("pages"), n, this);
   if (!f)
     return 0;
   pgFiles[n] = f;
@@ -142,7 +142,7 @@ PageFile *Notebook::createPage(int n) {
 }
 
 bool Notebook::deletePage(int pgno) {
-  PageFile *pf = page(pgno);
+  EntryFile *pf = page(pgno);
   if (!pf) {
     qDebug() << "Notebook: cannot delete nonexistent page";
     return false;
@@ -166,7 +166,7 @@ bool Notebook::deletePage(int pgno) {
 }
 
 void Notebook::titleMod() {
-  PageData *pg = dynamic_cast<PageData *>(sender());
+  EntryData *pg = dynamic_cast<EntryData *>(sender());
   ASSERT(pg);
   TOCEntry *e = toc()->entry(pg->startPage());
   ASSERT(e);
@@ -174,7 +174,7 @@ void Notebook::titleMod() {
 }
 
 void Notebook::sheetCountMod() {
-  PageData *pg = dynamic_cast<PageData *>(sender());
+  EntryData *pg = dynamic_cast<EntryData *>(sender());
   ASSERT(pg);
   TOCEntry *e = toc()->entry(pg->startPage());
   ASSERT(e);
@@ -198,7 +198,7 @@ void Notebook::flush(bool mustcommit) {
     ok = ok && bookFile_->saveNow();
     RecentBooks::instance()->addBook(this);
   }
-  foreach (PageFile *pf, pgFiles) {
+  foreach (EntryFile *pf, pgFiles) {
     if (pf->needToSave()) {
       actv = true;
       ok = ok && pf->saveNow();

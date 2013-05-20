@@ -3,7 +3,7 @@
 #include "TOC.H"
 #include <QDebug>
 #include "TOCEntry.H"
-#include "PageData.H"
+#include "EntryData.H"
 #include "TitleData.H"
 #include "Assert.H"
 
@@ -41,7 +41,7 @@ TOCEntry *TOC::find(int page) const {
   return 0;
 }
 
-TOCEntry *TOC::addEntry(PageData *data) {
+TOCEntry *TOC::addEntry(EntryData *data) {
   TOCEntry *e = new TOCEntry(this);
   e->setStartPage(data->startPage());
   e->setTitle(data->titleText());

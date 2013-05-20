@@ -2,9 +2,9 @@
 
 #include "PageView.H"
 #include "App.H"
-#include "PageScene.H"
+#include "EntryScene.H"
 #include "Notebook.H"
-#include "PageFile.H"
+#include "EntryFile.H"
 #include "DataFile.H"
 #include "TOCScene.H"
 #include "FrontScene.H"
@@ -182,7 +182,7 @@ void PageView::gotoPage(int n) {
     TOCEntry *te = book->toc()->find(n-1);
     if (te) {
       // let's look at page before end
-      PageFile *file = book->page(te->startPage());
+      EntryFile *file = book->page(te->startPage());
       ASSERT(file);
       if (file->data()->isEmpty()) {
 	// previous page is empty -> go there instead
@@ -208,7 +208,7 @@ void PageView::gotoPage(int n) {
     // already in the right page, let's just go to the right sheet
     currentPage = n;
   } else {
-    PageFile *file = book->page(te->startPage());
+    EntryFile *file = book->page(te->startPage());
     ASSERT(file);
     ASSERT(file->data());
     
@@ -220,7 +220,7 @@ void PageView::gotoPage(int n) {
     currentSection = Pages;
     currentPage = n;
     
-    pageScene = new PageScene(file->data(), this);
+    pageScene = new EntryScene(file->data(), this);
     pageScene->populate();
     connect(pageScene, SIGNAL(nowOnPage(int)), SLOT(nowOnPage(int)));
     if (book->toc()->isLast(te) && file->data()->isRecent())
@@ -275,7 +275,7 @@ void PageView::leavePage() {
     // If the page is empty, we'll delete it.   
     TOCEntry *te = book->toc()->find(currentPage);
     ASSERT(te);
-    PageFile *file = book->page(te->startPage());
+    EntryFile *file = book->page(te->startPage());
     ASSERT(file);
     ASSERT(file->data());
     if (file->data()->isEmpty()) {

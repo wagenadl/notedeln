@@ -1,6 +1,6 @@
-// PageData.C
+// EntryData.C
 
-#include "PageData.H"
+#include "EntryData.H"
 #include "BlockData.H"
 #include "TitleData.H"
 #include <QDebug>
@@ -8,9 +8,9 @@
 #include "ResManager.H"
 #include "Assert.H"
 
-static Data::Creator<PageData> c("page");
+static Data::Creator<EntryData> c("page");
 
-PageData::PageData(Data *parent): Data(parent) {
+EntryData::EntryData(Data *parent): Data(parent) {
   nb = 0;
   setType("page");
   startPage_ = 1;
@@ -19,15 +19,15 @@ PageData::PageData(Data *parent): Data(parent) {
   maxSheet = 0;
 }
 
-PageData::~PageData() {
+EntryData::~EntryData() {
 }
 
 
-QList<class BlockData *> PageData::blocks() const {
+QList<class BlockData *> EntryData::blocks() const {
   return children<BlockData>();
 }
 
-bool PageData::isEmpty() const {
+bool EntryData::isEmpty() const {
   if (!title_->isDefault())
     return false;
   foreach (BlockData *b, blocks())
@@ -36,7 +36,7 @@ bool PageData::isEmpty() const {
   return true;
 }
 
-void PageData::insertBlockBefore(BlockData *b, Data *ref) {
+void EntryData::insertBlockBefore(BlockData *b, Data *ref) {
   insertChildBefore(b, ref);
   connect(b, SIGNAL(newSheet(int)), SLOT(newSheet()));
   if (b->sheet()>maxSheet) {
@@ -45,7 +45,7 @@ void PageData::insertBlockBefore(BlockData *b, Data *ref) {
   }
 }
 
-void PageData::addBlock(BlockData *b) {
+void EntryData::addBlock(BlockData *b) {
   addChild(b);
   connect(b, SIGNAL(newSheet(int)), SLOT(newSheet()));
   if (b->sheet()>maxSheet) {
@@ -54,7 +54,7 @@ void PageData::addBlock(BlockData *b) {
   }
 }
 
-bool PageData::deleteBlock(BlockData *b) {
+bool EntryData::deleteBlock(BlockData *b) {
   if (!deleteChild(b))
     return false;
 
@@ -62,7 +62,7 @@ bool PageData::deleteBlock(BlockData *b) {
   return true;
 }
 
-void PageData::newSheet() {
+void EntryData::newSheet() {
   int newMax = 0;
   // I think we can actually assume the last block is on the last page,
   // but I am going to be bloody minded about it.
@@ -78,7 +78,7 @@ void PageData::newSheet() {
   }
 }  
 
-void PageData::loadMore(QVariantMap const &src) {
+void EntryData::loadMore(QVariantMap const &src) {
   Data::loadMore(src);
   title_ = firstChild<TitleData>();
   // Any old title has already been destructed by Data's loadChildren()
@@ -93,46 +93,46 @@ void PageData::loadMore(QVariantMap const &src) {
   }
 }
 
-TitleData *PageData::title() const {
+TitleData *EntryData::title() const {
   return title_;
 }
 
-QString PageData::titleText() const {
+QString EntryData::titleText() const {
   return title_->current()->text();
 }
 
-int PageData::startPage() const {
+int EntryData::startPage() const {
   return startPage_;
 }
 
-void PageData::setStartPage(int s) {
+void EntryData::setStartPage(int s) {
   startPage_ = s;
   markModified(InternalMod);
 }
 
-int PageData::sheetCount() const {
+int EntryData::sheetCount() const {
   return maxSheet + 1;
 }
 
-void PageData::setBook(Notebook *x) {
+void EntryData::setBook(Notebook *x) {
   nb = x;
 }
 
-Notebook *PageData::book() const {
+Notebook *EntryData::book() const {
   return nb;
 }
 
-ResManager *PageData::resManager() const {
+ResManager *EntryData::resManager() const {
   if (!this)
     return 0; // for convenience, allow to be called without a page
   return firstChild<ResManager>();
 }
 
-PageData const *PageData::page() const {
+EntryData const *EntryData::page() const {
   return this;
 }
 
-PageData *PageData::page() {
+EntryData *EntryData::page() {
   return this;
 }
 

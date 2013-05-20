@@ -4,11 +4,11 @@
 #include "BlockData.H"
 #include "FootnoteData.H"
 #include "FootnoteItem.H"
-#include "PageScene.H"
+#include "EntryScene.H"
 
 #include <QDebug>
 
-FootnoteGroupItem::FootnoteGroupItem(BlockData *data, PageScene *parent):
+FootnoteGroupItem::FootnoteGroupItem(BlockData *data, EntryScene *parent):
   Item(data, 0) {
   parent->addItem(this);
   foreach (FootnoteData *fd, data->children<FootnoteData>()) {

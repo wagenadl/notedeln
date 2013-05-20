@@ -3,7 +3,7 @@
 #include "Data.H"
 #include <QSet>
 #include <QMetaProperty>
-#include "PageData.H"
+#include "EntryData.H"
 #include <QDebug>
 #include "Style.H"
 #include "Notebook.H"
@@ -290,12 +290,12 @@ Data *Data::create(QString t, Data *parent) {
     return 0;
 }
 
-PageData const *Data::page() const {
+EntryData const *Data::page() const {
   Data const *p = parent();
   return p ? p->page() : 0;
 }
 
-PageData *Data::page() {
+EntryData *Data::page() {
   Data *p = parent();
   return p ? p->page() : 0;
 }
@@ -306,7 +306,7 @@ Notebook *Data::book() const {
 }
 
 ResManager *Data::resManager() const {
-  PageData const *pg = page();
+  EntryData const *pg = page();
   return pg ? pg->resManager() : 0;
 }
 

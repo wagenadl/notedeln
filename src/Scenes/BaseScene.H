@@ -1,4 +1,4 @@
-// BaseScene.H - Base for TOCScene and PageScene
+// BaseScene.H - Base for TOCScene and EntryScene
 
 #ifndef BASESCENE_H
 

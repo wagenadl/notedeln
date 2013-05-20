@@ -4,7 +4,7 @@
 #include "TextItem.H"
 #include "TextBlockData.H"
 #include "Style.H"
-#include "PageScene.H"
+#include "EntryScene.H"
 
 #include <QTextCursor>
 #include <QTextBlock>
@@ -74,7 +74,7 @@ QTextDocument *TextBlockItem::document() const {
 
 void TextBlockItem::futileMovementKey(int key, Qt::KeyboardModifiers mod) {
   fmi = FutileMovementInfo(key, mod, item_);
-  emit futileMovement(); // we emit w/o content, because PageScene uses Mapper.
+  emit futileMovement(); // we emit w/o content, because EntryScene uses Mapper.
 }
 
 bool TextBlockItem::isEmpty() const {

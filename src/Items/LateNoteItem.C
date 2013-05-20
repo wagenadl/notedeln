@@ -3,7 +3,7 @@
 #include "LateNoteItem.H"
 #include "LateNoteData.H"
 #include "TextItem.H"
-#include "PageData.H"
+#include "EntryData.H"
 #include "Assert.H"
 
 #include <QBrush>

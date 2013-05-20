@@ -36,7 +36,7 @@ private:
   class Notebook *book; // we do not own!
   class FrontScene *frontScene;
   class TOCScene *tocScene;
-  class PageScene *pageScene;
+  class EntryScene *pageScene;
   class GfxPalette *linePalette;
   class GfxPalette *markPalette;
   // class Toolbar *toolbar;

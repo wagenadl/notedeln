@@ -21,7 +21,7 @@ public:
   TOCEntry *find(int page) const; // returns entry containing the numbered page
                                   // ... or 0 if none does.
   bool contains(int startPage) const;
-  TOCEntry *addEntry(class PageData *data);
+  TOCEntry *addEntry(class EntryData *data);
   bool deleteEntry(TOCEntry *);
   int newPageNumber() const;
   bool isLast(TOCEntry const *) const;

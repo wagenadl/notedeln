@@ -2,7 +2,7 @@
 
 #include "BlockItem.H"
 #include "BlockData.H"
-#include "PageScene.H"
+#include "EntryScene.H"
 #include "FootnoteGroupItem.H"
 #include "FootnoteItem.H"
 #include "FootnoteData.H"

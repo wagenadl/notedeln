@@ -7,7 +7,7 @@
 #include <QString>
 #include <QDir>
 #include <QFile>
-#include "PageFile.H"
+#include "EntryFile.H"
 #include "BookFile.H"
 #include "TOCFile.H"
 
@@ -20,8 +20,8 @@ public:
 public:
   ~Notebook();
   bool hasPage(int pgno) const;   // } pgno must 
-  PageFile *page(int pgno);       // } be the first
-  PageFile *createPage(int pgno); // } sheet of a
+  EntryFile *page(int pgno);       // } be the first
+  EntryFile *createPage(int pgno); // } sheet of a
   bool deletePage(int pgno);      // } Page
   class TOC *toc() const;
   class BookData *bookData() const;
@@ -38,7 +38,7 @@ private slots:
   void sheetCountMod();
 private:
   QDir root;
-  QMap<int, PageFile *> pgFiles;
+  QMap<int, EntryFile *> pgFiles;
   TOCFile *tocFile_;
   BookFile *bookFile_;
   Style const *style_;

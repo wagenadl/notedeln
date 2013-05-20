@@ -29,7 +29,7 @@ public:
      height on objects that were created before the height of blocks or
      the y0 of notes was stored in the data structure.
      In the spirit of never writing to old files, we are careful to not
-     write those data when such files are opened. But the modern PageScene
+     write those data when such files are opened. But the modern EntryScene
      and friends cannot function without meaningful height and y0 information,
      so we do write the information into the Data tree. We just do not
      write it to file.

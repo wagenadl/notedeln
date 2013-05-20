@@ -22,7 +22,7 @@ public:
   virtual void makeWritable();
 public slots:
   void sizeToFit();
-public: // should be protected, but PageScene calls it
+public: // should be protected, but EntryScene calls it
   virtual void mousePressEvent(QGraphicsSceneMouseEvent *);
 private:
   double availableWidth() const;
