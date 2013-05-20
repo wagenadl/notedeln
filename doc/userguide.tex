@@ -36,8 +36,61 @@ along with this program.  If not, see $<$http://www.gnu.org/licenses/$>$.
 \pagebreak
 
 \chapter{Introduction}
+
+This document describes the installation and usage of ``eln'', an
+electronic lab notebook written by Daniel Wagenaar. There are any
+number of software packages available that implement electronic
+notebooks. So why should you choose ``eln''? Eln is for you if:
+\begin{itemize}
+  \item You want your notes to be stored in a human-readable format.
+  \item You want your notes to be stored in a format that will be easy to
+    parse electronically even 500 years from now.
+  \item You want your notes to be protected against accidental
+    deletion.
+  \item You want your notes to be automatically dated.
+  \item You want to concentrate on entering text and not on
+    formatting.
+  \item You want to be able to include images and simple graphics with
+    your notes and you want that to be easy.
+  \item You want your notebook software to be fast, even with 100s
+    of pages of notes.
+\end{itemize}
+\noindent Eln is not for you if:
+\begin{itemize}
+  \item You want complete fine control over the formatting of your notes
+    (but eln will allow you some coarse control).
+  \item You need to typeset complex equations in your notes (but eln
+    will allow you to set basic equations).
+  \item You need to typeset music in your notes.
+  \item You need to import formatted documents into your notes (but
+    eln can archive web pages and pdf files for you; they just cannot
+    be rendered onto the notebook pages).
+\end{itemize}
+
+Eln notebooks consist of ``entries'' that fill one or more ``pages.''
+Each entry has a title and consists of paragraphs of text and/or
+graphics canvases.
+
+This introduction
+will not cover why you should keep a lab notebook, nor why an
+electronic lab notebook may be desirable. You already know that. 
+
 \chapter{Installation}
+
+Installation on Windows should be easy using the provided ``eln.msi''
+installation package. Installation on Debian, Ubuntu, or Mint Linux
+should be equally easy using the provided ``eln.deb'' installation
+package. At present, installation on other flavors of Linux will
+require compiling the sources yourself. (Start from the provided
+``eln.tar.gz'' archive or checkout the bzr source.) I do not own a
+Mac, so I cannot provide a Mac OS version. But ``eln'' uses Qt for its
+graphical user interface, so compiling it on a Mac should in principle
+be straightforward. I would be happy to distribute a Mac installation
+package of anyone is willing to make one.
+
 \chapter{Using eln}
+
+
 \section{Creating a new notebook}
 \section{Creating new entries}
 \section{Adding text}
