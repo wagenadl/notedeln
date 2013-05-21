@@ -1,6 +1,9 @@
 \documentclass[11pt]{report}
 \usepackage{newcent}
 \usepackage[letterpaper]{geometry}
+\usepackage{multicol}
+\usepackage{wasysym}
+\usepackage{amssymb}
 \begin{document}
 \thispagestyle{empty}
 \begin{centering}
@@ -38,7 +41,15 @@ along with this program.  If not, see $<$http://www.gnu.org/licenses/$>$.
 \chapter{Introduction}
 
 This document describes the installation and usage of ``eln'', an
-electronic lab notebook written by Daniel Wagenaar. There are any
+electronic lab notebook written by Daniel Wagenaar.  This introduction
+will not cover why you should keep a lab notebook, nor why an
+electronic lab notebook may be desirable. You already know that.  It
+will however, cover some of the ideas behind this particular
+implementation.
+
+\section{Why use eln?}
+
+There are any
 number of software packages available that implement electronic
 notebooks. So why should you choose ``eln''? Eln is for you if:
 \begin{itemize}
@@ -54,8 +65,10 @@ notebooks. So why should you choose ``eln''? Eln is for you if:
     your notes and you want that to be easy.
   \item You want your notebook software to be fast, even with 100s
     of pages of notes.
+  \item You like your software to be open-source so that you can be
+    sure you can still run it 20 years from now.
 \end{itemize}
-\noindent Eln is not for you if:
+\noindent However, eln may not be for you if:
 \begin{itemize}
   \item You want complete fine control over the formatting of your notes
     (but eln will allow you some coarse control).
@@ -65,17 +78,97 @@ notebooks. So why should you choose ``eln''? Eln is for you if:
   \item You need to import formatted documents into your notes (but
     eln can archive web pages and pdf files for you; they just cannot
     be rendered onto the notebook pages).
+  \item You need a fully polished graphical user interface.
+  \item You need a help desk on-call.
 \end{itemize}
+\noindent Lastly, in the interest of full disclosure, you should
+realize that eln is currently developed by one person only, who also
+happens to be an active research scientist. That means that, by and
+large, new features are added when I need them and bugs are fixed when
+I have time. However, if there is a feature you desperately need, feel
+free to contact me. I may be able to make it happen, especially if it
+is a feature I would use myself. In addition, I will certainly
+consider (paid) consultancy related to eln. And, as I mentioned above,
+I welcome contributions from other developers. I would be very happy
+if eln turned into a community-supported open source project.
+
+\section{Features}
 
 Eln notebooks consist of ``entries'' that fill one or more ``pages.''
 Each entry has a title and consists of paragraphs of text and/or
-graphics canvases.
+graphics canvases. Typesetting is rudimentary: you can create italics
+and bold face text as well as super- and subscripts, but you cannot
+choose typefaces or font sizes (except as a global option). These
+limits were a conscious design design: the hope is that this will
+force you to concentrate on content rather than form, just as you
+would in a paper notebook.
 
-This introduction
-will not cover why you should keep a lab notebook, nor why an
-electronic lab notebook may be desirable. You already know that. 
+Graphic manipulation is similarly rudimentary: you can drag-and-drop
+or cut-and-paste images and (svg) vector graphics into a notebook
+entry, and these graphics can be cropped and resized, but they cannot
+be rotated or recolored. You can add simple symbols in a limited set
+of colors to the graphics as well as draw ``doodles.'' It is also
+possible to attach text notes to the graphics. You cannot, however,
+create arbitrarily complex graphics in eln; for that, the author
+recommends using the GIMP or Inkscape. It is easy to cut-and-paste
+from these programs into eln, and even easier to simply grab
+screenshots and paste them into eln.
+
+Eln supports footnotes and references to other pages within the same
+notebook, and automatically downloads and archives web pages if you
+type their URL into a notebook entry. This, for instance, facilitates
+keeping data sheets, MSDSs, and journal articles with your notes.
+
+A key feature of eln is that each entry is stored in a separate
+file. (A notebook is a folder on your hard disk with these files in a
+subfolder.) This approach has numerous advantages: it makes for
+lightning fast editing regardless of the size of the notebook, it
+limits the damage of hard disk failure to at most one entry (at least
+potentially), it makes it possible to use external version control
+software (Bazaar is explicitly supported) to archive your notebooks,
+it facilitates electronically verifying when an entry was created, and
+it makes it much easier to manually correct broken files if somehow
+data does get compromised.\footnote{Of course that's not supposed to
+  happen, but eln, like all software, does have bugs, so it is good to
+  know that failure can never be catastrophic.}
+
+Another important design feature is that entries automatically get
+locked (i.e., become immune to editing) after 24 hours and that in any
+event only the last entry in a notebook can ever be edited. This
+design choice might be controversial, but it is an important feature
+for a lab notebook: it encourages (in fact, enforces), chronological
+note taking and discourages manipulating data post-hoc.\footnote{Eln
+ on its own cannot be relied on to fully guarantee that entries aren't
+ modified post-hoc, because it is certainly possible to modify entries
+ using an external text editor. However, judicious use of version
+ control software can be used to document that such abuse has not
+ occurred.}
+
+Eln does not, at present, offer any facilities for multi-user
+collaboration. However, if used in conjunction with version control
+software, it is not hard to automatically maintain a central library of
+many lab members' notebooks. Lab members can then readily browse each
+others' notebooks. In addition, eln can export anything from an
+individual page to an entire notebook to pdf.
+
+\section{Contacting the author}
+
+If you like eln or find fault with it, if you discover a bug or have a
+suggestion for a new feature, if you are interested in improving this
+documentation or have a patch to contribute to the code, I want to
+hear from you. My real-world coordinates are currently in flux, but
+you can always find my contact information at
+http://www.danielwagenaar.net. I very much look forward to hearing
+from you. I realize that this guide is extremely terse, and I
+really do welcome questions, particularly if they help me to improve
+eln or its documentation.\medskip
+
+\noindent Caltech, May 2013
 
 \chapter{Installation}
+
+The latest version of the software can always be downloaded from
+http://www.danielwagenaar.net/software/eln.
 
 Installation on Windows should be easy using the provided ``eln.msi''
 installation package. Installation on Debian, Ubuntu, or Mint Linux
@@ -90,13 +183,283 @@ package of anyone is willing to make one.
 
 \chapter{Using eln}
 
+Eln has a deliberately sparse user interface that may take a little
+getting used to. It is the author's hope, however, that users will
+quickly get to appreciate the simplicity of the system.
+
+\section{Some general notes}
+
+Eln is intended to be fully usable either with traditional laptop or desktop
+computers or with tablets. To facilitate that, it only uses the left
+mouse button and hardly any keyboard modifiers (shift, control, alt,
+etc.) It can also be operated exclusively from the keyboard.
 
 \section{Creating a new notebook}
+
+When eln starts, it displays a list of recent notebooks and offers the
+choice of opening a notebook that is not on the list or the create a
+new notebook. When you click ``Create new notebook,'' it will
+immediately ask you where you want to store that notebook. It will
+then open the front page of your notebook, where you can change its
+title and add your name as the author as well as your affiliation or
+other relevant information. These choices are more or less permanent:
+after 24 hours, you cannot edit them from within eln.\footnote{If you
+  really must, you can manually edit the ``book.json'' file inside the
+  ``.nb'' notebook folder, but this is not generally recommended.} To
+leave the front page and go to the table of contents, press ``Page
+Down'' on your keyboard.
+
 \section{Creating new entries}
+
+To create a new entry, simply navigate to the last entry (by
+repeatedly pressing ``Page Down,'' or more conveniently by pressing
+``Control''+``End'') and then press ``Page Down'' once more. A new
+entry with title ``Untitled'' is created. To encourage you to give
+your entries meaningful titles, the title is highlighted so you can
+start typing right away. (The title you give to your entry here is
+automatically copied to the table of contents.) To move from the title
+to the first paragraph of your entry, simple press ``Enter.''
+
 \section{Adding text}
+
+Select the ``A'' mode icon (by clicking it or pressing ``F2'') to
+enter text mode. Click below existing contents or inside an existing
+paragraph to start editing. Note that it is not possible to edit an
+entry that is not the last one in the book or that is older than 24
+hours.
+
+Navigating between text paragraphs is done using the arrow keys as you
+would expect, and you can split and join paragraphs with ``Enter'' and
+``Delete'' or ``Backspace'' as you would expect. It is, however, not
+possible to join paragraphs across a graphics canvas. Text may be
+cut-and-pasted as you would expected using ``Control''+``X,''
+``Control''+``C,'' and ``Control''+``V'' as in other programs.
+
 \section{Adding graphics}
+
+Graphics can be added by dragging an image file onto the page or by
+pressing ``Control''+``V'' to paste an image from the
+clipboard. Images (and other graphics objects) can be moved around, cropped, and resized by
+selecting the ``hand'' icon (by clicking it or pressing ``F3''). As a
+convenience, holding down ``Alt'' temporarily selects the ``hand''
+icon and enables the same manipulations. 
+
+Various plot symbols and doodles can be added using the ``symbol'' and
+``line'' icons (``F4'' and ``F5''). Several choices for symbol size,
+line width, and color are available, but these options are not
+extendible. (This is a design choice: by limiting the options, eln
+hopes to encourage you to not spend too much time thinking about the
+perfect color for your annotation.) 
+
+Text annotations can be added
+to the graphics canvas using the ``text balloon'' icon (``F6'') and
+either clicking to place text or dragging to place text with a
+connector line. Type faces and font sizes cannot be changed (again, on
+purpose), but you \emph{can} change the width of your annotation by
+selecting the ``hand'' icon (``F3'' or ``Alt'') and dragging the right
+edge of your annotation. The end of a connector line can be moved by
+holding ``Shift'' while dragging the annotation.
+
+Graphics objects can be deleted while in ``hand'' mode by hovering the
+cursor over them and pressing ``Delete.'' They can be restored by
+pressing ``Insert.'' An empty graphics canvas can be deleted by
+pressing ``Delete.''
+
+\section{Saving your work}
+
+You don't have to! Eln automatically saves your work every 10 seconds
+(if you have made any changes) and when you navigate to a different
+entry (ditto). If you have configured version control, your changes
+are automatically committed once you close the notebook. (In a future
+version, changes will be automatically committed at regular
+intervals.)
+
 \section{Navigation}
+
+Navigation between pages and entries is done using ``Page Up'' and
+``Page Down,'' or with the navigation buttons overlaid on the bottom left of
+the notebook. To go to the table of contents, press
+``Control''+``Home,'' and to go to the latest entry, press
+``Control''+``End.'' Double clicking on a page link (hold ``Control''
+if the link is on an editable page) activates the link. Press ``Page
+Down'' from the final page to start a new entry or press ``Page Up''
+from an untitled, unedited new entry to abandon that new entry.
+
 \section{Editing old entries}
-\section{Formatting and special characters}
+
+Cannot be done. Except that you can use the ``text balloon'' icon to
+create so-called ``late notes.'' These are automatically set in a
+distinct color and are automatically decorated with a data stamp. They
+may be manipulated just like text annotations on a graphics canvas.
+
+\section{Formatting}
+
+Eln doesn't offer advanced formatting, but it does offer some basic
+options: Press ``Control''+``Slash'' to italicize the word under the
+cursor or the current selection (or to unitalicize). Press
+``Control''+``Star'' (i.e., ``Control''+``8'') for bold face. Press
+``Control''+``Underscore'' (i.e., ``Control''+``Minus'') for
+underline. Type ``Hat'' + text + ``Period'' to create a superscript
+(e.g., ``x$^\wedge$2.'' becomes ``x$^2$'') or ``Underscore'' + text +
+``Period'' to create a subscript (e.g., (``H\_2.O'' becomes H$_2$O'').
+
+In addition, any text, old or new, can be highlighted using the
+``yellow box'' icon (``F7'') or crossed out (``F8'') and these
+annotations (only) can be removed using the ``clean'' icon (``F9'').
+
+\section{Special characters}
+
+Eln supports most of unicode and you can use any input method
+supported by Qt to enter text. In addition, the following
+substitutions are made unconditionally as you type:
+\begin{multicols}{3}
+\begin{tabular}{cc}
+$''$ & '' \\
+$'$ & ' \\
+$\backprime\backprime$ & `` \\
+$\backprime$ & ` \\
+-{}- & -- \\
+-{}-{}- & --- \\
+$>=$ & $\geq$ \\
+$<=$ & $\leq$ \\
+$!=$ & $\neq$ 
+\end{tabular}
+
+\begin{tabular}{cc}
+$<$$-$ & $\leftarrow$ \\
+$-$$>$ & $\rightarrow$ \\
+$<==$ & $\Leftarrow$ \\
+$=>$ & $\Rightarrow$ \\
+$<$$-$$>$ & $\leftrightarrow$ \\
+$<==>$ & $\Leftrightarrow$ \\
+$|-$ & $\vdash$ \\
+$-|$ & $\dashv$ \\
+$|-$$>$ & $\mapsto$ \\
+\end{tabular}
+
+\begin{tabular}{cc}
+$^\wedge{}=$ & $\hat=$ \\
+$==$ & $\equiv$ \\
+$\sim=$ & $\cong$ \\
+$>>$ & $\gg$ \\
+$<<$ & $\ll$ \\
+$\sim\sim$ & $\approx$ \\
+$+-$ & $\pm$ \\
+$|~|$ & $ \parallel $ \\
+\end{tabular}
+
+\end{multicols}
+
+(To prevent these automatic substitutions, type the second character
+first, move the cursor back, and then type the first
+character. Suggestions to improve this procedure are invited.)
+
+In addition to the automatic substitutions, there are many symbols
+that can be obtained by typing their name and pressing
+``Control''+``Backslash.'' These include all Greek letters, both
+lower case and capitals, and the following:
+
+\begin{multicols}{3}
+\begin{tabular}{cc}
+emdash & --- \\
+endash & -- \\
+figuredash & -- \\
+times & $\times$ \\
+x & $\times$ \\
+cdot & $\cdot$ \\
+cdots & $\cdots$ \\
+dots & $\ldots$ \\
+\end{tabular}
+
+\begin{tabular}{cc}
+div & $\div$ \\
+int & $\int$ \\
+sum & $\sum$ \\
+sqrt & $\sqrt{}$ \\
+deg & $^\circ$ \\
+diam & $\diameter$ \\
+prime & $'$ \\
+dprime & $''$ 
+\end{tabular}
+
+\begin{tabular}{cc}
+flat & $\flat$ \\
+sharp & $\sharp$ \\
+natural & $\natural$ \\
+$x$ vec & $\vec x$ \\
+$x$ hat & $\hat x$ \\
+$x$ tilde & $\tilde x$ \\
+$x$ dot & $\dot x$ \\
+$x$ ddot & $\ddot x$ \\
+\end{tabular}
+\end{multicols}
+
+(Note how the last few place accents over the preceding character.)
+
+\section{Footnotes and hyperlinks}
+
+Press ``Control''+``N'' to create a footnote. Footnotes are connected
+to the main text by arbitrary tags; normally, the word at the cursor
+becomes the tag. Footnotes are deleted by deleting the tag in the main text.
+
+Press ``Control''+``L'' to create a hyperlink. If you
+type an evident URL (e.g., starting with http://), a hyperlink will be
+created automatically. 
+
+\section{Magic links}
+
+Eln recognizes not just URL-style hyperlinks, but also a number of
+other ``magic'' links:
+\begin{itemize}
+\item A small number (at most 3 digits), upon pressing ``Control''+``L''
+becomes a hyperlink to another page in the notebook.
+\item A large number (more than 4 digits)
+will be interpreted as a PubMed ID and will link to PubMed. When
+possible, the corresponding article will be automatically downloaded
+and archived with the notebook. Hovering over the link displays a
+thumbnail of the first page, and ``Control''+double click opens the
+downloaded article. Hyperlinks are typeset with a pale blue background
+once download is complete, or with a pink background before download
+is complete or if download fails.
+\item Eln will also try to interpret Thorlabs part numbers and
+  downloads the data sheet.
+\end{itemize}
+This ``magic'' can be modified in the ``style.json'' file of a
+notebook (see below under ``Customization'') and will be augmented in
+future versions to include part numbers from other vendors. Feel free
+to put in your requests!
+
 \section{Exporting and printing}
+
+Eln can export your entire notebook or portions of it to pdf or print
+them directly. Simply press ``Control''+``P'' to open the print dialog
+and select either ``Print to pdf'' or an actual printer. The print
+dialog is in early development, and the options are currently labeled
+somewhat confusingly. Here is the key: ``Print all'' and ``Current
+page'' do what you would expect. ``Pages from $\ldots$ to $\ldots$''
+prints the requested numbered pages of the entries part of the
+notebook, \emph{or} from the table of contents if that is currently
+displayed. ``Selection'' prints the current entry.
+
+\section{Customization}
+
+At present, you cannot graphically change the looks of a
+notebook. However, inside each notebook folder, eln creates a file
+called ``style.json'' that defines many of the style parameters of the
+notebook. I don't have the time right now to document all of them
+(feel free to contribute). Particularly important ones are
+``page-width'' and ``page-height'' which specify the width and height
+of a notebook page in points (1/72'') and the various
+``\ldots-font-family'' variables. Also of interest is the
+``magicians'' section.
+
+\section{Version control}
+
+If you turn a notebook into a Bazaar repository (externally, using
+``bzr init'') and push it to a server and bind it to the pushed
+repository, eln can automatically commit changes if you add ``"vc":
+"bzr"'' to your style file. (If this paragraph doesn't make sense to
+you, please first learn about Bazaar version control, then contact
+me.)
+
 \end{document}
