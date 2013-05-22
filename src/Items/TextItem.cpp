@@ -48,7 +48,7 @@
 #include "LateNoteItem.H" 
 #include "LateNoteData.H" 
 
-TextItem::TextItem(TextData *data, Item *parent):
+TextItem::TextItem(TextData *data, Item *parent, bool noFinalize):
   Item(data, parent) {
   text = new TextItemText(this);
   foreach (LateNoteData *lnd, data->children<LateNoteData>()) 
@@ -63,11 +63,16 @@ TextItem::TextItem(TextData *data, Item *parent):
   lateMarkType = MarkupData::Normal;
   allowParagraphs_ = true;
 
-  text->setPlainText(data->text());  
-  markings_ = new TextMarkings(data, this);
-
   initializeFormat();
 
+  if (!noFinalize) {
+    text->setPlainText(data->text());
+    finalizeConstructor();
+  }
+}
+
+void TextItem::finalizeConstructor() {
+  markings_ = new TextMarkings(data, this);
   connect(document(), SIGNAL(contentsChange(int, int, int)),
 	  this, SLOT(docChange()));
 }

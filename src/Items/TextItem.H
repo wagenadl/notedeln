@@ -31,7 +31,8 @@
 class TextItem: public Item {
   Q_OBJECT;
 public:
-  TextItem(TextData *data, Item *parent);
+  TextItem(TextData *data, Item *parent, bool noFinalize=false);
+  // only TableItem should set noFinalize=true!
   ~TextItem();
   DATAACCESS(TextData);
   virtual void makeWritable();
@@ -108,6 +109,8 @@ public: // pass-through
 public:
   virtual QRectF boundingRect() const;
   virtual void paint(QPainter*, const QStyleOptionGraphicsItem*, QWidget*);
+protected:
+  void finalizeConstructor();
 protected:
   bool mayMark;
   bool mayNote;

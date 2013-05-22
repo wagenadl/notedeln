@@ -1,0 +1,27 @@
+// TableItem.H
+
+#ifndef TABLEITEM_H
+
+#define TABLEITEM_H
+
+#include "TextItem.H"
+#include "TableData.H"
+
+class TableItem: public TextItem {
+  Q_OBJECT;
+public:
+  TableItem(TableData *data, Item *parent);
+  virtual ~TableItem();
+  DATAACCESS(TableData);
+protected slots:
+  virtual void docChange();
+protected:
+  virtual bool keyPress(QKeyEvent *);
+private:
+  QTextTableFormat format();
+private:
+  QTextTable *table;
+  bool ignoreChanges;
+};
+
+#endif
