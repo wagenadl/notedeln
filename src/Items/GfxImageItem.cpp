@@ -343,7 +343,7 @@ QRectF GfxImageItem::imageBoundingRect() const {
 }
 
 QRectF GfxImageItem::boundingRect() const {
-  return imageBoundingRect().adjusted(0, -18, 0, 18);
+  return imageBoundingRect();
 }
 
 void GfxImageItem::makeWritable() {

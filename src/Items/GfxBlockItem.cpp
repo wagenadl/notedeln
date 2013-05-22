@@ -70,7 +70,7 @@ Item *GfxBlockItem::newImage(QImage img, QUrl src, QPointF pos) {
   if (scale*img.height()>maxH)
     scale = maxH/img.height();
   if (allChildren().isEmpty())
-    pos = QPointF(18, 18);
+    pos = QPointF(0, 0);
   else
     pos -= QPointF(img.width(),img.height())*(scale/2);
   pos = constrainPointToRect(pos, boundingRect());
@@ -99,15 +99,16 @@ QRectF GfxBlockItem::generousChildrenBounds() const {
       r |= i->mapRectToParent(i->netBounds());
   if (r.isEmpty())
     return r;
-  r.setTop(r.top()-9); // 1/6"
-  r.setBottom(r.bottom()+9); // 1/6"
+  r.setTop(r.top()-style().real("gfx-block-vmargins"));
+  r.setBottom(r.bottom()+style().real("gfx-block-vmargins"));
   return r;
 }
 
 void GfxBlockItem::sizeToFit() {
   QRectF r = generousChildrenBounds();
-  if (r.height() < 72)
-    r.setHeight(72);
+  double minh = style().real("gfx-block-minh");
+  if (r.height() < minh)
+    r.setHeight(minh);
 
   double yref = data()->yref();
   double h = data()->height();

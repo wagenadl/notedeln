@@ -8,8 +8,8 @@
 
 class TableBlockData: public BlockData {
   Q_OBJECT;
-  Q_PROPERTY(int nrows READ rows WRITE setRows)
-  Q_PROPERTY(int ncols READ columns WRITE setColumns)
+  Q_PROPERTY(int nrows READ rows WRITE setRows);
+  Q_PROPERTY(int ncols READ columns WRITE setColumns);
 public:
   TableBlockData(Data *parent);
   virtual ~TableBlockData();
@@ -21,8 +21,8 @@ public:
   double columnWidth(int c) const;
   void setRows(int R);
   void setColumns(int C);
-  void setRowHeight(int r, double h, bool hush=false);
-  void setColumnWidth(int c, double w, bool hush=false);
+  void setRowHeight(int r, double h);
+  void setColumnWidth(int c, double w);
   //
   void insertRowBefore(int r);
   void addRow();
@@ -30,10 +30,13 @@ public:
   void insertColumnBefore(int c);
   void addColumn();
   void deleteColumn(int c);
-  class TableRowData *row(int r) const;
+  //
+  class TableRowData *row(int r);
 protected:
   void loadMore(QVariantMap const &src);
   void saveMore(QVariantMap &dst) const;
+private:
+  void fixRowIndices();
 private:
   int nrows;
   int ncols;

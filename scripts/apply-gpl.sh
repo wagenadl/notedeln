@@ -4,6 +4,8 @@ FN=$1
 
 grep -q "This file is part of eln" $FN && exit 0
 
+echo "Applying GPL text to $FN"
+
 /bin/mv $FN $FN~
 echo "// $FN - This file is part of eln" > $FN
 
