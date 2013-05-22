@@ -36,6 +36,7 @@ public:
     Highlight,
     Strikeout,
     Plain,
+    Table,
   };
 public:
   Mode(QObject *parent=0);

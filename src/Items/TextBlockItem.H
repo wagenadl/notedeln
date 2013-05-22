@@ -25,10 +25,16 @@
 #include "TextBlockData.H"
 #include <QTextCursor>
 
+class TICreator {
+public:
+  virtual class TextItem *create(TextData *data, Item *parent) const;
+};
+
 class TextBlockItem: public BlockItem {
   Q_OBJECT;
 public:
-  TextBlockItem(TextBlockData *data, Item *parent=0);
+  TextBlockItem(TextBlockData *data, Item *parent=0,
+		TICreator const &tic=TICreator());
   virtual ~TextBlockItem();
   DATAACCESS(TextBlockData);
   QTextDocument *document() const;

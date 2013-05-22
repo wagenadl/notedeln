@@ -59,7 +59,7 @@ signals:
 protected:
   void mouseMoveEvent(QGraphicsSceneMouseEvent *);
   void mouseReleaseEvent(QGraphicsSceneMouseEvent *);
-private:
+protected:
   friend class TextItemText;
   virtual bool mousePress(QGraphicsSceneMouseEvent *);
   virtual bool mouseDoubleClick(QGraphicsSceneMouseEvent *);

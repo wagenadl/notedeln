@@ -59,6 +59,14 @@ public:
     }
     return res;
   }
+  template<class T> T *firstChild() const {
+    foreach (QGraphicsItem *c0, QGraphicsObject::childItems()) {
+      T *c = dynamic_cast<T*>(c0);
+      if (c)
+	return c;
+    }
+    return 0;
+  }
   virtual void setScale(qreal);
 public:
   static Item *create(Data *d, Item *parent=0);

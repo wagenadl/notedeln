@@ -32,14 +32,9 @@ TextMarkings::TextMarkings(TextData *data, TextItem *parent):
   doc = parent->document();
   connect(doc, SIGNAL(contentsChange(int, int, int)),
 	  SLOT(update(int, int, int)));
-  QSet<int> edges;
-  foreach (MarkupData *m, data->markups()) {
+  foreach (MarkupData *m, data->markups())
     insertMark(m);
-    edges.insert(m->start());
-    edges.insert(m->end());
-  }
-  for (QList<Span>::iterator i=spans.begin(); i!=spans.end(); ++i) 
-    applyMark(*i, edges);
+  applyAllMarks();
 }
 
 TextMarkings::~TextMarkings() {
@@ -47,6 +42,16 @@ TextMarkings::~TextMarkings() {
 
 TextItem *TextMarkings::parent() const {
   return dynamic_cast<TextItem*>(parentItem());
+}
+
+void TextMarkings::applyAllMarks() {
+  QSet<int> edges;
+  foreach (MarkupData *m, data->markups()) {
+    edges.insert(m->start());
+    edges.insert(m->end());
+  }
+  for (QList<Span>::iterator i=spans.begin(); i!=spans.end(); ++i) 
+    applyMark(*i, edges);
 }
 
 void TextMarkings::applyMark(Span const &span, QSet<int> edges) {

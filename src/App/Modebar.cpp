@@ -69,7 +69,11 @@ Modebar::Modebar(Mode *mode, QGraphicsItem *parent):
   t = new ToolItem();
   t->setSvg(":icons/plain.svg");
   addTool(modeToId(Mode::Plain), t);
-  
+
+  t = new ToolItem();
+  t->setSvg(":icons/table.svg");
+  addTool(modeToId(Mode::Table), t);
+
   select(modeToId(mode->mode()));
   connect(mode, SIGNAL(modeChanged(Mode::M)), SLOT(updateMode()));
 }

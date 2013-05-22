@@ -30,13 +30,19 @@
 #include <QDebug>
 #include "Assert.H"
 
-TextBlockItem::TextBlockItem(TextBlockData *data, Item *parent):
+TextItem *TICreator::create(TextData *data, Item *parent) const {
+  return new TextItem(data, parent);
+}
+
+
+TextBlockItem::TextBlockItem(TextBlockData *data, Item *parent,
+			     TICreator const &tic):
   BlockItem(data, parent) {
   item_ = 0;
 
   setPos(style().real("margin-left"), 0);
 
-  item_ = new TextItem(data->text(), this);
+  item_ = tic.create(data->text(), this);
 
   initializeFormat();
   item_->setAllowParagraphs(false);

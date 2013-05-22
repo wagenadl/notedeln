@@ -147,7 +147,7 @@ bool TextItem::mousePress(QGraphicsSceneMouseEvent *e) {
   switch (e->button()) {
   case Qt::LeftButton:
     switch (mode()->mode()) {
-    case Mode::Type:
+    case Mode::Type: case Mode::Table:
       return false; // TextItemText will decide whether to edit or not
     case Mode::MoveResize:
       if (mayMove) {

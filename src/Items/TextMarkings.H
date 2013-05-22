@@ -38,6 +38,7 @@ public:
   TextItem *parent() const;
   QRectF boundingRect() const;
   void paint(QPainter*, const QStyleOptionGraphicsItem*, QWidget*);
+  void applyAllMarks();
 private slots:
   void update(int, int, int);
 private:

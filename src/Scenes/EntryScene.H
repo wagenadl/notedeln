@@ -56,6 +56,7 @@ private slots:
   void futileNoteMovement();
 private:
   void splitTextBlock(int iblock, int pos);
+  class TableBlockItem *injectTableBlock(class TableBlockData *, int iblock);
   class TextBlockItem *injectTextBlock(class TextBlockData *, int iblock);
   bool tryToPaste();
   bool tryMakeNote();
@@ -88,10 +89,12 @@ private:
   class TextBlockItem *newTextBlock(int after=-1, bool evenIfLastEmpty=false);
   // creates a new text block after the
   // given block or at the bottom of this sheet
+  class TableBlockItem *newTableBlock(int after=-1);
   class GfxBlockItem *gfxBlockAfter(int iblock);
   void deleteBlock(int blocki); // also deletes data!
   class BlockItem *tryMakeGfxBlock(class BlockData *bd);
   class BlockItem *tryMakeTextBlock(class BlockData *bd);
+  class BlockItem *tryMakeTableBlock(class BlockData *bd);
   void joinTextBlocks(int iblock_pre, int iblock_post);
   int indexOfBlock(class BlockItem *) const; // -1 if none
   void repositionContItem();

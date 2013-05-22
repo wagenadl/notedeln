@@ -22,7 +22,9 @@
 #include "BlockItem.H"
 #include "TitleItem.H"
 #include "TextBlockItem.H"
+#include "TableBlockItem.H"
 #include "TextBlockData.H"
+#include "TableBlockData.H"
 #include "EntryData.H"
 #include "GfxBlockItem.H"
 #include "GfxBlockData.H"
@@ -119,7 +121,9 @@ void EntryScene::makeTitleItem() {
 
 void EntryScene::makeBlockItems() {
   foreach (BlockData *bd, data_->blocks()) {
-    BlockItem *bi = tryMakeTextBlock(bd);
+    BlockItem *bi = tryMakeTableBlock(bd);
+    if (!bi)
+      bi = tryMakeTextBlock(bd);
     if (!bi)
       bi = tryMakeGfxBlock(bd);
     ASSERT(bi);
@@ -143,6 +147,18 @@ BlockItem *EntryScene::tryMakeGfxBlock(BlockData *bd) {
     gbi->sizeToFit();
   addItem(gbi);
   return gbi;
+}
+
+BlockItem *EntryScene::tryMakeTableBlock(BlockData *bd) {
+  TableBlockData *tbd = dynamic_cast<TableBlockData*>(bd);
+  if (!tbd)
+    return 0;
+  TableBlockItem *tbi = new TableBlockItem(tbd);
+  if (tbd->height()==0)
+    tbi->sizeToFit();
+  addItem(tbi);
+  connect(tbi, SIGNAL(futileMovement()), futileMovementMapper, SLOT(map()));
+  return tbi;
 }
 
 BlockItem *EntryScene::tryMakeTextBlock(BlockData *bd) {
@@ -459,6 +475,28 @@ void EntryScene::joinTextBlocks(int iblock_pre, int iblock_post) {
   tbi->text()->setTextCursor(c);
 }  
 
+TableBlockItem *EntryScene::injectTableBlock(TableBlockData *tbd, int iblock) {
+  // creates a new table block immediately before iblock (or at end if iblock
+  // points past the last text block)
+  BlockData *tbd_next =  iblock<blockItems.size()
+    ? data_->blocks()[iblock]
+    : 0;
+  data_->insertBlockBefore(tbd, tbd_next);
+  TableBlockItem *tbi = new TableBlockItem(tbd);
+  tbi->sizeToFit();
+  addItem(tbi);
+  tbi->makeWritable();
+
+  blockItems.insert(iblock, tbi);
+  FootnoteGroupItem *fng = new FootnoteGroupItem(tbd, this);
+  footnoteGroups.insert(iblock, fng);
+  fng->makeWritable();
+  connect(tbi, SIGNAL(heightChanged()), vChangeMapper, SLOT(map()));
+  connect(tbi, SIGNAL(futileMovement()), futileMovementMapper, SLOT(map()));
+  remap();
+  return tbi;
+}
+
 TextBlockItem *EntryScene::injectTextBlock(TextBlockData *tbd, int iblock) {
   // creates a new text block immediately before iblock (or at end if iblock
   // points past the last text block)
@@ -488,6 +526,23 @@ void EntryScene::remap() {
     futileMovementMapper->setMapping(bi, i);
     noteVChangeMapper->setMapping(footnoteGroups[i], i);
   }
+}
+
+TableBlockItem *EntryScene::newTableBlock(int iAbove) {
+  if (iAbove<0)
+    iAbove = findLastBlockOnSheet(iSheet);
+
+  int iNew = (iAbove>=0)
+    ? iAbove + 1
+    : blockItems.size();
+
+  TableBlockData *tbd = new TableBlockData();
+  TableBlockItem *tbi = injectTableBlock(tbd, iNew);
+  
+  restackBlocks();
+  gotoSheetOfBlock(iNew);
+  tbi->setFocus();
+  return tbi;
 }
 
 TextBlockItem *EntryScene::newTextBlock(int iAbove, bool evenIfLastEmpty) {
@@ -680,6 +735,12 @@ void EntryScene::mousePressEvent(QGraphicsSceneMouseEvent *e) {
     case Mode::Type:
       if (writable) {
 	newTextBlock();
+	take = true;
+      }
+      break;
+    case Mode::Table:
+      if (writable) {
+	newTableBlock();
 	take = true;
       }
       break;

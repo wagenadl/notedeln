@@ -38,7 +38,7 @@ public:
   void join(TextBlockData *); // the other is deleted afterward
 protected:
   void loadMore(QVariantMap const &src);
-private:
+protected:
   TextData *text_;
 };
 
