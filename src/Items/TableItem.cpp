@@ -73,8 +73,14 @@ bool TableItem::keyPress(QKeyEvent *e) {
     // inside the table
     int row = cell.row();
     int col = cell.column();
+    qDebug() << "in table" << row << col;
+    qDebug() << "key="<<key
+	     << " tab="<<Qt::Key_Tab
+	     << " enter="<<Qt::Key_Enter
+	     << "tcf="<<text->tabChangesFocus();
     switch (key) {
     case Qt::Key_Tab:
+      qDebug() << "tab";
       if (shft && ctrl) 
 	insertColumn(col++);
       else if (ctrl)
@@ -95,7 +101,8 @@ bool TableItem::keyPress(QKeyEvent *e) {
 	selectCell(row, col);
       }
       return true;
-    case Qt::Key_Enter:
+    case Qt::Key_Enter: case Qt::Key_Return:
+      qDebug() << "enter";
       if (shft && ctrl)
 	insertRow(row++);
       else if (ctrl)
