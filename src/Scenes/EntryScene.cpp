@@ -763,6 +763,9 @@ void EntryScene::mousePressEvent(QGraphicsSceneMouseEvent *e) {
 }
 
 void EntryScene::keyPressEvent(QKeyEvent *e) {
+  if (e->key()==Qt::Key_Tab) {
+    qDebug() << "EntryScene: Tab!";
+  }
   if (e->modifiers() & Qt::ControlModifier) {
     bool steal = false;
     switch (e->key()) {
