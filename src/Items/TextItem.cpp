@@ -72,7 +72,7 @@ TextItem::TextItem(TextData *data, Item *parent, bool noFinalize):
 }
 
 void TextItem::finalizeConstructor() {
-  markings_ = new TextMarkings(data, this);
+  markings_ = new TextMarkings(data(), this);
   connect(document(), SIGNAL(contentsChange(int, int, int)),
 	  this, SLOT(docChange()));
 }

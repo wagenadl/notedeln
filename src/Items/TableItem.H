@@ -13,6 +13,10 @@ public:
   TableItem(TableData *data, Item *parent);
   virtual ~TableItem();
   DATAACCESS(TableData);
+  void gotoCell(int row, int col, bool goEnd=false);
+  void selectCell(int row, int col);
+  void insertRow(int before);
+  void insertColumn(int before);
 protected slots:
   virtual void docChange();
 protected:
