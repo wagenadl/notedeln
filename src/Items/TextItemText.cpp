@@ -27,6 +27,7 @@
 #include <QTextDocument>
 #include <QTextLayout>
 #include <QGraphicsSceneDragDropEvent>
+#include <QMimeData>
 
 TextItemText::TextItemText(TextItem *parent): QGraphicsTextItem(parent) {
   forcebox = false;
