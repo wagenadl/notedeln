@@ -332,13 +332,13 @@ bool TextItem::keyPressWithControl(QKeyEvent *e) {
     tryExplicitLink();
     return true;
   case Qt::Key_Slash:
-    toggleSimpleStyle(MarkupData::Italic);
+    toggleSimpleStyle(MarkupData::Italic, textCursor());
     return true;
   case Qt::Key_8:
-    toggleSimpleStyle(MarkupData::Bold);
+    toggleSimpleStyle(MarkupData::Bold, textCursor());
     return true;
   case Qt::Key_Minus:
-    toggleSimpleStyle(MarkupData::Underline);
+    toggleSimpleStyle(MarkupData::Underline, textCursor());
     return true;
   case Qt::Key_Backslash:
     tryTeXCode();
@@ -542,21 +542,28 @@ bool TextItem::tryAutoLink() {
   return true;
 }
 
-void TextItem::toggleSimpleStyle(MarkupData::Style type) {
-  QTextCursor c = textCursor();
+void TextItem::toggleSimpleStyle(MarkupData::Style type,
+                                 QTextCursor const &c) {
   MarkupData *oldmd = markupAt(c.position(), type);
   int start=-1;
   int end=-1;
   if (c.hasSelection()) {
     start = c.selectionStart();
     end = c.selectionEnd();
+    qDebug() << "toggle SEL " << start << end;
   } else {
     QTextCursor m = document()->find(QRegExp("\\W"), c,
 				     QTextDocument::FindBackward);
     start = m.hasSelection() ? m.selectionEnd() : 0;
     m = document()->find(QRegExp("\\W"), c);
-    end = m.hasSelection() ? m.selectionStart() : data()->text().size();
+    end = m.hasSelection() ? m.selectionStart() : 100000000;
   }
+  int min = c.block().position();
+  int max = min + c.block().length() - 1;
+  if (start<min)
+    start = min;
+  if (end>max)
+    end = max;
   
   if (oldmd && oldmd->start()==start && oldmd->end()==end) 
     markings_->deleteMark(oldmd);

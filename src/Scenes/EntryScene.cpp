@@ -37,6 +37,8 @@
 #include "Notebook.H"
 #include "GfxNoteItem.H"
 #include "GfxNoteData.H"
+#include "TableItem.H"
+#include "TextItemText.H"
 
 #include <QTemporaryFile>
 #include <QProcess>
@@ -598,7 +600,7 @@ void EntryScene::futileMovement(int block) {
     // upward movement
     for (int b=block-1; b>=0; b--) {
       BlockItem *bi = blockItems[b];
-      if (dynamic_cast<TextBlockItem *>(bi) && bi->isWritable()) {
+      if (bi->data()->type()=="textblock" && bi->isWritable()) {
 	tgtidx = b;
 	break;
       }
@@ -608,7 +610,7 @@ void EntryScene::futileMovement(int block) {
     // downward movement
     for (int b=block+1; b<blockItems.size(); b++) {
       BlockItem *bi = blockItems[b];
-      if (dynamic_cast<TextBlockItem *>(bi) && bi->isWritable()) {
+      if (bi->data()->type()=="textblock" && bi->isWritable()) {
 	tgtidx = b;
 	break;
       }
@@ -763,8 +765,18 @@ void EntryScene::mousePressEvent(QGraphicsSceneMouseEvent *e) {
 }
 
 void EntryScene::keyPressEvent(QKeyEvent *e) {
-  if (e->key()==Qt::Key_Tab) {
-    qDebug() << "EntryScene: Tab!";
+  if (e->key()==Qt::Key_Tab || e->key()==Qt::Key_Backtab) {
+    TextItemText *focus = dynamic_cast<TextItemText*>(focusItem());
+    if (focus) {
+      qDebug() << "EntryScene: Tab while focused on text!";
+      if (dynamic_cast<TableItem*>(focus->parentItem())) {
+        qDebug() << "  it's in a table!";
+        focus->keyPressEvent(e);
+        e->accept();
+        qDebug() << "  -> accepted";
+        return;
+      }
+    }
   }
   if (e->modifiers() & Qt::ControlModifier) {
     bool steal = false;
@@ -868,7 +880,7 @@ bool EntryScene::importDroppedOrPasted(QPointF scenePos,
 				QUrl());
   else if (md->hasUrls()) 
     accept = importDroppedUrls(scenePos, md->urls(), dropped);
-  else if (md->hasText())
+  else if (md->hasText() && dropped)
     accept = importDroppedText(scenePos, md->text());
   return accept;
 }
@@ -945,7 +957,7 @@ bool EntryScene::importDroppedUrls(QPointF scenePos, QList<QUrl> const &urls,
 
 bool EntryScene::importDroppedUrl(QPointF scenePos,
 				 QUrl const &url,
-				 bool /*dropped*/) {
+				 bool dropped) {
   // QGraphicsItem *dst = itemAt(scenePos);
   /* A URL could be any of the following:
      (1) A local image file
@@ -962,9 +974,9 @@ bool EntryScene::importDroppedUrl(QPointF scenePos,
     QImage image = QImage(path);
     if (!image.isNull())
       return importDroppedImage(scenePos, image, url);
-    else
+    else if (dropped)
       return importDroppedFile(scenePos, path);
-  } else {
+  } else if (dropped) {
     // Right now, we import all network urls as text
     return importDroppedText(scenePos, url.toString());
   }

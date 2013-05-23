@@ -26,7 +26,6 @@ TableItem::TableItem(TableData *data, Item *parent):
 TableItem::~TableItem() {
 }
 
-
 QTextTableFormat TableItem::format() {
   // should read from style
   QTextTableFormat fmt;
@@ -56,6 +55,105 @@ void TableItem::docChange() {
   TextItem::docChange();
 }
 
+bool TableItem::keyPressAsMotion(QKeyEvent *e, QTextTableCell const &cell) {
+  bool shft = e->modifiers() & Qt::ShiftModifier;
+  bool ctrl = e->modifiers() & Qt::ControlModifier;
+  int row = cell.row();
+  int col = cell.column();
+  switch (e->key()) {
+  case Qt::Key_Tab:
+    qDebug() << "tab";
+    if (shft && ctrl) 
+      insertColumn(col++);
+    else if (ctrl)
+      insertColumn(col+1);
+    if (shft) {
+      --col;
+      if (col<0) {
+        --row;
+        col = table->columns()-1;
+      }
+      selectCell(row, col);
+    } else {
+      ++col;
+      if (col>=table->columns()) {
+        ++row;
+        col = 0;
+      }
+      selectCell(row, col);
+    }
+    return true;
+  case Qt::Key_Backtab:
+    qDebug() << "backtab";
+    if (ctrl) 
+      insertColumn(col++);
+    --col;
+    if (col<0) {
+      --row;
+      col = table->columns()-1;
+    }
+    selectCell(row, col);
+    return true;
+  case Qt::Key_Enter: case Qt::Key_Return:
+    qDebug() << "enter";
+    if (shft && ctrl)
+      insertRow(row++);
+    else if (ctrl)
+      insertRow(row+1);
+    if (shft) {
+      if (row==0)
+        insertRow(row++);
+      selectCell(row-1, 0);
+    } else {
+      if (row>=table->rows()-1)
+        insertRow(row+1);
+      selectCell(row+1, 0);
+    }
+    return true;
+    // we also need to handle Delete specially
+  default:
+    return false;
+  }
+}
+
+bool TableItem::tryToPaste() {
+  qDebug() << "TableItem::tryToPaste";
+  return TextItem::tryToPaste();
+}
+
+bool TableItem::keyPressWithControl(QKeyEvent *e) {
+  if (!(e->modifiers() & Qt::ControlModifier))
+    return false;
+  QTextCursor cursor(textCursor());
+  switch (e->key()) {
+  case Qt::Key_V:
+    tryToPaste();
+    return true;
+  case Qt::Key_N:
+    if (!cursor.hasComplexSelection())
+      tryFootnote(); // footnote refs cannot span cells
+    return true; 
+  case Qt::Key_L:
+    if (!cursor.hasComplexSelection())
+      tryExplicitLink(); // links cannot span cells
+    return true;
+  case Qt::Key_Slash:
+    foreach (QTextCursor c, normalizeSelection(textCursor()))
+      toggleSimpleStyle(MarkupData::Italic, c);
+    return true;
+  case Qt::Key_8:
+    foreach (QTextCursor c, normalizeSelection(textCursor()))
+      toggleSimpleStyle(MarkupData::Bold, c);
+    return true;
+  case Qt::Key_Minus:
+    foreach (QTextCursor c, normalizeSelection(textCursor()))
+      toggleSimpleStyle(MarkupData::Underline, c);
+    return true;
+  default:
+    return false;
+  }
+}
+
 bool TableItem::keyPress(QKeyEvent *e) {
   /* This is where we implement insertion and deletion of rows and columns,
      augmented tab/enter navigation, and prevention of out-of-table text
@@ -63,69 +161,18 @@ bool TableItem::keyPress(QKeyEvent *e) {
      We do not, here, have to worry about routine maintenance of cell sizes;
      that happens in docChange().
   */
-  int key = e->key();
-  Qt::KeyboardModifiers mod = e->modifiers();
   QTextCursor cursor(textCursor());
   QTextTableCell cell = table->cellAt(cursor);
-  bool shft = mod & Qt::ShiftModifier;
-  bool ctrl = mod & Qt::ControlModifier;
+  int key = e->key();
+  Qt::KeyboardModifiers mod = e->modifiers();
   if (cell.isValid()) {
     // inside the table
-    int row = cell.row();
-    int col = cell.column();
-    qDebug() << "in table" << row << col;
-    qDebug() << "key="<<key
-	     << " tab="<<Qt::Key_Tab
-	     << " enter="<<Qt::Key_Enter
-	     << "tcf="<<text->tabChangesFocus();
-    switch (key) {
-    case Qt::Key_Tab:
-      qDebug() << "tab";
-      if (shft && ctrl) 
-	insertColumn(col++);
-      else if (ctrl)
-	insertColumn(col+1);
-      if (shft) {
-	--col;
-	if (col<0) {
-	  --row;
-	  col = table->columns()-1;
-	}
-	selectCell(row, col);
-      } else {
-	++col;
-	if (col>=table->columns()) {
-	  ++row;
-	  col = 0;
-	}
-	selectCell(row, col);
-      }
+    if (keyPressAsMotion(e, cell))
       return true;
-    case Qt::Key_Enter: case Qt::Key_Return:
-      qDebug() << "enter";
-      if (shft && ctrl)
-	insertRow(row++);
-      else if (ctrl)
-	insertRow(row+1);
-      if (shft) {
-	if (row==0)
-	  insertRow(row++);
-	selectCell(row-1, 0);
-      } else {
-	if (row>=table->rows()-1)
-	  insertRow(row+1);
-	selectCell(row+1, 0);
-      }
+    else if (keyPressWithControl(e))
       return true;
-      // we also need to handle Delete specially
-    case Qt::Key_Shift:
-      if (cursor.hasSelection())
-	qDebug() << "cursor: ss=" << cursor.selectionStart()
-		 << " se=" << cursor.selectionEnd();
-      return false;
-    default:
-      return false;
-    }
+    else
+      return TextItem::keyPress(e);
   } else if (cursor.atStart()) {
     // before table
     if (key==Qt::Key_Right || key==Qt::Key_Down)
@@ -201,6 +248,56 @@ void TableItem::insertColumn(int before) {
   docChange();
 }
 
+QList<QTextCursor> TableItem::normalizeSelection(QTextCursor const &cursor)
+  const {
+  QList<QTextCursor> lst;
+  if (!cursor.hasComplexSelection()) {
+    lst << cursor;
+    return lst;
+  }
+  int r0, nr, c0, nc;
+  cursor.selectedTableCells(&r0, &nr, &c0, &nc);
+  int r1 = r0+nr-1;
+  int c1 = c0+nc-1;
+  qDebug() << "normalizeselection r:" << r0 << r1
+           << "c:"<<c0<<c1;
 
+  for (int r=r0; r<=r1; r++) {
+    for (int c=c0; c<=c1; c++) {
+      QTextCursor m=cursor;
+      m.setPosition(table->cellAt(r,c).firstCursorPosition().position());
+      m.setPosition(table->cellAt(r,c).lastCursorPosition().position(),
+                    QTextCursor::KeepAnchor);
+      lst << m;
+    }
+  }
+  qDebug() << "->";
+  foreach (QTextCursor x, lst) 
+    qDebug() << "  " << x.hasSelection()
+             << x.selectionStart() << x.selectionEnd();
+  return lst;
+}
+  
+QList<int> TableItem::wholeRowsInSelection(QTextCursor const &cursor) const {
+  QList<int> lst;
+  if (!cursor.hasComplexSelection())
+    return lst;
+  int r0, nr, c0, nc;
+  cursor.selectedTableCells(&r0, &nr, &c0, &nc);
+  if (nc==table->columns()) 
+    for (int r=r0; r<r0+nr; r++)
+      lst.append(r);
+    return lst;
+}
 
-
+QList<int> TableItem::wholeColumnsInSelection(QTextCursor const &cursor) const {
+  QList<int> lst;
+  if (!cursor.hasComplexSelection())
+    return lst;
+  int r0, nr, c0, nc;
+  cursor.selectedTableCells(&r0, &nr, &c0, &nc);
+  if (nr==table->rows()) 
+    for (int c=c0; c<c0+nc; c++)
+      lst.append(c);
+    return lst;
+}

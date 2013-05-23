@@ -29,13 +29,15 @@ public:
   virtual ~TextItemText();
   virtual void paint(QPainter*, const QStyleOptionGraphicsItem*, QWidget*);
   void setBoxVisible(bool);
+public: // for EntryScene. Ugly.
+  void keyPressEvent(QKeyEvent *);
 protected:
   void mousePressEvent(QGraphicsSceneMouseEvent *);
   void mouseDoubleClickEvent(QGraphicsSceneMouseEvent *);
-  void keyPressEvent(QKeyEvent *);
   void focusInEvent(QFocusEvent *);
   void focusOutEvent(QFocusEvent *);
   void hoverMoveEvent(QGraphicsSceneHoverEvent *);
+  void dropEvent(class QGraphicsSceneDragDropEvent *);
 private:
   friend class TextItem;
   void internalKeyPressEvent(QKeyEvent *);

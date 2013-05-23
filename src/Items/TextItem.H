@@ -85,14 +85,15 @@ private:
   void initializeFormat();
   MarkupData *markupAt(int pos, MarkupData::Style type);
   MarkupData *markupAt(int start, int end, MarkupData::Style type);
+protected:
   bool tryExplicitLink();
   bool tryFootnote();
-  bool tryToPaste();
+  virtual bool tryToPaste();
   bool trySimpleStyle(QString marker, MarkupData::Style type);
   bool tryScriptStyles();
   bool tryAutoLink();
   bool tryTeXCode();
-  void toggleSimpleStyle(MarkupData::Style type);
+  void toggleSimpleStyle(MarkupData::Style type, class QTextCursor const &c);
   bool charBeforeIsLetter(int pos) const;
   bool charAfterIsLetter(int pos) const;
   bool shouldResize(QPointF) const;

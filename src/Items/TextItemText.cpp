@@ -26,6 +26,7 @@
 #include <QTextBlock>
 #include <QTextDocument>
 #include <QTextLayout>
+#include <QGraphicsSceneDragDropEvent>
 
 TextItemText::TextItemText(TextItem *parent): QGraphicsTextItem(parent) {
   forcebox = false;
@@ -138,4 +139,27 @@ QPointF posToPoint(QGraphicsTextItem const *item, int i) {
     return QPointF();
   QPointF p(line.cursorToX(i-blk.position()), line.y()+line.ascent());
   return p + lay->position();
+}
+
+void TextItemText::dropEvent(QGraphicsSceneDragDropEvent *e) {
+  //qDebug() << "TextItemText"<<this<<"::drop from "<<e->source();
+  //if (e->mimeData()->hasText()) {
+  //  int p = pointToPos(this, e->pos());
+  //  qDebug() << "  p="<<p;
+  //  if (p>=0) {
+  //    QTextCursor c(textCursor());
+  //    c.setPosition(p);
+  //    c.insertText(e->mimeData()->text());
+  //    setTextCursor(c);
+  //    qDebug() << "  action was "<<e->proposedAction() << e->possibleActions();
+  //    e->acceptProposedAction();
+  //    setFocus();
+  //    return;
+  //  }
+  //}
+
+  // For whatever reason, this doesn't work well, so I'll just ignore all drops.
+  
+  //  e->setDropAction(Qt::IgnoreAction);
+  //  QGraphicsTextItem::dropEvent(e);
 }
