@@ -141,25 +141,21 @@ QPointF posToPoint(QGraphicsTextItem const *item, int i) {
   return p + lay->position();
 }
 
-void TextItemText::dropEvent(QGraphicsSceneDragDropEvent *e) {
-  //qDebug() << "TextItemText"<<this<<"::drop from "<<e->source();
-  //if (e->mimeData()->hasText()) {
-  //  int p = pointToPos(this, e->pos());
-  //  qDebug() << "  p="<<p;
-  //  if (p>=0) {
-  //    QTextCursor c(textCursor());
-  //    c.setPosition(p);
-  //    c.insertText(e->mimeData()->text());
-  //    setTextCursor(c);
-  //    qDebug() << "  action was "<<e->proposedAction() << e->possibleActions();
-  //    e->acceptProposedAction();
-  //    setFocus();
-  //    return;
-  //  }
-  //}
+void TextItemText::dragEnterEvent(QGraphicsSceneDragDropEvent *e) {
+  qDebug() << "TextItemText::dragEnter";
+  if (e->mimeData()->hasText()) 
+    QGraphicsTextItem::dragEnterEvent(e);
+  // we don't care about non-text and we will not allow Qt to care either
+}
 
-  // For whatever reason, this doesn't work well, so I'll just ignore all drops.
-  
-  //  e->setDropAction(Qt::IgnoreAction);
-  //  QGraphicsTextItem::dropEvent(e);
+void TextItemText::dropEvent(QGraphicsSceneDragDropEvent *e) {
+  qDebug() << "TextItemText::dropEvent";
+  //int p = pointToPos(this, e->pos());
+  if (!e->mimeData()->hasText())
+    return;
+  QString txt = e->mimeData()->text();
+  QMimeData m;
+  m.setText(txt);
+  e->setMimeData(&m);
+  QGraphicsTextItem::dropEvent(e);
 }

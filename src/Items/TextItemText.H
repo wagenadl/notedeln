@@ -37,6 +37,7 @@ protected:
   void focusInEvent(QFocusEvent *);
   void focusOutEvent(QFocusEvent *);
   void hoverMoveEvent(QGraphicsSceneHoverEvent *);
+  void dragEnterEvent(class QGraphicsSceneDragDropEvent *);
   void dropEvent(class QGraphicsSceneDragDropEvent *);
 private:
   friend class TextItem;

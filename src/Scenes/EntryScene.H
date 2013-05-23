@@ -38,6 +38,7 @@ public:
   int findBlock(class Item const *) const; // -1 if none
   int findBlock(QPointF scenePos) const; // -1 if none
   void newFootnote(int block, QString tag);
+  bool dropBelow(QPointF scenePos, class QMimeData const *md);
 public slots:
   void notifyChildless(class BlockItem *);
 signals:
@@ -45,7 +46,6 @@ signals:
 protected:
   void mousePressEvent(QGraphicsSceneMouseEvent *);
   void keyPressEvent(QKeyEvent *);
-  void dropEvent (QGraphicsSceneDragDropEvent *);
   virtual int startPage() const;
 private slots:
   void titleEdited();
@@ -61,15 +61,10 @@ private:
   bool tryToPaste();
   bool tryMakeNote();
   void remap();
-  bool importDroppedOrPasted(QPointF scenePos,
-			     class QMimeData const *md,
-			     bool dropped);
   bool importDroppedImage(QPointF scenePos, QImage const &img,
 			  class QUrl const &source);
-  bool importDroppedUrls(QPointF scenePos, QList<class QUrl> const &url,
-			 bool dropped);
-  bool importDroppedUrl(QPointF scenePos, class QUrl const &url,
-			bool dropped);
+  bool importDroppedUrls(QPointF scenePos, QList<class QUrl> const &url);
+  bool importDroppedUrl(QPointF scenePos, class QUrl const &url);
   bool importDroppedText(QPointF scenePos, QString const &txt);
   bool importDroppedFile(QPointF scenePos, QString const &fn);
   bool importDroppedSvg(QPointF scenePos, class QUrl const &url);
@@ -101,7 +96,7 @@ private:
   void reshapeBelowItem();
 private:
   QGraphicsTextItem *dateItem;
-  QGraphicsRectItem *belowItem;
+  class BelowItem *belowItem;
   class QSignalMapper *vChangeMapper;
   class QSignalMapper *noteVChangeMapper;
   class QSignalMapper *futileMovementMapper;

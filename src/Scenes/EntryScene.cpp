@@ -39,9 +39,8 @@
 #include "GfxNoteData.H"
 #include "TableItem.H"
 #include "TextItemText.H"
-
-#include <QTemporaryFile>
-#include <QProcess>
+#include "BelowItem.H"
+#include "SvgFile.H"
 #include <QGraphicsView>
 #include <QGraphicsTextItem>
 #include <QGraphicsLineItem>
@@ -90,16 +89,17 @@ void EntryScene::populate() {
 
 void EntryScene::makeBackground() {
   BaseScene::makeBackground();
-  belowItem = addRect(style_->real("margin-left"),
-		      style_->real("margin-top"),
-		      style_->real("page-width")
-		      - style_->real("margin-left")
-		      - style_->real("margin-right"),
-		      style_->real("page-height")
-		      - style_->real("margin-top")
-		      - style_->real("margin-bottom"),
-		      QPen(Qt::NoPen),
-		      QBrush(Qt::NoBrush));
+  belowItem = new BelowItem();
+  addItem(belowItem);
+  belowItem->setRect(style_->real("margin-left"),
+		     style_->real("margin-top"),
+		     style_->real("page-width")
+		     - style_->real("margin-left")
+		     - style_->real("margin-right"),
+		     style_->real("page-height")
+		     - style_->real("margin-top"));
+  belowItem->setPen(QPen(Qt::NoPen));
+  belowItem->setBrush(QBrush(Qt::NoBrush));
 }
 
 void EntryScene::makeDateItem() {
@@ -325,8 +325,7 @@ void EntryScene::reshapeBelowItem() {
 		     - style().real("margin-left")
 		     - style().real("margin-right"),
 		     style().real("page-height")
-		     - ytop
-		     - style().real("margin-bottom"));
+		     - ytop);
 }
 
 int EntryScene::findLastBlockOnSheet(int sheet) {
@@ -813,17 +812,23 @@ int EntryScene::findBlock(QPointF scenepos) const {
 }
 
 bool EntryScene::tryToPaste() {
-  // we get it first.
-  // if we don't send the event on to QGraphicsScene, textItems don't get it
-  //  qDebug() << "EntryScene::tryToPaste";
-
+  /* We get it first.
+     If we don't send the event on to QGraphicsScene, textItems don't get it.
+     What we do is dependent both on mimetype and on whether we have focus.
+     If we have focus, text is not handled here, and images are placed in
+     a new block below the focused block or in the focused block if it is a
+     canvas.
+     If we don't have focus, anything is placed in the focused block if it
+     is a canvas, or in a new block if not.
+  */
+  if (!isWritable())
+    return false;
+  
   QPointF scenePos;
-
   QGraphicsTextItem *fi = dynamic_cast<QGraphicsTextItem*>(focusItem());
+
   if (fi) {
-    QPointF p = posToPoint(fi, fi->textCursor().position());
-    qDebug() << "EntryScene::tryToPaste: have focusItem " << fi << p;
-    scenePos = fi->mapToScene(p);
+    scenePos = fi->mapToScene(posToPoint(fi, fi->textCursor().position()));
   } else {
     QList<QGraphicsView*> vv = views();
     if (vv.isEmpty()) {
@@ -831,9 +836,7 @@ bool EntryScene::tryToPaste() {
       return false;
     }
     if (vv.size()>1) {
-      qDebug() << "EntryScene: multiple views: cannot determine paste position";
-      // Of course, this can actually be done just fine, but I haven't
-      // figured it out yet.
+      qDebug() << "EntryScene: multiple views: won't determine paste position";
       return false;
     }
     scenePos = vv[0]->mapToScene(vv[0]->mapFromGlobal(QCursor::pos()));
@@ -842,61 +845,42 @@ bool EntryScene::tryToPaste() {
   QClipboard *cb = QApplication::clipboard();
   QMimeData const *md = cb->mimeData(QClipboard::Clipboard);
   qDebug() << "EntryScene::trytopaste" << md;
-  bool accept = importDroppedOrPasted(scenePos, md, false);
-  return accept;
+  if (md->hasImage())
+    return importDroppedImage(scenePos,
+			      qvariant_cast<QImage>(md->imageData()),
+			      QUrl());
+  if (fi) 
+    return false; // we'll import Urls as text into the focused item
+
+  if (md->hasUrls())
+    return importDroppedUrls(scenePos, md->urls());
+  else if (md->hasText())
+    return importDroppedText(scenePos, md->text());
+  else
+    return false;
 }
 
-void EntryScene::dropEvent(QGraphicsSceneDragDropEvent *e) {
-  if (!writable) {
-    e->ignore();
-    return;
-  }
-  if (e->source() == 0) {
-    // event from outside our application
-    bool accept = importDroppedOrPasted(e->scenePos(), e->mimeData(), true);
-    if (accept) {
-      e->setDropAction(Qt::CopyAction);
-      e->accept();
-    } else {
-      e->setDropAction(Qt::IgnoreAction);
-      e->ignore(); // this does not seem to graphically refuse the offering
-    }
-  } else {
-    // event from inside our application
-    // we may be dragging some image around
-    // not yet implemented
-    //    qDebug() << "EntryScene: internal drop";
-    QGraphicsScene::dropEvent(e);
-  }
-}
-
-bool EntryScene::importDroppedOrPasted(QPointF scenePos,
-				      QMimeData const *md,
-				      bool dropped) {
-  bool accept = false;
-  if (md->hasImage()) 
-    accept = importDroppedImage(scenePos,
-				qvariant_cast<QImage>(md->imageData()),
-				QUrl());
-  else if (md->hasUrls()) 
-    accept = importDroppedUrls(scenePos, md->urls(), dropped);
-  else if (md->hasText() && dropped)
-    accept = importDroppedText(scenePos, md->text());
-  return accept;
+bool EntryScene::dropBelow(QPointF scenePos, QMimeData const *md) {
+  if (!isWritable())
+    return false;
+  if (md->hasImage())
+    return importDroppedImage(scenePos,
+			      qvariant_cast<QImage>(md->imageData()),
+			      QUrl());
+  else if (md->hasUrls())
+    return importDroppedUrls(scenePos, md->urls());
+  else if (md->hasText())
+    return importDroppedText(scenePos, md->text());
+  else
+    return false;
 }
 
 bool EntryScene::importDroppedSvg(QPointF scenePos, QUrl const &source) {
-  QTemporaryFile f(QDir::tempPath() + "/eln_XXXXXX.png");
-  f.open(); // without this, no filename is generated
-  QStringList args; args << "-l" << source.toString() << f.fileName();
-  int res = QProcess::execute("webgrab", args);
-  if (res==0) {
-    // success
-    QImage img(f.fileName());
+  QImage img(SvgFile::downloadAsImage(source));
+  if (img.isNull()) 
+    return importDroppedText(scenePos, source.toString());
+  else
     return importDroppedImage(scenePos, img, source);
-  }
-  qDebug() << "importDroppedSvg: failed";
-  return importDroppedText(scenePos, source.toString());
 }
 
 bool EntryScene::importDroppedImage(QPointF scenePos, QImage const &img,
@@ -909,25 +893,22 @@ bool EntryScene::importDroppedImage(QPointF scenePos, QImage const &img,
      a graphics block right after it.
    */
   QGraphicsItem *gi = itemAt(scenePos);
-  BlockItem *dst;
-  while (true) {
+  BlockItem *dst = 0;
+  while (gi && !dst) {
     dst = dynamic_cast<BlockItem *>(gi);
-    if (dst)
-      break;
-    if (gi)
-      gi = gi->parentItem();
-    else
-      break;
+    gi = gi->parentItem();
   }
   GfxBlockItem *gdst = dynamic_cast<GfxBlockItem*>(dst);
-  if (dst) {
-    gdst = dynamic_cast<GfxBlockItem*>(dst);
-    if (!gdst)
-      gdst = gfxBlockAfter(indexOfBlock(dst));
+  QPointF p;
+  if (gdst) {
+    p = gdst->mapFromScene(scenePos);
   } else {
-    gdst = gfxBlockAfter(findLastBlockOnSheet(iSheet));
+    p = QPointF(0, 0);
+    gdst = dst
+      ? gfxBlockAfter(indexOfBlock(dst))
+      : gfxBlockAfter(findLastBlockOnSheet(iSheet));
   } 
-  gdst->newImage(img, source, gdst->mapFromScene(scenePos));
+  gdst->newImage(img, source, p);
   gotoSheet(gdst->data()->sheet());
   return true;
 }
@@ -946,18 +927,15 @@ int EntryScene::indexOfBlock(BlockItem *bi) const {
   return -1;
 }
 
-bool EntryScene::importDroppedUrls(QPointF scenePos, QList<QUrl> const &urls,
-				  bool dropped) {
+bool EntryScene::importDroppedUrls(QPointF scenePos, QList<QUrl> const &urls) {
   bool ok = false;
   foreach (QUrl const &u, urls)
-    if (importDroppedUrl(scenePos, u, dropped))
+    if (importDroppedUrl(scenePos, u))
       ok = true;
   return ok;
 }
 
-bool EntryScene::importDroppedUrl(QPointF scenePos,
-				 QUrl const &url,
-				 bool dropped) {
+bool EntryScene::importDroppedUrl(QPointF scenePos, QUrl const &url) {
   // QGraphicsItem *dst = itemAt(scenePos);
   /* A URL could be any of the following:
      (1) A local image file
@@ -974,9 +952,9 @@ bool EntryScene::importDroppedUrl(QPointF scenePos,
     QImage image = QImage(path);
     if (!image.isNull())
       return importDroppedImage(scenePos, image, url);
-    else if (dropped)
+    else 
       return importDroppedFile(scenePos, path);
-  } else if (dropped) {
+  } else {
     // Right now, we import all network urls as text
     return importDroppedText(scenePos, url.toString());
   }

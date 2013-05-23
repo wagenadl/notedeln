@@ -23,12 +23,15 @@
 #include <QPainter>
 #include <QDebug>
 #include "ResManager.H"
+#include "TextItem.H"
 #include "GfxImageData.H"
 #include "GfxImageItem.H"
 #include "GfxNoteData.H"
 #include "GfxNoteItem.H"
 #include <math.h>
 #include <QGraphicsSceneMouseEvent>
+#include "SvgFile.H"
+#include <QMimeData>
 #include <QCursor>
 #include "GfxMarkItem.H"
 #include "GfxSketchItem.H"
@@ -199,4 +202,63 @@ void GfxBlockItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
 void GfxBlockItem::makeWritable() {
   BlockItem::makeWritable();
   setCursor(Qt::CrossCursor);
+  setAcceptDrops(true);
+}
+
+void GfxBlockItem::dragEnterEvent(QGraphicsSceneDragDropEvent *e) {
+  QMimeData const *md = e->mimeData();
+  if (md->hasImage() || md->hasUrls() || md->hasText())
+    e->setDropAction(Qt::CopyAction);
+}
+
+void GfxBlockItem::dropEvent(QGraphicsSceneDragDropEvent *e) {
+  QMimeData const *md = e->mimeData();
+  if (md->hasImage()) {
+    QUrl url;
+    if (md->hasUrls()) {
+      QList<QUrl> uu = md->urls();
+      if (!uu.isEmpty())
+	url = uu[0];
+    }
+    newImage(qvariant_cast<QImage>(md->imageData()), url, e->pos());
+    e->setDropAction(Qt::CopyAction);
+  } else if (md->hasUrls()) {
+    foreach (QUrl const &u, md->urls())
+      importDroppedUrl(u, e->pos());
+    e->setDropAction(Qt::CopyAction);
+  } else if (md->hasText()) {
+    importDroppedText(md->text(), e->pos());
+   e->setDropAction(Qt::CopyAction);
+  }
+}
+
+void GfxBlockItem::importDroppedText(QString txt, QPointF p) {
+  GfxNoteItem *note = newNote(p, p, false);
+  note->textItem()->textCursor().insertText(txt);
+}
+
+void GfxBlockItem::importDroppedUrl(QUrl const &url, QPointF p) {
+  if (url.isLocalFile()) {
+    QString path = url.toLocalFile();
+    if (path.endsWith(".svg")) {
+       importDroppedSvg(url, p);
+       return;
+    }
+    QImage image(path);
+    if (!image.isNull())
+      newImage(image, url, p);
+    else 
+      importDroppedText(path, p); // import filename as text
+  } else {
+    // Right now, we import all network urls as text
+    importDroppedText(url.toString(), p);
+  }
+}
+
+void GfxBlockItem::importDroppedSvg(QUrl const &url, QPointF p) {
+  QImage img(SvgFile::downloadAsImage(url));
+  if (img.isNull()) 
+    importDroppedText(url.toString(), p);
+  else
+    newImage(img, url, p);
 }
