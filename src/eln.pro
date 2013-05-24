@@ -17,6 +17,8 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets printsupport webkitwidgets
 DEPENDPATH +=  $$sourcedirs
 INCLUDEPATH += $$sourcedirs
 
+RC_FILE = App/winicon.rc
+
 for(sd, sourcedirs): include($${sd}/$${sd}.pri)
 
 CONFIG(debug, debug|release) { TARGET=$${TARGET}_debug }
