@@ -105,7 +105,7 @@ void Toolbars::placeChildren() {
   if (orient==Qt::Horizontal)
     qDebug() << "Toolbars: Horizontal not yet supported";
   
-  modes->setPos(0, 72);
+  modes->setPos(0, 40);
 
   lcolors->setPos(modes->pos()
 		 + QPointF(0, modes->childrenBoundingRect().height()+10));

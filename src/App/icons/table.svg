@@ -76,20 +76,25 @@
      transform="translate(0,-1020.3622)">
     <path
        style="color:#000000;fill:none;stroke:#7dffce;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
-       d="m 16,1026.3741 0,19.9881"
+       d="m 16,1024.4575 0,23.3214"
        id="path3757"
        inkscape:connector-curvature="0" />
     <path
        style="color:#000000;fill:none;stroke:#7dffce;stroke-width:0.99999994;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
-       d="m 26,1036.3622 -20.0520835,0"
+       d="m 27.465798,1032.3622 -22.8972072,0"
        id="path3759"
        inkscape:connector-curvature="0" />
     <rect
        style="fill:none;stroke:#00e9c1;stroke-width:0.99999994;stroke-opacity:1"
        id="rect2987"
-       width="20"
-       height="20.000034"
-       x="6"
-       y="1026.3622" />
+       width="24"
+       height="24.000038"
+       x="4"
+       y="1024.3623" />
+    <path
+       style="color:#000000;fill:none;stroke:#7dffce;stroke-width:0.99999994;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
+       d="m 27.465798,1040.3622 -22.8972072,0"
+       id="path3759-8"
+       inkscape:connector-curvature="0" />
   </g>
 </svg>
