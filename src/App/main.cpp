@@ -70,7 +70,7 @@ int main(int argc, char **argv) {
   if (!nb)
     return 0;
 
-  QObject::connect(&app, SIGNAL(aboutToQuit()), nb, SLOT(flush()));
+  QObject::connect(&app, SIGNAL(aboutToQuit()), nb, SLOT(commitNow()));
   
   PageEditor *editor = new PageEditor(nb);
   QString ttl = nb->bookData()->title();

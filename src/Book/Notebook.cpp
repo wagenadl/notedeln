@@ -30,6 +30,7 @@
 #include <QDebug>
 
 #define COMMIT_IVAL_S 600 // if vc, commit every once in a while
+#define COMMIT_AVOID_S 60 // ... but not too soon after activity
 
 Notebook::Notebook(QString path) {
   commitTimer = 0;
@@ -38,11 +39,11 @@ Notebook::Notebook(QString path) {
   hasVC = s0.contains("vc");
 
   if (hasVC) {
+    mostRecentChange = QDateTime::currentDateTime();
     VersionControl::update(root.path(), s0.string("vc"));
     commitTimer = new QTimer(this);
-    commitTimer->setInterval(COMMIT_IVAL_S * 1000);
     commitTimer->setSingleShot(true);
-    connect(commitTimer, SIGNAL(timeout()), SLOT(commitNow()));
+    connect(commitTimer, SIGNAL(timeout()), SLOT(commitNowUnless()));
   }
    
 
@@ -226,12 +227,25 @@ void Notebook::flush() {
 }
 
 void Notebook::commitSoonish() {
-  if (commitTimer && !commitTimer->isActive())
+  mostRecentChange = QDateTime::currentDateTime();
+  if (commitTimer && !commitTimer->isActive()) {
+    commitTimer->setInterval(COMMIT_IVAL_S * 1000);
     commitTimer->start();
+  }
 }
 
+void Notebook::commitNowUnless() {
+  ASSERT(commitTimer);
+  if (mostRecentChange.secsTo(QDateTime::currentDateTime()) < COMMIT_AVOID_S) {
+    // let's not do it quite yet (test again in 5 s; I am pretty lazy)
+    commitTimer->setInterval(5000);
+    commitTimer->start();
+  } else {
+    commitNow();
+  }
+}
+  
 void Notebook::commitNow() {
-  commitTimer->stop();
   flush();
   if (hasVC)
     VersionControl::commit(root.path(), style_->string("vc"));
