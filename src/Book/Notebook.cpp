@@ -26,22 +26,36 @@
 #include "RecentBooks.H"
 #include "VersionControl.H"
 
+#include <QTimer>
 #include <QDebug>
 
 #define COMMIT_IVAL_S 600 // if vc, commit every once in a while
 
 Notebook::Notebook(QString path) {
-  uncommitted = false;
-  lastCommit = QDateTime::currentDateTime();
+  commitTimer = 0;
   root = QDir(path);
   Style s0(root.filePath("style.json"));
-  if (s0.contains("vc"))
+  hasVC = s0.contains("vc");
+
+  if (hasVC) {
     VersionControl::update(root.path(), s0.string("vc"));
+    commitTimer = new QTimer(this);
+    commitTimer->setInterval(COMMIT_IVAL_S * 1000);
+    commitTimer->setSingleShot(true);
+    connect(commitTimer, SIGNAL(timeout()), SLOT(commitNow()));
+  }
+   
+
   tocFile_ = TOCFile::load(root.filePath("toc.json"), this);
-  tocFile_->data()->setBook(this);
-  bookFile_ = BookFile::load(root.filePath("book.json"), this);
   ASSERT(tocFile_);
+  tocFile_->data()->setBook(this);
+  if (hasVC)
+    connect(tocFile_->data(), SIGNAL(mod()), SLOT(commitSoonish()));
+  bookFile_ = BookFile::load(root.filePath("book.json"), this);
   ASSERT(bookFile_);
+  if (hasVC)
+    connect(bookFile_->data(), SIGNAL(mod()), SLOT(commitSoonish()));
+
   style_ = new Style(root.filePath("style.json"));
   mode_ = new Mode(this);
 
@@ -49,7 +63,7 @@ Notebook::Notebook(QString path) {
 }
 
 Notebook::~Notebook() {
-  flush(true);
+  commitNow();
 }
 
 Style const &Notebook::style() const {
@@ -103,19 +117,6 @@ Notebook *Notebook::create(QString path) {
   styleIn.close();
   styleOut.close();
 
-  /*
-  QFile jpegIn(":/front.jpg");
-  ASSERT(jpegIn.open(QFile::ReadOnly));
-  QFile jpegOut(d.filePath("front.jpg"));
-  if (!jpegOut.open(QFile::WriteOnly)) {
-    qDebug() << "Notebook: Failed to create 'front.jpg' at " << path;
-    return 0;
-  }
-  jpegOut.write(jpegIn.readAll());
-  jpegIn.close();
-  jpegOut.close();
-  */
-
   Notebook *nb = new Notebook(d.absolutePath());
   return nb;
 }
@@ -138,6 +139,8 @@ EntryFile *Notebook::page(int n)  {
   f->data()->setBook(this);
   connect(f->data(), SIGNAL(titleMod()), SLOT(titleMod()));
   connect(f->data(), SIGNAL(sheetCountMod()), SLOT(sheetCountMod()));
+  if (hasVC)
+    connect(f->data(), SIGNAL(mod()), this, SLOT(commitSoonish()));
   return f;
 }
 
@@ -153,6 +156,8 @@ EntryFile *Notebook::createPage(int n) {
   f->data()->setBook(this);
   connect(f->data(), SIGNAL(titleMod()), SLOT(titleMod()));
   connect(f->data(), SIGNAL(sheetCountMod()), SLOT(sheetCountMod()));
+  if (hasVC)
+    connect(f->data(), SIGNAL(mod()), this, SLOT(commitSoonish()));
   bookData()->setEndDate(QDate::currentDate());
   return f;
 }
@@ -201,38 +206,35 @@ BookData *Notebook::bookData() const {
   return bookFile_->data();
 }
 
-void Notebook::flush(bool mustcommit) {
-  qDebug() << "Notebook::flush" << mustcommit;
-  bool actv = false;
+void Notebook::flush() {
   bool ok = true;
-  if (tocFile_->needToSave()) {
-    actv = true;
+
+  if (tocFile_->needToSave()) 
     ok = ok && tocFile_->saveNow();
-  }
+
   if (bookFile_->needToSave()) {
-    actv = true;
     ok = ok && bookFile_->saveNow();
     RecentBooks::instance()->addBook(this);
   }
-  foreach (EntryFile *pf, pgFiles) {
-    if (pf->needToSave()) {
-      actv = true;
+
+  foreach (EntryFile *pf, pgFiles) 
+    if (pf->needToSave()) 
       ok = ok && pf->saveNow();
-    }
-  }
-  if (actv) {
-    uncommitted = true;
-    if (!ok)
-      qDebug() << "Notebook flushed, with errors";
-  }
-  if (mustcommit 
-      || (uncommitted
-          && lastCommit.secsTo(QDateTime::currentDateTime()) > COMMIT_IVAL_S)) {
-    if (style_->contains("vc"))
-      VersionControl::commit(root.path(), style_->string("vc"));
-    uncommitted = false;
-    lastCommit = QDateTime::currentDateTime();
-  }
+
+  if (!ok)
+    qDebug() << "Notebook flushed, with errors";
+}
+
+void Notebook::commitSoonish() {
+  if (commitTimer && !commitTimer->isActive())
+    commitTimer->start();
+}
+
+void Notebook::commitNow() {
+  commitTimer->stop();
+  flush();
+  if (hasVC)
+    VersionControl::commit(root.path(), style_->string("vc"));
 }
 
 Mode *Notebook::mode() const {

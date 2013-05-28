@@ -550,7 +550,6 @@ void TextItem::toggleSimpleStyle(MarkupData::Style type,
   if (c.hasSelection()) {
     start = c.selectionStart();
     end = c.selectionEnd();
-    qDebug() << "toggle SEL " << start << end;
   } else {
     QTextCursor m = document()->find(QRegExp("\\W"), c,
 				     QTextDocument::FindBackward);
