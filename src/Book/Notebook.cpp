@@ -248,6 +248,7 @@ void Notebook::commitNow() {
   flush();
   if (hasVC && !mostRecentChange.isNull())
     VersionControl::commit(root.path(), style_->string("vc"));
+  mostRecentChange = QDateTime(); // invalidate
 }
 
 Mode *Notebook::mode() const {
