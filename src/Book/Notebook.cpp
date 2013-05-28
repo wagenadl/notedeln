@@ -39,7 +39,6 @@ Notebook::Notebook(QString path) {
   hasVC = s0.contains("vc");
 
   if (hasVC) {
-    mostRecentChange = QDateTime::currentDateTime();
     VersionControl::update(root.path(), s0.string("vc"));
     commitTimer = new QTimer(this);
     commitTimer->setSingleShot(true);
@@ -247,7 +246,7 @@ void Notebook::commitNowUnless() {
   
 void Notebook::commitNow() {
   flush();
-  if (hasVC)
+  if (hasVC && !mostRecentChange.isNull())
     VersionControl::commit(root.path(), style_->string("vc"));
 }
 
