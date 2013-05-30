@@ -21,16 +21,13 @@
 #include <QTimer>
 #include "JSONFile.H"
 #include "Assert.H"
+#include "DFBlocker.H"
+#include "PointerSet.H"
 
 double DataFile0::saveDelay_ = 10; // save every 10 s
-bool DataFile0::saveImmediatelyToo_ = false;
 
 void DataFile0::setSaveDelay(double t_s) {
   saveDelay_ = t_s;
-}
-
-void DataFile0::setSaveImmediatelyToo(bool t) {
-  saveImmediatelyToo_ = t;
 }
 
 DataFile0::DataFile0(QString fn, QObject *parent):
@@ -111,25 +108,21 @@ void DataFile0::saveSoon() {
 	    this, SLOT(saveTimerTimeout()));
   }
   
-  if (saveTimer_->isActive()) {
-    // saveTimer already active: do nothing except mark that we want to save
-    needToSave_ = true;
-  } else {
-    // saveTimer not active: activate it, and optionally save right away
-    if (saveImmediatelyToo_) {
-      saveNow(); 
-      needToSave_ = false;
-    } else {
-      needToSave_ = true;
-    }
+  needToSave_ = true;
+  if (!saveTimer_->isActive()) {
+    // saveTimer not active: activate it
     saveTimer_->setSingleShot(true);
     saveTimer_->start(int(saveDelay_ * 1e3));
   }
 }
 
 void DataFile0::saveTimerTimeout() {
-  if (needToSave_)
-    saveNow();
+  if (needToSave_) {
+    if (isBlocked())
+      saveWhenUnblocked();
+    else
+      saveNow();
+  }
 }
 
 DataFile0::~DataFile0() {
@@ -145,4 +138,57 @@ Data *DataFile0::data() const {
 
 QString DataFile0::fileName() const {
   return fn_;
+}
+
+//////////////////////////////////////////////////////////////////////
+PointerSet &DataFile0::blockers() {
+  static PointerSet *ps = new PointerSet();
+  return *ps;
+}
+
+PointerSet &DataFile0::saveNeeders() {
+  static PointerSet *ps = new PointerSet();
+  return *ps;
+}
+
+int &DataFile0::maxBlockDur() {
+  static int mbd = 120;
+  return mbd;
+}
+
+void DataFile0::addBlocker(DFBlocker *b) {
+  blockers().insert(b);
+}
+
+void DataFile0::removeBlocker(DFBlocker *b) {
+  bool wasBlocked = isBlocked();
+  blockers().remove(b);
+  if (wasBlocked && !isBlocked()) {
+    foreach (DataFile0 *df, saveNeeders().toList<DataFile0>())
+      df->saveNow();
+    saveNeeders().clear();
+  }
+}
+
+bool DataFile0::isBlocked() {
+  return !blockers().isEmpty();
+}
+      
+void DataFile0::setMaxBlockDuration(int seconds) {
+  maxBlockDur() = seconds;
+}
+
+int DataFile0::maxBlockDuration() {
+  return maxBlockDur();
+}
+
+void DataFile0::saveWhenUnblocked() {
+  if (isBlocked())
+    saveNeeders().insert(this);
+  else
+    saveNow();
+}
+
+void DataFile0::dontSaveWhenUnblocked() {
+  saveNeeders().remove(this);
 }

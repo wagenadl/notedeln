@@ -36,7 +36,6 @@ public slots:
   void saveSoon();
 public:
   static void setSaveDelay(double t_s);
-  static void setSaveImmediatelyToo(bool);
 protected:
 public:
   DataFile0(Data *data, QString fn, QObject *parent=0); // creates
@@ -50,7 +49,18 @@ private:
   mutable bool needToSave_;
   class QTimer *saveTimer_;
   static double saveDelay_;
-  static bool saveImmediatelyToo_;
+public:
+  static void addBlocker(class DFBlocker *);
+  static void removeBlocker(class DFBlocker *);
+  static bool isBlocked();
+  static void setMaxBlockDuration(int seconds);
+  static int maxBlockDuration();
+private:
+  void saveWhenUnblocked();
+  void dontSaveWhenUnblocked();
+  static class PointerSet &blockers();
+  static class PointerSet &saveNeeders();
+  static int &maxBlockDur();
 };
 
 template <class T> class DataFile: public DataFile0 {
