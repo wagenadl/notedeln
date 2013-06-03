@@ -53,7 +53,7 @@ bool BackgroundVC::commit(QString path1, QString program1) {
   guard->start();
 
   block = new DFBlocker(this);
-  
+
   bzr = new QProcess(this);
   step = 0;
   bzr->setWorkingDirectory(path);
@@ -66,6 +66,7 @@ bool BackgroundVC::commit(QString path1, QString program1) {
   QStringList args; args << "add";
   bzr->start("bzr", args);
   bzr->closeWriteChannel();
+  qDebug() << "BackgroundVC: started bzr" << args;
   return true;
 }
 
@@ -107,6 +108,7 @@ void BackgroundVC::cleanup(bool ok) {
   block = 0;
   bzr->deleteLater();
   bzr = 0;
+  qDebug() << "BackgroundVC: done " << ok;
   emit(done(ok));
 }
 
@@ -131,6 +133,7 @@ void BackgroundVC::processFinished() {
     args << "-mautocommit";
     bzr->start("bzr", args);
     bzr->closeWriteChannel();
+    qDebug() << "BackgroundVC: started bzr" << args;
   } else {
     // "commit" step completed. hurray!
     cleanup(true);

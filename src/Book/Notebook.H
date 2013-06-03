@@ -55,6 +55,7 @@ private slots:
   void titleMod();
   void sheetCountMod();
   void commitNowUnless();
+  void committed(bool ok);
 private:
   QDir root;
   QMap<int, EntryFile *> pgFiles;
@@ -65,6 +66,7 @@ private:
   class QTimer *commitTimer;
   QDateTime mostRecentChange;
   bool hasVC;
+  class BackgroundVC *backgroundVC;
 };
 
 #endif

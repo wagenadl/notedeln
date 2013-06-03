@@ -25,6 +25,7 @@
 #include "Mode.H"
 #include "RecentBooks.H"
 #include "VersionControl.H"
+#include "BackgroundVC.H"
 
 #include <QTimer>
 #include <QDebug>
@@ -37,12 +38,15 @@ Notebook::Notebook(QString path) {
   root = QDir(path);
   Style s0(root.filePath("style.json"));
   hasVC = s0.contains("vc");
-
+  backgroundVC = 0;
+  
   if (hasVC) {
     VersionControl::update(root.path(), s0.string("vc"));
     commitTimer = new QTimer(this);
     commitTimer->setSingleShot(true);
     connect(commitTimer, SIGNAL(timeout()), SLOT(commitNowUnless()));
+    backgroundVC = new BackgroundVC(this);
+    connect(backgroundVC, SIGNAL(done(bool)), SLOT(committed(bool)));
   }
    
 
@@ -240,15 +244,29 @@ void Notebook::commitNowUnless() {
     commitTimer->setInterval(5000);
     commitTimer->start();
   } else {
-    commitNow();
+    flush();
+    if (backgroundVC && !mostRecentChange.isNull()) {
+      mostRecentChange = QDateTime(); // invalidate
+      backgroundVC->commit(root.path(), style_->string("vc"));
+    }
   }
 }
   
 void Notebook::commitNow() {
   flush();
-  if (hasVC && !mostRecentChange.isNull())
+  if (hasVC && !mostRecentChange.isNull()) {
     VersionControl::commit(root.path(), style_->string("vc"));
-  mostRecentChange = QDateTime(); // invalidate
+    mostRecentChange = QDateTime(); // invalidate
+  }
+}
+
+void Notebook::committed(bool ok) {
+  if (ok) {
+    // all good
+  } else {
+    // we'll have to try again
+    commitSoonish();
+  }
 }
 
 Mode *Notebook::mode() const {
