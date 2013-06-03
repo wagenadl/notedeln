@@ -191,7 +191,6 @@ void EntryScene::positionTitleItem() {
   titleItemX->setTextWidth(dateX - style().real("margin-left")
 			   - style().real("title-sep") - 5);
   //  BaseScene::positionTitleItem();
-  qDebug() << "titleitem rect" << titleItemX->netBounds();
   QPointF bl = titleItemX->netBounds().bottomLeft();
   titleItemX->setPos(style_->real("margin-left") -
 		    bl.x() + style_->real("title-sep"),

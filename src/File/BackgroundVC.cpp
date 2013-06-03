@@ -49,7 +49,7 @@ bool BackgroundVC::commit(QString path1, QString program1) {
   }
   
   guard->setSingleShot(true);
-  guard->setInterval(maxt_s);
+  guard->setInterval(maxt_s*1000);
   guard->start();
 
   block = new DFBlocker(this);
