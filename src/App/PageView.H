@@ -43,6 +43,7 @@ protected:
   void keyPressEvent(QKeyEvent *);
   void keyReleaseEvent(QKeyEvent *);
   void mousePressEvent(QMouseEvent *);
+  void wheelEvent(QWheelEvent *);
 private:
   void leavePage();
   void printDialog();
@@ -65,6 +66,8 @@ private:
   class DeletedStack *deletedStack;
   class Toolbars *toolbars;
   class SimpleNavbar *simpleNavbar;
+  int wheelDeltaAccum;
+  int wheelDeltaStepSize;
 };
 
 #endif

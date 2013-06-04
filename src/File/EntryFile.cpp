@@ -27,9 +27,7 @@ EntryFile *createPage(QDir const &dir, int n, QObject *parent) {
   ASSERT(f);
   ResManager *r = new ResManager(f->data());
   QString resfn = dir.absoluteFilePath(QString::number(n) + ".res");
-  qDebug()<< "EntryFile createPage " << pfn << resfn;
   r->setRoot(resfn);
-  qDebug()<< "EntryFile createPage " << pfn << resfn;
   return f;
 }
 
@@ -42,6 +40,5 @@ EntryFile *loadPage(QDir const &dir, int n, QObject *parent) {
     r = new ResManager(f->data());
   QString resfn = dir.absoluteFilePath(QString::number(n) + ".res");
   r->setRoot(resfn);
-  qDebug()<< "EntryFile loadPage " << pfn << resfn;
   return f;
 }

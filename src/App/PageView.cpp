@@ -33,6 +33,7 @@
 #include "Mode.H"
 #include "BlockItem.H"
 
+#include <QWheelEvent>
 #include <QKeyEvent>
 #include <QDebug>
 
@@ -56,6 +57,9 @@ PageView::PageView(Notebook *nb, QWidget *parent):
   
   pageScene = 0;
   currentSection = Front;
+
+  wheelDeltaAccum = 0;
+  wheelDeltaStepSize = nb ? nb->style().real("wheelstep") : 120;
 }
 
 PageView::~PageView() {
@@ -385,4 +389,19 @@ void PageView::lastPage() {
 Mode *PageView::mode() const {
   ASSERT(book);
   return book->mode();
+}
+
+void PageView::wheelEvent(QWheelEvent *e) {
+  wheelDeltaAccum += e->delta();
+  qDebug() << "pageview:mousewheel delta=" << e->delta()
+           << "accum=" << wheelDeltaAccum;
+  int step = (e->modifiers() & Qt::ShiftModifier) ? 10 : 1;
+  while (wheelDeltaAccum>=wheelDeltaStepSize) {
+    wheelDeltaAccum -= wheelDeltaStepSize;
+    goRelative(-step);
+  }
+  while (wheelDeltaAccum<=-wheelDeltaStepSize) {
+    wheelDeltaAccum += wheelDeltaStepSize;
+    goRelative(step);
+  }
 }

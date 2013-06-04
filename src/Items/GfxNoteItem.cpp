@@ -95,7 +95,6 @@ QPointF GfxNoteItem::nearestCorner(QPointF pbase) {
     QPointF br = lnrect.topRight() + QPointF(-xof, -yof);
     double dyt = tl.y();
     double dyb = bl.y();
-    qDebug() << "nearestCorner" << tl << tr << bl << br;
     QPointF p;
     if (fabs(dyt)<fabs(dyb)) {
       double dxl = tl.x();

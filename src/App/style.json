@@ -122,5 +122,6 @@
     "link-key": "title",
     "link-value": "Auto CAD PDF"
   } },
-"front-recolor": "#7f7f7f"
+"front-recolor": "#7f7f7f",
+"wheelstep": 120
 }
