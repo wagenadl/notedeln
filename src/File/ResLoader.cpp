@@ -326,10 +326,6 @@ bool ResLoader::makePreview(QString mimetype) {
     args.append(prevPath.left(prevPath.size()-4));
     startProcess("pdftoppm", args);
     return true;
-  } else if (src.scheme() == "page") {
-    QFile foo(parentRes->previewPath());
-    foo.open(QFile::WriteOnly);
-    return false; // meaning that we haven't started a process
   } else {
     return false;
   }

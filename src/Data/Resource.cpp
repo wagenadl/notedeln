@@ -95,10 +95,14 @@ void Resource::setRoot(QDir d) {
 }
 
 bool Resource::hasArchive() const {
+  if (src.scheme()=="page")
+    return true;
   return !arch.isEmpty() && dir.exists(arch) && !loader;
 }
 
 bool Resource::hasPreview() const {
+  if (src.scheme()=="page")
+    return true;
   return !prev.isEmpty() && dir.exists(prev) && !loader;
 }
 
