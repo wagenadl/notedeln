@@ -170,6 +170,7 @@ void PageView::keyPressEvent(QKeyEvent *e) {
       createContinuationEntry();
     else
       take = false;
+    break;
   case Qt::Key_Alt:
     mode()->temporaryOverride(Mode::MoveResize);
     take = false;
