@@ -35,6 +35,7 @@
 #include "FootnoteItem.H"
 #include "Assert.H"
 #include "Notebook.H"
+#include "LateNoteItem.H"
 #include "GfxNoteItem.H"
 #include "GfxNoteData.H"
 #include "TableItem.H"
@@ -198,6 +199,8 @@ void EntryScene::positionTitleItem() {
 		    style_->real("title-sep") -
 		    bl.y());
 
+  foreach (LateNoteItem *lni, titleItemX->children<LateNoteItem>())
+    lni->setScale(1); // bizarre way to get date item in right spot
 }
 
 void EntryScene::positionNofNAndDateItems() {

@@ -439,7 +439,7 @@ void PageView::createContinuationEntry() {
   cursor.insertText(fwdNoteText);
   cursor.setPosition(fwdNoteText.size()-1);
   fwdNoteTI->setTextCursor(cursor);
-  fwdNoteTI->tryExplicitLink();
+  fwdNoteTI->tryExplicitLink(); // dead at first, but not for long
 
   // Goto new page
   gotoPage(newPage);
