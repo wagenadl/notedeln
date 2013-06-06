@@ -26,6 +26,7 @@ TitleData::TitleData(Data *parent): Data(parent) {
   setType("title");
   TextData *v0 = new TextData(this);
   v0->setText(defaultTitle());
+  connect(v0, SIGNAL(mod()), this, SIGNAL(textMod()));
 }
 
 TitleData::~TitleData() {
@@ -75,6 +76,7 @@ TextData *TitleData::revise() {
   r->setCreated(QDateTime::currentDateTime());
   r->setModified(QDateTime::currentDateTime());
   markModified();
+  connect(r0, SIGNAL(mod()), this, SIGNAL(textMod()));
   return r;
 }
 

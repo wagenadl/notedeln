@@ -34,6 +34,9 @@ public:
 		     int firstSheet=0, int lastSheet=100000000);
   int currentSheet() const;
   virtual QGraphicsItem *itemAt(const QPointF &position) const;
+  virtual int startPage() const;
+  virtual QString title() const;
+  virtual QString pgNoToString(int) const;
 public slots:
   bool nextSheet();
   bool previousSheet();
@@ -48,9 +51,6 @@ protected:
   virtual void makeContdItems();
   virtual void positionPgNoItem();
   virtual void positionTitleItem();
-  virtual int startPage() const;
-  virtual QString title() const;
-  virtual QString pgNoToString(int) const;
 protected:
   QGraphicsItem *titleItem;
   QGraphicsTextItem *pgNoItem;

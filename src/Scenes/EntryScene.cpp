@@ -713,9 +713,7 @@ void EntryScene::mousePressEvent(QGraphicsSceneMouseEvent *e) {
   if (inMargin(sp) && itemAt(sp)==bgItem) {
     //qDebug() << "  in margin";
     if (data_->book()->mode()->mode()==Mode::Annotate) {
-      GfxNoteItem *note = 
-        titleItemX->createNote(titleItem->mapFromScene(sp),
-                               !data()->isRecent());
+      GfxNoteItem *note = createNote(sp);
       if (note)
         note->data()->setSheet(iSheet);
       qDebug() << "created note" << note << iSheet;
@@ -745,9 +743,7 @@ void EntryScene::mousePressEvent(QGraphicsSceneMouseEvent *e) {
       }
       break;
     case Mode::Annotate: {
-      GfxNoteItem *note = 
-        titleItemX->createNote(titleItem->mapFromScene(sp),
-                               !data()->isRecent());
+      GfxNoteItem *note = createNote(sp);
       if (note)
         note->data()->setSheet(iSheet);
       take = true;
@@ -1088,4 +1084,15 @@ void EntryScene::futileNoteMovement() {
 
 EntryData *EntryScene::data() const {
   return data_;
+}
+
+GfxNoteItem *EntryScene::createNote(QPointF scenePos) {
+  return titleItemX->createNote(titleItem->mapFromScene(scenePos));
+}
+
+GfxNoteItem *EntryScene::newNote(QPointF scenePos1, QPointF scenePos2) {
+  if (scenePos2.isNull())
+    scenePos2 = scenePos1;
+  return titleItemX->newNote(titleItem->mapFromScene(scenePos1),
+                             titleItem->mapFromScene(scenePos2));
 }

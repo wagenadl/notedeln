@@ -23,7 +23,7 @@
 #include <QDateTime>
 
 TOCItem::TOCItem(TOCEntry *data, TOCScene *parent):
-  Item(data, 0), data_(data), scene_(parent) {
+  Item(data, 0), scene_(parent) {
   parent->addItem(this);
   makeItems();
   fillItems();
@@ -54,10 +54,10 @@ void TOCItem::makeItems() {
 }
 
 void TOCItem::fillItems() {
-  dateItem->setPlainText(data_->created()
+  dateItem->setPlainText(data()->created()
 			 .toString(style().string("toc-date-format")));
-  titleItem->setPlainText(data_->title());
-  pgnoItem->setPlainText(QString::number(data_->startPage()));
+  titleItem->setPlainText(data()->title());
+  pgnoItem->setPlainText(QString::number(data()->startPage()));
   
   dateItem->setPos(QPointF(style().real("margin-left")
 			   - dateItem->boundingRect().width(), 0));
@@ -72,10 +72,6 @@ QRectF TOCItem::boundingRect() const {
   return childrenBoundingRect(); //QRectF();
 }
 
-TOCEntry *TOCItem::data() {
-  return data_;
-}
-
 void TOCItem::entryChanged() {
   QRectF r = childrenBoundingRect();
   fillItems();
@@ -85,7 +81,7 @@ void TOCItem::entryChanged() {
 
 void TOCItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
   qDebug() << "TOCItem::mousePress" << e;
-  emit clicked(data_->startPage());
+  emit clicked(data()->startPage());
 }
 
 void TOCItem::paint(QPainter*, const QStyleOptionGraphicsItem*, QWidget*) {

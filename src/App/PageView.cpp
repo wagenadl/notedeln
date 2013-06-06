@@ -32,6 +32,8 @@
 #include "Navbar.H"
 #include "Mode.H"
 #include "BlockItem.H"
+#include "TextItem.H"
+#include "GfxNoteItem.H"
 
 #include <QWheelEvent>
 #include <QKeyEvent>
@@ -161,6 +163,13 @@ void PageView::keyPressEvent(QKeyEvent *e) {
     else
       take = false;
     break;
+  case Qt::Key_C:
+    if (currentSection==Pages
+        && (e->modifiers() & Qt::ControlModifier) 
+        && (e->modifiers() & Qt::ShiftModifier))
+      createContinuationEntry();
+    else
+      take = false;
   case Qt::Key_Alt:
     mode()->temporaryOverride(Mode::MoveResize);
     take = false;
@@ -301,7 +310,7 @@ void PageView::leavePage() {
     if (file->data()->isEmpty()) {
       // Leaving an empty page
       if (pageScene)
-	delete pageScene;
+	pageScene->deleteLater();
       pageScene = 0;
       book->deletePage(currentPage);
     }
@@ -404,4 +413,51 @@ void PageView::wheelEvent(QWheelEvent *e) {
     wheelDeltaAccum += wheelDeltaStepSize;
     goRelative(step);
   }
+}
+
+void PageView::createContinuationEntry() {
+  QString newTtl = pageScene->data()->title()->current()->text();
+  if (!newTtl.endsWith(" (cont’d)"))
+    newTtl += " (cont’d)";
+  int oldPage = pageScene->startPage() + pageScene->currentSheet();
+  int newPage = book->toc()->newPageNumber();
+  Style const &style = book->style();
+
+  qDebug() << "oldPage" << oldPage << "newPage"<<newPage << pageScene;
+  
+  // Create forward note
+  QPointF fwdNotePos(style.real("page-width")/2,
+                     style.real("page-height")
+                     - style.real("margin-bottom")
+                     + style.real("pgno-sep"));
+  qDebug() << fwdNotePos;
+  GfxNoteItem *fwdNote = pageScene->newNote(fwdNotePos);
+  qDebug() << fwdNote;
+  TextItem *fwdNoteTI = fwdNote->textItem();
+  QTextCursor cursor = fwdNoteTI->textCursor();
+  QString fwdNoteText = QString("(see p. %1)").arg(newPage);
+  cursor.insertText(fwdNoteText);
+  cursor.setPosition(fwdNoteText.size()-1);
+  fwdNoteTI->setTextCursor(cursor);
+  fwdNoteTI->tryExplicitLink();
+
+  // Goto new page
+  gotoPage(newPage);
+  ASSERT(pageScene);
+  // (So now pageScene refers to the new page.)
+  
+  // Create reverse note
+  QPointF revNotePos(style.real("margin-left")/2,
+                     style.real("margin-top"));
+  GfxNoteItem *revNote = pageScene->newNote(revNotePos);
+  TextItem *revNoteTI = revNote->textItem();
+  cursor = revNoteTI->textCursor();
+  QString revNoteText = QString("p. %1 >").arg(oldPage);
+  cursor.insertText(revNoteText);
+  cursor.setPosition(revNoteText.size()-2);
+  revNoteTI->setTextCursor(cursor);
+  revNoteTI->tryExplicitLink();
+
+  mode()->setMode(Mode::Type);
+  pageScene->focusTitle();
 }

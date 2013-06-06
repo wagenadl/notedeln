@@ -47,6 +47,7 @@ protected:
 private:
   void leavePage();
   void printDialog();
+  void createContinuationEntry();
 private slots:
   void nowOnPage(int pgno);
 private:

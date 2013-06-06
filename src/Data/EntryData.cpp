@@ -33,7 +33,7 @@ EntryData::EntryData(Data *parent): Data(parent) {
   setType("page");
   startPage_ = 1;
   title_ = new TitleData(this);
-  connect(title_, SIGNAL(mod()), SIGNAL(titleMod()));
+  connect(title_, SIGNAL(textMod()), SIGNAL(titleMod()));
   maxSheet = 0;
 }
 
@@ -101,7 +101,7 @@ void EntryData::loadMore(QVariantMap const &src) {
   title_ = firstChild<TitleData>();
   // Any old title has already been destructed by Data's loadChildren()
   ASSERT(title_);
-  connect(title_, SIGNAL(mod()), SIGNAL(titleMod()));
+  connect(title_, SIGNAL(textMod()), SIGNAL(titleMod()));
 
   maxSheet = 0;
   foreach (BlockData *b, blocks()) {

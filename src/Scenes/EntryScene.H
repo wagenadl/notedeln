@@ -39,6 +39,9 @@ public:
   int findBlock(QPointF scenePos) const; // -1 if none
   void newFootnote(int block, QString tag);
   bool dropBelow(QPointF scenePos, class QMimeData const *md);
+  virtual int startPage() const;
+  class GfxNoteItem *createNote(QPointF scenePos); // create note by dragging
+  class GfxNoteItem *newNote(QPointF scenePos1, QPointF scenePos2=QPointF());
 public slots:
   void notifyChildless(class BlockItem *);
 signals:
@@ -46,7 +49,6 @@ signals:
 protected:
   void mousePressEvent(QGraphicsSceneMouseEvent *);
   void keyPressEvent(QKeyEvent *);
-  virtual int startPage() const;
 private slots:
   void titleEdited();
   void vChanged(int block);
@@ -59,7 +61,6 @@ private:
   class TableBlockItem *injectTableBlock(class TableBlockData *, int iblock);
   class TextBlockItem *injectTextBlock(class TextBlockData *, int iblock);
   bool tryToPaste();
-  bool tryMakeNote();
   void remap();
   bool importDroppedImage(QPointF scenePos, QImage const &img,
 			  class QUrl const &source);

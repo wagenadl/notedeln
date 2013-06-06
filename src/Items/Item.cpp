@@ -132,7 +132,7 @@ Qt::CursorShape Item::defaultCursor() {
 
 GfxNoteItem *Item::newNote(QPointF p0, QPointF p1, bool late) {
   ASSERT(d);
-  GfxNoteItem *n = late
+  GfxNoteItem *n = (late || !data()->isRecent())
     ? LateNoteItem::newNote(p0, p1, this)
     : GfxNoteItem::newNote(p0, p1, this);
   if (ancestralBlock())

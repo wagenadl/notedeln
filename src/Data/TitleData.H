@@ -40,7 +40,9 @@ public:
      as the old version.
   */
   bool isDefault() const;
-  static QString defaultTitle();  
+  static QString defaultTitle();
+signals:
+  void textMod();
 };
 
 #endif

@@ -22,13 +22,14 @@
 
 #include "Item.H"
 #include <QGraphicsObject>
+#include "TOCEntry.H"
 
 class TOCItem: public Item {
   Q_OBJECT;
 public:
   TOCItem(class TOCEntry *data, class TOCScene *parent);
   virtual ~TOCItem();
-  TOCEntry *data();
+  DATAACCESS(TOCEntry);
   QRectF boundingRect() const;
   void paint(QPainter*, const QStyleOptionGraphicsItem*, QWidget*);
 signals:

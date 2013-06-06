@@ -81,12 +81,12 @@ public:
   QString markedText(MarkupData *);
   void hoverMove(QGraphicsSceneHoverEvent *);
   void setBoxVisible(bool);
+  bool tryExplicitLink();
 private:
   void initializeFormat();
   MarkupData *markupAt(int pos, MarkupData::Style type);
   MarkupData *markupAt(int start, int end, MarkupData::Style type);
 protected:
-  bool tryExplicitLink();
   bool tryFootnote();
   virtual bool tryToPaste();
   bool trySimpleStyle(QString marker, MarkupData::Style type);
