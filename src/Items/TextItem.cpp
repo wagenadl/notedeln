@@ -337,8 +337,14 @@ bool TextItem::keyPressWithControl(QKeyEvent *e) {
   case Qt::Key_8:
     toggleSimpleStyle(MarkupData::Bold, textCursor());
     return true;
+  case Qt::Key_6: // I mean "Hat"
+    toggleSimpleStyle(MarkupData::Superscript, textCursor());
+    return true;    
   case Qt::Key_Minus:
-    toggleSimpleStyle(MarkupData::Underline, textCursor());
+    if (e->modifiers() & Qt::ShiftModifier)
+      toggleSimpleStyle(MarkupData::Subscript, textCursor());
+    else
+      toggleSimpleStyle(MarkupData::Underline, textCursor());
     return true;
   case Qt::Key_Backslash:
     tryTeXCode();
@@ -377,13 +383,13 @@ bool TextItem::tryTeXCode() {
 }
 
 bool TextItem::keyPressAsSpecialEvent(QKeyEvent *e) {
-  if (e->text()=="*") 
-    return trySimpleStyle("*", MarkupData::Bold);
-  else if (e->text()=="_") 
-    return trySimpleStyle("_", MarkupData::Underline);
-  else if (e->text()==".") 
-    return tryScriptStyles();
-  else if (QString(",; \n").contains(e->text())) 
+  //if (e->text()=="*") 
+  //  return trySimpleStyle("*", MarkupData::Bold);
+  //else if (e->text()=="_") 
+  //  return trySimpleStyle("_", MarkupData::Underline);
+  //else if (e->text()==".") 
+  //  return tryScriptStyles();
+  if (QString(",; \n").contains(e->text())) 
     return tryAutoLink() && false; // never gobble these keys
   else 
     return false;
