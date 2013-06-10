@@ -64,6 +64,7 @@ TextItem::TextItem(TextData *data, Item *parent, bool noFinalize):
   allowParagraphs_ = true;
 
   initializeFormat();
+  text->setTextInteractionFlags(Qt::TextSelectableByMouse);
 
   if (!noFinalize) {
     text->setPlainText(data->text());

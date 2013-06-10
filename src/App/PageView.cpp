@@ -28,7 +28,7 @@
 #include "DeletedStack.H"
 #include "Assert.H"
 #include "Toolbars.H"
-#include "SimpleNavbar.H"
+//#include "SimpleNavbar.H"
 #include "Navbar.H"
 #include "Mode.H"
 #include "BlockItem.H"
@@ -49,8 +49,8 @@ PageView::PageView(Notebook *nb, QWidget *parent):
   frontScene = new FrontScene(nb, this);
   tocScene = new TOCScene(nb->toc(), this);
   tocScene->populate();
-  simpleNavbar = new SimpleNavbar(tocScene);
-  connect(simpleNavbar, SIGNAL(goRelative(int)), SLOT(goRelative(int)));
+  // simpleNavbar = new SimpleNavbar(tocScene);
+  // connect(simpleNavbar, SIGNAL(goRelative(int)), SLOT(goRelative(int)));
   connect(tocScene, SIGNAL(pageNumberClicked(int)),
           SLOT(gotoPage(int)));
 
@@ -65,8 +65,8 @@ PageView::PageView(Notebook *nb, QWidget *parent):
 }
 
 PageView::~PageView() {
-  if (!pageScene)
-    delete toolbars; // othw. pageScene will take care of it
+  if (!toolbars->scene())
+    delete toolbars; // othw. the scene will take care of it
 }
 
 void PageView::resizeEvent(QResizeEvent *e) {
@@ -257,6 +257,7 @@ void PageView::gotoPage(int n) {
       pageScene->makeWritable(); // this should be even more sophisticated
     setScene(pageScene);
     pageScene->addItem(toolbars);
+    toolbars->showTools();
   }
   
   pageScene->gotoSheet(currentPage - te->startPage());
@@ -276,6 +277,8 @@ void PageView::gotoFront() {
   leavePage();
   currentSection = Front;
   setScene(frontScene);
+  frontScene->addItem(toolbars);
+  toolbars->hideTools();
 }
 
 void PageView::gotoTOC(int n) {
@@ -285,6 +288,8 @@ void PageView::gotoTOC(int n) {
   currentPage = n;
   setScene(tocScene);
   tocScene->gotoSheet(currentPage-1);
+  tocScene->addItem(toolbars);
+  toolbars->hideTools();
 }
 
 void PageView::leavePage() {
@@ -295,8 +300,8 @@ void PageView::leavePage() {
       fi->clearFocus(); // this should cause abandon to happen
   }
 
-  if (pageScene && toolbars->scene()==pageScene)
-    pageScene->removeItem(toolbars);
+  if (toolbars->scene())
+    toolbars->scene()->removeItem(toolbars);
 
   if (currentSection==Pages
       && currentPage>1
@@ -365,7 +370,7 @@ void PageView::goRelative(int n) {
   if (n<book->toc()->newPageNumber())
     gotoPage(n);
   else
-    lastPage();
+    gotoPage(book->toc()->newPageNumber()); // create new unless prev. empty
 }
 
 void PageView::nextPage() {

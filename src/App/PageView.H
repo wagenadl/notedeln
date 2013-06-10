@@ -66,7 +66,7 @@ private:
   } currentSection;
   class DeletedStack *deletedStack;
   class Toolbars *toolbars;
-  class SimpleNavbar *simpleNavbar;
+  //  class SimpleNavbar *simpleNavbar;
   int wheelDeltaAccum;
   int wheelDeltaStepSize;
 };

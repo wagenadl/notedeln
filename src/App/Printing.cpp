@@ -54,8 +54,8 @@ void PageView::printDialog() {
 
   if (toolbars)
     toolbars->hide();
-  if (simpleNavbar)
-    simpleNavbar->hide();
+  //  if (simpleNavbar)
+  //simpleNavbar->hide();
   hide();
   
   QProgressDialog progress("Printing...", "Abort", 0, 1000, this);
@@ -174,8 +174,8 @@ void PageView::printDialog() {
 
   if (toolbars)
     toolbars->show();
-  if (simpleNavbar)
-    simpleNavbar->show();
+  //if (simpleNavbar)
+  //    simpleNavbar->show();
   show();
   
   return;
