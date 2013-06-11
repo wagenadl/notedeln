@@ -340,12 +340,13 @@ bool TextItem::keyPressWithControl(QKeyEvent *e) {
     return true;
   case Qt::Key_6: // I mean "Hat"
     toggleSimpleStyle(MarkupData::Superscript, textCursor());
-    return true;    
-  case Qt::Key_Minus:
-    if (e->modifiers() & Qt::ShiftModifier)
-      toggleSimpleStyle(MarkupData::Subscript, textCursor());
-    else
-      toggleSimpleStyle(MarkupData::Underline, textCursor());
+    return true;
+  case Qt::Key_Minus: // Underscore and Minus are on the same key
+    // on my keyboard, but they generate different codes
+    toggleSimpleStyle(MarkupData::Subscript, textCursor());
+    return true;
+  case Qt::Key_Underscore:
+    toggleSimpleStyle(MarkupData::Underline, textCursor());
     return true;
   case Qt::Key_Backslash:
     tryTeXCode();
@@ -558,11 +559,14 @@ void TextItem::toggleSimpleStyle(MarkupData::Style type,
     start = c.selectionStart();
     end = c.selectionEnd();
   } else {
+    int base = c.position();
     QTextCursor m = document()->find(QRegExp("\\W"), c,
 				     QTextDocument::FindBackward);
     start = m.hasSelection() ? m.selectionEnd() : 0;
+    start = refineStart(start, base);
     m = document()->find(QRegExp("\\W"), c);
     end = m.hasSelection() ? m.selectionStart() : 100000000;
+    end = refineEnd(end, base);
   }
   int min = c.block().position();
   int max = min + c.block().length() - 1;
@@ -629,6 +633,37 @@ MarkupData *TextItem::markupAt(int start, int end, MarkupData::Style typ) {
     if (md->style()==typ && md->end()>=start && md->start()<=end)
       return md;
   return 0;
+}
+
+
+int TextItem::refineStart(int start, int base) {
+  /* Shrinks a region for applysimplestyle to not cross any other style edges
+     This function shrinks from the start.
+   */
+  foreach (MarkupData *md, data()->children<MarkupData>()) {
+    int s = md->start();
+    int e = md->end();
+    if (s>start && s<base)
+      start = s;
+    if (e>start && e<base)
+      start = e;
+  }
+  return start;
+}
+
+int TextItem::refineEnd(int end, int base) {
+  /* Shrinks a region for applysimplestyle to not cross any other style edges.
+     This function shrinks from the end.
+   */
+  foreach (MarkupData *md, data()->children<MarkupData>()) {
+    int s = md->start();
+    int e = md->end();
+    if (s>=base && s<end)
+      end = s;
+    if (e>=base && e<end)
+      end = e;
+  }
+  return end;
 }
 
 static bool approvedMark(QString s) {

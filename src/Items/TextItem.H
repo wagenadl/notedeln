@@ -86,6 +86,8 @@ private:
   void initializeFormat();
   MarkupData *markupAt(int pos, MarkupData::Style type);
   MarkupData *markupAt(int start, int end, MarkupData::Style type);
+  int refineStart(int start, int base);
+  int refineEnd(int end, int base);
 protected:
   bool tryFootnote();
   virtual bool tryToPaste();
