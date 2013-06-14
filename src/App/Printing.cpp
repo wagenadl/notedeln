@@ -164,8 +164,8 @@ void PageView::printDialog() {
       break;
     case Pages:
       entryScene->print(&printer, &p,
-		       tocScene->currentSheet(),
-		       tocScene->currentSheet());
+		       entryScene->currentSheet(),
+		       entryScene->currentSheet());
       break;
     }
     progress.setValue(progress.maximum());
@@ -174,8 +174,7 @@ void PageView::printDialog() {
 
   if (toolbars)
     toolbars->show();
-  //if (simpleNavbar)
-  //    simpleNavbar->show();
+
   show();
   
   return;
