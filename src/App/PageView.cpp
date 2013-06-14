@@ -327,18 +327,16 @@ void PageView::previousPage() {
   case Front:
     break;
   case TOC:
-    if (currentPage<=1)
+    if (!tocScene->previousSheet())
       gotoFront();
-    else
-      gotoTOC(currentPage-1);
     break;
   case Entries:
     if (!entryScene->previousSheet()) {
-      if (currentPage>1) {
+      if (currentPage<=1) {
+        gotoTOC(tocScene->sheetCount());
+      } else {
         gotoPage(currentPage-1);
         entryScene->gotoSheet(entryScene->sheetCount()-1);
-      } else {
-        gotoTOC(tocScene->sheetCount());
       }
     }
     break;
@@ -391,22 +389,13 @@ void PageView::nextPage() {
     gotoTOC();
     break;
   case TOC:
-    if (currentPage>=tocScene->sheetCount())
+    if (!tocScene->nextSheet())
       gotoPage(1);
-    else
-      gotoTOC(currentPage+1);
     break;
   case Entries:
     if (!entryScene->nextSheet()) {
-      if (currentPage>=book->toc()->newPageNumber()) {
-        // go to index from new empty page?
-      } else if (currentPage==book->toc()->newPageNumber()-1) {
-        // on last page: make a new page unless current is empty
-        gotoPage(currentPage+1);
-        // 
-      } else {
-        gotoPage(currentPage+1);          
-      }
+      if (currentPage<book->toc()->newPageNumber())
+        gotoPage(currentPage+1); // this may make a new page at the end
     }
     break;
   }
