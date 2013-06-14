@@ -31,7 +31,7 @@ void JSONParser::Error::report() const {
 
 JSONParser::JSONParser(QString i): input(i) {
   currentOffset = 0;
-  currentLine = 0;
+  currentLine = 1;
   currentLineStartOffset = 0;
 }
 
@@ -306,4 +306,5 @@ int main() {
   test("{ \"a\": 1,}");
   return 0;
 }
+
 #endif

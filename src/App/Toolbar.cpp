@@ -86,7 +86,8 @@ void Toolbar::select(QString s) {
     tools[sel]->setSelected(true);
   } else {
     sel = "";
-    qDebug() << "Toolbar: selecting nonexistent tool";
+    if (s!="")
+      qDebug() << "Toolbar: selecting nonexistent tool" << s;
   }
   emit selectionChanged(sel);
 }

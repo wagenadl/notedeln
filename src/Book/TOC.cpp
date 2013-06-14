@@ -51,9 +51,22 @@ TOCEntry *TOC::entry(int startPage) const {
 TOCEntry *TOC::find(int page) const {
   // This is not an efficient implementation, but it's fine for reasonably
   // sized notebooks
+  TOCEntry *r = 0;
   foreach (TOCEntry *e, entries_) 
     if (page >= e->startPage() && page < e->startPage() + e->sheetCount())
+      r = e;
+  return r;
+}
+
+TOCEntry *TOC::entryAfter(TOCEntry *te) const {
+  bool has = false;
+  /* Next magic returns first entry after match */
+  foreach (TOCEntry *e, entries_) {
+    if (has)
       return e;
+    else if (e==te)
+      has = true;
+  }
   return 0;
 }
 

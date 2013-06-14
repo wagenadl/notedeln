@@ -36,6 +36,8 @@ public:
   TOCEntry *entry(int startPage) const; // assertion if not found
   TOCEntry *find(int page) const; // returns entry containing the numbered page
                                   // ... or 0 if none does.
+  TOCEntry *entryAfter(TOCEntry *te) const; // returns ptr to entry after
+           // ... the given entry, or 0 if none exists or if te is invalid.
   bool contains(int startPage) const;
   TOCEntry *addEntry(class EntryData *data);
   bool deleteEntry(TOCEntry *);

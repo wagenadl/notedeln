@@ -278,11 +278,12 @@ sub htmlify {
     $str .= htmlify1(shift(@strs),$cls);
     $str .= shift(@strs) if @strs;
   }
-  $str =~ s/\\emph\{(.*)\}/<i>$1<\/i>/g;
+  $str =~ s/\\emph\{(.*?)\}/<i>$1<\/i>/g;
   $str =~ s/\{//g;
   $str =~ s/\}//g;
   $str =~ s/\\\"o/ö/g;
   $str =~ s/\"/\\\"/g;
+  $str =~ s/\\/\\\\/g;
   return $str;
 }
 

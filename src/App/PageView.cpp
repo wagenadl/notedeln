@@ -57,7 +57,7 @@ PageView::PageView(Notebook *nb, QWidget *parent):
   setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
   setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
   
-  pageScene = 0;
+  entryScene = 0;
   currentSection = Front;
 
   wheelDeltaAccum = 0;
@@ -134,7 +134,7 @@ void PageView::keyPressEvent(QKeyEvent *e) {
     if (currentSection==Pages && mode()->mode()==Mode::MoveResize) {
       QPointF p = mapToScene(mapFromGlobal(QCursor::pos()));
       Item *item = 0;
-      for (QGraphicsItem *gi = pageScene->itemAt(p); gi!=0;
+      for (QGraphicsItem *gi = entryScene->itemAt(p); gi!=0;
 	   gi = gi->parentItem()) {
 	item = dynamic_cast<Item*>(gi);
 	if (item)
@@ -152,7 +152,7 @@ void PageView::keyPressEvent(QKeyEvent *e) {
     }      
     break;
   case Qt::Key_Insert:
-    if (currentSection==Pages && pageScene->focusItem()==0) 
+    if (currentSection==Pages && entryScene->focusItem()==0) 
       deletedStack->restoreTop();
     else
       take = false;
@@ -199,8 +199,9 @@ void PageView::keyReleaseEvent(QKeyEvent *e) {
 }
 
 void PageView::nowOnPage(int n) {
-  if (currentSection==Pages)
+  if (currentSection==Pages) {
     currentPage = n;
+  }
 }
 
 void PageView::gotoPage(int n) {
@@ -223,18 +224,13 @@ void PageView::gotoPage(int n) {
     book->createPage(n);
   }
 
-  if (currentSection==Pages && currentPage==n)
-      return; // don't move (special case must be checked to avoid deleting tgt)
-  
   TOCEntry *te = book->toc()->find(n);
   if (!te) {
     qDebug() << "PageEditor: gotoPage("<<n<<"): no such page";
     return;
   }
 
-  if (currentSection==Pages
-      && currentPage>=te->startPage()
-      && currentPage<te->startPage()+te->sheetCount()) {
+  if (currentSection==Pages && book->toc()->find(currentPage)==te) {
     // already in the right page, let's just go to the right sheet
     currentPage = n;
   } else {
@@ -243,31 +239,34 @@ void PageView::gotoPage(int n) {
     ASSERT(file->data());
     
     leavePage();
-    if (pageScene)
-      pageScene->deleteLater();
-    pageScene = 0;
+    if (entryScene)
+      entryScene->deleteLater();
+    entryScene = 0;
     
     currentSection = Pages;
     currentPage = n;
     
-    pageScene = new EntryScene(file->data(), this);
-    pageScene->populate();
-    connect(pageScene, SIGNAL(nowOnPage(int)), SLOT(nowOnPage(int)));
-    if (book->toc()->isLast(te) && file->data()->isRecent())
-      pageScene->makeWritable(); // this should be even more sophisticated
-    setScene(pageScene);
-    pageScene->addItem(toolbars);
+    entryScene = new EntryScene(file->data(), this);
+    entryScene->populate();
+    connect(entryScene, SIGNAL(nowOnPage(int)), SLOT(nowOnPage(int)));
+    if (/*book->toc()->isLast(te) &&*/ file->data()->isRecent())
+      entryScene->makeWritable(); // this should be even more sophisticated
+    setScene(entryScene);
+    entryScene->addItem(toolbars);
     toolbars->showTools();
+    TOCEntry *nextte = book->toc()->entryAfter(te);
+    if (nextte)
+      entryScene->clipPgNoAt(nextte->startPage());
   }
-  
-  pageScene->gotoSheet(currentPage - te->startPage());
-  
-  if (pageScene->data()->title()->isDefault())
-    pageScene->focusTitle();
-  else
-    pageScene->focusEnd();
 
-  if (pageScene->isWritable())
+  entryScene->gotoSheet(currentPage - te->startPage());
+  
+  if (entryScene->data()->title()->isDefault())
+    entryScene->focusTitle();
+  else
+    entryScene->focusEnd();
+
+  if (entryScene->isWritable())
     mode()->setMode(Mode::Type);
   else
     mode()->setMode(Mode::Browse);    
@@ -315,9 +314,9 @@ void PageView::leavePage() {
     ASSERT(file->data());
     if (file->data()->isEmpty()) {
       // Leaving an empty page
-      if (pageScene)
-	pageScene->deleteLater();
-      pageScene = 0;
+      if (entryScene)
+	entryScene->deleteLater();
+      entryScene = 0;
       book->deletePage(currentPage);
     }
   }
@@ -334,15 +333,28 @@ void PageView::previousPage() {
       gotoTOC(currentPage-1);
     break;
   case Pages:
-    if (currentPage<=1)
-      gotoTOC(tocScene->sheetCount());
-    else
-      gotoPage(currentPage-1);
+    if (!entryScene->previousSheet()) {
+      if (currentPage>1) {
+        gotoPage(currentPage-1);
+        entryScene->gotoSheet(entryScene->sheetCount()-1);
+      } else {
+        gotoTOC(tocScene->sheetCount());
+      }
+    }
     break;
   }
 }
 
 void PageView::goRelative(int n) {
+  if (n==1) {
+    /* This magic is to deal with continuation pages ("93a"). */
+    nextPage();
+    return;
+  } else if (n==-1) {
+    previousPage();
+    return;
+  }
+  
   switch (currentSection) {
   case Front:
     break;
@@ -385,13 +397,16 @@ void PageView::nextPage() {
       gotoTOC(currentPage+1);
     break;
   case Pages:
-    if (currentPage>=book->toc()->newPageNumber()) {
-      // go to index?
-    } else if (currentPage==book->toc()->newPageNumber()-1) {
-      gotoPage(currentPage+1);
-      // makes a new page unless current is empty
-    } else {
-      gotoPage(currentPage+1);
+    if (!entryScene->nextSheet()) {
+      if (currentPage>=book->toc()->newPageNumber()) {
+        // go to index from new empty page?
+      } else if (currentPage==book->toc()->newPageNumber()-1) {
+        // on last page: make a new page unless current is empty
+        gotoPage(currentPage+1);
+        // 
+      } else {
+        gotoPage(currentPage+1);          
+      }
     }
     break;
   }
@@ -408,8 +423,6 @@ Mode *PageView::mode() const {
 
 void PageView::wheelEvent(QWheelEvent *e) {
   wheelDeltaAccum += e->delta();
-  qDebug() << "pageview:mousewheel delta=" << e->delta()
-           << "accum=" << wheelDeltaAccum;
   int step = (e->modifiers() & Qt::ShiftModifier) ? 10 : 1;
   while (wheelDeltaAccum>=wheelDeltaStepSize) {
     wheelDeltaAccum -= wheelDeltaStepSize;
@@ -422,23 +435,19 @@ void PageView::wheelEvent(QWheelEvent *e) {
 }
 
 void PageView::createContinuationEntry() {
-  QString newTtl = pageScene->data()->title()->current()->text();
+  QString newTtl = entryScene->data()->title()->current()->text();
   if (!newTtl.endsWith(" (cont’d)"))
     newTtl += " (cont’d)";
-  int oldPage = pageScene->startPage() + pageScene->currentSheet();
+  int oldPage = entryScene->startPage() + entryScene->currentSheet();
   int newPage = book->toc()->newPageNumber();
   Style const &style = book->style();
 
-  qDebug() << "oldPage" << oldPage << "newPage"<<newPage << pageScene;
-  
   // Create forward note
   QPointF fwdNotePos(style.real("page-width")/2,
                      style.real("page-height")
                      - style.real("margin-bottom")
                      + style.real("pgno-sep"));
-  qDebug() << fwdNotePos;
-  GfxNoteItem *fwdNote = pageScene->newNote(fwdNotePos);
-  qDebug() << fwdNote;
+  GfxNoteItem *fwdNote = entryScene->newNote(fwdNotePos);
   TextItem *fwdNoteTI = fwdNote->textItem();
   QTextCursor cursor = fwdNoteTI->textCursor();
   QString fwdNoteText = QString("(see p. %1)").arg(newPage);
@@ -451,13 +460,13 @@ void PageView::createContinuationEntry() {
 
   // Goto new page
   gotoPage(newPage);
-  ASSERT(pageScene);
-  // (So now pageScene refers to the new page.)
+  ASSERT(entryScene);
+  // (So now entryScene refers to the new page.)
   
   // Create reverse note
   QPointF revNotePos(style.real("margin-left"),
                      style.real("margin-top"));
-  GfxNoteItem *revNote = pageScene->newNote(revNotePos);
+  GfxNoteItem *revNote = entryScene->newNote(revNotePos);
   TextItem *revNoteTI = revNote->textItem();
   cursor = revNoteTI->textCursor();
   QString revNoteText = QString("p. %1 >").arg(oldPage);
@@ -469,5 +478,5 @@ void PageView::createContinuationEntry() {
   revNote->translate(revNotePos - pp);
 
   mode()->setMode(Mode::Type);
-  pageScene->focusTitle();
+  entryScene->focusTitle();
 }

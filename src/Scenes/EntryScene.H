@@ -42,6 +42,8 @@ public:
   virtual int startPage() const;
   class GfxNoteItem *createNote(QPointF scenePos); // create note by dragging
   class GfxNoteItem *newNote(QPointF scenePos1, QPointF scenePos2=QPointF());
+  virtual QString pgNoToString(int) const;
+  void clipPgNoAt(int);
 public slots:
   void notifyChildless(class BlockItem *);
 signals:
@@ -95,6 +97,7 @@ private:
   int indexOfBlock(class BlockItem *) const; // -1 if none
   void repositionContItem();
   void reshapeBelowItem();
+  int clippedPgNo(int n) const;
 private:
   QGraphicsTextItem *dateItem;
   class BelowItem *belowItem;
@@ -108,6 +111,7 @@ private:
   EntryData *data_;
   bool writable;
   class TitleItem *titleItemX;
+  int firstDisallowedPgNo;
 };
 
 #endif

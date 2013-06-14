@@ -108,7 +108,7 @@
 "bib-dir": "/home/wagenaar/papers",
 "magicians": {
   "page": {
-    "re": "\\d\\d?\\d?",
+    "re": "\\d\\d?\\d?[a-z]?",
     "object": "page://%1"
     },
   "pubmed": {

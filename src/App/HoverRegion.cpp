@@ -216,14 +216,25 @@ void HoverRegion::openLink() {
 void HoverRegion::openPage() {
   Resource *r = resource();
   ASSERT(r);
-  int pgno = r->tag().toInt();
+  QString tag = r->tag();
+  char last = tag[tag.size()-1].toAscii();
+
   ASSERT(ti);
   ASSERT(ti->scene());
   QList<QGraphicsView *> views = ti->scene()->views();
   ASSERT(!views.isEmpty());
   PageView *pv = dynamic_cast<PageView *>(views[0]);
   ASSERT(pv);
-  pv->gotoPage(pgno);
+
+  if (last>='a') {
+    int pgno = tag.left(tag.size()-1).toInt();
+    pv->gotoPage(pgno);
+    for (int n=0; n<=last-'a'; n++)
+      pv->nextPage();
+  } else {
+    int pgno = tag.toInt();
+    pv->gotoPage(pgno);
+  }
 }
 
 void HoverRegion::openArchive() {

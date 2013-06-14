@@ -38,8 +38,8 @@ public:
   virtual QString title() const;
   virtual QString pgNoToString(int) const;
 public slots:
-  bool nextSheet();
-  bool previousSheet();
+  bool nextSheet(); // true if moved (i.e., if there exists a next sheet)
+  bool previousSheet(); // true if moved (i.e., if there exists a prev. sheet)
   virtual void gotoSheet(int i);
   void focusTitle();
 protected:

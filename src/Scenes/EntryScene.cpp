@@ -66,6 +66,7 @@ EntryScene::EntryScene(EntryData *data, QObject *parent):
   BaseScene(data, parent),
   data_(data) {
   writable = false;
+  firstDisallowedPgNo = 0;
   
   dateItem = 0;
 
@@ -308,8 +309,8 @@ void EntryScene::gotoSheet(int i) {
   foreach (GfxNoteItem *gni, titleItemX->children<GfxNoteItem>()) 
     gni->setVisible(gni->data()->sheet()==iSheet);
   
-  if (oldSheet!=iSheet)
-    emit nowOnPage(startPage()+iSheet);
+  if (oldSheet!=iSheet) 
+    emit nowOnPage(clippedPgNo(startPage()+iSheet));
 }
 
 void EntryScene::repositionContItem() {
@@ -1101,4 +1102,23 @@ GfxNoteItem *EntryScene::newNote(QPointF scenePos1, QPointF scenePos2) {
   if (note)
     note->data()->setSheet(iSheet);
   return note;  
+}
+
+void EntryScene::clipPgNoAt(int n) {
+  firstDisallowedPgNo = n;
+}
+
+int EntryScene::clippedPgNo(int n) const {
+  if (firstDisallowedPgNo>0 && n>=firstDisallowedPgNo)
+    return firstDisallowedPgNo - 1;
+  else
+    return n;
+}
+
+QString EntryScene::pgNoToString(int n) const {
+  int n0 = clippedPgNo(n);
+  if (n0 == n)
+    return QString::number(n);
+  else
+    return QString("%1%2").arg(n0).arg(QChar('a'+n-n0-1));
 }

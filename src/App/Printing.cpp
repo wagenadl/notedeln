@@ -85,9 +85,9 @@ void PageView::printDialog() {
       if (progress.wasCanceled())
         break;
       gotoPage(startPage);
-      ASSERT(pageScene);
+      ASSERT(entryScene);
       printer.newPage();
-      pageScene->print(&printer, &p);
+      entryScene->print(&printer, &p);
     }
     progress.setValue(progress.maximum());
     switch (oldSection) {
@@ -114,7 +114,7 @@ void PageView::printDialog() {
       gotoTOC(oldPage);
       break;
     case Pages:
-      pageScene->print(&printer, &p);
+      entryScene->print(&printer, &p);
       progress.setValue(progress.maximum());
       gotoPage(oldPage);
       break;
@@ -133,10 +133,10 @@ void PageView::printDialog() {
       if (to>=startPage &&
 	  from<startPage+book->toc()->entry(startPage)->sheetCount()) {
 	gotoPage(startPage);
-	ASSERT(pageScene);
+	ASSERT(entryScene);
 	if (!first)
 	  printer.newPage();
-	first = !pageScene->print(&printer, &p, from-startPage, to-startPage);
+	first = !entryScene->print(&printer, &p, from-startPage, to-startPage);
       }
     }
     progress.setValue(progress.maximum());
@@ -163,7 +163,7 @@ void PageView::printDialog() {
 		      tocScene->currentSheet());
       break;
     case Pages:
-      pageScene->print(&printer, &p,
+      entryScene->print(&printer, &p,
 		       tocScene->currentSheet(),
 		       tocScene->currentSheet());
       break;
