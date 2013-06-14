@@ -62,7 +62,7 @@ private:
   enum {
     Front,
     TOC,
-    Pages
+    Entries,
   } currentSection;
   class DeletedStack *deletedStack;
   class Toolbars *toolbars;

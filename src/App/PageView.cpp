@@ -131,7 +131,7 @@ void PageView::keyPressEvent(QKeyEvent *e) {
       take = false;
     break;
   case Qt::Key_Delete:
-    if (currentSection==Pages && mode()->mode()==Mode::MoveResize) {
+    if (currentSection==Entries && mode()->mode()==Mode::MoveResize) {
       QPointF p = mapToScene(mapFromGlobal(QCursor::pos()));
       Item *item = 0;
       for (QGraphicsItem *gi = entryScene->itemAt(p); gi!=0;
@@ -152,7 +152,7 @@ void PageView::keyPressEvent(QKeyEvent *e) {
     }      
     break;
   case Qt::Key_Insert:
-    if (currentSection==Pages && entryScene->focusItem()==0) 
+    if (currentSection==Entries && entryScene->focusItem()==0) 
       deletedStack->restoreTop();
     else
       take = false;
@@ -164,7 +164,7 @@ void PageView::keyPressEvent(QKeyEvent *e) {
       take = false;
     break;
   case Qt::Key_C:
-    if (currentSection==Pages
+    if (currentSection==Entries
         && (e->modifiers() & Qt::ControlModifier) 
         && (e->modifiers() & Qt::ShiftModifier))
       createContinuationEntry();
@@ -199,7 +199,7 @@ void PageView::keyReleaseEvent(QKeyEvent *e) {
 }
 
 void PageView::nowOnPage(int n) {
-  if (currentSection==Pages) {
+  if (currentSection==Entries) {
     currentPage = n;
   }
 }
@@ -230,7 +230,7 @@ void PageView::gotoPage(int n) {
     return;
   }
 
-  if (currentSection==Pages && book->toc()->find(currentPage)==te) {
+  if (currentSection==Entries && book->toc()->find(currentPage)==te) {
     // already in the right page, let's just go to the right sheet
     currentPage = n;
   } else {
@@ -243,7 +243,7 @@ void PageView::gotoPage(int n) {
       entryScene->deleteLater();
     entryScene = 0;
     
-    currentSection = Pages;
+    currentSection = Entries;
     currentPage = n;
     
     entryScene = new EntryScene(file->data(), this);
@@ -302,7 +302,7 @@ void PageView::leavePage() {
   if (toolbars->scene())
     toolbars->scene()->removeItem(toolbars);
 
-  if (currentSection==Pages
+  if (currentSection==Entries
       && currentPage>1
       && currentPage==book->toc()->newPageNumber()-1) {
     // Leaving the last page in the notebook, not being the only page.
@@ -332,7 +332,7 @@ void PageView::previousPage() {
     else
       gotoTOC(currentPage-1);
     break;
-  case Pages:
+  case Entries:
     if (!entryScene->previousSheet()) {
       if (currentPage>1) {
         gotoPage(currentPage-1);
@@ -361,7 +361,7 @@ void PageView::goRelative(int n) {
   case TOC:
     n += currentPage;
     break;
-  case Pages:
+  case Entries:
     n += tocScene->sheetCount() + currentPage;
     break;
   }
@@ -396,7 +396,7 @@ void PageView::nextPage() {
     else
       gotoTOC(currentPage+1);
     break;
-  case Pages:
+  case Entries:
     if (!entryScene->nextSheet()) {
       if (currentPage>=book->toc()->newPageNumber()) {
         // go to index from new empty page?

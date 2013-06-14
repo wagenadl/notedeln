@@ -97,7 +97,7 @@ void PageView::printDialog() {
     case TOC:
       gotoTOC(oldPage);
       break;
-    case Pages:
+    case Entries:
       gotoPage(oldPage);
       break;
     }
@@ -113,7 +113,7 @@ void PageView::printDialog() {
       progress.setValue(progress.maximum());
       gotoTOC(oldPage);
       break;
-    case Pages:
+    case Entries:
       entryScene->print(&printer, &p);
       progress.setValue(progress.maximum());
       gotoPage(oldPage);
@@ -147,7 +147,7 @@ void PageView::printDialog() {
     case TOC:
       gotoTOC(oldPage);
       break;
-    case Pages:
+    case Entries:
       gotoPage(oldPage);
       break;
     }
@@ -162,7 +162,7 @@ void PageView::printDialog() {
 		      tocScene->currentSheet(),
 		      tocScene->currentSheet());
       break;
-    case Pages:
+    case Entries:
       entryScene->print(&printer, &p,
 		       entryScene->currentSheet(),
 		       entryScene->currentSheet());
