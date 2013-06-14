@@ -7,10 +7,10 @@
     <ROW Property="ARPPRODUCTICON" Value="eln.exe" Type="8"/>
     <ROW Property="ARPURLINFOABOUT" Value="http://www.danielwagenaar.net/software/eln"/>
     <ROW Property="Manufacturer" Value="Wagenaar"/>
-    <ROW Property="ProductCode" Value="1033:{4C4B774A-B336-4048-A95A-68D7D2D564E4} " Type="16"/>
+    <ROW Property="ProductCode" Value="1033:{C53D5461-622D-414D-9C64-D60093B5CE22} " Type="16"/>
     <ROW Property="ProductLanguage" Value="1033"/>
     <ROW Property="ProductName" Value="eln"/>
-    <ROW Property="ProductVersion" Value="1.0.0" Type="32"/>
+    <ROW Property="ProductVersion" Value="0.1.1" Type="32"/>
     <ROW Property="SecureCustomProperties" Value="OLDPRODUCTS;AI_NEWERPRODUCTFOUND"/>
     <ROW Property="UpgradeCode" Value="{90821CD6-0302-4EE7-867D-B6F32D098E04}"/>
     <ROW Property="WindowsType9X" MultiBuildValue="DefaultBuild:Windows 9x/ME" ValueLocId="-"/>
