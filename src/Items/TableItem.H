@@ -35,6 +35,8 @@ public:
   void selectCell(int row, int col);
   void insertRow(int before);
   void insertColumn(int before);
+  void deleteRows(int r0, int nr);
+  void deleteColumns(int c0, int nc);
   QList<QTextCursor> normalizeSelection(QTextCursor const &) const;
   QList<int> wholeRowsInSelection(QTextCursor const &) const;
   QList<int> wholeColumnsInSelection(QTextCursor const &) const;

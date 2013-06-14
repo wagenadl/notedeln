@@ -126,7 +126,6 @@ bool TableItem::keyPressAsMotion(QKeyEvent *e, QTextTableCell const &cell) {
       selectCell(row+1, 0);
     }
     return true;
-    // we also need to handle Delete specially
   default:
     return false;
   }
@@ -142,6 +141,19 @@ bool TableItem::keyPressWithControl(QKeyEvent *e) {
     return false;
   QTextCursor cursor(textCursor());
   switch (e->key()) {
+  case Qt::Key_Delete: case Qt::Key_Backspace:
+    if (cursor.hasComplexSelection()) {
+      int r0, nr, c0, nc;
+      cursor.selectedTableCells(&r0, &nr, &c0, &nc);
+      if (nr==int(data()->rows())) {
+        deleteColumns(c0, nc);
+        return true;
+      } else if (nc==int(data()->columns())) {
+        deleteRows(r0, r0);
+        return true;
+      }
+    }
+    break;
   case Qt::Key_V:
     tryToPaste();
     return true;
@@ -168,6 +180,7 @@ bool TableItem::keyPressWithControl(QKeyEvent *e) {
   default:
     return false;
   }
+  return false;
 }
 
 bool TableItem::keyPress(QKeyEvent *e) {
@@ -238,30 +251,68 @@ void TableItem::selectCell(int r, int c) {
   setTextCursor(cursor);
 }
 
+void TableItem::deleteRows(int r0, int n) {
+  int rows = data()->rows();
+  if (r0<0) {
+    n += r0;
+    r0 = 0;
+  }
+  if (r0+n>=rows)
+    n = rows - r0;
+  if (r0==0 && n==rows)
+    n--; // do not delete last row
+  if (n<=0)
+    return;
+  
+  data()->setRows(rows - n);
+  table->removeRows(r0, n);
+}
+
+void TableItem::deleteColumns(int c0, int n) {
+  int cols = data()->columns();
+  if (c0<0) {
+    n += c0;
+    c0 = 0;
+  }
+  if (c0+n>=cols)
+    n = cols - c0;
+  if (c0==0 && n==cols)
+    n--; // do not delete last column
+  if (n<=0)
+    return;
+  
+  data()->setColumns(cols - n);
+  table->removeColumns(c0, n);
+}
+
 void TableItem::insertRow(int before) {
+  int rows = table->rows();
   if (before<0)
     before = 0;
-  if (before>table->rows())
-    before = table->rows();
-  if (before==table->rows())
+  if (before>rows)
+    before = rows;
+
+  data()->setRows(rows+1);
+
+  if (before==rows)
     table->appendRows(1);
   else
     table->insertRows(before, 1);
-  data()->setRows(table->rows());
-  docChange();
 }
 
 void TableItem::insertColumn(int before) {
+  int cols = table->columns();
   if (before<0)
     before = 0;
-  if (before>table->columns())
-    before = table->columns();
-  if (before==table->columns())
+  if (before>cols)
+    before = cols;
+
+  data()->setColumns(cols+1);
+
+  if (before==cols)
     table->appendColumns(1);
   else
     table->insertColumns(before, 1);
-  data()->setColumns(table->columns());
-  docChange();
 }
 
 QList<QTextCursor> TableItem::normalizeSelection(QTextCursor const &cursor)

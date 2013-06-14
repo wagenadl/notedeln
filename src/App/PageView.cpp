@@ -446,6 +446,8 @@ void PageView::createContinuationEntry() {
   cursor.setPosition(fwdNoteText.size()-1);
   fwdNoteTI->setTextCursor(cursor);
   fwdNoteTI->tryExplicitLink(); // dead at first, but not for long
+  QPointF pp = fwdNote->mapToScene(fwdNote->netBounds().topLeft());
+  fwdNote->translate(fwdNotePos - pp);
 
   // Goto new page
   gotoPage(newPage);
@@ -453,7 +455,7 @@ void PageView::createContinuationEntry() {
   // (So now pageScene refers to the new page.)
   
   // Create reverse note
-  QPointF revNotePos(style.real("margin-left")/2,
+  QPointF revNotePos(style.real("margin-left"),
                      style.real("margin-top"));
   GfxNoteItem *revNote = pageScene->newNote(revNotePos);
   TextItem *revNoteTI = revNote->textItem();
@@ -463,6 +465,8 @@ void PageView::createContinuationEntry() {
   cursor.setPosition(revNoteText.size()-2);
   revNoteTI->setTextCursor(cursor);
   revNoteTI->tryExplicitLink();
+  pp = revNote->mapToScene(revNote->netBounds().topRight());
+  revNote->translate(revNotePos - pp);
 
   mode()->setMode(Mode::Type);
   pageScene->focusTitle();

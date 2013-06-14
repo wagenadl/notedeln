@@ -38,6 +38,7 @@ public:
   void childMousePress(QPointF, Qt::MouseButton, bool resizeFlag);
   class TextItem *textItem() { return text; }
   virtual void setScale(qreal f);
+  void translate(QPointF dxy);
 protected:
   virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *);
   virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *);

@@ -258,3 +258,8 @@ void GfxNoteItem::setScale(qreal f) {
   Item::setScale(f);
   updateTextPos();
 }
+
+void GfxNoteItem::translate(QPointF dxy) {
+  data()->setPos(data()->pos() + dxy);
+  setPos(pos() + dxy);
+}
