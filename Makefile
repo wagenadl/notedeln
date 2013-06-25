@@ -15,7 +15,7 @@ WEBGRAB:
 	( cd webgrab; qmake )
 	make -C webgrab release
 
-install: all
+inst: all
 	install src/eln $(INSTALLPATH)/eln
 	install repairtoc/repairtoc $(INSTALLPATH)/eln-repairtoc
 	install webgrab/webgrab $(INSTALLPATH)/webgrab
