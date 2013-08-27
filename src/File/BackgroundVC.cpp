@@ -119,10 +119,12 @@ void BackgroundVC::processFinished() {
   if (bzr->exitCode()) {
     qDebug() << "BackgroundVC: process exited with code " << bzr->exitCode();
     cleanup(false);
+    return;
   } else if (bzr->exitStatus()!=QProcess::NormalExit) {
     qDebug() << "BackgroundVC: process exited with abnormal status "
              << bzr->exitStatus();
     cleanup(false);
+    return;
   }
 
   // so we're OK
