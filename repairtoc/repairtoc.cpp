@@ -75,10 +75,12 @@ struct BasicTOCEntry {
 
 QString findANotebook() {
   QDir d(QDir::current());
+  if (d.absolutePath().endsWith(".nb"))
+    return d.absolutePath();
   QStringList flt; flt.append("*.nb");
   QStringList dd = d.entryList(flt, QDir::Dirs, QDir::Name);
   if (dd.isEmpty()) {
-    qDebug() << "eln: No notebook found in" << d.absolutePath();
+    qDebug() << "eln: No notebooks found in" << d.absolutePath();
     exit(1);
   } else if (dd.size()>1) {
     qDebug() << "eln: Multiple notebooks found in" << d.absolutePath();
