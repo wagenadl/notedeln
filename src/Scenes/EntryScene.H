@@ -22,6 +22,7 @@
 
 #include "BaseScene.H"
 #include <QTextCursor>
+#include <QMap>
 
 class EntryScene: public BaseScene {
   Q_OBJECT;
@@ -77,6 +78,7 @@ private:
   void makeBlockItems();
   void positionBlocks();
   void restackBlocks();
+  void redateBlocks();
   void restackNotes(int sheet);
   void positionTitleItem();
   void positionNofNAndDateItems();
@@ -107,6 +109,7 @@ private:
 private:
   QList<class BlockItem *> blockItems;
   QList<class FootnoteGroupItem *> footnoteGroups; // one for each block
+  QMap<class BlockItem *, class QGraphicsTextItem *> blockDateItems;
 private:
   EntryData *data_;
   bool writable;

@@ -139,6 +139,7 @@ void EntryScene::makeBlockItems() {
     footnoteGroups.append(fng);
     connect(fng, SIGNAL(heightChanged()), noteVChangeMapper, SLOT(map()));    
   }
+  redateBlocks();
   remap();
 }
 
@@ -273,7 +274,57 @@ void EntryScene::restackBlocks() {
     yfng -= fngh;
   }
   restackNotes(sheet);
+  redateBlocks();
   nSheets = sheet + 1;
+}
+
+void EntryScene::redateBlocks() {
+  QDate cre = data()->created().date();
+  QDate mod = cre;
+  QMap<BlockItem *, QString> txt;
+  for (int i=0; i<blockItems.size(); i++) {
+    QDate cre1 = blockItems[i]->data()->created().date();
+    QDate mod1 = blockItems[i]->data()->modified().date();
+    if (cre1==cre && mod1==mod)
+      continue;
+    QString txt1;
+    if (cre1.year()==cre.year())
+      txt1 = cre1.toString(style().string("date-format-yearless"));
+    else
+      txt1 = cre1.toString(style().string("date-format"));
+    if (mod1!=cre1) {
+      // date range
+      txt1 += QString::fromUtf8("‒"); // figure dash
+      if (mod1.year()==cre1.year())
+	txt1 += mod1.toString(style().string("date-format-yearless"));
+      else
+	txt1 += mod1.toString(style().string("date-format"));
+    }
+    txt[blockItems[i]] = txt1;
+    cre = cre1;
+    mod = mod1;
+  }
+
+  foreach (BlockItem *i, blockDateItems.keys()) {
+    if (!txt.contains(i)) {
+      delete blockDateItems[i];
+      blockDateItems.remove(i);
+    }
+  }
+  foreach (BlockItem *i, txt.keys()) {
+    QGraphicsTextItem *dateItem = blockDateItems[i];
+    if (!dateItem) {
+      dateItem = blockDateItems[i] = new QGraphicsTextItem(i);
+      dateItem->setFont(style().font("date-font"));
+      dateItem->setDefaultTextColor(style().color("date-color"));
+    }
+    dateItem->setPlainText(txt[i]);
+    QPointF sp = i->scenePos();
+    QRectF br = dateItem->sceneBoundingRect();
+    double ml = style().real("margin-left");
+    dateItem->setPos(QPointF(ml - br.width() - 2 - sp.x(),
+			     style().real("text-block-above")));
+  }    
 }
 
 void EntryScene::restackNotes(int sheet) {

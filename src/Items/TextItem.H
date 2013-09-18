@@ -92,7 +92,7 @@ protected:
   bool tryFootnote();
   virtual bool tryToPaste();
   bool trySimpleStyle(QString marker, MarkupData::Style type);
-  bool tryScriptStyles();
+  bool tryScriptStyles(QTextCursor);
   bool tryAutoLink();
   bool tryTeXCode();
   void toggleSimpleStyle(MarkupData::Style type, class QTextCursor const &c);

@@ -348,6 +348,8 @@ bool TextItem::keyPressWithControl(QKeyEvent *e) {
   case Qt::Key_Underscore:
     toggleSimpleStyle(MarkupData::Underline, textCursor());
     return true;
+  case Qt::Key_Period:
+    tryScriptStyles(textCursor());
   case Qt::Key_Backslash:
     tryTeXCode();
     return true;
@@ -385,12 +387,6 @@ bool TextItem::tryTeXCode() {
 }
 
 bool TextItem::keyPressAsSpecialEvent(QKeyEvent *e) {
-  //if (e->text()=="*") 
-  //  return trySimpleStyle("*", MarkupData::Bold);
-  //else if (e->text()=="_") 
-  //  return trySimpleStyle("_", MarkupData::Underline);
-  //else if (e->text()==".") 
-  //  return tryScriptStyles();
   if (QString(",; \n").contains(e->text())) 
     return tryAutoLink() && false; // never gobble these keys
   else 
@@ -463,64 +459,25 @@ bool TextItem::charAfterIsLetter(int pos) const {
   // also returns false at end of doc
 }
 
-static bool containsOnlyDigits(QString s) {
-  int N = s.length();
-  for (int i=0; i<N; i++)
-    if (!s[i].isDigit())
-      return false;
-  return true;
-}
 
-static bool containsOnlyLetters(QString s) {
-  int N = s.length();
-  for (int i=0; i<N; i++)
-    if (!s[i].isLetter())
-      return false;
-  return true;
-}
-
-bool TextItem::tryScriptStyles() {
+bool TextItem::tryScriptStyles(QTextCursor c) {
   /* Returns true if we decide to make a superscript or subscript, that is,
-     if:
-     (1) there is a preceding "^" or "_"
-     (2) and either:
-         (a) there are only digits between that mark and us
-	 (b) there is a minus sign followed by only digits between that
-	     mark and us
-	 (c) the mark is followed by a "{" and we have a "}" before us
+     if there is a preceding "^" or "_".
    */
-  QTextCursor c = textCursor();
   QTextCursor m = document()->find(QRegExp("\\^|_"),
 				   c, QTextDocument::FindBackward);
   if (!m.hasSelection())
     return false; // no "^" or "_"
+  if (m.selectionEnd() == c.position())
+    return false; // empty selection
+  
   QString mrk = m.selectedText();
-  int p0 = m.selectionStart();
-  m.setPosition(m.selectionEnd());
-  m.setPosition(c.position(), QTextCursor::KeepAnchor);
-  QString t = m.selectedText();
-  if (t.isEmpty())
-    return false;
-
-  if (containsOnlyDigits(t) ||
-      (t.startsWith("-") && containsOnlyDigits(t.mid(1))) ||
-      containsOnlyLetters(t) ||
-      (t.startsWith("{") && t.endsWith("}"))) {
-    m.setPosition(p0);
-    m.movePosition(QTextCursor::Right,
-		   QTextCursor::KeepAnchor,
-		   (t.startsWith("{") ? 2 : 1));
-    m.deleteChar();
-    if (t.endsWith("}"))
-      c.deletePreviousChar();
-    addMarkup(mrk=="^"
-	      ? MarkupData::Superscript
-	      : MarkupData::Subscript,
-	      p0, c.position());
-    return true;
-  } else {
-    return false;
-  }
+  m.deleteChar();
+  addMarkup(mrk=="^"
+	    ? MarkupData::Superscript
+	    : MarkupData::Subscript,
+	    m.position(), c.position());
+  return true;
 }
 
 bool TextItem::tryAutoLink() {
