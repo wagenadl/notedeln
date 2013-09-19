@@ -249,7 +249,7 @@ void PageView::gotoPage(int n) {
     entryScene = new EntryScene(file->data(), this);
     entryScene->populate();
     connect(entryScene, SIGNAL(nowOnPage(int)), SLOT(nowOnPage(int)));
-    if (/*book->toc()->isLast(te) &&*/ file->data()->isRecent())
+    if (file->data()->isRecent() || file->data()->isUnlocked())
       entryScene->makeWritable(); // this should be even more sophisticated
     setScene(entryScene);
     entryScene->addItem(toolbars);

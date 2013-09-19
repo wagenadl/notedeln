@@ -45,6 +45,7 @@ public:
   class GfxNoteItem *newNote(QPointF scenePos1, QPointF scenePos2=QPointF());
   virtual QString pgNoToString(int) const;
   void clipPgNoAt(int);
+  void unlock();
 public slots:
   void notifyChildless(class BlockItem *);
 signals:
@@ -100,6 +101,7 @@ private:
   void repositionContItem();
   void reshapeBelowItem();
   int clippedPgNo(int n) const;
+  void addUnlockedWarning();
 private:
   QGraphicsTextItem *dateItem;
   class BelowItem *belowItem;
@@ -115,6 +117,7 @@ private:
   bool writable;
   class TitleItem *titleItemX;
   int firstDisallowedPgNo;
+  class QGraphicsTextItem *unlockedItem;
 };
 
 #endif

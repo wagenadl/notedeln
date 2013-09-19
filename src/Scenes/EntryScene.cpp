@@ -69,6 +69,7 @@ EntryScene::EntryScene(EntryData *data, QObject *parent):
   firstDisallowedPgNo = 0;
   
   dateItem = 0;
+  unlockedItem = 0;
 
   vChangeMapper = new QSignalMapper(this);
   noteVChangeMapper = new QSignalMapper(this);
@@ -87,6 +88,9 @@ void EntryScene::populate() {
   positionBlocks();
   iSheet = -1; // cheat to force signal
   gotoSheet(0);
+
+  if (data()->isUnlocked())
+    addUnlockedWarning();
 }
 
 void EntryScene::makeBackground() {
@@ -830,6 +834,11 @@ void EntryScene::keyPressEvent(QKeyEvent *e) {
       if (writable)
 	steal = tryToPaste();
       break;
+    case Qt::Key_U:
+      if (e->modifiers() & Qt::ShiftModifier) {
+        unlock();
+        steal = true;
+      }
     }
     if (steal) {
       e->accept();
@@ -838,6 +847,28 @@ void EntryScene::keyPressEvent(QKeyEvent *e) {
   }
   BaseScene::keyPressEvent(e);
 }
+
+void EntryScene::unlock() {
+  if (!writable) {
+    data()->setUnlocked(true);
+    makeWritable();
+    addUnlockedWarning();
+  }
+}
+
+void EntryScene::addUnlockedWarning() {
+  if (unlockedItem)
+    return;
+  unlockedItem = new QGraphicsTextItem();
+  addItem(unlockedItem);
+  unlockedItem->setPlainText(style().string("unlocked-text"));
+  unlockedItem->setFont(style().font("unlocked-font"));
+  unlockedItem->setDefaultTextColor(style().color("unlocked-color"));
+  QRectF br = unlockedItem->sceneBoundingRect();
+  unlockedItem->setPos(style().real("page-width") - br.width() - 4,
+                       4);
+}  
+
 
 int EntryScene::findBlock(Item const *i) const {
   BlockItem const *bi = i->ancestralBlock();

@@ -32,6 +32,7 @@ EntryData::EntryData(Data *parent): Data(parent) {
   nb = 0;
   setType("page");
   startPage_ = 1;
+  unlocked_ = false;
   title_ = new TitleData(this);
   connect(title_, SIGNAL(textMod()), SIGNAL(titleMod()));
   maxSheet = 0;
@@ -123,8 +124,17 @@ int EntryData::startPage() const {
   return startPage_;
 }
 
+bool EntryData::isUnlocked() const {
+  return unlocked_;
+}
+
 void EntryData::setStartPage(int s) {
   startPage_ = s;
+  markModified(InternalMod);
+}
+
+void EntryData::setUnlocked(bool u) {
+  unlocked_ = u;
   markModified(InternalMod);
 }
 

@@ -124,5 +124,9 @@
   } },
 "front-recolor": "#7f7f7f",
 "wheelstep": 120,
-"vc": ""
+"vc": "",
+"unlocked-text": "*Unlocked*",
+"unlocked-font-family": "Ubuntu",
+"unlocked-font-size": 11,
+"unlocked-color": "#dd0000"
 }
