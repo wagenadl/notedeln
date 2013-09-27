@@ -1,3 +1,4 @@
+
 // Data/LateNoteData.cpp - This file is part of eln
 
 /* eln is free software: you can redistribute it and/or modify
@@ -20,11 +21,15 @@
 
 static Data::Creator<LateNoteData> c("latenote");
 
-LateNoteData::LateNoteData(Data *parent): GfxNoteData(parent) {
+LateNoteData::LateNoteData(Data *parent): GfxNoteData(0) {
   setType("latenote");
+  parent->addChild(this, NonPropMod);
 }
 
 LateNoteData::~LateNoteData() {
+  Data *p = parent();
+  if (p)
+    p->takeChild(this, NonPropMod);
 }
 
 void LateNoteData::markModified(ModType mt) {
