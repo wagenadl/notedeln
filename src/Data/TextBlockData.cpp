@@ -25,10 +25,20 @@ static Data::Creator<TextBlockData> c("textblock");
 
 TextBlockData::TextBlockData(Data *parent): BlockData(parent) {
   setType("textblock");
+  ind = true;
   text_ = new TextData(this);
 }
 
 TextBlockData::~TextBlockData() {
+}
+
+void TextBlockData::setIndented(bool i) {
+  ind = i;
+  markModified();
+}
+
+bool TextBlockData::indented() const {
+  return ind;
 }
 
 TextData const *TextBlockData::text() const {

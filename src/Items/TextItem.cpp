@@ -29,6 +29,7 @@
 #include "Assert.H"
 #include "TeXCodes.H"
 #include "Digraphs.H"
+#include "TextBlockItem.H"
 
 #include <QFont>
 #include <QTextDocument>
@@ -68,6 +69,11 @@ TextItem::TextItem(TextData *data, Item *parent, bool noFinalize):
 
   if (!noFinalize) {
     text->setPlainText(data->text());
+    QTextCursor tc(textCursor());
+    tc.movePosition(QTextCursor::Start);
+    QTextBlockFormat fmt = tc.blockFormat();
+    tc.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
+    tc.setBlockFormat(fmt);
     finalizeConstructor();
   }
 }
@@ -350,11 +356,15 @@ bool TextItem::keyPressWithControl(QKeyEvent *e) {
     return true;
   case Qt::Key_Period:
     tryScriptStyles(textCursor());
+    return true;
   case Qt::Key_Backslash:
     tryTeXCode();
     return true;
   case Qt::Key_Space:
     insertBasicHtml(QString::fromUtf8(" "), textCursor().position());
+    return true;
+  case Qt::Key_Enter: case Qt::Key_Return:
+    insertBasicHtml(QString("\n"), textCursor().position());
     return true;
   default:
     return false;
@@ -382,15 +392,33 @@ bool TextItem::tryTeXCode() {
   c.deleteChar(); // delete the word
   if (document()->characterAt(c.position()-1)=='\\')
     c.deletePreviousChar(); // delete any preceding backslash
-  c.insertHtml(val); // insert the replacement code
+  c.insertText(val); // insert the replacement code
   return true;
 }
 
 bool TextItem::keyPressAsSpecialEvent(QKeyEvent *e) {
-  if (QString(",; \n").contains(e->text())) 
-    return tryAutoLink() && false; // never gobble these keys
-  else 
-    return false;
+  if (e->key()==Qt::Key_Tab || e->key()==Qt::Key_Backtab) {
+    QTextCursor tc(textCursor());
+    
+    TextBlockItem *p = dynamic_cast<TextBlockItem *>(parent());
+    if (tc.position()==0 && p) {
+      // we are in a text block, so we could fiddle with indentation
+      bool hasIndent = p->data()->indented();
+      bool hasShift = e->modifiers() & Qt::ShiftModifier;
+      if ((hasIndent && hasShift) || (!hasIndent && !hasShift)) {
+        p->data()->setIndented(!hasShift);
+        tc.movePosition(QTextCursor::Start);
+        QTextBlockFormat fmt = tc.blockFormat();
+        fmt.setTextIndent(hasShift ? 0 : style().real("paragraph-indent"));
+        tc.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
+        tc.setBlockFormat(fmt);
+        return true;
+      }
+    }
+  } else if (QString(",; \n").contains(e->text())) {
+    tryAutoLink(); // don't gobble these keys, so don't return true
+  }
+  return false;
 }
 
 bool TextItem::keyPressAsSpecialChar(QKeyEvent *e) {
@@ -402,39 +430,39 @@ bool TextItem::keyPressAsSpecialChar(QKeyEvent *e) {
   QString trigraph = QString(charBefore2) + digraph;
   if (Digraphs::contains(digraph)) {
     c.deletePreviousChar();
-    c.insertHtml(Digraphs::map(digraph));
+    c.insertText(Digraphs::map(digraph));
     return true;
   } else if (Digraphs::contains(charNow)) {
-    c.insertHtml(Digraphs::map(charNow));
+    c.insertText(Digraphs::map(charNow));
     return true;
   } else if (charNow=="\"") {
     if (charBefore.isSpace() || charBefore.isNull()
 	|| digraph=="(\"" || digraph=="[\"" || digraph=="{\""
 	|| digraph==QString::fromUtf8("‘\"")) 
-      c.insertHtml(QString::fromUtf8("“"));
+      c.insertText(QString::fromUtf8("“"));
     else
-      c.insertHtml(QString::fromUtf8("”"));
+      c.insertText(QString::fromUtf8("”"));
     return true;
   } else if (digraph==QString::fromUtf8("--")) {
     c.deletePreviousChar();
     if (document()->characterAt(c.position()-1).isDigit()) 
-      c.insertHtml(QString::fromUtf8("‒")); // figure dash
+      c.insertText(QString::fromUtf8("‒")); // figure dash
     else 
-      c.insertHtml(QString::fromUtf8("–")); // en dash
+      c.insertText(QString::fromUtf8("–")); // en dash
     return true;
   } else if (trigraph=="...") {
     c.deletePreviousChar();
     c.deletePreviousChar();
-    c.insertHtml(QString::fromUtf8("…"));
+    c.insertText(QString::fromUtf8("…"));
     return true;
   } else if (trigraph==" - ") {
     c.deletePreviousChar();
-    c.insertHtml(QString::fromUtf8("− "));
+    c.insertText(QString::fromUtf8("− "));
     return true;
   } else if (charNow[0].isDigit() && charBefore==QChar('-')
 	     && QString(" ([{^_@$/").contains(charBefore2)) {
     c.deletePreviousChar();
-    c.insertHtml(QString::fromUtf8("−")); // replace minus sign
+    c.insertText(QString::fromUtf8("−")); // replace minus sign
     return false; // insert digit as normal
   } else {
     return false;
@@ -443,8 +471,9 @@ bool TextItem::keyPressAsSpecialChar(QKeyEvent *e) {
 
   
 bool TextItem::keyPress(QKeyEvent *e) {
-  return keyPressAsMotion(e) 
-    || keyPressWithControl(e)
+  return
+    keyPressWithControl(e)
+    || keyPressAsMotion(e)
     || keyPressAsSpecialEvent(e)
     || keyPressAsSpecialChar(e);
 }

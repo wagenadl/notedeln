@@ -79,9 +79,11 @@ void TextBlockItem::initializeFormat() {
   QTextBlockFormat fmt = tc.blockFormat();
   fmt.setLineHeight(style().real("paragraph-line-spacing")*100,
 		    QTextBlockFormat::ProportionalHeight);
-  fmt.setTextIndent(style().real("paragraph-indent"));
+  fmt.setTextIndent(data()->indented() ? style().real("paragraph-indent") : 0);
   //fmt.setTopMargin(style().real("paragraph-top-margin"));
   //  fmt.setBottomMargin(style().real("paragraph-bottom-margin"));
+  tc.movePosition(QTextCursor::Start);
+  tc.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
   tc.setBlockFormat(fmt);
 }  
 

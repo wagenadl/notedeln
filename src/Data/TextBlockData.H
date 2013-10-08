@@ -25,9 +25,15 @@
 
 class TextBlockData: public BlockData {
   Q_OBJECT;
+  Q_PROPERTY(bool ind READ indented WRITE setIndented);
 public:
+  // constructor and destructor
   TextBlockData(Data *parent=0);
   virtual ~TextBlockData();
+  // read and write properties
+  void setIndented(bool);
+  bool indented() const;
+  // other
   TextData const *text() const;
   TextData *text();
   virtual bool isEmpty() const;
@@ -40,6 +46,7 @@ protected:
   void loadMore(QVariantMap const &src);
 protected:
   TextData *text_;
+  bool ind;
 };
 
 #endif

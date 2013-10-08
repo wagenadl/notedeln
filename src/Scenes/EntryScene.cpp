@@ -712,7 +712,7 @@ void EntryScene::futileMovement(int block) {
     QTextBlock blk = doc->lastBlock();
     QTextLayout *lay = blk.layout();
     QTextLine l = lay->lineAt(lay->lineCount()-1);
-    c.setPosition(l.xToCursor(p.x() - blk.layout()->position().x()));
+    c.setPosition(blk.position() + l.xToCursor(p.x() - lay->position().x()));
     break; }
   case Qt::Key_Right:
     c.movePosition(QTextCursor::Start);
@@ -818,8 +818,8 @@ void EntryScene::keyPressEvent(QKeyEvent *e) {
     TextItemText *focus = dynamic_cast<TextItemText*>(focusItem());
     if (focus) {
       qDebug() << "EntryScene: Tab while focused on text!";
-      if (dynamic_cast<TableItem*>(focus->parentItem())) {
-        qDebug() << "  it's in a table!";
+      if (true || dynamic_cast<TableItem*>(focus->parentItem())) {
+        // qDebug() << "  it's in a table!";
         focus->keyPressEvent(e);
         e->accept();
         qDebug() << "  -> accepted";
