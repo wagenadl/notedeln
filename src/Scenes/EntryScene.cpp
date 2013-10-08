@@ -605,17 +605,21 @@ TableBlockItem *EntryScene::newTableBlock(int iAbove) {
 }
 
 TextBlockItem *EntryScene::newTextBlock(int iAbove, bool evenIfLastEmpty) {
+  bool prevIsEmpty = false;
   if (iAbove<0)
     iAbove = findLastBlockOnSheet(iSheet);
 
   if (iAbove>=0 && !evenIfLastEmpty) {
     TextBlockItem *tbi = dynamic_cast<TextBlockItem *>(blockItems[iAbove]);
     if (tbi && tbi->document()->isEmpty() && tbi->isWritable()) {
-      // Previous block is writable empty text, go there instead
-      tbi->setFocus();
-      return tbi;
+      prevIsEmpty = true;
+      if (!evenIfLastEmpty) {
+        // Previous block is writable empty text, go there instead
+        tbi->setFocus();
+        return tbi;
+      }
     }
-  }      
+  }
 
   int iNew = (iAbove>=0)
     ? iAbove + 1
@@ -624,8 +628,10 @@ TextBlockItem *EntryScene::newTextBlock(int iAbove, bool evenIfLastEmpty) {
   //  ? blockItems[iAbove]->sceneBoundingRect().bottom()
   //  : style().real("margin-top");
 
-  TextBlockData *tbd = new TextBlockData();
-  TextBlockItem *tbi = injectTextBlock(tbd, iNew);
+  TextBlockData *tbd = new TextBlockData(); // create w/o parent
+  if (!style().flag("always-indent") && (blockItems.size()==0 || prevIsEmpty))
+    tbd->setIndented(false);
+  TextBlockItem *tbi = injectTextBlock(tbd, iNew); // this parents the block
   
   restackBlocks();
   gotoSheetOfBlock(iNew);
