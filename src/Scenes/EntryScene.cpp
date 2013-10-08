@@ -605,31 +605,27 @@ TableBlockItem *EntryScene::newTableBlock(int iAbove) {
 }
 
 TextBlockItem *EntryScene::newTextBlock(int iAbove, bool evenIfLastEmpty) {
-  bool prevIsEmpty = false;
   if (iAbove<0)
     iAbove = findLastBlockOnSheet(iSheet);
 
-  if (iAbove>=0 && !evenIfLastEmpty) {
-    TextBlockItem *tbi = dynamic_cast<TextBlockItem *>(blockItems[iAbove]);
-    if (tbi && tbi->document()->isEmpty() && tbi->isWritable()) {
+  int iNew = (iAbove>=0)
+    ? iAbove + 1
+    : blockItems.size();
+
+  bool prevIsEmpty = false;
+  if (iNew>0) {
+    TextBlockItem *tbi = dynamic_cast<TextBlockItem *>(blockItems[iNew-1]);
+    if (tbi && tbi->document()->isEmpty()) {
       prevIsEmpty = true;
-      if (!evenIfLastEmpty) {
-        // Previous block is writable empty text, go there instead
+      if (iAbove>=0 && tbi->isWritable() && !evenIfLastEmpty) {
         tbi->setFocus();
         return tbi;
       }
     }
   }
 
-  int iNew = (iAbove>=0)
-    ? iAbove + 1
-    : blockItems.size();
-  //double yt = (iAbove>=0)
-  //  ? blockItems[iAbove]->sceneBoundingRect().bottom()
-  //  : style().real("margin-top");
-
   TextBlockData *tbd = new TextBlockData(); // create w/o parent
-  if (!style().flag("always-indent") && (blockItems.size()==0 || prevIsEmpty))
+  if (!style().flag("always-indent") && (iNew==0 || prevIsEmpty))
     tbd->setIndented(false);
   TextBlockItem *tbi = injectTextBlock(tbd, iNew); // this parents the block
   
