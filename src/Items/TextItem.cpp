@@ -385,7 +385,6 @@ bool TextItem::tryTeXCode() {
   }
   // got a word
   QString key = c.selectedText();
-  qDebug() << key << TeXCodes::map(key);
   if (!TeXCodes::contains(key))
     return false;
   QString val = TeXCodes::map(key);

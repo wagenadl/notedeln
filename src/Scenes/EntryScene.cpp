@@ -436,14 +436,10 @@ void EntryScene::deleteBlock(int blocki) {
   remap();
 
   removeItem(bi);
-  // qDebug() << "removed block from scene" << bi;
   bi->deleteLater();
-  qDebug() << "queued for deletion: " << bi;
-  //delete bi;
   data_->deleteBlock(bd);
   removeItem(fng);
   fng->deleteLater();
-   // delete fng;
 }
 
 GfxBlockItem *EntryScene::newGfxBlock(int iAbove) {
@@ -819,14 +815,9 @@ void EntryScene::keyPressEvent(QKeyEvent *e) {
   if (e->key()==Qt::Key_Tab || e->key()==Qt::Key_Backtab) {
     TextItemText *focus = dynamic_cast<TextItemText*>(focusItem());
     if (focus) {
-      qDebug() << "EntryScene: Tab while focused on text!";
-      if (true || dynamic_cast<TableItem*>(focus->parentItem())) {
-        // qDebug() << "  it's in a table!";
-        focus->keyPressEvent(e);
-        e->accept();
-        qDebug() << "  -> accepted";
-        return;
-      }
+      focus->keyPressEvent(e);
+      e->accept();
+      return;
     }
   }
   if (e->modifiers() & Qt::ControlModifier) {
