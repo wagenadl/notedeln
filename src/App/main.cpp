@@ -28,6 +28,7 @@
 #include <stdlib.h>
 #include "Assert.H"
 #include "SplashScene.H"
+#include "AlreadyOpen.H"
 
 int main(int argc, char **argv) {
   App app(argc, argv);
@@ -39,20 +40,28 @@ int main(int argc, char **argv) {
     QDir here(QDir::current());
     if (here.path().endsWith(".nb") && here.exists("toc.json") && here.exists("book.json") && here.exists("pages")) {
       // inside a notebook
+      if (AlreadyOpen::check(here.path()))
+	return 0;
       nb = Notebook::load(here.path());
     }
     if (!nb) {
       QStringList lb = SplashScene::localNotebooks();
-      if (lb.size()==1)
+      if (lb.size()==1) {
+	if (AlreadyOpen::check(lb[0]))
+	  return 0;
         nb = Notebook::load(lb[0]);
+      }
     }
     if (!nb)
       nb = SplashScene::openNotebook();
   } else if (argc==2) {
-    if (argv[1]==QString("-splash"))
+    if (argv[1]==QString("-splash")) {
       nb = SplashScene::openNotebook();
-    else
+    } else {
+	if (AlreadyOpen::check(argv[1]))
+	  return 0;
       nb = Notebook::load(argv[1]);
+    }
   } else if (argc==3 && argv[1]==QString("-new")) {
     if (QDir(argv[2]).exists()) {
       qDebug() << "eln: Cannot create new notebook '" << argv[2]
@@ -80,6 +89,7 @@ int main(int argc, char **argv) {
   double dpiY = app.desktop()->logicalDpiY();
   editor->resize(size.width()*dpiX/72, size.height()*dpiY/72);
   editor->show();
+  new AlreadyOpen(nb->dirPath(), editor);
   int r = app.exec();
   delete editor;
   delete nb;

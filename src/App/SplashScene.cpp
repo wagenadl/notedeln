@@ -21,6 +21,7 @@
 #include "Notebook.H"
 #include "BookSplashItem.H"
 #include "Style.H"
+#include "AlreadyOpen.H"
 
 #include <QFileDialog>
 #include <QMessageBox>
@@ -223,6 +224,8 @@ Notebook *SplashScene::openNotebook() {
                              "'" + ss->named + "' could not be created.",
                              QMessageBox::Cancel);
     } else {
+      if (AlreadyOpen::check(ss->named))
+	break;
       nb = Notebook::load(ss->named);
       if (!nb) 
         QMessageBox::warning(gv, "eln",
