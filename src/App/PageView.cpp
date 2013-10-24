@@ -112,6 +112,18 @@ void PageView::keyPressEvent(QKeyEvent *e) {
   case Qt::Key_F9:
     mode()->setMode(Mode::Plain);
     break;
+  case Qt::Key_Space: case Qt::Key_Down: case Qt::Key_Right:
+    if (mode()->mode()==Mode::Browse)
+      nextPage();
+    else
+      take = false;
+    break;
+  case Qt::Key_Backspace: case Qt::Key_Up: case Qt::Key_Left:
+    if (mode()->mode()==Mode::Browse)
+      nextPage();
+    else
+      take = false;
+    break;
   case Qt::Key_PageUp:
     previousPage();
     break;
@@ -119,13 +131,13 @@ void PageView::keyPressEvent(QKeyEvent *e) {
     nextPage();
     break;
   case Qt::Key_Home:
-    if (e->modifiers() & Qt::ControlModifier) 
+    if ((e->modifiers() & Qt::ControlModifier) || mode()->mode()==Mode::Browse)
       gotoTOC();
     else
       take = false;
     break;
   case Qt::Key_End:
-    if (e->modifiers() & Qt::ControlModifier) 
+    if ((e->modifiers() & Qt::ControlModifier) || mode()->mode()==Mode::Browse)
       lastPage();
     else
       take = false;
