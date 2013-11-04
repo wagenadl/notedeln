@@ -8,6 +8,10 @@
 #include <QFormLayout>
 #include <QPrinter>
 #include <QPrinterInfo>
+#include <QLineEdit>
+#include <QCheckBox>
+#include <QPushButton>
+#include <QDebug>
 
 PrintDialog::PrintDialog(QWidget *parent): QDialog(parent) {
 
@@ -15,7 +19,7 @@ PrintDialog::PrintDialog(QWidget *parent): QDialog(parent) {
     availPr.append(x);
 
   QVBoxLayout *mainLayout = new QVBoxLayout;
-  QFormLayout *settingsLayout = new QFormLayout;
+  QFormLayout *formLayout = new QFormLayout;
   QHBoxLayout *actionLayout = new QHBoxLayout;
 
   printers = new QComboBox;
@@ -35,14 +39,14 @@ PrintDialog::PrintDialog(QWidget *parent): QDialog(parent) {
 
   foreach (QPrinterInfo const &x, availPr) 
     printers->addItem(x.printerName());
-  printers->addSeparator(availPr.size());
+  printers->insertSeparator(availPr.size());
   printers->addItem("Print to file (pdf)");
 
   QMap<PrintRange, QString> rn;
   rn[AllPages] = "All pages";
   rn[CurrentEntry] = "Current entry";
   // etc.
-  for (QString x, rn)
+  foreach (QString x, rn)
     rangeCombo->addItem(x); // in order
 
   rangeLayout->addWidget(new QLabel("from"));
@@ -67,7 +71,7 @@ PrintDialog::PrintDialog(QWidget *parent): QDialog(parent) {
   actionLayout->addStretch();
   actionLayout->addWidget(print);
   
-  mainLayout->addLayout(settingsLayout);
+  mainLayout->addLayout(formLayout);
   mainLayout->addWidget(hline);
   mainLayout->addLayout(actionLayout);
   
@@ -83,17 +87,25 @@ PrintDialog::PrintDialog(QWidget *parent): QDialog(parent) {
 
 }
 
+PrintDialog::~PrintDialog() {
+}
+
 void PrintDialog::printerChanged() {
-  int i = printers.currentIndex();
+  int i = printers->currentIndex();
   if (i<availPr.size()) {
     // actual printer
-    filename->disable();
-    duplex->enable();
+    filename->setEnabled(false);
+    duplex->setEnabled(true);
   } else {
-    filename->enable();
-    duplex->disable();
+    filename->setEnabled(true);
+    duplex->setEnabled(false);
   }
 }
+
+void PrintDialog::rangeChanged() {
+  qDebug() << "PrintDialog::rangeChanged";
+}
+  
 
 void PrintDialog::startBrowse() {
   qDebug() << "PrintDialog::startBrowse";
@@ -106,7 +118,7 @@ void PrintDialog::startBrowse() {
 
 int PrintDialog::romanToInt(QString s) {
   int res = 0;
-  QMap tbl;
+  QMap<QString, int> tbl;
   tbl["i"] = 1;
   tbl["v"] = 5;
   tbl["x"] = 10;
@@ -138,26 +150,26 @@ int PrintDialog::romanToInt(QString s) {
 }
 
 QString PrintDialog::intToRoman(int n) {
-  char *huns[] = {"", "C", "CC", "CCC", "CD", "D", "DC", "DCC", "DCCC", "CM"};
-  char *tens[] = {"", "X", "XX", "XXX", "XL", "L", "LX", "LXX", "LXXX", "XC"};
-  char *ones[] = {"", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX"};
+  char const *huns[] = {"", "C", "CC", "CCC", "CD", "D", "DC", "DCC", "DCCC", "CM"};
+  char const *tens[] = {"", "X", "XX", "XXX", "XL", "L", "LX", "LXX", "LXXX", "XC"};
+  char const *ones[] = {"", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX"};
 
   QString res;
 
-  if (val>=5000)
-    return QString::number(val);
+  if (n>=5000)
+    return QString::number(n);
   
   // Following code adapted from "paxdiablo" at stackoverflow
-  while (val >= 1000) {
+  while (n >= 1000) {
     res += "M";
-    val -= 1000;
+    n -= 1000;
   }
 
-  res +=  huns[val/100];
-  val = val % 100;
-  res += tens[val/10];
-  val = val % 10;
-  res += ones[val];
+  res +=  huns[n/100];
+  n = n % 100;
+  res += tens[n/10];
+  n = n % 10;
+  res += ones[n];
 
   return res;
 }

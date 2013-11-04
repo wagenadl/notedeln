@@ -29,6 +29,15 @@ TableBlockItem::TableBlockItem(TableBlockData *data, Item *parent):
   TextBlockItem(data, parent, TTICreator()) {
   item_ = firstChild<TableItem>();
   ASSERT(item_);
+
+  QTextCursor tc(item_->document());
+  QTextBlockFormat fmt = tc.blockFormat();
+  fmt.setTextIndent(0);
+  fmt.setLineHeight(100,
+		    QTextBlockFormat::ProportionalHeight);
+  tc.movePosition(QTextCursor::Start);
+  tc.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
+  tc.setBlockFormat(fmt);
 }
 
 TableBlockItem::~TableBlockItem() {
