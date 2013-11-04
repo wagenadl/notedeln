@@ -94,6 +94,7 @@ protected:
   bool trySimpleStyle(QString marker, MarkupData::Style type);
   bool tryScriptStyles(QTextCursor);
   bool tryAutoLink();
+  bool tryAutoItalic(bool ignoreExceptions=false);
   bool tryTeXCode();
   void toggleSimpleStyle(MarkupData::Style type, class QTextCursor const &c);
   bool charBeforeIsLetter(int pos) const;

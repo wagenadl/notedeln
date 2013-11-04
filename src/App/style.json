@@ -129,5 +129,8 @@
 "unlocked-font-family": "Ubuntu",
 "unlocked-font-size": 11,
 "unlocked-color": "#dd0000",
-"always-indent": false
+"always-indent": false,
+"auto-italic": true,
+"auto-italic-exceptions": [ "I", "a", "A" ],
+"auto-subscript": true
 }

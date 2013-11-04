@@ -360,6 +360,24 @@ bool TextItem::keyPressWithControl(QKeyEvent *e) {
   case Qt::Key_Backslash:
     tryTeXCode();
     return true;
+  case Qt::Key_2:
+    tryAutoItalic(true);
+    insertBasicHtml(QString::fromUtf8("2"), textCursor().position());
+    addMarkup(MarkupData::Superscript,
+	      textCursor().position()-1, textCursor().position());
+    return true;
+  case Qt::Key_3:
+    tryAutoItalic(true);
+    insertBasicHtml(QString::fromUtf8("3"), textCursor().position());
+    addMarkup(MarkupData::Superscript,
+	      textCursor().position()-1, textCursor().position());
+    return true;
+  case Qt::Key_4:
+    tryAutoItalic(true);
+    insertBasicHtml(QString::fromUtf8("4"), textCursor().position());
+    addMarkup(MarkupData::Superscript,
+	      textCursor().position()-1, textCursor().position());
+    return true;
   case Qt::Key_Space:
     insertBasicHtml(QString::fromUtf8(" "), textCursor().position());
     return true;
@@ -414,8 +432,11 @@ bool TextItem::keyPressAsSpecialEvent(QKeyEvent *e) {
         return true;
       }
     }
-  } else if (QString(",; \n").contains(e->text())) {
-    tryAutoLink(); // don't gobble these keys, so don't return true
+  } else if (QString(",; \n").contains(e->text()) && tryAutoLink()) {
+    return false; // don't gobble these keys, so don't return true
+  } else if (!e->text().isEmpty() && !e->text().at(0).isLetterOrNumber()
+	     && tryAutoItalic()) {
+    return false; // don't gobble these keys, so don't return true
   }
   return false;
 }
@@ -505,6 +526,50 @@ bool TextItem::tryScriptStyles(QTextCursor c) {
 	    ? MarkupData::Superscript
 	    : MarkupData::Subscript,
 	    m.position(), c.position());
+  return true;
+}
+
+bool TextItem::tryAutoItalic(bool ignoreExceptions) {
+  /* Returns true if we decide to automatically italicize a math variable.
+     This is only done if the "auto-italics" style option is set.
+     In that case, single-letter words other than those listed in the
+     "auto-italic-exceptions" set are automatically italicized.
+     In addition, if the "auto-subscript" option is true, then words that
+     consist of a single letter followed by one or more digits are set with
+     the letter in italics and the digits subscripted.
+   */
+  static QSet<QString> exceptions;
+  if (!style().flag("auto-italic"))
+    return false;
+
+  if (exceptions.isEmpty()) 
+    foreach (QVariant v, style()["auto-italic-exceptions"].toList())
+      exceptions.insert(v.toString());
+
+  QTextCursor m = textCursor();
+  m.clearSelection();
+  if (style().flag("auto-subscript")) // allow digits
+    while (document()->characterAt(m.selectionStart()-1).isDigit())
+      m.movePosition(QTextCursor::PreviousCharacter, QTextCursor::KeepAnchor);
+  if (document()->characterAt(m.selectionStart()-1).isLetter())
+    m.movePosition(QTextCursor::PreviousCharacter, QTextCursor::KeepAnchor);
+  else
+    return false;
+  if (document()->characterAt(m.selectionStart()-1).isLetterOrNumber())
+    return false;
+
+  QString word = m.selectedText();
+  if (exceptions.contains(word) && !ignoreExceptions)
+    return false; // note that this intentionally treats "a0" as a variable
+                  // even if "a" is in the exception list.
+  if (word.length()>1)
+    if (markupAt(m.selectionStart()+1, m.selectionEnd(),
+		 MarkupData::Superscript))
+      return false;
+  
+  addMarkup(MarkupData::Italic, m.selectionStart(), m.selectionStart()+1);
+  if (word.length()>1)
+    addMarkup(MarkupData::Subscript, m.selectionStart()+1, m.selectionEnd());
   return true;
 }
 
