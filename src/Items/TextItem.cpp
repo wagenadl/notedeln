@@ -434,7 +434,8 @@ bool TextItem::keyPressAsSpecialEvent(QKeyEvent *e) {
     }
   } else if (QString(",; \n").contains(e->text()) && tryAutoLink()) {
     return false; // don't gobble these keys, so don't return true
-  } else if (!e->text().isEmpty() && !e->text().at(0).isLetterOrNumber()
+  } else if (style().string("auto-italic-post").contains(e->text())
+	     && !e->text().isEmpty()
 	     && tryAutoItalic()) {
     return false; // don't gobble these keys, so don't return true
   }
@@ -555,7 +556,7 @@ bool TextItem::tryAutoItalic(bool ignoreExceptions) {
     m.movePosition(QTextCursor::PreviousCharacter, QTextCursor::KeepAnchor);
   else
     return false;
-  if (document()->characterAt(m.selectionStart()-1).isLetterOrNumber())
+  if (!style().string("auto-italic-pre").contains(document()->characterAt(m.selectionStart()-1)))
     return false;
 
   QString word = m.selectedText();
@@ -610,12 +611,24 @@ void TextItem::toggleSimpleStyle(MarkupData::Style type,
     end = c.selectionEnd();
   } else {
     int base = c.position();
-    QTextCursor m = document()->find(QRegExp("\\W"), c,
-				     QTextDocument::FindBackward);
-    start = m.hasSelection() ? m.selectionEnd() : 0;
+    if (document()->characterAt(base-1).isDigit()) {
+      start = base-1;
+      while (document()->characterAt(start-1).isDigit())
+	start--;
+      end = base;
+      while (document()->characterAt(end).isDigit())
+	end++;
+    } else if (document()->characterAt(base-1).isLetter()) {
+      start = base-1;
+      while (document()->characterAt(start-1).isLetter())
+	start--;
+      end = base;
+      while (document()->characterAt(end).isLetter())
+	end++;
+    } else {
+      return;
+    }
     start = refineStart(start, base);
-    m = document()->find(QRegExp("\\W"), c);
-    end = m.hasSelection() ? m.selectionStart() : 100000000;
     end = refineEnd(end, base);
   }
   int min = c.block().position();

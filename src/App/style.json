@@ -131,6 +131,8 @@
 "unlocked-color": "#dd0000",
 "always-indent": false,
 "auto-italic": true,
-"auto-italic-exceptions": [ "I", "a", "A" ],
+"auto-italic-exceptions": [ "I", "a", "A", "m", "V", "s" ],
+"auto-italic-pre": " ([{`‘“",
+"auto-italic-post": " )]};:,Suc'?!\"",
 "auto-subscript": true
 }
