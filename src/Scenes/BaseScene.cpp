@@ -156,14 +156,14 @@ void BaseScene::makeTitleItem() {
   addItem(titleItem);
   tt->setTextWidth(style_->real("page-width")
 		   - style_->real("margin-left")
-		   - style_->real("title-sep")
+		   - style_->real("title-indent")
 		   - style_->real("margin-right"));
 }
 
 void BaseScene::positionTitleItem() {
   QPointF bl = titleItem->boundingRect().bottomLeft();
   titleItem->setPos(style_->real("margin-left") -
-		    bl.x() + style_->real("title-sep"),
+		    bl.x() + style_->real("title-indent"),
 		    style_->real("margin-top") -
 		    style_->real("title-sep") -
 		    bl.y());

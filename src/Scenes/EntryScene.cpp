@@ -196,11 +196,11 @@ void EntryScene::positionTitleItem() {
 
   double dateX = dateItem->mapToScene(dateItem->boundingRect().topLeft()).x();
   titleItemX->setTextWidth(dateX - style().real("margin-left")
-			   - style().real("title-sep") - 5);
+			   - style().real("title-indent") - 5);
   //  BaseScene::positionTitleItem();
   QPointF bl = titleItemX->netBounds().bottomLeft();
   titleItemX->setPos(style_->real("margin-left") -
-		    bl.x() + style_->real("title-sep"),
+		    bl.x() + style_->real("title-indent"),
 		    style_->real("margin-top") -
 		    style_->real("title-sep") -
 		    bl.y());

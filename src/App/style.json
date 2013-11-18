@@ -12,6 +12,7 @@
 "margin-top": 72,
 "margin-bottom": 48,
 "title-sep": 8,
+"title-indent": 0,
 "pgno-sep": 0,
 "text-block-above": 4,
 "gfx-block-vmargins": 9,
@@ -133,6 +134,6 @@
 "auto-italic": true,
 "auto-italic-exceptions": [ "I", "a", "A", "m", "V", "s" ],
 "auto-italic-pre": " ([{`‘“",
-"auto-italic-post": " )]};:,Suc'?!\"",
-"auto-subscript": true
+"auto-italic-post": " )]};:,'?!\"",
+"auto-subscript-max": 5
 }

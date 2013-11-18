@@ -549,9 +549,12 @@ bool TextItem::tryAutoItalic(bool ignoreExceptions) {
 
   QTextCursor m = textCursor();
   m.clearSelection();
-  if (style().flag("auto-subscript")) // allow digits
+  if (style().integer("auto-subscript-max")>0) { // allow digits
     while (document()->characterAt(m.selectionStart()-1).isDigit())
       m.movePosition(QTextCursor::PreviousCharacter, QTextCursor::KeepAnchor);
+    if (m.selectedText().toInt()>style().integer("auto-subscript-max"))
+      return false;
+  }
   if (document()->characterAt(m.selectionStart()-1).isLetter())
     m.movePosition(QTextCursor::PreviousCharacter, QTextCursor::KeepAnchor);
   else
