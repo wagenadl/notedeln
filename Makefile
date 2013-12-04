@@ -17,7 +17,7 @@ WEBGRAB:
 
 inst: all
 	install src/eln $(INSTALLPATH)/eln
-	install repairtoc/repairtoc $(INSTALLPATH)/eln-repairtoc
+	install repairtoc/eln-repairtoc $(INSTALLPATH)/eln-repairtoc
 	install webgrab/webgrab $(INSTALLPATH)/webgrab
 
 deb:	all

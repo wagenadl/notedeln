@@ -20,3 +20,4 @@ userguide.pdf
 debian/eln.substvars
 debian/files
 eln_debug
+octave-core
