@@ -8,6 +8,6 @@ Homepage: http://www.danielwagenaar.net
 
 Package: eln
 Architecture: any
-Depends: ${shlibs:Depends},${misc:Depends}, libqtcore4 (>= 4.8), libqtgui4 (>= 4.8)
+Depends: ${shlibs:Depends},${misc:Depends}, libqtcore4 (>= 4.8), libqtgui4 (>= 4.8), libqtwebkit4 (>= 2.3.2)
 Description: Electronic Lab Notebook
  ELN is a simple electronic lab notebook with an emphasis on solid data storage.
