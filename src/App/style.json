@@ -104,6 +104,8 @@
 "hover-found-alpha": 0.15,
 "hover-not-found-color": "#ff0000",
 "hover-not-found-alpha": 0.1,
+"transientshading-color": "#22ff00",
+"transientshading-alpha": 0.25,
 "auto-notes": { "[A-Z]?\\d\\d(\\d\\d)?-[A-Za-z0-9]+": "bib" },
 "bib-file": "/home/wagenaar/bib/bib.json",
 "bib-dir": "/home/wagenaar/papers",

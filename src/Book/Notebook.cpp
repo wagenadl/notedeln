@@ -26,6 +26,7 @@
 #include "RecentBooks.H"
 #include "VersionControl.H"
 #include "BackgroundVC.H"
+#include "Index.H"
 
 #include <QTimer>
 #include <QDebug>
@@ -59,6 +60,8 @@ Notebook::Notebook(QString path) {
   ASSERT(bookFile_);
   if (hasVC)
     connect(bookFile_->data(), SIGNAL(mod()), SLOT(commitSoonish()));
+
+  index_ = new Index(dirPath(), toc(), this);
 
   style_ = new Style(root.filePath("style.json"));
   mode_ = new Mode(this);
@@ -143,6 +146,7 @@ EntryFile *Notebook::page(int n)  {
   f->data()->setBook(this);
   connect(f->data(), SIGNAL(titleMod()), SLOT(titleMod()));
   connect(f->data(), SIGNAL(sheetCountMod()), SLOT(sheetCountMod()));
+  index_->watchEntry(f->data());
   if (hasVC)
     connect(f->data(), SIGNAL(mod()), this, SLOT(commitSoonish()));
   return f;
@@ -160,6 +164,7 @@ EntryFile *Notebook::createPage(int n) {
   f->data()->setBook(this);
   connect(f->data(), SIGNAL(titleMod()), SLOT(titleMod()));
   connect(f->data(), SIGNAL(sheetCountMod()), SLOT(sheetCountMod()));
+  index_->watchEntry(f->data());
   if (hasVC)
     connect(f->data(), SIGNAL(mod()), this, SLOT(commitSoonish()));
   bookData()->setEndDate(QDate::currentDate());
@@ -177,12 +182,13 @@ bool Notebook::deletePage(int pgno) {
     qDebug() << "Notebook: refusing to delete non-empty page";
     return false;
   }
-
+  index_->deleteEntry(pf->data()); // this doesn't save, but see below
+  
   pgFiles[pgno]->cancelSave();
   delete pgFiles[pgno];
   pgFiles.remove(pgno);
 
-  ASSERT(toc()->deleteEntry(toc()->find(pgno)));
+  ASSERT(toc()->deleteEntry(toc()->find(pgno))); // this triggers mod() and hence flush of index too
   QString fn = QString("pages/%1.json").arg(pgno);
   QString fn0 = fn + "~";
   root.remove(fn0);
@@ -224,6 +230,8 @@ void Notebook::flush() {
   foreach (EntryFile *pf, pgFiles) 
     if (pf->needToSave()) 
       ok = ok && pf->saveNow();
+
+  index_->flush();
 
   if (!ok)
     qDebug() << "Notebook flushed, with errors";

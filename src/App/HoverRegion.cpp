@@ -72,7 +72,7 @@ void HoverRegion::paint(QPainter *p,
     c.setAlpha(int(255*ti->style().real("hover-not-found-alpha")));
   }    
   p->setBrush(c);
-  p->drawPath(bounds); // just for debugging: let's show ourselves
+  p->drawPath(bounds);
 }
 
 QPainterPath HoverRegion::shape() const {

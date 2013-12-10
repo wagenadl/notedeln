@@ -40,11 +40,12 @@ public:
   EntryFile *createPage(int pgno); // } sheet of a
   bool deletePage(int pgno);      // } Page
   class TOC *toc() const;
+  class Index *index() const;
   class BookData *bookData() const;
   class Style const &style() const;
   class Mode *mode() const;
-  QString filePath(QString) const;
-  QString dirPath() const;
+  QString filePath(QString) const; // path of file in root
+  QString dirPath() const; // path of root
 public slots:
   void flush();
   void commitSoonish();
@@ -61,6 +62,7 @@ private:
   QMap<int, EntryFile *> pgFiles;
   TOCFile *tocFile_;
   BookFile *bookFile_;
+  Index *index_;
   Style const *style_;
   Mode *mode_;
   class QTimer *commitTimer;
