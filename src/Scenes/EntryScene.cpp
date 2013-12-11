@@ -70,6 +70,8 @@ EntryScene::EntryScene(EntryData *data, QObject *parent):
   
   dateItem = 0;
   unlockedItem = 0;
+  belowItem = 0;
+  titleItemX = 0;
 
   vChangeMapper = new QSignalMapper(this);
   noteVChangeMapper = new QSignalMapper(this);

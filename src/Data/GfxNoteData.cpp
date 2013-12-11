@@ -26,6 +26,8 @@ GfxNoteData::GfxNoteData(Data *parent): GfxData(parent) {
   setType("gfxnote");
   text_ = new TextData(this);
   sheet_ = 0;
+  dx_ = dy_ = 0;
+  textWidth_ = 0;
 }
 
 GfxNoteData::~GfxNoteData() {

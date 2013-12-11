@@ -55,8 +55,8 @@ private:
   class FrontScene *frontScene;
   class TOCScene *tocScene;
   class EntryScene *entryScene;
-  class GfxPalette *linePalette;
-  class GfxPalette *markPalette;
+  //  class GfxPalette *linePalette;
+  //  class GfxPalette *markPalette;
   // class Toolbar *toolbar;
   int currentPage;
   enum {

@@ -21,6 +21,7 @@
 
 GfxData::GfxData(Data *parent): Data(parent) {
   setType("gfx");
+  x_ = y_ = 0;
 }
 
 GfxData::~GfxData() {

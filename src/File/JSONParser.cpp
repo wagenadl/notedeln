@@ -230,7 +230,7 @@ QVariantMap JSONParser::readObject() throw(Error) {
         makeError("Expected comma or closing brace", true);
     }
   }
-  // not executed
+  return res; // not executed
 }
 
 QVariantList JSONParser::readArray() throw(Error) {
@@ -254,7 +254,7 @@ QVariantList JSONParser::readArray() throw(Error) {
         makeError("Expected comma or closing bracket", true);
     }
   }
-  // not reached
+  return res; // not reached
 }
 
 QVariant JSONParser::readAny() throw(Error) {

@@ -81,7 +81,6 @@ private:
 private:
   class ResLoader *loader;
   class ResourceMagic *magic;
-  class Magician *iter;
   QDir dir;
 };
 

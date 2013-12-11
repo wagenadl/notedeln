@@ -19,6 +19,9 @@
 #include "TableBlockItem.H"
 #include "TableItem.H"
 
+TTICreator::~TTICreator() {
+}
+
 TextItem *TTICreator::create(TextData *data, Item *parent) const {
   TableData *d = dynamic_cast<TableData*>(data);
   ASSERT(d);

@@ -39,7 +39,7 @@ Style::Style() {
   try {
     options_ = p.readObject();
     p.assertEnd();
-  } catch (JSONParser::Error e) {
+  } catch (JSONParser::Error const &e) {
     e.report();
     qFatal("style error");
   }
@@ -54,7 +54,7 @@ Style::Style(QString fn) {
     try {
       options_ = p.readObject();
       p.assertEnd();
-    } catch (JSONParser::Error e) {
+    } catch (JSONParser::Error const &e) {
       e.report();
       qFatal("style error");
     }

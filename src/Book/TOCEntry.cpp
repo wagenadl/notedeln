@@ -24,6 +24,7 @@ static Data::Creator<TOCEntry> c("entry");
 TOCEntry::TOCEntry(Data *parent): Data(parent) {
   setType("entry");
   sheetCount_ = 1;
+  startPage_ = 1;
 }
 
 TOCEntry::~TOCEntry() {

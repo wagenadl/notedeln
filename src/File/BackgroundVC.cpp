@@ -19,6 +19,7 @@ BackgroundVC::BackgroundVC(QObject *parent): QObject(parent) {
   guard = 0;
   maxt_s = 300;
   block = 0;
+  step = -1;
 }
   
 BackgroundVC::~BackgroundVC() {

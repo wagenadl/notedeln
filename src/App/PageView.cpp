@@ -59,6 +59,7 @@ PageView::PageView(Notebook *nb, QWidget *parent):
   
   entryScene = 0;
   currentSection = Front;
+  currentPage = 0; // I think that is correct 12/11/'13
 
   wheelDeltaAccum = 0;
   wheelDeltaStepSize = nb ? nb->style().real("wheelstep") : 120;

@@ -51,7 +51,7 @@ namespace JSONFile {
   QString serializeMap(QVariantMap const &v, int indent, bool parentIsArray);  
   QString serializeList(QVariantList const &v, int indent, bool parentIsArray);
   QString serializeString(QString s);
-  QString serializeDouble(QString s);
+  QString serializeDouble(double v);
   QString serialize(QVariant v, int indent=0, bool parentIsArray=false);
   
   QString serializeMap(QVariantMap const &v, int indent, bool parentIsArray) {
@@ -186,7 +186,7 @@ namespace JSONFile {
       if (ok)
 	*ok = true;
       return v;
-    } catch (JSONParser::Error e) {
+    } catch (JSONParser::Error const &e) {
       e.report();
       return QVariantMap();
     }

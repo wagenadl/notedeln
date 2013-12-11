@@ -30,6 +30,9 @@
 #include <QDebug>
 #include "Assert.H"
 
+TICreator::~TICreator() {
+}
+
 TextItem *TICreator::create(TextData *data, Item *parent) const {
   return new TextItem(data, parent);
 }

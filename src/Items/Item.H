@@ -108,7 +108,6 @@ private: // these must never be called
   void setParent(QObject *); // hide from QObject
 private:
   Data *d;
-  bool extraneous;
   bool writable;
 };
 

@@ -31,12 +31,16 @@
 
 Printer::Printer(QGraphicsWebView *src, Options const &opt):
   src(src), opt(opt) {
+  s = 0;
+  v = 0;
 }
 
 Printer::~Printer() {
 }
 
 void Printer::display() {
+  Q_ASSERT(v);
+  
   QSize si = s->sceneRect().size().toSize() + QSize(2,2);
   if (si.width()>1100)
     si.setWidth(1100);

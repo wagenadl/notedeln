@@ -24,6 +24,7 @@
 #include <QTextLine>
 
 FutileMovementInfo::FutileMovementInfo() {
+  key_ = 0;
 }
 
 FutileMovementInfo::FutileMovementInfo(int key, Qt::KeyboardModifiers mod,

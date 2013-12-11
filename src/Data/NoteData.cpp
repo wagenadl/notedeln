@@ -21,6 +21,7 @@
 
 NoteData::NoteData(class BlockData *parent): Data(parent) {
   setType("note");
+  x_ = y_ = 0;
 }
 
 NoteData::~NoteData() {

@@ -27,6 +27,7 @@
 
 class TICreator {
 public:
+  virtual ~TICreator();
   virtual class TextItem *create(TextData *data, Item *parent) const;
 };
 

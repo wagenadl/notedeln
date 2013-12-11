@@ -25,6 +25,7 @@
 
 class TTICreator: public TICreator {
 public:
+  virtual ~TTICreator();
   virtual class TextItem *create(TextData *data, Item *parent) const;
 };
 
