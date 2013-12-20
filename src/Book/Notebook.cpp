@@ -1,3 +1,4 @@
+
 // Book/Notebook.cpp - This file is part of eln
 
 /* eln is free software: you can redistribute it and/or modify
@@ -31,46 +32,102 @@
 #include <QTimer>
 #include <QDebug>
 
-#define COMMIT_IVAL_S 600 // if vc, commit every once in a while
+#define COMMIT_IVAL_S 600 // If vc, commit every once in a while
 #define COMMIT_AVOID_S 60 // ... but not too soon after activity
+#define UPDATE_IVAL_S 3600 // If vc, check for updates once in a while
+#define UPDATE_AVOID_S 900 // ... but not if anything has recently changed
 
 Notebook::Notebook(QString path) {
   commitTimer = 0;
   root = QDir(path);
-  Style s0(root.filePath("style.json"));
-  hasVC = s0.contains("vc");
-  backgroundVC = 0;
-  
-  if (hasVC) {
-    VersionControl::update(root.path(), s0.string("vc"));
-    commitTimer = new QTimer(this);
-    commitTimer->setSingleShot(true);
-    connect(commitTimer, SIGNAL(timeout()), SLOT(commitNowUnless()));
-    backgroundVC = new BackgroundVC(this);
-    connect(backgroundVC, SIGNAL(done(bool)), SLOT(committed(bool)));
-  }
-   
 
+  mode_ = new Mode(this);
+  
+  backgroundVC = 0;
+  updateTimer = 0;
+  commitTimer = 0;
+  style_ = 0;
+  index_ = 0;
+  tocFile_ = 0;
+  bookFile_ = 0;
+
+  Style s0(root.filePath("style.json"));
+  if (s0.contains("vc")) 
+    VersionControl::update(root.path(), s0.string("vc"));
+
+  loadme();
+}
+
+void Notebook::loadme() {
   tocFile_ = TOCFile::load(root.filePath("toc.json"), this);
   ASSERT(tocFile_);
   tocFile_->data()->setBook(this);
-  if (hasVC)
-    connect(tocFile_->data(), SIGNAL(mod()), SLOT(commitSoonish()));
   bookFile_ = BookFile::load(root.filePath("book.json"), this);
   ASSERT(bookFile_);
-  if (hasVC)
-    connect(bookFile_->data(), SIGNAL(mod()), SLOT(commitSoonish()));
 
   index_ = new Index(dirPath(), toc(), this);
-
   style_ = new Style(root.filePath("style.json"));
-  mode_ = new Mode(this);
 
   RecentBooks::instance()->addBook(this);
+
+  hasVC = style_->contains("vc");
+  if (hasVC) {
+    backgroundVC = new BackgroundVC(this);
+    commitTimer = new QTimer(this);
+    commitTimer->setSingleShot(true);
+    updateTimer = new QTimer(this);
+    updateTimer->setSingleShot(true);
+    updateTimer->start();
+    connect(updateTimer, SIGNAL(timeout()), SLOT(updateNowUnless()));
+    connect(commitTimer, SIGNAL(timeout()), SLOT(commitNowUnless()));
+    connect(bookFile_->data(), SIGNAL(mod()), SLOT(commitSoonish()));
+    connect(tocFile_->data(), SIGNAL(mod()), SLOT(commitSoonish()));
+    connect(backgroundVC, SIGNAL(done(bool)), SLOT(committed(bool)));
+  }
 }
 
 Notebook::~Notebook() {
   commitNow();
+}
+
+void Notebook::unloadme() {
+  delete backgroundVC;
+  backgroundVC = 0;
+
+  delete updateTimer;
+  updateTimer = 0;
+  
+  delete commitTimer;
+  commitTimer = 0;
+
+  delete index_;
+  index_ = 0;
+
+  delete style_;
+  style_ = 0;
+
+  delete tocFile_;
+  tocFile_ = 0;
+
+  delete bookFile_;
+  bookFile_ = 0;
+  
+  foreach (EntryFile *f, pgFiles)
+    delete f;
+  pgFiles.clear();
+}
+
+bool Notebook::reload() {
+  if (backgroundVC && backgroundVC->isBusy())
+    return false;
+
+  QMap<int, int> renumberedPages; // obviously, this should be filled
+
+  unloadme();
+  loadme();
+
+  emit reloaded(renumberedPages);
+  return true;
 }
 
 Style const &Notebook::style() const {
@@ -237,6 +294,19 @@ void Notebook::flush() {
     qDebug() << "Notebook flushed, with errors";
 }
 
+void Notebook::updateNowUnless() {
+  ASSERT(updateTimer);
+  if (mostRecentChange.secsTo(QDateTime::currentDateTime()) < UPDATE_AVOID_S) {
+    updateTimer->setInterval(500 * UPDATE_AVOID_S); // that's 1/2 x avoid ival
+    updateTimer->start();
+  } else {
+    // let's see if there is anything to update
+    updateTimer->setInterval(1000 * UPDATE_IVAL_S);
+    updateTimer->start();
+  }
+}   
+
+
 void Notebook::commitSoonish() {
   mostRecentChange = QDateTime::currentDateTime();
   if (commitTimer && !commitTimer->isActive()) {
@@ -248,8 +318,8 @@ void Notebook::commitSoonish() {
 void Notebook::commitNowUnless() {
   ASSERT(commitTimer);
   if (mostRecentChange.secsTo(QDateTime::currentDateTime()) < COMMIT_AVOID_S) {
-    // let's not do it quite yet (test again in 5 s; I am pretty lazy)
-    commitTimer->setInterval(5000);
+    // let's not do it quite yet (test again in a while)
+    commitTimer->setInterval(500 * COMMIT_AVOID_S); // that's 1/2 x avoid ival
     commitTimer->start();
   } else {
     flush();

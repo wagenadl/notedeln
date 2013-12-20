@@ -52,7 +52,7 @@ PageView::PageView(Notebook *nb, QWidget *parent):
   // simpleNavbar = new SimpleNavbar(tocScene);
   // connect(simpleNavbar, SIGNAL(goRelative(int)), SLOT(goRelative(int)));
   connect(tocScene, SIGNAL(pageNumberClicked(int)),
-          SLOT(gotoPage(int)));
+          SLOT(gotoEntryPage(int)));
 
   setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
   setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -217,20 +217,23 @@ void PageView::nowOnPage(int n) {
   }
 }
 
-void PageView::gotoPage(int n) {
+void PageView::gotoEntryPage(int n, int dir) {
   if (n<1)
     n=1;
+  int N = book->toc()->newPageNumber();
+  if (n>N)
+    n=N;
 
-  if (n>=book->toc()->newPageNumber()) {
+  if (n==N) {
     // make a new page?
-    TOCEntry *te = book->toc()->find(n-1);
+    TOCEntry *te = book->toc()->findBackward(n);
     if (te) {
       // let's look at page before end
       EntryFile *file = book->page(te->startPage());
       ASSERT(file);
       if (file->data()->isEmpty()) {
 	// previous page is empty -> go there instead
-	gotoPage(n-1);
+	gotoEntryPage(te->startPage() + te->sheetCount() - 1);
 	return;
       }
     }
@@ -239,8 +242,14 @@ void PageView::gotoPage(int n) {
 
   TOCEntry *te = book->toc()->find(n);
   if (!te) {
-    qDebug() << "PageEditor: gotoPage("<<n<<"): no such page";
-    return;
+    if (dir<0)
+      te = book->toc()->findBackward(n);
+    else if (dir>0)
+      te = book->toc()->findForward(n);
+    if (!te) {
+      qDebug() << "PageEditor: gotoEntryPage("<<n<<"): no such page";
+      return;
+    }
   }
 
   if (currentSection==Entries && book->toc()->find(currentPage)==te) {
@@ -348,8 +357,9 @@ void PageView::previousPage() {
       if (currentPage<=1) {
         gotoTOC(tocScene->sheetCount());
       } else {
-        gotoPage(currentPage-1);
+        gotoEntryPage(currentPage-1, -1);
         entryScene->gotoSheet(entryScene->sheetCount()-1);
+        // the "gotoSheet" call ensures we go to continuation pages
       }
     }
     break;
@@ -357,6 +367,7 @@ void PageView::previousPage() {
 }
 
 void PageView::goRelative(int n) {
+  int dir = n;
   if (n==1) {
     /* This magic is to deal with continuation pages ("93a"). */
     nextPage();
@@ -365,6 +376,8 @@ void PageView::goRelative(int n) {
     previousPage();
     return;
   }
+
+  int N = tocScene->sheetCount();
   
   switch (currentSection) {
   case Front:
@@ -373,11 +386,11 @@ void PageView::goRelative(int n) {
     n += currentPage;
     break;
   case Entries:
-    n += tocScene->sheetCount() + currentPage;
+    n += N + currentPage;
     break;
   }
   
-  // now n is an absolute page number; title=0; toc=1..N; pages=N+1..
+  // now n is an "absolute" page number; title=0; toc=1..N; pages=N+1..
   if (n<=0) {
     gotoFront();
     return;
@@ -389,11 +402,8 @@ void PageView::goRelative(int n) {
     return;
   }
 
-  n -= tocScene->sheetCount(); // now n=1 is the first page
-  if (n<book->toc()->newPageNumber())
-    gotoPage(n);
-  else
-    gotoPage(book->toc()->newPageNumber()); // create new unless prev. empty
+  n -= N; // now n=1 is the first page
+  gotoEntryPage(n, dir); // may create new unless prev empty
 }
 
 void PageView::nextPage() {
@@ -403,19 +413,18 @@ void PageView::nextPage() {
     break;
   case TOC:
     if (!tocScene->nextSheet())
-      gotoPage(1);
+      gotoEntryPage(1, 1);
     break;
   case Entries:
-    if (!entryScene->nextSheet()) {
-      if (currentPage<book->toc()->newPageNumber())
-        gotoPage(currentPage+1); // this may make a new page at the end
-    }
+    if (!entryScene->nextSheet()) 
+      gotoEntryPage(currentPage+1, 1); // this may make a new page at the end
     break;
   }
 }
 
 void PageView::lastPage() {
-  gotoPage(book->toc()->newPageNumber()-1);
+  gotoEntryPage(book->toc()->newPageNumber()-1);
+  entryScene->gotoSheet(entryScene->sheetCount()-1);
 }
 
 Mode *PageView::mode() const {
@@ -461,7 +470,7 @@ void PageView::createContinuationEntry() {
   fwdNote->translate(fwdNotePos - pp);
 
   // Goto new page
-  gotoPage(newPage);
+  gotoEntryPage(newPage);
   ASSERT(entryScene);
   // (So now entryScene refers to the new page.)
   
@@ -481,4 +490,35 @@ void PageView::createContinuationEntry() {
 
   mode()->setMode(Mode::Type);
   entryScene->focusTitle();
+}
+
+void PageView::notebookReloaded(QMap<int, int>) {
+  setScene(0); // hopefully that avoids crazy UI crashes
+  
+  delete frontScene;
+  frontScene = new FrontScene(book, this);
+
+  delete tocScene;
+  tocScene = new TOCScene(book->toc(), this);
+  tocScene->populate();
+  // simpleNavbar = new SimpleNavbar(tocScene);
+  // connect(simpleNavbar, SIGNAL(goRelative(int)), SLOT(goRelative(int)));
+  connect(tocScene, SIGNAL(pageNumberClicked(int)),
+          SLOT(gotoEntryPage(int)));
+
+  if (entryScene)
+    delete entryScene;
+  entryScene = 0;
+
+  switch (currentSection) {
+  case Front:
+    gotoFront();
+    break;
+  case TOC:
+    gotoTOC(currentPage);
+    break;
+  case Entries:
+    gotoEntryPage(currentPage, -1);
+    break;
+  }
 }

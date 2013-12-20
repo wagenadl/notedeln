@@ -34,8 +34,16 @@ public:
   virtual ~TOC();
   QMap<int, TOCEntry *> const &entries() const;
   TOCEntry *entry(int startPage) const; // assertion if not found
-  TOCEntry *find(int page) const; // returns entry containing the numbered page
-                                  // ... or 0 if none does.
+  TOCEntry *find(int page) const;
+  /* Returns entry containing the page page or 0 if none does. */
+  TOCEntry *findForward(int page) const;
+  /* Returns entry containing the given page or the first entry that
+     starts after the given page or 0 if none.
+   */
+  TOCEntry *findBackward(int page) const;
+  /* Returns entry containing the given page or the last entry that
+     ends before the given page or 0 if none.
+   */
   TOCEntry *entryAfter(TOCEntry *te) const; // returns ptr to entry after
            // ... the given entry, or 0 if none exists or if te is invalid.
   bool contains(int startPage) const;

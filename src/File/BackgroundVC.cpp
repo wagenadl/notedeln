@@ -142,3 +142,7 @@ void BackgroundVC::processFinished() {
     cleanup(true);
   }
 }
+
+bool BackgroundVC::isBusy() const {
+  return bzr!=0;
+}

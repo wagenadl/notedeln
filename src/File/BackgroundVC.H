@@ -14,6 +14,7 @@ public:
   bool commit(QString path, QString program); // returns true if started,
   // false if could not start
   void setTimeout(int secs);
+  bool isBusy() const;
 signals:
   void done(bool ok);
 private slots:

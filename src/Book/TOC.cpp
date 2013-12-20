@@ -53,10 +53,28 @@ TOCEntry *TOC::find(int page) const {
   // sized notebooks
   TOCEntry *r = 0;
   foreach (TOCEntry *e, entries_) 
-    if (page >= e->startPage() && page < e->startPage() + e->sheetCount())
+    if (e->startPage() <= page && e->startPage()+e->sheetCount() > page)
       r = e;
   return r;
 }
+
+TOCEntry *TOC::findBackward(int page) const {
+  TOCEntry *r = 0;
+  foreach (TOCEntry *e, entries_) 
+    if (e->startPage() <= page && (r==0 || e->startPage() > r->startPage()))
+      r = e;
+  return r;
+}
+
+TOCEntry *TOC::findForward(int page) const {
+  TOCEntry *r = 0;
+  foreach (TOCEntry *e, entries_) 
+    if (e->startPage()+e->sheetCount()-1 >= page
+        && (r==0 || e->startPage() < r->startPage()))
+      r = e;
+  return r;
+}
+  
 
 TOCEntry *TOC::entryAfter(TOCEntry *te) const {
   bool has = false;

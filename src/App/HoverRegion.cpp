@@ -228,12 +228,12 @@ void HoverRegion::openPage() {
 
   if (last>='a') {
     int pgno = tag.left(tag.size()-1).toInt();
-    pv->gotoPage(pgno);
+    pv->gotoEntryPage(pgno);
     for (int n=0; n<=last-'a'; n++)
       pv->nextPage();
   } else {
     int pgno = tag.toInt();
-    pv->gotoPage(pgno);
+    pv->gotoEntryPage(pgno);
   }
 }
 

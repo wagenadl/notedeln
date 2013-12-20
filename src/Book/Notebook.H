@@ -26,6 +26,7 @@
 #include "EntryFile.H"
 #include "BookFile.H"
 #include "TOCFile.H"
+#include <QMap>
 
 class Notebook: public QObject {
   Q_OBJECT;
@@ -46,17 +47,35 @@ public:
   class Mode *mode() const;
   QString filePath(QString) const; // path of file in root
   QString dirPath() const; // path of root
+signals:
+  void reloaded(QMap<int,int>);
+  /*:S reloaded
+   *:D Emitted after the reload() function completes.
+   *:A A map of changed start pages. (Currently empty.)
+   */
 public slots:
   void flush();
   void commitSoonish();
   void commitNow();
+  bool reload();
+  /*:F reload
+   *:D Reloads a notebook from disk. (Useful after bzr update.)
+   *:N This summarily removes all pagefiles from memory, invalidating
+       all pointers.
+   *:R Returns false if reloading was impossible because we are in the
+       middle of a background commit.
+   */
 private:
   Notebook(QString path);
 private slots:
   void titleMod();
   void sheetCountMod();
+  void updateNowUnless();
   void commitNowUnless();
   void committed(bool ok);
+private:
+  void loadme();
+  void unloadme();
 private:
   QDir root;
   QMap<int, EntryFile *> pgFiles;
@@ -65,6 +84,7 @@ private:
   Index *index_;
   Style const *style_;
   Mode *mode_;
+  class QTimer *updateTimer;
   class QTimer *commitTimer;
   QDateTime mostRecentChange;
   bool hasVC;

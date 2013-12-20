@@ -21,6 +21,7 @@
 #define PAGEVIEW_H
 
 #include <QGraphicsView>
+#include <QMap>
 
 class PageView: public QGraphicsView {
   Q_OBJECT;
@@ -28,7 +29,7 @@ public:
   PageView(class Notebook *nb, QWidget *parent=0);
   virtual ~PageView();
 public slots:
-  void gotoPage(int pgno);
+  void gotoEntryPage(int pgno, int dir=0);
   void gotoTOC(int pgno=1);
   void gotoFront();
   //  void gotoIndex();
@@ -50,6 +51,7 @@ private:
   void createContinuationEntry();
 private slots:
   void nowOnPage(int pgno);
+  void notebookReloaded(QMap<int,int>);
 private:
   class Notebook *book; // we do not own!
   class FrontScene *frontScene;
