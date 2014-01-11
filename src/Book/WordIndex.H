@@ -32,6 +32,10 @@ public:
   void build(class TOC *toc, QString pagesDir);
   void rebuildEntry(int startPage, class WordSet *ws);
   void dropEntry(int startPage);
+  QSet<int> findWord(QString word);
+  QSet<int> findPartialWord(QString wordbit); // must match at beginning of word
+  QSet<int> findWords(QStringList words, bool lastPartial=false);
+  /* Returned integers are start pages of entries */
 private:
   typedef QSet<int> IntSet;
   typedef QSet<QString> StringSet;

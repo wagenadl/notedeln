@@ -62,7 +62,7 @@ bool WordIndex::save(QString filename) {
 void WordIndex::build(class TOC *toc, QString pagesDir) {
   index.clear();
   foreach (int pg, toc->entries().keys()) {
-    EntryFile *f = loadPage(pagesDir, pg, 0);
+    EntryFile *f = ::loadPage(pagesDir, pg, 0);
     WordSet ws;
     ws.add(f->data());
     foreach (QString w, ws.toSet())
@@ -87,4 +87,36 @@ void WordIndex::rebuildEntry(int startPage, WordSet *ws) {
 void WordIndex::dropEntry(int startPage) {
   for (MapType::iterator i = index.begin(); i!=index.end(); ++i)
     i.value().remove(startPage);
+}
+
+QSet<int> WordIndex::findWord(QString word) {
+  if (index.contains(word))
+    return index[word];
+  else
+    return QSet<int>();
+}
+
+QSet<int> WordIndex::findPartialWord(QString wordbit) {
+  QSet<int> s;
+  for (MapType::iterator i = index.begin(); i!=index.end(); ++i)
+    if (i.key().startsWith(wordbit))
+      s |= i.value();
+  return s;
+}
+
+QSet<int> WordIndex::findWords(QStringList words, bool lastPartial) {
+  QSet<int> s;
+  if (words.isEmpty())
+    return s;
+
+  QString w = words.takeLast();
+  if (lastPartial)
+    s = findPartialWord(w);
+  else
+    s = findWord(w);
+
+  foreach (w, words) 
+    s &= findWord(w);
+
+  return s;
 }

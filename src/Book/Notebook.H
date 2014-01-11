@@ -40,6 +40,8 @@ public:
   EntryFile *page(int pgno);       // } be the first
   EntryFile *createPage(int pgno); // } sheet of a
   bool deletePage(int pgno);      // } Page
+  EntryFile *pageIfCached(int pgno);
+  // like page(), but will return 0 if not already cached
   class TOC *toc() const;
   class Index *index() const;
   class BookData *bookData() const;

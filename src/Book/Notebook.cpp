@@ -193,6 +193,13 @@ bool Notebook::hasPage(int n) const {
   return toc()->contains(n);
 }
 
+EntryFile *Notebook::pageIfCached(int n) {
+  if (pgFiles.contains(n))
+    return pgFiles[n];
+  else
+    return 0;
+}
+
 EntryFile *Notebook::page(int n)  {
   if (pgFiles.contains(n))
     return pgFiles[n];
@@ -349,4 +356,8 @@ void Notebook::committed(bool ok) {
 
 Mode *Notebook::mode() const {
   return mode_;
+}
+
+Index *Notebook::index() const {
+  return index_;
 }

@@ -7,8 +7,8 @@
 #include "EntryData.H"
 #include "WordSet.H"
 
-Index::Index(QString rootDir, class TOC *toc, QObject *parent): QObject(parent),
-								rootdir(rootDir) {
+Index::Index(QString rootDir, class TOC *toc, QObject *parent):
+  QObject(parent), rootdir(rootDir) {
   widx = new WordIndex(this);
   QString fn = rootdir + "/index.json";
   if (QFile(fn).exists()) {
