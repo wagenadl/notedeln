@@ -137,5 +137,8 @@
 "auto-italic-exceptions": [ "I", "a", "A", "m", "V", "s" ],
 "auto-italic-pre": " ([{`‘“",
 "auto-italic-post": " )]};:,'?!\"",
-"auto-subscript-max": 5
+"auto-subscript-max": 5,
+"search-result-font-family": "Ubuntu",
+"search-result-font-size": 10,
+"search-result-background-color": "#40ff80"
 }

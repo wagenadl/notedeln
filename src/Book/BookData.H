@@ -44,12 +44,15 @@ public:
   void setAddress(QString);
   void setStartDate(QDate);
   void setEndDate(QDate);
+  void setBook(class Notebook *nb);
+  virtual Notebook *book() const;
 private:
   QString title_;
   QString author_;
   QString address_;
   QDate startDate_;
   QDate endDate_;
+  Notebook *nb;
 };
 
 #endif

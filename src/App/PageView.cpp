@@ -34,6 +34,7 @@
 #include "BlockItem.H"
 #include "TextItem.H"
 #include "GfxNoteItem.H"
+#include "SearchDialog.H"
 
 #include <QWheelEvent>
 #include <QKeyEvent>
@@ -45,6 +46,7 @@ PageView::PageView(Notebook *nb, QWidget *parent):
   connect(toolbars->navbar(), SIGNAL(goTOC()), SLOT(gotoTOC()));
   connect(toolbars->navbar(), SIGNAL(goEnd()), SLOT(lastPage()));
   connect(toolbars->navbar(), SIGNAL(goRelative(int)), SLOT(goRelative(int)));
+  searchDialog = new SearchDialog(this);
   deletedStack = new DeletedStack(this);
   frontScene = new FrontScene(nb, this);
   tocScene = new TOCScene(nb->toc(), this);
@@ -167,6 +169,12 @@ void PageView::keyPressEvent(QKeyEvent *e) {
   case Qt::Key_Insert:
     if (currentSection==Entries && entryScene->focusItem()==0) 
       deletedStack->restoreTop();
+    else
+      take = false;
+    break;
+  case Qt::Key_F:
+    if (e->modifiers() & Qt::ControlModifier)
+      searchDialog->newSearch();
     else
       take = false;
     break;
@@ -430,6 +438,10 @@ void PageView::lastPage() {
 Mode *PageView::mode() const {
   ASSERT(book);
   return book->mode();
+}
+
+Notebook *PageView::notebook() const {
+  return book;
 }
 
 void PageView::wheelEvent(QWheelEvent *e) {

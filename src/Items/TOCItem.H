@@ -27,7 +27,7 @@
 class TOCItem: public Item {
   Q_OBJECT;
 public:
-  TOCItem(class TOCEntry *data, class TOCScene *parent);
+  TOCItem(class TOCEntry *data, class BaseScene *parent);
   virtual ~TOCItem();
   DATAACCESS(TOCEntry);
   QRectF boundingRect() const;
@@ -47,7 +47,7 @@ private:
   QGraphicsTextItem *titleItem;
   QGraphicsTextItem *pgnoItem;
   TOCEntry *data_;
-  TOCScene *scene_;
+  BaseScene *scene_;
 };
 
 #endif

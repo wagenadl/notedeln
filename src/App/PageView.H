@@ -39,6 +39,7 @@ public slots:
   void lastPage();
 public:
   class Mode *mode() const;
+  class Notebook *notebook() const;
 protected:
   void resizeEvent(QResizeEvent *);
   void keyPressEvent(QKeyEvent *);
@@ -71,6 +72,7 @@ private:
   //  class SimpleNavbar *simpleNavbar;
   int wheelDeltaAccum;
   int wheelDeltaStepSize;
+  class SearchDialog *searchDialog;
 };
 
 #endif

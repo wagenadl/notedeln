@@ -27,6 +27,8 @@ BookData::BookData(Data *parent): Data(parent) {
   startDate_ = QDate::currentDate();
   endDate_ = QDate::currentDate();
   setType("book");
+
+  nb = 0;
 }
 
 BookData::~BookData() {
@@ -77,4 +79,12 @@ void BookData::setEndDate(QDate d) {
   endDate_ = d;
   if (chg)
     markModified();
+}
+
+void BookData::setBook(Notebook *n) {
+  nb = n;
+}
+
+Notebook *BookData::book() const {
+  return nb;
 }

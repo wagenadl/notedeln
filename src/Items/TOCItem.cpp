@@ -22,7 +22,7 @@
 #include <QDebug>
 #include <QDateTime>
 
-TOCItem::TOCItem(TOCEntry *data, TOCScene *parent):
+TOCItem::TOCItem(TOCEntry *data, BaseScene *parent):
   Item(data, 0), scene_(parent) {
   parent->addItem(this);
   makeItems();

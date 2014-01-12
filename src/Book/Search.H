@@ -25,6 +25,7 @@ struct SearchResult {
   Type type;
   int page;
   int startPageOfEntry;
+  QString phrase; // search text
   QString context; // entire text of containing object
   QString entryTitle;
   QDateTime cre, mod; // of containing object
@@ -54,7 +55,7 @@ private:
   QString phrase;
   QList<SearchResult> results;
   bool abandon;
-  QMutex mutex;
+  mutable QMutex mutex;
 };
 
 #endif

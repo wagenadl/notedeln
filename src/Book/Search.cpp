@@ -27,6 +27,7 @@ void Search::addToResults(QList<SearchResult> &dest, QString phrase,
     if (td && td->text().contains(phrase)) {
       // gotcha
       SearchResult res;
+      res.phrase = phrase;
       if (dynamic_cast<TableBlockData const *>(data))
         res.type = SearchResult::InTableBlock;
       else if (dynamic_cast<TextBlockData const *>(data))

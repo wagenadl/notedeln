@@ -64,6 +64,7 @@ void Notebook::loadme() {
   tocFile_->data()->setBook(this);
   bookFile_ = BookFile::load(root.filePath("book.json"), this);
   ASSERT(bookFile_);
+  bookFile_->data()->setBook(this);
 
   index_ = new Index(dirPath(), toc(), this);
   style_ = new Style(root.filePath("style.json"));
