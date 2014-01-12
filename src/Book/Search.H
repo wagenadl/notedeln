@@ -50,6 +50,7 @@ private:
                            QString entryTitle,
                            Data const *data, int entryPage, int dataPage);
   void run();
+  static QString untable(class TableData const *);
 private:
   Notebook *book;
   QString phrase;

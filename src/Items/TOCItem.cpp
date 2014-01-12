@@ -80,7 +80,7 @@ void TOCItem::entryChanged() {
 }
 
 void TOCItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
-  qDebug() << "TOCItem::mousePress" << e;
+  qDebug() << "TOCItem::mousePress" << e << data()->startPage();
   emit clicked(data()->startPage());
 }
 

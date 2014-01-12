@@ -25,18 +25,12 @@ protected:
   virtual void makeContdItems();
 private:
   Style const &style() const;
-  int refineBreak(QString s, int idx);
-  int decentBreak(QString s, int first, int last);
-  void fillText(class QTextDocument *doc, SearchResult const &res);
 private:
   Notebook *book;
   QString ttl;
   QList<SearchResult> results;
-  QList<class TOCItem *> headers; // one for each entry with a result
-  QList<int> headersheetnos; // one for each header; sheet in this scene
-  QList<QGraphicsItem *> items; // one for each result
-  QList<int> itemsheetnos; // one for each result; sheet in this scene
-  QList<QGraphicsItem *> lines; // separator lines
+  QList<class SearchResItem *> headers; // one for each entry with a result
+  QList<int> sheetnos; // one for each header; sheet in this scene
 };
 
 #endif

@@ -3,6 +3,7 @@
 #include "Search.H"
 
 #include "TextBlockData.H"
+#include "TitleData.H"
 #include "TableBlockData.H"
 #include "LateNoteData.H"
 #include "FootnoteData.H"
@@ -12,11 +13,26 @@
 
 #include <QSet>
 #include <QDebug>
+#include "TableData.H"
 
 Search::Search(Notebook *book): book(book) {
 }
 
 Search::~Search() {
+}
+
+QString Search::untable(TableData const *tbld) {
+  QString res = "";
+  for (unsigned int r=0; r<tbld->rows(); r++) {
+    if (r>0)
+      res += "\n";
+    for (unsigned int c=0; c<tbld->columns(); c++) {
+      if (c>0)
+        res += " | ";
+      res += tbld->cellContents(r, c);
+    }
+  }
+  return res;
 }
 
 void Search::addToResults(QList<SearchResult> &dest, QString phrase,
@@ -46,6 +62,11 @@ void Search::addToResults(QList<SearchResult> &dest, QString phrase,
       res.startPageOfEntry = entryPage;
       res.entryTitle = entryTitle;
       res.context = td->text();
+      TableData const *tbld = dynamic_cast<TableData const *>(td);
+      if (tbld)
+        res.context = untable(tbld);
+      else
+        res.context = td->text();
       res.cre = td->created();
       res.mod = td->modified();
       int i0 = res.context.indexOf(phrase, 0, Qt::CaseInsensitive);
@@ -55,7 +76,10 @@ void Search::addToResults(QList<SearchResult> &dest, QString phrase,
       }
       dest << res;      
     }
-    addToResults(dest, phrase, entryTitle, d, entryPage, dataPage);
+    GfxNoteData const *nd = dynamic_cast<GfxNoteData const *>(d);
+    int childSheet = nd ? nd->sheet() : -1;
+    int childPage = childSheet>=0 ? entryPage + childSheet : dataPage;
+    addToResults(dest, phrase, entryTitle, d, entryPage, childPage);
   }
 }
 
@@ -72,6 +96,8 @@ QList<SearchResult> Search::immediatelyFindPhrase(QString phrase) const {
       ef = ::loadPage(book->filePath("pages"), pgno, 0);
     ASSERT(ef);
     QString ttl = ef->data()->titleText();
+    foreach (TitleData const *bd, ef->data()->children<TitleData>())
+      addToResults(results, phrase, ttl, bd, pgno, pgno);
     foreach (BlockData const *bd, ef->data()->children<BlockData>())
       addToResults(results, phrase, ttl, bd, pgno, pgno + bd->sheet());
     if (!preloaded)
@@ -126,6 +152,11 @@ void Search::run() {
     EntryFile *ef = ::loadPage(book->filePath("pages"), pgno, this);
     ASSERT(ef);
     QString ttl = ef->data()->titleText();
+    foreach (TitleData const *bd, ef->data()->children<TitleData>()) {
+      mutex.lock();
+      addToResults(results, phrase, ttl, bd, pgno, pgno);
+      mutex.unlock();
+    }
     foreach (BlockData const *bd, ef->data()->children<BlockData>()) {
       mutex.lock();
       addToResults(results, phrase, ttl, bd, pgno, pgno + bd->sheet());
