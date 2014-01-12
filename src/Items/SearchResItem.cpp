@@ -1,0 +1,151 @@
+// SearchResItem.cpp
+
+#include "SearchResItem.H"
+#include "Search.H"
+#include <QGraphicsTextItem>
+#include <QTextDocument>
+#include <QTextCursor>
+#include <QDebug>
+#include <QGraphicsSceneMouseEvent>
+
+SearchResItem::SearchResItem(TOCEntry *data, BaseScene *parent):
+  TOCItem(data, parent) {
+}
+
+SearchResItem::~SearchResItem() {
+}
+
+void SearchResItem::reset() {
+  foreach (QGraphicsTextItem *i, items)
+    delete i;
+  items.clear();
+  ytop.clear();
+  pgno.clear();
+}
+
+void SearchResItem::addResult(class SearchResult const &res,
+                              QGraphicsItem *parent) {
+  ASSERT(parent);
+  double h0 = parent->childrenBoundingRect().bottom();
+  QGraphicsTextItem *ti = new QGraphicsTextItem(parent);
+  ti->setFont(style().font("search-result-font"));
+  QString clr;
+  switch  (res.type) {
+  case SearchResult::InTextBlock: clr = "text"; break;
+  case SearchResult::InTableBlock: clr = "text"; break;
+  case SearchResult::InGfxNote: clr = "note-text"; break;
+  case SearchResult::InLateNote: clr = "latenote-text"; break;
+  case SearchResult::InFootnote: clr = "footnote-def"; break;
+  default: clr = "text"; break;
+  }
+  ti->setDefaultTextColor(style().color(clr + "-color"));
+  fillText(ti->document(), res);
+  ti->setPos(style().real("margin-left"), h0 - ti->boundingRect().top());
+  ti->setTextWidth(style().real("page-width") 
+                   - style().real("margin-left")
+                   - style().real("margin-right"));
+  items << ti;
+  ytop << h0;
+  pgno << res.page;
+}
+
+
+int SearchResItem::refineBreak(QString s, int idx) {
+  if (idx<0)
+    return idx;
+  return s.indexOf(QRegExp("\\s"), idx);
+}
+
+int SearchResItem::decentBreak(QString s, int first, int last) {
+  if (first<0)
+    first = 0;
+  int idx = s.indexOf(".", first);
+  idx = refineBreak(s, idx);
+  if (idx>=0 && idx<last) 
+    return idx;
+
+  idx = s.indexOf(QRegExp("[!?][^)]"), first);
+  idx = refineBreak(s, idx);
+  if (idx>=0 && idx<last) 
+    return idx;
+
+  idx = s.indexOf(QRegExp("[!?,;]"), first);
+  idx = refineBreak(s, idx);
+  if (idx>=0 && idx<last) 
+    return idx;
+
+  idx = s.indexOf(QRegExp(QString::fromUtf8("[])”’]")), first);
+  idx = refineBreak(s, idx);
+  if (idx>=0 && idx<last) 
+    return idx;
+
+  idx = s.indexOf(QRegExp("\\s"), first);
+  if (idx>=0 && idx<last) 
+    return idx;
+
+  return -1;
+}
+
+void SearchResItem::fillText(QTextDocument *doc, SearchResult const &res) {
+  doc->clear();
+  bool nextpredone = false;
+  for (int k=0; k<res.whereInContext.size(); k++) {
+    int strt = res.whereInContext[k];
+    int end = strt + res.phrase.size();
+    if (!nextpredone) {
+      int prebreak = decentBreak(res.context, strt - 80, strt - 40);
+      if (prebreak<0)
+        prebreak = 0;
+      QTextCursor c(doc);
+      c.movePosition(QTextCursor::End);
+      if (prebreak>0)
+        c.insertText(QString::fromUtf8("…"));
+      c.insertText(res.context.mid(prebreak, strt-prebreak));
+    }
+
+    QTextCursor c(doc);
+    c.movePosition(QTextCursor::End);
+    int m0 = c.position();
+    c.insertText(res.phrase);
+    int m1 = c.position();
+
+    int postbreak = (k<res.whereInContext.size()-1)
+      ? decentBreak(res.context, end + 80, end + 120)
+      : decentBreak(res.context, end + 40, end + 80);
+    if (postbreak<0) {
+      postbreak = (k<res.whereInContext.size()-1)
+        ? res.whereInContext[k+1]
+        : res.context.size();
+      nextpredone = true;     
+    } else {
+      nextpredone = false;
+    }
+
+    c.movePosition(QTextCursor::End);
+    c.insertText(res.context.mid(end, postbreak-end));
+
+    c.setPosition(m0);
+    c.setPosition(m1, QTextCursor::KeepAnchor);
+    QTextCharFormat f = c.charFormat();
+    f.setBackground(style().color("search-result-background-color"));
+    c.setCharFormat(f);
+  }
+  if (!nextpredone) {
+    QTextCursor c(doc);
+    c.movePosition(QTextCursor::End);
+    c.insertText(QString::fromUtf8(" …"));
+  }
+}
+
+void SearchResItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
+  int pg = -1;
+  for (int k=0; k<items.size(); k++) 
+    if (e->pos().y() >= ytop[k])
+      pg = pgno[k];
+  if (pg>=0) {
+    qDebug() << "SearchResItem: clicked " << pg;
+    emit clicked(pg);
+  } else {
+    TOCItem::mousePressEvent(e);
+  }
+}
