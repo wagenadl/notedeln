@@ -22,7 +22,6 @@
 #include "EntryScene.H"
 #include "Assert.H"
 #include "Toolbars.H"
-#include "SimpleNavbar.H"
 
 #include <QPrinter>
 #include <QPrintDialog>
