@@ -45,6 +45,7 @@ PageView::PageView(Notebook *nb, QWidget *parent):
   overlay = 0;
   toolbars = new Toolbars(mode(), 0); // toolbars is unparented except when viewing a page
   connect(toolbars->navbar(), SIGNAL(goTOC()), SLOT(gotoTOC()));
+  connect(toolbars->navbar(), SIGNAL(goFind()), SLOT(openFindDialog()));
   connect(toolbars->navbar(), SIGNAL(goEnd()), SLOT(lastPage()));
   connect(toolbars->navbar(), SIGNAL(goRelative(int)), SLOT(goRelative(int)));
   searchDialog = new SearchDialog(this);
@@ -175,7 +176,7 @@ void PageView::keyPressEvent(QKeyEvent *e) {
     break;
   case Qt::Key_F:
     if (e->modifiers() & Qt::ControlModifier)
-      searchDialog->newSearch();
+      openFindDialog();
     else
       take = false;
     break;
@@ -544,4 +545,8 @@ void PageView::setOverlay(QGraphicsItem *ovr) {
   overlay = ovr;
   if (overlay)
     scene()->addItem(ovr);
+}
+
+void PageView::openFindDialog() {
+  searchDialog->newSearch();
 }

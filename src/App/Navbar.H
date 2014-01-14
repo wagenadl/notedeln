@@ -29,6 +29,7 @@ public:
   virtual ~Navbar();
 signals:
   void goTOC();
+  void goFind();
   void goEnd();
   void goRelative(int); // forward by n pages (n may be negative)
 protected:

@@ -37,6 +37,7 @@ public slots:
   void goRelative(int n);
   void previousPage();
   void lastPage();
+  void openFindDialog();
 public:
   class Mode *mode() const;
   class Notebook *notebook() const;

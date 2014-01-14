@@ -18,17 +18,24 @@
 
 #include "ToolItem.H"
 #include "Toolbar.H"
+#include "Style.H"
 #include <QSvgRenderer>
 #include <QGraphicsSceneMouseEvent>
 #include <QPainter>
+#include <QTimer>
+#include <QTextDocument>
+#include <QGraphicsScene>
 
 #define TOOLSIZE 31.5
 #define TOOLRAD 3.0
 #define HOVERDX 1.5
 #define HOVERDX1 0.5
 #define SHRINK 1
+#define POPUPDELAY 1500
 
 ToolItem::ToolItem(): QGraphicsObject() {
+  popupDelay = 0;
+  balloon = 0;
   svg = 0;
   sel = false;
   hov = false;
@@ -61,6 +68,10 @@ QRectF ToolItem::boundingRect() const {
 void ToolItem::paintContents(QPainter *p) {
   if (svg) 
     svg->render(p, boundingRect());
+}
+
+void ToolItem::setBalloonHelpText(QString txt) {
+  helpText = txt;
 }
 
 void ToolItem::paint(QPainter *p, const QStyleOptionGraphicsItem *, QWidget *) {
@@ -110,15 +121,37 @@ void ToolItem::paint(QPainter *p, const QStyleOptionGraphicsItem *, QWidget *) {
   paintContents(p);
 }
 
-void ToolItem::hoverEnterEvent(QGraphicsSceneHoverEvent *) {
+void ToolItem::hoverEnterEvent(QGraphicsSceneHoverEvent *e) {
   hov = true;
   update();
+  if (!helpText.isEmpty()) {
+    if (popupDelay==0) {
+      popupDelay = new QTimer(this);
+      popupDelay->setSingleShot(true);
+      connect(popupDelay, SIGNAL(timeout()), SLOT(popup()));
+    }
+    popupDelay->start(POPUPDELAY);
+    popupPos = e->pos();
+  }
 }
 
 void ToolItem::hoverLeaveEvent(QGraphicsSceneHoverEvent *) {
   hov = false;
   update();
+  if (popupDelay)
+    popupDelay->stop();
+  if (balloon)
+    delete balloon;
+  balloon = 0;
 }
+
+void ToolItem::hoverMoveEvent(QGraphicsSceneHoverEvent *e) {
+  if (!helpText.isEmpty()) {
+    if (popupDelay) 
+      popupDelay->start(POPUPDELAY);
+    popupPos = e->pos();
+  }
+}   
 
 void ToolItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *e) {
   emit release();
@@ -140,3 +173,31 @@ void ToolItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
     break;
   }
 }
+
+ void ToolItem::popup() {
+   if (balloon)
+     return;
+   if (helpText.isEmpty())
+     return;
+   if (!scene())
+     return;
+
+   Style const &style = Style::defaultStyle();
+   
+   QGraphicsTextItem *ti = new QGraphicsTextItem(this);
+   ti->document()->setDefaultFont(style.font("popup-font"));
+   ti->setZValue(1);
+   ti->setPlainText(helpText);
+   if (ti->boundingRect().width()>500)
+     ti->setTextWidth(500);
+   double margin = style.real("popup-margin");
+   QGraphicsRectItem *rect
+     = scene()->addRect(ti->boundingRect().adjusted(-margin, -margin,
+						    margin, margin),
+			QPen(), style.color("popup-background-color"));
+
+   ti->setParentItem(rect);
+   rect->setPos(mapToScene(popupPos + QPointF(10, 10)));
+   // How to pick font etc?
+   balloon = rect;
+ }

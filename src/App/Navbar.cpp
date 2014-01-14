@@ -20,6 +20,7 @@
 #include "ToolItem.H"
 
 #define NAV_TOC "toc"
+#define NAV_FIND "find"
 #define NAV_PREV "prev"
 #define NAV_NEXT "next"
 #define NAV_P10 "p10"
@@ -31,25 +32,36 @@ Navbar::Navbar(QGraphicsItem *parent): Toolbar(parent) {
   
   ToolItem *t = new ToolItem();
   t->setSvg(":icons/nav-toc.svg");
+  t->setBalloonHelpText("Go to table of contents");
   addTool(NAV_TOC, t);
 
   t = new ToolItem();
+  t->setSvg(":icons/nav-find.svg");
+  t->setBalloonHelpText("Search for phrase anywhere in notebook");
+  addTool(NAV_FIND, t);
+  
+  t = new ToolItem();
   t->setSvg(":icons/nav-p10.svg");
+  t->setBalloonHelpText("Flip back 10 pages");
   addTool(NAV_P10, t);
 
   t = new ToolItem();
+  t->setBalloonHelpText("Go to previous page");
   t->setSvg(":icons/nav-prev.svg");
   addTool(NAV_PREV, t);
 
   t = new ToolItem();
+  t->setBalloonHelpText("Go to next page");
   t->setSvg(":icons/nav-next.svg");
   addTool(NAV_NEXT, t);
 
   t = new ToolItem();
+  t->setBalloonHelpText("Flip forward 10 pages");
   t->setSvg(":icons/nav-n10.svg");
   addTool(NAV_N10, t);
 
   t = new ToolItem();
+  t->setBalloonHelpText("Go to last page");
   t->setSvg(":icons/nav-end.svg");
   addTool(NAV_END, t);
 }
@@ -61,6 +73,8 @@ Navbar::~Navbar() {
 void Navbar::doLeftClick(QString s) {
   if (s==NAV_TOC)
     emit goTOC();
+  else if (s==NAV_FIND)
+    emit goFind();
   else if (s==NAV_P10)
     emit goRelative(-10);
   else if (s==NAV_PREV)

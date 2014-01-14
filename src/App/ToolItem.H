@@ -26,6 +26,7 @@ class ToolItem: public QGraphicsObject {
   Q_OBJECT;
 public:
   ToolItem();
+  void setBalloonHelpText(QString);
   virtual ~ToolItem();
   bool isSelected() const;
   void setSelected(bool);
@@ -40,12 +41,19 @@ signals:
 protected:
   void hoverEnterEvent(QGraphicsSceneHoverEvent *);
   void hoverLeaveEvent(QGraphicsSceneHoverEvent *);
+  void hoverMoveEvent(QGraphicsSceneHoverEvent *);
   void mousePressEvent(QGraphicsSceneMouseEvent *);
   void mouseReleaseEvent(QGraphicsSceneMouseEvent *);
+private slots:
+  void popup();
 private:
   bool sel;
   bool hov;
   class QSvgRenderer *svg;
+  class QTimer *popupDelay;
+  QString helpText;
+  QPointF popupPos;
+  QGraphicsItem *balloon;
 };
 
 #endif
