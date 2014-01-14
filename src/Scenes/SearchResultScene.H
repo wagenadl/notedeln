@@ -10,7 +10,7 @@
 class SearchResultScene: public BaseScene {
   Q_OBJECT;
 public:
-  SearchResultScene(QString title, QList<SearchResult> results,
+  SearchResultScene(QString phrase, QString title, QList<SearchResult> results,
                     Data *data, QObject *parent=0);
   virtual ~SearchResultScene();
   void update(QList<SearchResult> results);
@@ -18,8 +18,9 @@ public:
   virtual QString title() const;
 public slots:
   void gotoSheet(int);
+  void pageNumberClick(int);
 signals:
-  void pageNumberClicked(int);
+  void pageNumberClicked(int, QString);
 protected:
   virtual QString pgNoToString(int) const;
   virtual void makeContdItems();
@@ -27,6 +28,7 @@ private:
   Style const &style() const;
 private:
   Notebook *book;
+  QString phrase;
   QString ttl;
   QList<SearchResult> results;
   QList<class SearchResItem *> headers; // one for each entry with a result

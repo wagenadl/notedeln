@@ -7,9 +7,12 @@
 #include "SearchResultScene.H"
 #include "SearchView.H"
 #include "BookData.H"
+#include "FindOverlay.H"
+
 #include <QInputDialog>
 #include <QProgressDialog>
 #include <QMessageBox>
+#include <QDebug>
 
 SearchDialog::SearchDialog(PageView *parent): QObject(parent) {
   pgView = parent;
@@ -44,13 +47,14 @@ void SearchDialog::newSearch() {
                              .arg(phrase));
   } else {
     SearchResultScene *scene
-      = new SearchResultScene(QString::fromUtf8("Search results for “%1”")
+      = new SearchResultScene(phrase,
+			      QString::fromUtf8("Search results for “%1”")
                               .arg(phrase),
                               res,
                               pgView->notebook()->bookData());
     scene->populate();
-    connect(scene, SIGNAL(pageNumberClicked(int)),
-            this, SLOT(gotoPage(int)));
+    connect(scene, SIGNAL(pageNumberClicked(int, QString)),
+            this, SLOT(gotoPage(int, QString)));
     SearchView *view = new SearchView(scene);
     delete progress;
     
@@ -60,8 +64,10 @@ void SearchDialog::newSearch() {
     view->show();
   }
 }
-                                         
-void SearchDialog::gotoPage(int n) {
+
+void SearchDialog::gotoPage(int n, QString phrase) {
   pgView->gotoEntryPage(n);
   pgView->window()->raise();
+  qDebug() << "gotoPage" << n << phrase;
+  pgView->setOverlay(new FindOverlay(pgView->scene(), phrase));
 }

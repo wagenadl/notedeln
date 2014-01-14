@@ -42,6 +42,7 @@
 
 PageView::PageView(Notebook *nb, QWidget *parent):
   QGraphicsView(parent), book(nb) {
+  overlay = 0;
   toolbars = new Toolbars(mode(), 0); // toolbars is unparented except when viewing a page
   connect(toolbars->navbar(), SIGNAL(goTOC()), SLOT(gotoTOC()));
   connect(toolbars->navbar(), SIGNAL(goEnd()), SLOT(lastPage()));
@@ -533,4 +534,14 @@ void PageView::notebookReloaded(QMap<int, int>) {
     gotoEntryPage(currentPage, -1);
     break;
   }
+}
+
+void PageView::setOverlay(QGraphicsItem *ovr) {
+  if (overlay) {
+    delete overlay;
+    overlay = 0;
+  }
+  overlay = ovr;
+  if (overlay)
+    scene()->addItem(ovr);
 }

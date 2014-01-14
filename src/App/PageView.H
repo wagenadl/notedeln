@@ -40,6 +40,7 @@ public slots:
 public:
   class Mode *mode() const;
   class Notebook *notebook() const;
+  void setOverlay(QGraphicsItem *overlay); // removes previous overlay
 protected:
   void resizeEvent(QResizeEvent *);
   void keyPressEvent(QKeyEvent *);
@@ -73,6 +74,7 @@ private:
   int wheelDeltaAccum;
   int wheelDeltaStepSize;
   class SearchDialog *searchDialog;
+  QGraphicsItem *overlay;
 };
 
 #endif

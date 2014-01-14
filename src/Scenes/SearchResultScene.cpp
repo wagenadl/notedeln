@@ -7,10 +7,13 @@
 #include <QTextDocument>
 #include <QTextCursor>
 #include "Roman.H"
+#include <QDebug>
 
-SearchResultScene::SearchResultScene(QString title, QList<SearchResult> results,
+SearchResultScene::SearchResultScene(QString phrase, QString title,
+				     QList<SearchResult> results,
                                      Data *data, QObject *parent):
-  BaseScene(data, parent), ttl(title), results(results) {
+  BaseScene(data, parent), phrase(phrase), ttl(title), results(results) {
+  qDebug() << "SearchResultScene" << phrase;
   book = data->book();
 }
 
@@ -51,7 +54,7 @@ void SearchResultScene::populate() {
       oldPage = r.startPageOfEntry;
       //connect(i, SIGNAL(vboxChanged()), SLOT(itemChanged()));
       connect(headers.last(), SIGNAL(clicked(int)),
-              SIGNAL(pageNumberClicked(int)));
+              SLOT(pageNumberClick(int)));
       if (y > y0 && y + headers.last()->childrenBoundingRect().height() > y1) {
         y = y0;
         sheet += 1;
@@ -100,3 +103,10 @@ void SearchResultScene::makeContdItems() {
   BaseScene::makeContdItems();
   contdItem->setPos(4, style().real("margin-top"));
 }
+
+void SearchResultScene::pageNumberClick(int pg) {
+  qDebug() << "pagenumberclick" << pg << phrase;
+  emit pageNumberClicked(pg, phrase);
+}
+
+  

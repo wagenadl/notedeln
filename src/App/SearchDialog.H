@@ -14,7 +14,7 @@ public:
 public slots:
   void newSearch();
 private slots:
-  void gotoPage(int n);
+  void gotoPage(int n, QString phrase);
 private:
   class PageView *pgView;
   QString lastPhrase;

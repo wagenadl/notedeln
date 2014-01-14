@@ -40,7 +40,7 @@ protected:
   virtual void hoverLeaveEvent(QGraphicsSceneHoverEvent *);
 private slots:
   void downloadFinished();
-private:
+protected:
   QString refText() const;
   void calcBounds() const;
   void openLink();
@@ -51,6 +51,7 @@ private:
   class Resource *resource() const;
   void activate(QGraphicsSceneMouseEvent *);
   void openPage();
+  QPainterPath const &boundingPath() const { return bounds; }
 private:
   MarkupData *md;
   TextItem *ti;

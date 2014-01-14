@@ -114,7 +114,9 @@ void HoverRegion::hoverEnterEvent(QGraphicsSceneHoverEvent *e) {
     return;
   }
   QString txt = refText();
-  Resource *r = md->resManager()->byTag(txt);
+  if (txt.isEmpty())
+    return;
+  Resource *r = resource();
   if (r)
     popper = new PreviewPopper(r, e->screenPos(), this);
 }
