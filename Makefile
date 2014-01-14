@@ -21,4 +21,5 @@ inst: all
 	install webgrab/webgrab $(INSTALLPATH)/webgrab
 
 deb:	all
-	debuild -us -uc
+	debuild -us -uc -Idebug -Irelease -I.bzr -Ieln -Ieln_debug -Iwebgrab/webgrab -Irepairtoc/eln-repairtoc -Ifrontimage.xcf
+
