@@ -143,6 +143,7 @@
 "search-result-background-color": "#40ff80",
 "popup-font-family": "Ubuntu",
 "popup-font-size": 11,
-"popup-margin": 5,
+"popup-margin": 3,
+"popup-delay": 1.0,
 "popup-background-color": "#ffffc0"
 }

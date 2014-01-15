@@ -25,22 +25,22 @@
 Modebar::Modebar(Mode *mode, QGraphicsItem *parent):
   Toolbar(parent), mode(mode) {
   ToolItem *t0 = new ToolItem();
-  t0->setBalloonHelpText("In Browse mode, single clicks follow links and content cannot be edited.");
+  t0->setBalloonHelpText(":mode-browse");
   t0->setSvg(":icons/browse.svg");
   addTool(modeToId(Mode::Browse), t0);
 
   ToolItem *t = new ToolItem();
-  t->setBalloonHelpText("In Type mode, text can be edited.");
+  t->setBalloonHelpText(":mode-type");
   t->setSvg(":icons/type.svg");
   addTool(modeToId(Mode::Type), t);
 
   t = new ToolItem();
-  t->setBalloonHelpText("In Move mode, items on a graphics canvas can be moved around or resized by dragging.");
+  t->setBalloonHelpText(":mode-move");
   t->setSvg(":icons/move.svg");
   addTool(modeToId(Mode::MoveResize), t);
 
   MarkSizeItem *mst = new MarkSizeItem(mode->markSize());
-  mst->setBalloonHelpText("In Mark mode, marks of various sizes and shapes can be added to graphics canvases.");
+  mst->setBalloonHelpText(":mode-mark");
   mst->setShape(mode->shape());
   mst->setColor(mode->color());
   addTool(modeToId(Mode::Mark), mst);
@@ -52,7 +52,7 @@ Modebar::Modebar(Mode *mode, QGraphicsItem *parent):
 	  mst, SLOT(setColor(QColor)));
 
   LineWidthItem *lwt = new LineWidthItem(mode->lineWidth());
-  lwt->setBalloonHelpText("In Line mode, freehand lines can be drawn on graphics canvases.");
+  lwt->setBalloonHelpText(":mode-freehand");
   connect(mode, SIGNAL(colorChanged(QColor)),
 	  lwt, SLOT(setColor(QColor)));
   connect(mode, SIGNAL(lineWidthChanged(double)),
@@ -60,27 +60,27 @@ Modebar::Modebar(Mode *mode, QGraphicsItem *parent):
   addTool(modeToId(Mode::Freehand), lwt);
   
   t = new ToolItem();
-  t->setBalloonHelpText("In Annotate mode, new notes can be added at arbitrary positions on the page. (Edit existing notes using Type mode.)");
+  t->setBalloonHelpText(":mode-annotate");
 t->setSvg(":icons/note.svg");
   addTool(modeToId(Mode::Annotate), t);
 
   t = new ToolItem();
-  t->setBalloonHelpText("In Highlight mode, dragging the mouse over existing text causes it to be highlighted.");
+  t->setBalloonHelpText(":mode-highlight");
   t->setSvg(":icons/highlight.svg");
   addTool(modeToId(Mode::Highlight), t);
 
   t = new ToolItem();
-  t->setBalloonHelpText("In Strike out mode, dragging the mouse over existing text causes it to be struck out.");
+  t->setBalloonHelpText(":mode-strikeout");
   t->setSvg(":icons/strikeout.svg");
   addTool(modeToId(Mode::Strikeout), t);
 
   t = new ToolItem();
-  t->setBalloonHelpText("In Cleanup mode, dragging the mouse over existing text removes highlighting and strike outs.");
+  t->setBalloonHelpText(":mode-plain");
   t->setSvg(":icons/plain.svg");
   addTool(modeToId(Mode::Plain), t);
 
   t = new ToolItem();
-  t->setBalloonHelpText("In Table mode, clicking on the page creates a new table. (Tables can be edited in Type mode. Use Tab and Enter in combination with Shift and Control to navigate tables.)");
+  t->setBalloonHelpText(":mode-table");
   t->setSvg(":icons/table.svg");
   addTool(modeToId(Mode::Table), t);
 

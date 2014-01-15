@@ -18,9 +18,11 @@
 
 #include "ToolItem.H"
 #include "Toolbar.H"
+#include "Translate.H"
 #include "Style.H"
 #include <QSvgRenderer>
 #include <QGraphicsSceneMouseEvent>
+#include <QGraphicsDropShadowEffect>
 #include <QPainter>
 #include <QTimer>
 #include <QTextDocument>
@@ -31,7 +33,6 @@
 #define HOVERDX 1.5
 #define HOVERDX1 0.5
 #define SHRINK 1
-#define POPUPDELAY 1500
 
 ToolItem::ToolItem(): QGraphicsObject() {
   popupDelay = 0;
@@ -71,6 +72,8 @@ void ToolItem::paintContents(QPainter *p) {
 }
 
 void ToolItem::setBalloonHelpText(QString txt) {
+  if (txt.startsWith(":"))
+    txt = Translate::_("balloon-" + txt.mid(1));
   helpText = txt;
 }
 
@@ -130,7 +133,7 @@ void ToolItem::hoverEnterEvent(QGraphicsSceneHoverEvent *e) {
       popupDelay->setSingleShot(true);
       connect(popupDelay, SIGNAL(timeout()), SLOT(popup()));
     }
-    popupDelay->start(POPUPDELAY);
+    popupDelay->start(int(Style::defaultStyle().real("popup-delay")*1000));
     popupPos = e->pos();
   }
 }
@@ -148,7 +151,7 @@ void ToolItem::hoverLeaveEvent(QGraphicsSceneHoverEvent *) {
 void ToolItem::hoverMoveEvent(QGraphicsSceneHoverEvent *e) {
   if (!helpText.isEmpty()) {
     if (popupDelay) 
-      popupDelay->start(POPUPDELAY);
+      popupDelay->start();
     popupPos = e->pos();
   }
 }   
@@ -187,14 +190,20 @@ void ToolItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
    QGraphicsTextItem *ti = new QGraphicsTextItem(this);
    ti->document()->setDefaultFont(style.font("popup-font"));
    ti->setZValue(1);
-   ti->setPlainText(helpText);
+   ti->setHtml(helpText);
    if (ti->boundingRect().width()>500)
      ti->setTextWidth(500);
    double margin = style.real("popup-margin");
    QGraphicsRectItem *rect
      = scene()->addRect(ti->boundingRect().adjusted(-margin, -margin,
 						    margin, margin),
-			QPen(), style.color("popup-background-color"));
+			QPen(Qt::NoPen),
+			style.color("popup-background-color"));
+   QGraphicsDropShadowEffect *shadow = new QGraphicsDropShadowEffect;
+   shadow->setOffset(3, 3);
+   shadow->setBlurRadius(15);
+   shadow->setColor("black");
+   rect->setGraphicsEffect(shadow);
 
    ti->setParentItem(rect);
    rect->setPos(mapToScene(popupPos + QPointF(10, 10)));

@@ -1,0 +1,19 @@
+{
+"balloon-mode-browse": "Browse contents. Click to follow links.",
+"balloon-mode-type": "Edit text. Click below existing contents to create a new paragraph. Note that contents older than 24 hours can generally not be edited.",
+"balloon-mode-move": "Move notes or objects on a graphics canvas around. Also allows for deletion of objects on a graphics canvas.",
+"balloon-mode-mark": "Place marks of various sizes and shapes on a graphics canvas.",
+"balloon-mode-freehand": "Draw freehand lines on a graphics canvas.",
+"balloon-mode-annotate": "Add notes at arbitrary positions on the page. (Edit existing notes using Type mode (“<font color=\"blue\">A</font>❘” icon).",
+"balloon-mode-highlight": "Drag the mouse over existing text to highlight it.",
+"balloon-mode-strikeout": "Drag the mouse over existing text to strike it out.",
+"balloon-mode-plain": "Drag the mouse over existing text to remove highlighting and strike outs.",
+"balloon-mode-table": "Click below existing contents to create a new table. (Tables can be edited in Type mode (“<font color=\"blue\">A</font>❘” icon). Use Tab and Enter in combination with Shift and Control to navigate tables.)",
+"balloon-nav-toc": "Go to table of contents.",
+"balloon-nav-find": "Search for phrase anywhere in notebook.",
+"balloon-nav-p10": "Flip back 10 pages.",
+"balloon-nav-prev": "Go to previous page.",
+"balloon-nav-next": "Go to next page.",
+"balloon-nav-n10": "Flip forward 10 pages.",
+"balloon-nav-end": "Go to last page."
+}

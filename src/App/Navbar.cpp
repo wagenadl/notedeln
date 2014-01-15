@@ -32,37 +32,37 @@ Navbar::Navbar(QGraphicsItem *parent): Toolbar(parent) {
   
   ToolItem *t = new ToolItem();
   t->setSvg(":icons/nav-toc.svg");
-  t->setBalloonHelpText("Go to table of contents");
+  t->setBalloonHelpText(":nav-toc");
   addTool(NAV_TOC, t);
 
   t = new ToolItem();
   t->setSvg(":icons/nav-find.svg");
-  t->setBalloonHelpText("Search for phrase anywhere in notebook");
+  t->setBalloonHelpText(":nav-find");
   addTool(NAV_FIND, t);
   
   t = new ToolItem();
   t->setSvg(":icons/nav-p10.svg");
-  t->setBalloonHelpText("Flip back 10 pages");
+  t->setBalloonHelpText(":nav-p10");
   addTool(NAV_P10, t);
 
   t = new ToolItem();
-  t->setBalloonHelpText("Go to previous page");
   t->setSvg(":icons/nav-prev.svg");
+  t->setBalloonHelpText(":nav-prev");
   addTool(NAV_PREV, t);
 
   t = new ToolItem();
-  t->setBalloonHelpText("Go to next page");
   t->setSvg(":icons/nav-next.svg");
+  t->setBalloonHelpText(":nav-next");
   addTool(NAV_NEXT, t);
 
   t = new ToolItem();
-  t->setBalloonHelpText("Flip forward 10 pages");
   t->setSvg(":icons/nav-n10.svg");
+  t->setBalloonHelpText(":nav-n10");
   addTool(NAV_N10, t);
 
   t = new ToolItem();
-  t->setBalloonHelpText("Go to last page");
   t->setSvg(":icons/nav-end.svg");
+  t->setBalloonHelpText(":nav-end");
   addTool(NAV_END, t);
 }
 
