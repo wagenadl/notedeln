@@ -15,7 +15,7 @@
 #endif
 
 BackgroundVC::BackgroundVC(QObject *parent): QObject(parent) {
-  bzr = 0;
+  vc = 0;
   guard = 0;
   maxt_s = 300;
   block = 0;
@@ -23,7 +23,7 @@ BackgroundVC::BackgroundVC(QObject *parent): QObject(parent) {
 }
   
 BackgroundVC::~BackgroundVC() {
-  if (bzr) {
+  if (vc) {
     qDebug() << "CAUTION! BackgroundVC deleted while still running!";
   }
 }
@@ -33,11 +33,11 @@ void BackgroundVC::setTimeout(int s) {
 }
 
 bool BackgroundVC::commit(QString path1, QString program1) {
-  if (program1 != "bzr") {
-    qDebug() << "BackgroundVC can only do bzr";
+  if (program1!="bzr" && program1!="git") {
+    qDebug() << "BackgroundVC can only do bzr and git";
     return false;
   }
-  if (bzr) {
+  if (vc) {
     qDebug() << "BackgroundVC can only do one task at once";
     return false;
   }
@@ -55,45 +55,49 @@ bool BackgroundVC::commit(QString path1, QString program1) {
 
   block = new DFBlocker(this);
 
-  bzr = new QProcess(this);
+  vc = new QProcess(this);
   step = 0;
-  bzr->setWorkingDirectory(path);
-  connect(bzr, SIGNAL(finished(int, QProcess::ExitStatus)),
+  vc->setWorkingDirectory(path);
+  connect(vc, SIGNAL(finished(int, QProcess::ExitStatus)),
           SLOT(processFinished()));
-  connect(bzr, SIGNAL(readyReadStandardError()),
+  connect(vc, SIGNAL(readyReadStandardError()),
           SLOT(processStderr()));
-  connect(bzr, SIGNAL(readyReadStandardOutput()),
+  connect(vc, SIGNAL(readyReadStandardOutput()),
           SLOT(processStdout()));
-  QStringList args; args << "add";
-  bzr->start("bzr", args);
-  bzr->closeWriteChannel();
-  qDebug() << "BackgroundVC: started bzr" << args;
+  if (program=="bzr") 
+    vc->start("bzr", QStringList() << "add");
+ else if (program=="git")
+   vc->start("git", QStringList() << "add" << "-A");
+ else
+   qDebug() << "BackgroundVC: WHATVC!?!?" << program;
+  vc->closeWriteChannel();
+  qDebug() << "BackgroundVC: started vc add";
   return true;
 }
 
 void BackgroundVC::processStderr() {
-  if (bzr)
+  if (vc)
     qDebug() << "BackgroundVC: (stderr) "
-             << QString(bzr->readAllStandardError());
+             << QString(vc->readAllStandardError());
 }
 
 void BackgroundVC::processStdout() {
-  if (bzr)
+  if (vc)
     qDebug() << "BackgroundVC: (stdout) "
-             << QString(bzr->readAllStandardOutput());
+             << QString(vc->readAllStandardOutput());
 }
 
 void BackgroundVC::timeout() {
-  if (!bzr)
+  if (!vc)
     return;
 
   qDebug() << "BackgroundVC: timeout";
 
 #ifdef Q_OS_LINUX
-  ::kill(bzr->pid(), SIGINT);
-  // Killing bzr with INT produces cleaner exit than with TERM...
+  ::kill(vc->pid(), SIGINT);
+  // Killing vc with INT produces cleaner exit than with TERM...
 #else
-  bzr->kill();
+  vc->kill();
   // ... but if we don't have POSIX, we have no choice.
 #endif
 
@@ -103,46 +107,49 @@ void BackgroundVC::timeout() {
 void BackgroundVC::cleanup(bool ok) {
   ASSERT(guard);
   ASSERT(block);
-  ASSERT(bzr);
+  ASSERT(vc);
   guard->stop();
   block->deleteLater();
   block = 0;
-  bzr->deleteLater();
-  bzr = 0;
+  vc->deleteLater();
+  vc = 0;
   qDebug() << "BackgroundVC: done " << ok;
   emit(done(ok));
 }
 
 void BackgroundVC::processFinished() {
-  if (!bzr)
+  if (!vc)
     return;
 
-  if (bzr->exitCode()) {
-    qDebug() << "BackgroundVC: process exited with code " << bzr->exitCode();
+  if (vc->exitCode()) {
+    qDebug() << "BackgroundVC: process exited with code " << vc->exitCode();
     cleanup(false);
     return;
-  } else if (bzr->exitStatus()!=QProcess::NormalExit) {
+  } else if (vc->exitStatus()!=QProcess::NormalExit) {
     qDebug() << "BackgroundVC: process exited with abnormal status "
-             << bzr->exitStatus();
+             << vc->exitStatus();
     cleanup(false);
     return;
   }
 
   // so we're OK
   if (step==0) {
-    // "add" step completed; let's commit
+    // "add" step completed; let's commit (same for bzr and git)
     step = 1;
-    QStringList args; args << "commit";
-    args << "-mautocommit";
-    bzr->start("bzr", args);
-    bzr->closeWriteChannel();
-    qDebug() << "BackgroundVC: started bzr" << args;
+    vc->start(program, QStringList() << "commit" << "-mautocommit");
+    vc->closeWriteChannel();
+    qDebug() << "BackgroundVC: started vc commit";
+  } else if (step==1 && program=="git") {
+    step = 2;
+    vc->start(program, QStringList() << "push");
+    vc->closeWriteChannel();
+    qDebug() << "BackgroundVC: started vc push";
   } else {
-    // "commit" step completed. hurray!
+    // final step completed. hurray!
     cleanup(true);
   }
 }
 
 bool BackgroundVC::isBusy() const {
-  return bzr!=0;
+  return vc!=0;
 }

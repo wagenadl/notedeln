@@ -25,7 +25,7 @@ private slots:
 private:
   void cleanup(bool ok);
 private:
-  class QProcess *bzr;
+  class QProcess *vc;
   class QTimer *guard;
   class DFBlocker *block;
   QString program;
