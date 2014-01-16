@@ -434,7 +434,8 @@ bool TextItem::keyPressAsSpecialEvent(QKeyEvent *e) {
     }
   } else if (QString(",; \n").contains(e->text()) && tryAutoLink()) {
     return false; // don't gobble these keys, so don't return true
-  } else if (style().string("auto-italic-post").contains(e->text())
+  } else if (!(e->text()==" " && (e->modifiers() & Qt::ShiftModifier))
+	     && style().string("auto-italic-post").contains(e->text())
 	     && !e->text().isEmpty()
 	     && tryAutoItalic()) {
     return false; // don't gobble these keys, so don't return true
