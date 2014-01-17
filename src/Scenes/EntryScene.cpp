@@ -874,6 +874,17 @@ int EntryScene::findBlock(Item const *i) const {
 }
 
 int EntryScene::findBlock(QPointF scenepos) const {
+  for (int i=0; i<blockItems.size(); i++) {
+    BlockData const *bd = blockItems[i]->data();
+    if (bd->sheet() == iSheet && bd->y0()<=scenepos.y()
+	&& bd->y0()+bd->height()>=scenepos.y())
+      return i;
+  }
+  return -1;
+}
+
+/*
+int EntryScene::findBlock(QPointF scenepos) const {
   Item *item;
   for (QGraphicsItem *gi = itemAt(scenepos); gi!=0; gi = gi->parentItem()) {
     item = dynamic_cast<Item *>(gi);
@@ -882,6 +893,7 @@ int EntryScene::findBlock(QPointF scenepos) const {
   }
   return -1;
 }
+*/
 
 bool EntryScene::tryToPaste() {
   /* We get it first.
@@ -1124,6 +1136,10 @@ int EntryScene::startPage() const {
   return data_->startPage();
 }
 
+QString EntryScene::title() const {
+  return data_->title()->current()->text();
+}
+
 bool EntryScene::isWritable() const {
   return writable;
 }
@@ -1198,4 +1214,19 @@ QString EntryScene::pgNoToString(int n) const {
     return QString::number(n);
   else
     return QString("%1%2").arg(n0).arg(QChar('a'+n-n0-1));
+}
+
+QList<BlockItem const *> EntryScene::blocks() const {
+  QList<BlockItem const *> bb;
+  foreach (BlockItem *b, blockItems)
+    bb << b;
+  return bb;
+}
+
+QList<FootnoteItem const *> EntryScene::footnotes() const {
+  QList<FootnoteItem const *> ff;
+  foreach (FootnoteGroupItem *fg, footnoteGroups)
+    foreach (FootnoteItem *f, fg->children<FootnoteItem>())
+    ff << f;
+  return ff;
 }

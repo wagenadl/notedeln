@@ -274,13 +274,3 @@ QGraphicsItem *BaseScene::itemAt(const QPointF &p) const {
   return QGraphicsScene::itemAt(p, QTransform());
 }
 
-QString BaseScene::toHtml(bool asPage) {
-  QString html;
-  if (asPage) {
-    html += "<html>\n";
-    html += "<head>\n";
-    html += "<title>" + Qt::escape(title()) + "</title>";
-    html += "</head>\n";
-  }
-  html += "<div class=\"entry\">";
-}

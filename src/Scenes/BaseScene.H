@@ -33,7 +33,6 @@ public:
   virtual bool print(class QPrinter *, class QPainter *,
 		     int firstSheet=0, int lastSheet=100000000);
   // returns true if anything printed
-  virtual QString toHtml(bool asPage=false);
   int currentSheet() const;
   virtual QGraphicsItem *itemAt(const QPointF &position) const;
   virtual int startPage() const;

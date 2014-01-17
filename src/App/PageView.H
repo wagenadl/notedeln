@@ -38,6 +38,7 @@ public slots:
   void previousPage();
   void lastPage();
   void openFindDialog();
+  void htmlDialog();
 public:
   class Mode *mode() const;
   class Notebook *notebook() const;

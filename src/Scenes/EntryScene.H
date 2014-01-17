@@ -43,9 +43,12 @@ public:
   virtual int startPage() const;
   class GfxNoteItem *createNote(QPointF scenePos); // create note by dragging
   class GfxNoteItem *newNote(QPointF scenePos1, QPointF scenePos2=QPointF());
+  virtual QString title() const;
   virtual QString pgNoToString(int) const;
   void clipPgNoAt(int);
   void unlock();
+  QList<class BlockItem const *> blocks() const;
+  QList<class FootnoteItem const *> footnotes() const;
 public slots:
   void notifyChildless(class BlockItem *);
 signals:

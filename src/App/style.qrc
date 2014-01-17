@@ -2,5 +2,6 @@
  <qresource>
      <file>style.json</file>
      <file>front.jpg</file>
+     <file>eln.css</file>
  </qresource>
 </RCC>

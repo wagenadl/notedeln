@@ -35,6 +35,7 @@
 #include "TextItem.H"
 #include "GfxNoteItem.H"
 #include "SearchDialog.H"
+#include "HtmlOutput.H"
 
 #include <QWheelEvent>
 #include <QKeyEvent>
@@ -177,6 +178,13 @@ void PageView::keyPressEvent(QKeyEvent *e) {
   case Qt::Key_F:
     if (e->modifiers() & Qt::ControlModifier)
       openFindDialog();
+    else
+      take = false;
+    break;
+  case Qt::Key_S:
+    if ((e->modifiers() & Qt::ControlModifier)
+	&& (e->modifiers() & Qt::ShiftModifier))
+      htmlDialog();
     else
       take = false;
     break;
@@ -549,4 +557,11 @@ void PageView::setOverlay(QGraphicsItem *ovr) {
 
 void PageView::openFindDialog() {
   searchDialog->newSearch();
+}
+
+void PageView::htmlDialog() {
+  if (currentSection==Entries) {
+    HtmlOutput html("/tmp/eln.html", entryScene->title());
+    html.add(*entryScene);
+  }
 }

@@ -1,0 +1,32 @@
+body { 
+  font-family: ubuntu, serif;
+  font-size: 12pt;
+  background-color: white;
+  color: #0000cc;
+}
+
+a:link { background-color: white; color: blue; text-decoration: none }
+a:visited { background-color: white; color: #0000aa; text-decoration: none }
+a:hover { background-color: white; color: red; text-decoration: none }
+
+.title {
+    font-size: 120%;
+    color: #000088;
+}
+
+.date {
+    text-align: right;
+    margin-top: 0pt;
+    margin-bottom: 5pt;
+    color: #000000;
+}
+
+.textblock {
+    margin-top: 5pt;
+    margin-bottom: 5pt;
+    text-indent: 15pt;
+}
+
+.noindent {
+    text-indent: 0pt;
+}
