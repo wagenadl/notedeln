@@ -246,6 +246,11 @@ bool BaseScene::print(QPrinter *prt, QPainter *p,
     firstSheet=0;
   if (lastSheet>=nSheets)
     lastSheet = nSheets-1;
+  if (lastSheet<nSheets-1
+      && pgNoToString(startPage()+lastSheet+1)
+      .startsWith(pgNoToString(startPage()+lastSheet)))
+    // slightly convoluted way to pick up continuation pages.
+    lastSheet = nSheets-1; 
   int oldSheet = iSheet;
   bool first = true;
   for (int k=firstSheet; k<=lastSheet; k++) {
@@ -267,4 +272,15 @@ int BaseScene::currentSheet() const {
 
 QGraphicsItem *BaseScene::itemAt(const QPointF &p) const {
   return QGraphicsScene::itemAt(p, QTransform());
+}
+
+QString BaseScene::toHtml(bool asPage) {
+  QString html;
+  if (asPage) {
+    html += "<html>\n";
+    html += "<head>\n";
+    html += "<title>" + Qt::escape(title()) + "</title>";
+    html += "</head>\n";
+  }
+  html += "<div class=\"entry\">";
 }

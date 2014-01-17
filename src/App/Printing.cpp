@@ -31,8 +31,8 @@
 
 void PageView::printDialog() {
   /* Nonstandard interpretation of range options:
-     - Current page: only current sheet of current "page"
-     - Selection: all sheets of current "page"
+     - Current page: only current sheet of current entry
+     - Selection: all sheets of current entry
      - From-to range: always ignore front matter
      - All: whole book
   */
