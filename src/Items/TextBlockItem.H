@@ -39,7 +39,7 @@ public:
   virtual ~TextBlockItem();
   DATAACCESS(TextBlockData);
   QTextDocument *document() const;
-  class TextItem *text();
+  class TextItem *text() const;
   void setFocus();
   void clearFocus();
   void acceptFocus(QPointF);

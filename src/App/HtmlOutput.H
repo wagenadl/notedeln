@@ -14,11 +14,18 @@ public:
   HtmlOutput(QString outputFile, QString pageTitle);
   bool ok() const;
   ~HtmlOutput();
-  void add(class EntryScene const &source);
-  void add(class TextBlockItem const &source);
-  void add(class GfxBlockItem const &source);
-  void add(class TableBlockItem const &source);
-  void add(class FootnoteItem const &source);
+  void add(class EntryScene const *source);
+  void add(class TextBlockItem const *source, class ResManager const *resmgr);
+  void add(class GfxBlockItem const *source, ResManager const *resmgr);
+  void add(class TableBlockItem const *source, ResManager const *resmgr);
+  void add(class TextData const *source, ResManager const *resmgr,
+	   int startidx=0, int endidx=-1, QString cls="text");
+  void add(class GfxNoteData const *source, ResManager const *resmgr);
+  void add(class FootnoteData const *source, ResManager const *resmgr);
+private:
+  void addFootnotes(class Data const *source, ResManager const *resmgr);
+  void addGfxNotes(Data const *source, ResManager const *resmgr);
+  void buildGfxRefs(Data const *source, QList<QString> &dst);
 private:
   QFile file;
   QTextStream html;

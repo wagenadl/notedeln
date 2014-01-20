@@ -469,8 +469,8 @@ void PageView::wheelEvent(QWheelEvent *e) {
 
 void PageView::createContinuationEntry() {
   QString newTtl = entryScene->data()->title()->current()->text();
-  if (!newTtl.endsWith(" (cont’d)"))
-    newTtl += " (cont’d)";
+  if (!newTtl.endsWith(QString::fromUtf8(" (cont’d)")))
+    newTtl += QString::fromUtf8(" (cont’d)");
   int oldPage = entryScene->startPage() + entryScene->currentSheet();
   int newPage = book->toc()->newPageNumber();
   Style const &style = book->style();
@@ -495,6 +495,7 @@ void PageView::createContinuationEntry() {
   gotoEntryPage(newPage);
   ASSERT(entryScene);
   // (So now entryScene refers to the new page.)
+  entryScene->data()->title()->revise()->setText(newTtl);
   
   // Create reverse note
   QPointF revNotePos(style.real("margin-left"),
@@ -509,6 +510,9 @@ void PageView::createContinuationEntry() {
   revNoteTI->tryExplicitLink();
   pp = revNote->mapToScene(revNote->netBounds().topRight());
   revNote->translate(revNotePos - pp);
+
+  gotoEntryPage(oldPage);
+  gotoEntryPage(newPage); // pick up new title
 
   mode()->setMode(Mode::Type);
   entryScene->focusTitle();
@@ -562,6 +566,6 @@ void PageView::openFindDialog() {
 void PageView::htmlDialog() {
   if (currentSection==Entries) {
     HtmlOutput html("/tmp/eln.html", entryScene->title());
-    html.add(*entryScene);
+    html.add(entryScene);
   }
 }

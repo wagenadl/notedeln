@@ -167,7 +167,7 @@ void TextBlockItem::paint(QPainter *,
   // text draws itself
 }
 
-TextItem *TextBlockItem::text() {
+TextItem *TextBlockItem::text() const {
   return item_;
 }
 

@@ -5,13 +5,18 @@ body {
   color: #0000cc;
 }
 
-a:link { background-color: white; color: blue; text-decoration: none }
-a:visited { background-color: white; color: #0000aa; text-decoration: none }
+a:link { background-color: white; color: #0088ff; text-decoration: none }
+a:visited { background-color: white; color: #0088ff; text-decoration: none }
 a:hover { background-color: white; color: red; text-decoration: none }
+
+.footnoteref:link { background-color: white; color: #aa0088; text-decoration: none }
+.footnoteref:visited { background-color: white; color: #aa0088; text-decoration: none }
+.footnoteref:hover { background-color: white; color: red; text-decoration: none }
 
 .title {
     font-size: 120%;
     color: #000088;
+    margin-bottom: 20pt;
 }
 
 .date {
@@ -27,6 +32,38 @@ a:hover { background-color: white; color: red; text-decoration: none }
     text-indent: 15pt;
 }
 
+.gfxnote {
+    color: #2255ff;
+}
+
+.latenote {
+    color: #ee2200;
+}
+
+.tag {
+    color: #aa0088;
+}
+
 .noindent {
     text-indent: 0pt;
+}
+
+.footnote {
+    margin-top: 5pt;
+    margin-left: 30pt;
+    text-indent: -30pt;
+}
+
+.footnotes {
+    margin-top: 25pt;
+}
+
+.latenote {
+    margin-top: 5pt;
+    margin-bottom: 5pt;
+}
+
+.gfxnote {
+    margin-top: 5pt;
+    margin-bottom: 5pt;
 }
