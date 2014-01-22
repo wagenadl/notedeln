@@ -290,7 +290,9 @@ void Notebook::flush() {
 
   index_->flush();
 
-  if (!ok)
+  if (ok)
+    qDebug() << "Notebook flushed OK";
+  else
     qDebug() << "Notebook flushed, with errors";
 }
 
@@ -331,6 +333,7 @@ void Notebook::commitNowUnless() {
 }
   
 void Notebook::commitNow() {
+  qDebug() << "Notebook::commitNow";
   flush();
   if (hasVC && !mostRecentChange.isNull()) {
     VersionControl::commit(root.path(), style_->string("vc"));

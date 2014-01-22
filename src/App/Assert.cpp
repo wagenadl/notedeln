@@ -29,7 +29,11 @@
 #include <cxxabi.h>
 #endif
 
+#ifdef QT_NO_DEBUG
 #define ASSERT_BACKTRACE 0
+#else
+#define ASSERT_BACKTRACE 1
+#endif
 
 #ifdef Q_OS_LINUX
 QStringList eln_calltrace() {
@@ -127,8 +131,9 @@ void eln_sighandler(int sig) {
 
   fprintf(stderr, "Shutting down application.\n");
   App::quit();
-  fprintf(stderr, "Application shut down. Exiting.\n");
-  exit(1);
+  fprintf(stderr, "Application shut down. Aborting.\n");
+  eln_ungrabsignals();
+  abort();
 }
 
 void eln_grabsignals() {
@@ -141,7 +146,12 @@ void eln_grabsignals() {
 }
 
 void eln_ungrabsignals() {
-  // not implemented, but not critical thanks to the SA_RESETHAND flag
+  struct sigaction newHdlr;
+  newHdlr.sa_handler = SIG_DFL;
+  sigemptyset(&newHdlr.sa_mask);
+  newHdlr.sa_flags = SA_RESETHAND;
+  sigaction(SIGSEGV, &newHdlr, 0);
+  sigaction(SIGABRT, &newHdlr, 0);
 }
 
 #else
