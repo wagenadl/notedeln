@@ -1,13 +1,16 @@
 body { 
   font-family: ubuntu, serif;
-  font-size: 12pt;
+  font-size: 18px;
   background-color: white;
   color: #0000cc;
 }
 
-a:link { background-color: white; color: #0088ff; text-decoration: none }
-a:visited { background-color: white; color: #0088ff; text-decoration: none }
-a:hover { background-color: white; color: red; text-decoration: none }
+a:link { background-color: rgba(0, 130, 255, 0.15); color: inherit; 
+         text-decoration: none }
+a:visited { background-color: rgba(0, 130, 255, 0.15); color: inherit; 
+         text-decoration: none }
+a:hover {  background-color: rgba(0, 130, 255, 0.35); color: inherit; 
+         text-decoration: none }
 
 .footnoteref:link { background-color: white; color: #aa0088; text-decoration: none }
 .footnoteref:visited { background-color: white; color: #aa0088; text-decoration: none }
@@ -16,20 +19,20 @@ a:hover { background-color: white; color: red; text-decoration: none }
 .title {
     font-size: 120%;
     color: #000088;
-    margin-bottom: 20pt;
+    margin-bottom: 25px;
 }
 
 .date {
     text-align: right;
-    margin-top: 0pt;
-    margin-bottom: 5pt;
+    margin-top: 0px;
+    margin-bottom: 7px;
     color: #000000;
 }
 
 .textblock {
-    margin-top: 5pt;
-    margin-bottom: 5pt;
-    text-indent: 15pt;
+    margin-top: 7px;
+    margin-bottom: 7px;
+    text-indent: 20px;
 }
 
 .gfxnote {
@@ -45,25 +48,34 @@ a:hover { background-color: white; color: red; text-decoration: none }
 }
 
 .noindent {
-    text-indent: 0pt;
+    text-indent: 0px;
 }
 
 .footnote {
-    margin-top: 5pt;
-    margin-left: 30pt;
-    text-indent: -30pt;
+    margin-top: 7px;
+    margin-left: 40px;
+    text-indent: -40px;
 }
 
 .footnotes {
-    margin-top: 25pt;
+    margin-top: 30px;
 }
 
 .latenote {
-    margin-top: 5pt;
-    margin-bottom: 5pt;
+    margin-top: 7px;
+    margin-bottom: 7px;
 }
 
 .gfxnote {
-    margin-top: 5pt;
-    margin-bottom: 5pt;
+    margin-top: 7px;
+    margin-bottom: 7px;
 }
+
+.badurl {
+    background-color: rgb(255,0,0,0.1);
+}
+
+.nores {
+    background-color: rgb(255,0,0,0.1);
+}
+

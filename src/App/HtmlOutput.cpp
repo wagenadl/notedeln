@@ -11,6 +11,7 @@
 #include "TableData.H"
 #include "FootnoteData.H"
 #include "LateNoteData.H"
+#include "BlockData.H"
 #include "EntryData.H"
 #include <QTextDocument>
 #include <QDebug>
@@ -46,28 +47,31 @@ HtmlOutput::HtmlOutput(QString outputFile, QString pageTitle):
   html << "\n";
 
   res = QDir(outputFile);
-  if (!res.exists())
-    res.mkpath(res.absolutePath());
+  if (res.exists()) 
+    removeDirRecursively(res);
+  res.mkpath(res.absolutePath());
 
   QFile cssin(":eln.css");
-  cssin.open(QFile::ReadOnly);
-  QFile cssout(res.absoluteFilePath("eln.css"));
-  cssout.open(QFile::WriteOnly);
-  {
-    QTextStream in(&cssin);
-    QTextStream out(&cssout);
-    while (!in.atEnd()) {
-      QString x = in.readLine();
-      out << x << "\n";
-    }
-  }
+  cssin.copy(res.absoluteFilePath("eln.css"));
+}
+
+void HtmlOutput::removeDirRecursively(QDir dir) {
+  foreach(QFileInfo info, dir.entryInfoList(QDir::NoDotAndDotDot
+                                            | QDir::System | QDir::Hidden
+                                            | QDir::AllDirs | QDir::Files,
+                                            QDir::DirsFirst)) 
+    if (info.isDir()) 
+      removeDirRecursively(QDir(info.absoluteFilePath()));
+    else 
+      QFile::remove(info.absoluteFilePath());
+  dir.rmdir(dir.absolutePath());
 }
 
 HtmlOutput::~HtmlOutput() {
   html.setDevice(0); // close before file gets deleted
 }
 
-void HtmlOutput::add(EntryScene const *source) {
+void HtmlOutput::add(EntryScene *source) {
   html << "<div class=\"entry\">\n";
   html << "<div class=\"date\">"
        << source->data()->created()
@@ -76,16 +80,39 @@ void HtmlOutput::add(EntryScene const *source) {
   html << "<div class=\"title\">" << Qt::escape(source->title()) << "</div>\n";
 
   ResManager const *resmgr = source->data()->resManager();
+
+  QList<GfxNoteData const *> gfxnotes;
+  collectGfxNotes(source->data()->title(), gfxnotes);
+
+  int sheet0 = source->currentSheet();
+  int sheet = sheet0;
   
-  foreach (BlockItem const *b, source->blocks()) 
+  foreach (BlockItem const *b, source->blocks()) {
+    if (b->data()->sheet() != sheet)
+      source->gotoSheet(sheet = b->data()->sheet());
     if (dynamic_cast<TableBlockItem const *>(b))
       add(dynamic_cast<TableBlockItem const *>(b), resmgr);
     else if (dynamic_cast<TextBlockItem const *>(b))
       add(dynamic_cast<TextBlockItem const *>(b), resmgr);
     else if (dynamic_cast<GfxBlockItem const *>(b))
       add(dynamic_cast<GfxBlockItem const *>(b), resmgr);
+    QList<GfxNoteData const *> herenotes;
+    foreach (GfxNoteData const *nd, gfxnotes) {
+      if (nd->sheet() <= b->data()->sheet() &&
+          nd->y() < b->data()->y0() + b->data()->height()) {
+        herenotes << nd;
+        add(nd, resmgr);
+      }
+    }
+    foreach (GfxNoteData const *nd, herenotes)
+      gfxnotes.removeOne(nd);
+  }
 
-  addGfxNotes(source->data()->title(), resmgr);
+  if (sheet!=sheet0)
+    source->gotoSheet(sheet0);
+
+  foreach (GfxNoteData const *nd, gfxnotes) 
+    add(nd, resmgr);
 
   html << "<div class=\"footnotes\">\n";
   addFootnotes(source->data(), resmgr);
@@ -102,14 +129,25 @@ void HtmlOutput::addFootnotes(Data const *data, ResManager const *resmgr) {
     addFootnotes(d, resmgr);
 }
 
-void HtmlOutput::addGfxNotes(Data const *data, ResManager const *resmgr) {
+void HtmlOutput::collectGfxNotes(Data const *src,
+                                 QList<GfxNoteData const *> &dst) {
+  GfxNoteData const *nd = dynamic_cast<GfxNoteData const *>(src);
+  if (nd)
+    dst << nd;
+  foreach (Data const *d, src->allChildren())
+    collectGfxNotes(d, dst);
+}
+
+void  HtmlOutput::addGfxNotes(Data const *data, ResManager const *resmgr) {
   ASSERT(data);
   GfxNoteData const *nd = dynamic_cast<GfxNoteData const *>(data);
-  if (nd)
+   if (nd)
     add(nd, resmgr);
   foreach (Data const *d, data->allChildren())
     addGfxNotes(d, resmgr);
 }
+
+
 void HtmlOutput::buildGfxRefs(Data const *source, QList<QString> &dst) {
   ASSERT(source);
   TextData const *td = dynamic_cast<TextData const *>(source);
@@ -123,13 +161,68 @@ void HtmlOutput::buildGfxRefs(Data const *source, QList<QString> &dst) {
     buildGfxRefs(d, dst);
 }
 
+void HtmlOutput::addRefStart(QString key, ResManager const *resmgr) {
+  Resource *r = resmgr->byTag(key);
+  if (r) {
+    QUrl url = r->sourceURL();
+    if (url.isValid()) 
+      html << "<a href=\"" << Qt::escape(url.toString()) << "\">";
+    else 
+      html << "<span class=\"badurl\">"; // is this acceptable at all?
+  } else {
+    if (key.startsWith("http://") || key.startsWith("https://"))
+      html << "<a href=\"" << Qt::escape(key) << "\">";
+    else if (key.startsWith("www"))
+      html << "<a href=\"http://" << Qt::escape(key) << "\">";
+    else
+      html << "<span class=\"nores\">";
+  }
+}
+
+void HtmlOutput::addRefEnd(QString key, ResManager const *resmgr) {
+  Resource *r = resmgr->byTag(key);
+  if (r) {
+    QUrl url = r->sourceURL();
+    if (url.isValid()) 
+      html << "</a>";
+    else
+      html << "</span>";
+    if (r->hasArchive()) {
+      QString fn = r->archivePath();
+      QFile resfile(fn);
+      int idx = fn.lastIndexOf("/");
+      if (idx>=0)
+        fn = fn.mid(idx+1);
+      resfile.copy(res.absoluteFilePath(fn));
+      html << " <a href=\"" << Qt::escape(local) << "/" << fn << "\">"
+           << "(archived)</a>";
+    }
+  } else {
+    if (key.startsWith("http://") || key.startsWith("https://"))
+      html << "</a>";
+    else if (key.startsWith("www"))
+      html << "</a>";
+    else
+      html << "</span>";
+  }
+}
+  
+
+void HtmlOutput::addRef(QString key, ResManager const *resmgr) {
+  addRefStart(key, resmgr);
+  html << Qt::escape(key) << "</a>";
+  addRefEnd(key, resmgr);
+}
+
 void HtmlOutput::add(GfxBlockItem const *source, ResManager const *resmgr) {
   html << "<div class=\"gfxblock\">\n";
   html << "<div class=\"gfx\">\n";
-  QImage img((source->sceneBoundingRect().size()*2).toSize(),
+  QRectF r = source->sceneBoundingRect();
+  r |= source->mapRectToScene(source->childrenBoundingRect());
+  QImage img((r.size()*1.25).toSize(),
 	     QImage::Format_ARGB32);
   QPainter p(&img);
-  source->scene()->render(&p, QRectF(), source->sceneBoundingRect());
+  source->scene()->render(&p, QRectF(), r);
   p.end();
   QString fn = QString("%1.png").arg((qulonglong)source->data());
   img.save(res.absoluteFilePath(fn));
@@ -143,8 +236,7 @@ void HtmlOutput::add(GfxBlockItem const *source, ResManager const *resmgr) {
     foreach (QString key, gfxrefs) {
       html << "<div class=\"gfxref\">\n";
       // should actually get the resource
-      html << "<a href=\"" << Qt::escape(key) << "\">";
-      html << Qt::escape(key) << "</a>\n";
+      addRef(key, resmgr);
       html << "/div>\n";
     }
     html << "</div>\n";
@@ -156,9 +248,9 @@ void HtmlOutput::add(TableBlockItem const *source, ResManager const *resmgr) {
   html << "<div class=\"tableblock\">\n";
   html << "<table>\n";
   TableData const *td = source->data()->table();
-  for (int r=0; r<td->rows(); r++) {
+  for (unsigned int r=0; r<td->rows(); r++) {
     html << "<tr>\n";
-    for (int c=0; c<td->columns(); c++) {
+    for (unsigned int c=0; c<td->columns(); c++) {
       html << "<td>\n";
       add(td, resmgr,
 	  td->cellStart(r, c), 
@@ -206,6 +298,7 @@ void HtmlOutput::add(TextData const *source, ResManager const *resmgr,
      Oh. No. That won't work. I cannot arbitrarily close <a href> markups.*/
 
   QMap<int, QString> hrefs;
+  QMap<int, QString> hrefends;
   QSet<int> edges;
   edges.insert(startidx);
   foreach (MarkupData *md, markups) {
@@ -217,8 +310,11 @@ void HtmlOutput::add(TextData const *source, ResManager const *resmgr,
     if (endidx>=0 && e>endidx)
       e=endidx;
     edges.insert(e);
-    if (md->style()==MarkupData::Link || md->style()==MarkupData::FootnoteRef)
+    if (md->style()==MarkupData::Link || md->style()==MarkupData::FootnoteRef) {
       hrefs[s] = txt.mid(md->start(), md->end()-md->start());
+      hrefends[e] = txt.mid(md->start(), md->end()-md->start());
+    }
+      
   }
   int e = txt.size();
   if (endidx>=0 && e>endidx)
@@ -297,13 +393,16 @@ void HtmlOutput::add(TextData const *source, ResManager const *resmgr,
       QString tag = ends[i];
       if (!tag.isEmpty()) {
 	int idx = tag.indexOf(" ");
-	html << ((idx>=0) ? ("</" + tag.left(idx) +">") : ("</" + tag + ">"));
+        if (tag == "a") 
+          addRefEnd(hrefends[edge], resmgr);
+        else
+          html << ((idx>=0) ? ("</" + tag.left(idx) +">") : ("</" + tag + ">"));
       }
     }
     for (int i=0; i<starts.size(); ++i) {
       QString tag = starts[i];
-      if (tag=="a") 
-	html << ("<a href=\"" + Qt::escape(hrefs[edge]) + "\">");
+      if (tag=="a")
+        addRefStart(hrefs[edge], resmgr);
       else if (tag == "a #")
 	html << ("<a href=\"#" + Qt::escape(hrefs[edge]) + "\" class=\"footnoteref\">");
       else if (!tag.isEmpty())

@@ -172,15 +172,7 @@ Notebook *Notebook::create(QString path) {
   delete BookFile::create(d.filePath("book.json"));
 
   QFile styleIn(":/style.json");
-  ASSERT(styleIn.open(QFile::ReadOnly));
-  QFile styleOut(d.filePath("style.json"));
-  if (!styleOut.open(QFile::WriteOnly)) {
-    qDebug() << "Notebook: Failed to create 'style.json' at " << path;
-    return 0;
-  }
-  styleOut.write(styleIn.readAll());
-  styleIn.close();
-  styleOut.close();
+  styleIn.copy(d.filePath("style.json"));
 
   Notebook *nb = new Notebook(d.absolutePath());
   return nb;

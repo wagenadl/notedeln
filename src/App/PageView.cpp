@@ -40,6 +40,7 @@
 #include <QWheelEvent>
 #include <QKeyEvent>
 #include <QDebug>
+#include <QFileDialog>
 
 PageView::PageView(Notebook *nb, QWidget *parent):
   QGraphicsView(parent), book(nb) {
@@ -126,7 +127,7 @@ void PageView::keyPressEvent(QKeyEvent *e) {
     break;
   case Qt::Key_Backspace: case Qt::Key_Up: case Qt::Key_Left:
     if (mode()->mode()==Mode::Browse)
-      nextPage();
+      previousPage();
     else
       take = false;
     break;
@@ -565,7 +566,15 @@ void PageView::openFindDialog() {
 
 void PageView::htmlDialog() {
   if (currentSection==Entries) {
-    HtmlOutput html("/tmp/eln.html", entryScene->title());
-    html.add(entryScene);
+    QString fn = QFileDialog::getSaveFileName(this, "Save entry as html",
+                                              QString("%1.html")
+                                              .arg(entryScene->startPage()),
+                                              "Web pages (*.html)");
+    if (!fn.isEmpty()) {
+      if (!fn.endsWith(".html"))
+        fn += ".html";
+      HtmlOutput html(fn, entryScene->title());
+      html.add(entryScene);
+    }
   }
 }
