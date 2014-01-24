@@ -21,6 +21,7 @@
 #define TOOLITEM_H
 
 #include <QGraphicsObject>
+#include <QPointer>
 
 class ToolItem: public QGraphicsObject {
   Q_OBJECT;
@@ -53,7 +54,7 @@ private:
   class QTimer *popupDelay;
   QString helpText;
   QPointF popupPos;
-  QGraphicsItem *balloon;
+  QPointer<QGraphicsObject> balloon;
 };
 
 #endif

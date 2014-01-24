@@ -99,6 +99,7 @@
 "footnote-def-font-family": "Ubuntu",
 "footnote-def-font-size": 9,
 "footnote-def-color": "#000088",
+"emphasize-color": "#ffff00",
 "customref-color": "#aa0088",
 "hover-found-color": "#0088ff",
 "hover-found-alpha": 0.15,

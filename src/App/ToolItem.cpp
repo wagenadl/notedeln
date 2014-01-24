@@ -143,8 +143,12 @@ void ToolItem::hoverLeaveEvent(QGraphicsSceneHoverEvent *) {
   update();
   if (popupDelay)
     popupDelay->stop();
-  if (balloon)
+  if (balloon) 
     delete balloon;
+  /* This used to cause SEGV crashes, sometimes. I think that the QPointer
+     is essential, because my event handler may be called after the balloon
+     has been deleted by the scene.
+   */
   balloon = 0;
 }
 
@@ -187,26 +191,32 @@ void ToolItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
 
    Style const &style = Style::defaultStyle();
    
-   QGraphicsTextItem *ti = new QGraphicsTextItem(this);
-   ti->document()->setDefaultFont(style.font("popup-font"));
+   balloon = new QGraphicsTextItem();
+   /* This base item exists just so that we have a QObject that can be
+      stored in a QPointer so that we will learn about external deletion.
+      This wouldn't be a problem if we could be the parent of the balloon,
+      but that doesn't allow us to put the balloon on top of all other items.
+   */
+   scene()->addItem(balloon);
+   balloon->setZValue(100);
+   QGraphicsTextItem *ti = new QGraphicsTextItem(balloon);
    ti->setZValue(1);
+   ti->document()->setDefaultFont(style.font("popup-font"));
    ti->setHtml(helpText);
    if (ti->boundingRect().width()>500)
      ti->setTextWidth(500);
    double margin = style.real("popup-margin");
    QGraphicsRectItem *rect
-     = scene()->addRect(ti->boundingRect().adjusted(-margin, -margin,
-						    margin, margin),
-			QPen(Qt::NoPen),
-			style.color("popup-background-color"));
+     = new QGraphicsRectItem(ti->boundingRect().adjusted(-margin, -margin,
+							 margin, margin),
+			     balloon);
+   rect->setZValue(-1);
+   rect->setPen(QPen(Qt::NoPen));
+   rect->setBrush(style.color("popup-background-color"));
    QGraphicsDropShadowEffect *shadow = new QGraphicsDropShadowEffect;
    shadow->setOffset(3, 3);
    shadow->setBlurRadius(15);
    shadow->setColor("black");
    rect->setGraphicsEffect(shadow);
-
-   ti->setParentItem(rect);
-   rect->setPos(mapToScene(popupPos + QPointF(10, 10)));
-   // How to pick font etc?
-   balloon = rect;
+   balloon->setPos(mapToScene(popupPos + QPointF(10, 10)));
  }

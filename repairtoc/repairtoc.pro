@@ -6,10 +6,11 @@ TEMPLATE = app
 TARGET = eln-repairtoc
 
 SOURCES = repairtoc.cpp
-SOURCES += JSONFile.cpp
-HEADERS += JSONFile.H
-SOURCES += JSONParser.cpp
-HEADERS += JSONParser.H
+SOURCES += ../src/File/JSONFile.cpp
+HEADERS += ../src/File/JSONFile.H
+SOURCES += ../src/File/JSONParser.cpp
+HEADERS += ../src/File/JSONParser.H
+INCLUDEPATH += ../src/File
 
 CONFIG += debug_and_release
 CONFIG(debug, debug|release) { TARGET=$${TARGET}_debug }

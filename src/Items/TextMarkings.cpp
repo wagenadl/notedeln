@@ -89,7 +89,7 @@ void TextMarkings::applyMark(Span const &span, QSet<int> edges) {
         f.setFontStrikeOut(true);
         break;
       case MarkupData::Emphasize:
-        f.setBackground(QColor("yellow")); // or something like that
+        f.setBackground(parent()->style().color("emphasize-color"));
         break;
       case MarkupData::Superscript:
         f.setVerticalAlignment(QTextCharFormat::AlignSuperScript);

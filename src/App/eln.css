@@ -79,3 +79,6 @@ a:hover {  background-color: rgba(0, 130, 255, 0.35); color: inherit;
     background-color: rgb(255,0,0,0.1);
 }
 
+.emph {
+    background-color: #ffff00;
+}
