@@ -248,7 +248,7 @@ int main(int argc, char **argv) {
   if (!renameList.isEmpty())
     qDebug() << "In addition, " << renameList.size()
 	     << "unparsable file(s) will be renamed.";
-  qDebug() << "Finally, the index will be removed.";
+  qDebug() << "Finally, the index will be removed (eln will automatically rebuild it).";
     
 
   qDebug() << "Press Enter to proceed";
