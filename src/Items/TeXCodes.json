@@ -71,4 +71,13 @@
   "sharp": "♯",
   "natural": "♮",
   "inf": "∞"
+  "uA": "μA",
+  "uL": "μL",
+  "um": "μm",
+  "uM": "μM",
+  "us": "μs",
+  "uV": "μV",
+  "Ohm": "Ω"
+  "kOhm": "kΩ"
+  "MOhm": "MΩ"
 }
