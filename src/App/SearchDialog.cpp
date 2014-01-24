@@ -8,6 +8,7 @@
 #include "SearchView.H"
 #include "BookData.H"
 #include "FindOverlay.H"
+#include "Assert.H"
 
 #include <QInputDialog>
 #include <QProgressDialog>
@@ -58,7 +59,7 @@ void SearchDialog::newSearch() {
     SearchView *view = new SearchView(scene);
     delete progress;
     
-    view->resize(pgView->size());
+    view->resize(pgView->size()*.9);
     QString ttl = pgView->notebook()->bookData()->title();
     view->setWindowTitle(ttl.replace(QRegExp("\\s\\s*"), " ") + " - eln");
     view->show();
@@ -69,5 +70,7 @@ void SearchDialog::gotoPage(int n, QString phrase) {
   pgView->gotoEntryPage(n);
   pgView->window()->raise();
   qDebug() << "gotoPage" << n << phrase;
-  pgView->setOverlay(new FindOverlay(pgView->scene(), phrase));
+  BaseScene *bs = dynamic_cast<BaseScene *>(pgView->scene());
+  ASSERT(bs);
+  bs->setOverlay(new FindOverlay(bs, phrase));
 }

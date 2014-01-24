@@ -21,6 +21,8 @@
 #define BASESCENE_H
 
 #include <QGraphicsScene>
+#include <QPointer>
+#include "SceneOverlay.H"
 
 class BaseScene: public QGraphicsScene  {
   Q_OBJECT;
@@ -38,6 +40,7 @@ public:
   virtual int startPage() const;
   virtual QString title() const;
   virtual QString pgNoToString(int) const;
+  void setOverlay(SceneOverlay *ovr);
 public slots:
   bool nextSheet(); // true if moved (i.e., if there exists a next sheet)
   bool previousSheet(); // true if moved (i.e., if there exists a prev. sheet)
@@ -66,6 +69,7 @@ protected:
   int iSheet; // current sheet (counting from 0)
   Data *data;
   Style const *style_;
+  QPointer<SceneOverlay> overlay;
 };
 
 #endif

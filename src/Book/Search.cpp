@@ -40,7 +40,7 @@ void Search::addToResults(QList<SearchResult> &dest, QString phrase,
                           Data const *data, int entryPage, int dataPage) {
   foreach (Data const *d, data->allChildren()) {
     TextData const *td = dynamic_cast<TextData const *>(d);
-    if (td && td->text().contains(phrase)) {
+    if (td && td->text().toLower().contains(phrase)) {
       // gotcha
       SearchResult res;
       res.phrase = phrase;
@@ -86,10 +86,12 @@ void Search::addToResults(QList<SearchResult> &dest, QString phrase,
 QList<SearchResult> Search::immediatelyFindPhrase(QString phrase) const {
   QStringList words = phrase.toLower().split(QRegExp("\\s+"));
   QSet<int> entries = book->index()->words()->findWords(words, true);
+  QList<int> sortedEntries = entries.toList();
+  qSort(sortedEntries);
 
   QList<SearchResult> results;
   
-  foreach (int pgno, entries) {
+  foreach (int pgno, sortedEntries) {
     EntryFile *ef = book->pageIfCached(pgno);
     bool preloaded = ef;
     if (!preloaded)

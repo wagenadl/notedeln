@@ -106,7 +106,8 @@ void SearchResItem::fillText(QTextDocument *doc, SearchResult const &res) {
     QTextCursor c(doc);
     c.movePosition(QTextCursor::End);
     int m0 = c.position();
-    c.insertText(res.phrase);
+    //    c.insertText(res.phrase);
+    c.insertText(res.context.mid(strt, end-strt));
     int m1 = c.position();
 
     int postbreak = (k<res.whereInContext.size()-1)

@@ -208,6 +208,9 @@ void BaseScene::gotoSheet(int i) {
     nOfNItem->setPlainText(QString("(%1/%2)").arg(iSheet+1).arg(nSheets));
   else
     nOfNItem->setPlainText("");
+
+  if (overlay)
+    overlay->gotoSheet(iSheet);
 }
   
 bool BaseScene::inMargin(QPointF sp) {
@@ -272,5 +275,15 @@ int BaseScene::currentSheet() const {
 
 QGraphicsItem *BaseScene::itemAt(const QPointF &p) const {
   return QGraphicsScene::itemAt(p, QTransform());
+}
+
+void BaseScene::setOverlay(SceneOverlay *ovr) {
+  if (overlay) {
+    delete overlay;
+    overlay = 0;
+  }
+  overlay = ovr;
+  if (overlay)
+    addItem(ovr);
 }
 
