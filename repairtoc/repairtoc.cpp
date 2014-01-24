@@ -248,6 +248,7 @@ int main(int argc, char **argv) {
   if (!renameList.isEmpty())
     qDebug() << "In addition, " << renameList.size()
 	     << "unparsable file(s) will be renamed.";
+  qDebug() << "Finally, the index will be removed.";
     
 
   qDebug() << "Press Enter to proceed";
@@ -386,7 +387,11 @@ int main(int argc, char **argv) {
       }
       qDebug() << "Renumbered " << res << " as " << pgno;
     }
-  } 
+  }
+
+  QFile idx(root.absoluteFilePath("index.json"));
+  if (idx.exists())
+    idx.remove();
 
   return 0;
 }
