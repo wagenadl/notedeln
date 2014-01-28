@@ -36,6 +36,7 @@ GfxNoteItem::GfxNoteItem(GfxNoteData *data, Item *parent):
   setPos(data->pos());
   line = 0;
   text = new TextItem(data->text(), this);
+  text->setFont(style().font("note-font"));
   text->setDefaultTextColor(QColor(style().string("note-text-color")));
   if (data->textWidth()>1)
     text->setTextWidth(data->textWidth());

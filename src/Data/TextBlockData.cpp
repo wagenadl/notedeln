@@ -20,12 +20,13 @@
 #include <QDebug>
 #include "FootnoteData.H"
 #include "Assert.H"
+#include "GfxNoteData.H"
 
 static Data::Creator<TextBlockData> c("textblock");
 
 TextBlockData::TextBlockData(Data *parent): BlockData(parent) {
   setType("textblock");
-  ind = true;
+  ind = 1;
   text_ = new TextData(this);
 }
 
@@ -33,11 +34,34 @@ TextBlockData::~TextBlockData() {
 }
 
 void TextBlockData::setIndented(bool i) {
-  ind = i;
+  if (i)
+    ind |= Indented;
+  else
+    ind &= ~Indented;
   markModified();
 }
 
 bool TextBlockData::indented() const {
+  return ind & Indented;
+}
+
+void TextBlockData::setDisplayed(bool i) {
+  if (i)
+    ind |= Displayed;
+  else
+    ind &= ~Displayed;
+  markModified();
+}
+
+bool TextBlockData::displayed() const {
+  return ind & Displayed;
+}
+
+void TextBlockData::setIndentationStyle(int i) {
+  ind = i;
+}
+
+int TextBlockData::indentationStyle() const {
   return ind;
 }
 
@@ -73,6 +97,7 @@ TextBlockData *TextBlockData::split(int pos) {
     else if (md->end()>=pos)
       md->setEnd(pos);
   }
+
   text2->setText(text2->text().mid(pos));
   foreach (MarkupData *md, text2->children<MarkupData>()) {
     if (md->end()<=pos) {
@@ -82,6 +107,7 @@ TextBlockData *TextBlockData::split(int pos) {
       md->setEnd(md->end()-pos);
     }
   }
+
   QSet<QString> tags1;
   foreach (MarkupData *md, text1->children<MarkupData>()) 
     if (md->style()==MarkupData::FootnoteRef)
@@ -89,6 +115,7 @@ TextBlockData *TextBlockData::split(int pos) {
   foreach (FootnoteData *fd, this->children<FootnoteData>())
     if (!tags1.contains(fd->tag()))
       this->deleteChild(fd);
+
   QSet<QString> tags2;
   foreach (MarkupData *md, text2->children<MarkupData>()) 
     if (md->style()==MarkupData::FootnoteRef)
@@ -96,6 +123,9 @@ TextBlockData *TextBlockData::split(int pos) {
   foreach (FootnoteData *fd, block2->children<FootnoteData>())
     if (!tags2.contains(fd->tag()))
       block2->deleteChild(fd);
+
+  foreach (GfxNoteData *nd, text2->children<GfxNoteData>())
+    text2->deleteChild(nd);
 
   return block2;
 }  

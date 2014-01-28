@@ -22,10 +22,11 @@
 
 #include "BlockData.H"
 #include "TextData.H"
+#include <QFlags>
 
 class TextBlockData: public BlockData {
   Q_OBJECT;
-  Q_PROPERTY(bool ind READ indented WRITE setIndented);
+  Q_PROPERTY(int ind READ indentationStyle WRITE setIndentationStyle);
 public:
   // constructor and destructor
   TextBlockData(Data *parent=0);
@@ -33,6 +34,8 @@ public:
   // read and write properties
   void setIndented(bool);
   bool indented() const;
+  void setDisplayed(bool);
+  bool displayed() const;
   // other
   TextData const *text() const;
   TextData *text();
@@ -44,9 +47,18 @@ public:
   void join(TextBlockData *); // the other is deleted afterward
 protected:
   void loadMore(QVariantMap const &src);
+  void setIndentationStyle(int);
+  int indentationStyle() const;
+protected:
+  enum IndentationBits {
+    None = 0,
+    Indented = 1,
+    Displayed = 2,
+  };
+  typedef QFlags<IndentationBits> IndentationStyle;
 protected:
   TextData *text_;
-  bool ind;
+  int ind;
 };
 
 #endif

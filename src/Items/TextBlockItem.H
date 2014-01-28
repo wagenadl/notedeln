@@ -50,14 +50,13 @@ public:
   QRectF boundingRect() const;
   void paint(QPainter *p, const QStyleOptionGraphicsItem *o, QWidget *w);
   virtual void makeWritable();
+  void initializeFormat();
 signals:
   void futileMovement(); // up key on top line etc
 public slots:
   void sizeToFit();
 private slots:
   void futileMovementKey(int, Qt::KeyboardModifiers);
-private:
-  void initializeFormat();
 private:
   class TextItem *item_; // we do own
   FutileMovementInfo fmi;

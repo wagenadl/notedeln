@@ -63,7 +63,8 @@ TextBlockItem::TextBlockItem(TextBlockData *data, Item *parent,
 
 void TextBlockItem::makeWritable() {
   BlockItem::makeWritable();
-  item_->setAllowNotes(false);
+  //  item_->setAllowNotes(false);
+  // 1/28/14 - Why would I not allow notes on editable text?
   setFlag(ItemIsFocusable);
   setFocusProxy(item_);
 }
@@ -73,16 +74,26 @@ TextBlockItem::~TextBlockItem() {
 }
 
 void TextBlockItem::initializeFormat() {
+  bool disp = data()->displayed();
+  
   item_->setTextWidth(style().real("page-width")
 		      - style().real("margin-left")
 		      - style().real("margin-right"));
   item_->setPos(0, style().real("text-block-above"));
 
+  item_->setFont(style().font(disp ? "display-text-font" : "text-font"));
+  item_->setDefaultTextColor(style().color(disp ? "display-text-color"
+                                           : "text-color"));
+
+
   QTextCursor tc(item_->document());
   QTextBlockFormat fmt = tc.blockFormat();
-  fmt.setLineHeight(style().real("paragraph-line-spacing")*100,
+  fmt.setLineHeight(style().real(disp ? "display-paragraph-line-spacing"
+                                 : "paragraph-line-spacing")*100,
 		    QTextBlockFormat::ProportionalHeight);
   fmt.setTextIndent(data()->indented() ? style().real("paragraph-indent") : 0);
+  fmt.setLeftMargin(disp ? style().real("display-paragraph-left-margin") : 0);
+  fmt.setRightMargin(disp ? style().real("display-paragraph-right-margin") : 0);
   //fmt.setTopMargin(style().real("paragraph-top-margin"));
   //  fmt.setBottomMargin(style().real("paragraph-bottom-margin"));
   tc.movePosition(QTextCursor::Start);

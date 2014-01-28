@@ -171,7 +171,7 @@ bool TextItem::mousePress(QGraphicsSceneMouseEvent *e) {
       break;
     case Mode::Annotate:
       if (allowNotes()) 
-        createNote(e->pos(), true);
+        createNote(e->pos());
       break;
     case Mode::Highlight:
       attemptMarkup(e->pos(), MarkupData::Emphasize);
@@ -422,13 +422,15 @@ bool TextItem::keyPressAsSpecialEvent(QKeyEvent *e) {
       // we are in a text block, so we could fiddle with indentation
       bool hasIndent = p->data()->indented();
       bool hasShift = e->modifiers() & Qt::ShiftModifier;
+      bool hasControl = e->modifiers() & Qt::ControlModifier;
+      if (hasControl) {
+        p->data()->setDisplayed(!p->data()->displayed());
+        p->initializeFormat();
+        return true;
+      }
       if ((hasIndent && hasShift) || (!hasIndent && !hasShift)) {
         p->data()->setIndented(!hasShift);
-        tc.movePosition(QTextCursor::Start);
-        QTextBlockFormat fmt = tc.blockFormat();
-        fmt.setTextIndent(hasShift ? 0 : style().real("paragraph-indent"));
-        tc.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
-        tc.setBlockFormat(fmt);
+        p->initializeFormat();
         return true;
       }
     }
