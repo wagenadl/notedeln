@@ -135,7 +135,7 @@
 "unlocked-color": "#dd0000",
 "always-indent": false,
 "auto-italic": true,
-"auto-italic-exceptions": [ "I", "a", "A", "m", "V", "s" ],
+"auto-italic-exceptions": [ "I", "a", "A", "m", "V", "s", "g", "P", "T", "N" ],
 "auto-italic-pre": " ([{`‘“",
 "auto-italic-post": " )]};:,'?!\"",
 "auto-subscript-max": 5,
