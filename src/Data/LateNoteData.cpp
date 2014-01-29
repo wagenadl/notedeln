@@ -23,7 +23,7 @@ static Data::Creator<LateNoteData> c("latenote");
 
 LateNoteData::LateNoteData(Data *parent): GfxNoteData(0) {
   setType("latenote");
-  parent->addChild(this, NonPropMod);
+  parent->addChild(this, InternalMod);
 }
 
 LateNoteData::~LateNoteData() {

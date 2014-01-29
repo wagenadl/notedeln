@@ -34,9 +34,9 @@ class Data: public QObject {
   Q_PROPERTY(QString typ READ type WRITE setType)
 public:
   enum ModType {
-    UserVisibleMod,
-    InternalMod,
-    NonPropMod,
+    UserVisibleMod, // mark modif. time on this object and ancestors
+    InternalMod, // do not mark modif. time at all
+    NonPropMod, // mark modif. time on this object but not ancestors
   };
 public:
   // constructor and destructor

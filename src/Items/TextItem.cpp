@@ -170,7 +170,10 @@ bool TextItem::mousePress(QGraphicsSceneMouseEvent *e) {
       }
       break;
     case Mode::Annotate:
-      if (allowNotes()) 
+      qDebug() << "Annotate" << allowNotes();
+      if (pageScene())
+        pageScene()->createNote(mapToScene(e->pos()));
+      else if (allowNotes())
         createNote(e->pos());
       break;
     case Mode::Highlight:

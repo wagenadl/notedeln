@@ -213,8 +213,13 @@ void GfxImageItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
       take = true;
       break;
     case Mode::Annotate: {
-      GfxNoteItem *gni = createNote(e->pos(), !isWritable());
-      gni->setScale(1./data()->scale());
+      qDebug() << "Image Annotate " << data()->isRecent() << pageScene();
+      if (!data()->isRecent() && pageScene()) {
+        pageScene()->createNote(mapToScene(e->pos()));
+      } else {  
+        GfxNoteItem *gni = createNote(e->pos(), !isWritable());
+        gni->setScale(1./data()->scale());
+      }
       take = true;
     } break;
     case Mode::Mark: {
@@ -233,8 +238,12 @@ void GfxImageItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
     }
   } else {
     if (e->button()==Qt::LeftButton && mode()->mode()==Mode::Annotate) {
-      GfxNoteItem *gni = createNote(e->pos(), true);
-      gni->setScale(1./data()->scale());
+      if (!data()->isRecent() && pageScene()) {
+        pageScene()->createNote(mapToScene(e->pos()));
+      } else {  
+        GfxNoteItem *gni = createNote(e->pos(), true);
+        gni->setScale(1./data()->scale());
+      }
       take = true;
     }
   }

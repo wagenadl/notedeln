@@ -19,6 +19,7 @@
 #include "GfxBlockItem.H"
 #include "GfxBlockData.H"
 #include "Mode.H"
+#include "EntryScene.H"
 #include "Style.H"
 #include <QPainter>
 #include <QDebug>
@@ -181,7 +182,10 @@ void GfxBlockItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
   bool take = false;
   if (but==Qt::LeftButton) {
     if (mod==Mode::Annotate) {
-      createNote(e->pos(), !data()->isRecent());
+      if (!data()->isRecent() && pageScene())
+        pageScene()->createNote(mapToScene(e->pos()));
+      else
+        createNote(e->pos(), !data()->isRecent());
       take = true;
     } else if (mod==Mode::Mark && isWritable()) {
       GfxMarkItem::newMark(e->pos(), this);
