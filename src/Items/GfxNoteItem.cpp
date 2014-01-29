@@ -41,6 +41,15 @@ GfxNoteItem::GfxNoteItem(GfxNoteData *data, Item *parent):
   if (data->textWidth()>1)
     text->setTextWidth(data->textWidth());
 
+  QTextCursor tc(text->document());
+  QTextBlockFormat fmt = tc.blockFormat();
+  fmt.setLineHeight(style().real("note-line-spacing")*100,
+		    QTextBlockFormat::ProportionalHeight);
+  tc.movePosition(QTextCursor::Start);
+  tc.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
+  tc.setBlockFormat(fmt);
+
+  
   connect(text, SIGNAL(abandoned()),
 	  this, SLOT(abandon()), Qt::QueuedConnection);
 		     
