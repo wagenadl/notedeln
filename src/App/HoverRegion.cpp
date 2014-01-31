@@ -219,7 +219,7 @@ void HoverRegion::openPage() {
   Resource *r = resource();
   ASSERT(r);
   QString tag = r->tag();
-  char last = tag[tag.size()-1].toAscii();
+  ushort last = tag[tag.size()-1].unicode();
 
   ASSERT(ti);
   ASSERT(ti->scene());
@@ -228,7 +228,7 @@ void HoverRegion::openPage() {
   PageView *pv = dynamic_cast<PageView *>(views[0]);
   ASSERT(pv);
 
-  if (last>='a') {
+  if (last>='a' && last<='z') {
     int pgno = tag.left(tag.size()-1).toInt();
     pv->gotoEntryPage(pgno);
     for (int n=0; n<=last-'a'; n++)
