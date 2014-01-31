@@ -31,6 +31,7 @@ private:
   void addRefEnd(QString key, ResManager const *resmgr);
   void buildGfxRefs(Data const *source, QList<QString> &dst);
   static void removeDirRecursively(QDir dir);
+  static QString escape(QString);
 private:
   QFile file;
   QTextStream html;

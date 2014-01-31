@@ -12,7 +12,9 @@ include(eln.pri)
 
 CONFIG += debug_and_release
 QT += network svg webkit
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets printsupport webkitwidgets
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets 
+greaterThan(QT_MAJOR_VERSION, 4): QT += printsupport
+greaterThan(QT_MAJOR_VERSION, 4): QT += webkitwidgets
 
 DEPENDPATH +=  $$sourcedirs
 INCLUDEPATH += $$sourcedirs

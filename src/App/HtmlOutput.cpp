@@ -38,7 +38,7 @@ HtmlOutput::HtmlOutput(QString outputFile, QString pageTitle):
        << "\"-//W3C//DTD HTML 4.01 Transitional//EN\">\n";
   html << "<html>\n";
   html << "<head>\n";
-  html << "<title>" << Qt::escape(pageTitle) << "</title>";
+  html << "<title>" << escape(pageTitle) << "</title>";
   html << "<link rel=\"stylesheet\" href=\"" << local
        << "/eln.css\" type=\"text/css\">\n";
   html << "<meta http-equiv=\"Content-Type\" "
@@ -77,7 +77,7 @@ void HtmlOutput::add(EntryScene *source) {
        << source->data()->created()
     .toString(source->style().string("date-format"))
        << "</div>\n";
-  html << "<div class=\"title\">" << Qt::escape(source->title()) << "</div>\n";
+  html << "<div class=\"title\">" << escape(source->title()) << "</div>\n";
 
   ResManager const *resmgr = source->data()->resManager();
 
@@ -166,14 +166,14 @@ void HtmlOutput::addRefStart(QString key, ResManager const *resmgr) {
   if (r) {
     QUrl url = r->sourceURL();
     if (url.isValid()) 
-      html << "<a href=\"" << Qt::escape(url.toString()) << "\">";
+      html << "<a href=\"" << escape(url.toString()) << "\">";
     else 
       html << "<span class=\"badurl\">"; // is this acceptable at all?
   } else {
     if (key.startsWith("http://") || key.startsWith("https://"))
-      html << "<a href=\"" << Qt::escape(key) << "\">";
+      html << "<a href=\"" << escape(key) << "\">";
     else if (key.startsWith("www"))
-      html << "<a href=\"http://" << Qt::escape(key) << "\">";
+      html << "<a href=\"http://" << escape(key) << "\">";
     else
       html << "<span class=\"nores\">";
   }
@@ -194,7 +194,7 @@ void HtmlOutput::addRefEnd(QString key, ResManager const *resmgr) {
       if (idx>=0)
         fn = fn.mid(idx+1);
       resfile.copy(res.absoluteFilePath(fn));
-      html << " <a href=\"" << Qt::escape(local) << "/" << fn << "\">"
+      html << " <a href=\"" << escape(local) << "/" << fn << "\">"
            << "(archived)</a>";
     }
   } else {
@@ -210,7 +210,7 @@ void HtmlOutput::addRefEnd(QString key, ResManager const *resmgr) {
 
 void HtmlOutput::addRef(QString key, ResManager const *resmgr) {
   addRefStart(key, resmgr);
-  html << Qt::escape(key) << "</a>";
+  html << escape(key) << "</a>";
   addRefEnd(key, resmgr);
 }
 
@@ -404,7 +404,7 @@ void HtmlOutput::add(TextData const *source, ResManager const *resmgr,
       if (tag=="a")
         addRefStart(hrefs[edge], resmgr);
       else if (tag == "a #")
-	html << ("<a href=\"#" + Qt::escape(hrefs[edge]) + "\" class=\"footnoteref\">");
+	html << ("<a href=\"#" + escape(hrefs[edge]) + "\" class=\"footnoteref\">");
       else if (!tag.isEmpty())
 	html << ("<" + tag + ">");
     }
@@ -413,7 +413,7 @@ void HtmlOutput::add(TextData const *source, ResManager const *resmgr,
       txt = txt.left(endidx-edge);
     if (startidx>edge)
       txt = txt.mid(startidx-edge);
-    html << Qt::escape(txt);
+    html << escape(txt);
   }  
 
   html << "</span>\n";
@@ -423,9 +423,17 @@ void HtmlOutput::add(TextData const *source, ResManager const *resmgr,
 void HtmlOutput::add(FootnoteData const *source, ResManager const *resmgr) {
   html << "<div class=\"footnote\">\n";
   html << "<span class=\"tag\">\n";
-  html << "<a name=\"" << Qt::escape(source->tag()) << "\"></a>";
-  html << Qt::escape(source->tag());
+  html << "<a name=\"" << escape(source->tag()) << "\"></a>";
+  html << escape(source->tag());
   html << ":</span>\n";
   add(source->text(), resmgr);
   html << "</div>\n";
+}
+
+QString HtmlOutput::escape(QString x) {
+#if QT_VERSION >= 0x050000
+  return x.toHtmlEscaped();
+#else
+  return Qt::escape(x);
+#endif
 }
