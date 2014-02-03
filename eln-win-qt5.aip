@@ -45,15 +45,17 @@
     <ROW Component="Qt5WebKitWidgets.dll" ComponentId="{4D5904A5-CEB9-4454-9AE8-0A29E9EB7AF9}" Directory_="APPDIR" Attributes="0" KeyPath="Qt5WebKitWidgets.dll"/>
     <ROW Component="Qt5Widgets.dll" ComponentId="{CB15751C-C128-46AE-912B-E4FAFE4FABD5}" Directory_="APPDIR" Attributes="0" KeyPath="Qt5Widgets.dll"/>
     <ROW Component="eln.exe" ComponentId="{A86194B3-AA5C-420B-B747-57DBDE7C77A9}" Directory_="APPDIR" Attributes="0" KeyPath="eln.exe"/>
+    <ROW Component="elnrepairtoc.exe" ComponentId="{8F9FC30F-208B-459B-9A86-54C03062C5BC}" Directory_="APPDIR" Attributes="0" KeyPath="elnrepairtoc.exe"/>
     <ROW Component="icudt51.dll" ComponentId="{52A36D7F-0954-41D6-BE12-556BF0534B24}" Directory_="APPDIR" Attributes="0" KeyPath="icudt51.dll"/>
     <ROW Component="icuin51.dll" ComponentId="{0E32FEF1-817F-4051-9B5B-D8C7657B3F38}" Directory_="APPDIR" Attributes="0" KeyPath="icuin51.dll"/>
     <ROW Component="icuuc51.dll" ComponentId="{5B36FE6F-A39C-4538-93B8-C29FB462AABE}" Directory_="APPDIR" Attributes="0" KeyPath="icuuc51.dll"/>
     <ROW Component="libgcc_s_dw21.dll" ComponentId="{9FA3C719-ABB6-4C12-A6AD-C8695D545323}" Directory_="APPDIR" Attributes="0" KeyPath="libgcc_s_dw21.dll"/>
     <ROW Component="libstdc6.dll" ComponentId="{E8CE02F5-5247-4413-BFFE-9F1DBECD4192}" Directory_="APPDIR" Attributes="0" KeyPath="libstdc6.dll"/>
     <ROW Component="libwinpthread1.dll" ComponentId="{7F0EFB0B-75EA-4A97-87A6-8DCED335C1FA}" Directory_="APPDIR" Attributes="0" KeyPath="libwinpthread1.dll"/>
+    <ROW Component="webgrab.exe" ComponentId="{0CF85C29-BAD0-4C02-A130-FD4B1479B9C5}" Directory_="APPDIR" Attributes="0" KeyPath="webgrab.exe"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiFeatsComponent">
-    <ROW Feature="MainFeature" Title="MainFeature" Description="Description" Display="1" Level="1" Directory_="APPDIR" Attributes="0" Components="ProductInformation Qt5Core.dll Qt5Gui.dll Qt5Multimedia.dll Qt5MultimediaWidgets.dll Qt5Network.dll Qt5OpenGL.dll Qt5Positioning.dll Qt5PrintSupport.dll Qt5Qml.dll Qt5Quick.dll Qt5Sensors.dll Qt5Sql.dll Qt5Svg.dll Qt5WebKit.dll Qt5WebKitWidgets.dll Qt5Widgets.dll eln.exe icudt51.dll icuin51.dll icuuc51.dll libgcc_s_dw21.dll libstdc6.dll libwinpthread1.dll"/>
+    <ROW Feature="MainFeature" Title="MainFeature" Description="Description" Display="1" Level="1" Directory_="APPDIR" Attributes="0" Components="ProductInformation Qt5Core.dll Qt5Gui.dll Qt5Multimedia.dll Qt5MultimediaWidgets.dll Qt5Network.dll Qt5OpenGL.dll Qt5Positioning.dll Qt5PrintSupport.dll Qt5Qml.dll Qt5Quick.dll Qt5Sensors.dll Qt5Sql.dll Qt5Svg.dll Qt5WebKit.dll Qt5WebKitWidgets.dll Qt5Widgets.dll eln.exe elnrepairtoc.exe icudt51.dll icuin51.dll icuuc51.dll libgcc_s_dw21.dll libstdc6.dll libwinpthread1.dll webgrab.exe"/>
     <ATTRIBUTE name="CurrentFeature" value="MainFeature"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiFilesComponent">
@@ -62,7 +64,7 @@
     <ROW File="Qt5Multimedia.dll" Component_="Qt5Multimedia.dll" FileName="Qt5Mul~1.dll|Qt5Multimedia.dll" Attributes="0" SourcePath="..\..\..\..\..\..\Qt\5.2.0\mingw48_32\bin\Qt5Multimedia.dll" SelfReg="false" NextFile="Qt5Positioning.dll"/>
     <ROW File="Qt5MultimediaWidgets.dll" Component_="Qt5MultimediaWidgets.dll" FileName="Qt5Mul~2.dll|Qt5MultimediaWidgets.dll" Attributes="0" SourcePath="..\..\..\..\..\..\Qt\5.2.0\mingw48_32\bin\Qt5MultimediaWidgets.dll" SelfReg="false" NextFile="Qt5OpenGL.dll"/>
     <ROW File="Qt5Network.dll" Component_="Qt5Network.dll" FileName="Qt5Net~1.dll|Qt5Network.dll" Attributes="0" SourcePath="..\..\..\..\..\..\Qt\5.2.0\mingw48_32\bin\Qt5Network.dll" SelfReg="false" NextFile="Qt5PrintSupport.dll"/>
-    <ROW File="Qt5OpenGL.dll" Component_="Qt5OpenGL.dll" FileName="Qt5Ope~1.dll|Qt5OpenGL.dll" Attributes="0" SourcePath="..\..\..\..\..\..\Qt\5.2.0\mingw48_32\bin\Qt5OpenGL.dll" SelfReg="false"/>
+    <ROW File="Qt5OpenGL.dll" Component_="Qt5OpenGL.dll" FileName="Qt5Ope~1.dll|Qt5OpenGL.dll" Attributes="0" SourcePath="..\..\..\..\..\..\Qt\5.2.0\mingw48_32\bin\Qt5OpenGL.dll" SelfReg="false" NextFile="elnrepairtoc.exe"/>
     <ROW File="Qt5Positioning.dll" Component_="Qt5Positioning.dll" FileName="Qt5Pos~1.dll|Qt5Positioning.dll" Attributes="0" SourcePath="..\..\..\..\..\..\Qt\5.2.0\mingw48_32\bin\Qt5Positioning.dll" SelfReg="false" NextFile="Qt5Qml.dll"/>
     <ROW File="Qt5PrintSupport.dll" Component_="Qt5PrintSupport.dll" FileName="Qt5Pri~1.dll|Qt5PrintSupport.dll" Attributes="0" SourcePath="..\..\..\..\..\..\Qt\5.2.0\mingw48_32\bin\Qt5PrintSupport.dll" SelfReg="false" NextFile="Qt5Svg.dll"/>
     <ROW File="Qt5Qml.dll" Component_="Qt5Qml.dll" FileName="Qt5Qml.dll" Attributes="0" SourcePath="..\..\..\..\..\..\Qt\5.2.0\mingw48_32\bin\Qt5Qml.dll" SelfReg="false" NextFile="Qt5Quick.dll"/>
@@ -74,12 +76,14 @@
     <ROW File="Qt5WebKitWidgets.dll" Component_="Qt5WebKitWidgets.dll" FileName="Qt5Web~2.dll|Qt5WebKitWidgets.dll" Attributes="0" SourcePath="..\..\..\..\..\..\Qt\5.2.0\mingw48_32\bin\Qt5WebKitWidgets.dll" SelfReg="false" NextFile="Qt5Widgets.dll"/>
     <ROW File="Qt5Widgets.dll" Component_="Qt5Widgets.dll" FileName="Qt5Wid~1.dll|Qt5Widgets.dll" Attributes="0" SourcePath="..\..\..\..\..\..\Qt\5.2.0\mingw48_32\bin\Qt5Widgets.dll" SelfReg="false" NextFile="libgcc_s_dw21.dll"/>
     <ROW File="eln.exe" Component_="eln.exe" FileName="eln.exe" Attributes="0" SourcePath="build-eln-Desktop_Qt_5_2_0_MinGW_32bit-Release\release\eln.exe" SelfReg="false" NextFile="Qt5Core.dll" DigSign="true"/>
+    <ROW File="elnrepairtoc.exe" Component_="elnrepairtoc.exe" FileName="eln-re~1.exe|eln-repairtoc.exe" Attributes="0" SourcePath="build-repairtoc-Desktop_Qt_5_2_0_MinGW_32bit-Release\release\eln-repairtoc.exe" SelfReg="false" NextFile="webgrab.exe" DigSign="true"/>
     <ROW File="icudt51.dll" Component_="icudt51.dll" FileName="icudt51.dll" Attributes="0" SourcePath="..\..\..\..\..\..\Qt\5.2.0\mingw48_32\bin\icudt51.dll" SelfReg="false" NextFile="Qt5Multimedia.dll"/>
     <ROW File="icuin51.dll" Component_="icuin51.dll" FileName="icuin51.dll" Attributes="0" SourcePath="..\..\..\..\..\..\Qt\5.2.0\mingw48_32\bin\icuin51.dll" SelfReg="false" NextFile="icuuc51.dll"/>
     <ROW File="icuuc51.dll" Component_="icuuc51.dll" FileName="icuuc51.dll" Attributes="0" SourcePath="..\..\..\..\..\..\Qt\5.2.0\mingw48_32\bin\icuuc51.dll" SelfReg="false" NextFile="icudt51.dll"/>
     <ROW File="libgcc_s_dw21.dll" Component_="libgcc_s_dw21.dll" FileName="libgcc~1.dll|libgcc_s_dw2-1.dll" Attributes="0" SourcePath="..\..\..\..\..\..\Qt\5.2.0\mingw48_32\bin\libgcc_s_dw2-1.dll" SelfReg="false" NextFile="libstdc6.dll"/>
     <ROW File="libstdc6.dll" Component_="libstdc6.dll" FileName="libstd~1.dll|libstdc++-6.dll" Attributes="0" SourcePath="..\..\..\..\..\..\Qt\Tools\mingw48_32\bin\libstdc++-6.dll" SelfReg="false" NextFile="libwinpthread1.dll"/>
     <ROW File="libwinpthread1.dll" Component_="libwinpthread1.dll" FileName="libwin~1.dll|libwinpthread-1.dll" Attributes="0" SourcePath="..\..\..\..\..\..\Qt\5.2.0\mingw48_32\bin\libwinpthread-1.dll" SelfReg="false" NextFile="icuin51.dll"/>
+    <ROW File="webgrab.exe" Component_="webgrab.exe" FileName="webgrab.exe" Attributes="0" SourcePath="build-webgrab-Desktop_Qt_5_2_0_MinGW_32bit-Release\release\webgrab.exe" SelfReg="false" DigSign="true"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.BuildComponent">
     <ROW BuildKey="DefaultBuild" BuildName="DefaultBuild" BuildOrder="1" BuildType="0" Languages="en" InstallationType="4" UseLargeSchema="true"/>

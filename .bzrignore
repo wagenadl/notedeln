@@ -25,3 +25,8 @@ build
 ./build-eln-Desktop_Qt_5_2_0_MinGW_32bit-Debug
 ./build-eln-Desktop_Qt_5_2_0_MinGW_32bit-Release
 ./eln-win-qt5-SetupFiles
+build-repairtoc-Desktop_Qt_5_2_0_MinGW_32bit-Release
+build-webgrab-Desktop_Qt_5_2_0_MinGW_32bit-Release
+eln-win-qt5-cache
+repairtoc.pro.user.67554f1.2.7pre1
+webgrab.pro.user.67554f1.2.7pre1
