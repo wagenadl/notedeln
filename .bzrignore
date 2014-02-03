@@ -22,3 +22,6 @@ debian/files
 eln_debug
 octave-core
 build
+./build-eln-Desktop_Qt_5_2_0_MinGW_32bit-Debug
+./build-eln-Desktop_Qt_5_2_0_MinGW_32bit-Release
+./eln-win-qt5-SetupFiles

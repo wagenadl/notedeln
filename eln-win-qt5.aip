@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<DOCUMENT Type="Advanced Installer" CreateVersion="10.6" version="10.6" Modules="simple" RootPath="." Language="en" Id="{102B1BF7-5F8E-4BF3-A081-E7075ABE7818}">
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiPropsComponent">
+    <ROW Property="AI_BITMAP_DISPLAY_MODE" Value="0"/>
+    <ROW Property="ALLUSERS" Value="1"/>
+    <ROW Property="ARPCOMMENTS" Value="This installer database contains the logic and data required to install [|ProductName]." ValueLocId="*"/>
+    <ROW Property="ARPCONTACT" Value="daniel.wagenaar@uc.edu"/>
+    <ROW Property="ARPNOMODIFY" MultiBuildValue="DefaultBuild:1"/>
+    <ROW Property="ARPPRODUCTICON" Value="eln.exe" Type="8"/>
+    <ROW Property="ARPURLINFOABOUT" Value="http://www.danielwagenaar.net/res/software/eln"/>
+    <ROW Property="Manufacturer" Value="Daniel Wagenaar"/>
+    <ROW Property="ProductCode" Value="1033:{573D0FC6-AF09-439A-8AD4-39CE6DCF2E95} " Type="16"/>
+    <ROW Property="ProductLanguage" Value="1033"/>
+    <ROW Property="ProductName" Value="eln"/>
+    <ROW Property="ProductVersion" Value="1.3" Type="32"/>
+    <ROW Property="SecureCustomProperties" Value="OLDPRODUCTS;AI_NEWERPRODUCTFOUND"/>
+    <ROW Property="UpgradeCode" Value="{C6C85204-2E1F-421F-B3C0-A4985844BB4C}"/>
+    <ROW Property="WindowsType9X" MultiBuildValue="DefaultBuild:Windows 9x/ME" ValueLocId="-"/>
+    <ROW Property="WindowsType9XDisplay" MultiBuildValue="DefaultBuild:Windows 9x/ME" ValueLocId="-"/>
+    <ROW Property="WindowsTypeNT40" MultiBuildValue="DefaultBuild:Windows NT 4.0" ValueLocId="-"/>
+    <ROW Property="WindowsTypeNT40Display" MultiBuildValue="DefaultBuild:Windows NT 4.0" ValueLocId="-"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiDirsComponent">
+    <ROW Directory="APPDIR" Directory_Parent="TARGETDIR" DefaultDir="APPDIR:." IsPseudoRoot="1"/>
+    <ROW Directory="DesktopFolder" Directory_Parent="TARGETDIR" DefaultDir="Deskto~1|DesktopFolder" IsPseudoRoot="1"/>
+    <ROW Directory="ProgramMenuFolder" Directory_Parent="TARGETDIR" DefaultDir="Progra~1|ProgramMenuFolder" IsPseudoRoot="1"/>
+    <ROW Directory="TARGETDIR" DefaultDir="SourceDir"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiCompsComponent">
+    <ROW Component="ProductInformation" ComponentId="{5DA7A4FF-55D7-4D58-B260-03FEBE1C0161}" Directory_="APPDIR" Attributes="4" KeyPath="Version"/>
+    <ROW Component="Qt5Core.dll" ComponentId="{ECB71E98-3F6C-4D79-9684-8648917BBD12}" Directory_="APPDIR" Attributes="0" KeyPath="Qt5Core.dll"/>
+    <ROW Component="Qt5Gui.dll" ComponentId="{3050ADB2-3807-443A-A1CE-B78ED7DE0916}" Directory_="APPDIR" Attributes="0" KeyPath="Qt5Gui.dll"/>
+    <ROW Component="Qt5Multimedia.dll" ComponentId="{CAD0910C-7387-41A7-BD76-AA2C9E69629A}" Directory_="APPDIR" Attributes="0" KeyPath="Qt5Multimedia.dll"/>
+    <ROW Component="Qt5MultimediaWidgets.dll" ComponentId="{2C6337A3-F5EA-4B2A-87B8-6ACF8424F8DA}" Directory_="APPDIR" Attributes="0" KeyPath="Qt5MultimediaWidgets.dll"/>
+    <ROW Component="Qt5Network.dll" ComponentId="{AC946339-3FAC-40A1-97EA-954D2785E884}" Directory_="APPDIR" Attributes="0" KeyPath="Qt5Network.dll"/>
+    <ROW Component="Qt5OpenGL.dll" ComponentId="{9FCBDD4D-EDBC-41EF-B380-FB50AD74EA41}" Directory_="APPDIR" Attributes="0" KeyPath="Qt5OpenGL.dll"/>
+    <ROW Component="Qt5Positioning.dll" ComponentId="{F53BF0E9-152D-4851-A388-E58AFF76DD59}" Directory_="APPDIR" Attributes="0" KeyPath="Qt5Positioning.dll"/>
+    <ROW Component="Qt5PrintSupport.dll" ComponentId="{6A550E2C-D5FB-4E2A-BDA7-7E2E0B7DDD5B}" Directory_="APPDIR" Attributes="0" KeyPath="Qt5PrintSupport.dll"/>
+    <ROW Component="Qt5Qml.dll" ComponentId="{05ADBEAC-B3EE-4B5C-B07D-93AB6D35DC5F}" Directory_="APPDIR" Attributes="0" KeyPath="Qt5Qml.dll"/>
+    <ROW Component="Qt5Quick.dll" ComponentId="{15902580-071D-49D7-ADE0-0A70891DB0F8}" Directory_="APPDIR" Attributes="0" KeyPath="Qt5Quick.dll"/>
+    <ROW Component="Qt5Sensors.dll" ComponentId="{6C77D23F-EE6C-47B0-8B5B-B1B94358081C}" Directory_="APPDIR" Attributes="0" KeyPath="Qt5Sensors.dll"/>
+    <ROW Component="Qt5Sql.dll" ComponentId="{2C7AC8DD-E7B4-4E71-A414-401C4E4C8850}" Directory_="APPDIR" Attributes="0" KeyPath="Qt5Sql.dll"/>
+    <ROW Component="Qt5Svg.dll" ComponentId="{E2C664F4-EABF-4109-A972-F4DFBF365BC4}" Directory_="APPDIR" Attributes="0" KeyPath="Qt5Svg.dll"/>
+    <ROW Component="Qt5WebKit.dll" ComponentId="{65E29A46-E105-4E70-BEEB-D2B1D2151DB7}" Directory_="APPDIR" Attributes="0" KeyPath="Qt5WebKit.dll"/>
+    <ROW Component="Qt5WebKitWidgets.dll" ComponentId="{4D5904A5-CEB9-4454-9AE8-0A29E9EB7AF9}" Directory_="APPDIR" Attributes="0" KeyPath="Qt5WebKitWidgets.dll"/>
+    <ROW Component="Qt5Widgets.dll" ComponentId="{CB15751C-C128-46AE-912B-E4FAFE4FABD5}" Directory_="APPDIR" Attributes="0" KeyPath="Qt5Widgets.dll"/>
+    <ROW Component="eln.exe" ComponentId="{A86194B3-AA5C-420B-B747-57DBDE7C77A9}" Directory_="APPDIR" Attributes="0" KeyPath="eln.exe"/>
+    <ROW Component="icudt51.dll" ComponentId="{52A36D7F-0954-41D6-BE12-556BF0534B24}" Directory_="APPDIR" Attributes="0" KeyPath="icudt51.dll"/>
+    <ROW Component="icuin51.dll" ComponentId="{0E32FEF1-817F-4051-9B5B-D8C7657B3F38}" Directory_="APPDIR" Attributes="0" KeyPath="icuin51.dll"/>
+    <ROW Component="icuuc51.dll" ComponentId="{5B36FE6F-A39C-4538-93B8-C29FB462AABE}" Directory_="APPDIR" Attributes="0" KeyPath="icuuc51.dll"/>
+    <ROW Component="libgcc_s_dw21.dll" ComponentId="{9FA3C719-ABB6-4C12-A6AD-C8695D545323}" Directory_="APPDIR" Attributes="0" KeyPath="libgcc_s_dw21.dll"/>
+    <ROW Component="libstdc6.dll" ComponentId="{E8CE02F5-5247-4413-BFFE-9F1DBECD4192}" Directory_="APPDIR" Attributes="0" KeyPath="libstdc6.dll"/>
+    <ROW Component="libwinpthread1.dll" ComponentId="{7F0EFB0B-75EA-4A97-87A6-8DCED335C1FA}" Directory_="APPDIR" Attributes="0" KeyPath="libwinpthread1.dll"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiFeatsComponent">
+    <ROW Feature="MainFeature" Title="MainFeature" Description="Description" Display="1" Level="1" Directory_="APPDIR" Attributes="0" Components="ProductInformation Qt5Core.dll Qt5Gui.dll Qt5Multimedia.dll Qt5MultimediaWidgets.dll Qt5Network.dll Qt5OpenGL.dll Qt5Positioning.dll Qt5PrintSupport.dll Qt5Qml.dll Qt5Quick.dll Qt5Sensors.dll Qt5Sql.dll Qt5Svg.dll Qt5WebKit.dll Qt5WebKitWidgets.dll Qt5Widgets.dll eln.exe icudt51.dll icuin51.dll icuuc51.dll libgcc_s_dw21.dll libstdc6.dll libwinpthread1.dll"/>
+    <ATTRIBUTE name="CurrentFeature" value="MainFeature"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiFilesComponent">
+    <ROW File="Qt5Core.dll" Component_="Qt5Core.dll" FileName="Qt5Core.dll" Attributes="0" SourcePath="..\..\..\..\..\..\Qt\5.2.0\mingw48_32\bin\Qt5Core.dll" SelfReg="false" NextFile="Qt5Gui.dll"/>
+    <ROW File="Qt5Gui.dll" Component_="Qt5Gui.dll" FileName="Qt5Gui.dll" Attributes="0" SourcePath="..\..\..\..\..\..\Qt\5.2.0\mingw48_32\bin\Qt5Gui.dll" SelfReg="false" NextFile="Qt5Network.dll"/>
+    <ROW File="Qt5Multimedia.dll" Component_="Qt5Multimedia.dll" FileName="Qt5Mul~1.dll|Qt5Multimedia.dll" Attributes="0" SourcePath="..\..\..\..\..\..\Qt\5.2.0\mingw48_32\bin\Qt5Multimedia.dll" SelfReg="false" NextFile="Qt5Positioning.dll"/>
+    <ROW File="Qt5MultimediaWidgets.dll" Component_="Qt5MultimediaWidgets.dll" FileName="Qt5Mul~2.dll|Qt5MultimediaWidgets.dll" Attributes="0" SourcePath="..\..\..\..\..\..\Qt\5.2.0\mingw48_32\bin\Qt5MultimediaWidgets.dll" SelfReg="false" NextFile="Qt5OpenGL.dll"/>
+    <ROW File="Qt5Network.dll" Component_="Qt5Network.dll" FileName="Qt5Net~1.dll|Qt5Network.dll" Attributes="0" SourcePath="..\..\..\..\..\..\Qt\5.2.0\mingw48_32\bin\Qt5Network.dll" SelfReg="false" NextFile="Qt5PrintSupport.dll"/>
+    <ROW File="Qt5OpenGL.dll" Component_="Qt5OpenGL.dll" FileName="Qt5Ope~1.dll|Qt5OpenGL.dll" Attributes="0" SourcePath="..\..\..\..\..\..\Qt\5.2.0\mingw48_32\bin\Qt5OpenGL.dll" SelfReg="false"/>
+    <ROW File="Qt5Positioning.dll" Component_="Qt5Positioning.dll" FileName="Qt5Pos~1.dll|Qt5Positioning.dll" Attributes="0" SourcePath="..\..\..\..\..\..\Qt\5.2.0\mingw48_32\bin\Qt5Positioning.dll" SelfReg="false" NextFile="Qt5Qml.dll"/>
+    <ROW File="Qt5PrintSupport.dll" Component_="Qt5PrintSupport.dll" FileName="Qt5Pri~1.dll|Qt5PrintSupport.dll" Attributes="0" SourcePath="..\..\..\..\..\..\Qt\5.2.0\mingw48_32\bin\Qt5PrintSupport.dll" SelfReg="false" NextFile="Qt5Svg.dll"/>
+    <ROW File="Qt5Qml.dll" Component_="Qt5Qml.dll" FileName="Qt5Qml.dll" Attributes="0" SourcePath="..\..\..\..\..\..\Qt\5.2.0\mingw48_32\bin\Qt5Qml.dll" SelfReg="false" NextFile="Qt5Quick.dll"/>
+    <ROW File="Qt5Quick.dll" Component_="Qt5Quick.dll" FileName="Qt5Quick.dll" Attributes="0" SourcePath="..\..\..\..\..\..\Qt\5.2.0\mingw48_32\bin\Qt5Quick.dll" SelfReg="false" NextFile="Qt5Sensors.dll"/>
+    <ROW File="Qt5Sensors.dll" Component_="Qt5Sensors.dll" FileName="Qt5Sen~1.dll|Qt5Sensors.dll" Attributes="0" SourcePath="..\..\..\..\..\..\Qt\5.2.0\mingw48_32\bin\Qt5Sensors.dll" SelfReg="false" NextFile="Qt5Sql.dll"/>
+    <ROW File="Qt5Sql.dll" Component_="Qt5Sql.dll" FileName="Qt5Sql.dll" Attributes="0" SourcePath="..\..\..\..\..\..\Qt\5.2.0\mingw48_32\bin\Qt5Sql.dll" SelfReg="false" NextFile="Qt5MultimediaWidgets.dll"/>
+    <ROW File="Qt5Svg.dll" Component_="Qt5Svg.dll" FileName="Qt5Svg.dll" Attributes="0" SourcePath="..\..\..\..\..\..\Qt\5.2.0\mingw48_32\bin\Qt5Svg.dll" SelfReg="false" NextFile="Qt5WebKit.dll"/>
+    <ROW File="Qt5WebKit.dll" Component_="Qt5WebKit.dll" FileName="Qt5Web~1.dll|Qt5WebKit.dll" Attributes="0" SourcePath="..\..\..\..\..\..\Qt\5.2.0\mingw48_32\bin\Qt5WebKit.dll" SelfReg="false" NextFile="Qt5WebKitWidgets.dll"/>
+    <ROW File="Qt5WebKitWidgets.dll" Component_="Qt5WebKitWidgets.dll" FileName="Qt5Web~2.dll|Qt5WebKitWidgets.dll" Attributes="0" SourcePath="..\..\..\..\..\..\Qt\5.2.0\mingw48_32\bin\Qt5WebKitWidgets.dll" SelfReg="false" NextFile="Qt5Widgets.dll"/>
+    <ROW File="Qt5Widgets.dll" Component_="Qt5Widgets.dll" FileName="Qt5Wid~1.dll|Qt5Widgets.dll" Attributes="0" SourcePath="..\..\..\..\..\..\Qt\5.2.0\mingw48_32\bin\Qt5Widgets.dll" SelfReg="false" NextFile="libgcc_s_dw21.dll"/>
+    <ROW File="eln.exe" Component_="eln.exe" FileName="eln.exe" Attributes="0" SourcePath="build-eln-Desktop_Qt_5_2_0_MinGW_32bit-Release\release\eln.exe" SelfReg="false" NextFile="Qt5Core.dll" DigSign="true"/>
+    <ROW File="icudt51.dll" Component_="icudt51.dll" FileName="icudt51.dll" Attributes="0" SourcePath="..\..\..\..\..\..\Qt\5.2.0\mingw48_32\bin\icudt51.dll" SelfReg="false" NextFile="Qt5Multimedia.dll"/>
+    <ROW File="icuin51.dll" Component_="icuin51.dll" FileName="icuin51.dll" Attributes="0" SourcePath="..\..\..\..\..\..\Qt\5.2.0\mingw48_32\bin\icuin51.dll" SelfReg="false" NextFile="icuuc51.dll"/>
+    <ROW File="icuuc51.dll" Component_="icuuc51.dll" FileName="icuuc51.dll" Attributes="0" SourcePath="..\..\..\..\..\..\Qt\5.2.0\mingw48_32\bin\icuuc51.dll" SelfReg="false" NextFile="icudt51.dll"/>
+    <ROW File="libgcc_s_dw21.dll" Component_="libgcc_s_dw21.dll" FileName="libgcc~1.dll|libgcc_s_dw2-1.dll" Attributes="0" SourcePath="..\..\..\..\..\..\Qt\5.2.0\mingw48_32\bin\libgcc_s_dw2-1.dll" SelfReg="false" NextFile="libstdc6.dll"/>
+    <ROW File="libstdc6.dll" Component_="libstdc6.dll" FileName="libstd~1.dll|libstdc++-6.dll" Attributes="0" SourcePath="..\..\..\..\..\..\Qt\Tools\mingw48_32\bin\libstdc++-6.dll" SelfReg="false" NextFile="libwinpthread1.dll"/>
+    <ROW File="libwinpthread1.dll" Component_="libwinpthread1.dll" FileName="libwin~1.dll|libwinpthread-1.dll" Attributes="0" SourcePath="..\..\..\..\..\..\Qt\5.2.0\mingw48_32\bin\libwinpthread-1.dll" SelfReg="false" NextFile="icuin51.dll"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.BuildComponent">
+    <ROW BuildKey="DefaultBuild" BuildName="DefaultBuild" BuildOrder="1" BuildType="0" Languages="en" InstallationType="4" UseLargeSchema="true"/>
+    <ATTRIBUTE name="CurrentBuild" value="DefaultBuild"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.DictionaryComponent">
+    <ROW Path="&lt;AI_DICTS&gt;ui.ail"/>
+    <ROW Path="&lt;AI_DICTS&gt;ui_en.ail"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.FragmentComponent">
+    <ROW Fragment="CommonUI.aip" Path="&lt;AI_FRAGS&gt;CommonUI.aip"/>
+    <ROW Fragment="FolderDlg.aip" Path="&lt;AI_THEMES&gt;classic\fragments\FolderDlg.aip"/>
+    <ROW Fragment="MaintenanceTypeDlg.aip" Path="&lt;AI_THEMES&gt;classic\fragments\MaintenanceTypeDlg.aip"/>
+    <ROW Fragment="MaintenanceWelcomeDlg.aip" Path="&lt;AI_THEMES&gt;classic\fragments\MaintenanceWelcomeDlg.aip"/>
+    <ROW Fragment="SequenceDialogs.aip" Path="&lt;AI_THEMES&gt;classic\fragments\SequenceDialogs.aip"/>
+    <ROW Fragment="Sequences.aip" Path="&lt;AI_FRAGS&gt;Sequences.aip"/>
+    <ROW Fragment="StaticUIStrings.aip" Path="&lt;AI_FRAGS&gt;StaticUIStrings.aip"/>
+    <ROW Fragment="UI.aip" Path="&lt;AI_THEMES&gt;classic\fragments\UI.aip"/>
+    <ROW Fragment="Validation.aip" Path="&lt;AI_FRAGS&gt;Validation.aip"/>
+    <ROW Fragment="VerifyRemoveDlg.aip" Path="&lt;AI_THEMES&gt;classic\fragments\VerifyRemoveDlg.aip"/>
+    <ROW Fragment="VerifyRepairDlg.aip" Path="&lt;AI_THEMES&gt;classic\fragments\VerifyRepairDlg.aip"/>
+    <ROW Fragment="WelcomeDlg.aip" Path="&lt;AI_THEMES&gt;classic\fragments\WelcomeDlg.aip"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiBinaryComponent">
+    <ROW Name="aicustact.dll" SourcePath="&lt;AI_CUSTACTS&gt;aicustact.dll"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiControlEventComponent">
+    <ROW Dialog_="WelcomeDlg" Control_="Next" Event="NewDialog" Argument="FolderDlg" Condition="AI_INSTALL" Ordering="1"/>
+    <ROW Dialog_="FolderDlg" Control_="Next" Event="NewDialog" Argument="VerifyReadyDlg" Condition="AI_INSTALL" Ordering="201"/>
+    <ROW Dialog_="FolderDlg" Control_="Back" Event="NewDialog" Argument="WelcomeDlg" Condition="AI_INSTALL" Ordering="1"/>
+    <ROW Dialog_="MaintenanceWelcomeDlg" Control_="Next" Event="NewDialog" Argument="MaintenanceTypeDlg" Condition="AI_MAINT" Ordering="99"/>
+    <ROW Dialog_="VerifyReadyDlg" Control_="Install" Event="EndDialog" Argument="Return" Condition="AI_MAINT" Ordering="198"/>
+    <ROW Dialog_="VerifyReadyDlg" Control_="Back" Event="NewDialog" Argument="CustomizeDlg" Condition="AI_MAINT" Ordering="202"/>
+    <ROW Dialog_="VerifyReadyDlg" Control_="Install" Event="EndDialog" Argument="Return" Condition="AI_INSTALL" Ordering="197"/>
+    <ROW Dialog_="VerifyReadyDlg" Control_="Back" Event="NewDialog" Argument="FolderDlg" Condition="AI_INSTALL" Ordering="201"/>
+    <ROW Dialog_="CustomizeDlg" Control_="Next" Event="NewDialog" Argument="VerifyReadyDlg" Condition="AI_MAINT" Ordering="101"/>
+    <ROW Dialog_="CustomizeDlg" Control_="Back" Event="NewDialog" Argument="MaintenanceTypeDlg" Condition="AI_MAINT" Ordering="1"/>
+    <ROW Dialog_="MaintenanceTypeDlg" Control_="ChangeButton" Event="NewDialog" Argument="CustomizeDlg" Condition="AI_MAINT" Ordering="501"/>
+    <ROW Dialog_="MaintenanceTypeDlg" Control_="Back" Event="NewDialog" Argument="MaintenanceWelcomeDlg" Condition="AI_MAINT" Ordering="1"/>
+    <ROW Dialog_="MaintenanceTypeDlg" Control_="RemoveButton" Event="NewDialog" Argument="VerifyRemoveDlg" Condition="AI_MAINT AND InstallMode=&quot;Remove&quot;" Ordering="601"/>
+    <ROW Dialog_="VerifyRemoveDlg" Control_="Back" Event="NewDialog" Argument="MaintenanceTypeDlg" Condition="AI_MAINT AND InstallMode=&quot;Remove&quot;" Ordering="1"/>
+    <ROW Dialog_="MaintenanceTypeDlg" Control_="RepairButton" Event="NewDialog" Argument="VerifyRepairDlg" Condition="AI_MAINT AND InstallMode=&quot;Repair&quot;" Ordering="601"/>
+    <ROW Dialog_="VerifyRepairDlg" Control_="Back" Event="NewDialog" Argument="MaintenanceTypeDlg" Condition="AI_MAINT AND InstallMode=&quot;Repair&quot;" Ordering="1"/>
+    <ROW Dialog_="VerifyRepairDlg" Control_="Repair" Event="EndDialog" Argument="Return" Condition="AI_MAINT AND InstallMode=&quot;Repair&quot;" Ordering="399" Options="1"/>
+    <ROW Dialog_="VerifyRemoveDlg" Control_="Remove" Event="EndDialog" Argument="Return" Condition="AI_MAINT AND InstallMode=&quot;Remove&quot;" Ordering="299" Options="1"/>
+    <ROW Dialog_="PatchWelcomeDlg" Control_="Next" Event="NewDialog" Argument="VerifyReadyDlg" Condition="AI_PATCH" Ordering="201"/>
+    <ROW Dialog_="ResumeDlg" Control_="Install" Event="EndDialog" Argument="Return" Condition="AI_RESUME" Ordering="299"/>
+    <ROW Dialog_="VerifyReadyDlg" Control_="Install" Event="EndDialog" Argument="Return" Condition="AI_PATCH" Ordering="199"/>
+    <ROW Dialog_="VerifyReadyDlg" Control_="Back" Event="NewDialog" Argument="PatchWelcomeDlg" Condition="AI_PATCH" Ordering="203"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiCustActComponent">
+    <ROW Action="AI_DOWNGRADE" Type="19" Target="4010"/>
+    <ROW Action="AI_DpiContentScale" Type="1" Source="aicustact.dll" Target="DpiContentScale"/>
+    <ROW Action="AI_InstallModeCheck" Type="1" Source="aicustact.dll" Target="UpdateInstallMode" WithoutSeq="true"/>
+    <ROW Action="AI_PREPARE_UPGRADE" Type="65" Source="aicustact.dll" Target="PrepareUpgrade"/>
+    <ROW Action="AI_RESTORE_LOCATION" Type="65" Source="aicustact.dll" Target="RestoreLocation"/>
+    <ROW Action="AI_ResolveKnownFolders" Type="1" Source="aicustact.dll" Target="AI_ResolveKnownFolders"/>
+    <ROW Action="AI_ResolveLocalizedCredentials" Type="1" Source="aicustact.dll" Target="GetLocalizedCredentials"/>
+    <ROW Action="AI_SHOW_LOG" Type="65" Source="aicustact.dll" Target="LaunchLogFile" WithoutSeq="true"/>
+    <ROW Action="AI_STORE_LOCATION" Type="51" Source="ARPINSTALLLOCATION" Target="[APPDIR]"/>
+    <ROW Action="SET_APPDIR" Type="307" Source="APPDIR" Target="[ProgramFilesFolder][Manufacturer]\[ProductName]"/>
+    <ROW Action="SET_SHORTCUTDIR" Type="307" Source="SHORTCUTDIR" Target="[ProgramMenuFolder][ProductName]"/>
+    <ROW Action="SET_TARGETDIR_TO_APPDIR" Type="51" Source="TARGETDIR" Target="[APPDIR]"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiIconsComponent">
+    <ROW Name="eln.exe" SourcePath="src\App\eln.ico" Index="0"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiInstExSeqComponent">
+    <ROW Action="AI_DOWNGRADE" Condition="AI_NEWERPRODUCTFOUND AND (UILevel &lt;&gt; 5)" Sequence="210"/>
+    <ROW Action="AI_RESTORE_LOCATION" Condition="APPDIR=&quot;&quot;" Sequence="749"/>
+    <ROW Action="AI_STORE_LOCATION" Condition="(Not Installed) OR REINSTALL" Sequence="1501"/>
+    <ROW Action="AI_PREPARE_UPGRADE" Condition="AI_UPGRADE=&quot;No&quot; AND (Not Installed)" Sequence="1399"/>
+    <ROW Action="AI_ResolveKnownFolders" Sequence="52"/>
+    <ROW Action="AI_ResolveLocalizedCredentials" Sequence="51"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiInstallUISequenceComponent">
+    <ROW Action="AI_RESTORE_LOCATION" Condition="APPDIR=&quot;&quot;" Sequence="749"/>
+    <ROW Action="AI_ResolveKnownFolders" Sequence="53"/>
+    <ROW Action="AI_ResolveLocalizedCredentials" Sequence="52"/>
+    <ROW Action="AI_DpiContentScale" Sequence="51"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiLaunchConditionsComponent">
+    <ROW Condition="(VersionNT &lt;&gt; 400)" Description="[ProductName] cannot be installed on the following Windows versions: [WindowsTypeNT40Display]" DescriptionLocId="AI.LaunchCondition.NoNT40" IsPredefined="true" Builds="DefaultBuild"/>
+    <ROW Condition="VersionNT" Description="[ProductName] cannot be installed on [WindowsType9XDisplay]" DescriptionLocId="AI.LaunchCondition.No9X" IsPredefined="true" Builds="DefaultBuild"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiRegsComponent">
+    <ROW Registry="Path" Root="-1" Key="Software\[Manufacturer]\[ProductName]" Name="Path" Value="[APPDIR]" Component_="ProductInformation"/>
+    <ROW Registry="Version" Root="-1" Key="Software\[Manufacturer]\[ProductName]" Name="Version" Value="[ProductVersion]" Component_="ProductInformation"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiShortsComponent">
+    <ROW Shortcut="eln" Directory_="ProgramMenuFolder" Name="eln" Component_="eln.exe" Target="[#eln.exe]" Description="Electronic Lab Notebook" Hotkey="0" IconIndex="0" ShowCmd="1" WkDir="APPDIR"/>
+    <ROW Shortcut="eln_1" Directory_="DesktopFolder" Name="eln" Component_="eln.exe" Target="[#eln.exe]" Description="Electronic Lab Notebook" Hotkey="0" IconIndex="0" ShowCmd="1" WkDir="APPDIR"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiThemeComponent">
+    <ATTRIBUTE name="UsedTheme" value="classic"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiUpgradeComponent">
+    <ROW UpgradeCode="[|UpgradeCode]" VersionMax="[|ProductVersion]" Attributes="1025" ActionProperty="OLDPRODUCTS"/>
+    <ROW UpgradeCode="[|UpgradeCode]" VersionMin="[|ProductVersion]" Attributes="2" ActionProperty="AI_NEWERPRODUCTFOUND"/>
+  </COMPONENT>
+</DOCUMENT>
