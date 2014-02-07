@@ -424,18 +424,26 @@ bool TextItem::keyPressAsSpecialEvent(QKeyEvent *e) {
     if (tc.position()==0 && p) {
       // we are in a text block, so we could fiddle with indentation
       bool hasIndent = p->data()->indented();
+      bool hasDedent = p->data()->dedented();
       bool hasShift = e->modifiers() & Qt::ShiftModifier;
       bool hasControl = e->modifiers() & Qt::ControlModifier;
       if (hasControl) {
         p->data()->setDisplayed(!p->data()->displayed());
-        p->initializeFormat();
-        return true;
+      } else if (hasShift) {
+        if (hasIndent) 
+          p->data()->setIndented(false);
+        else if (hasDedent)
+          p->data()->setIndented(true);
+        else
+          p->data()->setDedented(true);
+      } else {
+        if (hasDedent)
+          p->data()->setDedented(false);
+        else if (!hasIndent)
+          p->data()->setIndented(true);
       }
-      if ((hasIndent && hasShift) || (!hasIndent && !hasShift)) {
-        p->data()->setIndented(!hasShift);
-        p->initializeFormat();
-        return true;
-      }
+      p->initializeFormat();
+      return true;
     }
   } else if (QString(",; \n").contains(e->text()) && tryAutoLink()) {
     return false; // don't gobble these keys, so don't return true

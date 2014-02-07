@@ -14,6 +14,8 @@
    along with eln.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#define NOHIDETOOLBARS 0
+
 #include "PageView.H"
 #include "Notebook.H"
 #include "TOC.H"
@@ -51,10 +53,11 @@ void PageView::printDialog() {
   if (dialog.exec() != QDialog::Accepted) 
     return;
 
+#if !NOHIDETOOLBARS
   if (toolbars)
     toolbars->hide();
-  //  if (simpleNavbar)
-  //simpleNavbar->hide();
+#endif
+
   hide();
   
   QProgressDialog progress("Printing...", "Abort", 0, 1000, this);

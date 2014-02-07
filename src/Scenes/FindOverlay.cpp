@@ -40,7 +40,7 @@ FindOverlay::FindOverlay(QGraphicsScene *scene, QString phrase) {
 	setSheetForChild(gi, sheet);
     }
   }
-
+  gotoSheet(0);
   //  startTimer(10000); // self-destruct after 10 seconds
 
 }

@@ -4,6 +4,8 @@
 #include "SearchResultScene.H"
 #include <QKeyEvent>
 #include <QWheelEvent>
+#include <QPrinter>
+#include <QPrintDialog>
 
 SearchView::SearchView(SearchResultScene *scene, QWidget *parent):
   QGraphicsView(parent), scene(scene) {
@@ -25,6 +27,19 @@ void SearchView::resizeEvent(QResizeEvent *e) {
   fitInView(sr, Qt::KeepAspectRatio);
 }
 
+static void printme(BaseScene *scene) {
+  QPrinter printer;
+  QPrintDialog dialog(&printer, 0);
+  dialog.setWindowTitle("Print scene");
+  dialog.setOption(QAbstractPrintDialog::PrintToFile);
+  if (dialog.exec() != QDialog::Accepted) 
+    return;
+  QPainter p;
+  p.begin(&printer);
+  scene->print(&printer, &p);
+}
+
+
 void SearchView::keyPressEvent(QKeyEvent *e) {
   bool take = true;
   switch (e->key()) {
@@ -34,6 +49,9 @@ void SearchView::keyPressEvent(QKeyEvent *e) {
   case Qt::Key_PageDown: case Qt::Key_Down: case Qt::Key_Space:
     scene->nextSheet();
     break;
+  case Qt::Key_P:
+    if (e->modifiers() & Qt::ControlModifier)
+      printme(scene);
   default:
     take = false;
     break;

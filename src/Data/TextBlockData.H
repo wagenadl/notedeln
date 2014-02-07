@@ -34,6 +34,8 @@ public:
   // read and write properties
   void setIndented(bool);
   bool indented() const;
+  void setDedented(bool);
+  bool dedented() const;
   void setDisplayed(bool);
   bool displayed() const;
   // other
@@ -54,6 +56,7 @@ protected:
     None = 0,
     Indented = 1,
     Displayed = 2,
+    Dedented = 4,
   };
   typedef QFlags<IndentationBits> IndentationStyle;
 protected:

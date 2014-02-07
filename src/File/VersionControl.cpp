@@ -133,6 +133,9 @@ bool update(QString path, QString program) {
   QString cwd = QDir::currentPath();
   QString se;
   QDir::setCurrent(path);
+  if (program == "")
+    return false;
+
   if (program == "bzr") 
     success = runBzr("update", QStringList(), "Updating with bzr...", 0, &se);
   else if (program == "git")
@@ -160,7 +163,9 @@ bool commit(QString path, QString program) {
   QString cwd = QDir::currentPath();
   QString se;
   QDir::setCurrent(path);
-  if (program == "bzr") {
+  if (program == "") {
+    return false;
+  } else if (program == "bzr") {
     /* The logic is:
        (1) we run bzr status
        (2) if that returns any text at all, we first do "add", then "commit".

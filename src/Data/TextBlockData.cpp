@@ -34,15 +34,31 @@ TextBlockData::~TextBlockData() {
 }
 
 void TextBlockData::setIndented(bool i) {
-  if (i)
+  if (i) {
     ind |= Indented;
-  else
+    ind &= ~Dedented;
+  } else {
     ind &= ~Indented;
+  }
+  markModified();
+}
+
+void TextBlockData::setDedented(bool i) {
+  if (i) {
+    ind |= Dedented;
+    ind &= ~Indented;
+  } else {
+    ind &= ~Dedented;
+  }
   markModified();
 }
 
 bool TextBlockData::indented() const {
   return ind & Indented;
+}
+
+bool TextBlockData::dedented() const {
+  return ind & Dedented;
 }
 
 void TextBlockData::setDisplayed(bool i) {
