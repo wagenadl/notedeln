@@ -1,7 +1,7 @@
 // FindOverlay.cpp
 
 #include "FindOverlay.H"
-#include <QGraphicsScene>
+#include "BaseScene.H"
 #include "TextItem.H"
 #include "MarkupData.H"
 #include "FindRegion.H"
@@ -9,7 +9,7 @@
 #include "GfxNoteItem.H"
 #include <QDebug>
 
-FindOverlay::FindOverlay(QGraphicsScene *scene, QString phrase) {
+FindOverlay::FindOverlay(BaseScene *scene, QString phrase) {
   qDebug() << "FindOverlay" << this;
   setZValue(-1);
   foreach (QGraphicsItem *i, scene->items()) {
@@ -40,7 +40,7 @@ FindOverlay::FindOverlay(QGraphicsScene *scene, QString phrase) {
 	setSheetForChild(gi, sheet);
     }
   }
-  gotoSheet(0);
+  gotoSheet(scene->currentSheet());
   //  startTimer(10000); // self-destruct after 10 seconds
 
 }

@@ -76,7 +76,7 @@ void SplashScene::makeBackground() {
 
   QGraphicsTextItem *eln = addText("ELN", style.font("splash-font"));
   centerAt(eln, style.real("page-width")/2, style.real("page-height") - 50);
-  QGraphicsTextItem *dw = addText("(C) Daniel Wagenaar 2013",
+  QGraphicsTextItem *dw = addText(QString::fromUtf8("(C) Daniel Wagenaar 2013–2014"),
                                   style.font("splash-small-font"));
   centerAt(dw, style.real("page-width")/2, style.real("page-height") - 20);
 
