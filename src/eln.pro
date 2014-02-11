@@ -21,9 +21,10 @@ INCLUDEPATH += $$sourcedirs
 
 win: RC_FILE = App/winicon.rc
 mac {
-    ICON = App/eln.iconset
+    ICON = App/eln.icns
     QMAKE_INFO_PLIST = App/Info.plist
-    OTHER_FILES += Info.plist
+    OTHER_FILES += App/Info.plist
+    TARGET = ../eln
     }
 # acdeployqt myapplication.app
 # hdiutil create -format UDBZ -quiet -srcfolder myapplication.app myapplication.dmg 

@@ -30,3 +30,8 @@ build-webgrab-Desktop_Qt_5_2_0_MinGW_32bit-Release
 eln-win-qt5-cache
 repairtoc.pro.user.67554f1.2.7pre1
 webgrab.pro.user.67554f1.2.7pre1
+.DS_Store
+webgrab.app
+eln.app
+eln-repairtoc.app
+.qmake.stash
