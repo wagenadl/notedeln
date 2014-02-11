@@ -119,13 +119,13 @@ void PageView::keyPressEvent(QKeyEvent *e) {
     mode()->setMode(Mode::Plain);
     break;
   case Qt::Key_Space: case Qt::Key_Down: case Qt::Key_Right:
-    if (mode()->mode()==Mode::Browse)
+    if (mode()->mode()==Mode::Browse && !scene()->focusItem())
       nextPage();
     else
       take = false;
     break;
   case Qt::Key_Backspace: case Qt::Key_Up: case Qt::Key_Left:
-    if (mode()->mode()==Mode::Browse)
+    if (mode()->mode()==Mode::Browse  && !scene()->focusItem())
       previousPage();
     else
       take = false;
