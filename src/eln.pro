@@ -20,6 +20,13 @@ DEPENDPATH +=  $$sourcedirs
 INCLUDEPATH += $$sourcedirs
 
 win: RC_FILE = App/winicon.rc
+mac {
+    ICON = App/eln.iconset
+    QMAKE_INFO_PLIST = App/Info.plist
+    OTHER_FILES += Info.plist
+    }
+# acdeployqt myapplication.app
+# hdiutil create -format UDBZ -quiet -srcfolder myapplication.app myapplication.dmg 
 
 for(sd, sourcedirs): include($${sd}/$${sd}.pri)
 
