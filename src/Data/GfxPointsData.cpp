@@ -21,7 +21,7 @@
 
 static Data::Creator<GfxPointsData> c("gfxpoints");
 
-GfxPointsData::GfxPointsData(Data *parent=0):
+GfxPointsData::GfxPointsData(Data *parent):
   GfxData(parent) {
   setType("gfxpoints");
 }

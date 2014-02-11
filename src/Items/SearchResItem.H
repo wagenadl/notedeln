@@ -5,6 +5,7 @@
 #define SEARCHRESITEM_H
 
 #include "TOCItem.H"
+#include "Search.H"
 
 class SearchResItem: public TOCItem {
   Q_OBJECT;
@@ -13,7 +14,7 @@ public:
   virtual ~SearchResItem();
   DATAACCESS(TOCEntry);
   void reset();
-  void addResult(class SearchResult const &res, QGraphicsItem *parent);
+  void addResult(SearchResult const &res, QGraphicsItem *parent);
 protected:
   virtual void mousePressEvent(QGraphicsSceneMouseEvent *);
 private:

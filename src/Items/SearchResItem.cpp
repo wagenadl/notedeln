@@ -23,7 +23,7 @@ void SearchResItem::reset() {
   pgno.clear();
 }
 
-void SearchResItem::addResult(class SearchResult const &res,
+void SearchResItem::addResult(SearchResult const &res,
                               QGraphicsItem *parent) {
   ASSERT(parent);
   double h0 = parent->childrenBoundingRect().bottom();

@@ -19,7 +19,7 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += webkitwidgets
 DEPENDPATH +=  $$sourcedirs
 INCLUDEPATH += $$sourcedirs
 
-RC_FILE = App/winicon.rc
+win: RC_FILE = App/winicon.rc
 
 for(sd, sourcedirs): include($${sd}/$${sd}.pri)
 
