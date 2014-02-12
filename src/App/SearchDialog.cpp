@@ -57,6 +57,7 @@ void SearchDialog::newSearch() {
     connect(scene, SIGNAL(pageNumberClicked(int, QString)),
             this, SLOT(gotoPage(int, QString)));
     SearchView *view = new SearchView(scene);
+    view->setAttribute(Qt::WA_DeleteOnClose, true);
     connect(parent(), SIGNAL(destroyed()), view, SLOT(close()));
     delete progress;
     
