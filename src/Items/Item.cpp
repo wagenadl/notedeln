@@ -103,11 +103,6 @@ Item *Item::create(Data *d, Item *parent) {
 
 QMap<QString, Item *(*)(Data *, Item *)> &Item::creators() {
   static QMap<QString, Item *(*)(Data *, Item *)> m;
-  qDebug() << "creators: ";
-  foreach (QString s, m.keys()) {
-      qDebug() << "  " << s;
-  }
-
   return m;
 }
   

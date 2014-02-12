@@ -76,8 +76,10 @@ int main(int argc, char **argv) {
     qDebug() << "Usage: eln -splash";
     return 1;
   }
-  if (!nb)
-    return 0;
+  if (!nb) {
+    qDebug() << "Notebook not found";
+    return 1;
+  }
 
   QObject::connect(&app, SIGNAL(aboutToQuit()), nb, SLOT(commitNow()));
   
