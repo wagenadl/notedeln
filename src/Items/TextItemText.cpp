@@ -111,13 +111,14 @@ int pointToPos(QGraphicsTextItem const *item, QPointF p) {
   QTextDocument *doc = item->document();
   for (QTextBlock b = doc->begin(); b!=doc->end(); b=b.next()) {
     QTextLayout *lay = b.layout();
-    if (lay->boundingRect().contains(p)) {
-      p -= lay->position();
+    qDebug() << "p2p: layR = " << lay->boundingRect() << lay->position() << " b.pos=" << b.position();
+    QPointF p1 = p - lay->position();
+    if (lay->boundingRect().contains(p1)) {
       int nLines = lay->lineCount();
       for (int i=0; i<nLines; i++) {
 	QTextLine line = lay->lineAt(i); // yes, this returns the i-th line
-	if (line.rect().contains(p)) 
-	  return line.xToCursor(p.x());
+	if (line.rect().contains(p1)) 
+	  return line.xToCursor(p1.x()) + b.position();
       }
       qDebug() << "TextItem: point in block but not in a line!?";
       return -1;

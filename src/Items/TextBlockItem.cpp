@@ -146,34 +146,6 @@ FutileMovementInfo const &TextBlockItem::lastFutileMovement() const {
   return fmi;
 }
 
-void TextBlockItem::acceptFocus(QPointF p) {
-  qDebug() << "acceptFocus " << p;
-  for (QTextBlock b = document()->firstBlock();
-       b.length()>0;
-       b = b.next()) {
-    QTextLayout *lay = b.layout();
-    qDebug() << " layout: " << lay->boundingRect() << " : " << lay->lineCount();
-    if (lay->boundingRect().contains(p)) {
-      QPointF dp = p - lay->position();
-      int N = lay->lineCount();
-      for (int n=0; n<N; n++) {
-	QTextLine l(lay->lineAt(n));
-	qDebug() << " line: " << l.rect();
-	if (l.rect().contains(dp)) {
-	  int pos = l.xToCursor(dp.x());
-	  qDebug() << " gotcha: " << pos;
-	  setFocus();
-	  QTextCursor c(item_->textCursor());
-	  c.setPosition(pos);
-	  item_->setTextCursor(c);
-	  return;
-	}
-      }
-    }
-  }
-  qDebug() << " failed";
-}
-
 QRectF TextBlockItem::boundingRect() const {
   return QRectF();
   // text draws itself

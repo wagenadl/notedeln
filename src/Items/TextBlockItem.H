@@ -42,7 +42,6 @@ public:
   class TextItem *text() const;
   void setFocus();
   void clearFocus();
-  void acceptFocus(QPointF);
   bool isEmpty() const;
   bool lastParIsEmpty() const;
   void dropEmptyLastPar();

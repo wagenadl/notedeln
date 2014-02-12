@@ -38,7 +38,6 @@
 #include <QKeyEvent>
 #include <QDebug>
 #include <QTextBlock>
-#include <QTextLayout>
 #include <QApplication>
 #include <QClipboard>
 #include <QMimeData>
