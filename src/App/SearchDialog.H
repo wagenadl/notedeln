@@ -5,6 +5,8 @@
 #define SEARCHDIALOG_H
 
 #include <QObject>
+#include <QPointer>
+#include "PageView.H"
 
 class SearchDialog: public QObject {
   Q_OBJECT;
@@ -16,7 +18,7 @@ public slots:
 private slots:
   void gotoPage(int n, QString phrase);
 private:
-  class PageView *pgView;
+  QPointer<PageView> pgView;
   QString lastPhrase;
 };
 

@@ -69,6 +69,10 @@ void SearchDialog::newSearch() {
 }
 
 void SearchDialog::gotoPage(int n, QString phrase) {
+  if (!pgView) {
+    qDebug() << "SearchDialog: Pageview disappeared on me.";
+    return;
+  }
   pgView->gotoEntryPage(n);
   pgView->window()->raise();
   qDebug() << "gotoPage" << n << phrase;
