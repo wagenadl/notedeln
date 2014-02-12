@@ -84,6 +84,7 @@ int main(int argc, char **argv) {
   QObject::connect(&app, SIGNAL(aboutToQuit()), nb, SLOT(commitNow()));
   
   PageEditor *editor = new PageEditor(nb);
+  editor->setAttribute(Qt::WA_DeleteOnClose, true);
   QString ttl = nb->bookData()->title();
   QString appname = "eln";
 #ifndef QT_NO_DEBUG
@@ -95,10 +96,9 @@ int main(int argc, char **argv) {
   double dpiX = app.desktop()->logicalDpiX();
   double dpiY = app.desktop()->logicalDpiY();
   editor->resize(size.width()*dpiX/72, size.height()*dpiY/72);
-  editor->show();
   new AlreadyOpen(nb->dirPath(), editor);
+  editor->show();
   int r = app.exec();
-  delete editor;
   delete nb;
   delete RecentBooks::instance();
   return r;

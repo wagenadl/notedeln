@@ -57,6 +57,7 @@ void SearchDialog::newSearch() {
     connect(scene, SIGNAL(pageNumberClicked(int, QString)),
             this, SLOT(gotoPage(int, QString)));
     SearchView *view = new SearchView(scene);
+    connect(parent(), SIGNAL(destroyed()), view, SLOT(close()));
     delete progress;
     
     view->resize(pgView->size()*.9);

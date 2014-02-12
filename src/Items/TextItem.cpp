@@ -421,7 +421,7 @@ bool TextItem::keyPressAsSpecialEvent(QKeyEvent *e) {
     QTextCursor tc(textCursor());
     
     TextBlockItem *p = dynamic_cast<TextBlockItem *>(parent());
-    if (tc.position()==0 && p) {
+    if (p) {
       // we are in a text block, so we could fiddle with indentation
       bool hasIndent = p->data()->indented();
       bool hasDedent = p->data()->dedented();
@@ -436,10 +436,10 @@ bool TextItem::keyPressAsSpecialEvent(QKeyEvent *e) {
           p->data()->setIndented(true);
         else
           p->data()->setDedented(true);
-      } else {
-        if (hasDedent)
-          p->data()->setDedented(false);
-        else if (!hasIndent)
+      } else if (tc.position()==0) {
+	if (hasIndent)
+	  return false;
+	else
           p->data()->setIndented(true);
       }
       p->initializeFormat();
