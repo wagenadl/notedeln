@@ -7,12 +7,12 @@
     <ROW Property="ARPCONTACT" Value="daniel.wagenaar@uc.edu"/>
     <ROW Property="ARPNOMODIFY" MultiBuildValue="DefaultBuild:1"/>
     <ROW Property="ARPPRODUCTICON" Value="eln.exe" Type="8"/>
-    <ROW Property="ARPURLINFOABOUT" Value="http://www.danielwagenaar.net/res/software/eln"/>
+    <ROW Property="ARPURLINFOABOUT" Value="http://www.danielwagenaar.net/eln"/>
     <ROW Property="Manufacturer" Value="Daniel Wagenaar"/>
-    <ROW Property="ProductCode" Value="1033:{573D0FC6-AF09-439A-8AD4-39CE6DCF2E95} " Type="16"/>
+    <ROW Property="ProductCode" Value="1033:{E8312B4E-878E-4DDA-907B-E85BE3319B9F} " Type="16"/>
     <ROW Property="ProductLanguage" Value="1033"/>
     <ROW Property="ProductName" Value="eln"/>
-    <ROW Property="ProductVersion" Value="1.3" Type="32"/>
+    <ROW Property="ProductVersion" Value="0.3.2" Type="32"/>
     <ROW Property="SecureCustomProperties" Value="OLDPRODUCTS;AI_NEWERPRODUCTFOUND"/>
     <ROW Property="UpgradeCode" Value="{C6C85204-2E1F-421F-B3C0-A4985844BB4C}"/>
     <ROW Property="WindowsType9X" MultiBuildValue="DefaultBuild:Windows 9x/ME" ValueLocId="-"/>
