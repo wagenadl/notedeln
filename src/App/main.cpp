@@ -58,7 +58,7 @@ int main(int argc, char **argv) {
     if (argv[1]==QString("-splash")) {
       nb = SplashScene::openNotebook();
     } else {
-	if (AlreadyOpen::check(argv[1]))
+      if (AlreadyOpen::check(argv[1]))
 	  return 0;
       nb = Notebook::load(argv[1]);
     }

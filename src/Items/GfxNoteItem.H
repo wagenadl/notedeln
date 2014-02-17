@@ -44,7 +44,9 @@ protected:
   virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *);
 private slots:
   void updateTextPos(); // must be called after scale change
+  void futileMovementKey(int, Qt::KeyboardModifiers);
   void abandon();
+  
 private:
   QPointF nearestCorner(QPointF pbase=QPointF());
 protected:

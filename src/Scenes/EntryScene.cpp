@@ -365,6 +365,12 @@ void EntryScene::gotoSheet(int i) {
   // Set visibility for title-attached notes
   foreach (GfxNoteItem *gni, titleItemX->children<GfxNoteItem>()) 
     gni->setVisible(gni->data()->sheet()==iSheet);
+
+  if (data()->title()->isDefault())
+    focusTitle();
+  else
+    focusEnd();
+
   
   if (oldSheet!=iSheet) 
     emit nowOnPage(clippedPgNo(startPage()+iSheet));
@@ -634,6 +640,7 @@ TextBlockItem *EntryScene::newTextBlock(int iAbove, bool evenIfLastEmpty) {
 }
 
 void EntryScene::futileMovement(int block) {
+  qDebug() << "futilemovement" << block;
   ASSERT(block>=0 && block<blockItems.size());
   // futile movement in a text block
   TextBlockItem *tbi = dynamic_cast<TextBlockItem *>(blockItems[block]);
@@ -739,6 +746,7 @@ void EntryScene::futileTitleMovement(int key, Qt::KeyboardModifiers) {
 }
 
 void EntryScene::focusEnd() {
+  qDebug() << "EntryScene::focusEnd" << writable;
   if (!writable)
     return;
 

@@ -319,6 +319,9 @@ bool TextItem::keyPressAsMotion(QKeyEvent *e) {
     QTextCursor pre = textCursor();
     text->internalKeyPressEvent(e);
     QTextCursor post = textCursor();
+    if (e->key()==Qt::Key_PageDown) {
+      qDebug() << "TextItem::pagedown " << pre.position() << ";" << post.position();
+    }
     if (pre.position() == post.position())
       emit futileMovementKey(e->key(), e->modifiers());
     return true;

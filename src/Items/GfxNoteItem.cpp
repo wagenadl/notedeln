@@ -36,6 +36,8 @@ GfxNoteItem::GfxNoteItem(GfxNoteData *data, Item *parent):
   setPos(data->pos());
   line = 0;
   text = new TextItem(data->text(), this);
+  connect(text, SIGNAL(futileMovementKey(int, Qt::KeyboardModifiers)),
+	  SLOT(futileMovementKey(int, Qt::KeyboardModifiers)));
   text->setFont(style().font("note-font"));
   text->setDefaultTextColor(QColor(style().string("note-text-color")));
   if (data->textWidth()>1)
@@ -273,3 +275,19 @@ void GfxNoteItem::translate(QPointF dxy) {
   data()->setPos(data()->pos() + dxy);
   setPos(pos() + dxy);
 }
+
+
+void GfxNoteItem::futileMovementKey(int k, Qt::KeyboardModifiers) {
+  switch (k) {
+  case Qt::Key_Left: case Qt::Key_Up:
+    text->textCursor().movePosition(QTextCursor::Start);
+    break;
+  case Qt::Key_Right: case Qt::Key_Down:
+    text->textCursor().movePosition(QTextCursor::End);
+    break;
+  default:
+    break;
+  }
+}
+
+

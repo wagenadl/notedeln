@@ -179,6 +179,7 @@ bool BaseScene::previousSheet() {
 }
 
 bool BaseScene::nextSheet() {
+  qDebug() << "basescene::nextsheet" << iSheet << nSheets;
   if (iSheet<nSheets-1) {
     gotoSheet(iSheet+1);
     return true;

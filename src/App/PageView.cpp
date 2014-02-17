@@ -92,30 +92,47 @@ void PageView::keyPressEvent(QKeyEvent *e) {
   bool take = true;
   switch (e->key()) {
   case Qt::Key_F1:
-    mode()->setMode(Mode::Browse);
+    if (currentSection==Entries)
+      mode()->setMode(Mode::Browse);
     break;
   case Qt::Key_F2:
+    if (currentSection==Entries)
+      mode()->setMode(Mode::Browse);
     mode()->setMode(Mode::Type);
     break;
   case Qt::Key_F3:
+    if (currentSection==Entries)
+      mode()->setMode(Mode::Browse);
     mode()->setMode(Mode::MoveResize);
     break;
   case Qt::Key_F4:
+    if (currentSection==Entries)
+      mode()->setMode(Mode::Browse);
     mode()->setMode(Mode::Mark);
     break;
   case Qt::Key_F5:
+    if (currentSection==Entries)
+      mode()->setMode(Mode::Browse);
     mode()->setMode(Mode::Freehand);
     break;
   case Qt::Key_F6:
+    if (currentSection==Entries)
+      mode()->setMode(Mode::Browse);
     mode()->setMode(Mode::Annotate);
     break;
   case Qt::Key_F7:
+    if (currentSection==Entries)
+      mode()->setMode(Mode::Browse);
     mode()->setMode(Mode::Highlight);
     break;
   case Qt::Key_F8:
+    if (currentSection==Entries)
+      mode()->setMode(Mode::Browse);
     mode()->setMode(Mode::Strikeout);
     break;
   case Qt::Key_F9:
+    if (currentSection==Entries)
+      mode()->setMode(Mode::Browse);
     mode()->setMode(Mode::Plain);
     break;
   case Qt::Key_Space: case Qt::Key_Down: case Qt::Key_Right:
@@ -134,6 +151,7 @@ void PageView::keyPressEvent(QKeyEvent *e) {
     previousPage();
     break;
   case Qt::Key_PageDown:
+    qDebug() << "PageView::pagedown";
     nextPage();
     break;
   case Qt::Key_Home:
@@ -301,10 +319,10 @@ void PageView::gotoEntryPage(int n, int dir) {
 
   entryScene->gotoSheet(currentPage - te->startPage());
   
-  if (entryScene->data()->title()->isDefault())
-    entryScene->focusTitle();
-  else
-    entryScene->focusEnd();
+  //if (entryScene->data()->title()->isDefault())
+  //  entryScene->focusTitle();
+  //else
+  //  entryScene->focusEnd();
 
   if (entryScene->isWritable())
     mode()->setMode(Mode::Type);

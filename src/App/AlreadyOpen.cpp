@@ -21,8 +21,13 @@
 
 #include <QMessageBox>
 #include <QDebug>
-
+#include <QDir>
 static QString servername(QString fn) {
+  qDebug() << "servername " << fn;
+  QDir d(QDir::current());
+  fn = d.absoluteFilePath(fn);
+  fn = QDir::cleanPath(fn);
+  qDebug() << "-> " << fn;
   return QString("eln-%1").arg(qHash(fn));
 }
 
@@ -31,7 +36,7 @@ AlreadyOpen::AlreadyOpen(QString name, QWidget *w): QObject(w), toBeRaised(w) {
   QString sn = servername(name);
   if (!server->listen(sn)) {
     // old server lingering
-    QLocalServer::removeServer(name);
+    QLocalServer::removeServer(sn);
     if (!server->listen(sn)) {
       // couldn't remove. this is bad.
       qDebug() << "AlreadyOpen: Could not construct server. Oh well.";
