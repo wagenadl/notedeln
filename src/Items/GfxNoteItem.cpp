@@ -279,12 +279,16 @@ void GfxNoteItem::translate(QPointF dxy) {
 
 void GfxNoteItem::futileMovementKey(int k, Qt::KeyboardModifiers) {
   switch (k) {
-  case Qt::Key_Left: case Qt::Key_Up:
-    text->textCursor().movePosition(QTextCursor::Start);
-    break;
-  case Qt::Key_Right: case Qt::Key_Down:
-    text->textCursor().movePosition(QTextCursor::End);
-    break;
+  case Qt::Key_Left: case Qt::Key_Up: {
+    QTextCursor c(text->textCursor());
+    c.movePosition(QTextCursor::Start);
+    text->setTextCursor(c);
+  } break;
+  case Qt::Key_Right: case Qt::Key_Down: {
+    QTextCursor c(text->textCursor());
+    c.movePosition(QTextCursor::End);
+    text->setTextCursor(c);
+  } break;
   default:
     break;
   }
