@@ -202,7 +202,7 @@ void GfxImageItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
   bool take = false;
   if (e->modifiers() & Qt::ControlModifier) {
     //take = true; // we will not process this, but consider a double click
-  } else if (isWritable() && e->button()==Qt::LeftButton) {
+  } else if (isWritable()) {
     switch (mode()->mode()) {
     case Mode::MoveResize:
       dragType = dragTypeForPoint(e->pos());
@@ -212,14 +212,10 @@ void GfxImageItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
       dragCrop = data()->cropRect().toRect();
       take = true;
       break;
-    case Mode::Annotate: {
+    case Mode::Annotate: case Mode::Type: {
       qDebug() << "Image Annotate " << data()->isRecent() << pageScene();
-      if (!data()->isRecent() && pageScene()) {
-        pageScene()->createNote(mapToScene(e->pos()));
-      } else {  
-        GfxNoteItem *gni = createNote(e->pos(), !isWritable());
-        gni->setScale(1./data()->scale());
-      }
+      GfxNoteItem *gni = createNote(e->pos(), !isWritable());
+      gni->setScale(1./data()->scale());
       take = true;
     } break;
     case Mode::Mark: {
@@ -236,9 +232,9 @@ void GfxImageItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
     default:
       break;
     }
-  } else {
-    if (e->button()==Qt::LeftButton && mode()->mode()==Mode::Annotate) {
-      if (!data()->isRecent() && pageScene()) {
+  } else { // not writable (i.e., not recent)
+    if (mode()->mode()==Mode::Annotate) {
+      if (pageScene()) {
         pageScene()->createNote(mapToScene(e->pos()));
       } else {  
         GfxNoteItem *gni = createNote(e->pos(), true);

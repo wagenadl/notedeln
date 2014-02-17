@@ -52,6 +52,7 @@ private:
   void leavePage();
   void printDialog();
   void createContinuationEntry();
+  void focusEntry();
 private slots:
   void nowOnPage(int pgno);
   void notebookReloaded(QMap<int,int>);

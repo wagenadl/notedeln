@@ -366,12 +366,6 @@ void EntryScene::gotoSheet(int i) {
   foreach (GfxNoteItem *gni, titleItemX->children<GfxNoteItem>()) 
     gni->setVisible(gni->data()->sheet()==iSheet);
 
-  if (data()->title()->isDefault())
-    focusTitle();
-  else
-    focusEnd();
-
-  
   if (oldSheet!=iSheet) 
     emit nowOnPage(clippedPgNo(startPage()+iSheet));
 }

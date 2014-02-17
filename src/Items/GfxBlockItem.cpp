@@ -180,22 +180,37 @@ void GfxBlockItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
   Mode::M mod = mode()->mode();
   Qt::MouseButton but = e->button();
   bool take = false;
-  if (but==Qt::LeftButton) {
-    if (mod==Mode::Annotate) {
-      if (!data()->isRecent() && pageScene())
-        pageScene()->createNote(mapToScene(e->pos()));
-      else
-        createNote(e->pos(), !data()->isRecent());
+  if (isWritable()) {
+    switch (mod) {
+    case Mode::Annotate:
+      createNote(e->pos());
       take = true;
-    } else if (mod==Mode::Mark && isWritable()) {
+      break;
+    case Mode::Mark:
       GfxMarkItem::newMark(e->pos(), this);
       take = true;
-    } else if (mod==Mode::Freehand && isWritable()) {
+      break;
+    case Mode::Freehand: {
       GfxSketchItem *ski = GfxSketchItem::newSketch(e->pos(), this);
       ski->build();
       take = true;
+    } break;
+    case Mode::Type:
+      createNote(e->pos());
+      take = true;
+      break;
+    default:
+      break;
     }
-  }
+  } else {
+    if (mod==Mode::Annotate) {
+      if (!data()->isRecent() && pageScene())
+	pageScene()->createNote(mapToScene(e->pos()));
+      else
+	createNote(e->pos(), true);
+      take = true;
+    }
+  }    
 
   if (take) 
     e->accept();

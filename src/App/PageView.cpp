@@ -381,6 +381,8 @@ void PageView::leavePage() {
 }  
 
 void PageView::previousPage() {
+  if (scene())
+    scene()->clearFocus();
   switch (currentSection) {
   case Front:
     break;
@@ -400,6 +402,7 @@ void PageView::previousPage() {
     }
     break;
   }
+  focusEntry();
 }
 
 void PageView::goRelative(int n) {
@@ -440,9 +443,12 @@ void PageView::goRelative(int n) {
 
   n -= N; // now n=1 is the first page
   gotoEntryPage(n, dir); // may create new unless prev empty
+  focusEntry();
 }
 
 void PageView::nextPage() {
+  if (scene())
+    scene()->clearFocus();
   switch (currentSection) {
   case Front:
     gotoTOC();
@@ -456,11 +462,22 @@ void PageView::nextPage() {
       gotoEntryPage(currentPage+1, 1); // this may make a new page at the end
     break;
   }
+  focusEntry();
+}
+
+void PageView::focusEntry() {
+  if (currentSection==Entries) {
+    if (entryScene->data()->title()->isDefault())
+      entryScene->focusTitle();
+    else
+      entryScene->focusEnd();
+  }
 }
 
 void PageView::lastPage() {
   gotoEntryPage(book->toc()->newPageNumber()-1);
   entryScene->gotoSheet(entryScene->sheetCount()-1);
+  focusEntry();
 }
 
 Mode *PageView::mode() const {
