@@ -346,10 +346,10 @@ bool TextItem::keyPressWithControl(QKeyEvent *e) {
   case Qt::Key_Slash:
     toggleSimpleStyle(MarkupData::Italic, textCursor());
     return true;
-  case Qt::Key_8:
+  case Qt::Key_8: case Qt::Key_Asterisk:
     toggleSimpleStyle(MarkupData::Bold, textCursor());
     return true;
-  case Qt::Key_6: // I mean "Hat"
+  case Qt::Key_6: // cas Qt::Key_Hat:
     toggleSimpleStyle(MarkupData::Superscript, textCursor());
     return true;
   case Qt::Key_Minus: // Underscore and Minus are on the same key
@@ -358,6 +358,12 @@ bool TextItem::keyPressWithControl(QKeyEvent *e) {
     return true;
   case Qt::Key_Underscore:
     toggleSimpleStyle(MarkupData::Underline, textCursor());
+    return true;
+  case Qt::Key_1: case Qt::Key_Exclam:
+    toggleSimpleStyle(MarkupData::Emphasize, textCursor());
+    return true;
+  case Qt::Key_Equal:
+    toggleSimpleStyle(MarkupData::StrikeThrough, textCursor());
     return true;
   case Qt::Key_Period:
     tryScriptStyles(textCursor());
