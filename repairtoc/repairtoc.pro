@@ -13,4 +13,5 @@ HEADERS += ../src/File/JSONParser.H
 INCLUDEPATH += ../src/File
 
 CONFIG += debug_and_release
+CONFIG -= app_bundle
 CONFIG(debug, debug|release) { TARGET=$${TARGET}_debug }

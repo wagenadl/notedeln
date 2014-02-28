@@ -21,13 +21,14 @@
 #include <QProcess>
 #include <QDir>
 #include <QDebug>
+#include "WebGrab.H"
 
 namespace SvgFile {
   QImage downloadAsImage(QUrl const &url) {
     QTemporaryFile f(QDir::tempPath() + "/eln_XXXXXX.png");
     f.open(); // without this, no filename is generated
     QStringList args; args << "-l" << url.toString() << f.fileName();
-    int res = QProcess::execute("webgrab", args);
+    int res = QProcess::execute(WebGrab::executable(), args);
     if (res) {
       qDebug() << "SvgFile::downloadAsImage failed";
       return QImage();

@@ -19,6 +19,7 @@
 #include "ResLoader.H"
 #include "Resource.H"
 #include "Assert.H"
+#include "WebGrab.H"
 
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
@@ -347,7 +348,7 @@ bool ResLoader::makePdfAndPreview() {
   args.append(parentRes->archivePath());
   if (!parentRes->previewFilename().isEmpty())
     args.append(parentRes->previewPath());
-  startProcess("webgrab", args);
+  startProcess(WebGrab::executable(), args);
   return true;
 }
 
