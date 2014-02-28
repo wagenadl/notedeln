@@ -93,9 +93,11 @@ void TextMarkings::applyMark(Span const &span, QSet<int> edges) {
         break;
       case MarkupData::Superscript:
         f.setVerticalAlignment(QTextCharFormat::AlignSuperScript);
+	f.setProperty(QTextFormat::FontSizeAdjustment, 1);
         break;
       case MarkupData::Subscript:
         f.setVerticalAlignment(QTextCharFormat::AlignSubScript);
+	f.setProperty(QTextFormat::FontSizeAdjustment, 1);
         break;
       case MarkupData::Link:
         // f.setForeground(parent()->style().color("url-color"));
@@ -277,6 +279,7 @@ void TextMarkings::Span::avoidPropagatingStyle(TextItem *item,
         break;
       case MarkupData::Superscript: case MarkupData::Subscript:
         f.setVerticalAlignment(QTextCharFormat::AlignNormal);
+	f.setProperty(QTextFormat::FontSizeAdjustment, 0);
         break;
       case MarkupData::Link:
         // f.setForeground(item->defaultTextColor());

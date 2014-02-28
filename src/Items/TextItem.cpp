@@ -577,7 +577,8 @@ bool TextItem::tryAutoItalic(bool ignoreExceptions) {
     if (m.selectedText().toInt()>style().integer("auto-subscript-max"))
       return false;
   }
-  if (document()->characterAt(m.selectionStart()-1).isLetter())
+  QChar c = document()->characterAt(m.selectionStart()-1);
+  if (c.isLetter() && c.unicode()<128)
     m.movePosition(QTextCursor::PreviousCharacter, QTextCursor::KeepAnchor);
   else
     return false;
