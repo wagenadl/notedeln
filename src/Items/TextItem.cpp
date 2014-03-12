@@ -446,9 +446,11 @@ bool TextItem::keyPressAsSpecialEvent(QKeyEvent *e) {
           p->data()->setDedented(true);
       } else if (tc.position()==0) {
 	if (hasIndent)
-	  return false;
+	  return false; // allow Tab to be inserted
 	else
           p->data()->setIndented(true);
+      } else {
+	return false; // allow Tab to be inserted
       }
       p->initializeFormat();
       return true;
