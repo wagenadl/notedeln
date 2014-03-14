@@ -151,8 +151,13 @@ void Search::run() {
   foreach (int pgno, entries) {
     if (abandon)
       return;
-    EntryFile *ef = ::loadPage(book->filePath("pages"), pgno, this);
-    ASSERT(ef);
+    EntryFile *ef = book->pageIfCached(pgno);
+    bool precontained = ef;
+    if (!ef) {
+      QString uuid = book->toc()->entry(pgno)->uuid();
+      ef = ::loadPage(book->filePath("pages"), pgno, uuid, this);
+      ASSERT(ef);
+    }
     QString ttl = ef->data()->titleText();
     foreach (TitleData const *bd, ef->data()->children<TitleData>()) {
       mutex.lock();
@@ -164,7 +169,8 @@ void Search::run() {
       addToResults(results, phrase, ttl, bd, pgno, pgno + bd->sheet());
       mutex.unlock();
     }
-    delete ef;
+    if (!precontained)
+      delete ef;
   }
   if (!abandon)
     emit searchCompleted();

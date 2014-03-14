@@ -26,6 +26,6 @@
 
 typedef DataFile<EntryData> EntryFile;
 EntryFile *createPage(QDir const &dir, int n, QObject *parent=0);
-EntryFile *loadPage(QDir const &dir, int n, QObject *parent=0);
+EntryFile *loadPage(QDir const &dir, int n, QString uuid, QObject *parent=0);
 
 #endif

@@ -93,6 +93,7 @@ TOCEntry *TOC::addEntry(EntryData *data) {
   e->setStartPage(data->startPage());
   e->setTitle(data->titleText());
   e->setSheetCount(data->sheetCount());
+  e->setUuid(data->uuid());
   entries_[e->startPage()] = e;
   return e;
 }

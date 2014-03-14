@@ -196,7 +196,9 @@ EntryFile *Notebook::pageIfCached(int n) {
 EntryFile *Notebook::page(int n)  {
   if (pgFiles.contains(n))
     return pgFiles[n];
-  EntryFile *f = loadPage(QDir(root.filePath("pages")), n, this);
+
+  QString uuid = toc()->entry(n)->uuid();
+  EntryFile *f = loadPage(QDir(root.filePath("pages")), n, uuid, this);
   ASSERT(f);
   pgFiles[n] = f;
 

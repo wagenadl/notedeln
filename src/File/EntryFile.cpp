@@ -20,25 +20,40 @@
 #include "ResManager.H"
 #include <QDebug>
 #include "Assert.H"
+#include "UUID.H"
+
+static QString basicFilename(int pgno, QString uuid) {
+  return QString("%1-%2") . arg(pgno, 4, 10, QChar('0')) . arg(uuid);
+}
 
 EntryFile *createPage(QDir const &dir, int n, QObject *parent) {
-  QString pfn = dir.absoluteFilePath(QString::number(n) + ".json");
+  QString uuid = UUID::create(32);
+  QString fn0 = basicFilename(n, uuid);
+  QString pfn = dir.absoluteFilePath(fn0 + ".json");
   EntryFile *f = EntryFile::create(pfn, parent);
   ASSERT(f);
+  f->data()->setUuid(uuid);
   ResManager *r = new ResManager(f->data());
-  QString resfn = dir.absoluteFilePath(QString::number(n) + ".res");
+  QString resfn = dir.absoluteFilePath(fn0 + ".res");
   r->setRoot(resfn);
   return f;
 }
 
-EntryFile *loadPage(QDir const &dir, int n, QObject *parent) {
-  QString pfn = dir.absoluteFilePath(QString::number(n) + ".json");
+
+EntryFile *loadPage(QDir const &dir, int n, QString uuid, QObject *parent) {
+  QString fn0 = basicFilename(n, uuid);
+  QString pfn = dir.absoluteFilePath(fn0 + ".json");
   EntryFile *f = EntryFile::load(pfn, parent);
+  if (!f) { // old style simply page number
+    fn0 = QString::number(n);
+    pfn = dir.absoluteFilePath(fn0 + ".json");
+    f = EntryFile::load(pfn, parent);
+  }
   ASSERT(f);
   ResManager *r = f->data()->firstChild<ResManager>();
   if (!r)
     r = new ResManager(f->data());
-  QString resfn = dir.absoluteFilePath(QString::number(n) + ".res");
+  QString resfn = dir.absoluteFilePath(fn0 + ".res");
   r->setRoot(resfn);
   return f;
 }
