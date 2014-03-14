@@ -24,11 +24,13 @@
 #include "Style.H"
 #include "Notebook.H"
 #include "Assert.H"
+#include "UUID.H"
 
 Data::Data(Data *parent0): QObject(parent0) {
   loading_ = false;
   setCreated(QDateTime::currentDateTime());
   setModified(QDateTime::currentDateTime());
+  setUuid(UUID::create(32));
   if (parent())
     parent()->addChild(this);
   setType("data");
@@ -362,4 +364,13 @@ void Data::detachAllResources() {
     return;
   resTags.clear();
   markModified();
+}
+
+QString const &Data::uuid() const {
+  return uuid_;
+}
+
+void Data::setUuid(QString const &u) {
+  uuid_ = u;
+  markModified(InternalMod);
 }

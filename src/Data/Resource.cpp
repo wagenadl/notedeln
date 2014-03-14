@@ -116,10 +116,50 @@ QString Resource::previewPath() const {
 
 //////////////////////////////////////////////////////////////////////
 
-static QString safeFileName(QString fn) {
-  fn.replace(QRegExp("[^-\\w._]"), "-");
-  if (fn.isEmpty())
-    fn = "_empty_";
+static QString safeExtension(QString fn) {
+  // returns extension including ".", or nothing. Removes nonword characters.
+  QStringList bits = fn.split("/");
+  if (bits.isEmpty())
+    return "";
+  fn = bits.last();
+  int idx = fn.lastIndexOf(".");
+  if (idx<0)
+    return "";
+  fn = fn.mid(idx+1);
+  fn.replace(QRegExp("[^a-zA-Z0-9_]"), "");
+  return "." + fn;
+}
+  
+static QString safeBaseName(QString fn) {
+  fn.replace(QRegExp("^http(s?)://"), "");
+  fn.replace(QRegExp("^//*"), "");
+  fn.replace(QRegExp("//*$"), "");
+  int idx = fn.lastIndexOf(".");
+  int id0 = fn.lastIndexOf("/");
+  if (idx>id0)
+    fn = fn.left(idx); // drop extension
+
+  QStringList bits = fn.split("/");
+  if (bits.isEmpty())
+    return "_";
+  QString f_0 = "";
+  QString f_n = "";
+  if (bits.size()>=1) {
+    f_0 = bits[0];
+    if (f_0.size() > 32)
+      f_0 = f_0.left(32);
+  }
+  if (bits.size()>=2) {
+    f_n = bits.last();
+    if (f_n.size() > 32)
+      f_n = f_n.left(32);
+  }
+
+  qDebug() << "fn=" << fn << " bits = " << bits << " f_0 = " << f_0 << " f_n = " << f_n;
+
+  fn = f_0 + "_" + f_n;
+  
+  fn.replace(QRegExp("[^[a-zA-Z0-9]_]"), "_");
   return fn;
 }
 
@@ -139,12 +179,12 @@ void Resource::ensureArchiveFilename() {
       base += leaf.mid(idx);
     }
   }
-  setArchiveFilename(safeFileName(base));
+  setArchiveFilename(safeBaseName(base) + "-" + uuid() + safeExtension(base));
 }
 
 bool Resource::importImage(QImage img) {
   if (arch.isEmpty())
-    setArchiveFilename(safeFileName(tag_ + ".png"));
+    setArchiveFilename(safeBaseName(tag_) + "-" + uuid() + ".png");
   ensureDir();
   bool ok = img.save(archivePath());
   markModified();
@@ -176,7 +216,7 @@ void Resource::getArchiveAndPreview() {
     return; // can't start another one
   ensureArchiveFilename();
   if (prev.isEmpty())
-    setPreviewFilename(safeFileName(tag_ + ".png"));
+    setPreviewFilename(safeBaseName(tag_) + "-" + uuid() + "p.png");
   ensureDir();
   if (src.isValid()) {
     loader = new ResLoader(this);
@@ -193,7 +233,7 @@ void Resource::getPreviewOnly() {
   if (loader)
     return; // can't start another one
   if (prev.isEmpty())
-    setPreviewFilename(safeFileName(tag_ + ".png"));
+    setPreviewFilename(safeBaseName(tag_) + "-" + uuid() + "p.png");
   if (!arch.isEmpty())
     setArchiveFilename("");
   ensureDir();
@@ -240,7 +280,7 @@ void Resource::doMagic() {
       src = magic->objectUrl();
       ensureArchiveFilename();
       if (prev.isEmpty())
-	setPreviewFilename(safeFileName(tag_ + ".png"));
+	setPreviewFilename(safeBaseName(tag_) + "-" + uuid() + "p.png");
       ensureDir();
       loader = new ResLoader(this);
       connect(loader, SIGNAL(finished()), SLOT(magicObjectUrlFinished()));
