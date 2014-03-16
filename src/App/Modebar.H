@@ -30,6 +30,7 @@ public:
   virtual ~Modebar();
 public slots:
   void updateMode();
+  void updateMath();
 protected:
   virtual void doLeftClick(QString id);
 private:
@@ -37,6 +38,8 @@ private:
   static QString modeToId(Mode::M);
 private:
   Mode *mode;
+private:
+  class ToolItem *typeModeItem;
   
 };
 

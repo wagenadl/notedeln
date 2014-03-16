@@ -46,12 +46,14 @@ public:
   QColor color() const;
   GfxMarkData::Shape shape() const;
   double markSize() const;
+  bool mathMode() const;
 public slots:
   void setMode(Mode::M);
   void setLineWidth(double);
   void setColor(QColor);
   void setShape(GfxMarkData::Shape);
   void setMarkSize(double);
+  void setMathMode(bool);
   void temporaryOverride(Mode::M);
   void temporaryRelease(Mode::M);
 signals:
@@ -60,8 +62,10 @@ signals:
   void colorChanged(QColor);
   void shapeChanged(GfxMarkData::Shape);
   void markSizeChanged(double);
+  void mathModeChanged(bool);
 private:
   M m;
+  bool math;
   double lw;
   QColor c;
   GfxMarkData::Shape shp;

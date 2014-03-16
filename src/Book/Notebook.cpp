@@ -198,6 +198,7 @@ EntryFile *Notebook::page(int n)  {
     return pgFiles[n];
 
   QString uuid = toc()->entry(n)->uuid();
+
   EntryFile *f = loadPage(QDir(root.filePath("pages")), n, uuid, this);
   ASSERT(f);
   pgFiles[n] = f;

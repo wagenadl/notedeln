@@ -20,6 +20,7 @@
 
 Mode::Mode(QObject *parent): QObject(parent) {
   m = Browse;
+  math = false;
   overridden = Browse;
   lw = 2;
   ms = 10;
@@ -31,6 +32,10 @@ Mode::~Mode() {
 
 Mode::M Mode::mode() const {
   return m;
+}
+
+bool Mode::mathMode() const {
+  return math;
 }
 
 double Mode::lineWidth() const {
@@ -51,6 +56,11 @@ double Mode::markSize() const {
 void Mode::setMode(Mode::M m1) {
   m = m1;
   emit modeChanged(m);
+}
+
+void Mode::setMathMode(bool m1) {
+  math = m1;
+  emit mathModeChanged(math);
 }
 
 void Mode::setLineWidth(double lw1) {

@@ -1,6 +1,7 @@
 {
 "balloon-mode-browse": "Browse contents. Click to follow links.",
 "balloon-mode-type": "Edit text. Click below existing contents to create a new paragraph. Note that contents older than 24 hours can generally not be edited.",
+"balloon-mode-type-math": "Edit mathematical text.",
 "balloon-mode-move": "Move notes or objects on a graphics canvas around. Also allows for deletion of objects on a graphics canvas.",
 "balloon-mode-mark": "Place marks of various sizes and shapes on a graphics canvas.",
 "balloon-mode-freehand": "Draw freehand lines on a graphics canvas.",

@@ -135,6 +135,13 @@ void PageView::keyPressEvent(QKeyEvent *e) {
       mode()->setMode(Mode::Browse);
     mode()->setMode(Mode::Plain);
     break;
+  case Qt::Key_QuoteLeft: case Qt::Key_AsciiTilde:
+    qDebug() << "QL" << e->key();
+    if (e->modifiers() & Qt::ControlModifier)
+      mode()->setMathMode(!mode()->mathMode());
+    else
+      take = false;
+    break;
   case Qt::Key_Space: case Qt::Key_Down: case Qt::Key_Right:
     if (mode()->mode()==Mode::Browse && !scene()->focusItem())
       nextPage();

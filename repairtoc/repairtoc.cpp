@@ -102,7 +102,7 @@ int main(int argc, char **argv) {
   QDir root(argc==2 ? argv[1] : findANotebook());
   QDir pages(root.filePath("pages"));
 
-  bool originalReadable;
+  bool originalReadable = false;
   QVariantMap originalTOCFile = JSONFile::load(root.filePath("toc.json"),
 					       &originalReadable);
   QMap<BasicTOCEntry, int> originalTOC;

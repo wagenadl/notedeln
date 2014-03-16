@@ -373,21 +373,15 @@ bool TextItem::keyPressWithControl(QKeyEvent *e) {
     return true;
   case Qt::Key_2:
     tryAutoItalic(true);
-    insertBasicHtml(QString::fromUtf8("2"), textCursor().position());
-    addMarkup(MarkupData::Superscript,
-	      textCursor().position()-1, textCursor().position());
+    insertBasicHtml(QString::fromUtf8("²"), textCursor().position());
     return true;
   case Qt::Key_3:
     tryAutoItalic(true);
-    insertBasicHtml(QString::fromUtf8("3"), textCursor().position());
-    addMarkup(MarkupData::Superscript,
-	      textCursor().position()-1, textCursor().position());
+    insertBasicHtml(QString::fromUtf8("³"), textCursor().position());
     return true;
   case Qt::Key_4:
     tryAutoItalic(true);
-    insertBasicHtml(QString::fromUtf8("4"), textCursor().position());
-    addMarkup(MarkupData::Superscript,
-	      textCursor().position()-1, textCursor().position());
+    insertBasicHtml(QString::fromUtf8("⁴"), textCursor().position());
     return true;
   case Qt::Key_Space:
     insertBasicHtml(QString::fromUtf8(" "), textCursor().position());
@@ -420,7 +414,14 @@ bool TextItem::tryTeXCode() {
   c.deleteChar(); // delete the word
   if (document()->characterAt(c.position()-1)=='\\')
     c.deletePreviousChar(); // delete any preceding backslash
-  c.insertText(val); // insert the replacement code
+  if (val.startsWith("x")) {
+    // this is "vec", or "dot", or similar
+    if (document()->characterAt(c.position()-1)==' ')
+      c.deletePreviousChar(); // delete previous space
+    c.insertText(val.mid(1));
+  } else {
+    c.insertText(val); // insert the replacement code
+  }
   return true;
 }
 

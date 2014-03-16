@@ -29,12 +29,12 @@ Modebar::Modebar(Mode *mode, QGraphicsItem *parent):
   t0->setSvg(":icons/browse.svg");
   addTool(modeToId(Mode::Browse), t0);
 
-  ToolItem *t = new ToolItem();
-  t->setBalloonHelpText(":mode-type");
-  t->setSvg(":icons/type.svg");
-  addTool(modeToId(Mode::Type), t);
+  typeModeItem = new ToolItem();
+  addTool(modeToId(Mode::Type), typeModeItem);
+  updateMath();
+  connect(mode, SIGNAL(mathModeChanged(bool)), SLOT(updateMath()));
 
-  t = new ToolItem();
+  ToolItem *t = new ToolItem();
   t->setBalloonHelpText(":mode-move");
   t->setSvg(":icons/move.svg");
   addTool(modeToId(Mode::MoveResize), t);
@@ -61,7 +61,7 @@ Modebar::Modebar(Mode *mode, QGraphicsItem *parent):
   
   t = new ToolItem();
   t->setBalloonHelpText(":mode-annotate");
-t->setSvg(":icons/note.svg");
+  t->setSvg(":icons/note.svg");
   addTool(modeToId(Mode::Annotate), t);
 
   t = new ToolItem();
@@ -96,6 +96,17 @@ Modebar::~Modebar() {
 void Modebar::updateMode() {
   select(modeToId(mode->mode()));
 }
+
+void Modebar::updateMath() {
+  if (mode->mathMode()) {
+    typeModeItem->setBalloonHelpText(":mode-type-math");
+    typeModeItem->setSvg(":icons/type-math.svg");
+  } else {
+    typeModeItem->setBalloonHelpText(":mode-type");
+    typeModeItem->setSvg(":icons/type.svg");
+  }
+}
+
 
 Mode::M Modebar::idToMode(QString s) {
   return Mode::M(s.toInt());
