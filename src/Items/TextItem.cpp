@@ -344,6 +344,8 @@ bool TextItem::keyPressWithControl(QKeyEvent *e) {
     tryExplicitLink();
     return true;
   case Qt::Key_Slash:
+    if (mode()->mathMode())
+      tryTeXCode();
     toggleSimpleStyle(MarkupData::Italic, textCursor());
     return true;
   case Qt::Key_8: case Qt::Key_Asterisk:
@@ -372,15 +374,12 @@ bool TextItem::keyPressWithControl(QKeyEvent *e) {
     tryTeXCode();
     return true;
   case Qt::Key_2:
-    tryAutoItalic(true);
     insertBasicHtml(QString::fromUtf8("²"), textCursor().position());
     return true;
   case Qt::Key_3:
-    tryAutoItalic(true);
     insertBasicHtml(QString::fromUtf8("³"), textCursor().position());
     return true;
   case Qt::Key_4:
-    tryAutoItalic(true);
     insertBasicHtml(QString::fromUtf8("⁴"), textCursor().position());
     return true;
   case Qt::Key_Space:
@@ -416,7 +415,7 @@ bool TextItem::tryTeXCode() {
     c.deletePreviousChar(); // delete any preceding backslash
   if (val.startsWith("x")) {
     // this is "vec", or "dot", or similar
-    if (document()->characterAt(c.position()-1)==' ')
+    if (document()->characterAt(c.position()-1).isSpace())
       c.deletePreviousChar(); // delete previous space
     c.insertText(val.mid(1));
   } else {
@@ -457,11 +456,6 @@ bool TextItem::keyPressAsSpecialEvent(QKeyEvent *e) {
       return true;
     }
   } else if (QString(",; \n").contains(e->text()) && tryAutoLink()) {
-    return false; // don't gobble these keys, so don't return true
-  } else if (!(e->text()==" " && (e->modifiers() & Qt::ShiftModifier))
-	     && style().string("auto-italic-post").contains(e->text())
-	     && !e->text().isEmpty()
-	     && tryAutoItalic()) {
     return false; // don't gobble these keys, so don't return true
   }
   return false;
@@ -519,6 +513,7 @@ bool TextItem::keyPressAsSpecialChar(QKeyEvent *e) {
 bool TextItem::keyPress(QKeyEvent *e) {
   return
     keyPressWithControl(e)
+    || (mode()->mathMode() && keyPressAsMath(e))
     || keyPressAsMotion(e)
     || keyPressAsSpecialEvent(e)
     || keyPressAsSpecialChar(e);
@@ -552,54 +547,6 @@ bool TextItem::tryScriptStyles(QTextCursor c) {
 	    ? MarkupData::Superscript
 	    : MarkupData::Subscript,
 	    m.position(), c.position());
-  return true;
-}
-
-bool TextItem::tryAutoItalic(bool ignoreExceptions) {
-  /* Returns true if we decide to automatically italicize a math variable.
-     This is only done if the "auto-italics" style option is set.
-     In that case, single-letter words other than those listed in the
-     "auto-italic-exceptions" set are automatically italicized.
-     In addition, if the "auto-subscript" option is true, then words that
-     consist of a single letter followed by one or more digits are set with
-     the letter in italics and the digits subscripted.
-   */
-  static QSet<QString> exceptions;
-  if (!style().flag("auto-italic"))
-    return false;
-
-  if (exceptions.isEmpty()) 
-    foreach (QVariant v, style()["auto-italic-exceptions"].toList())
-      exceptions.insert(v.toString());
-
-  QTextCursor m = textCursor();
-  m.clearSelection();
-  if (style().integer("auto-subscript-max")>0) { // allow digits
-    while (document()->characterAt(m.selectionStart()-1).isDigit())
-      m.movePosition(QTextCursor::PreviousCharacter, QTextCursor::KeepAnchor);
-    if (m.selectedText().toInt()>style().integer("auto-subscript-max"))
-      return false;
-  }
-  QChar c = document()->characterAt(m.selectionStart()-1);
-  if (c.isLetter() && c.unicode()<128)
-    m.movePosition(QTextCursor::PreviousCharacter, QTextCursor::KeepAnchor);
-  else
-    return false;
-  if (!style().string("auto-italic-pre").contains(document()->characterAt(m.selectionStart()-1)))
-    return false;
-
-  QString word = m.selectedText();
-  if (exceptions.contains(word) && !ignoreExceptions)
-    return false; // note that this intentionally treats "a0" as a variable
-                  // even if "a" is in the exception list.
-  if (word.length()>1)
-    if (markupAt(m.selectionStart()+1, m.selectionEnd(),
-		 MarkupData::Superscript))
-      return false;
-  
-  addMarkup(MarkupData::Italic, m.selectionStart(), m.selectionStart()+1);
-  if (word.length()>1)
-    addMarkup(MarkupData::Subscript, m.selectionStart()+1, m.selectionEnd());
   return true;
 }
 
@@ -673,41 +620,6 @@ void TextItem::toggleSimpleStyle(MarkupData::Style type,
     addMarkup(type, start, end);
 }
   
-
-bool TextItem::trySimpleStyle(QString marker,
-			      MarkupData::Style type) {
-  /* Returns true if we decide to do italicize/bold/underline, that is, if
-     all of the following are true:
-     (1) there is a preceding "/" or "*" or "_"
-     (2) that mark was not preceded by a word character
-     (3) that mark was followed by a word character
-     (4) we have a word character before us
-     (5) we do not have a word character after us.
-     Note: I am not yet able to avoid nasty italicization in
-     "/home/wagenaar/foo.bar" or "http://www.site.com/somewhere.html".
-  */
-
-  QTextCursor c = textCursor();
-  if (c.hasSelection()) 
-    return false;
-  if (charAfterIsLetter(c.position()))
-    return false;
-  if (!charBeforeIsLetter(c.position()))
-    return false;
-  
-  QTextCursor m = document()->find(marker, c, QTextDocument::FindBackward);
-  if (!m.hasSelection())
-    return false; // no marker
-  if (charBeforeIsLetter(m.selectionStart()))
-    return false;
-  if (!charAfterIsLetter(m.selectionEnd()))
-    return false;
-
-  m.deleteChar();
-  addMarkup(type, m.position(), c.position());
-  return true;
-}
-
 void TextItem::addMarkup(MarkupData::Style t, int start, int end) {
   markings_->newMark(t, start, end);
 }

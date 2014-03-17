@@ -68,6 +68,7 @@ protected:
   virtual bool focusIn(QFocusEvent *);
   virtual bool focusOut(QFocusEvent *);
 private:
+  bool keyPressAsMath(QKeyEvent *);
   bool keyPressAsMotion(QKeyEvent *);
   bool keyPressAsSpecialChar(QKeyEvent *);
   bool keyPressWithControl(QKeyEvent *);
@@ -91,10 +92,8 @@ private:
 protected:
   bool tryFootnote();
   virtual bool tryToPaste();
-  bool trySimpleStyle(QString marker, MarkupData::Style type);
   bool tryScriptStyles(QTextCursor);
   bool tryAutoLink();
-  bool tryAutoItalic(bool ignoreExceptions=false);
   bool tryTeXCode();
   void toggleSimpleStyle(MarkupData::Style type, class QTextCursor const &c);
   bool charBeforeIsLetter(int pos) const;
