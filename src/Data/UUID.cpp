@@ -3,17 +3,20 @@
 #include "UUID.H"
 #include "Random.H"
 
-// This is a lame version
-
 QString UUID::create(int bits) {
   QString res;
-  for (int k=0; k<bits; k+=4) {
-    quint16 r = Random::random();
-    r = r & 15;
-    if (r<10)
-      res += '0' + r;
-    else
-      res += 'a' + r - 10;
+  for (int k=0; k<bits; k+=16) {
+    int x = Random::random();
+    for (int l=0; l<16; l+=4) {
+      if (l>=bits)
+	break;
+      int y = x & 15;
+      if (y<10)
+	res += ('0' + y);
+      else
+	res += ('a' + y - 10);
+      x >>= 4;
+    }
   }
   return res;
 }

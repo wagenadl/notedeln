@@ -1,7 +1,5 @@
 // UUID.H
 
-// This is a lame version
-
 #ifndef UUID_H
 
 #define UUID_H

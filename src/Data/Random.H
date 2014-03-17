@@ -1,7 +1,5 @@
 // Random.H
 
-// This is a lame version
-
 #ifndef RANDOM_H
 
 #define RANDOM_H
@@ -11,6 +9,9 @@
 class Random {
 public:
   static quint16 random();
+private:
+  static bool &inited();
+  static void srandom();
 };
 
 #endif
