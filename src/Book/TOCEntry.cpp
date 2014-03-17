@@ -56,3 +56,13 @@ void TOCEntry::setSheetCount(int n) {
   sheetCount_ = n;
   markModified();
 }
+
+QString TOCEntry::startSuffix() const {
+  return startSuffix_;
+}
+
+void TOCEntry::setStartSuffix(QString s) {
+  startSuffix_ = s;
+  markModified(InternalMod);
+}
+
