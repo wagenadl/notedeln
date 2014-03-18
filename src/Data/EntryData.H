@@ -26,7 +26,6 @@
 class EntryData: public Data {
   Q_OBJECT;
   Q_PROPERTY(int startPage READ startPage WRITE setStartPage)
-  Q_PROPERTY(QString suffix READ startSuffix WRITE setStartSuffix)
   Q_PROPERTY(bool unlocked READ isUnlocked WRITE setUnlocked)
 public:
   // constructor and destructor  
@@ -34,11 +33,9 @@ public:
   virtual ~EntryData();
   // read properties
   int startPage() const;
-  QString startSuffix() const;
   bool isUnlocked() const;
   // write properties
   void setStartPage(int);
-  void setStartSuffix(QString);
   void setUnlocked(bool);
   // other
   class TitleData *title() const;
@@ -63,7 +60,6 @@ private slots:
   void newSheet();
 protected:
   int startPage_;
-  QString startSuffix_;
   bool unlocked_;
   TitleData *title_;
   int maxSheet;

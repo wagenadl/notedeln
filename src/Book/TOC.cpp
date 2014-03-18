@@ -20,6 +20,7 @@
 #include <QDebug>
 #include "TOCEntry.H"
 #include "EntryData.H"
+#include "EntryFile.H"
 #include "TitleData.H"
 #include "Assert.H"
 
@@ -94,6 +95,8 @@ TOCEntry *TOC::addEntry(EntryData *data) {
   e->setTitle(data->titleText());
   e->setSheetCount(data->sheetCount());
   e->setUuid(data->uuid());
+  e->setCreated(data->created());
+  e->setModified(data->modified());
   entries_[e->startPage()] = e;
   return e;
 }
@@ -139,4 +142,49 @@ void TOC::setBook(Notebook *n) {
 
 Notebook *TOC::book() const {
   return nb;
+}
+
+
+TOC *TOC::rebuild(QDir pages) {
+  QMap<int, QString> pg2file;
+  foreach (QFileInfo const &fi, pages.entryInfoList()) {
+    if (!fi.isFile())
+      continue;
+    QString fn = fi.fileName();
+    if (fn.endsWith(".moved") || fn.endsWith(".THIS")
+        || fn.endsWith(".OTHER") || fn.endsWith(".BASE")) {
+      qDebug() << "Presence of " << fn
+               << " indicates unsuccessful bzr update. Aborting";
+      return 0;
+    }
+    if (!fn.endsWith(".json"))
+      continue;
+    QRegExp re("^(\\d\\d*)-?.*.json");
+    if (re.exactMatch(fn)) {
+      int n = re.cap(1).toInt();
+      qDebug() << "Found " << fn << " for page " << n;
+      if (pg2file.contains(n)) {
+        qDebug() << "Duplicate page number: " << n << " - Aborting";
+        return 0;
+      }
+      pg2file[n] = fn;
+    } else {
+      qDebug() << "Cannot parse " << fn << " as a page file name - Aborting";
+      return 0;
+    }
+  }
+
+  TOC *toc = new TOC();
+  foreach (QString fn, pg2file) {
+    EntryFile *f = EntryFile::load(pages.absoluteFilePath(fn), 0);
+    if (!f) {
+      qDebug() << "Failed to load " << fn << " - Aborting";
+      delete toc;
+      return 0;
+    }
+    toc->addEntry(f->data());
+    delete f;
+  }
+
+  return toc;
 }

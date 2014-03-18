@@ -27,8 +27,9 @@ class DataFile0: public QObject {
 public:  virtual ~DataFile0();
   bool ok() const; // true if last save or creation worked
   Data *data() const;
-  bool saveNow() const; // won't do anything if needToSave() is false
-  // returns true if ok, even if nothing was saved
+  bool saveNow(bool force=false) const;
+  // Won't do anything if needToSave() is false, unless FORCE is set.
+  // Returns true if ok, even if nothing was saved.
   QString fileName() const;
   bool needToSave() const;
 public slots:
@@ -73,6 +74,14 @@ template <class T> class DataFile: public DataFile0 {
   T *data() const { return dynamic_cast<T*>(DataFile0::data()); }
   static DataFile<T> *create(QString fn, QObject *parent=0) {
     DataFile<T> *df = new DataFile<T>(new T(), fn, parent);
+    if (df->ok())
+      return df;
+    delete df;
+    return 0;
+  }
+  static DataFile<T> *createFromData(T *dat, QString fn, QObject *parent=0) {
+    // We will own the data.
+    DataFile<T> *df = new DataFile<T>(dat, fn, parent);
     if (df->ok())
       return df;
     delete df;

@@ -26,6 +26,7 @@
 #include "Data.H"
 #include "DataFile.H"
 #include "TOCEntry.H"
+#include <QDir>
 
 class TOC: public Data {
   Q_OBJECT;
@@ -53,6 +54,15 @@ public:
   bool isLast(TOCEntry const *) const;
   void setBook(class Notebook *);
   virtual class Notebook *book() const; // pointer to parent book, if any.
+public:
+  static TOC *rebuild(QDir pages);
+  /* Builds a TOC structure from a pages folder.
+     This /only/ works if all the .json files in that folder are readable
+     and parsable as entries. Furthermore, there must not be any duplicate
+     entries. And there may not be any ".THIS", ".OTHER", ".BASE", or ".moved"
+     files in the folder, which would indicate an unsuccessful bzr update.
+   */
+  
 protected:
   virtual void loadMore(QVariantMap const &src);
 private: // hide these from general use

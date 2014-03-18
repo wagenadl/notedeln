@@ -164,12 +164,5 @@ EntryData *EntryData::page() {
   return this;
 }
 
-void EntryData::setStartSuffix(QString s) {
-  startSuffix_ = s;
-  markModified(InternalMod);
-}
 
-QString EntryData::startSuffix() const {
-  return startSuffix_;
-}
 

@@ -75,7 +75,7 @@ bool DataFile0::ok() const {
   return ok_;
 }
 
-bool DataFile0::saveNow() const {
+bool DataFile0::saveNow(bool force) const {
   if (!needToSave_) {
     ok_ = data_!=0;
     return ok_;

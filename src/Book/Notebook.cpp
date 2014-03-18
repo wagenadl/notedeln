@@ -28,7 +28,8 @@
 #include "VersionControl.H"
 #include "BackgroundVC.H"
 #include "Index.H"
-
+#include <QApplication>
+#include <QMessageBox>
 #include <QTimer>
 #include <QDebug>
 
@@ -59,14 +60,32 @@ Notebook::Notebook(QString path) {
 }
 
 void Notebook::loadme() {
-  tocFile_ = TOCFile::load(root.filePath("toc.json"), this);
-  ASSERT(tocFile_);
-  tocFile_->data()->setBook(this);
   bookFile_ = BookFile::load(root.filePath("book.json"), this);
   ASSERT(bookFile_);
   bookFile_->data()->setBook(this);
 
+  tocFile_ = TOCFile::load(root.filePath("toc.json"), this);
+  if (!tocFile_) {
+    qDebug() << "No TOC file found, trying to rebuild";
+    TOC *t = TOC::rebuild(root.filePath("pages"));
+    if (!t) {
+      QMessageBox mb(QMessageBox::Critical, "eln",
+                     "No TOC file found in notebook folder and I could "
+                     "not reconstruct it. Manual recovery will be needed. "
+                     "See debug log for more information.",
+                     QMessageBox::Abort);
+        mb.addButton("Quit", QMessageBox::RejectRole);
+        mb.exec();
+        QApplication::quit();
+    }
+    tocFile_ = TOCFile::createFromData(t, root.filePath("toc.json"));
+    tocFile_->saveNow(true);
+  }
+  ASSERT(tocFile_);
+  tocFile_->data()->setBook(this);
+
   index_ = new Index(dirPath(), toc(), this);
+
   style_ = new Style(root.filePath("style.json"));
 
   RecentBooks::instance()->addBook(this);
