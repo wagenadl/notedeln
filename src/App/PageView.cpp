@@ -272,7 +272,7 @@ void PageView::gotoEntryPage(int n, int dir) {
     TOCEntry *te = book->toc()->findBackward(n);
     if (te) {
       // let's look at page before end
-      EntryFile *file = book->page(te->startPage());
+      EntryFile *file = book->entry(te->startPage());
       ASSERT(file);
       if (file->data()->isEmpty()) {
 	// previous page is empty -> go there instead
@@ -280,7 +280,7 @@ void PageView::gotoEntryPage(int n, int dir) {
 	return;
       }
     }
-    book->createPage(n);
+    book->createEntry(n);
   }
 
   TOCEntry *te = book->toc()->find(n);
@@ -299,7 +299,7 @@ void PageView::gotoEntryPage(int n, int dir) {
     // already in the right page, let's just go to the right sheet
     currentPage = n;
   } else {
-    EntryFile *file = book->page(te->startPage());
+    EntryFile *file = book->entry(te->startPage());
     ASSERT(file);
     ASSERT(file->data());
     
@@ -374,7 +374,7 @@ void PageView::leavePage() {
     // If the page is empty, we'll delete it.   
     TOCEntry *te = book->toc()->find(currentPage);
     ASSERT(te);
-    EntryFile *file = book->page(te->startPage());
+    EntryFile *file = book->entry(te->startPage());
     ASSERT(file);
     ASSERT(file->data());
     if (file->data()->isEmpty()) {
@@ -382,7 +382,7 @@ void PageView::leavePage() {
       if (entryScene)
 	entryScene->deleteLater();
       entryScene = 0;
-      book->deletePage(currentPage);
+      book->deleteEntry(currentPage);
     }
   }
 }  

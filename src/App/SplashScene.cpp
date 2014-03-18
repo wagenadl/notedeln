@@ -205,6 +205,11 @@ Notebook *SplashScene::openNotebook() {
   gv->setScene(ss);
   ss->setWidget(gv);
   connect(gv, SIGNAL(closing()), &el, SLOT(quit()));
+  QString appname = "eln";
+#ifndef QT_NO_DEBUG
+  appname += " (debug vsn)";
+#endif
+  gv->setWindowTitle(appname);
   gv->show();
   
   QSizeF size = gv->sizeHint();

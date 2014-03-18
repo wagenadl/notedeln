@@ -308,14 +308,14 @@ Data *Data::create(QString t, Data *parent) {
     return 0;
 }
 
-EntryData const *Data::page() const {
+EntryData const *Data::entry() const {
   Data const *p = parent();
-  return p ? p->page() : 0;
+  return p ? p->entry() : 0;
 }
 
-EntryData *Data::page() {
+EntryData *Data::entry() {
   Data *p = parent();
-  return p ? p->page() : 0;
+  return p ? p->entry() : 0;
 }
 
 Notebook *Data::book() const {
@@ -324,7 +324,7 @@ Notebook *Data::book() const {
 }
 
 ResManager *Data::resManager() const {
-  EntryData const *pg = page();
+  EntryData const *pg = entry();
   return pg ? pg->resManager() : 0;
 }
 

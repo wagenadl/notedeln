@@ -26,7 +26,7 @@ static QString basicFilename(int pgno, QString uuid) {
   return QString("%1-%2") . arg(pgno, 4, 10, QChar('0')) . arg(uuid);
 }
 
-EntryFile *createPage(QDir const &dir, int n, QObject *parent) {
+EntryFile *createEntry(QDir const &dir, int n, QObject *parent) {
   QString uuid = UUID::create(32);
   QString fn0 = basicFilename(n, uuid);
   QString pfn = dir.absoluteFilePath(fn0 + ".json");
@@ -40,7 +40,7 @@ EntryFile *createPage(QDir const &dir, int n, QObject *parent) {
 }
 
 
-EntryFile *loadPage(QDir const &dir, int n, QString uuid, QObject *parent) {
+EntryFile *loadEntry(QDir const &dir, int n, QString uuid, QObject *parent) {
   QString fn0 = basicFilename(n, uuid);
   QString pfn = dir.absoluteFilePath(fn0 + ".json");
   EntryFile *f = EntryFile::load(pfn, parent);

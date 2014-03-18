@@ -16,9 +16,9 @@
 
 // EntryData.H
 
-#ifndef PAGEDATA_H
+#ifndef ENTRYDATA_H
 
-#define PAGEDATA_H
+#define ENTRYDATA_H
 
 #include "Data.H"
 #include <QList>
@@ -48,8 +48,8 @@ public:
   void setBook(class Notebook *nb);      // } This is for use by items that 
   Notebook *book() const;                // } wish to use resources. We don't
   ResManager *resManager() const;          // } use it ourselves.
-  EntryData const *page() const;
-  EntryData *page();
+  EntryData const *entry() const;
+  EntryData *entry();
   bool isEmpty() const; // true iff no blocks and title is default
 signals:
   void titleMod();

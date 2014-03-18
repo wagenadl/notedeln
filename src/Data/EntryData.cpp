@@ -156,11 +156,11 @@ ResManager *EntryData::resManager() const {
   return firstChild<ResManager>();
 }
 
-EntryData const *EntryData::page() const {
+EntryData const *EntryData::entry() const {
   return this;
 }
 
-EntryData *EntryData::page() {
+EntryData *EntryData::entry() {
   return this;
 }
 

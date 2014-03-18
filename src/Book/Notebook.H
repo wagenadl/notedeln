@@ -36,11 +36,11 @@ public:
   /* Returns null if couldn't create, e.g., if already exists */
 public:
   ~Notebook();
-  bool hasPage(int pgno) const;   // } pgno must 
-  EntryFile *page(int pgno);       // } be the first
-  EntryFile *createPage(int pgno); // } sheet of a
-  bool deletePage(int pgno);      // } Page
-  EntryFile *pageIfCached(int pgno);
+  bool hasEntry(int pgno) const;    // } pgno must 
+  EntryFile *entry(int pgno);       // } be the first
+  EntryFile *createEntry(int pgno); // } sheet of an
+  bool deleteEntry(int pgno);       // } Entry
+  EntryFile *entryIfCached(int pgno);
   // like page(), but will return 0 if not already cached
   class TOC *toc() const;
   class Index *index() const;

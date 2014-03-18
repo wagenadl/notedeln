@@ -201,24 +201,24 @@ TOC *Notebook::toc() const {
   return tocFile_->data();
 }
 
-bool Notebook::hasPage(int n) const {
+bool Notebook::hasEntry(int n) const {
   return toc()->contains(n);
 }
 
-EntryFile *Notebook::pageIfCached(int n) {
+EntryFile *Notebook::entryIfCached(int n) {
   if (pgFiles.contains(n))
     return pgFiles[n];
   else
     return 0;
 }
 
-EntryFile *Notebook::page(int n)  {
+EntryFile *Notebook::entry(int n)  {
   if (pgFiles.contains(n))
     return pgFiles[n];
 
   QString uuid = toc()->entry(n)->uuid();
 
-  EntryFile *f = loadPage(QDir(root.filePath("pages")), n, uuid, this);
+  EntryFile *f = loadEntry(QDir(root.filePath("pages")), n, uuid, this);
   ASSERT(f);
   pgFiles[n] = f;
 
@@ -231,9 +231,9 @@ EntryFile *Notebook::page(int n)  {
   return f;
 }
 
-EntryFile *Notebook::createPage(int n) {
+EntryFile *Notebook::createEntry(int n) {
   ASSERT(!pgFiles.contains(n));
-  EntryFile *f = ::createPage(root.filePath("pages"), n, this);
+  EntryFile *f = ::createEntry(root.filePath("pages"), n, this);
   if (!f)
     return 0;
   pgFiles[n] = f;
@@ -250,15 +250,15 @@ EntryFile *Notebook::createPage(int n) {
   return f;
 }
 
-bool Notebook::deletePage(int pgno) {
-  EntryFile *pf = page(pgno);
+bool Notebook::deleteEntry(int pgno) {
+  EntryFile *pf = entry(pgno);
   if (!pf) {
-    qDebug() << "Notebook: cannot delete nonexistent page";
+    qDebug() << "Notebook: cannot delete nonexistent entry";
     return false;
   }
   ASSERT(pf->data());
   if (!pf->data()->isEmpty()) {
-    qDebug() << "Notebook: refusing to delete non-empty page";
+    qDebug() << "Notebook: refusing to delete non-empty entry";
     return false;
   }
   index_->deleteEntry(pf->data()); // this doesn't save, but see below

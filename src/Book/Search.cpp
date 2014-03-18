@@ -92,10 +92,10 @@ QList<SearchResult> Search::immediatelyFindPhrase(QString phrase) const {
   QList<SearchResult> results;
   
   foreach (int pgno, sortedEntries) {
-    EntryFile *ef = book->pageIfCached(pgno);
+    EntryFile *ef = book->entryIfCached(pgno);
     bool preloaded = ef;
     if (!preloaded)
-      ef = ::loadPage(book->filePath("pages"), pgno, 0);
+      ef = ::loadEntry(book->filePath("pages"), pgno, 0);
     ASSERT(ef);
     QString ttl = ef->data()->titleText();
     foreach (TitleData const *bd, ef->data()->children<TitleData>())
@@ -151,11 +151,11 @@ void Search::run() {
   foreach (int pgno, entries) {
     if (abandon)
       return;
-    EntryFile *ef = book->pageIfCached(pgno);
+    EntryFile *ef = book->entryIfCached(pgno);
     bool precontained = ef;
     if (!ef) {
       QString uuid = book->toc()->entry(pgno)->uuid();
-      ef = ::loadPage(book->filePath("pages"), pgno, uuid, this);
+      ef = ::loadEntry(book->filePath("pages"), pgno, uuid, this);
       ASSERT(ef);
     }
     QString ttl = ef->data()->titleText();

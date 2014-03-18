@@ -16,16 +16,16 @@
 
 // EntryFile.H
 
-#ifndef PAGEFILE_H
+#ifndef ENTRYFILE_H
 
-#define PAGEFILE_H
+#define ENTRYFILE_H
 
 #include "DataFile.H"
 #include "EntryData.H"
 #include <QDir>
 
 typedef DataFile<EntryData> EntryFile;
-EntryFile *createPage(QDir const &dir, int n, QObject *parent=0);
-EntryFile *loadPage(QDir const &dir, int n, QString uuid, QObject *parent=0);
+EntryFile *createEntry(QDir const &dir, int n, QObject *parent=0);
+EntryFile *loadEntry(QDir const &dir, int n, QString uuid, QObject *parent=0);
 
 #endif

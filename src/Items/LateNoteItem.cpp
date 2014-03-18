@@ -48,7 +48,7 @@ void LateNoteItem::prepDateItem() {
   dateItem->setFont(style().font("latenote-font"));
   dateItem->setDefaultTextColor(QColor(style().string("latenote-text-color")));
   QDateTime myDate = data()->created();
-  QDateTime pgDate = data()->page()->created();
+  QDateTime pgDate = data()->entry()->created();
   QString lbl;
   if (myDate.date()==pgDate.date())
     lbl = "";
