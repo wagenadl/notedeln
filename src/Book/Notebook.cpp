@@ -261,6 +261,9 @@ bool Notebook::deleteEntry(int pgno) {
     qDebug() << "Notebook: refusing to delete non-empty entry";
     return false;
   }
+
+  QString uuid = pf->data()->uuid();
+  
   index_->deleteEntry(pf->data()); // this doesn't save, but see below
   
   pgFiles[pgno]->cancelSave();
@@ -268,10 +271,7 @@ bool Notebook::deleteEntry(int pgno) {
   pgFiles.remove(pgno);
 
   ASSERT(toc()->deleteEntry(toc()->find(pgno))); // this triggers mod() and hence flush of index too
-  QString fn = QString("pages/%1.json").arg(pgno);
-  QString fn0 = fn + "~";
-  root.remove(fn0);
-  ASSERT(root.rename(fn, fn0));
+  ASSERT(::deleteEntryFile(QDir(root.filePath("pages")), pgno, uuid));
   return true;
 }
 

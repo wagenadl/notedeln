@@ -39,16 +39,44 @@ EntryFile *createEntry(QDir const &dir, int n, QObject *parent) {
   return f;
 }
 
+static bool removeDir(QDir parent, QString fn) {
+  bool ok = true;
+  QDir dir(parent.filePath(fn));
+  foreach (QFileInfo info,
+	   dir.entryInfoList(QDir::NoDotAndDotDot | QDir::System | QDir::Hidden
+			     | QDir::AllDirs | QDir::Files)) {
+    QString fn = info.filePath();
+    if (info.isDir()) 
+      ok = removeDir(dir, fn);
+    else 
+      ok = dir.remove(fn);
+    if (!ok)
+      return false;
+  }
+  return parent.rmdir(fn);	
+}
+
+bool deleteEntryFile(QDir dir, int n, QString uuid) {
+  QString fn0 = basicFilename(n, uuid);
+  if (!dir.exists(fn0 + ".json"))
+    fn0 = QString::number(n); // quietly revert to old style
+
+  QString jsonfn = fn0 + ".json";
+  QString resfn = fn0 + ".res";
+  dir.remove(jsonfn + "~");
+  removeDir(dir, resfn + "~");
+  bool ok = dir.rename(jsonfn, jsonfn + "~");
+  dir.rename(resfn, resfn + "~");
+  return ok;
+}
+
 
 EntryFile *loadEntry(QDir const &dir, int n, QString uuid, QObject *parent) {
   QString fn0 = basicFilename(n, uuid);
+  if (!dir.exists(fn0 + ".json"))
+    fn0 = QString::number(n); // quietly revert to old style
   QString pfn = dir.absoluteFilePath(fn0 + ".json");
   EntryFile *f = EntryFile::load(pfn, parent);
-  if (!f) { // old style simply page number
-    fn0 = QString::number(n);
-    pfn = dir.absoluteFilePath(fn0 + ".json");
-    f = EntryFile::load(pfn, parent);
-  }
   ASSERT(f);
   ResManager *r = f->data()->firstChild<ResManager>();
   if (!r)
