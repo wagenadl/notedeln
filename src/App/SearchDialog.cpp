@@ -63,7 +63,7 @@ void SearchDialog::newSearch() {
     
     view->resize(pgView->size()*.9);
     QString ttl = pgView->notebook()->bookData()->title();
-    view->setWindowTitle(ttl.replace(QRegExp("\\s\\s*"), " ") + " - eln");
+    view->setWindowTitle("Search in: " + ttl.replace(QRegExp("\\s\\s*"), " ") + " - eln");
     view->show();
   }
 }
