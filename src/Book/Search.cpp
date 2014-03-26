@@ -94,8 +94,10 @@ QList<SearchResult> Search::immediatelyFindPhrase(QString phrase) const {
   foreach (int pgno, sortedEntries) {
     EntryFile *ef = book->entryIfCached(pgno);
     bool preloaded = ef;
-    if (!preloaded)
-      ef = ::loadEntry(book->filePath("pages"), pgno, 0);
+    if (!preloaded) {
+      QString uuid = book->toc()->entry(pgno)->uuid();
+      ef = ::loadEntry(book->filePath("pages"), pgno, uuid, 0);
+    }
     ASSERT(ef);
     QString ttl = ef->data()->titleText();
     foreach (TitleData const *bd, ef->data()->children<TitleData>())

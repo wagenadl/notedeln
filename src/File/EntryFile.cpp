@@ -73,6 +73,7 @@ bool deleteEntryFile(QDir dir, int n, QString uuid) {
 
 EntryFile *loadEntry(QDir const &dir, int n, QString uuid, QObject *parent) {
   QString fn0 = basicFilename(n, uuid);
+  qDebug() << "loadentry: n=" << n << " uuid="<<uuid;
   if (!dir.exists(fn0 + ".json"))
     fn0 = QString::number(n); // quietly revert to old style
   QString pfn = dir.absoluteFilePath(fn0 + ".json");

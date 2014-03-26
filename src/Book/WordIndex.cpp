@@ -62,7 +62,8 @@ bool WordIndex::save(QString filename) {
 void WordIndex::build(class TOC *toc, QString pagesDir) {
   index.clear();
   foreach (int pg, toc->entries().keys()) {
-    EntryFile *f = ::loadEntry(pagesDir, pg, 0);
+    QString uuid = toc->entry(pg)->uuid();
+    EntryFile *f = ::loadEntry(pagesDir, pg, uuid, 0);
     WordSet ws;
     ws.add(f->data());
     foreach (QString w, ws.toSet())
