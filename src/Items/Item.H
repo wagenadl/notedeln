@@ -36,6 +36,7 @@ public:
   Item(Data *d, Item *parent);
   virtual ~Item();
   virtual void deleteLater();
+  bool beingDeleted() const { return d==0; }
   DATAACCESS(Data);
   Item *parent() const;
   class EntryScene *pageScene() const;

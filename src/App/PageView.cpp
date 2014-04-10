@@ -183,12 +183,16 @@ void PageView::keyPressEvent(QKeyEvent *e) {
 	if (item)
 	  break;
       }
+      qDebug() << "PageView::Key_Delete. item=" << item;
       if (item && item->isWritable()) {
 	BlockItem *block = item->ancestralBlock();
+	qDebug() << "  block=" << block
+		 << " empty?" << block->allChildren().isEmpty();
 	if (block && block->allChildren().isEmpty())
 	  block->pageScene()->notifyChildless(block);
 	else
 	  deletedStack->grabIfRestorable(item);
+	qDebug() << "  Item grabbed or notification sent";
       }
     } else {
       take = false;

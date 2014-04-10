@@ -5,6 +5,7 @@
 #include "TeXCodes.H"
 #include <QKeyEvent>
 #include <QTextDocument>
+#include <QDebug>
 
 bool TextItem::keyPressAsMath(QKeyEvent *e) {
   //  int key = e->key();
@@ -43,20 +44,19 @@ bool TextItem::keyPressAsMath(QKeyEvent *e) {
     return true;
   } else if (txt=="^") {
     if (c.hasSelection()) 
-      return false;
+      return false; // we're overwriting, let some other piece of code deal.
     // de-italicize "e^"
     if (document()->characterAt(c.position()-1)=='e') {
       MarkupData *md = markupAt(c.position(), MarkupData::Italic);
       if (md)
         markings_->deleteMark(md);
     }
+    tryScriptStyles(textCursor());
     return false; // let the hat be inserted
   } else if (txt!="") {
     // we may apply finished TeX Code
-    QTextCursor c = textCursor();
-    if (c.hasSelection()) {
+    if (c.hasSelection()) 
       return false; // we're overwriting, let some other piece of code deal.
-    }
     QTextCursor m = document()->find(QRegExp("([^A-Za-z])"),
 				     c, QTextDocument::FindBackward);
     int start = m.hasSelection() ? m.selectionEnd() : 0;
@@ -76,10 +76,14 @@ bool TextItem::keyPressAsMath(QKeyEvent *e) {
       } else {
         c.insertText(val);
       }
-      return false; // still insert the character
     }
+    qDebug() << "ti_mm: " << txt;
+    if (QString(" _").contains(txt))
+      tryScriptStyles(textCursor());
+    return false; // still insert the character
+  } else {
+    return false;
   }
-  return false;
 }
 
  

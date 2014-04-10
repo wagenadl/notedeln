@@ -66,13 +66,21 @@ GfxNoteItem::~GfxNoteItem() {
 }
 
 void GfxNoteItem::abandon() {
+  qDebug() << "GfxNoteItem::abandon";
   BlockItem *ancestor = ancestralBlock();
   Item *p = parent();
+  qDebug() << "  I am " << this << ". My parent is " << p
+	   << ". My ancestor is " << ancestor;
+  if (p && p->beingDeleted()) {
+    qDebug() << "I have a parent but it is being deleted. No toces!";
+    return; 
+  }
   if (p)
     p->data()->deleteChild(data());
   deleteLater();
   if (ancestor)
     ancestor->sizeToFit();
+  qDebug() << "  Abandon complete";
 }
 
 static double euclideanLength2(QPointF p) {

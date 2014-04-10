@@ -38,9 +38,9 @@ DeletedItem *DeletedItem::takeFromParent(Item *item) {
   DeletedItem *dd = new DeletedItem(item);
   item->data()->parent()->takeChild(item->data());
   item->deleteLater();
- if (ancestor)
+  if (ancestor)
     ancestor->sizeToFit();
-   return dd;
+  return dd;
 }
 
 bool DeletedItem::isRestored() const {

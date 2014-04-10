@@ -472,6 +472,11 @@ bool TextItem::keyPressAsSpecialChar(QKeyEvent *e) {
     c.deletePreviousChar();
     c.insertText(Digraphs::map(digraph));
     return true;
+  } else if (Digraphs::contains(trigraph)) {
+    c.deletePreviousChar();
+    c.deletePreviousChar();
+    c.insertText(Digraphs::map(trigraph));
+    return true;
   } else if (Digraphs::contains(charNow)) {
     c.insertText(Digraphs::map(charNow));
     return true;
@@ -490,15 +495,6 @@ bool TextItem::keyPressAsSpecialChar(QKeyEvent *e) {
     else 
       c.insertText(QString::fromUtf8("–")); // en dash
     return true;
-  } else if (trigraph=="...") {
-    c.deletePreviousChar();
-    c.deletePreviousChar();
-    c.insertText(QString::fromUtf8("…"));
-    return true;
-  } else if (trigraph==" - ") {
-    c.deletePreviousChar();
-    c.insertText(QString::fromUtf8("− "));
-    return true;
   } else if (charNow[0].isDigit() && charBefore==QChar('-')
 	     && QString(" ([{^_@$/").contains(charBefore2)) {
     c.deletePreviousChar();
@@ -513,10 +509,11 @@ bool TextItem::keyPressAsSpecialChar(QKeyEvent *e) {
 bool TextItem::keyPress(QKeyEvent *e) {
   return
     keyPressWithControl(e)
+    || keyPressAsSpecialChar(e)
     || (mode()->mathMode() && keyPressAsMath(e))
     || keyPressAsMotion(e)
     || keyPressAsSpecialEvent(e)
-    || keyPressAsSpecialChar(e);
+    ;
 }
 
 bool TextItem::charBeforeIsLetter(int pos) const {
