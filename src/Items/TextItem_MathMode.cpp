@@ -51,7 +51,7 @@ bool TextItem::keyPressAsMath(QKeyEvent *e) {
       if (md)
         markings_->deleteMark(md);
     }
-    tryScriptStyles(textCursor());
+    tryScriptStyles(c);
     return false; // let the hat be inserted
   } else if (txt!="") {
     // we may apply finished TeX Code
@@ -78,8 +78,13 @@ bool TextItem::keyPressAsMath(QKeyEvent *e) {
       }
     }
     qDebug() << "ti_mm: " << txt;
-    if (QString(" _").contains(txt))
-      tryScriptStyles(textCursor());
+    if (txt=="_") {
+      tryScriptStyles(c);
+    } else if (txt==" ") {
+      if (QString(",;.:").contains(document()->characterAt(c.position()-1)))
+	c.movePosition(QTextCursor::Left);
+      tryScriptStyles(c);
+    }
     return false; // still insert the character
   } else {
     return false;
