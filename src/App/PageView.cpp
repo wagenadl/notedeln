@@ -27,9 +27,6 @@
 #include "TitleData.H"
 #include "DeletedStack.H"
 #include "Assert.H"
-#include "Toolbars.H"
-//#include "SimpleNavbar.H"
-#include "Navbar.H"
 #include "Mode.H"
 #include "BlockItem.H"
 #include "TextItem.H"
@@ -44,11 +41,6 @@
 
 PageView::PageView(Notebook *nb, QWidget *parent):
   QGraphicsView(parent), book(nb) {
-  toolbars = new Toolbars(mode(), 0); // toolbars is unparented except when viewing a page
-  connect(toolbars->navbar(), SIGNAL(goTOC()), SLOT(gotoTOC()));
-  connect(toolbars->navbar(), SIGNAL(goFind()), SLOT(openFindDialog()));
-  connect(toolbars->navbar(), SIGNAL(goEnd()), SLOT(lastPage()));
-  connect(toolbars->navbar(), SIGNAL(goRelative(int)), SLOT(goRelative(int)));
   searchDialog = new SearchDialog(this);
   deletedStack = new DeletedStack(this);
   frontScene = new FrontScene(nb, this);
@@ -59,8 +51,14 @@ PageView::PageView(Notebook *nb, QWidget *parent):
   connect(tocScene, SIGNAL(pageNumberClicked(int)),
           SLOT(gotoEntryPage(int)));
 
+  setFrameShape(NoFrame);
+  setLineWidth(0);
+  setMidLineWidth(0);
+  setContentsMargins(0, 0, 0, 0);
+  setViewportMargins(0, 0, 0, 0);
   setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
   setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+  setDragMode(NoDrag);
   
   entryScene = 0;
   currentSection = Front;
@@ -71,17 +69,14 @@ PageView::PageView(Notebook *nb, QWidget *parent):
 }
 
 PageView::~PageView() {
-  if (!toolbars->scene())
-    delete toolbars; // othw. the scene will take care of it
 }
 
 void PageView::resizeEvent(QResizeEvent *e) {
   QGraphicsView::resizeEvent(e);
   if (!scene())
     return;
-  QRectF sr = scene()->sceneRect();
-  sr.adjust(2, 2, -2, -2); // make sure no borders show by default
-  fitInView(sr, Qt::KeepAspectRatio);
+  fitInView(scene()->sceneRect().adjusted(1, 1, -2, -2), Qt::KeepAspectRatio);
+  emit scaled(matrix().m11());
 }
 
 void PageView::mousePressEvent(QMouseEvent *e) {
@@ -321,8 +316,6 @@ void PageView::gotoEntryPage(int n, int dir) {
     if (file->data()->isRecent() || file->data()->isUnlocked())
       entryScene->makeWritable(); // this should be even more sophisticated
     setScene(entryScene);
-    entryScene->addItem(toolbars);
-    toolbars->showTools();
     TOCEntry *nextte = book->toc()->entryAfter(te);
     if (nextte)
       entryScene->clipPgNoAt(nextte->startPage());
@@ -338,15 +331,16 @@ void PageView::gotoEntryPage(int n, int dir) {
   if (entryScene->isWritable())
     mode()->setMode(Mode::Type);
   else
-    mode()->setMode(Mode::Browse);    
+    mode()->setMode(Mode::Browse);
+
+  emit onEntryPage(currentPage);
 }
 
 void PageView::gotoFront() {
   leavePage();
   currentSection = Front;
   setScene(frontScene);
-  frontScene->addItem(toolbars);
-  toolbars->hideTools();
+  emit onFrontMatter(0);
 }
 
 void PageView::gotoTOC(int n) {
@@ -356,8 +350,7 @@ void PageView::gotoTOC(int n) {
   currentPage = n;
   setScene(tocScene);
   tocScene->gotoSheet(currentPage-1);
-  tocScene->addItem(toolbars);
-  toolbars->hideTools();
+  emit onFrontMatter(n);
 }
 
 void PageView::leavePage() {
@@ -367,9 +360,6 @@ void PageView::leavePage() {
     if (fi)
       fi->clearFocus(); // this should cause abandon to happen
   }
-
-  if (toolbars->scene())
-    toolbars->scene()->removeItem(toolbars);
 
   if (currentSection==Entries
       && currentPage>1

@@ -27,9 +27,12 @@ class PageEditor: public QMainWindow {
 public:
   PageEditor(class Notebook *nb);
   virtual ~PageEditor();
+protected:
+  void resizeEvent(QResizeEvent *);
 private:
   class Notebook *book;
   class PageView *view;
+  class ToolView *toolview;
 };
 
 #endif

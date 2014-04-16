@@ -39,6 +39,10 @@ public slots:
   void lastPage();
   void openFindDialog();
   void htmlDialog();
+signals:
+  void onEntryPage(int);
+  void onFrontMatter(int);
+  void scaled(double);
 public:
   class Mode *mode() const;
   class Notebook *notebook() const;
@@ -61,9 +65,6 @@ private:
   class FrontScene *frontScene;
   class TOCScene *tocScene;
   class EntryScene *entryScene;
-  //  class GfxPalette *linePalette;
-  //  class GfxPalette *markPalette;
-  // class Toolbar *toolbar;
   int currentPage;
   enum {
     Front,
@@ -71,8 +72,6 @@ private:
     Entries,
   } currentSection;
   class DeletedStack *deletedStack;
-  class Toolbars *toolbars;
-  //  class SimpleNavbar *simpleNavbar;
   int wheelDeltaAccum;
   int wheelDeltaStepSize;
   class SearchDialog *searchDialog;

@@ -143,8 +143,10 @@ void ToolItem::hoverLeaveEvent(QGraphicsSceneHoverEvent *) {
   update();
   if (popupDelay)
     popupDelay->stop();
-  if (balloon) 
-    delete balloon;
+  if (balloon)
+    balloon->hide();
+  if (balloon)
+    balloon->deleteLater();
   /* This used to cause SEGV crashes, sometimes. I think that the QPointer
      is essential, because my event handler may be called after the balloon
      has been deleted by the scene.

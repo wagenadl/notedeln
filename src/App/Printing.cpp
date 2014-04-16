@@ -53,11 +53,6 @@ void PageView::printDialog() {
   if (dialog.exec() != QDialog::Accepted) 
     return;
 
-#if !NOHIDETOOLBARS
-  if (toolbars)
-    toolbars->hide();
-#endif
-
   hide();
   
   QProgressDialog progress("Printing...", "Abort", 0, 1000, this);
@@ -173,9 +168,6 @@ void PageView::printDialog() {
     progress.setValue(progress.maximum());
     break;
   }
-
-  if (toolbars)
-    toolbars->show();
 
   show();
   
