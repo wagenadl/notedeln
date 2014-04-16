@@ -156,13 +156,11 @@ void PageView::printDialog() {
       break;
     case TOC:
       tocScene->print(&printer, &p,
-		      tocScene->currentSheet(),
-		      tocScene->currentSheet());
+		      currentSheet, currentSheet);
       break;
     case Entries:
       entryScene->print(&printer, &p,
-		       entryScene->currentSheet(),
-		       entryScene->currentSheet());
+			currentSheet, currentSheet);
       break;
     }
     progress.setValue(progress.maximum());

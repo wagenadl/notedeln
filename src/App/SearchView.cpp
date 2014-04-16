@@ -11,9 +11,12 @@ SearchView::SearchView(SearchResultScene *scene, QWidget *parent):
   QGraphicsView(parent), scene(scene) {
   setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
   setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+  setFrameStyle(Raised | StyledPanel);
+  setDragMode(NoDrag);
   wheelDeltaAccum = 0;
   wheelDeltaStepSize = 120; // should get from notebook
   setScene(scene);
+  currentSheet = 0;
 }
 
 SearchView::~SearchView() {
@@ -22,8 +25,8 @@ SearchView::~SearchView() {
 
 void SearchView::resizeEvent(QResizeEvent *e) {
   QGraphicsView::resizeEvent(e);
-  QRectF sr = scene->sceneRect();
-  sr.adjust(2, 2, -2, -2); // make sure no borders show by default
+  QRectF sr = scene->rectForSheet(currentSheet);
+  sr.adjust(1, 1, -2, -2); // make sure no borders show by default
   fitInView(sr, Qt::KeepAspectRatio);
 }
 
@@ -44,10 +47,10 @@ void SearchView::keyPressEvent(QKeyEvent *e) {
   bool take = true;
   switch (e->key()) {
   case Qt::Key_PageUp: case Qt::Key_Up: case Qt::Key_Backspace:
-    scene->previousSheet();
+    gotoSheet(currentSheet-1);
     break;
   case Qt::Key_PageDown: case Qt::Key_Down: case Qt::Key_Space:
-    scene->nextSheet();
+    gotoSheet(currentSheet+1);
     break;
   case Qt::Key_P:
     if (e->modifiers() & Qt::ControlModifier)
@@ -66,10 +69,23 @@ void SearchView::wheelEvent(QWheelEvent *e) {
   wheelDeltaAccum += e->delta();
   while (wheelDeltaAccum>=wheelDeltaStepSize) {
     wheelDeltaAccum -= wheelDeltaStepSize;
-    scene->previousSheet();
+    gotoSheet(currentSheet-1);
   }
   while (wheelDeltaAccum<=-wheelDeltaStepSize) {
     wheelDeltaAccum += wheelDeltaStepSize;
-    scene->nextSheet();
+    gotoSheet(currentSheet+1);
   }
+}
+
+void SearchView::gotoSheet(int n) {
+  if (n<0)
+    return;
+  if (n>=scene->sheetCount())
+    return;
+  if (n==currentSheet)
+    return;
+  currentSheet = n;
+  QRectF sr = scene->rectForSheet(currentSheet);
+  sr.adjust(1, 1, -2, -2); // make sure no borders show by default
+  fitInView(sr, Qt::KeepAspectRatio);
 }

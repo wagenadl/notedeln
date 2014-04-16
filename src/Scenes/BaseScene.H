@@ -35,16 +35,13 @@ public:
   virtual bool print(class QPrinter *, class QPainter *,
 		     int firstSheet=0, int lastSheet=100000000);
   // returns true if anything printed
-  int currentSheet() const;
   virtual QGraphicsItem *itemAt(const QPointF &position) const;
   virtual int startPage() const;
   virtual QString title() const;
   virtual QString pgNoToString(int) const;
   void setOverlay(SceneOverlay *ovr);
+  QRectF rectForSheet(int n) const;
 public slots:
-  bool nextSheet(); // true if moved (i.e., if there exists a next sheet)
-  bool previousSheet(); // true if moved (i.e., if there exists a prev. sheet)
-  virtual void gotoSheet(int i);
   void focusTitle();
 protected:
   bool inMargin(QPointF); // true if point is in any margin
@@ -55,18 +52,18 @@ protected:
   virtual void makeContdItems();
   virtual void positionPgNoItem();
   virtual void positionTitleItem();
+  void setSheetCount(int n);
 protected:
-  QGraphicsItem *titleItem;
-  QGraphicsTextItem *pgNoItem;
-  QGraphicsTextItem *contdItem; // from prev page
-  QGraphicsTextItem *contItem; // to next page
-  QGraphicsTextItem *nOfNItem;
-  QGraphicsLineItem *leftMarginItem;
-  QGraphicsLineItem *topMarginItem;
-  QGraphicsRectItem *bgItem;
+  QList<QGraphicsItem *> titleItems;
+  QList<QGraphicsTextItem *> pgNoItems;
+  QList<QGraphicsTextItem *> contdItems; // from prev page
+  QList<QGraphicsTextItem *> contItems; // to next page
+  QList<QGraphicsTextItem *> nOfNItems;
+  QList<QGraphicsLineItem *> leftMarginItems;
+  QList<QGraphicsLineItem *> topMarginItems;
+  QList<QGraphicsRectItem *> bgItems;
 protected:
   int nSheets; // number of sheets
-  int iSheet; // current sheet (counting from 0)
   Data *data;
   Style const *style_;
   QPointer<SceneOverlay> overlay;

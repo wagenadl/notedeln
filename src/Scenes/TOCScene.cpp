@@ -94,17 +94,7 @@ void TOCScene::relayout() {
   }
 
   nSheets = sheet+1;
-  gotoSheet(iSheet);
 }
-
-void TOCScene::gotoSheet(int i) {
-  BaseScene::gotoSheet(i);
-  for (int n=0; n<items.size(); n++) {
-    items[n]->setVisible(sheetNos[n] == i);
-    lines[n]->setVisible(sheetNos[n] == i);
-  }
-}
-
 QString TOCScene::pgNoToString(int n) const {
   return Roman(n).lc();
 }
@@ -112,5 +102,7 @@ QString TOCScene::pgNoToString(int n) const {
 void TOCScene::makeContdItems() {
   // Simply don't make them??
   BaseScene::makeContdItems();
-  contdItem->setPos(4, style().real("margin-top"));
+  for (int n=0; n<nSheets; n++)
+    contdItems[n]->setPos(4, style().real("page-height")*n
+			  + style().real("margin-top"));
 }

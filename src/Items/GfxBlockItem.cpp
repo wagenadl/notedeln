@@ -178,7 +178,7 @@ void GfxBlockItem::drawGrid(QPainter *p, QRectF const &bb, double dx) {
 
 void GfxBlockItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
   Mode::M mod = mode()->mode();
-  Qt::MouseButton but = e->button();
+  //  Qt::MouseButton but = e->button();
   bool take = false;
   if (isWritable()) {
     switch (mod) {

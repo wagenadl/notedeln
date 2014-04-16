@@ -68,9 +68,7 @@ EntryScene::EntryScene(EntryData *data, QObject *parent):
   writable = false;
   firstDisallowedPgNo = 0;
   
-  dateItem = 0;
   unlockedItem = 0;
-  belowItem = 0;
   titleItemX = 0;
 
   vChangeMapper = new QSignalMapper(this);
@@ -88,8 +86,6 @@ void EntryScene::populate() {
   positionNofNAndDateItems();
   positionTitleItem();
   positionBlocks();
-  iSheet = -1; // cheat to force signal
-  gotoSheet(0);
 
   if (data()->isUnlocked())
     addUnlockedWarning();
@@ -97,36 +93,33 @@ void EntryScene::populate() {
 
 void EntryScene::makeBackground() {
   BaseScene::makeBackground();
-  belowItem = new BelowItem();
-  addItem(belowItem);
-  belowItem->setRect(style_->real("margin-left"),
-		     style_->real("margin-top"),
-		     style_->real("page-width")
-		     - style_->real("margin-left")
-		     - style_->real("margin-right"),
-		     style_->real("page-height")
-		     - style_->real("margin-top"));
-  belowItem->setPen(QPen(Qt::NoPen));
-  belowItem->setBrush(QBrush(Qt::NoBrush));
 }
 
 void EntryScene::makeDateItem() {
-  dateItem = addText(data_->created().toString(style().string("date-format")),
-		     style().font("date-font"));
-  dateItem->setDefaultTextColor(style().color("date-color"));
+  for (int n=dateItems.size(); n<nSheets; n++) {
+    QGraphicsTextItem *d
+      = addText(data_->created().toString(style().string("date-format")),
+		style().font("date-font"));
+    d->setDefaultTextColor(style().color("date-color"));
+    dateItems << d;
+  }
 }
 
 void EntryScene::makeTitleItem() {
+  #if 1
+  BaseScene::makeTitleItem();
+  #else
   titleItemX = new TitleItem(data_->title(), 0);
-  titleItem = titleItemX;
+  titleItems << titleItemX;
   connect(titleItemX,
 	  SIGNAL(futileMovementKey(int, Qt::KeyboardModifiers)),
 	  SLOT(futileTitleMovement(int, Qt::KeyboardModifiers)));
-  addItem(titleItem);
+  addItem(titleItemX);
   titleItemX->makeWritableNoRecurse();
 
   connect(titleItemX->document(), SIGNAL(contentsChanged()),
 	  SLOT(titleEdited()));
+  #endif
 }
 
 void EntryScene::makeBlockItems() {
@@ -192,6 +185,9 @@ void EntryScene::titleEdited() {
 }
 
 void EntryScene::positionTitleItem() {
+  #if 1
+  BaseScene::positionTitleItem();
+  #else
   /* This keeps the title bottom aligned */
   if (!dateItem || !nOfNItem)
     return; // too early in process
@@ -209,28 +205,32 @@ void EntryScene::positionTitleItem() {
 
   foreach (LateNoteItem *lni, titleItemX->children<LateNoteItem>())
     lni->setScale(1); // bizarre way to get date item in right spot
+  #endif
 }
 
 void EntryScene::positionNofNAndDateItems() {
   if (nSheets>1) {
-    QPointF br = nOfNItem->boundingRect().bottomRight();
-    nOfNItem->setPos(style().real("page-width") -
-		     style().real("margin-right-over") -
-		     br.x(),
-		     style().real("margin-top") -
-		     style().real("title-sep") -
-		     br.y() + 8);
-    QPointF tr = nOfNItem->sceneBoundingRect().topRight();
-    br = dateItem->boundingRect().bottomRight();
-    dateItem->setPos(tr - br + QPointF(0, 8));
+    for (int n=0; n<nSheets; n++) {
+      QPointF br = nOfNItems[n]->boundingRect().bottomRight();
+      nOfNItems[n]->setPos(style().real("page-width") -
+			   style().real("margin-right-over") -
+			   br.x(),
+			   style().real("page-height")*n +
+			   style().real("margin-top") -
+			   style().real("title-sep") -
+			   br.y() + 8);
+      QPointF tr = nOfNItems[n]->sceneBoundingRect().topRight();
+      br = dateItems[n]->boundingRect().bottomRight();
+      dateItems[n]->setPos(tr - br + QPointF(0, 8));
+    }
   } else {
-    QPointF br = dateItem->boundingRect().bottomRight();
-    dateItem->setPos(style().real("page-width") -
-		     style().real("margin-right-over") -
-		     br.x(),
-		     style().real("margin-top") -
-		     style().real("title-sep") -
-		     br.y());
+    QPointF br = dateItems[0]->boundingRect().bottomRight();
+    dateItems[0]->setPos(style().real("page-width") -
+			 style().real("margin-right-over") -
+			 br.x(),
+			 style().real("margin-top") -
+			 style().real("title-sep") -
+			 br.y());
   }
 }
 
@@ -345,49 +345,6 @@ void EntryScene::restackNotes(int sheet) {
   }
 }
 
-void EntryScene::gotoSheet(int i) {
-  int oldSheet = iSheet; // keep info on old sheet
-  
-  BaseScene::gotoSheet(i);
-
-  // Set visibility for all blocks
-  int nBlocks = blockItems.size();
-  for (int k=0; k<nBlocks; k++) {
-    int s = blockItems[k]->data()->sheet();
-    blockItems[k]->setVisible(s==iSheet);
-    footnoteGroups[k]->setVisible(s==iSheet);
-  }
-
-  positionNofNAndDateItems();
-  reshapeBelowItem();
-  repositionContItem();
-
-  // Set visibility for title-attached notes
-  foreach (GfxNoteItem *gni, titleItemX->children<GfxNoteItem>()) 
-    gni->setVisible(gni->data()->sheet()==iSheet);
-
-  if (oldSheet!=iSheet) 
-    emit nowOnPage(clippedPgNo(startPage()+iSheet));
-}
-
-void EntryScene::repositionContItem() {
-  // just leave the thing in place
-}
-
-void EntryScene::reshapeBelowItem() {
-  int iLast = findLastBlockOnSheet(iSheet);
-  double ytop = iLast<0
-    ? style().real("margin-top")
-    :  blockItems[iLast]->sceneBoundingRect().bottom();
-  belowItem->setRect(style().real("margin-left"),
-		     ytop,
-		     style().real("page-width")
-		     - style().real("margin-left")
-		     - style().real("margin-right"),
-		     style().real("page-height")
-		     - ytop);
-}
-
 int EntryScene::findLastBlockOnSheet(int sheet) {
   for (int i=blockItems.size()-1; i>=0; --i)
     if (blockItems[i]->data()->sheet() == sheet)
@@ -396,7 +353,8 @@ int EntryScene::findLastBlockOnSheet(int sheet) {
 }
 
 bool EntryScene::belowContent(QPointF sp) {
-  return itemAt(sp) == belowItem;
+  qDebug() << "EntryScene::belowContent not properly implemented";
+  return itemAt(sp) == 0;
   //int iAbove = findLastBlockOnSheet(iSheet);
   //if (iAbove<0)
   //  return true;
@@ -419,9 +377,6 @@ void EntryScene::notifyChildless(BlockItem *gbi) {
   }
   //  qDebug() << "restacking";
   restackBlocks();
-
-  gotoSheet(iSheet>=nSheets ? nSheets-1 : iSheet);
-  //  qDebug() << "all done" << iSheet << nSheets;
 }
   
 void EntryScene::deleteBlock(int blocki) {

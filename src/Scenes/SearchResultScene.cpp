@@ -85,15 +85,6 @@ QString SearchResultScene::title() const {
   return ttl;
 }
 
-void SearchResultScene::gotoSheet(int sheet) {
-  for (int n=0; n<headers.size(); n++) 
-    if (sheetnos[n] == sheet)
-      headers[n]->show();
-    else
-      headers[n]->hide();
-  BaseScene::gotoSheet(sheet);
-}
-
 QString SearchResultScene::pgNoToString(int n) const {
   return Roman(n).lc();
 }
@@ -101,7 +92,10 @@ QString SearchResultScene::pgNoToString(int n) const {
 void SearchResultScene::makeContdItems() {
   // Simply don't make them??
   BaseScene::makeContdItems();
-  contdItem->setPos(4, style().real("margin-top"));
+  for (int n=0; n<nSheets; n++)
+    contdItems[n]->setPos(4,
+			  style().real("page-height")*n
+			  + style().real("margin-top"));
 }
 
 void SearchResultScene::pageNumberClick(int pg) {

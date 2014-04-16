@@ -51,11 +51,13 @@ PageView::PageView(Notebook *nb, QWidget *parent):
   connect(tocScene, SIGNAL(pageNumberClicked(int)),
           SLOT(gotoEntryPage(int)));
 
+#if 0
   setFrameShape(NoFrame);
   setLineWidth(0);
   setMidLineWidth(0);
-  setContentsMargins(0, 0, 0, 0);
-  setViewportMargins(0, 0, 0, 0);
+#else
+  setFrameStyle(Raised | StyledPanel);
+#endif
   setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
   setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
   setDragMode(NoDrag);
@@ -75,8 +77,44 @@ void PageView::resizeEvent(QResizeEvent *e) {
   QGraphicsView::resizeEvent(e);
   if (!scene())
     return;
-  fitInView(scene()->sceneRect().adjusted(1, 1, -2, -2), Qt::KeepAspectRatio);
+  fitInView(rectForSheet(currentSheet).adjusted(1, 1, -2, -2),
+	    Qt::KeepAspectRatio);
   emit scaled(matrix().m11());
+}
+
+bool PageView::gotoSheet(int n) {
+  if (n<0)
+    return false;
+  switch (currentSection) {
+  case Front:
+    if (n>0)
+      return false;
+    break;
+  case TOC:
+    if (n>=tocScene->sheetCount())
+      return false;
+    break;
+  case Entries:
+    if (n>=entryScene->sheetCount())
+      return false;
+    break;
+  }
+  currentSheet = n;
+  fitInView(rectForSheet(n).adjusted(1, 1, -2, -2), Qt::KeepAspectRatio);
+  return true;
+}
+
+QRectF PageView::rectForSheet(int n) {
+  switch (currentSection) {
+  case Front:
+    return frontScene->sceneRect();
+  case TOC:
+    return tocScene->rectForSheet(n);
+  case Entries:
+    return entryScene->rectForSheet(n);
+  }
+  qDebug() << "PageView::rectForSheet: This should not happen";
+  return QRectF();
 }
 
 void PageView::mousePressEvent(QMouseEvent *e) {
@@ -321,7 +359,7 @@ void PageView::gotoEntryPage(int n, int dir) {
       entryScene->clipPgNoAt(nextte->startPage());
   }
 
-  entryScene->gotoSheet(currentPage - te->startPage());
+  gotoSheet(currentPage - te->startPage());
   
   //if (entryScene->data()->title()->isDefault())
   //  entryScene->focusTitle();
@@ -339,6 +377,7 @@ void PageView::gotoEntryPage(int n, int dir) {
 void PageView::gotoFront() {
   leavePage();
   currentSection = Front;
+  currentSheet = 0;
   setScene(frontScene);
   emit onFrontMatter(0);
 }
@@ -388,17 +427,17 @@ void PageView::previousPage() {
   case Front:
     break;
   case TOC:
-    if (!tocScene->previousSheet())
+    if (!gotoSheet(currentSheet-1))
       gotoFront();
     break;
   case Entries:
-    if (!entryScene->previousSheet()) {
+    if (!gotoSheet(currentSheet-1)) {
       if (currentPage<=1) {
-        gotoTOC(tocScene->sheetCount());
+	gotoTOC(tocScene->sheetCount());
       } else {
-        gotoEntryPage(currentPage-1, -1);
-        entryScene->gotoSheet(entryScene->sheetCount()-1);
-        // the "gotoSheet" call ensures we go to continuation pages
+	gotoEntryPage(currentPage-1, -1);
+	gotoSheet(entryScene->sheetCount()-1);
+	// the "gotoSheet" call ensures we go to continuation pages
       }
     }
     break;
@@ -455,11 +494,11 @@ void PageView::nextPage() {
     gotoTOC();
     break;
   case TOC:
-    if (!tocScene->nextSheet())
+    if (!gotoSheet(currentSheet+1))
       gotoEntryPage(1, 1);
     break;
   case Entries:
-    if (!entryScene->nextSheet()) 
+    if (!gotoSheet(currentSheet+1))
       gotoEntryPage(currentPage+1, 1); // this may make a new page at the end
     break;
   }
@@ -477,7 +516,7 @@ void PageView::focusEntry() {
 
 void PageView::lastPage() {
   gotoEntryPage(book->toc()->newPageNumber()-1);
-  entryScene->gotoSheet(entryScene->sheetCount()-1);
+  gotoSheet(entryScene->sheetCount()-1);
   focusEntry();
 }
 
@@ -507,13 +546,13 @@ void PageView::createContinuationEntry() {
   QString newTtl = entryScene->data()->title()->current()->text();
   if (!newTtl.endsWith(QString::fromUtf8(" (cont’d)")))
     newTtl += QString::fromUtf8(" (cont’d)");
-  int oldPage = entryScene->startPage() + entryScene->currentSheet();
+  int oldPage = entryScene->startPage() + currentSheet;
   int newPage = book->toc()->newPageNumber();
   Style const &style = book->style();
 
   // Create forward note
   QPointF fwdNotePos(style.real("page-width")/2,
-                     style.real("page-height")
+                     style.real("page-height")*(currentSheet+1)
                      - style.real("margin-bottom")
                      + style.real("pgno-sep"));
   GfxNoteItem *fwdNote = entryScene->newNote(fwdNotePos);
@@ -535,6 +574,7 @@ void PageView::createContinuationEntry() {
   
   // Create reverse note
   QPointF revNotePos(style.real("margin-left"),
+		     style.real("page-height")*currentSheet+
                      style.real("margin-top"));
   GfxNoteItem *revNote = entryScene->newNote(revNotePos);
   TextItem *revNoteTI = revNote->textItem();

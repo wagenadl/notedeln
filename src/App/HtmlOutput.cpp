@@ -84,12 +84,7 @@ void HtmlOutput::add(EntryScene *source) {
   QList<GfxNoteData const *> gfxnotes;
   collectGfxNotes(source->data()->title(), gfxnotes);
 
-  int sheet0 = source->currentSheet();
-  int sheet = sheet0;
-  
   foreach (BlockItem const *b, source->blocks()) {
-    if (b->data()->sheet() != sheet)
-      source->gotoSheet(sheet = b->data()->sheet());
     if (dynamic_cast<TableBlockItem const *>(b))
       add(dynamic_cast<TableBlockItem const *>(b), resmgr);
     else if (dynamic_cast<TextBlockItem const *>(b))
@@ -107,9 +102,6 @@ void HtmlOutput::add(EntryScene *source) {
     foreach (GfxNoteData const *nd, herenotes)
       gfxnotes.removeOne(nd);
   }
-
-  if (sheet!=sheet0)
-    source->gotoSheet(sheet0);
 
   foreach (GfxNoteData const *nd, gfxnotes) 
     add(nd, resmgr);

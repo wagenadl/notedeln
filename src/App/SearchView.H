@@ -16,9 +16,12 @@ protected:
   void keyPressEvent(QKeyEvent *);
   void wheelEvent(QWheelEvent *);
 private:
+  void gotoSheet(int n);
+private:
   SearchResultScene *scene;
   double wheelDeltaAccum;
   double wheelDeltaStepSize;
+  int currentSheet;
 };
 
 #endif

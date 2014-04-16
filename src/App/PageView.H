@@ -57,6 +57,8 @@ private:
   void printDialog();
   void createContinuationEntry();
   void focusEntry();
+  bool gotoSheet(int n);
+  QRectF rectForSheet(int n);
 private slots:
   void nowOnPage(int pgno);
   void notebookReloaded(QMap<int,int>);
@@ -66,6 +68,7 @@ private:
   class TOCScene *tocScene;
   class EntryScene *entryScene;
   int currentPage;
+  int currentSheet;
   enum {
     Front,
     TOC,

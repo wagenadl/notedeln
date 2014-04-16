@@ -34,8 +34,6 @@ public:
   void makeWritable();
   void focusEnd(); // may create new text block
   bool isWritable() const;
-  void gotoSheet(int i);
-  void gotoSheetOfBlock(int blocki);
   int findBlock(class Item const *) const; // -1 if none
   int findBlock(QPointF scenePos) const; // -1 if none
   void newFootnote(int block, QString tag);
@@ -52,7 +50,7 @@ public:
 public slots:
   void notifyChildless(class BlockItem *);
 signals:
-  void nowOnPage(int);
+  void restacked();
 protected:
   void mousePressEvent(QGraphicsSceneMouseEvent *);
   void keyPressEvent(QKeyEvent *);
@@ -106,8 +104,7 @@ private:
   int clippedPgNo(int n) const;
   void addUnlockedWarning();
 private:
-  QGraphicsTextItem *dateItem;
-  class BelowItem *belowItem;
+  QList<QGraphicsTextItem *> dateItems;
   class QSignalMapper *vChangeMapper;
   class QSignalMapper *noteVChangeMapper;
   class QSignalMapper *futileMovementMapper;

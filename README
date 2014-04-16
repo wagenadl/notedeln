@@ -1,0 +1,3 @@
+This branch is an attempt to rewrite the scene code so that multisheet
+scenes are organized as a vertical stack rather than with element hiding.
+This is needed so that multiple views can look at the same scene.
