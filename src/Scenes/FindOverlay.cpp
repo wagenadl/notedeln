@@ -16,7 +16,7 @@ FindOverlay::FindOverlay(SheetScene *scene, QString phrase) {
     TextItem *ti = dynamic_cast<TextItem *>(i);
     if (!ti)
       continue;
-    BlockItem *bi = ti->ancestralBlock();
+    //    BlockItem *bi = ti->ancestralBlock();
     int idx = -1;
     QString txt = ti->data()->text().toLower();
     while (true) {
@@ -26,7 +26,7 @@ FindOverlay::FindOverlay(SheetScene *scene, QString phrase) {
       MarkupData *md = new MarkupData(idx, idx+phrase.size(),
 				      MarkupData::Emphasize, 0);
       QObject *obj = md; obj->setParent(this); // so it will be destroyed
-      QGraphicsItem *gi = new FindRegion(md, ti, this);
+      /*QGraphicsItem *gi = */ new FindRegion(md, ti, this);
     }
   }
   //  startTimer(10000); // self-destruct after 10 seconds

@@ -34,11 +34,11 @@ public:
   virtual bool print(class QPrinter *, class QPainter *,
 		     int firstSheet=0, int lastSheet=100000000);
   // returns true if anything printed
-  virtual QGraphicsItem *itemAt(const QPointF &position, int sheet=0) const;
+  virtual QGraphicsItem *itemAt(const QPointF &position, int sheet) const;
   virtual int startPage() const;
   virtual QString title() const;
   virtual QDate date() const;
-  virtual class TextData *fancyTitle() const;
+  virtual class TitleData *fancyTitle() const;
   QRectF sceneRect() const;
   virtual QString pgNoToString(int) const;
   virtual void populate();

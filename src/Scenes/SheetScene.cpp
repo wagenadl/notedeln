@@ -4,18 +4,22 @@
 #include "BaseScene.H"
 #include "Style.H"
 #include "TextData.H"
+#include "TitleItem.H"
 
 #include <QGraphicsTextItem>
 #include <QGraphicsRectItem>
 #include <QGraphicsLineItem>
 #include <QDebug>
+#include <QPainter>
+#include <QTextDocument>
 
 SheetScene::SheetScene(class Style const &s, BaseScene *parent):
   QGraphicsScene(parent), base(parent), style_(s) {
   pgnoItem = 0;
   nOfNItem = 0;
   titleItem = 0;
-  fancyTitleItem = 0;
+  plainTitleItem = 0;
+  fancyTitleItem_ = 0;
   contItem = 0;
   contdItem = 0;
   dateItem = 0;
@@ -35,7 +39,7 @@ SheetScene::~SheetScene() {
 void SheetScene::makeBackground() {
   setSceneRect(0, 0,
 	       style_.real("page-width"), style_.real("page-height"));
-  setBackgroundBrush(QBrush(style_.color("background-color")));
+  //  setBackgroundBrush(QBrush(style_.color("background-color")));
 
   //bgItem = addRect(0, 0,
   //		   style_.real("page-width"), style_.real("page-height"),
@@ -139,26 +143,60 @@ void SheetScene::setNOfN(int n, int N, bool always) {
 }
 
 void SheetScene::setTitle(QString const &title) {
-  if (!titleItem) {
-    titleItem = addText("", style_.font("title-font"));
-    titleItem->setDefaultTextColor(style_.color("title-color"));
-    titleItem->setTextWidth(style_.real("page-width")
-		     - style_.real("margin-left")
-		     - style_.real("title-indent")
-		     - style_.real("margin-right"));
-  } 
-  titleItem->setPlainText(title);
-  QPointF bl = titleItem->boundingRect().bottomLeft();
+  if (fancyTitleItem_)
+    fancyTitleItem_->deleteLater();
+  fancyTitleItem_ = 0;
+  if (!plainTitleItem) {
+    plainTitleItem = addText("", style_.font("title-font"));
+    plainTitleItem->setDefaultTextColor(style_.color("title-color"));
+  }
+  plainTitleItem->setPlainText(title);
+  titleItem = plainTitleItem;
+  repositionTitle();
+}
+
+void SheetScene::repositionTitle() {
+  double w = style_.real("page-width") - style_.real("margin-left")
+    - style_.real("title-indent") - style_.real("margin-right");
+  if (fancyTitleItem_)
+    fancyTitleItem_->setTextWidth(w);
+  if (plainTitleItem)
+    plainTitleItem->setTextWidth(w);    
+  QPointF bl = (fancyTitleItem_ ? fancyTitleItem_->netBounds() :
+		titleItem->boundingRect())
+    .bottomLeft();
   titleItem->setPos(style_.real("margin-left") + style_.real("title-indent")
                     - bl.x(),
                     style_.real("margin-top") - style_.real("title-sep")
                     - bl.y());
+  qDebug() << titleItem->pos();
+  if (fancyTitleItem_)
+    qDebug() << fancyTitleItem_->document()->toPlainText();
 }
 
-void SheetScene::setFancyTitle(class TextData *data) {
-  qDebug() << "SheetScene:setFancyTitle poorly implemented";
-  setTitle(data->text());
+TitleItem *SheetScene::fancyTitleItem() {
+  return fancyTitleItem_;
 }
+
+void SheetScene::setFancyTitle(TitleData *data, int sheet,
+			       QTextDocument *doc) {
+  if (plainTitleItem)
+    plainTitleItem->deleteLater();
+  plainTitleItem = 0;
+  if (fancyTitleItem_)
+    fancyTitleItem_->deleteLater();
+  fancyTitleItem_ = new TitleItem(data, sheet, doc);
+  addItem(fancyTitleItem_);
+  titleItem = fancyTitleItem_;
+  repositionTitle();
+}
+
+QTextDocument *SheetScene::fancyTitleDocument() {
+  if (fancyTitleItem_)
+    return fancyTitleItem_->document();
+  else
+    return 0;
+}      
 
 void SheetScene::setPageNumber(QString n) {
   if (!pgnoItem) {
@@ -201,3 +239,14 @@ void SheetScene::keyPressEvent(QKeyEvent *e) {
     return;
   QGraphicsScene::keyPressEvent(e);      
 }
+
+void SheetScene::drawBackground(QPainter *p, const QRectF &r) {
+  QBrush border(style().color("border-color"));
+  QBrush background(style().color("background-color"));
+  p->setPen(Qt::NoPen);
+  p->setBrush(border);
+  p->drawRect(r);
+  p->setBrush(background);
+  p->drawRect(sceneRect());
+}
+

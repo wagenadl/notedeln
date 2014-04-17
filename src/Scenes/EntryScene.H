@@ -40,8 +40,10 @@ public:
   bool dropBelow(QPointF scenePos, int sheet, class QMimeData const *md);
   virtual int startPage() const;
   class GfxNoteItem *createNote(QPointF scenePos, int sheet); // create note by dragging
-  class GfxNoteItem *newNote(QPointF scenePos1, QPointF scenePos2=QPointF());
+  class GfxNoteItem *newNote(int sheet,
+			     QPointF scenePos1, QPointF scenePos2=QPointF());
   virtual QString title() const;
+  virtual class TitleData *fancyTitle() const;
   virtual QDate date() const;
   virtual QString pgNoToString(int) const;
   void clipPgNoAt(int);
@@ -52,7 +54,7 @@ public slots:
   void notifyChildless(class BlockItem *);
 signals:
   void restacked();
-  void pleaseShow(QRectF);
+  void sheetRequest(int);
 protected:
   bool mousePressEvent(QGraphicsSceneMouseEvent *, SheetScene *);
   bool keyPressEvent(QKeyEvent *, SheetScene *);

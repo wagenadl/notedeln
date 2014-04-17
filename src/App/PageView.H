@@ -57,10 +57,8 @@ private:
   void printDialog();
   void createContinuationEntry();
   void focusEntry();
-  bool gotoSheet(int n);
-  QRectF rectForSheet(int n);
 private slots:
-  void nowOnPage(int pgno);
+  bool gotoSheet(int n);
   void notebookReloaded(QMap<int,int>);
 private:
   class Notebook *book; // we do not own!

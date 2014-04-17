@@ -69,7 +69,6 @@ EntryScene::EntryScene(EntryData *data, QObject *parent):
   firstDisallowedPgNo = 0;
   
   unlockedItem = 0;
-  titleItemX = 0;
 
   vChangeMapper = new QSignalMapper(this);
   noteVChangeMapper = new QSignalMapper(this);
@@ -148,7 +147,12 @@ EntryScene::~EntryScene() {
 }
 
 void EntryScene::titleEdited() {
-  qDebug() << "EntryScene: positionTitleItem();";
+  foreach (SheetScene *s, sheets)
+    s->repositionTitle();
+}
+
+TitleData *EntryScene::fancyTitle() const {
+  return data()->title();
 }
 
 void EntryScene::positionBlocks() {
@@ -195,7 +199,10 @@ void EntryScene::restackBlocks() {
       bi->data()->setY0(yblock);
     if (bi->data()->sheet() != sheet)
       bi->data()->setSheet(sheet);
-    this->sheet(sheet, true)->addItem(bi);
+    QGraphicsScene *s0 = bi->scene();
+    QGraphicsScene *s1 = this->sheet(sheet, true);
+    if (s1!=s0)
+      s1->addItem(bi);
     bi->resetPosition();
     yblock += blockh;
     yfng -= fngh;
@@ -261,7 +268,10 @@ void EntryScene::restackNotes(int sheet) {
     BlockItem *bi = blockItems[i];
     if (bi->data()->sheet()==sheet) {
       FootnoteGroupItem *fngi = footnoteGroups[i];
-      sheets[sheet]->addItem(fngi);
+      QGraphicsScene *s0 = fngi->scene();
+      QGraphicsScene *s1 = this->sheet(sheet, true);
+      if (s1!=s0)
+	s1->addItem(fngi);
       yfng -= fngi->netHeight();
       fngi->moveTo(yfng);
     }
@@ -638,20 +648,27 @@ void EntryScene::vChanged(int block) {
 }
 
 bool EntryScene::mousePressEvent(QGraphicsSceneMouseEvent *e, SheetScene *s) {
-  // qDebug() << "EntryScene::mousePressEvent";
   QPointF sp = e->scenePos();
+  int sh = findSheet(s);
+  qDebug() << "EntryScene::mousePressEvent: item at " << sp
+	   << " is " << itemAt(sp, sh);
+  TextItemText *tit = dynamic_cast<TextItemText*>(itemAt(sp, sh));
+  if (tit) {
+    qDebug() << " bound=" << tit->sceneBoundingRect()
+	     << " txt= " << tit->document()->toPlainText();
+  }
   int sheet = findSheet(s);
   bool take = false;
   if (inMargin(sp)) {
-    if (itemAt(sp)==0) {
-      //qDebug() << "  in margin";
+    if (itemAt(sp, sh)==0) {
+      qDebug() << "  in margin";
       if (data_->book()->mode()->mode()==Mode::Annotate) {
         GfxNoteItem *note = createNote(sp, sheet);
         qDebug() << "created note" << note;
         take = true;
       }
     }
-  } else if (itemAt(sp)==0) {
+  } else if (itemAt(sp, sh)==0) {
     switch (data_->book()->mode()->mode()) {
     case Mode::Mark: case Mode::Freehand:
       if (isWritable()) {
@@ -970,11 +987,12 @@ bool EntryScene::importDroppedFile(QPointF scenePos, int sheet,
 void EntryScene::makeWritable() {
   writable = true;
   //belowItem->setCursor(Qt::IBeamCursor);
-  qDebug() << "EntryScene:  titleItemX->makeWritable();";
   foreach (BlockItem *bi, blockItems)
     bi->makeWritable();
   foreach (FootnoteGroupItem *fng, footnoteGroups)
     fng->makeWritable();
+  foreach (SheetScene *s, sheets)
+    s->fancyTitleItem()->makeWritable();
 }
 
 int EntryScene::startPage() const {
@@ -1025,20 +1043,23 @@ EntryData *EntryScene::data() const {
 }
 
 GfxNoteItem *EntryScene::createNote(QPointF scenePos, int sheet) {
-  qDebug() << "EntryScene::createNote Not properly";
+  qDebug() << "EntryScene::createNote Not properly?";
+  TitleItem *ti = sheets[sheet]->fancyTitleItem();
   GfxNoteItem *note
-    = titleItemX->createNote(titleItemX->mapFromScene(scenePos));
+    = ti->createNote(ti->mapFromScene(scenePos));
   if (note)
     note->data()->setSheet(scenePos.y()/style().real("page-height"));
   return note;
   
 }
 
-GfxNoteItem *EntryScene::newNote(QPointF scenePos1, QPointF scenePos2) {
+GfxNoteItem *EntryScene::newNote(int sheet,
+				 QPointF scenePos1, QPointF scenePos2) {
   if (scenePos2.isNull())
     scenePos2 = scenePos1;
-  GfxNoteItem *note = titleItemX->newNote(titleItemX->mapFromScene(scenePos1),
-                                          titleItemX->mapFromScene(scenePos2));
+  TitleItem *ti = sheets[sheet]->fancyTitleItem();
+  GfxNoteItem *note = ti->newNote(ti->mapFromScene(scenePos1),
+				  ti->mapFromScene(scenePos2));
   if (note)
     note->data()->setSheet(scenePos1.y()/style().real("page-height"));
   return note;  
@@ -1080,9 +1101,9 @@ QList<FootnoteItem const *> EntryScene::footnotes() const {
 
 void EntryScene::gotoSheetOfBlock(int n) {
   if (n<0)
-    emit pleaseShow(QRectF(0,0, 1,1));
+    emit sheetRequest(0);
   else if (n>=blockItems.size())
-    emit pleaseShow(QRectF(0, style().real("page-height")*nSheets-1, 1, 1));
+    emit sheetRequest(nSheets-1);
   else
-    emit pleaseShow(blockItems[n]->sceneBoundingRect());
+    emit sheetRequest(blockItems[n]->data()->sheet());
 }

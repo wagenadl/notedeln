@@ -18,16 +18,19 @@ public:
   void setNOfN(int n, int N, bool alwaysShow=false);
   /* n should count 0..N-1 but is printed as 1..N */
   void setTitle(QString const &title);
-  void setFancyTitle(class TextData *data);
+  void setFancyTitle(class TitleData *data, int sheet,
+		     class QTextDocument *doc=0);
+  class TitleItem *fancyTitleItem();
   void setPageNumber(QString n);
   void setContInMargin(bool x=true);
   Style const &style() const { return style_; }
   void setOverlay(QGraphicsObject *);
-signals:
-  void fancyTitleChanged();
-protected:
+  void repositionTitle();
+  QTextDocument *fancyTitleDocument();
+ protected:
   virtual void mousePressEvent(QGraphicsSceneMouseEvent *);
   virtual void keyPressEvent(QKeyEvent *);
+  virtual void drawBackground(QPainter *, const QRectF &);
 private:
   void makeBackground();
   void repositionDate();
@@ -35,8 +38,9 @@ private:
   class BaseScene *base;
   class Style const &style_;
   class QGraphicsTextItem *pgnoItem;
-  class QGraphicsTextItem *titleItem;
-  class TextItem *fancyTitleItem;
+  class QGraphicsItem *titleItem;
+  class QGraphicsTextItem *plainTitleItem;
+  class TitleItem *fancyTitleItem_;
   class QGraphicsTextItem *contItem;
   class QGraphicsTextItem *contdItem;
   class QGraphicsTextItem *nOfNItem;

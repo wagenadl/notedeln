@@ -50,12 +50,8 @@
 
 TextItem::TextItem(TextData *data, Item *parent, bool noFinalize):
   Item(data, parent) {
+  markings_ = 0;
   text = new TextItemText(this);
-  foreach (LateNoteData *lnd, data->children<LateNoteData>()) 
-    create(lnd, this);
-  foreach (GfxNoteData *gnd,  data->children<GfxNoteData>())
-    if (!dynamic_cast<LateNoteData *>(gnd))
-      create(gnd, this); // ugly, but hey.
 
   mayMark = true;
   mayNote = false;
@@ -66,19 +62,28 @@ TextItem::TextItem(TextData *data, Item *parent, bool noFinalize):
   initializeFormat();
   text->setTextInteractionFlags(Qt::TextSelectableByMouse);
 
-  if (!noFinalize) {
-    text->setPlainText(data->text());
-    QTextCursor tc(textCursor());
-    tc.movePosition(QTextCursor::Start);
-    QTextBlockFormat fmt = tc.blockFormat();
-    tc.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
-    tc.setBlockFormat(fmt);
+  text->setPlainText(data->text());
+  QTextCursor tc(textCursor());
+  tc.movePosition(QTextCursor::Start);
+  QTextBlockFormat fmt = tc.blockFormat();
+  tc.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
+  tc.setBlockFormat(fmt);
+  
+  if (!noFinalize) 
     finalizeConstructor();
-  }
 }
 
-void TextItem::finalizeConstructor() {
-  markings_ = new TextMarkings(data(), this);
+void TextItem::finalizeConstructor(int sheet) {
+  foreach (LateNoteData *lnd, data()->children<LateNoteData>())
+    if (sheet<0 || lnd->sheet()==sheet)
+      create(lnd, this);
+  foreach (GfxNoteData *gnd,  data()->children<GfxNoteData>())
+    if (!dynamic_cast<LateNoteData *>(gnd)) // ugly, but hey.
+      if (sheet<0 || gnd->sheet()==sheet)
+	create(gnd, this);
+
+  if (!markings_)
+    markings_ = new TextMarkings(data(), this);
   connect(document(), SIGNAL(contentsChange(int, int, int)),
 	  this, SLOT(docChange()));
 }

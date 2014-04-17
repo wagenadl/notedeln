@@ -43,6 +43,7 @@ BaseScene::BaseScene(Data *data, QObject *parent):
   ASSERT(book);
   style_ = &book->style();
   nSheets = 0;
+  contInMargin = false;
 }
 
 void BaseScene::populate() {
@@ -127,7 +128,7 @@ QGraphicsItem *BaseScene::itemAt(const QPointF &p, int sheet) const {
     return 0;
 }
 
-class TextData *BaseScene::fancyTitle() const {
+class TitleData *BaseScene::fancyTitle() const {
   return 0;
 }
 
@@ -146,10 +147,14 @@ void BaseScene::setSheetCount(int n) {
   while (sheets.size()<n) {
     int k = sheets.size();
     SheetScene *s = new SheetScene(style(), this);
-    if (fancyTitle())
-      s->setFancyTitle(fancyTitle());
-    else
+    if (fancyTitle()) {
+      if (k==0)
+	s->setFancyTitle(fancyTitle(), 0);
+      else
+	s->setFancyTitle(fancyTitle(), k, sheets[0]->fancyTitleDocument());
+    } else {
       s->setTitle(title());
+    }
     s->setPageNumber(pgNoToString(startPage() + k));
     s->setDate(date());
     s->setContInMargin(contInMargin);

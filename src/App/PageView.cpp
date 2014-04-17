@@ -42,6 +42,7 @@
 
 PageView::PageView(Notebook *nb, QWidget *parent):
   QGraphicsView(parent), book(nb) {
+  //  setBackgroundBrush(QBrush("green"));
   searchDialog = new SearchDialog(this);
   deletedStack = new DeletedStack(this);
   frontScene = new FrontScene(nb, this);
@@ -92,21 +93,28 @@ bool PageView::gotoSheet(int n) {
   case Front:
     if (n>0)
       return false;
+    currentPage = 0;
     setScene(frontScene);
+    emit onFrontMatter(currentPage);
     break;
   case TOC:
     if (n>=tocScene->sheetCount())
       return false;
+    currentPage = 1+n;
+    currentSheet = n;
     setScene(tocScene->sheet(n));
-    break;
+    emit onFrontMatter(currentPage);
+    return true;
   case Entries:
     if (n>=entryScene->sheetCount())
       return false;
+    currentSheet = n;
+    currentPage = entryScene->startPage() + n;
     setScene(entryScene->sheet(n));
-    break;
+    emit onEntryPage(currentPage);
+    return true;
   }
-  currentSheet = n;
-  return true;
+  return false;
 }
 
 void PageView::mousePressEvent(QMouseEvent *e) {
@@ -202,7 +210,7 @@ void PageView::keyPressEvent(QKeyEvent *e) {
     if (currentSection==Entries && mode()->mode()==Mode::MoveResize) {
       QPointF p = mapToScene(mapFromGlobal(QCursor::pos()));
       Item *item = 0;
-      for (QGraphicsItem *gi = entryScene->itemAt(p); gi!=0;
+      for (QGraphicsItem *gi = entryScene->itemAt(p, currentSheet); gi!=0;
 	   gi = gi->parentItem()) {
 	item = dynamic_cast<Item*>(gi);
 	if (item)
@@ -283,12 +291,6 @@ void PageView::keyReleaseEvent(QKeyEvent *e) {
   QGraphicsView::keyReleaseEvent(e);
 }
 
-void PageView::nowOnPage(int n) {
-  if (currentSection==Entries) {
-    currentPage = n;
-  }
-}
-
 void PageView::gotoEntryPage(int n, int dir) {
   if (n<1)
     n=1;
@@ -342,7 +344,7 @@ void PageView::gotoEntryPage(int n, int dir) {
     
     entryScene = new EntryScene(file->data(), this);
     entryScene->populate();
-    connect(entryScene, SIGNAL(nowOnPage(int)), SLOT(nowOnPage(int)));
+    connect(entryScene, SIGNAL(sheetRequest(int)), SLOT(gotoSheet(int)));
     if (file->data()->isRecent() || file->data()->isUnlocked())
       entryScene->makeWritable(); // this should be even more sophisticated
     TOCEntry *nextte = book->toc()->entryAfter(te);
@@ -361,25 +363,18 @@ void PageView::gotoEntryPage(int n, int dir) {
     mode()->setMode(Mode::Type);
   else
     mode()->setMode(Mode::Browse);
-
-  emit onEntryPage(currentPage);
 }
 
 void PageView::gotoFront() {
   leavePage();
   currentSection = Front;
-  currentSheet = 0;
-  setScene(frontScene);
-  emit onFrontMatter(0);
+  gotoSheet(0);
 }
 
 void PageView::gotoTOC(int n) {
   leavePage();
-  
   currentSection = TOC;
-  currentPage = n;
-  gotoSheet(currentPage-1);
-  emit onFrontMatter(n);
+  gotoSheet(n-1);
 }
 
 void PageView::leavePage() {
@@ -545,7 +540,7 @@ void PageView::createContinuationEntry() {
                      style.real("page-height")*(currentSheet+1)
                      - style.real("margin-bottom")
                      + style.real("pgno-sep"));
-  GfxNoteItem *fwdNote = entryScene->newNote(fwdNotePos);
+  GfxNoteItem *fwdNote = entryScene->newNote(currentSheet, fwdNotePos);
   TextItem *fwdNoteTI = fwdNote->textItem();
   QTextCursor cursor = fwdNoteTI->textCursor();
   QString fwdNoteText = QString("(see p. %1)").arg(newPage);
@@ -564,9 +559,8 @@ void PageView::createContinuationEntry() {
   
   // Create reverse note
   QPointF revNotePos(style.real("margin-left"),
-		     style.real("page-height")*currentSheet+
                      style.real("margin-top"));
-  GfxNoteItem *revNote = entryScene->newNote(revNotePos);
+  GfxNoteItem *revNote = entryScene->newNote(currentSheet, revNotePos);
   TextItem *revNoteTI = revNote->textItem();
   cursor = revNoteTI->textCursor();
   QString revNoteText = QString("p. %1 >").arg(oldPage);
@@ -633,3 +627,4 @@ void PageView::htmlDialog() {
     }
   }
 }
+
