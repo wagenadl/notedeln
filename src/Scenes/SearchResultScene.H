@@ -23,7 +23,6 @@ signals:
   void pageNumberClicked(int, QString);
 protected:
   virtual QString pgNoToString(int) const;
-  virtual void makeContdItems();
 private:
   Style const &style() const;
 private:

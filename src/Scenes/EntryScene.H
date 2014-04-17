@@ -35,13 +35,14 @@ public:
   void focusEnd(int isheet=-1); // may create new text block
   bool isWritable() const;
   int findBlock(class Item const *) const; // -1 if none
-  int findBlock(QPointF scenePos) const; // -1 if none
+  int findBlock(QPointF scenePos, int sheet) const; // -1 if none
   void newFootnote(int block, QString tag);
-  bool dropBelow(QPointF scenePos, class QMimeData const *md);
+  bool dropBelow(QPointF scenePos, int sheet, class QMimeData const *md);
   virtual int startPage() const;
-  class GfxNoteItem *createNote(QPointF scenePos); // create note by dragging
+  class GfxNoteItem *createNote(QPointF scenePos, int sheet); // create note by dragging
   class GfxNoteItem *newNote(QPointF scenePos1, QPointF scenePos2=QPointF());
   virtual QString title() const;
+  virtual QDate date() const;
   virtual QString pgNoToString(int) const;
   void clipPgNoAt(int);
   void unlock();
@@ -53,8 +54,8 @@ signals:
   void restacked();
   void pleaseShow(QRectF);
 protected:
-  void mousePressEvent(QGraphicsSceneMouseEvent *);
-  void keyPressEvent(QKeyEvent *);
+  bool mousePressEvent(QGraphicsSceneMouseEvent *, SheetScene *);
+  bool keyPressEvent(QKeyEvent *, SheetScene *);
 private slots:
   void titleEdited();
   void vChanged(int block);
@@ -66,17 +67,18 @@ private:
   void splitTextBlock(int iblock, int pos);
   class TableBlockItem *injectTableBlock(class TableBlockData *, int iblock);
   class TextBlockItem *injectTextBlock(class TextBlockData *, int iblock);
-  bool tryToPaste();
+  bool tryToPaste(SheetScene *s);
   void remap();
-  bool importDroppedImage(QPointF scenePos, QImage const &img,
-			  class QUrl const &source);
-  bool importDroppedUrls(QPointF scenePos, QList<class QUrl> const &url);
-  bool importDroppedUrl(QPointF scenePos, class QUrl const &url);
-  bool importDroppedText(QPointF scenePos, QString const &txt,
+  bool importDroppedImage(QPointF scenePos, int sheet,
+			  QImage const &img, class QUrl const &source);
+  bool importDroppedUrls(QPointF scenePos, int sheet,
+			 QList<class QUrl> const &url);
+  bool importDroppedUrl(QPointF scenePos, int sheet, class QUrl const &url);
+  bool importDroppedText(QPointF scenePos, int sheet, QString const &txt,
                          class TextItem **itemReturn=0,
                          int *startReturn=0, int *endReturn=0);
-  bool importDroppedFile(QPointF scenePos, QString const &fn);
-  bool importDroppedSvg(QPointF scenePos, class QUrl const &url);
+  bool importDroppedFile(QPointF scenePos, int sheet, QString const &fn);
+  bool importDroppedSvg(QPointF scenePos, int sheet, class QUrl const &url);
   void makeBackground();
   void makeTitleItem();
   void makeDateItem();
@@ -92,9 +94,10 @@ private:
   class GfxBlockItem *newGfxBlock(int after);
   class TableBlockItem *newTableBlock(int after);
   // creates a new text/gfx/table block after the given block
-  class TextBlockItem *newTextBlockAt(QPointF pos, bool evenIfLastEmpty=false);
-  class GfxBlockItem *newGfxBlockAt(QPointF pos);
-  class TableBlockItem *newTableBlockAt(QPointF pos);
+  class TextBlockItem *newTextBlockAt(QPointF pos, int sheet,
+				      bool evenIfLastEmpty=false);
+  class GfxBlockItem *newGfxBlockAt(QPointF pos, int sheet);
+  class TableBlockItem *newTableBlockAt(QPointF pos, int sheet);
   // create a new text/gfx/table block at the given position
   void deleteBlock(int blocki); // also deletes data!
   class BlockItem *tryMakeGfxBlock(class BlockData *bd);
@@ -106,7 +109,7 @@ private:
   void reshapeBelowItem();
   int clippedPgNo(int n) const;
   void addUnlockedWarning();
-  int lastBlockAbove(QPointF scenepos);
+  int lastBlockAbove(QPointF scenepos, int sheet);
   // find the last block with bottom y above scene pos, or -1 if none
   void gotoSheetOfBlock(int);
 private:

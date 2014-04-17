@@ -24,6 +24,7 @@
 #include <QEventLoop>
 #include <QGraphicsSceneMouseEvent>
 #include "Assert.H"
+#include <QGraphicsScene>
 
 DragLine::DragLine(QPointF p0, QGraphicsItem *parent):
   QGraphicsLineItem(QLineF(p0, p0), parent) {
@@ -73,12 +74,13 @@ bool DragLine::isShort(QPointF p0, QPointF p1) {
 }
 
 
-QPointF DragLine::drag(BaseScene *scene, QPointF p0, QColor c) {
+QPointF DragLine::drag(QGraphicsScene *scene, QPointF p0, Style const &s) {
+  return drag(scene, p0, s.real("drag-line-width"),
+	      s.color("drag-line-color"));
+}
+
+QPointF DragLine::drag(QGraphicsScene *scene, QPointF p0, double pw, QColor c) {
   ASSERT(scene);
-  double pw = scene->style().real("drag-line-width");
-  if (!c.isValid())
-    c = scene->style().color("drag-line-color");
-  
   DragLine *dl = new DragLine(p0, 0);
   scene->addItem(dl);
   dl->setPen(QPen(c, pw));

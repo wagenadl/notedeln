@@ -142,7 +142,7 @@ GfxNoteItem *Item::newNote(QPointF p0, QPointF p1, bool late) {
 
 GfxNoteItem *Item::createNote(QPointF p0, bool late) {
   ASSERT(d);
-  QPointF p1 = mapFromScene(DragLine::drag(pageScene(), mapToScene(p0)));
+  QPointF p1 = mapFromScene(DragLine::drag(scene(), mapToScene(p0), style()));
   return newNote(p0, p1, late);
 }
 

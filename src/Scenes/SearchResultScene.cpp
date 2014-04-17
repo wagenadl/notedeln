@@ -15,6 +15,7 @@ SearchResultScene::SearchResultScene(QString phrase, QString title,
   BaseScene(data, parent), phrase(phrase), ttl(title), results(results) {
   qDebug() << "SearchResultScene" << phrase;
   book = data->book();
+  setContInMargin();
 }
 
 SearchResultScene::~SearchResultScene() {
@@ -42,12 +43,12 @@ void SearchResultScene::populate() {
   double y0 = style().real("margin-top");
   double y1 = style().real("page-height") - style().real("margin-bottom");
   double y = y0;
-  QGraphicsItem *lastLine = 0;
+  QGraphicsLineItem *lastLine = 0;
   foreach (SearchResult const &r, results) {
     if (r.startPageOfEntry != oldPage) {
-      lastLine = addLine(0, 0, style().real("page-width"), 0,
-                         QPen(QBrush(style().color("toc-line-color")),
-                              style().real("toc-line-width")));
+      lastLine = new QGraphicsLineItem(0, 0, style().real("page-width"), 0);
+      lastLine->setPen(QPen(QBrush(style().color("toc-line-color")),
+			    style().real("toc-line-width")));
       headers << new SearchResItem(book->toc()->entry(r.startPageOfEntry),
                                    this);
       lastLine->setParentItem(headers.last());
@@ -89,15 +90,6 @@ QString SearchResultScene::pgNoToString(int n) const {
   return Roman(n).lc();
 }
   
-void SearchResultScene::makeContdItems() {
-  // Simply don't make them??
-  BaseScene::makeContdItems();
-  for (int n=0; n<nSheets; n++)
-    contdItems[n]->setPos(4,
-			  style().real("page-height")*n
-			  + style().real("margin-top"));
-}
-
 void SearchResultScene::pageNumberClick(int pg) {
   qDebug() << "pagenumberclick" << pg << phrase;
   emit pageNumberClicked(pg, phrase);

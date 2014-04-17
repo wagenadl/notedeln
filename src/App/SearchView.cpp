@@ -6,6 +6,7 @@
 #include <QWheelEvent>
 #include <QPrinter>
 #include <QPrintDialog>
+#include <QDebug>
 
 SearchView::SearchView(SearchResultScene *scene, QWidget *parent):
   QGraphicsView(parent), scene(scene) {
@@ -15,7 +16,7 @@ SearchView::SearchView(SearchResultScene *scene, QWidget *parent):
   setDragMode(NoDrag);
   wheelDeltaAccum = 0;
   wheelDeltaStepSize = 120; // should get from notebook
-  setScene(scene);
+  qDebug() << "SearchView:  setScene(scene); NYI";
   currentSheet = 0;
 }
 
@@ -25,7 +26,7 @@ SearchView::~SearchView() {
 
 void SearchView::resizeEvent(QResizeEvent *e) {
   QGraphicsView::resizeEvent(e);
-  QRectF sr = scene->rectForSheet(currentSheet);
+  QRectF sr = scene->sceneRect();
   sr.adjust(1, 1, -2, -2); // make sure no borders show by default
   fitInView(sr, Qt::KeepAspectRatio);
 }
@@ -85,7 +86,7 @@ void SearchView::gotoSheet(int n) {
   if (n==currentSheet)
     return;
   currentSheet = n;
-  QRectF sr = scene->rectForSheet(currentSheet);
+  QRectF sr = scene->sceneRect();
   sr.adjust(1, 1, -2, -2); // make sure no borders show by default
   fitInView(sr, Qt::KeepAspectRatio);
 }

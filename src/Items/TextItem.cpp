@@ -169,12 +169,8 @@ bool TextItem::mousePress(QGraphicsSceneMouseEvent *e) {
       }
       break;
     case Mode::Annotate:
-      qDebug() << "Annotate" << allowNotes();
-      if (pageScene())
-        pageScene()->createNote(mapToScene(e->pos()));
-      else if (allowNotes())
-        createNote(e->pos());
-      break;
+      qDebug() << "Annotate: TESTME"; // << allowNotes();
+      return false;
     case Mode::Highlight:
       attemptMarkup(e->pos(), MarkupData::Emphasize);
       break;

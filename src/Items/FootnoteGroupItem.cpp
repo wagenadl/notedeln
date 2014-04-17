@@ -24,9 +24,8 @@
 
 #include <QDebug>
 
-FootnoteGroupItem::FootnoteGroupItem(BlockData *data, EntryScene *parent):
+FootnoteGroupItem::FootnoteGroupItem(BlockData *data, EntryScene *):
   Item(data, 0) {
-  parent->addItem(this);
   foreach (FootnoteData *fd, data->children<FootnoteData>()) {
     FootnoteItem *fni = new FootnoteItem(fd, this);
     if (fd->height()==0) 

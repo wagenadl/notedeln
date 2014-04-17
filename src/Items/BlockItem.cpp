@@ -73,7 +73,7 @@ void BlockItem::refTextChange(QString olds, QString news) {
 
 void BlockItem::resetPosition() {
   QRectF r = mapRectToScene(netBounds());
-  double y0 = data()->y0() + data()->sheet()*style().real("page-height");
+  double y0 = data()->y0();
   if (y0!=r.top())
     setPos(pos().x(), pos().y() + y0 - r.top());
 }

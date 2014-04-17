@@ -37,7 +37,6 @@ signals:
 protected:
   virtual QString title() const;
   virtual QString pgNoToString(int) const;
-  virtual void makeContdItems();
 private:
   void rebuild();
   void relayout();

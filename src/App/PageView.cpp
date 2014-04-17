@@ -33,6 +33,7 @@
 #include "GfxNoteItem.H"
 #include "SearchDialog.H"
 #include "HtmlOutput.H"
+#include "SheetScene.H"
 
 #include <QWheelEvent>
 #include <QKeyEvent>
@@ -77,10 +78,9 @@ void PageView::resizeEvent(QResizeEvent *e) {
   QGraphicsView::resizeEvent(e);
   if (!scene())
     return;
-  QRectF r = rectForSheet(currentSheet);
-  fitInView(r, //.adjusted(1, 1, -2, -2),
+  QRectF r = scene()->sceneRect();
+  fitInView(r.adjusted(1, 1, -2, -2),
 	    Qt::KeepAspectRatio);
-  centerOn(r.center());
   emit scaled(matrix().m11());
 }
 
@@ -92,35 +92,21 @@ bool PageView::gotoSheet(int n) {
   case Front:
     if (n>0)
       return false;
+    setScene(frontScene);
     break;
   case TOC:
     if (n>=tocScene->sheetCount())
       return false;
+    setScene(tocScene->sheet(n));
     break;
   case Entries:
     if (n>=entryScene->sheetCount())
       return false;
+    setScene(entryScene->sheet(n));
     break;
   }
   currentSheet = n;
-  QRectF r = rectForSheet(n);
-  qDebug() << "  target rect is " << r;
-  centerOn(r.center());
-  qDebug() << "topleft is " << mapToScene(QPoint(0,0));
   return true;
-}
-
-QRectF PageView::rectForSheet(int n) {
-  switch (currentSection) {
-  case Front:
-    return frontScene->sceneRect();
-  case TOC:
-    return tocScene->rectForSheet(n);
-  case Entries:
-    return entryScene->rectForSheet(n);
-  }
-  qDebug() << "PageView::rectForSheet: This should not happen";
-  return QRectF();
 }
 
 void PageView::mousePressEvent(QMouseEvent *e) {
@@ -238,7 +224,7 @@ void PageView::keyPressEvent(QKeyEvent *e) {
     }      
     break;
   case Qt::Key_Insert:
-    if (currentSection==Entries && entryScene->focusItem()==0) 
+    if (currentSection==Entries && scene()->focusItem()==0) 
       deletedStack->restoreTop();
     else
       take = false;
@@ -359,7 +345,6 @@ void PageView::gotoEntryPage(int n, int dir) {
     connect(entryScene, SIGNAL(nowOnPage(int)), SLOT(nowOnPage(int)));
     if (file->data()->isRecent() || file->data()->isUnlocked())
       entryScene->makeWritable(); // this should be even more sophisticated
-    setScene(entryScene);
     TOCEntry *nextte = book->toc()->entryAfter(te);
     if (nextte)
       entryScene->clipPgNoAt(nextte->startPage());
@@ -393,7 +378,6 @@ void PageView::gotoTOC(int n) {
   
   currentSection = TOC;
   currentPage = n;
-  setScene(tocScene);
   gotoSheet(currentPage-1);
   emit onFrontMatter(n);
 }

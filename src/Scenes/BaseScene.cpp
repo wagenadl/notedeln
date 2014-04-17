@@ -22,6 +22,7 @@
 #include "Data.H"
 #include "Assert.H"
 #include "PageView.H"
+#include "SheetScene.H"
 
 #include <QGraphicsTextItem>
 #include <QGraphicsLineItem>
@@ -35,181 +36,47 @@
 #include "Notebook.H"
 
 BaseScene::BaseScene(Data *data, QObject *parent):
-  QGraphicsScene(parent),
+  QObject(parent),
   data(data) {
-  bgItem = 0;
   ASSERT(data);
   Notebook *book = data->book();
   ASSERT(book);
   style_ = &book->style();
-  nSheets = 1;
-
-  setItemIndexMethod(NoIndex);
+  nSheets = 0;
 }
 
 void BaseScene::populate() {
-  makeBackground();
-  makePgNoItem();
-  makeContdItems();
-  makeTitleItem();
-  makeNofNItem();
-  positionTitleItem();
-  positionPgNoItem();
 }
 
 BaseScene::~BaseScene() {
-}
-
-void BaseScene::makeBackground() {
-  qDebug() << "BaseScene::makeBackground n=" << nSheets;
-  setSceneRect(0,
-	       0,
-	       style_->real("page-width"),
-	       style_->real("page-height") * nSheets);
-  
-  setBackgroundBrush(QBrush(style_->color("border-color")));
-
-  if (bgItem==0)
-    bgItem = addRect(0, 0, 1, 1,
-                     QPen(Qt::NoPen),
-                     QBrush(style_->color("background-color")));
-  bgItem->setRect(0,0,style_->real("page-width"),
-                  style_->real("page-height")*nSheets);
-  bgItem->setZValue(-100);
-
-  for (int n=leftMarginItems.size(); n<nSheets; n++) 
-    leftMarginItems
-      << addLine(style_->real("margin-left")-1,
-		 style_->real("page-height")*n,
-		 style_->real("margin-left")-1,
-		 style_->real("page-height"),
-		 QPen(QBrush(style_->color("margin-left-line-color")),
-		      style_->real("margin-left-line-width")));
-  
-  for (int n=topMarginItems.size(); n<nSheets; n++) 
-    topMarginItems
-      << addLine(0,
-		 style_->real("page-height")*n+style_->real("margin-top"),
-		 width(),
-		 style_->real("page-height")*n+style_->real("margin-top"),
-		 QPen(QBrush(style_->color("margin-top-line-color")),
-		      style_->real("margin-top-line-width")));
 }
 
 QString BaseScene::pgNoToString(int n) const {
   return QString::number(n);
 }
 
-void BaseScene::makePgNoItem() {
-  for (int n=pgNoItems.size(); n<nSheets; n++) {
-    QGraphicsTextItem *pgno = addText(pgNoToString(startPage() + n),
-				      style_->font("pgno-font"));
-    pgno->setDefaultTextColor(style_->color("pgno-color"));
-    pgno->setZValue(10); // page number on top
-    pgno->setPlainText(pgNoToString(startPage() + n));
-    pgNoItems << pgno;
-  }
+bool BaseScene::inLeftMargin(QPointF sp) const {
+  return sp.x() < style_->real("margin-left");
 }
 
-
-void BaseScene::makeContdItems() {
-  for (int n=contdItems.size(); n<nSheets; n++) {
-    if (n==0) {
-      contdItems << 0;
-    } else {
-      QGraphicsTextItem *c = addText(">", style_->font("contd-font"));
-      c->setDefaultTextColor(style_->color("contd-color"));
-      QPointF tr = c->boundingRect().topRight();
-      c->setPos(style_->real("margin-left") - tr.x(),
-                style_->real("page-height")*n
-                + style_->real("margin-top") - tr.y());
-      contdItems << c;
-    }
-  }
-
-  for (int n=contItems.size(); n<nSheets-1; n++) {
-    QGraphicsTextItem *c = addText(">",style_->font("contd-font"));
-    c->setDefaultTextColor(style_->color("contd-color"));
-    c->setPos(style().real("page-width")
-              - style().real("margin-right-over"),
-              style().real("page-height")*(n+1)
-              - style().real("margin-bottom")
-              + style().real("pgno-sep"));
-    contItems << c;
-  }
+bool BaseScene::inRightMargin(QPointF sp) const {
+  return sp.x() >= style_->real("page-width") - style_->real("margin-right");
 }
 
-void BaseScene::makeNofNItem() {
-  for (int n=nOfNItems.size(); n<nSheets; n++) {
-    QGraphicsTextItem *nofn = addText("n/N", style().font("pgno-font"));
-    nofn->setDefaultTextColor(style().color("pgno-color"));
-    QPointF br = nofn->boundingRect().bottomRight();
-    nofn->setPos(style().real("page-width") -
-		 style().real("margin-right-over") -
-		 br.x(),
-		 style().real("page-height")*n
-		 + style().real("margin-top") -
-		 style().real("title-sep") -
-		 br.y() + 8);
-    nOfNItems << nofn;
-  }
-  if (nSheets==1)
-    nOfNItems[0]->setPlainText("");
-  else
-    for (int n=0; n<nSheets; n++) 
-      nOfNItems[n]->setPlainText(QString("(%1/%2)").arg(n+1).arg(nSheets));
-}  
-
-void BaseScene::positionPgNoItem() {
-  for (int n=0; n<nSheets; n++) {
-    QPointF tr = pgNoItems[n]->boundingRect().topRight();
-    pgNoItems[n]->setPos(style_->real("page-width") -
-			 style_->real("margin-right-over") -
-			 tr.x(),
-			 style_->real("page-height")*(n+1) -
-			 style_->real("margin-bottom") +
-			 style_->real("pgno-sep") -
-			 tr.y());
-  }
+bool BaseScene::inTopMargin(QPointF sp) const {
+  return sp.y() < style_->real("margin-top");
 }
 
-void BaseScene::makeTitleItem() {
-  for (int n=titleItems.size(); n<nSheets; n++) {
-    QGraphicsTextItem *tt = new QGraphicsTextItem(title());
-    titleItems << tt;
-    tt->setFont(style().font("title-font"));
-    tt->setDefaultTextColor(style().color("title-color"));
-    addItem(tt);
-    tt->setTextWidth(style_->real("page-width")
-		     - style_->real("margin-left")
-		     - style_->real("title-indent")
-		     - style_->real("margin-right"));
-  }
+bool BaseScene::inBottomMargin(QPointF sp) const {
+  return sp.y() >= style_->real("page-height") - style_->real("margin-bottom");
 }
 
-void BaseScene::positionTitleItem() {
-  for (int n=0; n<nSheets; n++) {
-    QPointF bl = titleItems[n]->boundingRect().bottomLeft();
-    titleItems[n]->setPos(style_->real("margin-left") -
-		      bl.x() + style_->real("title-indent"),
-		      style_->real("page-height")*n +
-		      style_->real("margin-top") -
-		      style_->real("title-sep") -
-		      bl.y());
-  }
+bool BaseScene::inSideMargin(QPointF sp) const {
+  return inLeftMargin(sp) || inRightMargin(sp);
 }
 
-  
-bool BaseScene::inMargin(QPointF sp) {
-  double y = sp.y();
-  double h = style_->real("page-height");
-  while (y>=h)
-    y-=h;
-    
-  return sp.x() < style_->real("margin-left")
-    || sp.x() >= style_->real("page-width") - style_->real("margin-right")
-    || y < style_->real("margin-top")
-    || y >= h - style_->real("margin-bottom");
+bool BaseScene::inMargin(QPointF sp) const {
+  return inSideMargin(sp) || inTopMargin(sp) || inBottomMargin(sp);
 }    
 
 QString BaseScene::title() const {
@@ -229,8 +96,7 @@ int BaseScene::sheetCount() const {
 }
 
 void BaseScene::focusTitle() {
-  ASSERT(titleItems[0]);
-  titleItems[0]->setFocus();
+  qDebug() << "BaseScene::focusTitle NYI";
 }
 
 bool BaseScene::print(QPrinter *prt, QPainter *p,
@@ -248,28 +114,92 @@ bool BaseScene::print(QPrinter *prt, QPainter *p,
   for (int k=firstSheet; k<=lastSheet; k++) {
     if (!first)
       prt->newPage();
-    render(p, QRectF(), rectForSheet(k));
+    sheets[k]->render(p);
     first = false;
   }
   return !first;
 }
 
-QGraphicsItem *BaseScene::itemAt(const QPointF &p) const {
-  return QGraphicsScene::itemAt(p, QTransform());
+QGraphicsItem *BaseScene::itemAt(const QPointF &p, int sheet) const {
+  if (sheet>=0 && sheet<nSheets)
+    return sheets[sheet]->itemAt(p, QTransform());
+  else
+    return 0;
 }
 
-void BaseScene::setOverlay(SceneOverlay *ovr) {
-  if (overlay) {
-    delete overlay;
-    overlay = 0;
+class TextData *BaseScene::fancyTitle() const {
+  return 0;
+}
+
+QDate BaseScene::date() const {
+  return QDate();
+}
+
+void BaseScene::setSheetCount(int n) {
+  ASSERT(n>=0);
+
+  // drop old sheets
+  while (sheets.size()>n) 
+    sheets.takeLast()->deleteLater();
+
+  // add new sheets
+  while (sheets.size()<n) {
+    int k = sheets.size();
+    SheetScene *s = new SheetScene(style(), this);
+    if (fancyTitle())
+      s->setFancyTitle(fancyTitle());
+    else
+      s->setTitle(title());
+    s->setPageNumber(pgNoToString(startPage() + k));
+    s->setDate(date());
+    s->setContInMargin(contInMargin);
+    sheets << s;
   }
-  overlay = ovr;
-  if (overlay)
-    addItem(ovr);
+
+  nSheets = n;
+  
+  for (int k=0; k<n; k++)
+    sheets[k]->setNOfN(k, n);
 }
 
-QRectF BaseScene::rectForSheet(int n) const {
-  double w = style().real("page-width");
-  double h = style().real("page-height");
-  return QRectF(0, n*h, w, h);
+
+void BaseScene::setContInMargin(bool x) {
+  contInMargin = x;
+  foreach (SheetScene *s, sheets)
+    s->setContInMargin(x);
+}
+
+QRectF BaseScene::sceneRect() const {
+  if (sheets.isEmpty())
+    return QRectF();
+  else
+    return sheets[0]->sceneRect();
+}
+
+void BaseScene::addItem(QGraphicsItem *it, int n) {
+  sheet(n)->addItem(it);
+}
+
+SheetScene *BaseScene::sheet(int n, bool autoextend) {
+  ASSERT(n>=0);
+  if (autoextend) 
+    if (n>=nSheets)
+      setSheetCount(n+1);
+  ASSERT(n<nSheets);
+  return sheets[n];
+}
+
+int BaseScene::findSheet(SheetScene *ss) {
+  for (int n=0; n<nSheets; n++)
+    if (sheets[n]==ss)
+      return n;
+  return -1;
+}
+
+bool BaseScene::mousePressEvent(QGraphicsSceneMouseEvent *, SheetScene *) {
+  return false;
+}
+
+bool BaseScene::keyPressEvent(QKeyEvent *, SheetScene *) {
+  return false;
 }
