@@ -77,7 +77,7 @@ void SearchResultScene::populate() {
   }
   nSheets = sheet+1;
 
-  gotoSheet(0);
+  qDebug() << "SearchResultScene: gotoSheet(0)";
   
 }
 

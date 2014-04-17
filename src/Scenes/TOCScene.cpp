@@ -35,6 +35,7 @@ TOCScene::~TOCScene() {
 void TOCScene::populate() {
   BaseScene::populate();
   rebuild();
+  BaseScene::populate(); // do it again; we have new sheet count
 }
 
 QString TOCScene::title() const {
@@ -58,7 +59,6 @@ void TOCScene::rebuild() {
     delete l;
   items.clear();
   lines.clear();
-  sheetNos.clear();
   
   foreach (TOCEntry *e, data->entries()) {
     TOCItem *i = new TOCItem(e, this);
@@ -66,7 +66,6 @@ void TOCScene::rebuild() {
     connect(i, SIGNAL(vboxChanged()), SLOT(itemChanged()));
     connect(i, SIGNAL(clicked(int)), SIGNAL(pageNumberClicked(int)));
     
-    sheetNos.append(0);
     lines.append(addLine(0, 0, style().real("page-width"), 0,
 			 QPen(QBrush(style().color("toc-line-color")),
 			      style().real("toc-line-width"))));
@@ -77,7 +76,9 @@ void TOCScene::rebuild() {
 void TOCScene::relayout() {
   int sheet = 0;
   double y0 = style().real("margin-top");
-  double y1 = style().real("page-height") - style().real("margin-bottom");
+  double pw = style().real("page-width");
+  double ph = style().real("page-height");
+  double y1 = ph - style().real("margin-bottom");
   double y = y0;
 
   for (int k=0; k<items.size(); k++) {
@@ -87,10 +88,9 @@ void TOCScene::relayout() {
       y = y0;
       sheet ++;
     }
-    i->setPos(QPointF(0, y));
-    sheetNos[k] = sheet;
+    i->setPos(QPointF(0, y + sheet*ph));
     y += h;
-    lines[k]->setLine(0, y, style().real("page-width"), y);
+    lines[k]->setLine(0, y + sheet*ph, pw, y + sheet*ph);
   }
 
   nSheets = sheet+1;
@@ -102,7 +102,7 @@ QString TOCScene::pgNoToString(int n) const {
 void TOCScene::makeContdItems() {
   // Simply don't make them??
   BaseScene::makeContdItems();
-  for (int n=0; n<nSheets; n++)
+  for (int n=1; n<nSheets; n++)
     contdItems[n]->setPos(4, style().real("page-height")*n
 			  + style().real("margin-top"));
 }

@@ -32,7 +32,7 @@ public:
   virtual ~EntryScene();
   class EntryData *data() const;
   void makeWritable();
-  void focusEnd(); // may create new text block
+  void focusEnd(int isheet=-1); // may create new text block
   bool isWritable() const;
   int findBlock(class Item const *) const; // -1 if none
   int findBlock(QPointF scenePos) const; // -1 if none
@@ -51,6 +51,7 @@ public slots:
   void notifyChildless(class BlockItem *);
 signals:
   void restacked();
+  void pleaseShow(QRectF);
 protected:
   void mousePressEvent(QGraphicsSceneMouseEvent *);
   void keyPressEvent(QKeyEvent *);
@@ -71,7 +72,9 @@ private:
 			  class QUrl const &source);
   bool importDroppedUrls(QPointF scenePos, QList<class QUrl> const &url);
   bool importDroppedUrl(QPointF scenePos, class QUrl const &url);
-  bool importDroppedText(QPointF scenePos, QString const &txt);
+  bool importDroppedText(QPointF scenePos, QString const &txt,
+                         class TextItem **itemReturn=0,
+                         int *startReturn=0, int *endReturn=0);
   bool importDroppedFile(QPointF scenePos, QString const &fn);
   bool importDroppedSvg(QPointF scenePos, class QUrl const &url);
   void makeBackground();
@@ -85,14 +88,14 @@ private:
   void positionTitleItem();
   void positionNofNAndDateItems();
   int findLastBlockOnSheet(int sheet); // returns -1 if none
-  bool belowContent(QPointF); // true if point is below any blocks on sheet,
-  // whether or not the point is in the margin
-  class GfxBlockItem *newGfxBlock(int after=-1);
-  class TextBlockItem *newTextBlock(int after=-1, bool evenIfLastEmpty=false);
-  // creates a new text block after the
-  // given block or at the bottom of this sheet
-  class TableBlockItem *newTableBlock(int after=-1);
-  class GfxBlockItem *gfxBlockAfter(int iblock);
+  class TextBlockItem *newTextBlock(int after, bool evenIfLastEmpty=false);
+  class GfxBlockItem *newGfxBlock(int after);
+  class TableBlockItem *newTableBlock(int after);
+  // creates a new text/gfx/table block after the given block
+  class TextBlockItem *newTextBlockAt(QPointF pos, bool evenIfLastEmpty=false);
+  class GfxBlockItem *newGfxBlockAt(QPointF pos);
+  class TableBlockItem *newTableBlockAt(QPointF pos);
+  // create a new text/gfx/table block at the given position
   void deleteBlock(int blocki); // also deletes data!
   class BlockItem *tryMakeGfxBlock(class BlockData *bd);
   class BlockItem *tryMakeTextBlock(class BlockData *bd);
@@ -103,6 +106,9 @@ private:
   void reshapeBelowItem();
   int clippedPgNo(int n) const;
   void addUnlockedWarning();
+  int lastBlockAbove(QPointF scenepos);
+  // find the last block with bottom y above scene pos, or -1 if none
+  void gotoSheetOfBlock(int);
 private:
   QList<QGraphicsTextItem *> dateItems;
   class QSignalMapper *vChangeMapper;

@@ -31,7 +31,7 @@ public:
 public slots:
   void tocChanged();
   void itemChanged();
-  virtual void gotoSheet(int);
+  //  virtual void gotoSheet(int);
 signals:
   void pageNumberClicked(int);
 protected:
@@ -45,7 +45,6 @@ private:
   TOC *data;
   QList<class TOCItem *> items;
   QList<class QGraphicsLineItem *> lines;
-  QList<int> sheetNos;
 };
 
 #endif

@@ -77,12 +77,15 @@ void PageView::resizeEvent(QResizeEvent *e) {
   QGraphicsView::resizeEvent(e);
   if (!scene())
     return;
-  fitInView(rectForSheet(currentSheet).adjusted(1, 1, -2, -2),
+  QRectF r = rectForSheet(currentSheet);
+  fitInView(r, //.adjusted(1, 1, -2, -2),
 	    Qt::KeepAspectRatio);
+  centerOn(r.center());
   emit scaled(matrix().m11());
 }
 
 bool PageView::gotoSheet(int n) {
+  qDebug() << "PageView gotosheet("<<n<<") - was at " << currentSheet;
   if (n<0)
     return false;
   switch (currentSection) {
@@ -100,7 +103,10 @@ bool PageView::gotoSheet(int n) {
     break;
   }
   currentSheet = n;
-  fitInView(rectForSheet(n).adjusted(1, 1, -2, -2), Qt::KeepAspectRatio);
+  QRectF r = rectForSheet(n);
+  qDebug() << "  target rect is " << r;
+  centerOn(r.center());
+  qDebug() << "topleft is " << mapToScene(QPoint(0,0));
   return true;
 }
 
@@ -388,7 +394,7 @@ void PageView::gotoTOC(int n) {
   currentSection = TOC;
   currentPage = n;
   setScene(tocScene);
-  tocScene->gotoSheet(currentPage-1);
+  gotoSheet(currentPage-1);
   emit onFrontMatter(n);
 }
 
@@ -510,7 +516,7 @@ void PageView::focusEntry() {
     if (entryScene->data()->title()->isDefault())
       entryScene->focusTitle();
     else
-      entryScene->focusEnd();
+      entryScene->focusEnd(currentSheet);
   }
 }
 

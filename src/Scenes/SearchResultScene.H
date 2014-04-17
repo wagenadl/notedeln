@@ -17,7 +17,7 @@ public:
   virtual void populate();
   virtual QString title() const;
 public slots:
-  void gotoSheet(int);
+  //  void gotoSheet(int);
   void pageNumberClick(int);
 signals:
   void pageNumberClicked(int, QString);

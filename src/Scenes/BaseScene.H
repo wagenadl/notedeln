@@ -61,7 +61,7 @@ protected:
   QList<QGraphicsTextItem *> nOfNItems;
   QList<QGraphicsLineItem *> leftMarginItems;
   QList<QGraphicsLineItem *> topMarginItems;
-  QList<QGraphicsRectItem *> bgItems;
+  QGraphicsRectItem *bgItem;
 protected:
   int nSheets; // number of sheets
   Data *data;

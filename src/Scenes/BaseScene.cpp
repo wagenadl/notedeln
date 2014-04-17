@@ -37,6 +37,7 @@
 BaseScene::BaseScene(Data *data, QObject *parent):
   QGraphicsScene(parent),
   data(data) {
+  bgItem = 0;
   ASSERT(data);
   Notebook *book = data->book();
   ASSERT(book);
@@ -60,6 +61,7 @@ BaseScene::~BaseScene() {
 }
 
 void BaseScene::makeBackground() {
+  qDebug() << "BaseScene::makeBackground n=" << nSheets;
   setSceneRect(0,
 	       0,
 	       style_->real("page-width"),
@@ -67,16 +69,13 @@ void BaseScene::makeBackground() {
   
   setBackgroundBrush(QBrush(style_->color("border-color")));
 
-  for (int n=bgItems.size(); n<nSheets; n++) {
-    QGraphicsRectItem *bg = addRect(0,
-				    style_->real("page-height")*n,
-				    style_->real("page-width"),
-				    style_->real("page-height"),
-				    QPen(Qt::NoPen),
-				    QBrush(style_->color("background-color")));
-    bg->setZValue(-100);
-    bgItems << bg;
-  }
+  if (bgItem==0)
+    bgItem = addRect(0, 0, 1, 1,
+                     QPen(Qt::NoPen),
+                     QBrush(style_->color("background-color")));
+  bgItem->setRect(0,0,style_->real("page-width"),
+                  style_->real("page-height")*nSheets);
+  bgItem->setZValue(-100);
 
   for (int n=leftMarginItems.size(); n<nSheets; n++) 
     leftMarginItems
@@ -114,29 +113,29 @@ void BaseScene::makePgNoItem() {
 
 
 void BaseScene::makeContdItems() {
-  for (int n=contdItems.size(); n<nSheets-1; n++) {
-    QGraphicsTextItem *c = addText(">", style_->font("contd-font"));
-    c->setDefaultTextColor(style_->color("contd-color"));
-    QPointF tr = c->boundingRect().topRight();
-    c->setPos(style_->real("margin-left") - tr.x(),
-	      style_->real("page-height")*n
-	      + style_->real("margin-top") - tr.y());
-    contdItems << c;
+  for (int n=contdItems.size(); n<nSheets; n++) {
+    if (n==0) {
+      contdItems << 0;
+    } else {
+      QGraphicsTextItem *c = addText(">", style_->font("contd-font"));
+      c->setDefaultTextColor(style_->color("contd-color"));
+      QPointF tr = c->boundingRect().topRight();
+      c->setPos(style_->real("margin-left") - tr.x(),
+                style_->real("page-height")*n
+                + style_->real("margin-top") - tr.y());
+      contdItems << c;
+    }
   }
 
-  for (int n=contItems.size(); n<nSheets; n++) {
-    if (n==0) {
-      contItems << 0;
-    } else {
-      QGraphicsTextItem *c = addText(">",style_->font("contd-font"));
-      c->setDefaultTextColor(style_->color("contd-color"));
-      c->setPos(style().real("page-width")
-		- style().real("margin-right-over"),
-		style().real("page-height")*(n+1)
-		- style().real("margin-bottom")
-		+ style().real("pgno-sep"));
-         contItems << c;
-    }
+  for (int n=contItems.size(); n<nSheets-1; n++) {
+    QGraphicsTextItem *c = addText(">",style_->font("contd-font"));
+    c->setDefaultTextColor(style_->color("contd-color"));
+    c->setPos(style().real("page-width")
+              - style().real("margin-right-over"),
+              style().real("page-height")*(n+1)
+              - style().real("margin-bottom")
+              + style().real("pgno-sep"));
+    contItems << c;
   }
 }
 
@@ -193,7 +192,7 @@ void BaseScene::positionTitleItem() {
     QPointF bl = titleItems[n]->boundingRect().bottomLeft();
     titleItems[n]->setPos(style_->real("margin-left") -
 		      bl.x() + style_->real("title-indent"),
-		      style_->real("page-height")*n -
+		      style_->real("page-height")*n +
 		      style_->real("margin-top") -
 		      style_->real("title-sep") -
 		      bl.y());
@@ -269,3 +268,8 @@ void BaseScene::setOverlay(SceneOverlay *ovr) {
     addItem(ovr);
 }
 
+QRectF BaseScene::rectForSheet(int n) const {
+  double w = style().real("page-width");
+  double h = style().real("page-height");
+  return QRectF(0, n*h, w, h);
+}
