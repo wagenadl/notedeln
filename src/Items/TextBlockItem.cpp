@@ -108,11 +108,6 @@ void TextBlockItem::initializeFormat() {
   tc.setBlockFormat(fmt);
 }  
 
-void TextBlockItem::setFocus() {
-  // do we need to check whether we want it?
-  item_->setFocus();
-}
-
 QTextDocument *TextBlockItem::document() const {
   ASSERT(item_);
   return item_->document();

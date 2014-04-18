@@ -38,7 +38,7 @@ PageEditor::PageEditor(Notebook *nb): book(nb) {
   connect(toolview->toolbars()->navbar(), SIGNAL(goRelative(int)),
 	  view, SLOT(goRelative(int)));
 
-  connect(view, SIGNAL(onEntryPage(int)),
+  connect(view, SIGNAL(onEntryPage(int, int)),
 	  toolview->toolbars(), SLOT(showTools()));
   connect(view, SIGNAL(onFrontMatter(int)),
 	  toolview->toolbars(), SLOT(hideTools()));

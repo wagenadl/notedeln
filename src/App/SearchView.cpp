@@ -7,26 +7,26 @@
 #include <QPrinter>
 #include <QPrintDialog>
 #include <QDebug>
+#include "SheetScene.H"
 
 SearchView::SearchView(SearchResultScene *scene, QWidget *parent):
-  QGraphicsView(parent), scene(scene) {
+  QGraphicsView(parent), srs(scene) {
   setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
   setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
   setFrameStyle(Raised | StyledPanel);
   setDragMode(NoDrag);
   wheelDeltaAccum = 0;
   wheelDeltaStepSize = 120; // should get from notebook
-  qDebug() << "SearchView:  setScene(scene); NYI";
-  currentSheet = 0;
+  gotoSheet(0);
 }
 
 SearchView::~SearchView() {
-  scene->deleteLater();
+  srs->deleteLater();
 }
 
 void SearchView::resizeEvent(QResizeEvent *e) {
   QGraphicsView::resizeEvent(e);
-  QRectF sr = scene->sceneRect();
+  QRectF sr = scene()->sceneRect();
   sr.adjust(1, 1, -2, -2); // make sure no borders show by default
   fitInView(sr, Qt::KeepAspectRatio);
 }
@@ -55,7 +55,7 @@ void SearchView::keyPressEvent(QKeyEvent *e) {
     break;
   case Qt::Key_P:
     if (e->modifiers() & Qt::ControlModifier)
-      printme(scene);
+      printme(srs);
   default:
     take = false;
     break;
@@ -81,12 +81,11 @@ void SearchView::wheelEvent(QWheelEvent *e) {
 void SearchView::gotoSheet(int n) {
   if (n<0)
     return;
-  if (n>=scene->sheetCount())
+  if (n>=srs->sheetCount())
     return;
-  if (n==currentSheet)
-    return;
+  setScene(srs->sheet(n));
   currentSheet = n;
-  QRectF sr = scene->sceneRect();
+  QRectF sr = scene()->sceneRect();
   sr.adjust(1, 1, -2, -2); // make sure no borders show by default
   fitInView(sr, Qt::KeepAspectRatio);
 }

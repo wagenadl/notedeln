@@ -84,6 +84,7 @@ void TextItem::finalizeConstructor(int sheet) {
 
   if (!markings_)
     markings_ = new TextMarkings(data(), this);
+
   connect(document(), SIGNAL(contentsChange(int, int, int)),
 	  this, SLOT(docChange()));
 }

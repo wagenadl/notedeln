@@ -18,7 +18,7 @@ protected:
 private:
   void gotoSheet(int n);
 private:
-  SearchResultScene *scene;
+  SearchResultScene *srs;
   double wheelDeltaAccum;
   double wheelDeltaStepSize;
   int currentSheet;

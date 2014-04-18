@@ -8,6 +8,7 @@
 #include <QTextCursor>
 #include "Roman.H"
 #include <QDebug>
+#include "SheetScene.H"
 
 SearchResultScene::SearchResultScene(QString phrase, QString title,
 				     QList<SearchResult> results,
@@ -61,6 +62,7 @@ void SearchResultScene::populate() {
         sheet += 1;
       }
       headers.last()->setPos(0, y);
+      this->sheet(sheet,true)->addItem(headers.last());
       sheetnos << sheet;
       y += headers.last()->childrenBoundingRect().height();
     }

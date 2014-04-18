@@ -91,7 +91,7 @@ QString eln_quickcalltrace() {
 #if ASSERT_BACKTRACE
 void eln_backtrace(int skip) {
   QStringList fns = eln_calltrace();
-  while (skip>0)
+  while (skip-- > 0) 
     fns.pop_front();
   QString trc = fns.join(" < ");
   trc.replace(QRegExp(" <  <  < ( < )*"), " <...< ");

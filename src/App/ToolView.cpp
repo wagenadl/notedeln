@@ -13,6 +13,7 @@ ToolView::ToolView(Mode *mode, QWidget *parent): QGraphicsView(parent) {
   setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
   setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
   setDragMode(NoDrag);
+  setFocusPolicy(Qt::NoFocus);
   setAlignment(Qt::AlignLeft | Qt::AlignTop);
   
   setScene(tools);

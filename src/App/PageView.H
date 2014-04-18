@@ -32,7 +32,6 @@ public slots:
   void gotoEntryPage(int pgno, int dir=0);
   void gotoTOC(int pgno=1);
   void gotoFront();
-  //  void gotoIndex();
   void nextPage();
   void goRelative(int n);
   void previousPage();
@@ -40,7 +39,7 @@ public slots:
   void openFindDialog();
   void htmlDialog();
 signals:
-  void onEntryPage(int);
+  void onEntryPage(int, int); // start-page-of-entry, sheet-no
   void onFrontMatter(int);
   void scaled(double);
 public:

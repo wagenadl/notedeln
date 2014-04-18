@@ -23,6 +23,7 @@
 #include "Assert.H"
 #include "PageView.H"
 #include "SheetScene.H"
+#include "TitleItem.H"
 
 #include <QGraphicsTextItem>
 #include <QGraphicsLineItem>
@@ -152,6 +153,9 @@ void BaseScene::setSheetCount(int n) {
 	s->setFancyTitle(fancyTitle(), 0);
       else
 	s->setFancyTitle(fancyTitle(), k, sheets[0]->fancyTitleDocument());
+      if (k>0)
+        if (sheets[0]->fancyTitleItem()->isWritable())
+          s->fancyTitleItem()->makeWritable();
     } else {
       s->setTitle(title());
     }

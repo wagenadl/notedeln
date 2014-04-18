@@ -124,6 +124,8 @@ protected:
   QPointF cursorPos;
   MarkupData::Style lateMarkType;
   int lateMarkStart;
+public:
+  TextItemText *titxt() { return text; } // debugging
 };
 
 #endif

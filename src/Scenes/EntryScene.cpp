@@ -42,6 +42,8 @@
 #include "TableItem.H"
 #include "TextItemText.H"
 #include "SvgFile.H"
+#include "FocusProxyCache.H"
+
 #include <QGraphicsView>
 #include <QGraphicsTextItem>
 #include <QGraphicsLineItem>
@@ -201,8 +203,22 @@ void EntryScene::restackBlocks() {
       bi->data()->setSheet(sheet);
     QGraphicsScene *s0 = bi->scene();
     QGraphicsScene *s1 = this->sheet(sheet, true);
-    if (s1!=s0)
+    if (s1!=s0) {
+      FocusProxyCache fpc(bi);
+      TextBlockItem *tbi = dynamic_cast<TextBlockItem*>(bi);
+      if (tbi) {
+        qDebug() << "Transferring text block " << tbi;
+        qDebug() << "focus? " << tbi->hasFocus()
+                 << " / " << tbi->text()->hasFocus()
+                 << " / " << tbi->text()->titxt()->hasFocus();
+        qDebug() << "proxy was " << tbi->text()->focusProxy();
+      }
       s1->addItem(bi);
+      fpc.restore();
+      if (tbi) {
+        qDebug() << "proxy is " << tbi->text()->focusProxy();
+      }
+    }
     bi->resetPosition();
     yblock += blockh;
     yfng -= fngh;
@@ -210,6 +226,7 @@ void EntryScene::restackBlocks() {
   restackNotes(sheet);
   redateBlocks();
   setSheetCount(sheet + 1);
+  qDebug() << "EntryScene::restacked";
   emit restacked();
 }
 
@@ -533,7 +550,8 @@ void EntryScene::futileMovement(int block) {
     else
       splitTextBlock(block, c.position());
     return;
-  } 
+  }
+  
   if (fmi.key()==Qt::Key_Left || fmi.key()==Qt::Key_Up
       || fmi.key()==Qt::Key_Backspace) {
     // upward movement
@@ -555,6 +573,7 @@ void EntryScene::futileMovement(int block) {
       }
     }
   }
+
   if (tgtidx<0) {
     // no target, go to start/end of current
     QTextCursor c = tbi->text()->textCursor();
@@ -580,8 +599,12 @@ void EntryScene::futileMovement(int block) {
   
   TextBlockItem *tgt = dynamic_cast<TextBlockItem*>(blockItems[tgtidx]);
   ASSERT(tgt);
+
+  qDebug() << "EntryScene::futilemovement tgtidx="<<tgtidx;
   gotoSheetOfBlock(tgtidx);
   tgt->setFocus();
+  qDebug() << "EntryScene::futilemovement setfocus";
+
   QTextDocument *doc = tgt->document();
   QTextCursor c(doc);
   QPointF p = tgt->text()->mapFromParent(tgt->mapFromScene(fmi.scenePos()));
@@ -605,7 +628,9 @@ void EntryScene::futileMovement(int block) {
     c.setPosition(l.xToCursor(p.x() - blk.layout()->position().x()));
     break; }
   }
+  qDebug() << "EntryScene::futilemovement setcursor " << c.position();
   tgt->text()->setTextCursor(c);
+  tgt->setFocus();
 }
 
 void EntryScene::futileTitleMovement(int key, Qt::KeyboardModifiers) {

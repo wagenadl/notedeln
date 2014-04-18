@@ -86,7 +86,7 @@ void PageView::resizeEvent(QResizeEvent *e) {
 }
 
 bool PageView::gotoSheet(int n) {
-  qDebug() << "PageView gotosheet("<<n<<") - was at " << currentSheet;
+  qDebug() << "PageView gotosheet("<<n<<")";
   if (n<0)
     return false;
   switch (currentSection) {
@@ -111,7 +111,7 @@ bool PageView::gotoSheet(int n) {
     currentSheet = n;
     currentPage = entryScene->startPage() + n;
     setScene(entryScene->sheet(n));
-    emit onEntryPage(currentPage);
+    emit onEntryPage(currentPage-n, n);
     return true;
   }
   return false;

@@ -126,7 +126,6 @@ private:
 private:
   EntryData *data_;
   bool writable;
-  class TitleItem *titleItemX;
   int firstDisallowedPgNo;
   class QGraphicsTextItem *unlockedItem;
 };
