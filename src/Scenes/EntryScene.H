@@ -23,11 +23,12 @@
 #include "BaseScene.H"
 #include <QTextCursor>
 #include <QMap>
+#include "CachedEntry.H"
 
 class EntryScene: public BaseScene {
   Q_OBJECT;
 public:
-  EntryScene(class EntryData *data, QObject *parent=0);
+  EntryScene(CachedEntry data, QObject *parent=0);
   virtual void populate();
   virtual ~EntryScene();
   class EntryData *data() const;
@@ -124,7 +125,7 @@ private:
   QList<class FootnoteGroupItem *> footnoteGroups; // one for each block
   QMap<class BlockItem *, class QGraphicsTextItem *> blockDateItems;
 private:
-  EntryData *data_;
+  CachedEntry data_;
   bool writable;
   int firstDisallowedPgNo;
   class QGraphicsTextItem *unlockedItem;

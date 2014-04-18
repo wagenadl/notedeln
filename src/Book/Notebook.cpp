@@ -132,8 +132,6 @@ void Notebook::unloadme() {
   delete bookFile_;
   bookFile_ = 0;
   
-  foreach (EntryFile *f, pgFiles)
-    delete f;
   pgFiles.clear();
 }
 
@@ -205,22 +203,19 @@ bool Notebook::hasEntry(int n) const {
   return toc()->contains(n);
 }
 
-EntryFile *Notebook::entryIfCached(int n) {
-  if (pgFiles.contains(n))
-    return pgFiles[n];
-  else
-    return 0;
-}
-
-EntryFile *Notebook::entry(int n)  {
-  if (pgFiles.contains(n))
-    return pgFiles[n];
+CachedEntry Notebook::entry(int n)  {
+  if (pgFiles.contains(n)) {
+    CachedEntry ce = pgFiles[n];
+    if (ce)
+      return ce;
+  }
 
   QString uuid = toc()->entry(n)->uuid();
 
-  EntryFile *f = loadEntry(QDir(root.filePath("pages")), n, uuid, this);
+  EntryFile *f = ::loadEntry(QDir(root.filePath("pages")), n, uuid, this);
   ASSERT(f);
-  pgFiles[n] = f;
+  CachedEntry entry(f);
+  pgFiles[n] = entry;
 
   f->data()->setBook(this);
   connect(f->data(), SIGNAL(titleMod()), SLOT(titleMod()));
@@ -228,15 +223,16 @@ EntryFile *Notebook::entry(int n)  {
   index_->watchEntry(f->data());
   if (hasVC)
     connect(f->data(), SIGNAL(mod()), this, SLOT(commitSoonish()));
-  return f;
+  return entry;
 }
 
-EntryFile *Notebook::createEntry(int n) {
+CachedEntry Notebook::createEntry(int n) {
   ASSERT(!pgFiles.contains(n));
   EntryFile *f = ::createEntry(root.filePath("pages"), n, this);
   if (!f)
-    return 0;
-  pgFiles[n] = f;
+    return CachedEntry();
+  CachedEntry entry(f);
+  pgFiles[n] = entry;
   f->data()->setStartPage(n);
   toc()->addEntry(f->data());
 
@@ -247,28 +243,29 @@ EntryFile *Notebook::createEntry(int n) {
   if (hasVC)
     connect(f->data(), SIGNAL(mod()), this, SLOT(commitSoonish()));
   bookData()->setEndDate(QDate::currentDate());
-  return f;
+  return entry;
 }
 
 bool Notebook::deleteEntry(int pgno) {
-  EntryFile *pf = entry(pgno);
+  CachedEntry pf(entry(pgno));
   if (!pf) {
     qDebug() << "Notebook: cannot delete nonexistent entry";
     return false;
   }
-  ASSERT(pf->data());
-  if (!pf->data()->isEmpty()) {
+  ASSERT(pf);
+  if (!pf->isEmpty()) {
     qDebug() << "Notebook: refusing to delete non-empty entry";
     return false;
   }
 
-  QString uuid = pf->data()->uuid();
+  QString uuid = pf->uuid();
   
-  index_->deleteEntry(pf->data()); // this doesn't save, but see below
-  
-  pgFiles[pgno]->cancelSave();
-  delete pgFiles[pgno];
+  index_->deleteEntry(pf); // this doesn't save, but see below
+
+  pf.file()->cancelSave();
+  qDebug() << "pgFiles.removing " << pgno;
   pgFiles.remove(pgno);
+  qDebug() << "pgFiles.removed " << pgno;
 
   ASSERT(toc()->deleteEntry(toc()->find(pgno))); // this triggers mod() and hence flush of index too
   ASSERT(::deleteEntryFile(QDir(root.filePath("pages")), pgno, uuid));
@@ -306,9 +303,10 @@ void Notebook::flush() {
     RecentBooks::instance()->addBook(this);
   }
 
-  foreach (EntryFile *pf, pgFiles) 
-    if (pf->needToSave()) 
-      ok = ok && pf->saveNow();
+  foreach (CachedEntry pf, pgFiles) 
+    if (pf)
+      if (pf.file()->needToSave()) 
+	ok = ok && pf.file()->saveNow();
 
   index_->flush();
 

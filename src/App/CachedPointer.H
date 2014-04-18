@@ -28,15 +28,16 @@ public:
   explicit CachedPointer(T *obj) {
     objp = new QAtomicPointer<T>(obj);
     cntr = new QAtomicInt(1);
-    qDebug() << "New CachedPointer for " << obj;
+    qDebug() << "New CachedPointer " << this << " for " << objp << " : " << obj;
   }
   CachedPointer(CachedPointer<T> const &p) {
     p.cntr->ref();
     objp = p.objp;
     cntr = p.cntr;
-    qDebug() << "CachedPointer for " << *objp << " now has " << int(*p.cntr) << " refs";
+    qDebug() << "CachedPointer " << this << " for " << objp << " : "  << *objp << " now has " << int(*p.cntr) << " refs";
   }
-  ~CachedPointer() {
+  virtual ~CachedPointer() {
+    qDebug() << "~CachedPointer " << this;
     if (clear()) {
       qDebug() << "  CachePointer deleting self";
       // Final copy being deleted: delete the references
@@ -50,30 +51,28 @@ public:
        Returns true if zero references remain.
     */
     int newValue = cntr->fetchAndAddOrdered(-1) - 1;
-    qDebug() << "CachedPointer for " << *objp << " now has " << int(*cntr) << " refs";
+    qDebug() << "CachedPointer " << this << " for " << objp << " : " << *objp << " now has " << int(*cntr) << " refs";
     if (newValue<=1) {
       T *obj = objp->fetchAndStoreOrdered(0);
       qDebug() << "  CachePointer deleting " << obj;
       if (obj)
 	obj->deleteLater();
+      qDebug() << " deleted objp now " << objp << " : " << *objp;
     }
-    return newValue==0;
+    return newValue<=0;
   }
   operator bool() const {
-    ASSERT(*cntr > 1);
-    return *objp != 0;
+    return *cntr>1 && *objp!=0;
   }
   T &operator*() const {
     ASSERT(*cntr > 1);
     return **objp;
   }
   T *operator->() const {
-    ASSERT(*cntr > 1);
-    return *objp;
+    return *cntr>1 ? *objp : 0;
   }
   T *obj() const {
-    ASSERT(*cntr > 1);
-    return *objp;
+    return *cntr>1 ? *objp : 0;
   }
   CachedPointer<T> &operator=(CachedPointer<T> const &p) {
     p.cntr->ref();

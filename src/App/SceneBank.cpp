@@ -50,16 +50,14 @@ CachedPointer<EntryScene> SceneBank::entryScene(int startPage) {
   */
   TOCEntry *te = nb->toc()->entry(startPage);
   ASSERT(te);
-  EntryFile *file = nb->entry(startPage);
-  ASSERT(file);
-  ASSERT(file->data());
-
-  EntryScene *es = new EntryScene(file->data(), this);
-  es->populate();
+  CachedEntry entry(nb->entry(startPage));
+  ASSERT(entry);
   
+  EntryScene *es = new EntryScene(entry, this);
   TOCEntry *nextte = nb->toc()->entryAfter(te);
   if (nextte)
     es->clipPgNoAt(nextte->startPage());
+  es->populate();
 
   CachedPointer<EntryScene> ptr(es);
   entryScenes[startPage] = ptr;

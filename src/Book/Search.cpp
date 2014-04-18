@@ -92,20 +92,13 @@ QList<SearchResult> Search::immediatelyFindPhrase(QString phrase) const {
   QList<SearchResult> results;
   
   foreach (int pgno, sortedEntries) {
-    EntryFile *ef = book->entryIfCached(pgno);
-    bool preloaded = ef;
-    if (!preloaded) {
-      QString uuid = book->toc()->entry(pgno)->uuid();
-      ef = ::loadEntry(book->filePath("pages"), pgno, uuid, 0);
-    }
+    CachedEntry ef(book->entry(pgno));
     ASSERT(ef);
-    QString ttl = ef->data()->titleText();
-    foreach (TitleData const *bd, ef->data()->children<TitleData>())
+    QString ttl = ef->titleText();
+    foreach (TitleData const *bd, ef->children<TitleData>())
       addToResults(results, phrase, ttl, bd, pgno, pgno);
-    foreach (BlockData const *bd, ef->data()->children<BlockData>())
+    foreach (BlockData const *bd, ef->children<BlockData>())
       addToResults(results, phrase, ttl, bd, pgno, pgno + bd->sheet());
-    if (!preloaded)
-      delete ef;
   }
 
   return results;
@@ -153,26 +146,18 @@ void Search::run() {
   foreach (int pgno, entries) {
     if (abandon)
       return;
-    EntryFile *ef = book->entryIfCached(pgno);
-    bool precontained = ef;
-    if (!ef) {
-      QString uuid = book->toc()->entry(pgno)->uuid();
-      ef = ::loadEntry(book->filePath("pages"), pgno, uuid, this);
-      ASSERT(ef);
-    }
-    QString ttl = ef->data()->titleText();
-    foreach (TitleData const *bd, ef->data()->children<TitleData>()) {
+    CachedEntry ef(book->entry(pgno));
+    QString ttl = ef->titleText();
+    foreach (TitleData const *bd, ef->children<TitleData>()) {
       mutex.lock();
       addToResults(results, phrase, ttl, bd, pgno, pgno);
       mutex.unlock();
     }
-    foreach (BlockData const *bd, ef->data()->children<BlockData>()) {
+    foreach (BlockData const *bd, ef->children<BlockData>()) {
       mutex.lock();
       addToResults(results, phrase, ttl, bd, pgno, pgno + bd->sheet());
       mutex.unlock();
     }
-    if (!precontained)
-      delete ef;
   }
   if (!abandon)
     emit searchCompleted();

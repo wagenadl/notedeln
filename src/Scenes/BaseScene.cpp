@@ -97,8 +97,11 @@ int BaseScene::sheetCount() const {
   return nSheets;
 }
 
-void BaseScene::focusTitle() {
-  qDebug() << "BaseScene::focusTitle NYI";
+void BaseScene::focusTitle(int sheet) {
+  ASSERT(sheet>=0 && sheet<nSheets);
+  QGraphicsItem *ti = sheets[sheet]->fancyTitleItem();
+  if (ti)
+    ti->setFocus();
 }
 
 bool BaseScene::print(QPrinter *prt, QPainter *p,

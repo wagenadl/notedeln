@@ -45,7 +45,7 @@ public:
   void addItem(QGraphicsItem *it, int sheet);
   class SheetScene *sheet(int n, bool autoextend=false);
 public slots:
-  void focusTitle();
+  void focusTitle(int sheet);
 protected:
   bool inMargin(QPointF scenePos) const; // true if point is in any margin
   bool inLeftMargin(QPointF scenePos) const;

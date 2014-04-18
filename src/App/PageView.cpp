@@ -297,20 +297,22 @@ void PageView::gotoEntryPage(QString s) {
 }
 
 void PageView::gotoEntryPage(int n, int dir) {
+  qDebug() << "gotoEntryPage " << n << ":" << dir;
   if (n<1)
     n=1;
   int N = book->toc()->newPageNumber();
   if (n>N)
     n=N;
+  qDebug() << "newP " << N;
 
   if (n==N) {
     // make a new page?
     TOCEntry *te = book->toc()->findBackward(n);
     if (te) {
       // let's look at page before end
-      EntryFile *file = book->entry(te->startPage());
-      ASSERT(file);
-      if (file->data()->isEmpty()) {
+      CachedEntry ef(book->entry(te->startPage()));
+      ASSERT(ef);
+      if (ef->isEmpty()) {
 	// previous page is empty -> go there instead
 	gotoEntryPage(te->startPage() + te->sheetCount() - 1);
 	return;
@@ -331,11 +333,13 @@ void PageView::gotoEntryPage(int n, int dir) {
     }
   }
 
-  if (currentSection==Entries && book->toc()->find(currentPage)==te) {
+  if (currentSection==Entries
+      && book->toc()->find(currentPage-currentSheet)==te) {
     // already in the right page, let's just go to the right sheet
   } else {
+    leavePage();
     entryScene = bank->entryScene(te->startPage());
-    qDebug() << "Loaded entry: " << entryScene.obj();
+    qDebug() << "Loaded entry " << currentPage << ": " << entryScene.obj();
 
     connect(entryScene.obj(), SIGNAL(sheetRequest(int)), SLOT(gotoSheet(int)));
     if (entryScene->data()->isRecent() || entryScene->data()->isUnlocked())
@@ -346,10 +350,8 @@ void PageView::gotoEntryPage(int n, int dir) {
 
   gotoSheet(currentPage - te->startPage());
   
-  //if (entryScene->data()->title()->isDefault())
-  //  entryScene->focusTitle();
-  //else
-  //  entryScene->focusEnd();
+  if (entryScene->data()->title()->isDefault())
+    entryScene->focusTitle(currentSheet);
 
   if (entryScene->isWritable())
     mode()->setMode(Mode::Type);
@@ -377,18 +379,16 @@ void PageView::leavePage() {
       fi->clearFocus(); // this should cause abandon to happen
   }
 
+  qDebug() << "leavePage";
   if (currentSection==Entries
       && currentPage>1
       && currentPage==book->toc()->newPageNumber()-1) {
     // Leaving the last page in the notebook, not being the only page.
-    // If the page is empty, we'll delete it.   
-    TOCEntry *te = book->toc()->find(currentPage);
-    ASSERT(te);
-    EntryFile *file = book->entry(te->startPage());
-    ASSERT(file);
-    ASSERT(file->data());
-    if (file->data()->isEmpty()) {
+    // If the page is empty, we'll delete it.
+    qDebug() << "leavePage last";
+    if (entryScene->data()->isEmpty()) {
       // Leaving an empty page
+      qDebug() << "leavePage last empty";
       entryScene.clear();
       book->deleteEntry(currentPage);
     }
@@ -483,7 +483,7 @@ void PageView::nextPage() {
 void PageView::focusEntry() {
   if (currentSection==Entries) {
     if (entryScene->data()->title()->isDefault())
-      entryScene->focusTitle();
+      entryScene->focusTitle(currentSheet);
     else
       entryScene->focusEnd(currentSheet);
   }
@@ -565,7 +565,7 @@ void PageView::createContinuationEntry() {
   gotoEntryPage(newPage); // pick up new title
 
   mode()->setMode(Mode::Type);
-  entryScene->focusTitle();
+  entryScene->focusTitle(0);
 }
 
 void PageView::notebookReloaded(QMap<int, int>) {

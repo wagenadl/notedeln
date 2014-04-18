@@ -64,7 +64,7 @@
 #include <QApplication>
 #include <QMimeData>
 
-EntryScene::EntryScene(EntryData *data, QObject *parent):
+EntryScene::EntryScene(CachedEntry data, QObject *parent):
   BaseScene(data, parent),
   data_(data) {
   writable = false;
