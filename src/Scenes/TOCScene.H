@@ -28,15 +28,14 @@ public:
   TOCScene(class TOC *data, QObject *parent=0);
   virtual void populate();
   virtual ~TOCScene();
+  virtual QString title() const;
+  virtual QString pgNoToString(int) const;
 public slots:
   void tocChanged();
   void itemChanged();
   //  virtual void gotoSheet(int);
 signals:
   void pageNumberClicked(int);
-protected:
-  virtual QString title() const;
-  virtual QString pgNoToString(int) const;
 private:
   void rebuild();
   void relayout();

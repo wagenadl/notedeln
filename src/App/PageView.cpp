@@ -20,8 +20,7 @@
 #include "App.H"
 #include "EntryScene.H"
 #include "Notebook.H"
-#include "EntryFile.H"
-#include "DataFile.H"
+#include "SceneBank.H"
 #include "TOCScene.H"
 #include "FrontScene.H"
 #include "TitleData.H"
@@ -40,36 +39,27 @@
 #include <QDebug>
 #include <QFileDialog>
 
-PageView::PageView(Notebook *nb, QWidget *parent):
-  QGraphicsView(parent), book(nb) {
-  //  setBackgroundBrush(QBrush("green"));
+PageView::PageView(SceneBank *bank, QWidget *parent):
+  QGraphicsView(parent), bank(bank) {
+  book = bank->book(); // for convenience only
+  ASSERT(book);
   searchDialog = new SearchDialog(this);
   deletedStack = new DeletedStack(this);
-  frontScene = new FrontScene(nb, this);
-  tocScene = new TOCScene(nb->toc(), this);
-  tocScene->populate();
-  // simpleNavbar = new SimpleNavbar(tocScene);
-  // connect(simpleNavbar, SIGNAL(goRelative(int)), SLOT(goRelative(int)));
-  connect(tocScene, SIGNAL(pageNumberClicked(int)),
+
+  connect(bank->tocScene(), SIGNAL(pageNumberClicked(int)),
           SLOT(gotoEntryPage(int)));
 
-#if 0
-  setFrameShape(NoFrame);
-  setLineWidth(0);
-  setMidLineWidth(0);
-#else
   setFrameStyle(Raised | StyledPanel);
-#endif
   setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
   setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
   setDragMode(NoDrag);
   
-  entryScene = 0;
   currentSection = Front;
-  currentPage = 0; // I think that is correct 12/11/'13
+  currentPage = 0; 
+  currentSheet = 0;
 
   wheelDeltaAccum = 0;
-  wheelDeltaStepSize = nb ? nb->style().real("wheelstep") : 120;
+  wheelDeltaStepSize = book->style().real("wheelstep");
 }
 
 PageView::~PageView() {
@@ -94,15 +84,15 @@ bool PageView::gotoSheet(int n) {
     if (n>0)
       return false;
     currentPage = 0;
-    setScene(frontScene);
+    setScene(bank->frontScene());
     emit onFrontMatter(currentPage);
     break;
   case TOC:
-    if (n>=tocScene->sheetCount())
+    if (n>=bank->tocScene()->sheetCount())
       return false;
     currentPage = 1+n;
     currentSheet = n;
-    setScene(tocScene->sheet(n));
+    setScene(bank->tocScene()->sheet(n));
     emit onFrontMatter(currentPage);
     return true;
   case Entries:
@@ -291,6 +281,21 @@ void PageView::keyReleaseEvent(QKeyEvent *e) {
   QGraphicsView::keyReleaseEvent(e);
 }
 
+void PageView::gotoEntryPage(QString s) {
+  if (s.isEmpty()) {
+    gotoEntryPage(0);
+  } else {
+    if (s[s.size()-1]>='a') {
+      int p0 = s.left(s.size()-1).toInt();
+      int dp = 1 + s.at(s.size()-1).unicode() - 'a';
+      gotoEntryPage(p0);
+      gotoSheet(currentSheet + dp);
+    } else {
+      gotoEntryPage(s.toInt());
+    }
+  }
+}
+
 void PageView::gotoEntryPage(int n, int dir) {
   if (n<1)
     n=1;
@@ -328,29 +333,16 @@ void PageView::gotoEntryPage(int n, int dir) {
 
   if (currentSection==Entries && book->toc()->find(currentPage)==te) {
     // already in the right page, let's just go to the right sheet
-    currentPage = n;
   } else {
-    EntryFile *file = book->entry(te->startPage());
-    ASSERT(file);
-    ASSERT(file->data());
-    
-    leavePage();
-    if (entryScene)
-      entryScene->deleteLater();
-    entryScene = 0;
-    
-    currentSection = Entries;
-    currentPage = n;
-    
-    entryScene = new EntryScene(file->data(), this);
-    entryScene->populate();
-    connect(entryScene, SIGNAL(sheetRequest(int)), SLOT(gotoSheet(int)));
-    if (file->data()->isRecent() || file->data()->isUnlocked())
+    entryScene = bank->entryScene(te->startPage());
+    qDebug() << "Loaded entry: " << entryScene.obj();
+
+    connect(entryScene.obj(), SIGNAL(sheetRequest(int)), SLOT(gotoSheet(int)));
+    if (entryScene->data()->isRecent() || entryScene->data()->isUnlocked())
       entryScene->makeWritable(); // this should be even more sophisticated
-    TOCEntry *nextte = book->toc()->entryAfter(te);
-    if (nextte)
-      entryScene->clipPgNoAt(nextte->startPage());
+    currentSection = Entries;
   }
+  currentPage = n;
 
   gotoSheet(currentPage - te->startPage());
   
@@ -397,9 +389,7 @@ void PageView::leavePage() {
     ASSERT(file->data());
     if (file->data()->isEmpty()) {
       // Leaving an empty page
-      if (entryScene)
-	entryScene->deleteLater();
-      entryScene = 0;
+      entryScene.clear();
       book->deleteEntry(currentPage);
     }
   }
@@ -418,7 +408,7 @@ void PageView::previousPage() {
   case Entries:
     if (!gotoSheet(currentSheet-1)) {
       if (currentPage<=1) {
-	gotoTOC(tocScene->sheetCount());
+	gotoTOC(bank->tocScene()->sheetCount());
       } else {
 	gotoEntryPage(currentPage-1, -1);
 	gotoSheet(entryScene->sheetCount()-1);
@@ -441,7 +431,7 @@ void PageView::goRelative(int n) {
     return;
   }
 
-  int N = tocScene->sheetCount();
+  int N = bank->tocScene()->sheetCount();
   
   switch (currentSection) {
   case Front:
@@ -461,7 +451,7 @@ void PageView::goRelative(int n) {
   }
 
   // n=1 is the first toc page
-  if (n<=tocScene->sheetCount()) {
+  if (n<=bank->tocScene()->sheetCount()) {
     gotoTOC(n);
     return;
   }
@@ -537,7 +527,7 @@ void PageView::createContinuationEntry() {
 
   // Create forward note
   QPointF fwdNotePos(style.real("page-width")/2,
-                     style.real("page-height")*(currentSheet+1)
+                     style.real("page-height")
                      - style.real("margin-bottom")
                      + style.real("pgno-sep"));
   GfxNoteItem *fwdNote = entryScene->newNote(currentSheet, fwdNotePos);
@@ -579,22 +569,12 @@ void PageView::createContinuationEntry() {
 }
 
 void PageView::notebookReloaded(QMap<int, int>) {
+  qDebug() << "notebookReloaded - does this work?";
   setScene(0); // hopefully that avoids crazy UI crashes
+  entryScene.clear();
   
-  delete frontScene;
-  frontScene = new FrontScene(book, this);
-
-  delete tocScene;
-  tocScene = new TOCScene(book->toc(), this);
-  tocScene->populate();
-  // simpleNavbar = new SimpleNavbar(tocScene);
-  // connect(simpleNavbar, SIGNAL(goRelative(int)), SLOT(goRelative(int)));
-  connect(tocScene, SIGNAL(pageNumberClicked(int)),
+  connect(bank->tocScene(), SIGNAL(pageNumberClicked(int)),
           SLOT(gotoEntryPage(int)));
-
-  if (entryScene)
-    delete entryScene;
-  entryScene = 0;
 
   switch (currentSection) {
   case Front:
@@ -623,8 +603,28 @@ void PageView::htmlDialog() {
       if (!fn.endsWith(".html"))
         fn += ".html";
       HtmlOutput html(fn, entryScene->title());
-      html.add(entryScene);
+      html.add(entryScene.obj());
     }
   }
+}
+
+PageView::Section PageView::section() const {
+  return currentSection;
+}
+
+QString PageView::pageName() const {
+  switch (currentSection) {
+  case Front:
+    return "0";
+  case TOC:
+    return bank->tocScene()->pgNoToString(currentPage);
+  case Entries:
+    return entryScene->pgNoToString(currentPage);
+  }
+  return "";
+}
+
+int PageView::pageNumber() const {
+  return currentPage;
 }
 

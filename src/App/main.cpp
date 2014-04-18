@@ -17,6 +17,7 @@
 // main.C
 
 #include "PageEditor.H"
+#include "SceneBank.H"
 #include <QApplication>
 #include <QFile>
 #include <QDir>
@@ -82,8 +83,9 @@ int main(int argc, char **argv) {
   }
 
   QObject::connect(&app, SIGNAL(aboutToQuit()), nb, SLOT(commitNow()));
-  
-  PageEditor *editor = new PageEditor(nb);
+
+  SceneBank *bank = new SceneBank(nb);
+  PageEditor *editor = new PageEditor(bank);
   editor->setAttribute(Qt::WA_DeleteOnClose, true);
   QSizeF size = editor->sizeHint();
   double dpiX = app.desktop()->logicalDpiX();
@@ -92,6 +94,7 @@ int main(int argc, char **argv) {
   new AlreadyOpen(nb->dirPath(), editor);
   editor->show();
   int r = app.exec();
+  delete bank;
   delete nb;
   delete RecentBooks::instance();
   return r;

@@ -20,13 +20,15 @@
 #include "PageView.H"
 #include "ToolView.H"
 #include "Toolbars.H"
+#include "SceneBank.H"
 #include "Notebook.H"
 #include "Navbar.H"
 
 #include <QDebug>
 #include <QKeyEvent>
 
-PageEditor::PageEditor(Notebook *nb): book(nb) {
+PageEditor::PageEditor(SceneBank *bank): bank(bank) {
+  Notebook *nb = bank->book();
   setContentsMargins(0, 0, 0, 0);
 
   QString ttl = nb->bookData()->title();
@@ -36,7 +38,7 @@ PageEditor::PageEditor(Notebook *nb): book(nb) {
 #endif
   setWindowTitle(ttl.replace(QRegExp("\\s\\s*"), " ") + " - " + appname);
 
-  view = new PageView(nb, this);
+  view = new PageView(bank, this);
   toolview = new ToolView(nb->mode(), view);
 
   connect(toolview->toolbars()->navbar(), SIGNAL(goTOC()),
@@ -73,9 +75,19 @@ void PageEditor::keyPressEvent(QKeyEvent *e) {
   switch (e->key()) {
   case Qt::Key_F12:
     {
-      PageEditor *editor = new PageEditor(book);
+      PageEditor *editor = new PageEditor(bank);
       editor->setAttribute(Qt::WA_DeleteOnClose, true);
       editor->resize(size());
+      switch (view->section()) {
+      case PageView::Front:
+	break;
+      case PageView::TOC:
+	editor->gotoTOC(view->pageNumber());
+	break;
+      case PageView::Entries:
+	editor->gotoEntryPage(view->pageName());
+	break;
+      }
       editor->show();
       take = true;
     }
@@ -88,4 +100,16 @@ void PageEditor::keyPressEvent(QKeyEvent *e) {
     e->accept();
   else
     QMainWindow::keyPressEvent(e);
+}
+
+void PageEditor::gotoEntryPage(QString s) {
+  view->gotoEntryPage(s);
+}
+
+void PageEditor::gotoTOC(int n) {
+  view->gotoTOC(n);
+}
+
+void PageEditor::gotoFront() {
+  view->gotoFront();
 }

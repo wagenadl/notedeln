@@ -22,13 +22,24 @@
 
 #include <QGraphicsView>
 #include <QMap>
+#include "CachedPointer.H"
 
 class PageView: public QGraphicsView {
   Q_OBJECT;
 public:
-  PageView(class Notebook *nb, QWidget *parent=0);
+  PageView(class SceneBank *bank, QWidget *parent=0);
   virtual ~PageView();
+public:
+  enum Section {
+    Front,
+    TOC,
+    Entries,
+  };
+  Section section() const;
+  QString pageName() const;
+  int pageNumber() const;
 public slots:
+  void gotoEntryPage(QString);
   void gotoEntryPage(int pgno, int dir=0);
   void gotoTOC(int pgno=1);
   void gotoFront();
@@ -60,17 +71,12 @@ private slots:
   bool gotoSheet(int n);
   void notebookReloaded(QMap<int,int>);
 private:
+  class SceneBank *bank; // we do not own!
   class Notebook *book; // we do not own!
-  class FrontScene *frontScene;
-  class TOCScene *tocScene;
-  class EntryScene *entryScene;
+  CachedPointer<class EntryScene> entryScene;
   int currentPage;
   int currentSheet;
-  enum {
-    Front,
-    TOC,
-    Entries,
-  } currentSection;
+  Section currentSection;
   class DeletedStack *deletedStack;
   int wheelDeltaAccum;
   int wheelDeltaStepSize;

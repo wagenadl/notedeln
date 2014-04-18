@@ -16,6 +16,7 @@
 
 #define NOHIDETOOLBARS 0
 
+#include "SceneBank.H"
 #include "PageView.H"
 #include "Notebook.H"
 #include "TOC.H"
@@ -65,17 +66,17 @@ void PageView::printDialog() {
   int oldPage = currentPage;
   int oldSection = currentSection;
   
-  int tocCount = tocScene->sheetCount();
+  int tocCount = bank->tocScene()->sheetCount();
   int pgsCount = book->toc()->newPageNumber()-1;
   
   switch (printer.printRange()) {
   case QAbstractPrintDialog::AllPages:
     progress.setMaximum(1+tocCount+pgsCount);
-    frontScene->print(&printer, &p);
+    bank->frontScene()->print(&printer, &p);
     progress.setValue(1);
     if (!progress.wasCanceled()) {
       printer.newPage();
-      tocScene->print(&printer, &p);
+      bank->tocScene()->print(&printer, &p);
     }
     foreach (int startPage, book->toc()->entries().keys()) {
       progress.setValue(1+tocCount+startPage);
@@ -102,11 +103,11 @@ void PageView::printDialog() {
   case QAbstractPrintDialog::Selection:
     switch (currentSection) {
     case Front:
-      frontScene->print(&printer, &p);
+      bank->frontScene()->print(&printer, &p);
       progress.setValue(progress.maximum());
       break;
     case TOC:
-      tocScene->print(&printer, &p);
+      bank->tocScene()->print(&printer, &p);
       progress.setValue(progress.maximum());
       gotoTOC(oldPage);
       break;
@@ -152,11 +153,11 @@ void PageView::printDialog() {
   case QAbstractPrintDialog::CurrentPage:
     switch (currentSection) {
     case Front:
-      frontScene->print(&printer, &p);
+      bank->frontScene()->print(&printer, &p);
       break;
     case TOC:
-      tocScene->print(&printer, &p,
-		      currentSheet, currentSheet);
+      bank->tocScene()->print(&printer, &p,
+			      currentSheet, currentSheet);
       break;
     case Entries:
       entryScene->print(&printer, &p,
