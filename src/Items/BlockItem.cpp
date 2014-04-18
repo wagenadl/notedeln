@@ -29,6 +29,7 @@
 
 BlockItem::BlockItem(BlockData *data, Item *parent):
   Item(data, parent) {
+  bs = 0;
 }
 
 BlockItem::~BlockItem() {
@@ -78,3 +79,10 @@ void BlockItem::resetPosition() {
     setPos(pos().x(), pos().y() + y0 - r.top());
 }
 
+void BlockItem::setBaseScene(BaseScene *b) {
+  bs = b;
+}
+
+BaseScene *BlockItem::baseScene() {
+  return bs;
+}

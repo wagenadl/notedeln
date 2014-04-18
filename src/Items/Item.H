@@ -39,7 +39,6 @@ public:
   bool beingDeleted() const { return d==0; }
   DATAACCESS(Data);
   Item *parent() const;
-  class EntryScene *pageScene() const;
   class Mode const *mode() const;
   virtual QRectF netBounds() const;
   virtual bool excludeFromNet() const;

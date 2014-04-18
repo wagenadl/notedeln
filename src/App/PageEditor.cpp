@@ -23,8 +23,18 @@
 #include "Notebook.H"
 #include "Navbar.H"
 
+#include <QDebug>
+#include <QKeyEvent>
+
 PageEditor::PageEditor(Notebook *nb): book(nb) {
   setContentsMargins(0, 0, 0, 0);
+
+  QString ttl = nb->bookData()->title();
+  QString appname = "eln";
+#ifndef QT_NO_DEBUG
+  appname += " (debug vsn)";
+#endif
+  setWindowTitle(ttl.replace(QRegExp("\\s\\s*"), " ") + " - " + appname);
 
   view = new PageView(nb, this);
   toolview = new ToolView(nb->mode(), view);
@@ -56,4 +66,26 @@ PageEditor::~PageEditor() {
 void PageEditor::resizeEvent(QResizeEvent *e) {
   QMainWindow::resizeEvent(e);
   toolview->setGeometry(0, 0, width(), height());
+}
+
+void PageEditor::keyPressEvent(QKeyEvent *e) {
+  bool take = false;
+  switch (e->key()) {
+  case Qt::Key_F12:
+    {
+      PageEditor *editor = new PageEditor(book);
+      editor->setAttribute(Qt::WA_DeleteOnClose, true);
+      editor->resize(size());
+      editor->show();
+      take = true;
+    }
+    break;
+  default:
+    break;
+  }
+
+  if (take)
+    e->accept();
+  else
+    QMainWindow::keyPressEvent(e);
 }

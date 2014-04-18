@@ -706,8 +706,11 @@ bool TextItem::tryExplicitLink() {
 }
 
 bool TextItem::tryFootnote() {
-  ASSERT(pageScene());
-  int i = pageScene()->findBlock(this);
+  BlockItem *anc = ancestralBlock();
+  ASSERT(anc);
+  EntryScene *bs = dynamic_cast<EntryScene*>(anc->baseScene());
+  ASSERT(bs);
+  int i = bs->findBlock(anc);
   ASSERT(i>=0);
   
   QTextCursor c = textCursor();
@@ -745,7 +748,7 @@ bool TextItem::tryFootnote() {
     addMarkup(MarkupData::FootnoteRef, start, end);
     MarkupData *md = markupAt(start, end, MarkupData::FootnoteRef);
     ASSERT(md);
-    pageScene()->newFootnote(i, markedText(md));
+    bs->newFootnote(i, markedText(md));
     return true;
   } else {
     return false;

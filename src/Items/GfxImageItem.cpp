@@ -213,7 +213,6 @@ void GfxImageItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
       take = true;
       break;
     case Mode::Annotate: case Mode::Type: {
-      qDebug() << "Image Annotate " << data()->isRecent() << pageScene();
       GfxNoteItem *gni = createNote(e->pos(), !isWritable());
       gni->setScale(1./data()->scale());
       take = true;
@@ -234,14 +233,9 @@ void GfxImageItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
     }
   } else { // not writable (i.e., not recent)
     if (mode()->mode()==Mode::Annotate) {
-      if (pageScene()) {
-	qDebug() << "GfxImageItem: Not creating note!";
-	take = false; // let somebody else deal
-      } else {  
-        GfxNoteItem *gni = createNote(e->pos(), true);
-        gni->setScale(1./data()->scale());
-	take = true;
-      }
+      GfxNoteItem *gni = createNote(e->pos(), true);
+      gni->setScale(1./data()->scale());
+      take = true;
     }
   }
   

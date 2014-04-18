@@ -81,10 +81,6 @@ void Item::makeWritable() {
     i->makeWritable();
 }
 
-EntryScene *Item::pageScene() const {
-  return dynamic_cast<EntryScene*>(scene());
-}
-
 Mode const *Item::mode() const {
   ASSERT(d);
   Notebook *nb = d->book();

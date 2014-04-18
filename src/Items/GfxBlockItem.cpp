@@ -204,12 +204,8 @@ void GfxBlockItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
     }
   } else {
     if (mod==Mode::Annotate) {
-      if (!data()->isRecent() && pageScene()) {
-	take = false;
-      } else {
-	createNote(e->pos(), true);
-	take = true;
-      }
+      createNote(e->pos(), true);
+      take = true;
     }
   }    
 

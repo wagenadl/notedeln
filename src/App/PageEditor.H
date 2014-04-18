@@ -29,6 +29,7 @@ public:
   virtual ~PageEditor();
 protected:
   void resizeEvent(QResizeEvent *);
+  void keyPressEvent(QKeyEvent *);
 private:
   class Notebook *book;
   class PageView *view;

@@ -222,7 +222,7 @@ void PageView::keyPressEvent(QKeyEvent *e) {
 	qDebug() << "  block=" << block
 		 << " empty?" << block->allChildren().isEmpty();
 	if (block && block->allChildren().isEmpty())
-	  block->pageScene()->notifyChildless(block);
+	  entryScene->notifyChildless(block);
 	else
 	  deletedStack->grabIfRestorable(item);
 	qDebug() << "  Item grabbed or notification sent";

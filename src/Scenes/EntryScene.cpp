@@ -118,6 +118,7 @@ BlockItem *EntryScene::tryMakeGfxBlock(BlockData *bd) {
   if (!gbd)
     return 0;
   GfxBlockItem *gbi = new GfxBlockItem(gbd);
+  gbi->setBaseScene(this);
   if (gbd->height()==0)
     gbi->sizeToFit();
   return gbi;
@@ -128,6 +129,7 @@ BlockItem *EntryScene::tryMakeTableBlock(BlockData *bd) {
   if (!tbd)
     return 0;
   TableBlockItem *tbi = new TableBlockItem(tbd);
+  tbi->setBaseScene(this);
   if (tbd->height()==0)
     tbi->sizeToFit();
   connect(tbi, SIGNAL(futileMovement()), futileMovementMapper, SLOT(map()));
@@ -139,6 +141,7 @@ BlockItem *EntryScene::tryMakeTextBlock(BlockData *bd) {
   if (!tbd)
     return 0;
   TextBlockItem *tbi = new TextBlockItem(tbd);
+  tbi->setBaseScene(this);
   if (tbd->height()==0)
     tbi->sizeToFit();
   connect(tbi, SIGNAL(futileMovement()), futileMovementMapper, SLOT(map()));
@@ -357,6 +360,7 @@ GfxBlockItem *EntryScene::newGfxBlock(int iAbove) {
   else
     data_->addBlock(gbd);
   GfxBlockItem *gbi = new GfxBlockItem(gbd);
+  gbi->setBaseScene(this);
   gbi->sizeToFit();
   gbi->makeWritable();
   FootnoteGroupItem *fng =  new FootnoteGroupItem(gbd, this);
@@ -421,6 +425,7 @@ TableBlockItem *EntryScene::injectTableBlock(TableBlockData *tbd, int iblock) {
     : 0;
   data_->insertBlockBefore(tbd, tbd_next);
   TableBlockItem *tbi = new TableBlockItem(tbd);
+  tbi->setBaseScene(this);
   tbi->sizeToFit();
   tbi->makeWritable();
 
@@ -442,6 +447,7 @@ TextBlockItem *EntryScene::injectTextBlock(TextBlockData *tbd, int iblock) {
     : 0;
   data_->insertBlockBefore(tbd, tbd_next);
   TextBlockItem *tbi = new TextBlockItem(tbd);
+  tbi->setBaseScene(this);
   tbi->sizeToFit();
   tbi->makeWritable();
 

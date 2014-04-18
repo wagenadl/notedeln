@@ -85,13 +85,6 @@ int main(int argc, char **argv) {
   
   PageEditor *editor = new PageEditor(nb);
   editor->setAttribute(Qt::WA_DeleteOnClose, true);
-  QString ttl = nb->bookData()->title();
-  QString appname = "eln";
-#ifndef QT_NO_DEBUG
-  appname += " (debug vsn)";
-#endif
-  editor->setWindowTitle(ttl.replace(QRegExp("\\s\\s*"), " ")
-			 + " - " + appname);
   QSizeF size = editor->sizeHint();
   double dpiX = app.desktop()->logicalDpiX();
   double dpiY = app.desktop()->logicalDpiY();
