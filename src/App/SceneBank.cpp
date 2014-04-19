@@ -7,6 +7,7 @@
 #include "TOCScene.H"
 #include "EntryScene.H"
 #include "EntryFile.H"
+#include "Assert.H"
 
 SceneBank::SceneBank(Notebook *nb): nb(nb) {
   frontScene_ = new FrontScene(nb, this);
@@ -28,7 +29,7 @@ FrontScene *SceneBank::frontScene() {
 
 CachedPointer<EntryScene> SceneBank::entryScene(int startPage) {
   if (entryScenes.contains(startPage)) {
-    CachedPointer<EntryScene> ptr = entryScenes[startPage];
+    CachedPointer<EntryScene> ptr(entryScenes[startPage]);
     if (ptr)
       return ptr;
   }

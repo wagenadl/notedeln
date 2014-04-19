@@ -19,6 +19,7 @@
 #include "PageView.H"
 #include "App.H"
 #include "EntryScene.H"
+#include "EntryData.H"
 #include "Notebook.H"
 #include "SceneBank.H"
 #include "TOCScene.H"
