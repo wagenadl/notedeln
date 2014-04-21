@@ -39,6 +39,8 @@ public:
   QString pageName() const;
   int pageNumber() const;
 public slots:
+  void pageNumberClick(int, Qt::KeyboardModifiers);
+  PageView *newView(QString); // opens new view on a named entry page
   void gotoEntryPage(QString);
   void gotoEntryPage(int pgno, int dir=0);
   void gotoTOC(int pgno=1);
@@ -67,6 +69,7 @@ private:
   void printDialog();
   void createContinuationEntry();
   void focusEntry();
+  void markEventView();
 private slots:
   bool gotoSheet(int n);
   void notebookReloaded(QMap<int,int>);

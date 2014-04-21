@@ -65,7 +65,8 @@ void TOCScene::rebuild() {
     TOCItem *i = new TOCItem(e, this);
     items.append(i);
     connect(i, SIGNAL(vboxChanged()), SLOT(itemChanged()));
-    connect(i, SIGNAL(clicked(int)), SIGNAL(pageNumberClicked(int)));
+    connect(i, SIGNAL(clicked(int, Qt::KeyboardModifiers)),
+	    SIGNAL(pageNumberClicked(int, Qt::KeyboardModifiers)));
 
     QGraphicsLineItem *l
       = new QGraphicsLineItem(0, 0, style().real("page-width"), 0);

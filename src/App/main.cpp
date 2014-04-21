@@ -86,7 +86,7 @@ int main(int argc, char **argv) {
 
   SceneBank *bank = new SceneBank(nb);
   PageEditor *editor = new PageEditor(bank);
-  editor->setAttribute(Qt::WA_DeleteOnClose, true);
+
   QSizeF size = editor->sizeHint();
   double dpiX = app.desktop()->logicalDpiX();
   double dpiY = app.desktop()->logicalDpiY();

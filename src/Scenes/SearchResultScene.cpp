@@ -55,8 +55,8 @@ void SearchResultScene::populate() {
       lastLine->setParentItem(headers.last());
       oldPage = r.startPageOfEntry;
       //connect(i, SIGNAL(vboxChanged()), SLOT(itemChanged()));
-      connect(headers.last(), SIGNAL(clicked(int)),
-              SLOT(pageNumberClick(int)));
+      connect(headers.last(), SIGNAL(clicked(int, Qt::KeyboardModifiers)),
+              SLOT(pageNumberClick(int, Qt::KeyboardModifiers)));
       if (y > y0 && y + headers.last()->childrenBoundingRect().height() > y1) {
         y = y0;
         sheet += 1;
@@ -92,9 +92,9 @@ QString SearchResultScene::pgNoToString(int n) const {
   return Roman(n).lc();
 }
   
-void SearchResultScene::pageNumberClick(int pg) {
+void SearchResultScene::pageNumberClick(int pg, Qt::KeyboardModifiers m) {
   qDebug() << "pagenumberclick" << pg << phrase;
-  emit pageNumberClicked(pg, phrase);
+  emit pageNumberClicked(pg, m, phrase);
 }
 
   

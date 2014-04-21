@@ -50,7 +50,7 @@ protected:
   bool hasPreview() const;
   class Resource *resource() const;
   void activate(QGraphicsSceneMouseEvent *);
-  void openPage();
+  void openPage(bool newView=false);
   QPainterPath const &boundingPath() const { return bounds; }
 private:
   MarkupData *md;

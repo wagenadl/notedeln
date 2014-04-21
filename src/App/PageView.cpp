@@ -17,6 +17,7 @@
 // PageView.C
 
 #include "PageView.H"
+#include "PageEditor.H"
 #include "App.H"
 #include "EntryScene.H"
 #include "EntryData.H"
@@ -47,8 +48,9 @@ PageView::PageView(SceneBank *bank, QWidget *parent):
   searchDialog = new SearchDialog(this);
   deletedStack = new DeletedStack(this);
 
-  connect(bank->tocScene(), SIGNAL(pageNumberClicked(int)),
-          SLOT(gotoEntryPage(int)));
+  connect(bank->tocScene(),
+	  SIGNAL(pageNumberClicked(int, Qt::KeyboardModifiers)),
+          SLOT(pageNumberClick(int, Qt::KeyboardModifiers)));
 
   setFrameStyle(Raised | StyledPanel);
   setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -109,10 +111,25 @@ bool PageView::gotoSheet(int n) {
 }
 
 void PageView::mousePressEvent(QMouseEvent *e) {
+  markEventView();
   QGraphicsView::mousePressEvent(e);
 }
+
+void PageView::markEventView() {
+  switch (currentSection) {
+  case Front:
+    break;
+  case TOC:
+    bank->tocScene()->sheet(currentSheet)->setEventView(this);
+    break;
+  case Entries:
+    entryScene->sheet(currentSheet)->setEventView(this);
+    break;
+  }
+}  
   
 void PageView::keyPressEvent(QKeyEvent *e) {
+  markEventView();
   bool take = true;
   switch (e->key()) {
   case Qt::Key_F1:
@@ -271,6 +288,7 @@ void PageView::keyPressEvent(QKeyEvent *e) {
 }
 
 void PageView::keyReleaseEvent(QKeyEvent *e) {
+  markEventView();
   switch (e->key()) {
   case Qt::Key_Alt:
     mode()->temporaryRelease(Mode::MoveResize);
@@ -281,6 +299,22 @@ void PageView::keyReleaseEvent(QKeyEvent *e) {
     
   QGraphicsView::keyReleaseEvent(e);
 }
+
+void PageView::pageNumberClick(int n, Qt::KeyboardModifiers m) {
+  if (m & Qt::ShiftModifier)
+    newView(QString::number(n));
+  else
+    gotoEntryPage(n);
+}
+
+PageView *PageView::newView(QString s) {
+  PageEditor *editor = new PageEditor(bank);
+  if (parentWidget())
+    editor->resize(parentWidget()->size());
+  editor->show();
+  editor->gotoEntryPage(s);
+  return editor->pageView();
+}  
 
 void PageView::gotoEntryPage(QString s) {
   if (s.isEmpty()) {
@@ -574,8 +608,9 @@ void PageView::notebookReloaded(QMap<int, int>) {
   setScene(0); // hopefully that avoids crazy UI crashes
   entryScene.clear();
   
-  connect(bank->tocScene(), SIGNAL(pageNumberClicked(int)),
-          SLOT(gotoEntryPage(int)));
+  connect(bank->tocScene(),
+	  SIGNAL(pageNumberClicked(int, Qt::KeyboardModifiers)),
+          SLOT(pageNumberClick(int, Qt::KeyboardModifiers)));
 
   switch (currentSection) {
   case Front:

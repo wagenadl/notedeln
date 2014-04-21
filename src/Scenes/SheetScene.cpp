@@ -12,6 +12,7 @@
 #include <QDebug>
 #include <QPainter>
 #include <QTextDocument>
+#include <QGraphicsView>
 
 SheetScene::SheetScene(class Style const &s, BaseScene *parent):
   QGraphicsScene(parent), base(parent), style_(s) {
@@ -250,3 +251,16 @@ void SheetScene::drawBackground(QPainter *p, const QRectF &r) {
   p->drawRect(sceneRect());
 }
 
+
+void SheetScene::setEventView(QGraphicsView *pv) {
+  eventView_ = pv;
+}
+
+QGraphicsView *SheetScene::eventView() const {
+  QGraphicsView *ev = eventView_;
+  if (ev)
+    return ev;
+
+  QList<QGraphicsView *> vv = views();
+  return vv.isEmpty() ? 0 : vv[0];
+}

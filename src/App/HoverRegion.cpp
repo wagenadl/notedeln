@@ -22,6 +22,7 @@
 #include "ResManager.H"
 #include "ResourceMagic.H"
 #include "Assert.H"
+#include "SheetScene.H"
 #include "PageView.H"
 #include "TextData.H"
 
@@ -90,6 +91,7 @@ void HoverRegion::mousePressEvent(QGraphicsSceneMouseEvent *e) {
 
 void HoverRegion::activate(QGraphicsSceneMouseEvent *e) {
   e->accept();
+  qDebug() << "HoverRegion::activate event from " << e->widget();
   switch (md->style()) {
   case MarkupData::Link:
     if (e->modifiers() & Qt::ShiftModifier)
@@ -205,7 +207,7 @@ void HoverRegion::openLink() {
   }
   qDebug() << "HoverRegion: openURL" << r->sourceURL();
   if (r->sourceURL().scheme() == "page") {
-    openPage();
+    openPage(true);
   } else {
     QStringList args;
     args << r->sourceURL().toString();
@@ -215,28 +217,21 @@ void HoverRegion::openLink() {
   }
 }
 
-void HoverRegion::openPage() {
+void HoverRegion::openPage(bool newView) {
   Resource *r = resource();
   ASSERT(r);
   QString tag = r->tag();
-  ushort last = tag[tag.size()-1].unicode();
 
   ASSERT(ti);
-  ASSERT(ti->scene());
-  QList<QGraphicsView *> views = ti->scene()->views();
-  ASSERT(!views.isEmpty());
-  PageView *pv = dynamic_cast<PageView *>(views[0]);
+  SheetScene *s = dynamic_cast<SheetScene *>(ti->scene());
+  ASSERT(s);
+  PageView *pv = dynamic_cast<PageView *>(s->eventView());
   ASSERT(pv);
 
-  if (last>='a' && last<='z') {
-    int pgno = tag.left(tag.size()-1).toInt();
-    pv->gotoEntryPage(pgno);
-    for (int n=0; n<=last-'a'; n++)
-      pv->nextPage();
-  } else {
-    int pgno = tag.toInt();
-    pv->gotoEntryPage(pgno);
-  }
+  if (newView)
+    pv->newView(tag);
+  else
+    pv->gotoEntryPage(tag);
 }
 
 void HoverRegion::openArchive() {

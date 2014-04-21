@@ -18,9 +18,9 @@ public:
   virtual QString title() const;
 public slots:
   //  void gotoSheet(int);
-  void pageNumberClick(int);
+  void pageNumberClick(int, Qt::KeyboardModifiers);
 signals:
-  void pageNumberClicked(int, QString);
+  void pageNumberClicked(int, Qt::KeyboardModifiers, QString);
 protected:
   virtual QString pgNoToString(int) const;
 private:

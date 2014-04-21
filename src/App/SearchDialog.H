@@ -16,7 +16,7 @@ public:
 public slots:
   void newSearch();
 private slots:
-  void gotoPage(int n, QString phrase);
+  void gotoPage(int n, Qt::KeyboardModifiers, QString phrase);
 private:
   QPointer<PageView> pgView;
   QString lastPhrase;

@@ -19,6 +19,7 @@
 #include "TOCItem.H"
 #include "TOCEntry.H"
 #include "TOCScene.H"
+#include <QGraphicsSceneMouseEvent>
 #include <QDebug>
 #include <QDateTime>
 
@@ -80,7 +81,7 @@ void TOCItem::entryChanged() {
 
 void TOCItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
   qDebug() << "TOCItem::mousePress" << e << data()->startPage();
-  emit clicked(data()->startPage());
+  emit clicked(data()->startPage(), e->modifiers());
 }
 
 void TOCItem::paint(QPainter*, const QStyleOptionGraphicsItem*, QWidget*) {

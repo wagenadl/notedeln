@@ -55,8 +55,10 @@ void SearchDialog::newSearch() {
                               res,
                               pgView->notebook()->bookData());
     scene->populate();
-    connect(scene, SIGNAL(pageNumberClicked(int, QString)),
-            this, SLOT(gotoPage(int, QString)));
+    connect(scene,
+	    SIGNAL(pageNumberClicked(int, Qt::KeyboardModifiers, QString)),
+            this,
+	    SLOT(gotoPage(int, Qt::KeyboardModifiers, QString)));
     SearchView *view = new SearchView(scene);
     view->setAttribute(Qt::WA_DeleteOnClose, true);
     connect(parent(), SIGNAL(destroyed()), view, SLOT(close()));
@@ -69,15 +71,20 @@ void SearchDialog::newSearch() {
   }
 }
 
-void SearchDialog::gotoPage(int n, QString phrase) {
+void SearchDialog::gotoPage(int n, Qt::KeyboardModifiers m, QString phrase) {
   if (!pgView) {
     qDebug() << "SearchDialog: Pageview disappeared on me.";
     return;
   }
-  pgView->gotoEntryPage(n);
-  pgView->window()->raise();
+  PageView *view = pgView;
+  if (m & Qt::ShiftModifier)
+    view = pgView->newView(QString::number(n));
+  else
+    pgView->gotoEntryPage(n);
+  
+  view->window()->raise();
   qDebug() << "gotoPage" << n << phrase;
-  SheetScene *bs = dynamic_cast<SheetScene *>(pgView->scene());
+  SheetScene *bs = dynamic_cast<SheetScene *>(view->scene());
   ASSERT(bs);
   bs->setOverlay(new FindOverlay(bs, phrase));
 }

@@ -30,6 +30,7 @@
 PageEditor::PageEditor(SceneBank *bank): bank(bank) {
   Notebook *nb = bank->book();
   setContentsMargins(0, 0, 0, 0);
+  setAttribute(Qt::WA_DeleteOnClose, true);
 
   QString ttl = nb->bookData()->title();
   QString appname = "eln";
@@ -76,7 +77,6 @@ void PageEditor::keyPressEvent(QKeyEvent *e) {
   case Qt::Key_F12:
     {
       PageEditor *editor = new PageEditor(bank);
-      editor->setAttribute(Qt::WA_DeleteOnClose, true);
       editor->resize(size());
       switch (view->section()) {
       case PageView::Front:

@@ -34,7 +34,7 @@ public:
   void paint(QPainter*, const QStyleOptionGraphicsItem*, QWidget*);
 signals:
   void vboxChanged();
-  void clicked(int); // page number
+  void clicked(int, Qt::KeyboardModifiers); // page number
 public slots:
   void entryChanged();
 protected:

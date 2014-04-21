@@ -27,6 +27,9 @@ public:
   void setOverlay(QGraphicsObject *);
   void repositionTitle();
   QTextDocument *fancyTitleDocument();
+  QGraphicsView *eventView() const;
+  /* This is the view from which the current mouse or key event comes */
+  void setEventView(QGraphicsView *);
  protected:
   virtual void mousePressEvent(QGraphicsSceneMouseEvent *);
   virtual void keyPressEvent(QKeyEvent *);
@@ -50,6 +53,7 @@ private:
   //  class QGraphicsRectItem *bgItem;
   bool contInMargin;
   QPointer<QGraphicsObject> overlay;
+  QPointer<QGraphicsView> eventView_;
 };
 
 #endif
