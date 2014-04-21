@@ -32,6 +32,8 @@ public:
   DATAACCESS(BlockData);
   virtual BlockItem const *ancestralBlock() const;
   virtual BlockItem *ancestralBlock();
+  void setBaseScene(class BaseScene *);
+  BaseScene *baseScene();
 signals:
   void heightChanged();
 public slots:
@@ -45,6 +47,8 @@ public slots:
      box is at the position specified in the Data.
    */
   void refTextChange(QString olds, QString news);
+private:
+  BaseScene *bs;
 };
 
 

@@ -17,13 +17,12 @@ public:
   virtual void populate();
   virtual QString title() const;
 public slots:
-  void gotoSheet(int);
+  //  void gotoSheet(int);
   void pageNumberClick(int);
 signals:
   void pageNumberClicked(int, QString);
 protected:
   virtual QString pgNoToString(int) const;
-  virtual void makeContdItems();
 private:
   Style const &style() const;
 private:

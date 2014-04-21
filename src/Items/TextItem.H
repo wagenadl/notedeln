@@ -113,7 +113,7 @@ public:
   virtual QRectF boundingRect() const;
   virtual void paint(QPainter*, const QStyleOptionGraphicsItem*, QWidget*);
 protected:
-  void finalizeConstructor();
+  void finalizeConstructor(int sheetOnly=-1);
 protected:
   bool mayMark;
   bool mayNote;
@@ -124,6 +124,8 @@ protected:
   QPointF cursorPos;
   MarkupData::Style lateMarkType;
   int lateMarkStart;
+public:
+  TextItemText *titxt() { return text; } // debugging
 };
 
 #endif

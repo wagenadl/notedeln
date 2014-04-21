@@ -20,56 +20,51 @@
 
 #define BASESCENE_H
 
+#include <QDate>
 #include <QGraphicsScene>
 #include <QPointer>
-#include "SceneOverlay.H"
 
-class BaseScene: public QGraphicsScene  {
+class BaseScene: public QObject  {
   Q_OBJECT;
 public:
   BaseScene(class Data *data, QObject *parent=0);
-  virtual void populate();
   virtual ~BaseScene();
   int sheetCount() const;
   class Style const &style() const;
   virtual bool print(class QPrinter *, class QPainter *,
 		     int firstSheet=0, int lastSheet=100000000);
   // returns true if anything printed
-  int currentSheet() const;
-  virtual QGraphicsItem *itemAt(const QPointF &position) const;
+  virtual QGraphicsItem *itemAt(const QPointF &position, int sheet) const;
   virtual int startPage() const;
   virtual QString title() const;
+  virtual QDate date() const;
+  virtual class TitleData *fancyTitle() const;
+  QRectF sceneRect() const;
   virtual QString pgNoToString(int) const;
-  void setOverlay(SceneOverlay *ovr);
+  virtual void populate();
+  void addItem(QGraphicsItem *it, int sheet);
+  class SheetScene *sheet(int n, bool autoextend=false);
 public slots:
-  bool nextSheet(); // true if moved (i.e., if there exists a next sheet)
-  bool previousSheet(); // true if moved (i.e., if there exists a prev. sheet)
-  virtual void gotoSheet(int i);
-  void focusTitle();
+  void focusTitle(int sheet);
 protected:
-  bool inMargin(QPointF); // true if point is in any margin
-  virtual void makeBackground();
-  virtual void makeTitleItem();
-  virtual void makePgNoItem();
-  virtual void makeNofNItem();
-  virtual void makeContdItems();
-  virtual void positionPgNoItem();
-  virtual void positionTitleItem();
-protected:
-  QGraphicsItem *titleItem;
-  QGraphicsTextItem *pgNoItem;
-  QGraphicsTextItem *contdItem; // from prev page
-  QGraphicsTextItem *contItem; // to next page
-  QGraphicsTextItem *nOfNItem;
-  QGraphicsLineItem *leftMarginItem;
-  QGraphicsLineItem *topMarginItem;
-  QGraphicsRectItem *bgItem;
+  bool inMargin(QPointF scenePos) const; // true if point is in any margin
+  bool inLeftMargin(QPointF scenePos) const;
+  bool inRightMargin(QPointF scenePos) const;
+  bool inTopMargin(QPointF scenePos) const;
+  bool inBottomMargin(QPointF scenePos) const;
+  bool inSideMargin(QPointF scenePos) const;
+  void setSheetCount(int n);
+  void setContInMargin(bool x=true);
+  int findSheet(class SheetScene *); // -1 if not found
+public: // for SheetScene only
+  virtual bool mousePressEvent(QGraphicsSceneMouseEvent *e, SheetScene *s);
+  virtual bool keyPressEvent(QKeyEvent *e, SheetScene *s);
 protected:
   int nSheets; // number of sheets
-  int iSheet; // current sheet (counting from 0)
   Data *data;
   Style const *style_;
-  QPointer<SceneOverlay> overlay;
+  QList<class SheetScene *> sheets;
+  bool contInMargin;
 };
 
 #endif

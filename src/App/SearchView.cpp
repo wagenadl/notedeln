@@ -6,24 +6,28 @@
 #include <QWheelEvent>
 #include <QPrinter>
 #include <QPrintDialog>
+#include <QDebug>
+#include "SheetScene.H"
 
 SearchView::SearchView(SearchResultScene *scene, QWidget *parent):
-  QGraphicsView(parent), scene(scene) {
+  QGraphicsView(parent), srs(scene) {
   setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
   setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+  setFrameStyle(Raised | StyledPanel);
+  setDragMode(NoDrag);
   wheelDeltaAccum = 0;
   wheelDeltaStepSize = 120; // should get from notebook
-  setScene(scene);
+  gotoSheet(0);
 }
 
 SearchView::~SearchView() {
-  scene->deleteLater();
+  srs->deleteLater();
 }
 
 void SearchView::resizeEvent(QResizeEvent *e) {
   QGraphicsView::resizeEvent(e);
-  QRectF sr = scene->sceneRect();
-  sr.adjust(2, 2, -2, -2); // make sure no borders show by default
+  QRectF sr = scene()->sceneRect();
+  sr.adjust(1, 1, -2, -2); // make sure no borders show by default
   fitInView(sr, Qt::KeepAspectRatio);
 }
 
@@ -44,14 +48,14 @@ void SearchView::keyPressEvent(QKeyEvent *e) {
   bool take = true;
   switch (e->key()) {
   case Qt::Key_PageUp: case Qt::Key_Up: case Qt::Key_Backspace:
-    scene->previousSheet();
+    gotoSheet(currentSheet-1);
     break;
   case Qt::Key_PageDown: case Qt::Key_Down: case Qt::Key_Space:
-    scene->nextSheet();
+    gotoSheet(currentSheet+1);
     break;
   case Qt::Key_P:
     if (e->modifiers() & Qt::ControlModifier)
-      printme(scene);
+      printme(srs);
   default:
     take = false;
     break;
@@ -66,10 +70,22 @@ void SearchView::wheelEvent(QWheelEvent *e) {
   wheelDeltaAccum += e->delta();
   while (wheelDeltaAccum>=wheelDeltaStepSize) {
     wheelDeltaAccum -= wheelDeltaStepSize;
-    scene->previousSheet();
+    gotoSheet(currentSheet-1);
   }
   while (wheelDeltaAccum<=-wheelDeltaStepSize) {
     wheelDeltaAccum += wheelDeltaStepSize;
-    scene->nextSheet();
+    gotoSheet(currentSheet+1);
   }
+}
+
+void SearchView::gotoSheet(int n) {
+  if (n<0)
+    return;
+  if (n>=srs->sheetCount())
+    return;
+  setScene(srs->sheet(n));
+  currentSheet = n;
+  QRectF sr = scene()->sceneRect();
+  sr.adjust(1, 1, -2, -2); // make sure no borders show by default
+  fitInView(sr, Qt::KeepAspectRatio);
 }

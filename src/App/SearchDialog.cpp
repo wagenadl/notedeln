@@ -9,6 +9,7 @@
 #include "BookData.H"
 #include "FindOverlay.H"
 #include "Assert.H"
+#include "SheetScene.H"
 
 #include <QInputDialog>
 #include <QProgressDialog>
@@ -76,7 +77,7 @@ void SearchDialog::gotoPage(int n, QString phrase) {
   pgView->gotoEntryPage(n);
   pgView->window()->raise();
   qDebug() << "gotoPage" << n << phrase;
-  BaseScene *bs = dynamic_cast<BaseScene *>(pgView->scene());
+  SheetScene *bs = dynamic_cast<SheetScene *>(pgView->scene());
   ASSERT(bs);
   bs->setOverlay(new FindOverlay(bs, phrase));
 }

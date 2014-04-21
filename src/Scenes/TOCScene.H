@@ -28,16 +28,14 @@ public:
   TOCScene(class TOC *data, QObject *parent=0);
   virtual void populate();
   virtual ~TOCScene();
+  virtual QString title() const;
+  virtual QString pgNoToString(int) const;
 public slots:
   void tocChanged();
   void itemChanged();
-  virtual void gotoSheet(int);
+  //  virtual void gotoSheet(int);
 signals:
   void pageNumberClicked(int);
-protected:
-  virtual QString title() const;
-  virtual QString pgNoToString(int) const;
-  virtual void makeContdItems();
 private:
   void rebuild();
   void relayout();
@@ -45,7 +43,6 @@ private:
   TOC *data;
   QList<class TOCItem *> items;
   QList<class QGraphicsLineItem *> lines;
-  QList<int> sheetNos;
 };
 
 #endif

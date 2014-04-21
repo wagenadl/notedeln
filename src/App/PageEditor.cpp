@@ -18,12 +18,98 @@
 
 #include "PageEditor.H"
 #include "PageView.H"
+#include "ToolView.H"
+#include "Toolbars.H"
+#include "SceneBank.H"
+#include "Notebook.H"
+#include "Navbar.H"
 
-PageEditor::PageEditor(Notebook *nb): book(nb) {
-  view = new PageView(nb, this);
+#include <QDebug>
+#include <QKeyEvent>
+
+PageEditor::PageEditor(SceneBank *bank): bank(bank) {
+  Notebook *nb = bank->book();
+  setContentsMargins(0, 0, 0, 0);
+
+  QString ttl = nb->bookData()->title();
+  QString appname = "eln";
+#ifndef QT_NO_DEBUG
+  appname += " (debug vsn)";
+#endif
+  setWindowTitle(ttl.replace(QRegExp("\\s\\s*"), " ") + " - " + appname);
+
+  view = new PageView(bank, this);
+  toolview = new ToolView(nb->mode(), view);
+
+  connect(toolview->toolbars()->navbar(), SIGNAL(goTOC()),
+	  view, SLOT(gotoTOC()));
+  connect(toolview->toolbars()->navbar(), SIGNAL(goFind()),
+	  view, SLOT(openFindDialog()));
+  connect(toolview->toolbars()->navbar(), SIGNAL(goEnd()),
+	  view, SLOT(lastPage()));
+  connect(toolview->toolbars()->navbar(), SIGNAL(goRelative(int)),
+	  view, SLOT(goRelative(int)));
+
+  connect(view, SIGNAL(onEntryPage(int, int)),
+	  toolview->toolbars(), SLOT(showTools()));
+  connect(view, SIGNAL(onFrontMatter(int)),
+	  toolview->toolbars(), SLOT(hideTools()));
+  connect(view, SIGNAL(scaled(double)),
+	  toolview, SLOT(setScale(double)));
+   
+  toolview->setGeometry(0, 0, width(), height());
   setCentralWidget(view);
   view->gotoFront();  
 }
 
 PageEditor::~PageEditor() {
+}
+
+void PageEditor::resizeEvent(QResizeEvent *e) {
+  QMainWindow::resizeEvent(e);
+  toolview->setGeometry(0, 0, width(), height());
+}
+
+void PageEditor::keyPressEvent(QKeyEvent *e) {
+  bool take = false;
+  switch (e->key()) {
+  case Qt::Key_F12:
+    {
+      PageEditor *editor = new PageEditor(bank);
+      editor->setAttribute(Qt::WA_DeleteOnClose, true);
+      editor->resize(size());
+      switch (view->section()) {
+      case PageView::Front:
+	break;
+      case PageView::TOC:
+	editor->gotoTOC(view->pageNumber());
+	break;
+      case PageView::Entries:
+	editor->gotoEntryPage(view->pageName());
+	break;
+      }
+      editor->show();
+      take = true;
+    }
+    break;
+  default:
+    break;
+  }
+
+  if (take)
+    e->accept();
+  else
+    QMainWindow::keyPressEvent(e);
+}
+
+void PageEditor::gotoEntryPage(QString s) {
+  view->gotoEntryPage(s);
+}
+
+void PageEditor::gotoTOC(int n) {
+  view->gotoTOC(n);
+}
+
+void PageEditor::gotoFront() {
+  view->gotoFront();
 }

@@ -19,6 +19,7 @@
 #include "TOCScene.H"
 #include "TOC.H"
 #include "Roman.H"
+#include "SheetScene.H"
 #include <QGraphicsLineItem>
 #include "TOCItem.H"
 #include <QDebug>
@@ -26,6 +27,7 @@
 TOCScene::TOCScene(TOC *data, QObject *parent):
   BaseScene(data, parent),
   data(data) {
+  setContInMargin();
   connect(data, SIGNAL(mod()), this, SLOT(tocChanged()));
 }
 
@@ -58,18 +60,19 @@ void TOCScene::rebuild() {
     delete l;
   items.clear();
   lines.clear();
-  sheetNos.clear();
   
   foreach (TOCEntry *e, data->entries()) {
     TOCItem *i = new TOCItem(e, this);
     items.append(i);
     connect(i, SIGNAL(vboxChanged()), SLOT(itemChanged()));
     connect(i, SIGNAL(clicked(int)), SIGNAL(pageNumberClicked(int)));
-    
-    sheetNos.append(0);
-    lines.append(addLine(0, 0, style().real("page-width"), 0,
-			 QPen(QBrush(style().color("toc-line-color")),
-			      style().real("toc-line-width"))));
+
+    QGraphicsLineItem *l
+      = new QGraphicsLineItem(0, 0, style().real("page-width"), 0);
+    l->setParentItem(i);
+    l->setPen(QPen(QBrush(style().color("toc-line-color")),
+		   style().real("toc-line-width")));
+    lines.append(l);
   }
   relayout();
 }
@@ -77,7 +80,9 @@ void TOCScene::rebuild() {
 void TOCScene::relayout() {
   int sheet = 0;
   double y0 = style().real("margin-top");
-  double y1 = style().real("page-height") - style().real("margin-bottom");
+  double pw = style().real("page-width");
+  double ph = style().real("page-height");
+  double y1 = ph - style().real("margin-bottom");
   double y = y0;
 
   for (int k=0; k<items.size(); k++) {
@@ -85,32 +90,20 @@ void TOCScene::relayout() {
     double h = i->childrenBoundingRect().height();
     if (y+h > y1) {
       y = y0;
-      sheet ++;
+      sheet++;
     }
+    if (sheet>=sheetCount())
+      setSheetCount(sheet+1);
+    sheets[sheet]->addItem(i);
     i->setPos(QPointF(0, y));
-    sheetNos[k] = sheet;
     y += h;
-    lines[k]->setLine(0, y, style().real("page-width"), y);
+    lines[k]->setLine(0, h, pw, h);
   }
-
-  nSheets = sheet+1;
-  gotoSheet(iSheet);
-}
-
-void TOCScene::gotoSheet(int i) {
-  BaseScene::gotoSheet(i);
-  for (int n=0; n<items.size(); n++) {
-    items[n]->setVisible(sheetNos[n] == i);
-    lines[n]->setVisible(sheetNos[n] == i);
-  }
-}
-
-QString TOCScene::pgNoToString(int n) const {
-  return Roman(n).lc();
-}
   
-void TOCScene::makeContdItems() {
-  // Simply don't make them??
-  BaseScene::makeContdItems();
-  contdItem->setPos(4, style().real("margin-top"));
+  if (sheet+1<sheetCount())
+    setSheetCount(sheet+1);
+}
+
+  QString TOCScene::pgNoToString(int n) const {
+  return Roman(n).lc();
 }

@@ -17,6 +17,7 @@
 // EntryScene.C
 
 #include "EntryScene.H"
+#include "SheetScene.H"
 #include "Style.H"
 #include "BlockData.H"
 #include "BlockItem.H"
@@ -40,8 +41,9 @@
 #include "GfxNoteData.H"
 #include "TableItem.H"
 #include "TextItemText.H"
-#include "BelowItem.H"
 #include "SvgFile.H"
+#include "FocusProxyCache.H"
+
 #include <QGraphicsView>
 #include <QGraphicsTextItem>
 #include <QGraphicsLineItem>
@@ -62,16 +64,13 @@
 #include <QApplication>
 #include <QMimeData>
 
-EntryScene::EntryScene(EntryData *data, QObject *parent):
+EntryScene::EntryScene(CachedEntry data, QObject *parent):
   BaseScene(data, parent),
   data_(data) {
   writable = false;
   firstDisallowedPgNo = 0;
   
-  dateItem = 0;
   unlockedItem = 0;
-  belowItem = 0;
-  titleItemX = 0;
 
   vChangeMapper = new QSignalMapper(this);
   noteVChangeMapper = new QSignalMapper(this);
@@ -83,50 +82,15 @@ EntryScene::EntryScene(EntryData *data, QObject *parent):
 
 void EntryScene::populate() {
   BaseScene::populate();
-  makeDateItem();
   makeBlockItems();
-  positionNofNAndDateItems();
-  positionTitleItem();
   positionBlocks();
-  iSheet = -1; // cheat to force signal
-  gotoSheet(0);
 
   if (data()->isUnlocked())
     addUnlockedWarning();
 }
 
-void EntryScene::makeBackground() {
-  BaseScene::makeBackground();
-  belowItem = new BelowItem();
-  addItem(belowItem);
-  belowItem->setRect(style_->real("margin-left"),
-		     style_->real("margin-top"),
-		     style_->real("page-width")
-		     - style_->real("margin-left")
-		     - style_->real("margin-right"),
-		     style_->real("page-height")
-		     - style_->real("margin-top"));
-  belowItem->setPen(QPen(Qt::NoPen));
-  belowItem->setBrush(QBrush(Qt::NoBrush));
-}
-
-void EntryScene::makeDateItem() {
-  dateItem = addText(data_->created().toString(style().string("date-format")),
-		     style().font("date-font"));
-  dateItem->setDefaultTextColor(style().color("date-color"));
-}
-
-void EntryScene::makeTitleItem() {
-  titleItemX = new TitleItem(data_->title(), 0);
-  titleItem = titleItemX;
-  connect(titleItemX,
-	  SIGNAL(futileMovementKey(int, Qt::KeyboardModifiers)),
-	  SLOT(futileTitleMovement(int, Qt::KeyboardModifiers)));
-  addItem(titleItem);
-  titleItemX->makeWritableNoRecurse();
-
-  connect(titleItemX->document(), SIGNAL(contentsChanged()),
-	  SLOT(titleEdited()));
+QDate EntryScene::date() const {
+  return data_->created().date();
 }
 
 void EntryScene::makeBlockItems() {
@@ -154,9 +118,9 @@ BlockItem *EntryScene::tryMakeGfxBlock(BlockData *bd) {
   if (!gbd)
     return 0;
   GfxBlockItem *gbi = new GfxBlockItem(gbd);
+  gbi->setBaseScene(this);
   if (gbd->height()==0)
     gbi->sizeToFit();
-  addItem(gbi);
   return gbi;
 }
 
@@ -165,9 +129,9 @@ BlockItem *EntryScene::tryMakeTableBlock(BlockData *bd) {
   if (!tbd)
     return 0;
   TableBlockItem *tbi = new TableBlockItem(tbd);
+  tbi->setBaseScene(this);
   if (tbd->height()==0)
     tbi->sizeToFit();
-  addItem(tbi);
   connect(tbi, SIGNAL(futileMovement()), futileMovementMapper, SLOT(map()));
   return tbi;
 }
@@ -177,9 +141,9 @@ BlockItem *EntryScene::tryMakeTextBlock(BlockData *bd) {
   if (!tbd)
     return 0;
   TextBlockItem *tbi = new TextBlockItem(tbd);
+  tbi->setBaseScene(this);
   if (tbd->height()==0)
     tbi->sizeToFit();
-  addItem(tbi);
   connect(tbi, SIGNAL(futileMovement()), futileMovementMapper, SLOT(map()));
   return tbi;
 }
@@ -188,63 +152,28 @@ EntryScene::~EntryScene() {
 }
 
 void EntryScene::titleEdited() {
-  positionTitleItem();
+  foreach (SheetScene *s, sheets)
+    s->repositionTitle();
 }
 
-void EntryScene::positionTitleItem() {
-  /* This keeps the title bottom aligned */
-  if (!dateItem || !nOfNItem)
-    return; // too early in process
-
-  double dateX = dateItem->mapToScene(dateItem->boundingRect().topLeft()).x();
-  titleItemX->setTextWidth(dateX - style().real("margin-left")
-			   - style().real("title-indent") - 5);
-  //  BaseScene::positionTitleItem();
-  QPointF bl = titleItemX->netBounds().bottomLeft();
-  titleItemX->setPos(style_->real("margin-left") -
-		    bl.x() + style_->real("title-indent"),
-		    style_->real("margin-top") -
-		    style_->real("title-sep") -
-		    bl.y());
-
-  foreach (LateNoteItem *lni, titleItemX->children<LateNoteItem>())
-    lni->setScale(1); // bizarre way to get date item in right spot
-}
-
-void EntryScene::positionNofNAndDateItems() {
-  if (nSheets>1) {
-    QPointF br = nOfNItem->boundingRect().bottomRight();
-    nOfNItem->setPos(style().real("page-width") -
-		     style().real("margin-right-over") -
-		     br.x(),
-		     style().real("margin-top") -
-		     style().real("title-sep") -
-		     br.y() + 8);
-    QPointF tr = nOfNItem->sceneBoundingRect().topRight();
-    br = dateItem->boundingRect().bottomRight();
-    dateItem->setPos(tr - br + QPointF(0, 8));
-  } else {
-    QPointF br = dateItem->boundingRect().bottomRight();
-    dateItem->setPos(style().real("page-width") -
-		     style().real("margin-right-over") -
-		     br.x(),
-		     style().real("margin-top") -
-		     style().real("title-sep") -
-		     br.y());
-  }
+TitleData *EntryScene::fancyTitle() const {
+  return data()->title();
 }
 
 void EntryScene::positionBlocks() {
   int isheet = 0;
   foreach (BlockItem *bi, blockItems) {
+    isheet = bi->data()->sheet(); 
+    sheet(isheet, true)->addItem(bi);
     bi->resetPosition();
-    isheet = bi->data()->sheet();
   }
   bool mustRestack = false;
-  foreach (FootnoteGroupItem *fngi, footnoteGroups)
+  foreach (FootnoteGroupItem *fngi, footnoteGroups) {
+    sheet(fngi->data()->sheet(), true)->addItem(fngi);
     if (fngi->resetPosition())
       mustRestack = true;
-  nSheets = isheet+1;
+  }
+  setSheetCount(isheet+1);
   if (mustRestack) 
     for (int i=0; i<nSheets; i++)
       restackNotes(i);
@@ -275,13 +204,33 @@ void EntryScene::restackBlocks() {
       bi->data()->setY0(yblock);
     if (bi->data()->sheet() != sheet)
       bi->data()->setSheet(sheet);
+    QGraphicsScene *s0 = bi->scene();
+    QGraphicsScene *s1 = this->sheet(sheet, true);
+    if (s1!=s0) {
+      FocusProxyCache fpc(bi);
+      TextBlockItem *tbi = dynamic_cast<TextBlockItem*>(bi);
+      if (tbi) {
+        qDebug() << "Transferring text block " << tbi;
+        qDebug() << "focus? " << tbi->hasFocus()
+                 << " / " << tbi->text()->hasFocus()
+                 << " / " << tbi->text()->titxt()->hasFocus();
+        qDebug() << "proxy was " << tbi->text()->focusProxy();
+      }
+      s1->addItem(bi);
+      fpc.restore();
+      if (tbi) {
+        qDebug() << "proxy is " << tbi->text()->focusProxy();
+      }
+    }
     bi->resetPosition();
     yblock += blockh;
     yfng -= fngh;
   }
   restackNotes(sheet);
   redateBlocks();
-  nSheets = sheet + 1;
+  setSheetCount(sheet + 1);
+  qDebug() << "EntryScene::restacked";
+  emit restacked();
 }
 
 void EntryScene::redateBlocks() {
@@ -339,69 +288,14 @@ void EntryScene::restackNotes(int sheet) {
     BlockItem *bi = blockItems[i];
     if (bi->data()->sheet()==sheet) {
       FootnoteGroupItem *fngi = footnoteGroups[i];
+      QGraphicsScene *s0 = fngi->scene();
+      QGraphicsScene *s1 = this->sheet(sheet, true);
+      if (s1!=s0)
+	s1->addItem(fngi);
       yfng -= fngi->netHeight();
       fngi->moveTo(yfng);
     }
   }
-}
-
-void EntryScene::gotoSheet(int i) {
-  int oldSheet = iSheet; // keep info on old sheet
-  
-  BaseScene::gotoSheet(i);
-
-  // Set visibility for all blocks
-  int nBlocks = blockItems.size();
-  for (int k=0; k<nBlocks; k++) {
-    int s = blockItems[k]->data()->sheet();
-    blockItems[k]->setVisible(s==iSheet);
-    footnoteGroups[k]->setVisible(s==iSheet);
-  }
-
-  positionNofNAndDateItems();
-  reshapeBelowItem();
-  repositionContItem();
-
-  // Set visibility for title-attached notes
-  foreach (GfxNoteItem *gni, titleItemX->children<GfxNoteItem>()) 
-    gni->setVisible(gni->data()->sheet()==iSheet);
-
-  if (oldSheet!=iSheet) 
-    emit nowOnPage(clippedPgNo(startPage()+iSheet));
-}
-
-void EntryScene::repositionContItem() {
-  // just leave the thing in place
-}
-
-void EntryScene::reshapeBelowItem() {
-  int iLast = findLastBlockOnSheet(iSheet);
-  double ytop = iLast<0
-    ? style().real("margin-top")
-    :  blockItems[iLast]->sceneBoundingRect().bottom();
-  belowItem->setRect(style().real("margin-left"),
-		     ytop,
-		     style().real("page-width")
-		     - style().real("margin-left")
-		     - style().real("margin-right"),
-		     style().real("page-height")
-		     - ytop);
-}
-
-int EntryScene::findLastBlockOnSheet(int sheet) {
-  for (int i=blockItems.size()-1; i>=0; --i)
-    if (blockItems[i]->data()->sheet() == sheet)
-      return i;
-  return -1;
-}
-
-bool EntryScene::belowContent(QPointF sp) {
-  return itemAt(sp) == belowItem;
-  //int iAbove = findLastBlockOnSheet(iSheet);
-  //if (iAbove<0)
-  //  return true;
-  //else
-  //  return sp.y() >= blockItems[iAbove]->netSceneRect().bottom();
 }
 
 void EntryScene::notifyChildless(BlockItem *gbi) {
@@ -419,9 +313,6 @@ void EntryScene::notifyChildless(BlockItem *gbi) {
   }
   //  qDebug() << "restacking";
   restackBlocks();
-
-  gotoSheet(iSheet>=nSheets ? nSheets-1 : iSheet);
-  //  qDebug() << "all done" << iSheet << nSheets;
 }
   
 void EntryScene::deleteBlock(int blocki) {
@@ -437,22 +328,21 @@ void EntryScene::deleteBlock(int blocki) {
   footnoteGroups.removeAt(blocki);
   remap();
 
-  removeItem(bi);
+  QGraphicsScene *s = bi->scene();
+  if (s)
+    s->removeItem(bi);
   bi->deleteLater();
   data_->deleteBlock(bd);
-  removeItem(fng);
+  s = fng->scene();
+  if (s)
+    s->removeItem(fng);
   fng->deleteLater();
 }
 
 GfxBlockItem *EntryScene::newGfxBlock(int iAbove) {
-  if (iAbove<0)
-    iAbove = findLastBlockOnSheet(iSheet);
   int iNew = (iAbove>=0)
     ? iAbove + 1
     : blockItems.size();
-  //double yt = (iAbove>=0)
-  //  ? blockItems[iAbove]->sceneBoundingRect().bottom()
-  //  : style().real("margin-top");
 
   if (iAbove>=0) {
     // perhaps not create a new one after all
@@ -470,8 +360,8 @@ GfxBlockItem *EntryScene::newGfxBlock(int iAbove) {
   else
     data_->addBlock(gbd);
   GfxBlockItem *gbi = new GfxBlockItem(gbd);
+  gbi->setBaseScene(this);
   gbi->sizeToFit();
-  addItem(gbi);
   gbi->makeWritable();
   FootnoteGroupItem *fng =  new FootnoteGroupItem(gbd, this);
   
@@ -483,13 +373,8 @@ GfxBlockItem *EntryScene::newGfxBlock(int iAbove) {
   remap();
 
   restackBlocks();
-  gotoSheetOfBlock(iNew);
+  gotoSheetOfBlock(findBlock(gbi));
   return gbi;
-}
-
-void EntryScene::gotoSheetOfBlock(int blocki) {
-  ASSERT(blocki>=0 && blocki<blockItems.size());
-  gotoSheet(blockItems[blocki]->data()->sheet());
 }
 
 void EntryScene::splitTextBlock(int iblock, int pos) {
@@ -540,8 +425,8 @@ TableBlockItem *EntryScene::injectTableBlock(TableBlockData *tbd, int iblock) {
     : 0;
   data_->insertBlockBefore(tbd, tbd_next);
   TableBlockItem *tbi = new TableBlockItem(tbd);
+  tbi->setBaseScene(this);
   tbi->sizeToFit();
-  addItem(tbi);
   tbi->makeWritable();
 
   blockItems.insert(iblock, tbi);
@@ -562,8 +447,8 @@ TextBlockItem *EntryScene::injectTextBlock(TextBlockData *tbd, int iblock) {
     : 0;
   data_->insertBlockBefore(tbd, tbd_next);
   TextBlockItem *tbi = new TextBlockItem(tbd);
+  tbi->setBaseScene(this);
   tbi->sizeToFit();
-  addItem(tbi);
   tbi->makeWritable();
 
   blockItems.insert(iblock, tbi);
@@ -586,9 +471,6 @@ void EntryScene::remap() {
 }
 
 TableBlockItem *EntryScene::newTableBlock(int iAbove) {
-  if (iAbove<0)
-    iAbove = findLastBlockOnSheet(iSheet);
-
   int iNew = (iAbove>=0)
     ? iAbove + 1
     : blockItems.size();
@@ -602,10 +484,32 @@ TableBlockItem *EntryScene::newTableBlock(int iAbove) {
   return tbi;
 }
 
-TextBlockItem *EntryScene::newTextBlock(int iAbove, bool evenIfLastEmpty) {
-  if (iAbove<0)
-    iAbove = findLastBlockOnSheet(iSheet);
+int EntryScene::lastBlockAbove(QPointF scenepos, int sheet) {
+  for (int i=0; i<blockItems.size(); i++) {
+    if (blockItems[i]->data()->sheet() != sheet)
+      continue;
+    double y = blockItems[i]->sceneBoundingRect().bottom();
+    if (y>scenepos.y())
+      return i-1;
+  }
+  return blockItems.size()-1;
+}
 
+TextBlockItem *EntryScene::newTextBlockAt(QPointF scenepos, int sheet,
+                                          bool evenIfLastEmpty) {
+  return newTextBlock(lastBlockAbove(scenepos, sheet), evenIfLastEmpty);
+}
+
+GfxBlockItem *EntryScene::newGfxBlockAt(QPointF scenepos, int sheet) {
+  return newGfxBlock(lastBlockAbove(scenepos, sheet));
+}
+
+TableBlockItem *EntryScene::newTableBlockAt(QPointF scenepos, int sheet) {
+  return newTableBlock(lastBlockAbove(scenepos, sheet));
+}
+
+
+TextBlockItem *EntryScene::newTextBlock(int iAbove, bool evenIfLastEmpty) {
   int iNew = (iAbove>=0)
     ? iAbove + 1
     : blockItems.size();
@@ -652,7 +556,8 @@ void EntryScene::futileMovement(int block) {
     else
       splitTextBlock(block, c.position());
     return;
-  } 
+  }
+  
   if (fmi.key()==Qt::Key_Left || fmi.key()==Qt::Key_Up
       || fmi.key()==Qt::Key_Backspace) {
     // upward movement
@@ -674,6 +579,7 @@ void EntryScene::futileMovement(int block) {
       }
     }
   }
+
   if (tgtidx<0) {
     // no target, go to start/end of current
     QTextCursor c = tbi->text()->textCursor();
@@ -699,9 +605,12 @@ void EntryScene::futileMovement(int block) {
   
   TextBlockItem *tgt = dynamic_cast<TextBlockItem*>(blockItems[tgtidx]);
   ASSERT(tgt);
-  if (tgt->data()->sheet()!=iSheet)
-    gotoSheetOfBlock(tgtidx);
+
+  qDebug() << "EntryScene::futilemovement tgtidx="<<tgtidx;
+  gotoSheetOfBlock(tgtidx);
   tgt->setFocus();
+  qDebug() << "EntryScene::futilemovement setfocus";
+
   QTextDocument *doc = tgt->document();
   QTextCursor c(doc);
   QPointF p = tgt->text()->mapFromParent(tgt->mapFromScene(fmi.scenePos()));
@@ -725,7 +634,9 @@ void EntryScene::futileMovement(int block) {
     c.setPosition(l.xToCursor(p.x() - blk.layout()->position().x()));
     break; }
   }
+  qDebug() << "EntryScene::futilemovement setcursor " << c.position();
   tgt->text()->setTextCursor(c);
+  tgt->setFocus();
 }
 
 void EntryScene::futileTitleMovement(int key, Qt::KeyboardModifiers) {
@@ -739,7 +650,7 @@ void EntryScene::futileTitleMovement(int key, Qt::KeyboardModifiers) {
   }
 }
 
-void EntryScene::focusEnd() {
+void EntryScene::focusEnd(int isheet) {
   qDebug() << "EntryScene::focusEnd" << writable;
   if (!writable)
     return;
@@ -747,7 +658,7 @@ void EntryScene::focusEnd() {
   TextBlockItem *lastbi = 0;
   for (int i=0; i<blockItems.size(); ++i) {
     TextBlockItem *tbi = dynamic_cast<TextBlockItem *>(blockItems[i]);
-    if (tbi && tbi->data()->sheet()==iSheet)
+    if (tbi && (isheet<0 || tbi->data()->sheet()==isheet))
       lastbi = tbi;
   }
   if (lastbi) {
@@ -756,8 +667,8 @@ void EntryScene::focusEnd() {
     tc.movePosition(QTextCursor::End);
     lastbi->text()->setTextCursor(tc);    
   } else {
-    if (iSheet == nSheets-1)
-      newTextBlock(); // create new text block only on last sheet
+    if (isheet == nSheets-1)
+      newTextBlock(blockItems.size()-1); // create new text block only on last sheet
   }
 }
 
@@ -767,23 +678,32 @@ void EntryScene::vChanged(int block) {
   gotoSheetOfBlock(block);
 }
 
-void EntryScene::mousePressEvent(QGraphicsSceneMouseEvent *e) {
-  // qDebug() << "EntryScene::mousePressEvent";
+bool EntryScene::mousePressEvent(QGraphicsSceneMouseEvent *e, SheetScene *s) {
   QPointF sp = e->scenePos();
+  int sh = findSheet(s);
+  qDebug() << "EntryScene::mousePressEvent: item at " << sp
+	   << " is " << itemAt(sp, sh);
+  TextItemText *tit = dynamic_cast<TextItemText*>(itemAt(sp, sh));
+  if (tit) {
+    qDebug() << " bound=" << tit->sceneBoundingRect()
+	     << " txt= " << tit->document()->toPlainText();
+  }
+  int sheet = findSheet(s);
   bool take = false;
-  if (inMargin(sp) && itemAt(sp)==bgItem) {
-    //qDebug() << "  in margin";
-    if (data_->book()->mode()->mode()==Mode::Annotate) {
-      GfxNoteItem *note = createNote(sp);
-      qDebug() << "created note" << note << iSheet;
-      take = true;
+  if (inMargin(sp)) {
+    if (itemAt(sp, sh)==0) {
+      qDebug() << "  in margin";
+      if (data_->book()->mode()->mode()==Mode::Annotate) {
+        GfxNoteItem *note = createNote(sp, sheet);
+        qDebug() << "created note" << note;
+        take = true;
+      }
     }
-  } else if (belowContent(sp)) {
-    //qDebug() << "  below content";
+  } else if (itemAt(sp, sh)==0) {
     switch (data_->book()->mode()->mode()) {
     case Mode::Mark: case Mode::Freehand:
       if (isWritable()) {
-	GfxBlockItem *blk = newGfxBlock();
+	GfxBlockItem *blk = newGfxBlockAt(sp, sheet);
 	e->setPos(blk->mapFromScene(e->scenePos())); // brutal!
 	blk->mousePressEvent(e);
 	take = true;
@@ -791,18 +711,18 @@ void EntryScene::mousePressEvent(QGraphicsSceneMouseEvent *e) {
       break;
     case Mode::Type:
       if (writable) {
-	newTextBlock();
+	newTextBlockAt(sp, sheet);
 	take = true;
       }
       break;
     case Mode::Table:
       if (writable) {
-	newTableBlock();
+	newTableBlockAt(sp, sheet);
 	take = true;
       }
       break;
     case Mode::Annotate: {
-      createNote(sp);
+      createNote(sp, sheet);
       take = true;
     } break;
     default:
@@ -811,17 +731,16 @@ void EntryScene::mousePressEvent(QGraphicsSceneMouseEvent *e) {
   }
   if (take)
     e->accept();
-  else
-    QGraphicsScene::mousePressEvent(e);
+  return take;
 }
 
-void EntryScene::keyPressEvent(QKeyEvent *e) {
+bool EntryScene::keyPressEvent(QKeyEvent *e, SheetScene *s) {
   if (e->key()==Qt::Key_Tab || e->key()==Qt::Key_Backtab) {
-    TextItemText *focus = dynamic_cast<TextItemText*>(focusItem());
+    TextItemText *focus = dynamic_cast<TextItemText*>(s->focusItem());
     if (focus) {
       focus->keyPressEvent(e);
       e->accept();
-      return;
+      return true;
     }
   }
   if (e->modifiers() & Qt::ControlModifier) {
@@ -829,7 +748,7 @@ void EntryScene::keyPressEvent(QKeyEvent *e) {
     switch (e->key()) {
     case Qt::Key_V:
       if (writable)
-	steal = tryToPaste();
+	steal = tryToPaste(s);
       break;
     case Qt::Key_U:
       if (e->modifiers() & Qt::ShiftModifier) {
@@ -839,10 +758,10 @@ void EntryScene::keyPressEvent(QKeyEvent *e) {
     }
     if (steal) {
       e->accept();
-      return;
+      return true;
     }
   }
-  BaseScene::keyPressEvent(e);
+  return false;
 }
 
 void EntryScene::unlock() {
@@ -856,14 +775,15 @@ void EntryScene::unlock() {
 void EntryScene::addUnlockedWarning() {
   if (unlockedItem)
     return;
-  unlockedItem = new QGraphicsTextItem();
-  addItem(unlockedItem);
-  unlockedItem->setPlainText(style().string("unlocked-text"));
-  unlockedItem->setFont(style().font("unlocked-font"));
-  unlockedItem->setDefaultTextColor(style().color("unlocked-color"));
-  QRectF br = unlockedItem->sceneBoundingRect();
-  unlockedItem->setPos(style().real("page-width") - br.width() - 4,
-                       4);
+  foreach (SheetScene *s, sheets) {
+    unlockedItem = new QGraphicsTextItem();
+    s->addItem(unlockedItem);
+    unlockedItem->setPlainText(style().string("unlocked-text"));
+    unlockedItem->setFont(style().font("unlocked-font"));
+    unlockedItem->setDefaultTextColor(style().color("unlocked-color"));
+    QRectF br = unlockedItem->sceneBoundingRect();
+    unlockedItem->setPos(style().real("page-width") - br.width() - 4, 4);
+  }
 }  
 
 
@@ -875,29 +795,19 @@ int EntryScene::findBlock(Item const *i) const {
   return -1;
 }
 
-int EntryScene::findBlock(QPointF scenepos) const {
+int EntryScene::findBlock(QPointF scenepos, int sheet) const {
   for (int i=0; i<blockItems.size(); i++) {
     BlockData const *bd = blockItems[i]->data();
-    if (bd->sheet() == iSheet && bd->y0()<=scenepos.y()
-	&& bd->y0()+bd->height()>=scenepos.y())
+    if (bd->sheet() != sheet)
+      continue;
+    double y0 = bd->y0();
+    if (scenepos.y()>=y0 && scenepos.y()<=y0+bd->height())
       return i;
   }
   return -1;
 }
 
-/*
-int EntryScene::findBlock(QPointF scenepos) const {
-  Item *item;
-  for (QGraphicsItem *gi = itemAt(scenepos); gi!=0; gi = gi->parentItem()) {
-    item = dynamic_cast<Item *>(gi);
-    if (item)
-      return findBlock(item);
-  }
-  return -1;
-}
-*/
-
-bool EntryScene::tryToPaste() {
+bool EntryScene::tryToPaste(SheetScene *s) {
   /* We get it first.
      If we don't send the event on to QGraphicsScene, textItems don't get it.
      What we do is dependent both on mimetype and on whether we have focus.
@@ -911,12 +821,12 @@ bool EntryScene::tryToPaste() {
     return false;
   
   QPointF scenePos;
-  QGraphicsTextItem *fi = dynamic_cast<QGraphicsTextItem*>(focusItem());
+  QGraphicsTextItem *fi = dynamic_cast<QGraphicsTextItem*>(s->focusItem());
 
   if (fi) {
     scenePos = fi->mapToScene(posToPoint(fi, fi->textCursor().position()));
   } else {
-    QList<QGraphicsView*> vv = views();
+    QList<QGraphicsView*> vv = s->views();
     if (vv.isEmpty()) {
       qDebug() << "EntryScene: cannot determine paste position: no view";
       return false;
@@ -927,50 +837,52 @@ bool EntryScene::tryToPaste() {
     }
     scenePos = vv[0]->mapToScene(vv[0]->mapFromGlobal(QCursor::pos()));
   }
+  int sheet = findSheet(s);
   
   QClipboard *cb = QApplication::clipboard();
   QMimeData const *md = cb->mimeData(QClipboard::Clipboard);
   qDebug() << "EntryScene::trytopaste" << md;
   if (md->hasImage())
-    return importDroppedImage(scenePos,
+    return importDroppedImage(scenePos, sheet,
 			      qvariant_cast<QImage>(md->imageData()),
 			      QUrl());
   if (fi) 
     return false; // we'll import Urls as text into the focused item
 
   if (md->hasUrls())
-    return importDroppedUrls(scenePos, md->urls());
+    return importDroppedUrls(scenePos, sheet, md->urls());
   else if (md->hasText())
-    return importDroppedText(scenePos, md->text());
+    return importDroppedText(scenePos, sheet, md->text());
   else
     return false;
 }
 
-bool EntryScene::dropBelow(QPointF scenePos, QMimeData const *md) {
+bool EntryScene::dropBelow(QPointF scenePos, int sheet, QMimeData const *md) {
   if (!isWritable())
     return false;
   if (md->hasImage())
-    return importDroppedImage(scenePos,
+    return importDroppedImage(scenePos, sheet,
 			      qvariant_cast<QImage>(md->imageData()),
 			      QUrl());
   else if (md->hasUrls())
-    return importDroppedUrls(scenePos, md->urls());
+    return importDroppedUrls(scenePos, sheet, md->urls());
   else if (md->hasText())
-    return importDroppedText(scenePos, md->text());
+    return importDroppedText(scenePos, sheet, md->text());
   else
     return false;
 }
 
-bool EntryScene::importDroppedSvg(QPointF scenePos, QUrl const &source) {
+bool EntryScene::importDroppedSvg(QPointF scenePos, int sheet,
+				  QUrl const &source) {
   QImage img(SvgFile::downloadAsImage(source));
   if (img.isNull()) 
-    return importDroppedText(scenePos, source.toString());
+    return importDroppedText(scenePos, sheet, source.toString());
   else
-    return importDroppedImage(scenePos, img, source);
+    return importDroppedImage(scenePos, sheet, img, source);
 }
 
-bool EntryScene::importDroppedImage(QPointF scenePos, QImage const &img,
-				   QUrl const &source) {
+bool EntryScene::importDroppedImage(QPointF scenePos, int sheet,
+				    QImage const &img, QUrl const &source) {
   // Return true if we want it
   /* If dropped on an existing gfxblock, insert it there.
      If dropped on belowItem, insert after last block on page.
@@ -978,32 +890,20 @@ bool EntryScene::importDroppedImage(QPointF scenePos, QImage const &img,
      Before creating a new graphics block, consider whether there is
      a graphics block right after it.
    */
-  QGraphicsItem *gi = itemAt(scenePos);
-  BlockItem *dst = 0;
-  while (gi && !dst) {
-    dst = dynamic_cast<BlockItem *>(gi);
-    gi = gi->parentItem();
-  }
-  GfxBlockItem *gdst = dynamic_cast<GfxBlockItem*>(dst);
-  QPointF p;
-  if (gdst) {
-    p = gdst->mapFromScene(scenePos);
-  } else {
-    p = QPointF(0, 0);
-    gdst = dst
-      ? gfxBlockAfter(indexOfBlock(dst))
-      : gfxBlockAfter(findLastBlockOnSheet(iSheet));
-  } 
-  gdst->newImage(img, source, p);
-  gotoSheet(gdst->data()->sheet());
-  return true;
-}
+  QPointF pdest(0,0);
 
-GfxBlockItem *EntryScene::gfxBlockAfter(int iblock) {
-  if (iblock>=0 && iblock+1<blockItems.size()) 
-    if (dynamic_cast<GfxBlockItem*>(blockItems[iblock+1]))
-      return dynamic_cast<GfxBlockItem*>(blockItems[iblock+1]);
-  return newGfxBlock(iblock);
+  int i = findBlock(scenePos, sheet);
+  GfxBlockItem *gdst = (i>=0) ? dynamic_cast<GfxBlockItem*>(blockItems[i]) : 0;
+  if (gdst) 
+    pdest = gdst->mapFromScene(scenePos);
+  else if (i>=0 && i+1<blockItems.size())
+    gdst = dynamic_cast<GfxBlockItem*>(blockItems[i+1]);
+  if (!gdst)
+    gdst = newGfxBlockAt(scenePos, sheet);
+
+  gdst->newImage(img, source, pdest);
+  gotoSheetOfBlock(findBlock(gdst));
+  return true;
 }
 
 int EntryScene::indexOfBlock(BlockItem *bi) const {
@@ -1013,15 +913,17 @@ int EntryScene::indexOfBlock(BlockItem *bi) const {
   return -1;
 }
 
-bool EntryScene::importDroppedUrls(QPointF scenePos, QList<QUrl> const &urls) {
+bool EntryScene::importDroppedUrls(QPointF scenePos, int sheet,
+				   QList<QUrl> const &urls) {
   bool ok = false;
   foreach (QUrl const &u, urls)
-    if (importDroppedUrl(scenePos, u))
+    if (importDroppedUrl(scenePos, sheet, u))
       ok = true;
   return ok;
 }
 
-bool EntryScene::importDroppedUrl(QPointF scenePos, QUrl const &url) {
+bool EntryScene::importDroppedUrl(QPointF scenePos, int sheet,
+				  QUrl const &url) {
   // QGraphicsItem *dst = itemAt(scenePos);
   /* A URL could be any of the following:
      (1) A local image file
@@ -1034,104 +936,94 @@ bool EntryScene::importDroppedUrl(QPointF scenePos, QUrl const &url) {
   if (url.isLocalFile()) {
     QString path = url.toLocalFile();
     if (path.endsWith(".svg")) 
-      return importDroppedSvg(scenePos, url);
+      return importDroppedSvg(scenePos, sheet, url);
     QImage image = QImage(path);
     if (!image.isNull())
-      return importDroppedImage(scenePos, image, url);
+      return importDroppedImage(scenePos, sheet, image, url);
     else 
-      return importDroppedFile(scenePos, path);
+      return importDroppedFile(scenePos, sheet, path);
   } else {
     // Right now, we import all network urls as text
-    return importDroppedText(scenePos, url.toString());
+    return importDroppedText(scenePos, sheet, url.toString());
   }
   return false;
 }
 
-bool EntryScene::importDroppedText(QPointF scenePos, QString const &txt) {
+bool EntryScene::importDroppedText(QPointF scenePos, int sheet,
+				   QString const &txt,
+                                   TextItem **itemReturn,
+                                   int *startReturn, int *endReturn) {
   TextItem *ti = 0;
-  if (belowContent(scenePos)) {
-    TextBlockItem *tbi = newTextBlock();
-    if (!tbi)
-      return false;
-    ti = tbi->text();
+  if (inMargin(scenePos)) {
+    GfxNoteItem *note = createNote(scenePos, sheet);
+    ti = note->textItem();
   } else {
-    int blk = findBlock(scenePos);
-    if (blk<0 || !blockItems[blk]->isWritable())
-      return false;
-    GfxBlockItem *gbi = dynamic_cast<GfxBlockItem*>(blockItems[blk]);
-    TextBlockItem *tbi = dynamic_cast<TextBlockItem*>(blockItems[blk]);
-    if (gbi) {
-      // let's create a new note at the target position
-      GfxNoteItem *note = gbi->createNote(gbi->mapFromScene(scenePos), false);
-      ti = note->textItem();
-    } else if (tbi) {
-      ti = tbi->text();
+    int blk = findBlock(scenePos, sheet);
+    if (blk>=0) {
+      if (blockItems[blk]->isWritable()) {
+        GfxBlockItem *gbi = dynamic_cast<GfxBlockItem*>(blockItems[blk]);
+        TextBlockItem *tbi = dynamic_cast<TextBlockItem*>(blockItems[blk]);
+        if (tbi) {
+          ti = tbi->text();
+        } else if (gbi) {
+          GfxNoteItem *note = gbi->createNote(gbi->mapFromScene(scenePos),
+                                              false);
+          ti = note->textItem();
+        }
+      } else { // not writable block
+        GfxNoteItem *note = createNote(scenePos, sheet);
+        ti = note->textItem();
+      }
     }
   }
+
   if (!ti)
     return false;
+
+  if (itemReturn)
+    *itemReturn = ti;
+  
   QTextCursor c = ti->textCursor();
   int pos = ti->pointToPos(ti->mapFromScene(scenePos));
   if (pos>=0)
     c.setPosition(pos);
   else
     c.clearSelection();
+  if (startReturn)
+    *startReturn = c.position();
   c.insertText(txt);
+  if (endReturn)
+    *endReturn = c.position();
+
   ti->setFocus();
   ti->setTextCursor(c);
+
   return true;
 }
 
-bool EntryScene::importDroppedFile(QPointF scenePos, QString const &fn) {
+bool EntryScene::importDroppedFile(QPointF scenePos, int sheet,
+				   QString const &fn) {
   //  qDebug() << "EntryScene: import dropped file: " << scenePos << fn;
   if (!fn.startsWith("/"))
     return false;
-  TextItem *ti = 0;
-  if (belowContent(scenePos)) {
-    TextBlockItem *tbi = newTextBlock();
-    if (!tbi)
-      return false;
-    ti = tbi->text();
-  } else {
-    int blk = findBlock(scenePos);
-    if (!blk || !blockItems[blk]->isWritable())
-      return false;
-    GfxBlockItem *gbi = dynamic_cast<GfxBlockItem*>(blockItems[blk]);
-    TextBlockItem *tbi = dynamic_cast<TextBlockItem*>(blockItems[blk]);
-    if (gbi) {
-      // let's create a new note at the target position
-      GfxNoteItem *note = gbi->createNote(gbi->mapFromScene(scenePos), false);
-      ti = note->textItem();
-    } else if (tbi) {
-      ti = tbi->text();
-    }
-  }
-  if (!ti)
+  int start, end;
+  TextItem *ti;
+  if (!importDroppedText(scenePos, sheet, fn, &ti, &start, &end))
     return false;
-  QTextCursor c = ti->textCursor();
-  int pos = ti->pointToPos(ti->mapFromScene(scenePos));
-  if (pos>=0)
-    c.setPosition(pos);
-  else
-    c.clearSelection();
-  int start = c.position();
-  c.insertText(fn);
-  int end = c.position();
+
   ti->addMarkup(MarkupData::Link, start, end);
-  ti->setFocus();
-  ti->setTextCursor(c);
   return true;
 }
     
 void EntryScene::makeWritable() {
   writable = true;
-  belowItem->setCursor(Qt::IBeamCursor);
-  bgItem->setAcceptDrops(true);
-  titleItemX->makeWritable();
+  //belowItem->setCursor(Qt::IBeamCursor);
   foreach (BlockItem *bi, blockItems)
     bi->makeWritable();
   foreach (FootnoteGroupItem *fng, footnoteGroups)
     fng->makeWritable();
+  foreach (SheetScene *s, sheets)
+    s->fancyTitleItem()->makeWritable();
 }
 
 int EntryScene::startPage() const {
@@ -1181,21 +1073,26 @@ EntryData *EntryScene::data() const {
   return data_;
 }
 
-GfxNoteItem *EntryScene::createNote(QPointF scenePos) {
-  GfxNoteItem *note = titleItemX->createNote(titleItem->mapFromScene(scenePos));
+GfxNoteItem *EntryScene::createNote(QPointF scenePos, int sheet) {
+  qDebug() << "EntryScene::createNote Not properly?";
+  TitleItem *ti = sheets[sheet]->fancyTitleItem();
+  GfxNoteItem *note
+    = ti->createNote(ti->mapFromScene(scenePos));
   if (note)
-    note->data()->setSheet(iSheet);
+    note->data()->setSheet(scenePos.y()/style().real("page-height"));
   return note;
   
 }
 
-GfxNoteItem *EntryScene::newNote(QPointF scenePos1, QPointF scenePos2) {
+GfxNoteItem *EntryScene::newNote(int sheet,
+				 QPointF scenePos1, QPointF scenePos2) {
   if (scenePos2.isNull())
     scenePos2 = scenePos1;
-  GfxNoteItem *note = titleItemX->newNote(titleItem->mapFromScene(scenePos1),
-                                          titleItem->mapFromScene(scenePos2));
+  TitleItem *ti = sheets[sheet]->fancyTitleItem();
+  GfxNoteItem *note = ti->newNote(ti->mapFromScene(scenePos1),
+				  ti->mapFromScene(scenePos2));
   if (note)
-    note->data()->setSheet(iSheet);
+    note->data()->setSheet(scenePos1.y()/style().real("page-height"));
   return note;  
 }
 
@@ -1231,4 +1128,13 @@ QList<FootnoteItem const *> EntryScene::footnotes() const {
     foreach (FootnoteItem *f, fg->children<FootnoteItem>())
     ff << f;
   return ff;
+}
+
+void EntryScene::gotoSheetOfBlock(int n) {
+  if (n<0)
+    emit sheetRequest(0);
+  else if (n>=blockItems.size())
+    emit sheetRequest(nSheets-1);
+  else
+    emit sheetRequest(blockItems[n]->data()->sheet());
 }

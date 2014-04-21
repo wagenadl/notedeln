@@ -25,11 +25,19 @@
 class PageEditor: public QMainWindow {
   Q_OBJECT;
 public:
-  PageEditor(class Notebook *nb);
+  PageEditor(class SceneBank *bank);
   virtual ~PageEditor();
+public slots:
+  void gotoEntryPage(QString s);
+  void gotoTOC(int n=1); // n>=1
+  void gotoFront();
+protected:
+  void resizeEvent(QResizeEvent *);
+  void keyPressEvent(QKeyEvent *);
 private:
-  class Notebook *book;
+  class SceneBank *bank;
   class PageView *view;
+  class ToolView *toolview;
 };
 
 #endif

@@ -8,6 +8,7 @@
 #include <QTextCursor>
 #include "Roman.H"
 #include <QDebug>
+#include "SheetScene.H"
 
 SearchResultScene::SearchResultScene(QString phrase, QString title,
 				     QList<SearchResult> results,
@@ -15,6 +16,7 @@ SearchResultScene::SearchResultScene(QString phrase, QString title,
   BaseScene(data, parent), phrase(phrase), ttl(title), results(results) {
   qDebug() << "SearchResultScene" << phrase;
   book = data->book();
+  setContInMargin();
 }
 
 SearchResultScene::~SearchResultScene() {
@@ -42,12 +44,12 @@ void SearchResultScene::populate() {
   double y0 = style().real("margin-top");
   double y1 = style().real("page-height") - style().real("margin-bottom");
   double y = y0;
-  QGraphicsItem *lastLine = 0;
+  QGraphicsLineItem *lastLine = 0;
   foreach (SearchResult const &r, results) {
     if (r.startPageOfEntry != oldPage) {
-      lastLine = addLine(0, 0, style().real("page-width"), 0,
-                         QPen(QBrush(style().color("toc-line-color")),
-                              style().real("toc-line-width")));
+      lastLine = new QGraphicsLineItem(0, 0, style().real("page-width"), 0);
+      lastLine->setPen(QPen(QBrush(style().color("toc-line-color")),
+			    style().real("toc-line-width")));
       headers << new SearchResItem(book->toc()->entry(r.startPageOfEntry),
                                    this);
       lastLine->setParentItem(headers.last());
@@ -60,6 +62,7 @@ void SearchResultScene::populate() {
         sheet += 1;
       }
       headers.last()->setPos(0, y);
+      this->sheet(sheet,true)->addItem(headers.last());
       sheetnos << sheet;
       y += headers.last()->childrenBoundingRect().height();
     }
@@ -77,7 +80,7 @@ void SearchResultScene::populate() {
   }
   nSheets = sheet+1;
 
-  gotoSheet(0);
+  qDebug() << "SearchResultScene: gotoSheet(0)";
   
 }
 
@@ -85,25 +88,10 @@ QString SearchResultScene::title() const {
   return ttl;
 }
 
-void SearchResultScene::gotoSheet(int sheet) {
-  for (int n=0; n<headers.size(); n++) 
-    if (sheetnos[n] == sheet)
-      headers[n]->show();
-    else
-      headers[n]->hide();
-  BaseScene::gotoSheet(sheet);
-}
-
 QString SearchResultScene::pgNoToString(int n) const {
   return Roman(n).lc();
 }
   
-void SearchResultScene::makeContdItems() {
-  // Simply don't make them??
-  BaseScene::makeContdItems();
-  contdItem->setPos(4, style().real("margin-top"));
-}
-
 void SearchResultScene::pageNumberClick(int pg) {
   qDebug() << "pagenumberclick" << pg << phrase;
   emit pageNumberClicked(pg, phrase);

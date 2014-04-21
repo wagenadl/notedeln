@@ -30,6 +30,21 @@ TitleItem::TitleItem(TitleData *data, Item *parent):
   setZValue(10); // stack before other stuff so that late notes go in front
 }
 
+TitleItem::TitleItem(TitleData *data, int sheetno,
+		     QTextDocument *altdoc, Item *parent):
+  TextItem(data->current(), parent, true), d(data) {
+
+  setFont(style().font("title-font"));
+  setDefaultTextColor(style().color("title-color"));
+  setAllowParagraphs(false);
+  setZValue(10); // stack before other stuff so that late notes go in front
+
+  if (altdoc)
+    text->setDocument(altdoc);
+  
+  finalizeConstructor(sheetno);
+}
+
 
 TitleItem::~TitleItem() {
 }
@@ -57,3 +72,4 @@ bool TitleItem::focusIn(QFocusEvent *) {
   }
   return false;
 }
+

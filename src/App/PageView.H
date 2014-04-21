@@ -22,23 +22,37 @@
 
 #include <QGraphicsView>
 #include <QMap>
+#include "CachedPointer.H"
 
 class PageView: public QGraphicsView {
   Q_OBJECT;
 public:
-  PageView(class Notebook *nb, QWidget *parent=0);
+  PageView(class SceneBank *bank, QWidget *parent=0);
   virtual ~PageView();
+public:
+  enum Section {
+    Front,
+    TOC,
+    Entries,
+  };
+  Section section() const;
+  QString pageName() const;
+  int pageNumber() const;
 public slots:
+  void gotoEntryPage(QString);
   void gotoEntryPage(int pgno, int dir=0);
   void gotoTOC(int pgno=1);
   void gotoFront();
-  //  void gotoIndex();
   void nextPage();
   void goRelative(int n);
   void previousPage();
   void lastPage();
   void openFindDialog();
   void htmlDialog();
+signals:
+  void onEntryPage(int, int); // start-page-of-entry, sheet-no
+  void onFrontMatter(int);
+  void scaled(double);
 public:
   class Mode *mode() const;
   class Notebook *notebook() const;
@@ -54,25 +68,16 @@ private:
   void createContinuationEntry();
   void focusEntry();
 private slots:
-  void nowOnPage(int pgno);
+  bool gotoSheet(int n);
   void notebookReloaded(QMap<int,int>);
 private:
+  class SceneBank *bank; // we do not own!
   class Notebook *book; // we do not own!
-  class FrontScene *frontScene;
-  class TOCScene *tocScene;
-  class EntryScene *entryScene;
-  //  class GfxPalette *linePalette;
-  //  class GfxPalette *markPalette;
-  // class Toolbar *toolbar;
+  CachedPointer<class EntryScene> entryScene;
   int currentPage;
-  enum {
-    Front,
-    TOC,
-    Entries,
-  } currentSection;
+  int currentSheet;
+  Section currentSection;
   class DeletedStack *deletedStack;
-  class Toolbars *toolbars;
-  //  class SimpleNavbar *simpleNavbar;
   int wheelDeltaAccum;
   int wheelDeltaStepSize;
   class SearchDialog *searchDialog;

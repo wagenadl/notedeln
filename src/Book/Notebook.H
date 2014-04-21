@@ -23,7 +23,7 @@
 #include <QString>
 #include <QDir>
 #include <QFile>
-#include "EntryFile.H"
+#include "CachedEntry.H"
 #include "BookFile.H"
 #include "TOCFile.H"
 #include <QMap>
@@ -37,11 +37,9 @@ public:
 public:
   ~Notebook();
   bool hasEntry(int pgno) const;    // } pgno must 
-  EntryFile *entry(int pgno);       // } be the first
-  EntryFile *createEntry(int pgno); // } sheet of an
+  CachedEntry entry(int pgno);       // } be the first
+  CachedEntry createEntry(int pgno); // } sheet of an
   bool deleteEntry(int pgno);       // } Entry
-  EntryFile *entryIfCached(int pgno);
-  // like page(), but will return 0 if not already cached
   class TOC *toc() const;
   class Index *index() const;
   class BookData *bookData() const;
@@ -80,7 +78,7 @@ private:
   void unloadme();
 private:
   QDir root;
-  QMap<int, EntryFile *> pgFiles;
+  QMap<int, CachedEntry> pgFiles;
   TOCFile *tocFile_;
   BookFile *bookFile_;
   Index *index_;

@@ -178,7 +178,7 @@ void GfxBlockItem::drawGrid(QPainter *p, QRectF const &bb, double dx) {
 
 void GfxBlockItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
   Mode::M mod = mode()->mode();
-  Qt::MouseButton but = e->button();
+  //  Qt::MouseButton but = e->button();
   bool take = false;
   if (isWritable()) {
     switch (mod) {
@@ -204,10 +204,7 @@ void GfxBlockItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
     }
   } else {
     if (mod==Mode::Annotate) {
-      if (!data()->isRecent() && pageScene())
-	pageScene()->createNote(mapToScene(e->pos()));
-      else
-	createNote(e->pos(), true);
+      createNote(e->pos(), true);
       take = true;
     }
   }    

@@ -29,6 +29,8 @@ TableItem::TableItem(TableData *data, Item *parent):
      table has not been constructed yet, so unfortunately, we'll have to
      rebuild the document.
   */
+  text->setPlainText("");
+  
   QTextCursor c(document());
   table = c.insertTable(data->rows(), data->columns(), format());
   for (unsigned int r=0; r<data->rows(); r++)

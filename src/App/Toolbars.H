@@ -35,9 +35,9 @@ public:
   QRectF boundingRect() const { return QRectF(); }
   void paint(QPainter *, const QStyleOptionGraphicsItem *, QWidget *) { }
   class Navbar *navbar() const; // use this to connect to its signals
+public slots:
   void hideTools();
   void showTools();
-public slots:
   void setMode(Mode::M);
 private:
   void placeChildren();
