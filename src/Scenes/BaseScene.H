@@ -46,6 +46,9 @@ public:
   class SheetScene *sheet(int n, bool autoextend=false);
 public slots:
   void focusTitle(int sheet);
+protected slots:
+  void titleEdited() {}
+  void futileTitleMovement(int, Qt::KeyboardModifiers) {}
 protected:
   bool inMargin(QPointF scenePos) const; // true if point is in any margin
   bool inLeftMargin(QPointF scenePos) const;

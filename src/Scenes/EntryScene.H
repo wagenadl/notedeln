@@ -59,7 +59,7 @@ signals:
 protected:
   bool mousePressEvent(QGraphicsSceneMouseEvent *, SheetScene *);
   bool keyPressEvent(QKeyEvent *, SheetScene *);
-private slots:
+protected slots:
   void titleEdited();
   void vChanged(int block);
   void noteVChanged(int block);
