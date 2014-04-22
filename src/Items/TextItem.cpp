@@ -711,7 +711,11 @@ bool TextItem::tryExplicitLink() {
 
 bool TextItem::tryFootnote() {
   BlockItem *anc = ancestralBlock();
-  ASSERT(anc);
+  if (!anc) {
+    qDebug() << "Cannot add footnote without ancestral block";
+    return false;
+  }
+
   EntryScene *bs = dynamic_cast<EntryScene*>(anc->baseScene());
   ASSERT(bs);
   int i = bs->findBlock(anc);
@@ -737,6 +741,7 @@ bool TextItem::tryFootnote() {
       if (approvedMark(mrk))
 	--start; // markup is a single non-word char like "*".
   }
+
   if (oldmd && oldmd->start()==start && oldmd->end()==end) {
     if (mayDelete) {
       // delete old mark

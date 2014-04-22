@@ -71,3 +71,18 @@ void BlockData::setSheet(int sheet) {
 bool BlockData::isEmpty() const {
   return true;
 }
+
+bool BlockData::setSheetAndY0(int n, double y0) {
+  bool chg = false;
+  if (n!=sheet_) {
+    sheet_ = n;
+    chg = true;
+  }
+  if (y0!=y0_) {
+    y0_ = y0;
+    chg = true;
+  }
+  if (chg)
+    markModified(InternalMod);
+  return chg;
+}

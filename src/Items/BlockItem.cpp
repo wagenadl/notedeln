@@ -19,7 +19,6 @@
 #include "BlockItem.H"
 #include "BlockData.H"
 #include "EntryScene.H"
-#include "FootnoteGroupItem.H"
 #include "FootnoteItem.H"
 #include "FootnoteData.H"
 #include "Mode.H"
@@ -30,9 +29,23 @@
 BlockItem::BlockItem(BlockData *data, Item *parent):
   Item(data, parent) {
   bs = 0;
+
+  foreach (FootnoteData *fd, data->children<FootnoteData>()) 
+    newFootnote(fd);
 }
 
 BlockItem::~BlockItem() {
+}
+
+FootnoteItem *BlockItem::newFootnote(FootnoteData *fd) {
+  FootnoteItem *fni = new FootnoteItem(fd, 0);
+  if (fd->height()==0) 
+    fni->sizeToFit();
+  fni->resetPosition();
+  connect(fni, SIGNAL(heightChanged()),
+	  this, SIGNAL(heightChanged()));
+  foots << fni;
+  return fni;
 }
 
 BlockItem const *BlockItem::ancestralBlock() const {
@@ -45,31 +58,28 @@ BlockItem *BlockItem::ancestralBlock() {
 
 void BlockItem::refTextChange(QString olds, QString news) {
   qDebug() << "BlockItem" << this<< "refTextChange";
-  foreach (FootnoteData *fnd, data()->children<FootnoteData>()) {
-    if (fnd->tag()==olds) {
-      // Found a footnote that is affected by this. Let's find the
-      // corresponding item.
-      QGraphicsScene *s = scene();
-      if (s) {
-	foreach (QGraphicsItem *i, s->items()) {
-	  FootnoteGroupItem *fng = dynamic_cast<FootnoteGroupItem*>(i);
-	  if (fng) {
-	    foreach (FootnoteItem *fni, fng->children<FootnoteItem>()) {
-	      if (fni->data()==fnd) {
-		// found the note!
-                fni->setTagText(news);
-		if (news.isEmpty()) 
-		  fni->deleteLater();
-	      }
-	    }
-	  }
-	}
-      }
-	
-      if (news.isEmpty()) 
-	data()->deleteChild(fnd);
+  QSet<FootnoteItem *> dropset;
+  foreach (FootnoteItem *fni, foots) {
+    if (fni==0)
+      continue;
+    if (fni->data()->tag()==olds) {
+      // Found a footnote that is affected by this.
+      if (news.isEmpty())
+	dropset.insert(fni);
+      else
+	fni->setTagText(news);
     }
   }
+  foreach (FootnoteItem *fni, dropset) {
+    foots.removeAll(fni);
+    FootnoteData *fnd = fni->data();
+    fni->deleteLater();
+    data()->deleteChild(fnd);
+  }
+  if (!dropset.isEmpty())
+    emit heightChanged();
+
+  // we should remove null notes, but it's not important
 }
 
 void BlockItem::resetPosition() {
@@ -85,4 +95,19 @@ void BlockItem::setBaseScene(BaseScene *b) {
 
 BaseScene *BlockItem::baseScene() {
   return bs;
+}
+
+void BlockItem::makeWritable() {
+  Item::makeWritable();
+  foreach (FootnoteItem *fni, foots) 
+    if (fni->parent() != this)
+      fni->makeWritable();
+}
+
+QList<FootnoteItem *> BlockItem::footnotes() {
+  QList<FootnoteItem *> r;
+  foreach (FootnoteItem *fni, foots)
+    if (fni)
+      r << fni;
+  return r;
 }

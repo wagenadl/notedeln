@@ -58,9 +58,7 @@ public:
      as the Data.
   */
   void setSheet(int);
-  // other
-  // void addNote(NoteData *);
-  // bool deleteNote(NoteData *);
+  bool setSheetAndY0(int n, double y0); // true if anything new
   virtual bool isEmpty() const;
 signals:
   void newSheet(int); // not emitted during loading

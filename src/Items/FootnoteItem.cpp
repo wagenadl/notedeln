@@ -19,7 +19,6 @@
 #include "FootnoteItem.H"
 #include "FootnoteData.H"
 #include "TextItem.H"
-#include "FootnoteGroupItem.H"
 #include "AutoNote.H"
 #include "Assert.H"
 
@@ -48,12 +47,6 @@ FootnoteItem::FootnoteItem(FootnoteData *data, Item *parent):
   tc.setBlockFormat(fmt);
   text()->setTextWidth(text()->textWidth()); // crazy way to fix HoverRegions
   connect(text(), SIGNAL(abandoned()), this, SLOT(abandon()));
-
-  FootnoteGroupItem *fng = dynamic_cast<FootnoteGroupItem*>(parent);
-  if (fng) {
-    connect(this, SIGNAL(heightChanged()), fng, SLOT(childChanged()));
-    connect(this, SIGNAL(destroyed()), fng, SLOT(childChanged()));
-  }
 }
 
 FootnoteItem::~FootnoteItem() {

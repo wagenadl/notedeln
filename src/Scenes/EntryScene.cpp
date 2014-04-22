@@ -31,7 +31,6 @@
 #include "GfxBlockData.H"
 #include "ResManager.H"
 #include "Mode.H"
-#include "FootnoteGroupItem.H"
 #include "FootnoteData.H"
 #include "FootnoteItem.H"
 #include "Assert.H"
@@ -73,10 +72,8 @@ EntryScene::EntryScene(CachedEntry data, QObject *parent):
   unlockedItem = 0;
 
   vChangeMapper = new QSignalMapper(this);
-  noteVChangeMapper = new QSignalMapper(this);
   futileMovementMapper = new QSignalMapper(this);
   connect(vChangeMapper, SIGNAL(mapped(int)), SLOT(vChanged(int)));
-  connect(noteVChangeMapper, SIGNAL(mapped(int)), SLOT(noteVChanged(int)));
   connect(futileMovementMapper, SIGNAL(mapped(int)), SLOT(futileMovement(int)));
 }
 
@@ -103,11 +100,6 @@ void EntryScene::makeBlockItems() {
     ASSERT(bi);
     connect(bi, SIGNAL(heightChanged()), vChangeMapper, SLOT(map()));
     blockItems.append(bi);
-    FootnoteGroupItem *fng = new FootnoteGroupItem(bd, this);
-    foreach (FootnoteItem *fni, fng->children<FootnoteItem>())
-      connect(fni, SIGNAL(futileMovement()), SLOT(futileNoteMovement()));
-    footnoteGroups.append(fng);
-    connect(fng, SIGNAL(heightChanged()), noteVChangeMapper, SLOT(map()));    
   }
   redateBlocks();
   remap();
@@ -166,72 +158,115 @@ void EntryScene::positionBlocks() {
     isheet = bi->data()->sheet(); 
     sheet(isheet, true)->addItem(bi);
     bi->resetPosition();
-  }
-  bool mustRestack = false;
-  foreach (FootnoteGroupItem *fngi, footnoteGroups) {
-    sheet(fngi->data()->sheet(), true)->addItem(fngi);
-    if (fngi->resetPosition())
-      mustRestack = true;
+    foreach (FootnoteItem *fni, bi->footnotes()) {
+      int jsheet = fni->data()->sheet();
+      if (jsheet<0)
+	jsheet = isheet;
+      sheet(isheet, true)->addItem(fni);
+      fni->resetPosition();
+    }
   }
   setSheetCount(isheet+1);
-  if (mustRestack) 
-    for (int i=0; i<nSheets; i++)
-      restackNotes(i);
 }
 
-void EntryScene::restackBlocks() {
+void EntryScene::restackBlocks(int start) {
   if (!writable)
     return;
 
-  double y0 = style().real("margin-top");
-  double y1 = style().real("page-height") - style().real("margin-bottom");
-  double yblock = y0; // top of next block
-  double yfng = y1; // bottom of next footnotegroup
-  int sheet = 0; // sheet for next block & notegroup
-
-  for (int i=0; i<blockItems.size(); ++i) {
-    BlockItem *bi = blockItems[i];
-    FootnoteGroupItem *fngi = footnoteGroups[i];
-    double blockh = bi->data()->height();
-    double fngh = fngi->netHeight();
-    if (yblock+blockh > yfng-fngh && yblock > y0) {
-      restackNotes(sheet); 
-      sheet++;
-      yblock = y0;
-      yfng = y1;
-    }
-    if (bi->data()->y0() != yblock)
-      bi->data()->setY0(yblock);
-    if (bi->data()->sheet() != sheet)
-      bi->data()->setSheet(sheet);
-    QGraphicsScene *s0 = bi->scene();
-    QGraphicsScene *s1 = this->sheet(sheet, true);
-    if (s1!=s0) {
-      FocusProxyCache fpc(bi);
-      TextBlockItem *tbi = dynamic_cast<TextBlockItem*>(bi);
-      if (tbi) {
-        qDebug() << "Transferring text block " << tbi;
-        qDebug() << "focus? " << tbi->hasFocus()
-                 << " / " << tbi->text()->hasFocus()
-                 << " / " << tbi->text()->titxt()->hasFocus();
-        qDebug() << "proxy was " << tbi->text()->focusProxy();
-      }
-      s1->addItem(bi);
-      fpc.restore();
-      if (tbi) {
-        qDebug() << "proxy is " << tbi->text()->focusProxy();
-      }
-    }
-    bi->resetPosition();
-    yblock += blockh;
-    yfng -= fngh;
-  }
-  restackNotes(sheet);
+  int end = restackBlockData(start);
+  restackBlockItems(start, end);
   redateBlocks();
-  setSheetCount(sheet + 1);
+  resetSheetCount();
   qDebug() << "EntryScene::restacked";
   emit restacked();
 }
+
+int EntryScene::restackBlockData(int start) {
+  double y0 = style().real("margin-top");
+  double y1 = style().real("page-height") - style().real("margin-bottom");
+  double yblock = y0; // top of next block
+  double yfng = y1; // bottom of next footnote
+  int isheet = 0; // sheet for next block & footnote
+  if (start>0 && start<blockItems.size()) {
+    BlockData const *bd = blockItems[start-1]->data();
+    yblock = bd->y0() + bd->height();
+    isheet = bd->sheet();
+    foreach (FootnoteData const *fnd, bd->children<FootnoteData>()) 
+      if (fnd->y0() < yfng)
+	yfng = fnd->y0();
+  }
+
+  int end = start;
+  for (int i=start; i<blockItems.size(); ++i) {
+    BlockItem *bi = blockItems[i];
+    BlockData *bd = bi->data();
+    bool chg = false;
+    double blockh = bd->height();
+    double fngh = 0;
+    foreach (FootnoteData *fnd, bd->children<FootnoteData>()) 
+      fngh += fnd->height();
+    
+    if (yblock+blockh > yfng-fngh && yblock > y0) {
+      isheet++;
+      yblock = y0;
+      yfng = y1;
+    }
+
+    if (bd->setSheetAndY0(isheet, yblock))
+      chg = true;
+
+    double yfng0 = yfng - fngh;
+    foreach (FootnoteData *fnd, bd->children<FootnoteData>()) {
+      if (fnd->setSheetAndY0(isheet, yfng0))
+	chg = true;
+      yfng0 += fnd->height();
+    }
+    end = i+1;
+    if (!chg
+	&& end<blockItems.size() && blockItems[end]->data()->y0()==yblock)
+      break; // other stuff cannot be affected, right?
+    // I think that footnotes may still be affected potentially
+  }
+  return end;
+}
+
+void EntryScene::restackBlockItems(int start, int end) {
+  for (int i=start; i<end; i++) {
+    BlockItem *bi = blockItems[i];
+    QGraphicsScene *s0 = bi->scene();
+    QGraphicsScene *s1 = sheet(bi->data()->sheet(), true);
+    if (s1!=s0) {
+      FocusProxyCache fpc(bi);
+      s1->addItem(bi);
+      fpc.restore();
+    }
+    bi->resetPosition();
+
+    foreach (FootnoteItem *fni, bi->footnotes()) {
+      QGraphicsScene *s0 = fni->scene();
+      QGraphicsScene *s1 = sheet(fni->data()->sheet(), true);
+      if (s1!=s0) {
+	FocusProxyCache fpc(fni);
+	s1->addItem(fni);
+	fpc.restore();
+      }
+      fni->resetPosition();
+    }
+  }
+}
+
+
+void EntryScene::resetSheetCount() {
+  int maxsheet = 0;
+  foreach (BlockData *bd, data()->children<BlockData>()) {
+    if (bd->sheet()>maxsheet)
+      maxsheet = bd->sheet();
+    foreach (FootnoteData *fnd, bd->children<FootnoteData>()) 
+      if (fnd->sheet()>maxsheet)
+	maxsheet = fnd->sheet();
+  }
+  setSheetCount(maxsheet + 1);
+}  
 
 void EntryScene::redateBlocks() {
   QDate cre = data()->created().date();
@@ -282,37 +317,24 @@ void EntryScene::redateBlocks() {
   }    
 }
 
-void EntryScene::restackNotes(int sheet) {
-  double yfng = style().real("page-height") - style().real("margin-bottom");
-  for (int i=blockItems.size()-1; i>=0; --i) {
-    BlockItem *bi = blockItems[i];
-    if (bi->data()->sheet()==sheet) {
-      FootnoteGroupItem *fngi = footnoteGroups[i];
-      QGraphicsScene *s0 = fngi->scene();
-      QGraphicsScene *s1 = this->sheet(sheet, true);
-      if (s1!=s0)
-	s1->addItem(fngi);
-      yfng -= fngi->netHeight();
-      fngi->moveTo(yfng);
-    }
-  }
-}
-
 void EntryScene::notifyChildless(BlockItem *gbi) {
   if (!dynamic_cast<GfxBlockItem*>(gbi))
     return;
   if (!writable)
     return;
   //  qDebug() << "childless" << this << gbi;
+  int iblock = -1;
   for (int i=0; i<blockItems.size(); ++i) {
     if (blockItems[i] == gbi) {
       //      qDebug() << "deleting block " << i;
       deleteBlock(i);
+      iblock = i;
       break;
     }
   }
   //  qDebug() << "restacking";
-  restackBlocks();
+  if (iblock>=0)
+    restackBlocks(iblock);
 }
   
 void EntryScene::deleteBlock(int blocki) {
@@ -322,21 +344,23 @@ void EntryScene::deleteBlock(int blocki) {
   }
   BlockItem *bi = blockItems[blocki];
   BlockData *bd = bi->data();
-  FootnoteGroupItem *fng = footnoteGroups[blocki];
 
   blockItems.removeAt(blocki);
-  footnoteGroups.removeAt(blocki);
   remap();
+
+  foreach (FootnoteItem *fni, bi->footnotes()) {
+    QGraphicsScene *s = fni->scene();
+    if (s)
+      s->removeItem(fni);
+    fni->deleteLater();
+  }
 
   QGraphicsScene *s = bi->scene();
   if (s)
     s->removeItem(bi);
   bi->deleteLater();
+
   data_->deleteBlock(bd);
-  s = fng->scene();
-  if (s)
-    s->removeItem(fng);
-  fng->deleteLater();
 }
 
 GfxBlockItem *EntryScene::newGfxBlock(int iAbove) {
@@ -363,17 +387,14 @@ GfxBlockItem *EntryScene::newGfxBlock(int iAbove) {
   gbi->setBaseScene(this);
   gbi->sizeToFit();
   gbi->makeWritable();
-  FootnoteGroupItem *fng =  new FootnoteGroupItem(gbd, this);
   
   blockItems.insert(iNew, gbi);
-  footnoteGroups.insert(iNew, fng);
 
   connect(gbi, SIGNAL(heightChanged()), vChangeMapper, SLOT(map()));
-  connect(fng, SIGNAL(heightChanged()), noteVChangeMapper, SLOT(map()));    
   remap();
 
-  restackBlocks();
-  gotoSheetOfBlock(findBlock(gbi));
+  restackBlocks(iNew);
+  gotoSheetOfBlock(iNew);
   return gbi;
 }
 
@@ -387,7 +408,7 @@ void EntryScene::splitTextBlock(int iblock, int pos) {
   TextBlockData *block2 = block1->split(pos);
   injectTextBlock(block1, iblock);
   TextBlockItem *tbi_post = injectTextBlock(block2, iblock+1);
-  restackBlocks();
+  restackBlocks(iblock);
   gotoSheetOfBlock(iblock+1);
   tbi_post->setFocus();
 }
@@ -409,7 +430,7 @@ void EntryScene::joinTextBlocks(int iblock_pre, int iblock_post) {
   deleteBlock(iblock_pre);
   block1->join(block2);
   TextBlockItem *tbi = injectTextBlock(block1, iblock_pre);
-  restackBlocks();
+  restackBlocks(iblock_pre);
   gotoSheetOfBlock(iblock_pre);
   tbi->setFocus();
   QTextCursor c(tbi->text()->document());
@@ -430,9 +451,6 @@ TableBlockItem *EntryScene::injectTableBlock(TableBlockData *tbd, int iblock) {
   tbi->makeWritable();
 
   blockItems.insert(iblock, tbi);
-  FootnoteGroupItem *fng = new FootnoteGroupItem(tbd, this);
-  footnoteGroups.insert(iblock, fng);
-  fng->makeWritable();
   connect(tbi, SIGNAL(heightChanged()), vChangeMapper, SLOT(map()));
   connect(tbi, SIGNAL(futileMovement()), futileMovementMapper, SLOT(map()));
   remap();
@@ -452,9 +470,6 @@ TextBlockItem *EntryScene::injectTextBlock(TextBlockData *tbd, int iblock) {
   tbi->makeWritable();
 
   blockItems.insert(iblock, tbi);
-  FootnoteGroupItem *fng = new FootnoteGroupItem(tbd, this);
-  footnoteGroups.insert(iblock, fng);
-  fng->makeWritable();
   connect(tbi, SIGNAL(heightChanged()), vChangeMapper, SLOT(map()));
   connect(tbi, SIGNAL(futileMovement()), futileMovementMapper, SLOT(map()));
   remap();
@@ -466,7 +481,6 @@ void EntryScene::remap() {
     BlockItem *bi = blockItems[i];
     vChangeMapper->setMapping(bi, i);
     futileMovementMapper->setMapping(bi, i);
-    noteVChangeMapper->setMapping(footnoteGroups[i], i);
   }
 }
 
@@ -478,7 +492,7 @@ TableBlockItem *EntryScene::newTableBlock(int iAbove) {
   TableBlockData *tbd = new TableBlockData();
   TableBlockItem *tbi = injectTableBlock(tbd, iNew);
   
-  restackBlocks();
+  restackBlocks(iNew);
   gotoSheetOfBlock(iNew);
   tbi->setFocus();
   return tbi;
@@ -531,7 +545,7 @@ TextBlockItem *EntryScene::newTextBlock(int iAbove, bool evenIfLastEmpty) {
     tbd->setIndented(false);
   TextBlockItem *tbi = injectTextBlock(tbd, iNew); // this parents the block
   
-  restackBlocks();
+  restackBlocks(iNew);
   gotoSheetOfBlock(iNew);
   tbi->setFocus();
   return tbi;
@@ -674,7 +688,7 @@ void EntryScene::focusEnd(int isheet) {
 
 
 void EntryScene::vChanged(int block) {
-  restackBlocks();
+  restackBlocks(block);
   gotoSheetOfBlock(block);
 }
 
@@ -1020,8 +1034,6 @@ void EntryScene::makeWritable() {
   //belowItem->setCursor(Qt::IBeamCursor);
   foreach (BlockItem *bi, blockItems)
     bi->makeWritable();
-  foreach (FootnoteGroupItem *fng, footnoteGroups)
-    fng->makeWritable();
   foreach (SheetScene *s, sheets)
     s->fancyTitleItem()->makeWritable();
 }
@@ -1040,8 +1052,7 @@ bool EntryScene::isWritable() const {
 
 void EntryScene::newFootnote(int block, QString tag) {
   ASSERT(block>=0 && block<blockItems.size());
-  foreach (FootnoteItem *fni, footnoteGroups[block]->children<FootnoteItem>()) {
-    //    qDebug() << "Comparing" << tag << " against " << fni->data()->tag();
+  foreach (FootnoteItem *fni, blockItems[block]->footnotes()) {
     if (fni->data()->tag()==tag) {
       fni->setFocus();
       return;
@@ -1049,24 +1060,13 @@ void EntryScene::newFootnote(int block, QString tag) {
   }
   FootnoteData *fnd = new FootnoteData(blockItems[block]->data());
   fnd->setTag(tag);
-  FootnoteItem *fni = new FootnoteItem(fnd, footnoteGroups[block]);
-  connect(fni, SIGNAL(futileMovement()), SLOT(futileNoteMovement()));
+  FootnoteItem *fni = blockItems[block]->newFootnote(fnd);
   fni->makeWritable();
   fni->sizeToFit();
-  restackBlocks();
+  restackBlocks(block);
   gotoSheetOfBlock(block);
-  if (!fni->setAutoContents())
-    fni->setFocus();
-}
-
-void EntryScene::noteVChanged(int block) {
-  qDebug() << "noteVChanged" << block;
-  restackBlocks();
-  gotoSheetOfBlock(block);
-}
-
-void EntryScene::futileNoteMovement() {
-  // not yet implemented
+  fni->setAutoContents();
+  fni->setFocus();
 }
 
 EntryData *EntryScene::data() const {
@@ -1124,9 +1124,9 @@ QList<BlockItem const *> EntryScene::blocks() const {
 
 QList<FootnoteItem const *> EntryScene::footnotes() const {
   QList<FootnoteItem const *> ff;
-  foreach (FootnoteGroupItem *fg, footnoteGroups)
-    foreach (FootnoteItem *f, fg->children<FootnoteItem>())
-    ff << f;
+  foreach (BlockItem *bi, blockItems)
+    foreach (FootnoteItem *f, bi->footnotes())
+      ff << f;
   return ff;
 }
 

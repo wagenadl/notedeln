@@ -59,13 +59,11 @@ signals:
 protected:
   bool mousePressEvent(QGraphicsSceneMouseEvent *, SheetScene *);
   bool keyPressEvent(QKeyEvent *, SheetScene *);
-private slots:
+protected slots:
   void titleEdited();
   void vChanged(int block);
-  void noteVChanged(int block);
   void futileMovement(int block);
   void futileTitleMovement(int, Qt::KeyboardModifiers);
-  void futileNoteMovement();
 private:
   void splitTextBlock(int iblock, int pos);
   class TableBlockItem *injectTableBlock(class TableBlockData *, int iblock);
@@ -87,9 +85,11 @@ private:
   void makeDateItem();
   void makeBlockItems();
   void positionBlocks();
-  void restackBlocks();
+  void restackBlocks(int start);
+  int restackBlockData(int start); // returns first block that does not need moving
+  void restackBlockItems(int start, int end);
+  void resetSheetCount();
   void redateBlocks();
-  void restackNotes(int sheet);
   void positionTitleItem();
   void positionNofNAndDateItems();
   int findLastBlockOnSheet(int sheet); // returns -1 if none
@@ -118,11 +118,9 @@ private:
 private:
   QList<QGraphicsTextItem *> dateItems;
   class QSignalMapper *vChangeMapper;
-  class QSignalMapper *noteVChangeMapper;
   class QSignalMapper *futileMovementMapper;
 private:
   QList<class BlockItem *> blockItems;
-  QList<class FootnoteGroupItem *> footnoteGroups; // one for each block
   QMap<class BlockItem *, class QGraphicsTextItem *> blockDateItems;
 private:
   CachedEntry data_;

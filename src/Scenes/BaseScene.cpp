@@ -159,6 +159,12 @@ void BaseScene::setSheetCount(int n) {
       if (k>0)
         if (sheets[0]->fancyTitleItem()->isWritable())
           s->fancyTitleItem()->makeWritable();
+      connect(s->fancyTitleItem(),
+	      SIGNAL(futileMovementKey(int, Qt::KeyboardModifiers)),
+	      SLOT(futileTitleMovement(int, Qt::KeyboardModifiers)));
+      connect(s->fancyTitleItem()->document(), SIGNAL(contentsChanged()),
+	      SLOT(titleEdited()));
+      
     } else {
       s->setTitle(title());
     }
