@@ -19,6 +19,7 @@
 
 #include "TextBlockItem.H"
 #include "TextItem.H"
+#include "TextItemText.H"
 #include "TextBlockData.H"
 #include "Style.H"
 #include "EntryScene.H"
@@ -37,60 +38,62 @@ TextItem *TICreator::create(TextData *data, Item *parent) const {
   return new TextItem(data, parent);
 }
 
+/* This TICreator business is so that TableBlockItem's TableItem can
+   be created by TextBlockItem without trouble.
+ */
+
 
 TextBlockItem::TextBlockItem(TextBlockData *data, Item *parent,
 			     TICreator const &tic):
   BlockItem(data, parent) {
-  item_ = 0;
 
   setPos(style().real("margin-left"), 0);
 
-  item_ = tic.create(data->text(), this);
+  frags << tic.create(data->text(), this);
 
   initializeFormat();
-  item_->setAllowParagraphs(false);
-  item_->setAllowNotes(true);
+  frags[0]->setAllowParagraphs(false);
+ frags[0]->setAllowNotes(true);
   
-  connect(item_, SIGNAL(textChanged()),
+  connect(frags[0], SIGNAL(textChanged()),
 	  this, SLOT(sizeToFit()), Qt::QueuedConnection);
   // The non-instantaneous delivery is important, otherwise the check
   // may happen before the change is processed.
-  connect(item_, SIGNAL(futileMovementKey(int, Qt::KeyboardModifiers)),
+  connect(frags[0], SIGNAL(futileMovementKey(int, Qt::KeyboardModifiers)),
 	  this, SLOT(futileMovementKey(int, Qt::KeyboardModifiers)));
-  connect(item_, SIGNAL(refTextChange(QString, QString)),
+  connect(frags[0], SIGNAL(refTextChange(QString, QString)),
 	  this, SLOT(refTextChange(QString, QString)));
 }
 
 void TextBlockItem::makeWritable() {
   BlockItem::makeWritable();
-  //  item_->setAllowNotes(false);
-  // 1/28/14 - Why would I not allow notes on editable text?
   setFlag(ItemIsFocusable);
-  setFocusProxy(item_);
+  setFocusProxy(frags[0]);
 }
 
 TextBlockItem::~TextBlockItem() {
-  // I assume the item_ is deleted by Qt?
+  // The frags[0] is deleted by Qt
 }
 
 void TextBlockItem::initializeFormat() {
   bool disp = data()->displayed();
-  
-  item_->setTextWidth(style().real("page-width")
-		      - style().real("margin-left")
-		      - style().real("margin-right"));
-  item_->setPos(0, style().real("text-block-above"));
 
-  item_->setFont(style().font(disp ? "display-text-font" : "text-font"));
-  item_->setDefaultTextColor(style().color(disp ? "display-text-color"
-                                           : "text-color"));
+  foreach (TextItem *ti, frags) {
+    ti->setTextWidth(style().real("page-width")
+                     - style().real("margin-left")
+                     - style().real("margin-right"));
+    ti->setPos(0, style().real("text-block-above"));
 
+    ti->setFont(style().font(disp ? "display-text-font" : "text-font"));
+    ti->setDefaultTextColor(style().color(disp ? "display-text-color"
+                                                : "text-color"));
+  }
 
-  QTextCursor tc(item_->document());
+  QTextCursor tc(frags[0]->document());
   QTextBlockFormat fmt = tc.blockFormat();
   fmt.setLineHeight(style().real(disp ? "display-paragraph-line-spacing"
                                  : "paragraph-line-spacing")*100,
-		    QTextBlockFormat::ProportionalHeight);
+                    QTextBlockFormat::ProportionalHeight);
   double indent =
     data()->indented() ? style().real("paragraph-indent")
     : data()->dedented() ? -style().real("paragraph-indent")
@@ -105,16 +108,16 @@ void TextBlockItem::initializeFormat() {
   //  fmt.setBottomMargin(style().real("paragraph-bottom-margin"));
   tc.movePosition(QTextCursor::Start);
   tc.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
-  tc.setBlockFormat(fmt);
+    tc.setBlockFormat(fmt);
 }  
 
 QTextDocument *TextBlockItem::document() const {
-  ASSERT(item_);
-  return item_->document();
+  ASSERT(frags[0]);
+  return frags[0]->document();
 }
 
 void TextBlockItem::futileMovementKey(int key, Qt::KeyboardModifiers mod) {
-  fmi = FutileMovementInfo(key, mod, item_);
+  fmi = FutileMovementInfo(key, mod, frags[0]);
   emit futileMovement(); // we emit w/o content, because EntryScene uses Mapper.
 }
 
@@ -153,19 +156,49 @@ void TextBlockItem::paint(QPainter *,
 }
 
 TextItem *TextBlockItem::text() const {
-  return item_;
+  return frags[0];
 }
 
 void TextBlockItem::sizeToFit() {
-  QRectF r = item_->mapRectToParent(item_->netBounds());
-  double h = data()->height();
-  if (h!=r.height()) {
+  double h0 = data()->height();
+  double h1 = 0;
+  foreach (TextItem *ti, frags) 
+    h1 += ti->mapRectToParent(ti->netBounds()).height();
+  if (h1!=h0) {
     if (isWritable())
-      data()->setHeight(r.height());
+      data()->setHeight(h1);
     else
-      data()->sneakilySetHeight(r.height());      
+      data()->sneakilySetHeight(h1);
     emit heightChanged();
   }
 }
 
-  
+class TextItem *TextBlockItem::fragment(int fragno) const {
+  ASSERT(fragno>=0 && fragno<frags.size());
+  return frags[fragno];
+}
+
+int TextBlockItem::nFragments() const {
+  return frags.size();
+}
+
+int TextBlockItem::fragmentForPos(int pos) const {
+  if (!frags[0]->clips())
+    return 0;
+  for (int i=0; i<frags.size(); i++) {
+    QPointF xy = frags[i]->posToPoint(pos);
+    if (frags[i]->clipPath().boundingRect().contains(xy))
+      return i;
+  }
+  qDebug() << "TBI::fragmentForPos: not found, returning 0";
+  return 0;
+}
+
+void TextBlockItem::unsplit() {
+  while (frags.size()>1)
+    frags.takeLast()->deleteLater();
+  frags[0]->unclip();
+}
+
+void TextBlockItem::splitAt(double yoffset) {
+}

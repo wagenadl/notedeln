@@ -48,6 +48,11 @@ public:
   void paint(QPainter *p, const QStyleOptionGraphicsItem *o, QWidget *w);
   virtual void makeWritable();
   void initializeFormat();
+  class TextItem *fragment(int fragno) const;
+  int nFragments() const;
+  int fragmentForPos(int pos) const;
+  void unsplit();
+  void splitAt(double yoffset);
 signals:
   void futileMovement(); // up key on top line etc
 public slots:
@@ -55,7 +60,7 @@ public slots:
 private slots:
   void futileMovementKey(int, Qt::KeyboardModifiers);
 private:
-  class TextItem *item_; // we do own
+  QList<class TextItem *> frags; // we do own
   FutileMovementInfo fmi;
 };
 

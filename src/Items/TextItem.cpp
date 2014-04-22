@@ -224,6 +224,10 @@ bool TextItem::mousePress(QGraphicsSceneMouseEvent *e) {
 int TextItem::pointToPos(QPointF p) const {
   return ::pointToPos(text, text->mapFromParent(p));
 }
+
+QPointF TextItem::posToPoint(int pos) const {
+  return text->mapToParent(::posToPoint(text, pos));
+}
       
 
 void TextItem::attemptMarkup(QPointF p, MarkupData::Style m) {
@@ -867,3 +871,21 @@ void TextItem::insertBasicHtml(QString html, int pos) {
 QRectF TextItem::netBounds() const {
   return text->mapRectToParent(text->boundingRect());
 }
+
+QRectF TextItem::clipRect() const {
+  return clip_;
+}
+
+bool TextItem::clips() const {
+  return !clip_.isNull();
+}
+
+void TextItem::setClip(QRectF r) {
+  clip_ = r;
+  // of course, this is not enough
+}
+
+void TextItem::unclip() {
+  clip_ = QRectF();
+}
+

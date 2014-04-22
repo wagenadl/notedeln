@@ -47,8 +47,13 @@ public:
   void insertBasicHtml(QString html, int pos);
   // Only <b> and <i> tags are supported at present
   int pointToPos(QPointF) const;
+  QPointF posToPoint(int) const;
   //  QRectF fittedRect() const;
   QRectF netBounds() const;
+  QRectF clipRect() const; // null if not clipping
+  bool clips() const;
+  void setClip(QRectF);
+  void unclip();
 signals:
   void textChanged();
   void widthChanged();
@@ -124,6 +129,7 @@ protected:
   QPointF cursorPos;
   MarkupData::Style lateMarkType;
   int lateMarkStart;
+  QRectF clip_;
 public:
   TextItemText *titxt() { return text; } // debugging
 };
