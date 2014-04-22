@@ -86,8 +86,6 @@ private:
   void makeBlockItems();
   void positionBlocks();
   void restackBlocks(int start);
-  int restackBlockData(int start); // returns first block that does not need moving
-  void restackBlockItems(int start, int end);
   void resetSheetCount();
   void redateBlocks();
   void positionTitleItem();

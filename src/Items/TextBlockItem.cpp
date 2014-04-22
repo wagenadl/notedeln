@@ -200,5 +200,5 @@ void TextBlockItem::unsplit() {
   frags[0]->unclip();
 }
 
-void TextBlockItem::splitAt(double yoffset) {
+void TextBlockItem::splitAt(double /*yoffset*/) {
 }

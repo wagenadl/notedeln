@@ -41,6 +41,9 @@ public:
      of a block item in the qgraphics sense except during construction. */
   virtual void makeWritable();
   class FootnoteItem *newFootnote(class FootnoteData *fnd);
+public:
+  // splitpar stuff
+  virtual double splittableY(double /*hmax*/) { return 0; }
 signals:
   void heightChanged();
 public slots:

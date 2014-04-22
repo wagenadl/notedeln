@@ -41,7 +41,7 @@
 #include "TableItem.H"
 #include "TextItemText.H"
 #include "SvgFile.H"
-#include "FocusProxyCache.H"
+#include "Restacker.H"
 
 #include <QGraphicsView>
 #include <QGraphicsTextItem>
@@ -173,88 +173,15 @@ void EntryScene::restackBlocks(int start) {
   if (!writable)
     return;
 
-  int end = restackBlockData(start);
-  restackBlockItems(start, end);
+  Restacker restacker(blockItems, start);
+  restacker.restackData();
+  restacker.restackItems(*this);
+
   redateBlocks();
   resetSheetCount();
   qDebug() << "EntryScene::restacked";
   emit restacked();
 }
-
-int EntryScene::restackBlockData(int start) {
-  double y0 = style().real("margin-top");
-  double y1 = style().real("page-height") - style().real("margin-bottom");
-  double yblock = y0; // top of next block
-  double yfng = y1; // bottom of next footnote
-  int isheet = 0; // sheet for next block & footnote
-  if (start>0 && start<blockItems.size()) {
-    BlockData const *bd = blockItems[start-1]->data();
-    yblock = bd->y0() + bd->height();
-    isheet = bd->sheet();
-    foreach (FootnoteData const *fnd, bd->children<FootnoteData>()) 
-      if (fnd->y0() < yfng)
-	yfng = fnd->y0();
-  }
-
-  int end = start;
-  for (int i=start; i<blockItems.size(); ++i) {
-    BlockItem *bi = blockItems[i];
-    BlockData *bd = bi->data();
-    bool chg = false;
-    double blockh = bd->height();
-    double fngh = 0;
-    foreach (FootnoteData *fnd, bd->children<FootnoteData>()) 
-      fngh += fnd->height();
-    
-    if (yblock+blockh > yfng-fngh && yblock > y0) {
-      isheet++;
-      yblock = y0;
-      yfng = y1;
-    }
-
-    if (bd->setSheetAndY0(isheet, yblock))
-      chg = true;
-
-    double yfng0 = yfng - fngh;
-    foreach (FootnoteData *fnd, bd->children<FootnoteData>()) {
-      if (fnd->setSheetAndY0(isheet, yfng0))
-	chg = true;
-      yfng0 += fnd->height();
-    }
-    end = i+1;
-    if (!chg
-	&& end<blockItems.size() && blockItems[end]->data()->y0()==yblock)
-      break; // other stuff cannot be affected, right?
-    // I think that footnotes may still be affected potentially
-  }
-  return end;
-}
-
-void EntryScene::restackBlockItems(int start, int end) {
-  for (int i=start; i<end; i++) {
-    BlockItem *bi = blockItems[i];
-    QGraphicsScene *s0 = bi->scene();
-    QGraphicsScene *s1 = sheet(bi->data()->sheet(), true);
-    if (s1!=s0) {
-      FocusProxyCache fpc(bi);
-      s1->addItem(bi);
-      fpc.restore();
-    }
-    bi->resetPosition();
-
-    foreach (FootnoteItem *fni, bi->footnotes()) {
-      QGraphicsScene *s0 = fni->scene();
-      QGraphicsScene *s1 = sheet(fni->data()->sheet(), true);
-      if (s1!=s0) {
-	FocusProxyCache fpc(fni);
-	s1->addItem(fni);
-	fpc.restore();
-      }
-      fni->resetPosition();
-    }
-  }
-}
-
 
 void EntryScene::resetSheetCount() {
   int maxsheet = 0;
