@@ -48,6 +48,7 @@ public:
   void paint(QPainter *p, const QStyleOptionGraphicsItem *o, QWidget *w);
   virtual void makeWritable();
   void initializeFormat();
+public: // splitpar stuff:
   class TextItem *fragment(int fragno) const;
   int nFragments() const;
   int fragmentForPos(int pos) const;
