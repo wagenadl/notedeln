@@ -63,6 +63,7 @@ QGraphicsTextItem *FootnoteItem::tag() {
 void FootnoteItem::setTagText(QString t) {
   data()->setTag(t);
   updateTag();
+  sizeToFit();
 }
 
 QString FootnoteItem::tagText() const {
@@ -77,7 +78,6 @@ void FootnoteItem::updateTag() {
   double tagwidth = tag_->boundingRect().width();
   text()->setPos(tagwidth, 0);
   text()->setTextWidth(textwidth - tagwidth);
-  sizeToFit();
 }
 
 void FootnoteItem::abandon() {

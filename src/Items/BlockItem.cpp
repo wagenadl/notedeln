@@ -18,6 +18,7 @@
 
 #include "BlockItem.H"
 #include "BlockData.H"
+#include "TextItem.H"
 #include "EntryScene.H"
 #include "FootnoteItem.H"
 #include "FootnoteData.H"
@@ -110,4 +111,22 @@ QList<FootnoteItem *> BlockItem::footnotes() {
     if (fni)
       r << fni;
   return r;
+}
+
+QPointF BlockItem::findRefText(QString s) {
+  return findRefTextIn(s, this);
+}
+
+QPointF BlockItem::findRefTextIn(QString s, Item *i) {
+  TextItem *ti = dynamic_cast<TextItem *>(i);
+  if (ti) {
+    return ti->posToPoint(ti->data()->offsetOfFootnoteTag(s));
+  } else {
+    foreach (Item *c, i->allChildren()) {
+      QPointF p = findRefTextIn(s, c);
+      if (!p.isNull())
+	return c->mapToParent(p);
+    }
+  }
+  return QPointF();
 }

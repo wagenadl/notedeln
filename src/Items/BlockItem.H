@@ -41,6 +41,7 @@ public:
      of a block item in the qgraphics sense except during construction. */
   virtual void makeWritable();
   class FootnoteItem *newFootnote(class FootnoteData *fnd);
+  QPointF findRefText(QString);
 public:
   // splitpar stuff
   virtual double splittableY(double /*hmax*/) { return 0; }
@@ -57,6 +58,8 @@ public slots:
      box is at the position specified in the Data.
    */
   void refTextChange(QString olds, QString news);
+private:
+  QPointF findRefTextIn(QString, Item *);
 private:
   BaseScene *bs;
   QList<QPointer<FootnoteItem> > foots;

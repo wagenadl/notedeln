@@ -60,7 +60,7 @@ void TextData::deleteMarkup(MarkupData *md) {
   deleteChild(md, InternalMod);
 }
 
-int TextData::offsetOfFootnoteTag(QString s) {
+int TextData::offsetOfFootnoteTag(QString s) const {
   int l = s.length();
   foreach (MarkupData *md, markups()) 
     if (md->style()==MarkupData::FootnoteRef
