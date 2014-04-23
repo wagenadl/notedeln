@@ -48,11 +48,14 @@
 #include "LateNoteItem.H" 
 #include "LateNoteData.H" 
 
-TextItem::TextItem(TextData *data, Item *parent, bool noFinalize):
+TextItem::TextItem(TextData *data, Item *parent, bool noFinalize,
+		   QTextDocument *altdoc):
   Item(data, parent) {
   markings_ = 0;
   text = new TextItemText(this);
-
+  if (altdoc)
+    text->setDocument(altdoc);
+  
   mayMark = true;
   mayNote = false;
   mayMove = false;

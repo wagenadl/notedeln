@@ -114,11 +114,16 @@ void Restacker::restackBlockOne(int i) {
     footplace[isheet].insert(rp, fni);
     yfn -= fni->data()->height();
   }
+
+  bi->unsplit();
+
   yblock += bd->height();
 }
 
-void Restacker::restackBlockSplit(int /*i*/, double /*ycut*/) {
-  //
+void Restacker::restackBlockSplit(int i, double ycut) {
+  BlockItem *bi = blocks[i];
+  BlockData *bd = bi->data();
+
 }
 
 void Restacker::restackFootnotesOnSheet() {

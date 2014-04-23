@@ -43,8 +43,9 @@ public:
   TextData *text();
   virtual bool isEmpty() const;
   TextBlockData *split(int pos);
-  /* Splits a text block in two pieces, taking care to associate footnotes
-     with the correct blocks.
+  /* Splits a text block in two, taking care to associate footnotes
+     with the correct blocks. This is NOT the same as splitting a single
+     block across two sheets.
    */
   void join(TextBlockData *); // the other is deleted afterward
 protected:

@@ -34,8 +34,9 @@
 TICreator::~TICreator() {
 }
 
-TextItem *TICreator::create(TextData *data, Item *parent) const {
-  return new TextItem(data, parent);
+TextItem *TICreator::create(TextData *data, Item *parent,
+			    QTextDocument *altdoc) const {
+  return new TextItem(data, parent, false, altdoc);
 }
 
 /* This TICreator business is so that TableBlockItem's TableItem can
@@ -45,28 +46,45 @@ TextItem *TICreator::create(TextData *data, Item *parent) const {
 
 TextBlockItem::TextBlockItem(TextBlockData *data, Item *parent,
 			     TICreator const &tic):
-  BlockItem(data, parent) {
+  BlockItem(data, parent), tic(tic) {
 
   setPos(style().real("margin-left"), 0);
 
   frags << tic.create(data->text(), this);
+  QList<double> ysplit = data->sheetSplits();
+  for (int i=0; i<ysplit.size(); i++)
+    frags << tic.create(data->text(), 0, frags[0]->document());
+
+  ysplit.push_front(0);
+  ysplit.push_back(data->height());
+  QRectF r0 = frags[0]->netBounds();
+  for (int i=0; i<frags.size(); i++)
+    frags[i]->setClip(QRectF(r0.left(), ysplit[i],
+			     r0.width(), ysplit[i+1]-ysplit[i]));
 
   initializeFormat();
-  frags[0]->setAllowParagraphs(false);
- frags[0]->setAllowNotes(true);
-  
-  connect(frags[0], SIGNAL(textChanged()),
-	  this, SLOT(sizeToFit()), Qt::QueuedConnection);
-  // The non-instantaneous delivery is important, otherwise the check
-  // may happen before the change is processed.
-  connect(frags[0], SIGNAL(futileMovementKey(int, Qt::KeyboardModifiers)),
-	  this, SLOT(futileMovementKey(int, Qt::KeyboardModifiers)));
-  connect(frags[0], SIGNAL(refTextChange(QString, QString)),
-	  this, SLOT(refTextChange(QString, QString)));
+
+  foreach (TextItem *ti, frags) {
+    ti->setAllowParagraphs(false);
+    ti->setAllowNotes(true);
+  }
+
+  foreach (TextItem *ti, frags) {
+    connect(ti, SIGNAL(textChanged()),
+	    this, SLOT(sizeToFit()), Qt::QueuedConnection);
+    // The non-instantaneous delivery is important, otherwise the check
+    // may happen before the change is processed.
+    connect(ti, SIGNAL(futileMovementKey(int, Qt::KeyboardModifiers)),
+	    this, SLOT(futileMovementKey(int, Qt::KeyboardModifiers)));
+    connect(ti, SIGNAL(refTextChange(QString, QString)),
+	    this, SLOT(refTextChange(QString, QString)));
+  }
 }
 
 void TextBlockItem::makeWritable() {
-  BlockItem::makeWritable();
+  BlockItem::makeWritable(); // this makes the first fragment writable
+  for (int i=1; i<frags.size(); i++)
+    frags[i]->makeWritable();
   setFlag(ItemIsFocusable);
   setFocusProxy(frags[0]);
 }
@@ -173,13 +191,9 @@ void TextBlockItem::sizeToFit() {
   }
 }
 
-class TextItem *TextBlockItem::fragment(int fragno) const {
+class TextItem *TextBlockItem::fragment(int fragno) {
   ASSERT(fragno>=0 && fragno<frags.size());
   return frags[fragno];
-}
-
-int TextBlockItem::nFragments() const {
-  return frags.size();
 }
 
 int TextBlockItem::fragmentForPos(int pos) const {
@@ -194,11 +208,58 @@ int TextBlockItem::fragmentForPos(int pos) const {
   return 0;
 }
 
+double TextBlockItem::splittableY(double y) {
+  QTextDocument *doc = frags[0]->document();
+  double bestY = 0;
+  for (QTextBlock blk = doc->firstBlock(); blk.isValid(); blk=blk.next()) {
+    QTextLayout *lay = blk.layout();
+    double y0 = lay->position().y();
+    QRectF bb = lay->boundingRect();
+    if (y0 + bb.bottom() <= y) {
+      bestY = bb.bottom();
+    } else if (y0+bb.top()<y) {
+      for (int i=0; i<lay->lineCount(); i++) {
+	QTextLine ln = lay->lineAt(i);
+	if (y0 + ln.rect().bottom() <= y)
+	  bestY = y0 + ln.rect().bottom();
+      }
+    }
+  }
+  return bestY;
+}
+
 void TextBlockItem::unsplit() {
   while (frags.size()>1)
     frags.takeLast()->deleteLater();
   frags[0]->unclip();
 }
 
-void TextBlockItem::splitAt(double /*yoffset*/) {
+void TextBlockItem::split(QList<double> ysplit) {
+  while (frags.size()>1+ysplit.size())
+    frags.takeLast()->deleteLater();
+
+  while (frags.size()<1+ysplit.size()) {
+    TextItem *ti = tic.create(data()->text(), 0, frags[0]->document());
+    frags << ti;
+
+    ti->setAllowParagraphs(false);
+    ti->setAllowNotes(true);
+
+    connect(ti, SIGNAL(textChanged()),
+	    this, SLOT(sizeToFit()), Qt::QueuedConnection);
+    // The non-instantaneous delivery is important, otherwise the check
+    // may happen before the change is processed.
+    connect(ti, SIGNAL(futileMovementKey(int, Qt::KeyboardModifiers)),
+	    this, SLOT(futileMovementKey(int, Qt::KeyboardModifiers)));
+    connect(ti, SIGNAL(refTextChange(QString, QString)),
+	    this, SLOT(refTextChange(QString, QString)));
+
+  }
+
+  ysplit.push_front(0);
+  ysplit.push_back(data()->height());
+  QRectF r0 = frags[0]->netBounds();
+  for (int i=0; i<frags.size(); i++)
+    frags[i]->setClip(QRectF(r0.left(), ysplit[i],
+			     r0.width(), ysplit[i+1]-ysplit[i]));
 }

@@ -22,9 +22,11 @@
 TTICreator::~TTICreator() {
 }
 
-TextItem *TTICreator::create(TextData *data, Item *parent) const {
+TextItem *TTICreator::create(TextData *data, Item *parent,
+			     QTextDocument *altdoc) const {
   TableData *d = dynamic_cast<TableData*>(data);
   ASSERT(d);
+  ASSERT(altdoc==0);
   return new TableItem(d, parent);
 }
 

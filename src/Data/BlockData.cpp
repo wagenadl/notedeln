@@ -86,3 +86,34 @@ bool BlockData::setSheetAndY0(int n, double y0) {
     markModified(InternalMod);
   return chg;
 }
+
+
+QList<double> const &BlockData::sheetSplits() const {
+  return ssplits;
+}
+
+void BlockData::setSheetSplits(QList<double> const &s) {
+  ssplits = s;
+  markModified(InternalMod);
+}
+
+void BlockData::resetSheetSplits() {
+  ssplits.clear();
+  markModified(InternalMod);
+}
+
+void BlockData::loadMore(QVariantMap const &src) {
+  Data::loadMore(src);
+  ssplits.clear();
+  foreach (QVariant v, src["split"].toList())
+    ssplits.append(v.toDouble());  
+}
+
+void BlockData::saveMore(QVariantMap &dst) const {
+  Data::saveMore(dst);
+  QVariantList xl;
+  foreach (double v, ssplits)
+    xl.append(QVariant(v));
+  dst["split"] = QVariant(xl);
+}
+

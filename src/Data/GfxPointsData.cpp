@@ -72,6 +72,7 @@ void GfxPointsData::removePoint(int i) {
 }
 
 void GfxPointsData::loadMore(QVariantMap const &src) {
+  GfxData::loadMore(src);
   xx_.clear();
   yy_.clear();
 
@@ -82,6 +83,7 @@ void GfxPointsData::loadMore(QVariantMap const &src) {
 }
 
 void GfxPointsData::saveMore(QVariantMap &dst) const {
+  GfxData::saveMore(dst);
   QVariantList xl;
   foreach (double v, xx_)
     xl.append(QVariant(v));

@@ -26,7 +26,8 @@
 class TTICreator: public TICreator {
 public:
   virtual ~TTICreator();
-  virtual class TextItem *create(TextData *data, Item *parent) const;
+  virtual class TextItem *create(TextData *data, Item *parent,
+				 class QTextDocument *altdoc=0) const;
 };
 
 class TableBlockItem: public TextBlockItem {

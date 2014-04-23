@@ -75,6 +75,7 @@ bool TextBlockData::displayed() const {
 
 void TextBlockData::setIndentationStyle(int i) {
   ind = i;
+  markModified();
 }
 
 int TextBlockData::indentationStyle() const {
@@ -88,6 +89,9 @@ TextData const *TextBlockData::text() const {
 TextData *TextBlockData::text() {
   return text_;
 }
+
+  
+
 
 void TextBlockData::loadMore(QVariantMap const &src) {
   BlockData::loadMore(src);

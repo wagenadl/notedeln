@@ -31,8 +31,9 @@
 class TextItem: public Item {
   Q_OBJECT;
 public:
-  TextItem(TextData *data, Item *parent, bool noFinalize=false);
-  // only TableItem should set noFinalize=true!
+  TextItem(TextData *data, Item *parent, bool noFinalize=false,
+	   class QTextDocument *altdoc=0);
+  // only descendents should set noFinalize=true!
   ~TextItem();
   DATAACCESS(TextData);
   virtual void makeWritable();

@@ -36,7 +36,10 @@ public:
   double height() const;
   int sheet() const;
   // QList<class NoteData *> notes() const;
+  QList<double> const &sheetSplits() const;
   // write properties
+  void setSheetSplits(QList<double> const &);
+  void resetSheetSplits();
   void setY0(double);
   void setHeight(double);
   void sneakilySetY0(double); 
@@ -62,10 +65,14 @@ public:
   virtual bool isEmpty() const;
 signals:
   void newSheet(int); // not emitted during loading
+protected:
+  virtual void loadMore(QVariantMap const &);
+  virtual void saveMore(QVariantMap &) const;
 private:
   double y0_;
   double h_;
   int sheet_;
+  QList<double> ssplits;
 };
 
 #endif

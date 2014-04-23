@@ -21,6 +21,7 @@
 #define TEXTBLOCKITEM_H
 
 #include "BlockItem.H"
+#include "TextItem.H"
 #include "FutileMovementInfo.H"
 #include "TextBlockData.H"
 #include <QTextCursor>
@@ -28,7 +29,8 @@
 class TICreator {
 public:
   virtual ~TICreator();
-  virtual class TextItem *create(TextData *data, Item *parent) const;
+  virtual class TextItem *create(TextData *data, Item *parent,
+				 class QTextDocument *altdoc=0) const;
 };
 
 class TextBlockItem: public BlockItem {
@@ -49,11 +51,11 @@ public:
   virtual void makeWritable();
   void initializeFormat();
 public: // splitpar stuff:
-  class TextItem *fragment(int fragno) const;
-  int nFragments() const;
+  virtual double splittableY(double hmax);
+  virtual TextItem *fragment(int fragno);
   int fragmentForPos(int pos) const;
-  void unsplit();
-  void splitAt(double yoffset);
+  virtual void unsplit();
+  virtual void split(QList<double> yy);
 signals:
   void futileMovement(); // up key on top line etc
 public slots:
@@ -63,6 +65,7 @@ private slots:
 private:
   QList<class TextItem *> frags; // we do own
   FutileMovementInfo fmi;
+  TICreator tic; // this means we cannot split tables for now
 };
 
 #endif
