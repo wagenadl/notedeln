@@ -41,18 +41,7 @@ public:
   MarkupData *addMarkup(int start, int end, MarkupData::Style style);
   void addMarkup(MarkupData *);
   void deleteMarkup(MarkupData *);
-  //  void append(TextData *);
-  /*:F append
-   *:D Appends the text of another TextData object to our text and imports
-       all markups.
-   */
-  //  TextData *split(int pos);
-  /*:F split
-   *:D Takes the text from the given position onwards and moves it into a
-       new TextData object, taking markups with it.
-   *:N The new object is created as a child of the original object's parent;
-       use takeChild() to disjoin it if needed.
-   */
+  int offsetOfFootnoteTag(QString) const;
 protected:
   QString text_;
 };

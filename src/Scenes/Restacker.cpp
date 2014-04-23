@@ -46,6 +46,8 @@ void Restacker::restackData() {
 }
 
 bool Restacker::restackDatum(int i) {
+  // This puts footnotedata on the right sheet, but not in the right order.
+  // Create a sorting by yref?
   BlockItem *bi = blocks[i];
   BlockData *bd = bi->data();
   double blockh = bd->height();
