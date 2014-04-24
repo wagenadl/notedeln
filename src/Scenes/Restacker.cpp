@@ -138,6 +138,7 @@ void Restacker::restackBlockSplit(int i, double ycut) {
 
   BlockItem *bi = blocks[i];
   BlockData *bd = bi->data();
+  double hreal = bi->splittableY(bd->height()); // less than h b/c of b. marg.
 
   /* First, we must collect all the footnotes that belong to this block and
      sort them in order of y-reference. A line of the block may not be placed
@@ -149,7 +150,7 @@ void Restacker::restackBlockSplit(int i, double ycut) {
   Footstacker fs(bi);
   double lastycut = 0;
   int lastn = 0;
-  while (lastycut<bd->height()) {
+  while (lastycut<hreal) {
     int nextn;
     double spaceav;
     double blockneed;
@@ -219,6 +220,11 @@ void Restacker::restackBlockSplit(int i, double ycut) {
     ycut = bd->height(); // let's see what we can do next
   }
 
+  if (lastn<fs.notes.size()) {
+    qDebug() << "Some notes not yet handled!";
+    ASSERT(0);
+  }
+
   ASSERT(!cuts.isEmpty());
   cuts.pop_back(); // the last is the height, by def.
   if (cuts!=bd->sheetSplits()) {
@@ -227,6 +233,7 @@ void Restacker::restackBlockSplit(int i, double ycut) {
       changedSheets.insert(isheet-cuts.size()+k);
   }
   bi->split(cuts);
+  yblock += bd->height() - lastycut; // reapply bottom margin
 }
 
 void Restacker::restackFootnotesOnSheet() {
@@ -235,11 +242,12 @@ void Restacker::restackFootnotesOnSheet() {
   foreach (FootnoteItem *fni, footplace[isheet]) 
     y -= fni->data()->height();
   foreach (FootnoteItem *fni, footplace[isheet]) {
-    fni->data()->setSheetAndY0(isheet, y);
+    if (fni->data()->setSheetAndY0(isheet, y))
+      changedSheets.insert(isheet);
     y += fni->data()->height();
   }
 }
- 
+
 void Restacker::restackItems(EntryScene &es) {
   for (int i=start; i<end; i++) {
     restackItem(es, i);

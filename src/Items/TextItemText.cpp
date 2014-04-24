@@ -153,15 +153,15 @@ QPointF posToPoint(QGraphicsTextItem const *item, int i) {
     if (lay->lineCount()==0)
       return QPointF();
     QTextLine line = lay->lineAt(lay->lineCount()-1);
-    QPointF p(line.cursorToX(line.textLength()), line.y()+line.ascent());
+    QPointF p(line.cursorToX(line.textLength()), line.y()+line.ascent()/2);
     return p + lay->position();
   }
   QTextLine line = lay->lineForTextPosition(i - blk.position());
   qDebug() << line.isValid();
   if (!line.isValid())
     return QPointF();
-  QPointF p(line.cursorToX(i-blk.position()), line.y()+line.ascent());
-  qDebug() << p;
+  QPointF p(line.cursorToX(i-blk.position()), line.y()+line.ascent()/2);
+  qDebug() << p << line.y() << line.ascent() << line.descent() << line.rect();
   qDebug() << "postopoint ok";
   return p + lay->position();
 }

@@ -51,6 +51,7 @@
 TextItem::TextItem(TextData *data, Item *parent, bool noFinalize,
 		   QTextDocument *altdoc):
   Item(data, parent) {
+  hasAltDoc = altdoc;
   markings_ = 0;
   text = new TextItemText(this);
   if (altdoc)
@@ -93,6 +94,8 @@ void TextItem::finalizeConstructor(int sheet) {
 
   if (!markings_)
     markings_ = new TextMarkings(data(), this);
+  if (hasAltDoc)
+    markings_->setSecundary();
 
   connect(document(), SIGNAL(contentsChange(int, int, int)),
 	  this, SLOT(docChange()));

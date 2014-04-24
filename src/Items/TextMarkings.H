@@ -32,6 +32,7 @@ class TextMarkings: public QGraphicsObject {
 public:
   TextMarkings(TextData *data, class TextItem *parent);
   virtual ~TextMarkings();
+  void setSecundary();
   void newMark(MarkupData::Style t, int start, int end);
   void newMark(MarkupData *); // the data object is appropriated into our text
   void deleteMark(MarkupData *); // the data object is deleted from our text 
@@ -60,6 +61,7 @@ private:
     void avoidPropagatingStyle(TextItem *item, int pos, int len);
   };
 private:
+  bool maintainData;
   TextData *data;
   QList<Span> spans; // kept in order of non-decreasing starts
   QMap<class MarkupData *, class HoverRegion *> regions;

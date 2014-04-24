@@ -29,6 +29,7 @@
 TextMarkings::TextMarkings(TextData *data, TextItem *parent):
   QGraphicsObject(parent), data(data) {
   ASSERT(parent);
+  maintainData = true;
   doc = parent->document();
   connect(doc, SIGNAL(contentsChange(int, int, int)),
 	  SLOT(update(int, int, int)));
@@ -38,6 +39,10 @@ TextMarkings::TextMarkings(TextData *data, TextItem *parent):
 }
 
 TextMarkings::~TextMarkings() {
+}
+
+void TextMarkings::setSecundary() {
+  maintainData = false;
 }
 
 TextItem *TextMarkings::parent() const {
@@ -134,7 +139,8 @@ void TextMarkings::newMark(MarkupData::Style type, int start, int end) {
 }
 
 void TextMarkings::newMark(MarkupData *m) {
-  data->addMarkup(m);
+  if (maintainData)
+    data->addMarkup(m);
   applyMark(insertMark(m));
   update(m->start(), 0, 0); // this should fix overlaps if any
 }
@@ -152,7 +158,8 @@ void TextMarkings::deleteMark(MarkupData *m) {
       ++i;
     }
   }
-  data->deleteMarkup(m);
+  if (maintainData)
+    data->deleteMarkup(m);
 }
 
 void TextMarkings::update(int pos, int del, int ins) {
@@ -164,7 +171,8 @@ void TextMarkings::update(int pos, int del, int ins) {
 	delete regions[m];
 	regions.remove(m);
       }
-      data->deleteMarkup(m); // delete empty one
+      if (maintainData)
+	data->deleteMarkup(m); // delete empty one
       i = spans.erase(i);
     } else {
       ++i;
@@ -186,7 +194,8 @@ void TextMarkings::update(int pos, int del, int ins) {
 	  delete regions[mj];
 	  regions.remove(mj);
 	}
-	data->deleteMarkup(mj);
+	if (maintainData)
+	  data->deleteMarkup(mj);
 	j = spans.erase(j);
 	changed = true;
       } else {
@@ -221,8 +230,9 @@ bool TextMarkings::Span::update(TextItem *item,
     avoidPropagatingStyle(item, pos, ins-del);
   if (ins>del && data->start()==0 && pos==0)
     avoidPropagatingStyle(item, 0, ins-del);
-  
-  data->update(pos, del, ins);
+
+  if (markings->maintainData)
+    data->update(pos, del, ins);
   if (data->style()==MarkupData::FootnoteRef) {
     QString newRef = item->markedText(data);
     if (newRef != refText) {

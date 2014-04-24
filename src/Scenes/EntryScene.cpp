@@ -199,8 +199,9 @@ void EntryScene::restackBlocks(int start) {
 void EntryScene::resetSheetCount() {
   int maxsheet = 0;
   foreach (BlockData *bd, data()->children<BlockData>()) {
-    if (bd->sheet()>maxsheet)
-      maxsheet = bd->sheet();
+    int s = bd->sheet() + bd->sheetSplits().size();
+    if (s>maxsheet)
+      maxsheet = s;
     foreach (FootnoteData *fnd, bd->children<FootnoteData>()) 
       if (fnd->sheet()>maxsheet)
 	maxsheet = fnd->sheet();
@@ -370,13 +371,14 @@ void EntryScene::joinTextBlocks(int iblock_pre, int iblock_post) {
   deleteBlock(iblock_post);
   deleteBlock(iblock_pre);
   block1->join(block2);
+  block1->resetSheetSplits();
   TextBlockItem *tbi = injectTextBlock(block1, iblock_pre);
   restackBlocks(iblock_pre);
   gotoSheetOfBlock(iblock_pre);
   tbi->setFocus();
   QTextCursor c(tbi->text()->document());
   c.setPosition(pos);
-  tbi->text()->setTextCursor(c);
+  tbi->setTextCursor(c);
 }  
 
 TableBlockItem *EntryScene::injectTableBlock(TableBlockData *tbd, int iblock) {
@@ -506,7 +508,7 @@ void EntryScene::futileMovement(int block) {
   FutileMovementInfo fmi = tbi->lastFutileMovement();
   int tgtidx = -1;
   if (fmi.key()==Qt::Key_Enter || fmi.key()==Qt::Key_Return) {
-    QTextCursor c = tbi->text()->textCursor();
+    QTextCursor c = tbi->textCursor();
     if (c.atEnd()) 
       newTextBlock(block, true);
     else
@@ -538,7 +540,7 @@ void EntryScene::futileMovement(int block) {
 
   if (tgtidx<0) {
     // no target, go to start/end of current
-    QTextCursor c = tbi->text()->textCursor();
+    QTextCursor c = tbi->textCursor();
     if (fmi.key()==Qt::Key_Down) {
       c.movePosition(QTextCursor::End);
       tbi->setTextCursor(c);
@@ -569,6 +571,8 @@ void EntryScene::futileMovement(int block) {
   QTextDocument *doc = tgt->document();
   QTextCursor c(doc);
   QPointF p = tgt->text()->mapFromParent(tgt->mapFromScene(fmi.scenePos()));
+  // Since we only use p.x, this calc is OK, even when fmi.scenePos was
+  // in another fragment.
   switch (fmi.key()) {
   case Qt::Key_Left: 
     c.movePosition(QTextCursor::End);
@@ -628,8 +632,16 @@ void EntryScene::focusEnd(int isheet) {
 
 
 void EntryScene::vChanged(int block) {
-  restackBlocks(block);
-  gotoSheetOfBlock(block);
+  ASSERT(block>=0 && block<blockItems.size());
+  TextBlockItem *tbi = dynamic_cast<TextBlockItem*>(blockItems[block]);
+  if (tbi) {
+    QTextCursor c = tbi->textCursor();
+    restackBlocks(block);
+    tbi->setTextCursor(c);
+  } else {
+    restackBlocks(block);
+    gotoSheetOfBlock(block);
+  }
 }
 
 bool EntryScene::mousePressEvent(QGraphicsSceneMouseEvent *e, SheetScene *s) {
@@ -1071,10 +1083,11 @@ QList<FootnoteItem const *> EntryScene::footnotes() const {
 }
 
 void EntryScene::gotoSheetOfBlock(int n) {
-  if (n<0)
+  if (n<0) {
     emit sheetRequest(0);
-  else if (n>=blockItems.size())
+  } else if (n>=blockItems.size()) {
     emit sheetRequest(nSheets-1);
-  else 
+  } else {
     emit sheetRequest(blockItems[n]->data()->sheet());
+  }
 }
