@@ -43,16 +43,22 @@ GfxMarkData::Shape GfxMarkData::shape() const {
 }
 
 void GfxMarkData::setColor(QColor c) {
+  if (col==c)
+    return;
   col = c;
   markModified();
 }
 
 void GfxMarkData::setSize(double s) {
+  if (siz==s)
+    return;
   siz = s;
   markModified();
 }
 
 void GfxMarkData::setShape(Shape s) {
+  if (shp==s)
+    return;
   shp = s;
   markModified();
 }

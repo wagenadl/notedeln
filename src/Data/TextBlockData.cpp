@@ -35,9 +35,13 @@ TextBlockData::~TextBlockData() {
 
 void TextBlockData::setIndented(bool i) {
   if (i) {
+    if ((ind&Indented) && !(ind&Dedented))
+      return;
     ind |= Indented;
     ind &= ~Dedented;
   } else {
+    if (!(ind&Indented))
+      return;
     ind &= ~Indented;
   }
   markModified();
@@ -45,9 +49,13 @@ void TextBlockData::setIndented(bool i) {
 
 void TextBlockData::setDedented(bool i) {
   if (i) {
+    if ((ind&Dedented) && !(ind&Indented))
+      return;
     ind |= Dedented;
     ind &= ~Indented;
   } else {
+    if (!(ind&Dedented))
+      return;
     ind &= ~Dedented;
   }
   markModified();
@@ -62,10 +70,15 @@ bool TextBlockData::dedented() const {
 }
 
 void TextBlockData::setDisplayed(bool i) {
-  if (i)
+  if (i) {
+    if (ind&Displayed)
+      return;
     ind |= Displayed;
-  else
+  } else {
+    if (!(ind&Displayed))
+      return;
     ind &= ~Displayed;
+  }
   markModified();
 }
 
@@ -74,6 +87,8 @@ bool TextBlockData::displayed() const {
 }
 
 void TextBlockData::setIndentationStyle(int i) {
+  if (ind==i)
+    return;
   ind = i;
   markModified();
 }

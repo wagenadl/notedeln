@@ -235,6 +235,9 @@ void TextBlockItem::ensureVisible(QPointF p) {
 }
 
 double TextBlockItem::splittableY(double y) {
+  if (y > data()->height() - 1)
+    return data()->height();
+    
   QTextDocument *doc = frags[0]->document();
   double bestY = 0;
   for (QTextBlock blk = doc->firstBlock(); blk.isValid(); blk=blk.next()) {

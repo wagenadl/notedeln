@@ -8,6 +8,7 @@
 #include "EntryScene.H"
 #include "SheetScene.H"
 #include <QDebug>
+#include "Footstacker.H"
 
 Restacker::Restacker(QList<BlockItem *> const &blocks, int s):
   blocks(blocks), start(s) {
@@ -105,6 +106,9 @@ void Restacker::restackBlock(int i) {
 }
 
 void Restacker::restackBlockOne(int i) {
+  /* We're about to restack a single block with its footnotes, already
+     knowing that it will fit on the current sheet.
+   */
   BlockItem *bi = blocks[i];
   BlockData *bd = bi->data();
   if (bd->setSheetAndY0(isheet, yblock))
@@ -119,49 +123,120 @@ void Restacker::restackBlockOne(int i) {
     yfn -= fni->data()->height();
   }
 
+  if (!bd->sheetSplits().isEmpty()) 
+    bd->resetSheetSplits();
   bi->unsplit();
 
   yblock += bd->height();
 }
 
 void Restacker::restackBlockSplit(int i, double ycut) {
+  /* We're about to restack a single block with its footnotes, but it will
+     not fit on the current sheet. However, we do know that splitting is,
+     at least in priciple, an option.
+  */
+
   BlockItem *bi = blocks[i];
   BlockData *bd = bi->data();
-  if (bd->setSheetAndY0(isheet, yblock))
-    changedSheets.insert(isheet);
+
+  /* First, we must collect all the footnotes that belong to this block and
+     sort them in order of y-reference. A line of the block may not be placed
+     on the sheet if its footnotes do not also fit. (Except if this would cause
+     an entire sheet to be empty, which is a special case.
+  */
+
   QList<double> cuts;
-  cuts << ycut;
-  double hleft = bd->height() - ycut;
-  while (hleft>y1-y0) {
-    ycut = bi->splittableY(ycut + y1 - y0);
-    if (ycut>cuts.last())
-      cuts << ycut;
-    else
-      break;
+  Footstacker fs(bi);
+  double lastycut = 0;
+  int lastn = 0;
+  while (lastycut<bd->height()) {
+    int nextn;
+    double spaceav;
+    double blockneed;
+    double noteneed;
+    double over;
+    while (true) {
+      nextn = fs.nBefore(ycut);
+      spaceav = yfn-yblock;
+      blockneed = ycut-lastycut;
+      noteneed = fs.cumulHBefore[nextn]-fs.cumulHBefore[lastn];
+      over = blockneed + noteneed - spaceav;
+      if (over<=0)
+	break; // we fit
+
+      /* Unfortunately, our selected text plus associated notes will not fit.
+	 We'll have to drop some text.
+	 We could try to be smart and see if the last footnote simply must be
+	 dropped, but for now, let's just peel off one line at a time.
+      */
+      if (nextn>lastn) {
+	double ynote = fs.attach[nextn-1];
+	if (over > ycut - ynote) {
+	  // have to lose the note
+	  ycut = bi->splittableY(ynote-5.0);
+	  continue;
+	}
+      }
+      ycut = bi->splittableY(ycut - over);
+    }
+    if (ycut<=lastycut) {
+      // nothing fits at all
+      if (yblock>y0) {
+	// this sheet is not empty, so we'll move on
+	restackFootnotesOnSheet();
+	isheet++;
+	yblock = y0;
+	yfn = y1;
+	ycut = bi->splittableY(lastycut + yfn-yblock);
+	continue; // try again on next sheet
+      } else {
+	// we'll just have to make it work
+	if (lastn < fs.notes.size()) {
+	  // we have a footnote
+	  nextn = lastn + 1;
+	  ycut = bi->splittableY(fs.attach[lastn]+20); // well... what can I say
+	} else {
+	  qDebug() << "Restacker: I didn't think this could happen";
+	  ycut = y1-y0;
+	  nextn = lastn;
+	}
+      }
+    }
+    // we can fit at least a little. ycut and nextn are well defined
+    if (lastycut==0) {
+      // we're doing the first bit
+      if (bd->setSheetAndY0(isheet, yblock))
+	changedSheets.insert(isheet);
+    }
+    yblock += ycut-lastycut;
+    cuts << ycut;
+    for (int n=lastn; n<nextn; n++) {
+      footplace[isheet].insert(fs.attach[n], fs.notes[n]);
+      yfn -= fs.height[n];
+    }
+    lastycut = ycut;
+    lastn = nextn;
+    ycut = bd->height(); // let's see what we can do next
   }
+
+  ASSERT(!cuts.isEmpty());
+  cuts.pop_back(); // the last is the height, by def.
   if (cuts!=bd->sheetSplits()) {
     bd->setSheetSplits(cuts);
     for (int k=0; k<cuts.size(); k++)
-      changedSheets.insert(isheet+k);
+      changedSheets.insert(isheet-cuts.size()+k);
   }
   bi->split(cuts);
-  for (int k=0; k<cuts.size(); k++) {
-    restackFootnotesOnSheet(); // this is not correct
-    isheet++;
-  }
-  yblock = y0 + bd->height() - cuts.last();
-  yfn = y1;
-  qDebug() << y0 << bd->height() << cuts.last() << yblock;
 }
 
 void Restacker::restackFootnotesOnSheet() {
-  double y1 = blocks[0]->style().real("page-height")
+  double y = blocks[0]->style().real("page-height")
     - blocks[0]->style().real("margin-bottom");
   foreach (FootnoteItem *fni, footplace[isheet]) 
-    y1 -= fni->data()->height();
+    y -= fni->data()->height();
   foreach (FootnoteItem *fni, footplace[isheet]) {
-    fni->data()->setSheetAndY0(isheet, y1);
-    y1 += fni->data()->height();
+    fni->data()->setSheetAndY0(isheet, y);
+    y += fni->data()->height();
   }
 }
  

@@ -50,21 +50,29 @@ int GfxNoteData::sheet() const {
 }
 
 void GfxNoteData::setDx(double d) {
+  if (dx_==d)
+    return;
   dx_ = d;
   markModified();
 }
 
 void GfxNoteData::setDy(double d) {
+  if (dy_==d)
+    return;
   dy_ = d;
   markModified();
 }
 
 void GfxNoteData::setTextWidth(double d) {
+  if (textWidth_==d)
+    return;
   textWidth_ = d;
   markModified();
 }
 
 void GfxNoteData::setSheet(int s) {
+  if (sheet_==s)
+    return;
   sheet_ = s;
   markModified();
 }
@@ -74,6 +82,8 @@ QPointF GfxNoteData::delta() const {
 }
 
 void GfxNoteData::setDelta(QPointF p) {
+  if (dx_==p.x() && dy_==p.y())
+    return;
   dx_ = p.x();
   dy_ = p.y();
   markModified();
