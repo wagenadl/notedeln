@@ -41,6 +41,8 @@ QList<MarkupData *> TextData::markups() const {
 }
 
 void TextData::setText(QString const &t) {
+  if (text_==t)
+    return;
   text_ = t;
   markModified();
 }

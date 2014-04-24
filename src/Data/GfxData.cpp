@@ -35,11 +35,15 @@ double GfxData::y() const {
 }
 
 void GfxData::setX(double x) {
+  if (x_==x)
+    return;
   x_ = x;
   markModified();
 }
 
 void GfxData::setY(double y) {
+  if (y_==y)
+    return;
   y_ = y;
   markModified();
 }
@@ -49,6 +53,8 @@ QPointF GfxData::pos() const {
 }
 
 void GfxData::setPos(QPointF xy) {
+  if (x_==xy.x() && y_==xy.y())
+    return;
   x_ = xy.x();
   y_ = xy.y();
   markModified();

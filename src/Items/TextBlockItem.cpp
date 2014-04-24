@@ -52,16 +52,20 @@ TextBlockItem::TextBlockItem(TextBlockData *data, Item *parent,
 
   frags << tic.create(data->text(), this);
   QList<double> ysplit = data->sheetSplits();
-  for (int i=0; i<ysplit.size(); i++)
+  for (int i=0; i<ysplit.size(); i++) 
     frags << tic.create(data->text(), 0, frags[0]->document());
 
   ysplit.push_front(0);
   ysplit.push_back(data->height());
   QRectF r0 = frags[0]->netBounds();
-  for (int i=0; i<frags.size(); i++)
-    frags[i]->setClip(QRectF(r0.left(), ysplit[i],
-			     r0.width(), ysplit[i+1]-ysplit[i]));
-
+  for (int i=0; i<frags.size(); i++) {
+    if (frags.size()>1)
+      frags[i]->setClip(QRectF(r0.left(), ysplit[i],
+			       r0.width(), ysplit[i+1]-ysplit[i]));
+    connect(frags[i], SIGNAL(invisibleFocus(QPointF)),
+	    SLOT(ensureVisible(QPointF)));
+  }
+  
   initializeFormat();
 
   foreach (TextItem *ti, frags) {
@@ -93,19 +97,24 @@ TextBlockItem::~TextBlockItem() {
   // The frags[0] is deleted by Qt
 }
 
+void TextBlockItem::setTIFormat(TextItem *ti) {
+  bool disp = data()->displayed();
+
+  ti->setTextWidth(style().real("page-width")
+		   - style().real("margin-left")
+		   - style().real("margin-right"));
+  ti->setPos(0, style().real("text-block-above"));
+
+  ti->setFont(style().font(disp ? "display-text-font" : "text-font"));
+  ti->setDefaultTextColor(style().color(disp ? "display-text-color"
+					: "text-color"));
+}  
+
 void TextBlockItem::initializeFormat() {
   bool disp = data()->displayed();
 
-  foreach (TextItem *ti, frags) {
-    ti->setTextWidth(style().real("page-width")
-                     - style().real("margin-left")
-                     - style().real("margin-right"));
-    ti->setPos(0, style().real("text-block-above"));
-
-    ti->setFont(style().font(disp ? "display-text-font" : "text-font"));
-    ti->setDefaultTextColor(style().color(disp ? "display-text-color"
-                                                : "text-color"));
-  }
+  foreach (TextItem *ti, frags) 
+    setTIFormat(ti);
 
   QTextCursor tc(frags[0]->document());
   QTextBlockFormat fmt = tc.blockFormat();
@@ -126,7 +135,7 @@ void TextBlockItem::initializeFormat() {
   //  fmt.setBottomMargin(style().real("paragraph-bottom-margin"));
   tc.movePosition(QTextCursor::Start);
   tc.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
-    tc.setBlockFormat(fmt);
+  tc.setBlockFormat(fmt);
 }  
 
 QTextDocument *TextBlockItem::document() const {
@@ -179,9 +188,10 @@ TextItem *TextBlockItem::text() const {
 
 void TextBlockItem::sizeToFit() {
   double h0 = data()->height();
-  double h1 = 0;
-  foreach (TextItem *ti, frags) 
-    h1 += ti->mapRectToParent(ti->netBounds()).height();
+  //  double h1 = 0;
+  //  foreach (TextItem *ti, frags) 
+  //    h1 += ti->mapRectToParent(ti->netBounds()).height();
+  double h1 = frags[0]->mapRectToParent(frags[0]->netBounds()).height();
   if (h1!=h0) {
     if (isWritable())
       data()->setHeight(h1);
@@ -196,27 +206,63 @@ class TextItem *TextBlockItem::fragment(int fragno) {
   return frags[fragno];
 }
 
-int TextBlockItem::fragmentForPos(int pos) const {
-  if (!frags[0]->clips())
-    return 0;
+QTextCursor TextBlockItem::textCursor() const {
+  foreach (TextItem *ti, frags)
+    if (ti->hasFocus())
+      return ti->textCursor();
+  return text()->textCursor();
+}
+
+void TextBlockItem::setTextCursor(QTextCursor c) {
+  QPointF pos = frags[0]->posToPoint(c.position());
+  int tgt = 0;
+  qDebug() << "TBI::setTextCursor" << pos;
   for (int i=0; i<frags.size(); i++) {
-    QPointF xy = frags[i]->posToPoint(pos);
-    if (frags[i]->clipPath().boundingRect().contains(xy))
-      return i;
+    if (!frags[i]->clips()
+	|| frags[i]->clipRect().contains(pos)) {
+      qDebug() << "   gotcha " << i;
+      tgt = i;
+      break;
+    }
   }
-  qDebug() << "TBI::fragmentForPos: not found, returning 0";
-  return 0;
+  frags[tgt]->setFocus();
+  frags[tgt]->setTextCursor(c);
+  emit sheetRequest(data()->sheet() + tgt);
+  frags[tgt]->setFocus();
+}
+
+void TextBlockItem::ensureVisible(QPointF p) {
+  qDebug() << "TBI: ensure visible";
+  for (int i=0; i<frags.size(); i++) {
+    if (frags[i]->clipRect().contains(p)) {
+      qDebug() << "TBI: ensure visible scene" << i;
+      emit sheetRequest(data()->sheet() + i);
+      frags[i]->setFocus();
+      int pos = frags[i]->pointToPos(p);
+      QTextCursor c(frags[i]->textCursor());
+      c.setPosition(pos);
+      frags[i]->setTextCursor(c);
+      return;
+    }
+  }
 }
 
 double TextBlockItem::splittableY(double y) {
   QTextDocument *doc = frags[0]->document();
   double bestY = 0;
+  qDebug() << "TBI: h " << data()->height() << netBounds().height()
+	   << text()->netBounds().height()
+	   << text()->titxt()->boundingRect().height();
   for (QTextBlock blk = doc->firstBlock(); blk.isValid(); blk=blk.next()) {
     QTextLayout *lay = blk.layout();
     double y0 = lay->position().y();
     QRectF bb = lay->boundingRect();
+    qDebug() << "TBI: sply " << y << y0 << bb;
+    for (int i=0; i<lay->lineCount(); i++) {
+      qDebug() << "  " << i << lay->lineAt(i).rect().bottom();
+    }
     if (y0 + bb.bottom() <= y) {
-      bestY = bb.bottom();
+      bestY = y0 + bb.bottom();
     } else if (y0+bb.top()<y) {
       for (int i=0; i<lay->lineCount(); i++) {
 	QTextLine ln = lay->lineAt(i);
@@ -229,19 +275,40 @@ double TextBlockItem::splittableY(double y) {
 }
 
 void TextBlockItem::unsplit() {
-  while (frags.size()>1)
-    frags.takeLast()->deleteLater();
+  qDebug() << "TBI:unsplit" << frags.size() << data()->sheetSplits().size();
+  while (frags.size()>1) {
+    TextItem *ti = frags.takeLast();
+    if (ti)
+      ti->deleteLater();
+    else
+      qDebug() << "null item??";
+  }
   frags[0]->unclip();
 }
 
 void TextBlockItem::split(QList<double> ysplit) {
-  while (frags.size()>1+ysplit.size())
-    frags.takeLast()->deleteLater();
+  if (ysplit.isEmpty()) {
+    unsplit();
+    return;
+  }
+  
+  while (frags.size()>1+ysplit.size()) {
+    TextItem *ti = frags.takeLast();
+    if (ti)
+      ti->deleteLater();
+    else
+      qDebug() << "TBI:Split: null item??";
+  }
 
   while (frags.size()<1+ysplit.size()) {
     TextItem *ti = tic.create(data()->text(), 0, frags[0]->document());
+    connect(ti, SIGNAL(invisibleFocus(QPointF)),
+	    SLOT(ensureVisible(QPointF)));
     frags << ti;
 
+    if (frags[0]->isWritable())
+      ti->makeWritable();
+    setTIFormat(ti);
     ti->setAllowParagraphs(false);
     ti->setAllowNotes(true);
 
@@ -262,4 +329,14 @@ void TextBlockItem::split(QList<double> ysplit) {
   for (int i=0; i<frags.size(); i++)
     frags[i]->setClip(QRectF(r0.left(), ysplit[i],
 			     r0.width(), ysplit[i+1]-ysplit[i]));
+}
+
+void TextBlockItem::mousePressEvent(QGraphicsSceneMouseEvent*e) {
+  qDebug() << "TBI: mousepress";
+  BlockItem::mousePressEvent(e);
+}
+
+void TextBlockItem::focusInEvent(QFocusEvent*e) {
+  qDebug() << "TBI: focusin";
+  BlockItem::focusInEvent(e);
 }

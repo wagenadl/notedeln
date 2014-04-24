@@ -25,6 +25,7 @@
 #include "FutileMovementInfo.H"
 #include "TextBlockData.H"
 #include <QTextCursor>
+#include <QPointer>
 
 class TICreator {
 public:
@@ -50,20 +51,27 @@ public:
   void paint(QPainter *p, const QStyleOptionGraphicsItem *o, QWidget *w);
   virtual void makeWritable();
   void initializeFormat();
+  void setTIFormat(class TextItem *);
+  QTextCursor textCursor() const; // looks at focused fragment, if any
+  void setTextCursor(QTextCursor c);
 public: // splitpar stuff:
   virtual double splittableY(double hmax);
   virtual TextItem *fragment(int fragno);
-  int fragmentForPos(int pos) const;
   virtual void unsplit();
   virtual void split(QList<double> yy);
 signals:
   void futileMovement(); // up key on top line etc
+  void sheetRequest(int);
 public slots:
   void sizeToFit();
+protected:
+  void focusInEvent(QFocusEvent*);
+  void mousePressEvent(QGraphicsSceneMouseEvent*);
 private slots:
   void futileMovementKey(int, Qt::KeyboardModifiers);
+  void ensureVisible(QPointF);
 private:
-  QList<class TextItem *> frags; // we do own
+  QList<QPointer<TextItem> > frags; // we do own
   FutileMovementInfo fmi;
   TICreator tic; // this means we cannot split tables for now
 };

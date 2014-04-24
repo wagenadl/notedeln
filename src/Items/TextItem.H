@@ -56,6 +56,7 @@ public:
   void setClip(QRectF);
   void unclip();
 signals:
+  void invisibleFocus(QPointF);
   void textChanged();
   void widthChanged();
   void abandoned(); // escape pressed while empty
@@ -131,8 +132,9 @@ protected:
   MarkupData::Style lateMarkType;
   int lateMarkStart;
   QRectF clip_;
+  bool hasAltDoc;
 public:
-  TextItemText *titxt() { return text; } // debugging
+  TextItemText *titxt() { return text; } // };
 };
 
 #endif

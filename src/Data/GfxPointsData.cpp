@@ -59,6 +59,8 @@ void GfxPointsData::addPoint(QPointF p, bool hush) {
 }
 
 void GfxPointsData::setPoint(int i, QPointF p, bool hush) {
+  if (xx_[i]==p.x() && yy_[i]==p.y())
+    return;
   xx_[i] = p.x();
   yy_[i] = p.y();
   if (!hush)

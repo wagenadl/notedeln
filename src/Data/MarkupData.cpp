@@ -52,16 +52,22 @@ MarkupData::Style MarkupData::style() const {
 }
 
 void MarkupData::setStart(int i) {
+  if (start_==i)
+    return;
   start_ = i;
   markModified(NonPropMod);
 }
 
 void MarkupData::setEnd(int i) {
+  if (end_==i)
+    return;
   end_ = i;
   markModified(NonPropMod);
 }
 
 void MarkupData::setStyle(Style s) {
+  if (style_==s)
+    return;
   style_ = s;
   markModified(NonPropMod);
 }

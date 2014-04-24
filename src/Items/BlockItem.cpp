@@ -114,7 +114,9 @@ QList<FootnoteItem *> BlockItem::footnotes() {
 }
 
 QPointF BlockItem::findRefText(QString s) {
-  return findRefTextIn(s, this);
+  QPointF p = findRefTextIn(s, this);
+  qDebug() << "frt" << p;
+  return p;
 }
 
 QPointF BlockItem::findRefTextIn(QString s, Item *i) {
@@ -124,8 +126,10 @@ QPointF BlockItem::findRefTextIn(QString s, Item *i) {
   } else {
     foreach (Item *c, i->allChildren()) {
       QPointF p = findRefTextIn(s, c);
-      if (!p.isNull())
+      if (!p.isNull()) {
+	qDebug() << "frti" << p;
 	return c->mapToParent(p);
+      }
     }
   }
   return QPointF();

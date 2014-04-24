@@ -89,39 +89,59 @@ double GfxImageData::cropRight() const {
 }
 
 void GfxImageData::setResName(QString s) {
+  if (resName_==s)
+    return;
   resName_ = s;
   markModified();
 }
 
 void GfxImageData::setWidth(double w) {
+  if (width_==w)
+    return;
   width_ = w;
   markModified();
 }
   
 void GfxImageData::setHeight(double h) {
+  if (height_==h)
+    return;
   height_ = h;
   markModified();
 }
   
 void GfxImageData::setScale(double s) {
+  if (scale_==s)
+    return;
   scale_ = s;
   markModified();
 }
 
 void GfxImageData::setCropTop(double v) {
+  if (cropTop_==v)
+    return;
   cropTop_ = v;
+  markModified();
 }
 
 void GfxImageData::setCropBottom(double v) {
+  if (cropBottom_==v)
+    return;
   cropBottom_ = v;
+  markModified();
 }
   
 void GfxImageData::setCropLeft(double v) {
+  if (cropLeft_==v)
+    return;
   cropLeft_ = v;
+  markModified();
 }
 
 void GfxImageData::setCropRight(double v) {
+  if (cropRight_==v)
+    return;
   cropRight_ = v;
+  markModified();
 }
 
 QSizeF GfxImageData::size() const {
@@ -136,48 +156,22 @@ QRectF GfxImageData::cropRect() const {
 }
 
 void GfxImageData::setSize(QSizeF s) {
+  if (width_==s.width() && height_==s.height())
+    return;
   width_ = s.width();
   height_ = s.height();
   markModified();
 }
 
 void GfxImageData::setCropRect(QRectF r) {
+  if (cropLeft_ == r.left()
+      && cropRight_ == width_ - r.right()
+      && cropTop_ == r.top()
+      && cropBottom_ == height_ - r.bottom())
+    return;
   cropLeft_ = r.left();
   cropRight_ = width_ - r.right();
   cropTop_ = r.top();
   cropBottom_ = height_ - r.bottom();
   markModified();
 }
-
-// QSizeF GfxImageData::mapToBlock(QSizeF s) const {
-//   return s*scale_;
-// }
-// 
-// QSizeF GfxImageData::mapFromBlock(QSizeF s) const {
-//   return s/scale_;
-// }
-// 
-// QPointF GfxImageData::mapToBlock(QPointF p) const {
-//   return (p-cropRect().topLeft()) * scale_ + pos();
-// }
-// 
-// QPointF GfxImageData::mapFromBlock(QPointF p) const {
-//   return (p - pos()) / scale_ + cropRect().topLeft();
-// }
-// 
-// QRectF GfxImageData::mapToBlock(QRectF r) const {
-//   return QRectF(mapToBlock(r.topLeft()), mapToBlock(r.size()));
-// }
-// 
-// QRectF GfxImageData::mapFromBlock(QRectF r) const {
-//   return QRectF(mapFromBlock(r.topLeft()), mapFromBlock(r.size()));
-// }
-// 
-// QRectF GfxImageData::blockRect() const {
-//   return mapToBlock(cropRect());
-// }
-// 
-// QRectF GfxImageData::uncroppedBlockRect() const {
-//   return mapToBlock(QRectF(0, 0, width_, height_));
-// }
-// 

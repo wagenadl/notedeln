@@ -48,12 +48,16 @@ QPointF GfxBlockData::ref() const {
 }
 
 void GfxBlockData::setXref(double x) {
+  if (xref_==x)
+    return;
   xref_ = x;
   markModified();
 }
 
 
 void GfxBlockData::setYref(double y) {
+  if (yref_==y)
+    return;
   yref_ = y;
   markModified();
 }
@@ -64,6 +68,8 @@ void GfxBlockData::sneakilySetYref(double y) {
 
 
 void GfxBlockData::setRef(QPointF xy) {
+  if (xref_==xy.x() && yref_==xy.y())
+    return;
   xref_ = xy.x();
   yref_ = xy.y();
   markModified();

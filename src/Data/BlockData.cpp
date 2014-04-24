@@ -18,7 +18,6 @@
 
 #include "BlockData.H"
 #include "EntryData.H"
-#include "NoteData.H"
 
 BlockData::BlockData(Data *parent): Data(parent) {
   y0_ = 0;
@@ -44,11 +43,15 @@ int BlockData::sheet() const {
 }
 
 void BlockData::setY0(double y0) {
+  if (y0_==y0)
+    return;
   y0_ = y0;
   markModified(InternalMod);
 }
 
 void BlockData::setHeight(double h) {
+  if (h_==h)
+    return;
   h_ = h;
   markModified(InternalMod);
 }
@@ -62,6 +65,8 @@ void BlockData::sneakilySetHeight(double h) {
 }
 
 void BlockData::setSheet(int sheet) {
+  if (sheet_==sheet)
+    return;
   sheet_ = sheet;
   markModified(InternalMod);
   if (!loading())
@@ -73,18 +78,13 @@ bool BlockData::isEmpty() const {
 }
 
 bool BlockData::setSheetAndY0(int n, double y0) {
-  bool chg = false;
-  if (n!=sheet_) {
-    sheet_ = n;
-    chg = true;
-  }
-  if (y0!=y0_) {
-    y0_ = y0;
-    chg = true;
-  }
-  if (chg)
-    markModified(InternalMod);
-  return chg;
+  if (sheet_==n && y0_==y0)
+    return false;
+  
+  sheet_ = n;
+  y0_ = y0;
+  markModified(InternalMod);
+  return true;
 }
 
 
@@ -93,6 +93,8 @@ QList<double> const &BlockData::sheetSplits() const {
 }
 
 void BlockData::setSheetSplits(QList<double> const &s) {
+  if (ssplits==s)
+    return;
   ssplits = s;
   markModified(InternalMod);
 }

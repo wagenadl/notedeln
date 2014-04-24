@@ -129,11 +129,15 @@ bool EntryData::isUnlocked() const {
 }
 
 void EntryData::setStartPage(int s) {
+  if (startPage_==s)
+    return;
   startPage_ = s;
   markModified(InternalMod);
 }
 
 void EntryData::setUnlocked(bool u) {
+  if (unlocked_==u)
+    return;
   unlocked_ = u;
   markModified(InternalMod);
 }

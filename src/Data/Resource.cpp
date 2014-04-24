@@ -59,32 +59,44 @@ QString Resource::description() const {
 }
 
 void Resource::setTag(QString s) {
+  if (tag_==s)
+    return;
   tag_ = s;
   markModified();
 }
 
 void Resource::setSourceURL(QUrl u) {
+  if (src==u)
+    return;
   src = u;
   markModified();
 }
 
 void Resource::setPreviewFilename(QString s) {
+  if (prev==s)
+    return;
   prev = s;
   markModified();
   
 }
 
 void Resource::setArchiveFilename(QString s) {
+  if (arch==s)
+    return;
   arch = s;
   markModified();
 }
 
 void Resource::setTitle(QString s) {
+  if (ttl==s)
+    return;
   ttl = s;
   markModified();
 }
 
 void Resource::setDescription(QString s) {
+  if (desc==s)
+    return;
   desc = s;
   markModified();
 }

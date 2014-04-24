@@ -47,6 +47,8 @@ unsigned int TableData::columns() const {
 }
 
 void TableData::setRows(unsigned int r) {
+  if (nr==r)
+    return;
   nr = r;
   lengths.resize(nr*nc);
   starts.resize(nr*nc);
@@ -55,6 +57,8 @@ void TableData::setRows(unsigned int r) {
 }
 
 void TableData::setColumns(unsigned int c) {
+  if (nc==c)
+    return;
   nc = c;
   lengths.resize(nr*nc);
   starts.resize(nr*nc);
@@ -72,6 +76,8 @@ void TableData::setCellLength(unsigned int r, unsigned int c,
 			      bool hushhush) {
   ASSERT(r<nr && c<nc);
   unsigned int idx = rc2index(r, c);
+  if (lengths[idx]==len)
+    return;
   lengths[idx] = len;
   if (firstInvalidStart > idx)
     firstInvalidStart = idx + 1;

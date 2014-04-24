@@ -29,10 +29,12 @@ public:
   FutileMovementInfo(int key, Qt::KeyboardModifiers mod, class TextItem *src);
   QPointF scenePos() const;
   int key() const;
+  int pos();
   Qt::KeyboardModifiers modifiers() const;
 private:
   QPointF scenePos_;
   int key_;
+  int pos_;
   Qt::KeyboardModifiers modifiers_;
 };
 
