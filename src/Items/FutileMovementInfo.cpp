@@ -31,8 +31,10 @@ FutileMovementInfo::FutileMovementInfo(int key, Qt::KeyboardModifiers mod,
 				       TextItem *src) {
   key_ = key;
   modifiers_ = mod;
+  pos_ = 0;
   if (src) {
     QTextCursor c = src->textCursor();
+    pos_ = c.position();
     QTextBlock b = c.block();
     QTextLayout *lay = b.layout();
     QPointF xy0 = lay->position(); // in item

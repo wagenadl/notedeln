@@ -42,11 +42,14 @@ Restacker::Restacker(QList<BlockItem *> const &blocks, int s):
   }
 
   // back to first block on sheet
-  while (start>0) 
-    if (blocks[start-1]->data()->sheet()!=isheet)
-      break;
-    else
-      --start;
+  while (start>0) {
+    if (blocks[start-1]->data()->sheet()!=isheet) {
+      if (blocks[start-1]->data()->sheetSplits().isEmpty())
+	break;
+      isheet = blocks[start-1]->data()->sheet();
+    }
+    --start;
+  }
   qDebug() << "Start using is " << start;
 }
 
@@ -60,7 +63,8 @@ void Restacker::restackBlocks() {
     restackBlock(i);
     if (isheet==sh0 || changedSheets.contains(isheet)
 	|| (i+1<blocks.size() && (blocks[i+1]->data()->sheet()==isheet
-				  || blocks[i+1]->data()->sheet()<0)))
+				  || blocks[i+1]->data()->sheet()<0))
+	|| true)
       end = i+1;
     else
       break; // other stuff cannot be affected
@@ -123,7 +127,31 @@ void Restacker::restackBlockOne(int i) {
 void Restacker::restackBlockSplit(int i, double ycut) {
   BlockItem *bi = blocks[i];
   BlockData *bd = bi->data();
-
+  if (bd->setSheetAndY0(isheet, yblock))
+    changedSheets.insert(isheet);
+  QList<double> cuts;
+  cuts << ycut;
+  double hleft = bd->height() - ycut;
+  while (hleft>y1-y0) {
+    ycut = bi->splittableY(ycut + y1 - y0);
+    if (ycut>cuts.last())
+      cuts << ycut;
+    else
+      break;
+  }
+  if (cuts!=bd->sheetSplits()) {
+    bd->setSheetSplits(cuts);
+    for (int k=0; k<cuts.size(); k++)
+      changedSheets.insert(isheet+k);
+  }
+  bi->split(cuts);
+  for (int k=0; k<cuts.size(); k++) {
+    restackFootnotesOnSheet(); // this is not correct
+    isheet++;
+  }
+  yblock = y0 + bd->height() - cuts.last();
+  yfn = y1;
+  qDebug() << y0 << bd->height() << cuts.last() << yblock;
 }
 
 void Restacker::restackFootnotesOnSheet() {
@@ -153,6 +181,21 @@ void Restacker::restackItem(EntryScene &es, int i) {
     fpc.restore();
   }
   bi->resetPosition();
+
+  QList<double> cuts = bi->data()->sheetSplits();
+  int nfrag = cuts.size() + 1;
+  for (int k=1; k<nfrag; k++) {
+    Item *ti = bi->fragment(k);
+    ti->setPos(ti->style().real("margin-left"),
+	       y0 - cuts[k-1]); // is that right?
+    QGraphicsScene *s0 = ti->scene();
+    QGraphicsScene *s1 = es.sheet(bi->data()->sheet()+k, true);
+    if (s1!=s0) {
+      FocusProxyCache fpc(ti);
+      s1->addItem(ti);
+      fpc.restore();
+    }
+  }
   
   foreach (FootnoteItem *fni, bi->footnotes()) {
     QGraphicsScene *s0 = fni->scene();

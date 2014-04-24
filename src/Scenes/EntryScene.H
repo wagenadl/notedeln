@@ -112,6 +112,7 @@ private:
   void addUnlockedWarning();
   int lastBlockAbove(QPointF scenepos, int sheet);
   // find the last block with bottom y above scene pos, or -1 if none
+public slots:
   void gotoSheetOfBlock(int);
 private:
   QList<QGraphicsTextItem *> dateItems;

@@ -56,6 +56,7 @@ public:
   void setClip(QRectF);
   void unclip();
 signals:
+  void invisibleFocus(QPointF);
   void textChanged();
   void widthChanged();
   void abandoned(); // escape pressed while empty
@@ -132,7 +133,7 @@ protected:
   int lateMarkStart;
   QRectF clip_;
 public:
-  TextItemText *titxt() { return text; } // debugging
+  TextItemText *titxt() { return text; } // };
 };
 
 #endif

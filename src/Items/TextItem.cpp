@@ -62,15 +62,21 @@ TextItem::TextItem(TextData *data, Item *parent, bool noFinalize,
   lateMarkType = MarkupData::Normal;
   allowParagraphs_ = true;
 
-  initializeFormat();
+  if (!altdoc)
+    initializeFormat();
+  
   text->setTextInteractionFlags(Qt::TextSelectableByMouse);
+  connect(text, SIGNAL(invisibleFocus(QPointF)),
+	  this, SIGNAL(invisibleFocus(QPointF)));
 
-  text->setPlainText(data->text());
-  QTextCursor tc(textCursor());
-  tc.movePosition(QTextCursor::Start);
-  QTextBlockFormat fmt = tc.blockFormat();
-  tc.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
-  tc.setBlockFormat(fmt);
+  if (!altdoc) {
+    text->setPlainText(data->text());
+    QTextCursor tc(textCursor());
+    tc.movePosition(QTextCursor::Start);
+    QTextBlockFormat fmt = tc.blockFormat();
+    tc.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
+    tc.setBlockFormat(fmt);
+  }
   
   if (!noFinalize) 
     finalizeConstructor();
@@ -168,6 +174,7 @@ bool TextItem::mousePress(QGraphicsSceneMouseEvent *e) {
   case Qt::LeftButton:
     switch (mode()->mode()) {
     case Mode::Type: case Mode::Table:
+      qDebug() << "TI:mousepress:type";
       return false; // TextItemText will decide whether to edit or not
     case Mode::MoveResize:
       if (mayMove) {
@@ -889,11 +896,14 @@ bool TextItem::clips() const {
 }
 
 void TextItem::setClip(QRectF r) {
+  qDebug() << "TI::setClip " << r;
   clip_ = r;
-  // of course, this is not enough
+  text->setClip(r);
 }
 
 void TextItem::unclip() {
   clip_ = QRectF();
+  text->unclip();
 }
 
+  

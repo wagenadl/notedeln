@@ -41,6 +41,7 @@ TextItem *TextItemText::parent() {
 }
 
 void TextItemText::mousePressEvent(QGraphicsSceneMouseEvent *e) {
+  qDebug() << "TIT: mousepress";
   // Following is an ugly way to clear selection from previously
   // focused text. Can I do better?
   foreach (QGraphicsItem *i, scene()->items()) {
@@ -56,18 +57,30 @@ void TextItemText::mousePressEvent(QGraphicsSceneMouseEvent *e) {
   }
   // End of ugly code
   
-  if (parent() && !parent()->mousePress(e)) 
+  if (!parent() || !parent()->mousePress(e)) 
     QGraphicsTextItem::mousePressEvent(e);
 }
 
 void TextItemText::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *e) {
-  if (parent() && !parent()->mouseDoubleClick(e)) 
+  if (!parent() || !parent()->mouseDoubleClick(e)) 
     QGraphicsTextItem::mouseDoubleClickEvent(e);
 }
 
 void TextItemText::keyPressEvent(QKeyEvent *e) {
-  if (parent() && !parent()->keyPress(e)) 
-    QGraphicsTextItem::keyPressEvent(e);    
+  if (!parent() || !parent()->keyPress(e)) 
+    QGraphicsTextItem::keyPressEvent(e);
+  ensureFocusVisible();
+}
+
+void TextItemText::ensureFocusVisible() {
+  if (!hasFocus())
+    return;
+  if (clipp.isEmpty())
+    return;
+  QPointF c = posToPoint(this, textCursor().position());
+  qDebug() << "ensureFocusVisible " << c << c.isNull() << (clipp.contains(c) ? "Y" : "N");
+  if (!clipp.contains(c))
+    emit invisibleFocus(c);
 }
 
 void TextItemText::internalKeyPressEvent(QKeyEvent *e) {
@@ -75,12 +88,12 @@ void TextItemText::internalKeyPressEvent(QKeyEvent *e) {
 }
   
 void TextItemText::focusOutEvent(QFocusEvent *e) {
-  if (parent() && !parent()->focusOut(e)) 
+  if (!parent() || !parent()->focusOut(e)) 
     QGraphicsTextItem::focusOutEvent(e);
 }
 
 void TextItemText::focusInEvent(QFocusEvent *e) {
-  if (parent() && !parent()->focusIn(e)) 
+  if (!parent() || !parent()->focusIn(e)) 
     QGraphicsTextItem::focusInEvent(e);
 }
 
@@ -129,17 +142,27 @@ int pointToPos(QGraphicsTextItem const *item, QPointF p) {
 
 QPointF posToPoint(QGraphicsTextItem const *item, int i) {
   QTextBlock blk = item->document()->findBlock(i);
+  qDebug() << "posToPoint" << i << blk.isValid();
   if (!blk.isValid())
     return QPointF();
   QTextLayout *lay = blk.layout();
   if (!lay)
     return QPointF();
-  if (!lay->isValidCursorPosition(i - blk.position()))
-    return QPointF();
+  qDebug() << lay->isValidCursorPosition(i - blk.position());
+  if (!lay->isValidCursorPosition(i - blk.position())) {
+    if (lay->lineCount()==0)
+      return QPointF();
+    QTextLine line = lay->lineAt(lay->lineCount()-1);
+    QPointF p(line.cursorToX(line.textLength()), line.y()+line.ascent());
+    return p + lay->position();
+  }
   QTextLine line = lay->lineForTextPosition(i - blk.position());
+  qDebug() << line.isValid();
   if (!line.isValid())
     return QPointF();
   QPointF p(line.cursorToX(i-blk.position()), line.y()+line.ascent());
+  qDebug() << p;
+  qDebug() << "postopoint ok";
   return p + lay->position();
 }
 
@@ -160,4 +183,20 @@ void TextItemText::dropEvent(QGraphicsSceneDragDropEvent *e) {
   m.setText(txt);
   e->setMimeData(&m);
   QGraphicsTextItem::dropEvent(e);
+}
+
+void TextItemText::setClip(QRectF r) {
+  QRectF r0 = boundingRect();
+  clipp = QPainterPath();
+  clipp.addRect(QRectF(r0.left(), r.top(), r0.width(), r.height()));
+  setFlag(ItemClipsToShape, true);
+}
+
+void TextItemText::unclip() {
+  clipp = QPainterPath();
+  setFlag(ItemClipsToShape, false);
+}
+
+QPainterPath TextItemText::shape() const {
+  return clipp.isEmpty() ? QGraphicsTextItem::shape() : clipp;
 }

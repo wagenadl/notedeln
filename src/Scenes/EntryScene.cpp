@@ -137,6 +137,7 @@ BlockItem *EntryScene::tryMakeTextBlock(BlockData *bd) {
   if (tbd->height()==0)
     tbi->sizeToFit();
   connect(tbi, SIGNAL(futileMovement()), futileMovementMapper, SLOT(map()));
+  connect(tbi, SIGNAL(sheetRequest(int)), this, SIGNAL(sheetRequest(int)));
   return tbi;
 }
   
@@ -155,9 +156,21 @@ TitleData *EntryScene::fancyTitle() const {
 void EntryScene::positionBlocks() {
   int isheet = 0;
   foreach (BlockItem *bi, blockItems) {
-    isheet = bi->data()->sheet(); 
+    int ish = bi->data()->sheet();
+    if (ish>=0)
+      isheet = ish;
+    else
+      qDebug() << "Loaded block with -ve sheet no";
     sheet(isheet, true)->addItem(bi);
     bi->resetPosition();
+    
+    QList<double> ycut = bi->data()->sheetSplits();
+    for (int i=0; i<ycut.size(); i++) {
+      bi->fragment(i+1)->setPos(style().real("margin-left"),
+			      style().real("margin-top") - ycut[i]);
+      sheet(isheet+i+1, true)->addItem(bi->fragment(i+1));
+    }
+
     foreach (FootnoteItem *fni, bi->footnotes()) {
       int jsheet = fni->data()->sheet();
       if (jsheet<0)
@@ -285,6 +298,7 @@ void EntryScene::deleteBlock(int blocki) {
   QGraphicsScene *s = bi->scene();
   if (s)
     s->removeItem(bi);
+  bi->unsplit();
   bi->deleteLater();
 
   data_->deleteBlock(bd);
@@ -399,6 +413,7 @@ TextBlockItem *EntryScene::injectTextBlock(TextBlockData *tbd, int iblock) {
   blockItems.insert(iblock, tbi);
   connect(tbi, SIGNAL(heightChanged()), vChangeMapper, SLOT(map()));
   connect(tbi, SIGNAL(futileMovement()), futileMovementMapper, SLOT(map()));
+  connect(tbi, SIGNAL(sheetRequest(int)), this, SIGNAL(sheetRequest(int)));
   remap();
   return tbi;
 }
@@ -526,10 +541,10 @@ void EntryScene::futileMovement(int block) {
     QTextCursor c = tbi->text()->textCursor();
     if (fmi.key()==Qt::Key_Down) {
       c.movePosition(QTextCursor::End);
-      tbi->text()->setTextCursor(c);
+      tbi->setTextCursor(c);
     } else if (fmi.key()==Qt::Key_Up) {
       c.movePosition(QTextCursor::Start);
-      tbi->text()->setTextCursor(c);
+      tbi->setTextCursor(c);
     }
     return;
   }
@@ -549,7 +564,6 @@ void EntryScene::futileMovement(int block) {
 
   qDebug() << "EntryScene::futilemovement tgtidx="<<tgtidx;
   gotoSheetOfBlock(tgtidx);
-  tgt->setFocus();
   qDebug() << "EntryScene::futilemovement setfocus";
 
   QTextDocument *doc = tgt->document();
@@ -576,8 +590,7 @@ void EntryScene::futileMovement(int block) {
     break; }
   }
   qDebug() << "EntryScene::futilemovement setcursor " << c.position();
-  tgt->text()->setTextCursor(c);
-  tgt->setFocus();
+  tgt->setTextCursor(c);
 }
 
 void EntryScene::futileTitleMovement(int key, Qt::KeyboardModifiers) {
@@ -1062,6 +1075,6 @@ void EntryScene::gotoSheetOfBlock(int n) {
     emit sheetRequest(0);
   else if (n>=blockItems.size())
     emit sheetRequest(nSheets-1);
-  else
+  else 
     emit sheetRequest(blockItems[n]->data()->sheet());
 }
