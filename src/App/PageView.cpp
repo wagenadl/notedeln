@@ -508,8 +508,14 @@ void PageView::nextPage() {
       gotoEntryPage(1, 1);
     break;
   case Entries:
-    if (!gotoSheet(currentSheet+1))
-      gotoEntryPage(currentPage+1, 1); // this may make a new page at the end
+    if (!gotoSheet(currentSheet+1)) {
+      TOCEntry *te = book->toc()->entry(entryScene->data()->startPage());
+      te = book->toc()->entryAfter(te);
+      if (te)
+	gotoEntryPage(te->startPage(), 1);
+      else
+	gotoEntryPage(currentPage+1, 1); // this may make a new page at the end
+    }
     break;
   }
   focusEntry();
