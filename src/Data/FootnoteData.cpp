@@ -32,6 +32,8 @@ QString FootnoteData::tag() const {
 }
 
 void FootnoteData::setTag(QString t) {
+  if (tag_==t)
+    return;
   tag_ = t;
   markModified();
 }

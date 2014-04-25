@@ -66,16 +66,22 @@ bool Data::isRecent() const {
 }
 
 void Data::setCreated(QDateTime const &dt) {
+  if (dt==created_)
+    return;
   created_ = dt;
   markModified(InternalMod);
 }
 
 void Data::setModified(QDateTime const &dt) {
+  if (dt==modified_)
+    return;
   modified_ = dt;
   markModified(InternalMod);
 }
 
 void Data::setType(QString const &t) {
+  if (type_==t)
+    return;
   type_ = t;
   markModified(InternalMod);
 }
@@ -355,6 +361,8 @@ QStringList const &Data::resourceTags() const {
 }
 
 void Data::setResourceTags(QStringList const &l) {
+  if (resTags==l)
+    return;
   resTags = l;
   markModified();
 }
@@ -371,6 +379,8 @@ QString const &Data::uuid() const {
 }
 
 void Data::setUuid(QString const &u) {
+  if (uuid_==u)
+    return;
   uuid_ = u;
   markModified(InternalMod);
 }

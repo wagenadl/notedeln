@@ -18,7 +18,6 @@
 
 #include "BlockData.H"
 #include "EntryData.H"
-#include "NoteData.H"
 
 BlockData::BlockData(Data *parent): Data(parent) {
   y0_ = 0;
@@ -44,11 +43,15 @@ int BlockData::sheet() const {
 }
 
 void BlockData::setY0(double y0) {
+  if (y0_==y0)
+    return;
   y0_ = y0;
   markModified(InternalMod);
 }
 
 void BlockData::setHeight(double h) {
+  if (h_==h)
+    return;
   h_ = h;
   markModified(InternalMod);
 }
@@ -62,6 +65,8 @@ void BlockData::sneakilySetHeight(double h) {
 }
 
 void BlockData::setSheet(int sheet) {
+  if (sheet_==sheet)
+    return;
   sheet_ = sheet;
   markModified(InternalMod);
   if (!loading())
@@ -71,3 +76,46 @@ void BlockData::setSheet(int sheet) {
 bool BlockData::isEmpty() const {
   return true;
 }
+
+bool BlockData::setSheetAndY0(int n, double y0) {
+  if (sheet_==n && y0_==y0)
+    return false;
+  
+  sheet_ = n;
+  y0_ = y0;
+  markModified(InternalMod);
+  return true;
+}
+
+
+QList<double> const &BlockData::sheetSplits() const {
+  return ssplits;
+}
+
+void BlockData::setSheetSplits(QList<double> const &s) {
+  if (ssplits==s)
+    return;
+  ssplits = s;
+  markModified(InternalMod);
+}
+
+void BlockData::resetSheetSplits() {
+  ssplits.clear();
+  markModified(InternalMod);
+}
+
+void BlockData::loadMore(QVariantMap const &src) {
+  Data::loadMore(src);
+  ssplits.clear();
+  foreach (QVariant v, src["split"].toList())
+    ssplits.append(v.toDouble());  
+}
+
+void BlockData::saveMore(QVariantMap &dst) const {
+  Data::saveMore(dst);
+  QVariantList xl;
+  foreach (double v, ssplits)
+    xl.append(QVariant(v));
+  dst["split"] = QVariant(xl);
+}
+

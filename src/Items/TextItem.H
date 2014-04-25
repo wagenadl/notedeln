@@ -31,8 +31,9 @@
 class TextItem: public Item {
   Q_OBJECT;
 public:
-  TextItem(TextData *data, Item *parent, bool noFinalize=false);
-  // only TableItem should set noFinalize=true!
+  TextItem(TextData *data, Item *parent, bool noFinalize=false,
+	   class QTextDocument *altdoc=0);
+  // only descendents should set noFinalize=true!
   ~TextItem();
   DATAACCESS(TextData);
   virtual void makeWritable();
@@ -47,9 +48,15 @@ public:
   void insertBasicHtml(QString html, int pos);
   // Only <b> and <i> tags are supported at present
   int pointToPos(QPointF) const;
+  QPointF posToPoint(int) const;
   //  QRectF fittedRect() const;
   QRectF netBounds() const;
+  QRectF clipRect() const; // null if not clipping
+  bool clips() const;
+  void setClip(QRectF);
+  void unclip();
 signals:
+  void invisibleFocus(QPointF);
   void textChanged();
   void widthChanged();
   void abandoned(); // escape pressed while empty
@@ -124,8 +131,10 @@ protected:
   QPointF cursorPos;
   MarkupData::Style lateMarkType;
   int lateMarkStart;
+  QRectF clip_;
+  bool hasAltDoc;
 public:
-  TextItemText *titxt() { return text; } // debugging
+  TextItemText *titxt() { return text; } // };
 };
 
 #endif

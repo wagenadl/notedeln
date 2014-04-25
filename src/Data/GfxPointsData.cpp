@@ -59,6 +59,8 @@ void GfxPointsData::addPoint(QPointF p, bool hush) {
 }
 
 void GfxPointsData::setPoint(int i, QPointF p, bool hush) {
+  if (xx_[i]==p.x() && yy_[i]==p.y())
+    return;
   xx_[i] = p.x();
   yy_[i] = p.y();
   if (!hush)
@@ -72,6 +74,7 @@ void GfxPointsData::removePoint(int i) {
 }
 
 void GfxPointsData::loadMore(QVariantMap const &src) {
+  GfxData::loadMore(src);
   xx_.clear();
   yy_.clear();
 
@@ -82,6 +85,7 @@ void GfxPointsData::loadMore(QVariantMap const &src) {
 }
 
 void GfxPointsData::saveMore(QVariantMap &dst) const {
+  GfxData::saveMore(dst);
   QVariantList xl;
   foreach (double v, xx_)
     xl.append(QVariant(v));

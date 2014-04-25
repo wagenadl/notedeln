@@ -38,11 +38,15 @@ double GfxSketchData::lineWidth() const {
 }
 
 void GfxSketchData::setColor(QColor c) {
+  if (col==c)
+    return;
   col = c;
   markModified();
 }
 
 void GfxSketchData::setLineWidth(double w) {
+  if (lw==w)
+    return;
   lw = w;
   markModified();
 }

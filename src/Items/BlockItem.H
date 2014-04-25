@@ -23,6 +23,7 @@
 #include <QGraphicsObject>
 #include "Item.H"
 #include "BlockData.H"
+#include <QPointer>
 
 class BlockItem: public Item {
   Q_OBJECT;
@@ -33,7 +34,20 @@ public:
   virtual BlockItem const *ancestralBlock() const;
   virtual BlockItem *ancestralBlock();
   void setBaseScene(class BaseScene *);
+  /* setBaseScene does *not* move the footnotes to the scene. */
   BaseScene *baseScene();
+  QList<class FootnoteItem *> footnotes();
+  /* Footnotes are associated with a block, but they are not children
+     of a block item in the qgraphics sense except during construction. */
+  virtual void makeWritable();
+  class FootnoteItem *newFootnote(class FootnoteData *fnd);
+  QPointF findRefText(QString);
+public:
+  // splitpar stuff
+  virtual double splittableY(double /*hmax*/) { return 0; }
+  virtual Item *fragment(int) { return this; }
+  virtual void unsplit() { }
+  virtual void split(QList<double>) { }
 signals:
   void heightChanged();
 public slots:
@@ -48,7 +62,10 @@ public slots:
    */
   void refTextChange(QString olds, QString news);
 private:
+  QPointF findRefTextIn(QString, Item *);
+private:
   BaseScene *bs;
+  QList<QPointer<FootnoteItem> > foots;
 };
 
 

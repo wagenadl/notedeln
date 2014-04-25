@@ -48,26 +48,36 @@
 #include "LateNoteItem.H" 
 #include "LateNoteData.H" 
 
-TextItem::TextItem(TextData *data, Item *parent, bool noFinalize):
+TextItem::TextItem(TextData *data, Item *parent, bool noFinalize,
+		   QTextDocument *altdoc):
   Item(data, parent) {
+  hasAltDoc = altdoc;
   markings_ = 0;
   text = new TextItemText(this);
-
+  if (altdoc)
+    text->setDocument(altdoc);
+  
   mayMark = true;
   mayNote = false;
   mayMove = false;
   lateMarkType = MarkupData::Normal;
   allowParagraphs_ = true;
 
-  initializeFormat();
+  if (!altdoc)
+    initializeFormat();
+  
   text->setTextInteractionFlags(Qt::TextSelectableByMouse);
+  connect(text, SIGNAL(invisibleFocus(QPointF)),
+	  this, SIGNAL(invisibleFocus(QPointF)));
 
-  text->setPlainText(data->text());
-  QTextCursor tc(textCursor());
-  tc.movePosition(QTextCursor::Start);
-  QTextBlockFormat fmt = tc.blockFormat();
-  tc.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
-  tc.setBlockFormat(fmt);
+  if (!altdoc) {
+    text->setPlainText(data->text());
+    QTextCursor tc(textCursor());
+    tc.movePosition(QTextCursor::Start);
+    QTextBlockFormat fmt = tc.blockFormat();
+    tc.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
+    tc.setBlockFormat(fmt);
+  }
   
   if (!noFinalize) 
     finalizeConstructor();
@@ -84,6 +94,8 @@ void TextItem::finalizeConstructor(int sheet) {
 
   if (!markings_)
     markings_ = new TextMarkings(data(), this);
+  if (hasAltDoc)
+    markings_->setSecundary();
 
   connect(document(), SIGNAL(contentsChange(int, int, int)),
 	  this, SLOT(docChange()));
@@ -165,6 +177,7 @@ bool TextItem::mousePress(QGraphicsSceneMouseEvent *e) {
   case Qt::LeftButton:
     switch (mode()->mode()) {
     case Mode::Type: case Mode::Table:
+      qDebug() << "TI:mousepress:type";
       return false; // TextItemText will decide whether to edit or not
     case Mode::MoveResize:
       if (mayMove) {
@@ -223,6 +236,10 @@ bool TextItem::mousePress(QGraphicsSceneMouseEvent *e) {
 
 int TextItem::pointToPos(QPointF p) const {
   return ::pointToPos(text, text->mapFromParent(p));
+}
+
+QPointF TextItem::posToPoint(int pos) const {
+  return text->mapToParent(::posToPoint(text, pos));
 }
       
 
@@ -707,7 +724,11 @@ bool TextItem::tryExplicitLink() {
 
 bool TextItem::tryFootnote() {
   BlockItem *anc = ancestralBlock();
-  ASSERT(anc);
+  if (!anc) {
+    qDebug() << "Cannot add footnote without ancestral block";
+    return false;
+  }
+
   EntryScene *bs = dynamic_cast<EntryScene*>(anc->baseScene());
   ASSERT(bs);
   int i = bs->findBlock(anc);
@@ -733,6 +754,7 @@ bool TextItem::tryFootnote() {
       if (approvedMark(mrk))
 	--start; // markup is a single non-word char like "*".
   }
+
   if (oldmd && oldmd->start()==start && oldmd->end()==end) {
     if (mayDelete) {
       // delete old mark
@@ -867,3 +889,24 @@ void TextItem::insertBasicHtml(QString html, int pos) {
 QRectF TextItem::netBounds() const {
   return text->mapRectToParent(text->boundingRect());
 }
+
+QRectF TextItem::clipRect() const {
+  return clip_;
+}
+
+bool TextItem::clips() const {
+  return !clip_.isNull();
+}
+
+void TextItem::setClip(QRectF r) {
+  qDebug() << "TI::setClip " << r;
+  clip_ = r;
+  text->setClip(r);
+}
+
+void TextItem::unclip() {
+  clip_ = QRectF();
+  text->unclip();
+}
+
+  

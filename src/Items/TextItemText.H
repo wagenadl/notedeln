@@ -29,6 +29,11 @@ public:
   virtual ~TextItemText();
   virtual void paint(QPainter*, const QStyleOptionGraphicsItem*, QWidget*);
   void setBoxVisible(bool);
+  virtual QPainterPath shape() const;
+  void setClip(QRectF);
+  void unclip();
+signals:
+  void invisibleFocus(QPointF);
 public: // for EntryScene. Ugly.
   void keyPressEvent(QKeyEvent *);
 protected:
@@ -40,11 +45,13 @@ protected:
   void dragEnterEvent(class QGraphicsSceneDragDropEvent *);
   void dropEvent(class QGraphicsSceneDragDropEvent *);
 private:
+  void ensureFocusVisible();
   friend class TextItem;
   void internalKeyPressEvent(QKeyEvent *);
   TextItem *parent();
 private:
   bool forcebox;
+  QPainterPath clipp;
 };
 
 int pointToPos(QGraphicsTextItem const *item, QPointF p);
