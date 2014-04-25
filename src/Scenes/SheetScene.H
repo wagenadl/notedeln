@@ -30,10 +30,14 @@ public:
   QGraphicsView *eventView() const;
   /* This is the view from which the current mouse or key event comes */
   void setEventView(QGraphicsView *);
- protected:
+signals:
+  void leaveTitle();
+protected:
   virtual void mousePressEvent(QGraphicsSceneMouseEvent *);
   virtual void keyPressEvent(QKeyEvent *);
   virtual void drawBackground(QPainter *, const QRectF &);
+private slots:
+  void futileTitleMovement(int, Qt::KeyboardModifiers);
 private:
   void makeBackground();
   void repositionDate();

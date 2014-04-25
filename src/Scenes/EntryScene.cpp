@@ -597,16 +597,31 @@ void EntryScene::futileMovement(int block) {
   tgt->setTextCursor(c);
 }
 
-void EntryScene::futileTitleMovement(int key, Qt::KeyboardModifiers) {
-  switch (key) {
-  case Qt::Key_Enter: case Qt::Key_Return:
-  case Qt::Key_Down:
-    focusEnd();
-    break;
-  default:
-    break;
+void EntryScene::focusFirst(int sheet) {
+  qDebug() << "EntryScene::focusEnd" << writable;
+  if (!writable)
+    return;
+
+  TextBlockItem *firstbi = 0;
+  for (int i=0; i<blockItems.size(); ++i) {
+    TextBlockItem *tbi = dynamic_cast<TextBlockItem *>(blockItems[i]);
+    if (tbi && (sheet<0 || tbi->data()->sheet()==sheet)) {
+      firstbi = tbi;
+      break;
+    }
+  }
+  if (firstbi) {
+    firstbi->setFocus();
+    QTextCursor tc = firstbi->text()->textCursor();
+    tc.movePosition(QTextCursor::Start);
+    firstbi->text()->setTextCursor(tc);    
+  } else {
+    if (blockItems.isEmpty())
+      newTextBlock(-1);
   }
 }
+
+
 
 void EntryScene::focusEnd(int isheet) {
   qDebug() << "EntryScene::focusEnd" << writable;

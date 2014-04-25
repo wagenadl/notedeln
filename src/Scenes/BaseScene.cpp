@@ -33,6 +33,7 @@
 #include <QKeyEvent>
 #include <QPainter>
 #include <QPrinter>
+#include <QSignalMapper>
 
 #include "Notebook.H"
 
@@ -45,6 +46,8 @@ BaseScene::BaseScene(Data *data, QObject *parent):
   style_ = &book->style();
   nSheets = 0;
   contInMargin = false;
+  focusFirstMapper = new QSignalMapper(this);
+  connect(focusFirstMapper, SIGNAL(mapped(int)), SLOT(focusFirst(int)));
 }
 
 void BaseScene::populate() {
@@ -159,9 +162,9 @@ void BaseScene::setSheetCount(int n) {
       if (k>0)
         if (sheets[0]->fancyTitleItem()->isWritable())
           s->fancyTitleItem()->makeWritable();
-      connect(s->fancyTitleItem(),
-	      SIGNAL(futileMovementKey(int, Qt::KeyboardModifiers)),
-	      SLOT(futileTitleMovement(int, Qt::KeyboardModifiers)));
+      connect(s, SIGNAL(leaveTitle()),
+	      focusFirstMapper, SLOT(map()));
+      focusFirstMapper->setMapping(s, k);
       connect(s->fancyTitleItem()->document(), SIGNAL(contentsChanged()),
 	      SLOT(titleEdited()));
       

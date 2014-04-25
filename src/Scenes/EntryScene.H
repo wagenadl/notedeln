@@ -63,7 +63,7 @@ protected slots:
   void titleEdited();
   void vChanged(int block);
   void futileMovement(int block);
-  void futileTitleMovement(int, Qt::KeyboardModifiers);
+  void focusFirst(int sheet);
 private:
   void splitTextBlock(int iblock, int pos);
   class TableBlockItem *injectTableBlock(class TableBlockData *, int iblock);

@@ -45,10 +45,10 @@ public:
   void addItem(QGraphicsItem *it, int sheet);
   class SheetScene *sheet(int n, bool autoextend=false);
 public slots:
-  void focusTitle(int sheet);
+  virtual void focusTitle(int sheet);
+  virtual void focusFirst(int /*sheet*/) {}
 protected slots:
-  void titleEdited() {}
-  void futileTitleMovement(int, Qt::KeyboardModifiers) {}
+  virtual void titleEdited() {}
 protected:
   bool inMargin(QPointF scenePos) const; // true if point is in any margin
   bool inLeftMargin(QPointF scenePos) const;
@@ -68,6 +68,7 @@ protected:
   Style const *style_;
   QList<class SheetScene *> sheets;
   bool contInMargin;
+  class QSignalMapper *focusFirstMapper;
 };
 
 #endif

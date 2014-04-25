@@ -87,6 +87,7 @@ void SheetScene::repositionDate() {
                      style().real("margin-top") 
                      - style().real("title-sep") 
                      - br.y());
+  repositionTitle();
 }
 
 void SheetScene::setNOfN(int n, int N, bool always) {
@@ -157,22 +158,25 @@ void SheetScene::setTitle(QString const &title) {
 }
 
 void SheetScene::repositionTitle() {
-  double w = style_.real("page-width") - style_.real("margin-left")
-    - style_.real("title-indent") - style_.real("margin-right");
+  double l = style_.real("margin-left") + style_.real("title-indent");
+  double r = style_.real("page-width") - style_.real("margin-right");
+  if (dateItem) {
+    double dateX = dateItem->mapToScene(dateItem->boundingRect().topLeft()).x();
+    dateX -= 5; // should be in style, I guess
+    if (r>dateX)
+      r = dateX;
+  }
+  double w = r - l;
   if (fancyTitleItem_)
     fancyTitleItem_->setTextWidth(w);
   if (plainTitleItem)
     plainTitleItem->setTextWidth(w);    
-  QPointF bl = (fancyTitleItem_ ? fancyTitleItem_->netBounds() :
-		titleItem->boundingRect())
+  QPointF bl = (fancyTitleItem_
+		? fancyTitleItem_->netBounds() 
+		: titleItem->boundingRect())
     .bottomLeft();
-  titleItem->setPos(style_.real("margin-left") + style_.real("title-indent")
-                    - bl.x(),
-                    style_.real("margin-top") - style_.real("title-sep")
-                    - bl.y());
-  qDebug() << titleItem->pos();
-  if (fancyTitleItem_)
-    qDebug() << fancyTitleItem_->document()->toPlainText();
+  titleItem->setPos(l - bl.x(),
+                    style_.real("margin-top") - style_.real("title-sep") - bl.y());
 }
 
 TitleItem *SheetScene::fancyTitleItem() {
@@ -187,6 +191,9 @@ void SheetScene::setFancyTitle(TitleData *data, int sheet,
   if (fancyTitleItem_)
     fancyTitleItem_->deleteLater();
   fancyTitleItem_ = new TitleItem(data, sheet, doc);
+  connect(fancyTitleItem_,
+	  SIGNAL(futileMovementKey(int, Qt::KeyboardModifiers)),
+	  SLOT(futileTitleMovement(int, Qt::KeyboardModifiers)));
   addItem(fancyTitleItem_);
   titleItem = fancyTitleItem_;
   repositionTitle();
@@ -263,4 +270,16 @@ QGraphicsView *SheetScene::eventView() const {
 
   QList<QGraphicsView *> vv = views();
   return vv.isEmpty() ? 0 : vv[0];
+}
+
+void SheetScene::futileTitleMovement(int key, Qt::KeyboardModifiers) {
+  switch (key) {
+  case Qt::Key_Enter:
+  case Qt::Key_Return:
+  case Qt::Key_Down:
+    emit leaveTitle();
+    break;
+  default:
+    break;
+  }
 }
