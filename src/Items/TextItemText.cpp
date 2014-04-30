@@ -42,20 +42,6 @@ TextItem *TextItemText::parent() {
 
 void TextItemText::mousePressEvent(QGraphicsSceneMouseEvent *e) {
   qDebug() << "TIT: mousepress";
-  // Following is an ugly way to clear selection from previously
-  // focused text. Can I do better?
-  foreach (QGraphicsItem *i, scene()->items()) {
-    QGraphicsTextItem *gti = dynamic_cast<QGraphicsTextItem*>(i);
-    if (gti && gti!=this) {
-      QTextCursor c = gti->textCursor();
-      if (c.hasSelection()) {
-        c.clearSelection();
-        gti->setTextCursor(c);
-        break;
-      }
-    }
-  }
-  // End of ugly code
   
   if (!parent() || !parent()->mousePress(e)) 
     QGraphicsTextItem::mousePressEvent(e);
@@ -90,6 +76,18 @@ void TextItemText::internalKeyPressEvent(QKeyEvent *e) {
 void TextItemText::focusOutEvent(QFocusEvent *e) {
   if (!parent() || !parent()->focusOut(e)) 
     QGraphicsTextItem::focusOutEvent(e);
+
+  // drop selection unless it's just the mouse pointer moving out of the window
+  if (scene()) {
+    QGraphicsItem *fi = scene()->focusItem();
+    if (fi != this) {
+      QTextCursor c(textCursor());
+      if (c.hasSelection()) {
+	c.clearSelection();
+	setTextCursor(c);
+      }
+    }
+  }  
 }
 
 void TextItemText::focusInEvent(QFocusEvent *e) {

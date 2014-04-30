@@ -57,6 +57,8 @@ public:
 public: // splitpar stuff:
   virtual double splittableY(double hmax);
   virtual TextItem *fragment(int fragno);
+  virtual int nFragments() const;
+  QList<TextItem *> fragments();
   virtual void unsplit();
   virtual void split(QList<double> yy);
 signals:

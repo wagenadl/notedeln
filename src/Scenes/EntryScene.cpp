@@ -155,6 +155,7 @@ TitleData *EntryScene::fancyTitle() const {
 
 void EntryScene::positionBlocks() {
   int isheet = 0;
+  QSet<int> refootsheets;
   foreach (BlockItem *bi, blockItems) {
     int ish = bi->data()->sheet();
     if (ish>=0)
@@ -173,12 +174,17 @@ void EntryScene::positionBlocks() {
 
     foreach (FootnoteItem *fni, bi->footnotes()) {
       int jsheet = fni->data()->sheet();
-      if (jsheet<0)
+      if (jsheet<0) {
 	jsheet = isheet;
+	refootsheets.insert(isheet);
+      } 
       sheet(isheet, true)->addItem(fni);
       fni->resetPosition();
     }
   }
+  foreach (int jsheet, refootsheets)
+    Restacker::sneakilyRepositionNotes(blockItems, jsheet);    
+  
   setSheetCount(isheet+1);
 }
 
@@ -564,10 +570,16 @@ void EntryScene::futileMovement(int block) {
   TextBlockItem *tgt = dynamic_cast<TextBlockItem*>(blockItems[tgtidx]);
   ASSERT(tgt);
 
-  qDebug() << "EntryScene::futilemovement tgtidx="<<tgtidx;
-  gotoSheetOfBlock(tgtidx);
-  qDebug() << "EntryScene::futilemovement setfocus";
-
+  /// Clear selection? Now handled by TextItemText!
+  //foreach (TextItem *ti, tbi->fragments()) {
+  //  QTextCursor c(ti->textCursor());
+  //  if (c.hasSelection()) {
+  //    c.clearSelection();
+  //    ti->setTextCursor(c);
+  //  }
+  //  ti->clearFocus();
+  //}
+  
   QTextDocument *doc = tgt->document();
   QTextCursor c(doc);
   QPointF p = tgt->text()->mapFromParent(tgt->mapFromScene(fmi.scenePos()));
@@ -597,23 +609,39 @@ void EntryScene::futileMovement(int block) {
   tgt->setTextCursor(c);
 }
 
-void EntryScene::focusFirst(int sheet) {
-  qDebug() << "EntryScene::focusEnd" << writable;
+void EntryScene::focusFirst(int isheet) {
+  qDebug() << "EntryScene::focusFirst" << writable;
   if (!writable)
     return;
 
   TextBlockItem *firstbi = 0;
   for (int i=0; i<blockItems.size(); ++i) {
     TextBlockItem *tbi = dynamic_cast<TextBlockItem *>(blockItems[i]);
-    if (tbi && (sheet<0 || tbi->data()->sheet()==sheet)) {
+    if (tbi && (isheet<0 || (isheet>=tbi->data()->sheet()
+			    && isheet<=tbi->data()->sheet()
+			    + tbi->data()->sheetSplits().size()))) {
       firstbi = tbi;
       break;
     }
   }
   if (firstbi) {
     firstbi->setFocus();
-    QTextCursor tc = firstbi->text()->textCursor();
+    QTextCursor tc = firstbi->textCursor();
     tc.movePosition(QTextCursor::Start);
+    if (isheet>=0 && !firstbi->data()->sheetSplits().isEmpty()) {
+      // make sure we pick the right fragment
+      TextItem *i = firstbi->fragment(isheet-firstbi->data()->sheet());
+      QRectF clip = i->clipRect();
+      clip.setLeft(-10000);
+      clip.setRight(10000); // I really don't care about x position
+      while (!clip.contains(i->posToPoint(tc.position()))) {
+	int p = tc.position();
+	tc.movePosition(QTextCursor::Down);
+	tc.movePosition(QTextCursor::StartOfLine);
+	if (tc.position()==p)
+	  break;
+      }
+    }      
     firstbi->text()->setTextCursor(tc);    
   } else {
     if (blockItems.isEmpty())
@@ -631,17 +659,35 @@ void EntryScene::focusEnd(int isheet) {
   TextBlockItem *lastbi = 0;
   for (int i=0; i<blockItems.size(); ++i) {
     TextBlockItem *tbi = dynamic_cast<TextBlockItem *>(blockItems[i]);
-    if (tbi && (isheet<0 || tbi->data()->sheet()==isheet))
+    if (tbi && (isheet<0
+		|| (isheet>=tbi->data()->sheet()
+		    && isheet<=tbi->data()->sheet()
+		    + tbi->data()->sheetSplits().size())))
       lastbi = tbi;
   }
   if (lastbi) {
     lastbi->setFocus();
-    QTextCursor tc = lastbi->text()->textCursor();
+    QTextCursor tc = lastbi->textCursor();
     tc.movePosition(QTextCursor::End);
-    lastbi->text()->setTextCursor(tc);    
+    if (isheet>=0 && !lastbi->data()->sheetSplits().isEmpty()) {
+      // make sure we pick the right fragment
+      TextItem *i = lastbi->fragment(isheet-lastbi->data()->sheet());
+      QRectF clip = i->clipRect();
+      clip.setLeft(-10000);
+      clip.setRight(10000); // I really don't care about x position
+      while (!clip.contains(i->posToPoint(tc.position()))) {
+	int p = tc.position();
+	tc.movePosition(QTextCursor::Up);
+	tc.movePosition(QTextCursor::EndOfLine);
+	if (tc.position()==p)
+	  break;
+      }
+    }      
+    lastbi->setTextCursor(tc);    
   } else {
     if (isheet == nSheets-1)
-      newTextBlock(blockItems.size()-1); // create new text block only on last sheet
+      newTextBlock(blockItems.size()-1);
+    // create new text block only on last sheet
   }
 }
 

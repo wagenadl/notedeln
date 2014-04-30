@@ -14,6 +14,8 @@ public:
   Restacker(QList<class BlockItem *> const &blocks, int start);
   void restackData();
   void restackItems(class EntryScene &es);
+  static void sneakilyRepositionNotes(QList<class BlockItem *> const &blocks,
+				      int sheet);
 private:
   void restackBlocks();
   void restackFootnotesOnSheet();

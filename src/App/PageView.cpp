@@ -63,6 +63,8 @@ PageView::PageView(SceneBank *bank, QWidget *parent):
 
   wheelDeltaAccum = 0;
   wheelDeltaStepSize = book->style().real("wheelstep");
+
+  connect(mode(), SIGNAL(modeChanged(Mode::M)), SLOT(modeChange()));
 }
 
 PageView::~PageView() {
@@ -224,16 +226,16 @@ void PageView::keyPressEvent(QKeyEvent *e) {
 	if (item)
 	  break;
       }
-      qDebug() << "PageView::Key_Delete. item=" << item;
+      //      qDebug() << "PageView::Key_Delete. item=" << item;
       if (item && item->isWritable()) {
 	BlockItem *block = item->ancestralBlock();
-	qDebug() << "  block=" << block
-		 << " empty?" << block->allChildren().isEmpty();
+	//	qDebug() << "  block=" << block
+	//		 << " empty?" << block->allChildren().isEmpty();
 	if (block && block->allChildren().isEmpty())
 	  entryScene->notifyChildless(block);
 	else
 	  deletedStack->grabIfRestorable(item);
-	qDebug() << "  Item grabbed or notification sent";
+	//	qDebug() << "  Item grabbed or notification sent";
       }
     } else {
       take = false;
@@ -670,3 +672,18 @@ int PageView::pageNumber() const {
   return currentPage;
 }
 
+void PageView::modeChange() {
+  qDebug() << "PageView::modeChange" << mode()->mode();
+  switch (mode()->mode()) {
+  case Mode::Browse: viewport()->setCursor(Qt::ArrowCursor); break;
+  case Mode::Type: viewport()->setCursor(Qt::IBeamCursor); break;
+  case Mode::MoveResize: viewport()->setCursor(Qt::ArrowCursor); break;
+  case Mode::Mark: viewport()->setCursor(Qt::CrossCursor); break;
+  case Mode::Freehand: viewport()->setCursor(Qt::CrossCursor); break;
+  case Mode::Annotate: viewport()->setCursor(Qt::IBeamCursor); break;
+  case Mode::Highlight: viewport()->setCursor(Qt::ArrowCursor); break;
+  case Mode::Strikeout: viewport()->setCursor(Qt::ArrowCursor); break;
+  case Mode::Plain: viewport()->setCursor(Qt::ArrowCursor); break;
+  case Mode::Table: viewport()->setCursor(Qt::IBeamCursor); break;
+  }
+}

@@ -46,6 +46,7 @@ public:
   // splitpar stuff
   virtual double splittableY(double /*hmax*/) { return 0; }
   virtual Item *fragment(int) { return this; }
+  virtual int nFragments() const { return 1; }
   virtual void unsplit() { }
   virtual void split(QList<double>) { }
 signals:

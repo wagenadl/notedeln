@@ -189,7 +189,8 @@ bool TextItem::mousePress(QGraphicsSceneMouseEvent *e) {
       break;
     case Mode::Annotate:
       qDebug() << "Annotate: TESTME"; // << allowNotes();
-      return false;
+      e->ignore();
+      return true; // do not accept event, but return true;
     case Mode::Highlight:
       attemptMarkup(e->pos(), MarkupData::Emphasize);
       break;
@@ -899,7 +900,7 @@ bool TextItem::clips() const {
 }
 
 void TextItem::setClip(QRectF r) {
-  qDebug() << "TI::setClip " << r;
+  qDebug() << "TI::setClip " << r << boundingRect() << netBounds();
   clip_ = r;
   text->setClip(r);
 }

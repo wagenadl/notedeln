@@ -73,6 +73,7 @@ private:
 private slots:
   bool gotoSheet(int n);
   void notebookReloaded(QMap<int,int>);
+  void modeChange();
 private:
   class SceneBank *bank; // we do not own!
   class Notebook *book; // we do not own!

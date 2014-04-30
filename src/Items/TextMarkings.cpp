@@ -139,8 +139,7 @@ void TextMarkings::newMark(MarkupData::Style type, int start, int end) {
 }
 
 void TextMarkings::newMark(MarkupData *m) {
-  if (maintainData)
-    data->addMarkup(m);
+  data->addMarkup(m);
   applyMark(insertMark(m));
   update(m->start(), 0, 0); // this should fix overlaps if any
 }

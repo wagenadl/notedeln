@@ -206,6 +206,17 @@ class TextItem *TextBlockItem::fragment(int fragno) {
   return frags[fragno];
 }
 
+int TextBlockItem::nFragments() const {
+  return frags.size();
+}
+
+QList<TextItem *> TextBlockItem::fragments() {
+  QList<TextItem *> l;
+  foreach (TextItem *f, frags)
+    l << f;
+  return l;
+}
+
 QTextCursor TextBlockItem::textCursor() const {
   foreach (TextItem *ti, frags)
     if (ti->hasFocus())
@@ -331,7 +342,7 @@ void TextBlockItem::split(QList<double> ysplit) {
 			     r0.width(), ysplit[i+1]-ysplit[i]));
 }
 
-void TextBlockItem::mousePressEvent(QGraphicsSceneMouseEvent*e) {
+void TextBlockItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
   qDebug() << "TBI: mousepress";
   BlockItem::mousePressEvent(e);
 }

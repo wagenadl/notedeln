@@ -73,6 +73,8 @@ void Restacker::restackBlocks() {
   restackFootnotesOnSheet();
 }
 
+#define MINONSHEET 20
+
 void Restacker::restackBlock(int i) {
   // This puts footnotedata on the right sheet, but not in the right order.
   // Create a sorting by yref?
@@ -90,7 +92,7 @@ void Restacker::restackBlock(int i) {
     qDebug() << "  Will not fit";
     // This block will not fit on the current sheet with its footnotes
     double ycut = bi->splittableY(yfn-yblock);
-    if (ycut>0) {
+    if (ycut>=MINONSHEET) {
       restackBlockSplit(i, ycut);
       return;
     } else if (yblock>y0) {
@@ -179,6 +181,8 @@ void Restacker::restackBlockSplit(int i, double ycut) {
 	}
       }
       ycut = bi->splittableY(ycut - over);
+      if (ycut>hreal-MINONSHEET && ycut<hreal)
+	ycut = bi->splittableY(hreal-MINONSHEET);
     }
     if (ycut<=lastycut) {
       // nothing fits at all
@@ -188,7 +192,7 @@ void Restacker::restackBlockSplit(int i, double ycut) {
 	isheet++;
 	yblock = y0;
 	yfn = y1;
-	ycut = bi->splittableY(lastycut + yfn-yblock);
+	ycut = bd->height(); // let's see what we can do next
 	continue; // try again on next sheet
       } else {
 	// we'll just have to make it work
@@ -197,8 +201,9 @@ void Restacker::restackBlockSplit(int i, double ycut) {
 	  nextn = lastn + 1;
 	  ycut = bi->splittableY(fs.attach[lastn]+20); // well... what can I say
 	} else {
+	  // this should not be possible
 	  qDebug() << "Restacker: I didn't think this could happen";
-	  ycut = y1-y0;
+	  ycut = y1-y0; // last resort
 	  nextn = lastn;
 	}
       }
@@ -292,3 +297,32 @@ void Restacker::restackItem(EntryScene &es, int i) {
   }
 }
 
+void Restacker::sneakilyRepositionNotes(QList<class BlockItem *> const &blocks,
+					int sheet) {
+  if (blocks.isEmpty())
+    return;
+  
+  QMultiMap<double, class FootnoteItem *> footplace;
+  foreach (BlockItem *bi, blocks) {
+    if (bi->data()->sheet() != sheet)
+      continue;
+    foreach (FootnoteItem *fni, bi->footnotes()) {
+      QPointF p = bi->findRefText(fni->data()->tag());
+      double rp = bi->data()->y0() + p.y() + 0.001*p.x();
+      footplace.insert(rp, fni);
+    }
+  }
+
+  double y1 = blocks[0]->style().real("page-height")
+    - blocks[0]->style().real("margin-bottom");
+  foreach (FootnoteItem *fni, footplace)
+    y1 -= fni->data()->height();
+  foreach (FootnoteItem *fni, footplace) {
+    fni->setPos(fni->pos().x(), y1);
+    y1 += fni->data()->height();
+  }
+}
+
+  
+  
+    
