@@ -258,18 +258,12 @@ bool TableItem::keyPress(QKeyEvent *e) {
     } else
       return false;
   } else if (cursor.atStart()) {
-    // before table
-    if (key==Qt::Key_Right || key==Qt::Key_Down)
-      gotoCell(0, 0);
-    else 
-      emit futileMovementKey(key, mod);
+    // before table - this should not be happening any more
+    emit futileMovementKey(key, mod);
     return true;
   } else if (cursor.atEnd()) {
-    // after table
-    if (key==Qt::Key_Left || key==Qt::Key_Up)
-      gotoCell(table->rows()-1, table->columns()-1, true);
-    else 
-      emit futileMovementKey(key, mod);
+    // after table - this should not be happening any more
+    emit futileMovementKey(key, mod);
     return true;
   } else {
     // don't know where we are. no good.
@@ -312,15 +306,18 @@ void TableItem::deleteRows(int r0, int n) {
     n += r0;
     r0 = 0;
   }
-  if (r0+n>=rows)
+  if (r0+n>rows)
     n = rows - r0;
   if (r0==0 && n==rows)
-    n--; // do not delete last row
+    n--; // refuse to delete all rows
   if (n<=0)
     return;
   
   data()->setRows(rows - n);
   table->removeRows(r0, n);
+
+  if (data()->rows()==1 && data()->columns()==1)
+    emit unicellular(data());
 }
 
 void TableItem::deleteColumns(int c0, int n) {
@@ -329,15 +326,18 @@ void TableItem::deleteColumns(int c0, int n) {
     n += c0;
     c0 = 0;
   }
-  if (c0+n>=cols)
+  if (c0+n>cols)
     n = cols - c0;
   if (c0==0 && n==cols)
-    n--; // do not delete last column
+    n--; // refuse to delete all columns
   if (n<=0)
     return;
   
   data()->setColumns(cols - n);
   table->removeColumns(c0, n);
+
+  if (data()->rows()==1 && data()->columns()==1)
+    emit unicellular(data());
 }
 
 void TableItem::insertRow(int before) {

@@ -64,6 +64,7 @@ signals:
   /* also emitted for enter press or for delete/backspace at end/start */
   void mousePress(QPointF, Qt::MouseButton);
   void refTextChange(QString oldText, QString newText);
+  void multicellular(int pos, TextData *td);
 protected:
   void mouseMoveEvent(QGraphicsSceneMouseEvent *);
   void mouseReleaseEvent(QGraphicsSceneMouseEvent *);

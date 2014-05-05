@@ -16,6 +16,7 @@
 
 // TextItem.C
 
+#include <QTextLayout>
 #include "TextItem.H"
 #include "TextData.H"
 #include "TextMarkings.H"
@@ -460,11 +461,22 @@ bool TextItem::keyPressAsSpecialEvent(QKeyEvent *e) {
           p->data()->setDedented(true);
       } else if (tc.position()==0) {
 	if (hasIndent)
-	  return false; // allow Tab to be inserted
+	  return false; // allow Tab to be inserted at start
 	else
           p->data()->setIndented(true);
       } else {
-	return false; // allow Tab to be inserted
+	// no control, no shift, not at start
+	QTextDocument *doc = document();
+	if (doc->blockCount()==1
+	    && doc->firstBlock().lineCount()==1
+	    && doc->firstBlock().layout()->lineAt(0).naturalTextWidth()
+	    < (style().real("page-width")-style().real("margin-left")
+	       -style().real("margin-right"))*2.0/3.0) {
+	  emit multicellular(tc.position(), data());
+	  return true; // do not allow Tab to be inserted
+	} else {
+	  return false; // allow Tab to be inserted
+	}
       }
       p->initializeFormat();
       return true;

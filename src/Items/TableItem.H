@@ -44,7 +44,9 @@ public slots:
 protected slots:
   virtual void docChange();
 signals:
-  void mustNormalizeCursor();
+  void unicellular(TableData *); // emitted when we are left as just one cell
+signals: 
+  void mustNormalizeCursor(); // private use only: must enforce cursor posn
 protected:
   virtual bool mousePress(QGraphicsSceneMouseEvent *);
   virtual bool keyPress(QKeyEvent *);

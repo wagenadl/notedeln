@@ -125,6 +125,9 @@ BlockItem *EntryScene::tryMakeTableBlock(BlockData *bd) {
   if (tbd->height()==0)
     tbi->sizeToFit();
   connect(tbi, SIGNAL(futileMovement()), futileMovementMapper, SLOT(map()));
+  connect(tbi, SIGNAL(unicellular(class TableData *)),
+	  SLOT(makeUnicellular(class TableData *)),
+	  Qt::QueuedConnection);
   return tbi;
 }
 
@@ -138,6 +141,9 @@ BlockItem *EntryScene::tryMakeTextBlock(BlockData *bd) {
     tbi->sizeToFit();
   connect(tbi, SIGNAL(futileMovement()), futileMovementMapper, SLOT(map()));
   connect(tbi, SIGNAL(sheetRequest(int)), this, SIGNAL(sheetRequest(int)));
+  connect(tbi, SIGNAL(multicellular(int, class TextData *)),
+	  SLOT(makeMulticellular(int, class TextData *)),
+	  Qt::QueuedConnection);
   return tbi;
 }
   
@@ -402,6 +408,9 @@ TableBlockItem *EntryScene::injectTableBlock(TableBlockData *tbd, int iblock) {
   blockItems.insert(iblock, tbi);
   connect(tbi, SIGNAL(heightChanged()), vChangeMapper, SLOT(map()));
   connect(tbi, SIGNAL(futileMovement()), futileMovementMapper, SLOT(map()));
+  connect(tbi, SIGNAL(unicellular(class TableData *)),
+	  SLOT(makeUnicellular(class TableData *)),
+	  Qt::QueuedConnection);
   remap();
   return tbi;
 }
@@ -422,6 +431,9 @@ TextBlockItem *EntryScene::injectTextBlock(TextBlockData *tbd, int iblock) {
   connect(tbi, SIGNAL(heightChanged()), vChangeMapper, SLOT(map()));
   connect(tbi, SIGNAL(futileMovement()), futileMovementMapper, SLOT(map()));
   connect(tbi, SIGNAL(sheetRequest(int)), this, SIGNAL(sheetRequest(int)));
+  connect(tbi, SIGNAL(multicellular(int, class TextData *)),
+	  SLOT(makeMulticellular(int, class TextData *)),
+	  Qt::QueuedConnection);
   remap();
   return tbi;
 }
@@ -1169,3 +1181,10 @@ void EntryScene::modeChange(Mode::M m) {
   }
 }
     
+void EntryScene::makeUnicellular(TableData *td) {
+  qDebug() << "makeuni " << td;
+}
+
+void EntryScene::makeMulticellular(int pos, TextData *td) {
+  qDebug() << "makemulti " << pos << td;
+}

@@ -66,6 +66,8 @@ protected slots:
   void vChanged(int block);
   void futileMovement(int block);
   void focusFirst(int sheet);
+  void makeUnicellular(class TableData *);
+  void makeMulticellular(int pos, class TextData *);
 private:
   void splitTextBlock(int iblock, int pos);
   class TableBlockItem *injectTableBlock(class TableBlockData *, int iblock);

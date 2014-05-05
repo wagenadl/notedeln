@@ -34,6 +34,8 @@ TableBlockItem::TableBlockItem(TableBlockData *data, Item *parent):
   TextBlockItem(data, parent, TTICreator()) {
   item_ = firstChild<TableItem>();
   ASSERT(item_);
+  connect(item_, SIGNAL(unicellular(TableData*)),
+	  this, SIGNAL(unicellular(TableData*)));
 
   QTextCursor tc(item_->document());
   QTextBlockFormat fmt = tc.blockFormat();

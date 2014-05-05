@@ -64,6 +64,7 @@ public: // splitpar stuff:
 signals:
   void futileMovement(); // up key on top line etc
   void sheetRequest(int);
+  void multicellular(int, class TextData *);
 public slots:
   void sizeToFit();
 protected:

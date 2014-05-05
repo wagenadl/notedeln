@@ -64,6 +64,9 @@ TextBlockItem::TextBlockItem(TextBlockData *data, Item *parent,
 			       r0.width(), ysplit[i+1]-ysplit[i]));
     connect(frags[i], SIGNAL(invisibleFocus(QPointF)),
 	    SLOT(ensureVisible(QPointF)));
+    connect(frags[i], SIGNAL(multicellular(int, TextData*)),
+	    this, SIGNAL(multicellular(int, TextData*)));
+
   }
   
   initializeFormat();

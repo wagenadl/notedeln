@@ -37,6 +37,8 @@ public:
   virtual ~TableBlockItem();
   DATAACCESS(TableBlockData);
   class TableItem *table();
+signals:
+  void unicellular(TableData *); // emitted when we are left as just one cell
 private:
   class TableItem *item_;
 };
