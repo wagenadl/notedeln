@@ -188,9 +188,14 @@ void HoverRegion::calcBounds() const {
 					? line.cursorToX(rend)
 					: line.cursorToX(lineEnd));
     QRectF bit(QPointF(x0, y0), QPointF(x1, y1));
-    bit = mapRectFromScene(ti->mapRectToScene(bit));
-    bounds.addRect(bit);
-    pos = tb.position() + lineEnd;
+    if (!bit.isEmpty()) {
+      bit = mapRectFromScene(ti->mapRectToScene(bit));
+      bounds.addRect(bit);
+    }
+    int npos = tb.position() + lineEnd;
+    if (npos<=pos)
+      break;
+    pos = npos;
   }
 
   start = md->start();

@@ -708,23 +708,14 @@ void EntryScene::vChanged(int block) {
 bool EntryScene::mousePressEvent(QGraphicsSceneMouseEvent *e, SheetScene *s) {
   QPointF sp = e->scenePos();
   int sh = findSheet(s);
-  qDebug() << "EntryScene::mousePressEvent: item at " << sp
-	   << " is " << itemAt(sp, sh);
-  TextItemText *tit = dynamic_cast<TextItemText*>(itemAt(sp, sh));
-  if (tit) {
-    qDebug() << " bound=" << tit->sceneBoundingRect()
-	     << " txt= " << tit->document()->toPlainText();
-  }
-  int sheet = findSheet(s);
   bool take = false;
   if (inMargin(sp)) {
-    if (itemAt(sp, sh)==0) {
-      qDebug() << "  in margin";
-      if (data_->book()->mode()->mode()==Mode::Annotate) {
-        GfxNoteItem *note = createNote(sp, sheet);
-        qDebug() << "created note" << note;
-        take = true;
-      }
+    // if (itemAt(sp, sh)==0) {
+    qDebug() << "  in margin";
+    if (data_->book()->mode()->mode()==Mode::Annotate) {
+      GfxNoteItem *note = createNote(sp, sheet);
+      qDebug() << "created note" << note;
+      take = true;
     }
   } else if (itemAt(sp, sh)==0) {
     switch (data_->book()->mode()->mode()) {
@@ -737,13 +728,13 @@ bool EntryScene::mousePressEvent(QGraphicsSceneMouseEvent *e, SheetScene *s) {
       }
       break;
     case Mode::Type:
-      if (writable) {
+      if (isWritable()) {
 	newTextBlockAt(sp, sheet);
 	take = true;
       }
       break;
     case Mode::Table:
-      if (writable) {
+      if (isWritable()) {
 	newTableBlockAt(sp, sheet);
 	take = true;
       }
