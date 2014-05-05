@@ -709,43 +709,44 @@ bool EntryScene::mousePressEvent(QGraphicsSceneMouseEvent *e, SheetScene *s) {
   QPointF sp = e->scenePos();
   int sh = findSheet(s);
   bool take = false;
-  if (inMargin(sp)) {
-    // if (itemAt(sp, sh)==0) {
-    qDebug() << "  in margin";
-    if (data_->book()->mode()->mode()==Mode::Annotate) {
-      GfxNoteItem *note = createNote(sp, sheet);
-      qDebug() << "created note" << note;
+  Item *it = 0;
+  for (QGraphicsItem *gi = itemAt(sp, sh); gi; gi=gi->parentItem()) {
+    it = dynamic_cast<Item*>(gi);
+    if (it)
+      break;
+  }
+  qDebug() << "EntryScene::mp" << sp << sh;
+  qDebug() << "  item " << it;
+  switch (data_->book()->mode()->mode()) {
+  case Mode::Mark: case Mode::Freehand:
+    if (!it && isWritable() && !inMargin(sp)) {
+      GfxBlockItem *blk = newGfxBlockAt(sp, sh);
+      e->setPos(blk->mapFromScene(e->scenePos())); // brutal!
+      blk->mousePressEvent(e);
       take = true;
     }
-  } else if (itemAt(sp, sh)==0) {
-    switch (data_->book()->mode()->mode()) {
-    case Mode::Mark: case Mode::Freehand:
-      if (isWritable()) {
-	GfxBlockItem *blk = newGfxBlockAt(sp, sheet);
-	e->setPos(blk->mapFromScene(e->scenePos())); // brutal!
-	blk->mousePressEvent(e);
-	take = true;
-      }
-      break;
-    case Mode::Type:
-      if (isWritable()) {
-	newTextBlockAt(sp, sheet);
-	take = true;
-      }
-      break;
-    case Mode::Table:
-      if (isWritable()) {
-	newTableBlockAt(sp, sheet);
-	take = true;
-      }
-      break;
-    case Mode::Annotate: {
-      createNote(sp, sheet);
+    break;
+  case Mode::Type:
+    if (!it && isWritable() && !inMargin(sp)) {
+      newTextBlockAt(sp, sh);
       take = true;
-    } break;
-    default:
-      break;
     }
+    break;
+  case Mode::Table:
+    if (!it && isWritable() && !inMargin(sp)) {
+      newTableBlockAt(sp, sh);
+      take = true;
+    }
+    break;
+  case Mode::Annotate: 
+    if (it && it->makesOwnNotes())
+      it->createNote(it->mapFromScene(sp));
+    else
+      createNote(sp, sh);
+    take = true;
+    break;
+  default:
+    break;
   }
   if (take)
     e->accept();
@@ -1083,7 +1084,7 @@ GfxNoteItem *EntryScene::createNote(QPointF scenePos, int sheet) {
   GfxNoteItem *note
     = ti->createNote(ti->mapFromScene(scenePos));
   if (note)
-    note->data()->setSheet(scenePos.y()/style().real("page-height"));
+    note->data()->setSheet(sheet);
   return note;
   
 }

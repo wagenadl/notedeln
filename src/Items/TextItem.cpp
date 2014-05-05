@@ -187,10 +187,6 @@ bool TextItem::mousePress(QGraphicsSceneMouseEvent *e) {
           gni->childMousePress(e->scenePos(), e->button(), resize);
       }
       break;
-    case Mode::Annotate:
-      qDebug() << "Annotate: TESTME"; // << allowNotes();
-      e->ignore();
-      return true; // do not accept event, but return true;
     case Mode::Highlight:
       attemptMarkup(e->pos(), MarkupData::Emphasize);
       break;
@@ -200,9 +196,7 @@ bool TextItem::mousePress(QGraphicsSceneMouseEvent *e) {
     case Mode::Plain:
       attemptMarkup(e->pos(), MarkupData::Normal);
       break;
-    case Mode::Browse:
-      break; // is this OK, or should we support links here?
-    case Mode::Mark: case Mode::Freehand:
+    default:
       break;
     }
     e->accept();

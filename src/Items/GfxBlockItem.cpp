@@ -182,10 +182,6 @@ void GfxBlockItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
   bool take = false;
   if (isWritable()) {
     switch (mod) {
-    case Mode::Annotate:
-      createNote(e->pos());
-      take = true;
-      break;
     case Mode::Mark:
       GfxMarkItem::newMark(e->pos(), this);
       take = true;

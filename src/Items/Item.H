@@ -71,7 +71,8 @@ public:
 public:
   static Item *create(Data *d, Item *parent=0);
   class GfxNoteItem *createNote(QPointF p0, bool forceLate=false);
-  class GfxNoteItem *newNote(QPointF p0, QPointF p1, bool forceLate=false);
+  virtual GfxNoteItem *newNote(QPointF p0, QPointF p1, bool forceLate=false);
+  virtual bool makesOwnNotes() const { return false; }
 public: // but only for use in derived class source files
   template <class DT, class IT> class Creator {
   public:

@@ -198,6 +198,12 @@ void GfxImageItem::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *e) {
   e->accept();
 }
 
+GfxNoteItem *GfxImageItem::newNote(QPointF p0, QPointF p1, bool forceLate) {
+  GfxNoteItem *gni = Item::newNote(p0, p1, forceLate);
+  gni->setScale(1./data()->scale());
+  return gni;
+}
+
 void GfxImageItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
   bool take = false;
   if (e->modifiers() & Qt::ControlModifier) {
@@ -212,11 +218,10 @@ void GfxImageItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
       dragCrop = data()->cropRect().toRect();
       take = true;
       break;
-    case Mode::Annotate: case Mode::Type: {
-      GfxNoteItem *gni = createNote(e->pos(), !isWritable());
-      gni->setScale(1./data()->scale());
+    case Mode::Type: 
+      createNote(e->pos(), !isWritable());
       take = true;
-    } break;
+      break;
     case Mode::Mark: {
       GfxMarkItem *mi = GfxMarkItem::newMark(e->pos(), this);
       mi->setScale(1./data()->scale());

@@ -36,6 +36,8 @@ public:
   void paint(QPainter *, const QStyleOptionGraphicsItem *, QWidget *);
   QRectF boundingRect() const;
   virtual void makeWritable();
+public:
+  bool makesOwnNotes() const { return isWritable(); }
 public slots:
   void sizeToFit();
 public: // should be protected, but EntryScene calls it
