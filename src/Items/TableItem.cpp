@@ -253,7 +253,10 @@ bool TableItem::keyPress(QKeyEvent *e) {
     else if (keyPressWithControl(e))
       return true;
     else if (TextItem::keyPress(e)) {
-      emit mustNormalizeCursor();
+      if (!table->cellAt(textCursor()).isValid()) {
+	setTextCursor(cursor); // revert cursor before trying to move
+	emit futileMovementKey(e->key(), e->modifiers());
+      }
       return true;
     } else
       return false;

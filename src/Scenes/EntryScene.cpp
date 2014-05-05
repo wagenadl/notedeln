@@ -539,7 +539,8 @@ void EntryScene::futileMovement(int block) {
     // upward movement
     for (int b=block-1; b>=0; b--) {
       BlockItem *bi = blockItems[b];
-      if (bi->data()->type()=="textblock" && bi->isWritable()) {
+      QString typ = bi->data()->type();
+      if ((typ=="textblock" || typ=="tableblock") && bi->isWritable()) {
 	tgtidx = b;
 	break;
       }
@@ -549,7 +550,8 @@ void EntryScene::futileMovement(int block) {
     // downward movement
     for (int b=block+1; b<blockItems.size(); b++) {
       BlockItem *bi = blockItems[b];
-      if (bi->data()->type()=="textblock" && bi->isWritable()) {
+      QString typ = bi->data()->type();
+      if ((typ=="textblock" || typ=="tableblock") && bi->isWritable()) {
 	tgtidx = b;
 	break;
       }
