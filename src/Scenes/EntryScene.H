@@ -24,6 +24,7 @@
 #include <QTextCursor>
 #include <QMap>
 #include "CachedEntry.H"
+#include "Mode.H"
 
 class EntryScene: public BaseScene {
   Q_OBJECT;
@@ -53,6 +54,7 @@ public:
   QList<class FootnoteItem const *> footnotes() const;
 public slots:
   void notifyChildless(class BlockItem *);
+  void modeChange(Mode::M);
 signals:
   void restacked();
   void sheetRequest(int);

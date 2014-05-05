@@ -1144,3 +1144,28 @@ void EntryScene::gotoSheetOfBlock(int n) {
     emit sheetRequest(blockItems[n]->data()->sheet());
   }
 }
+
+void EntryScene::modeChange(Mode::M m) {
+  Qt::CursorShape marginShape = Qt::ArrowCursor;
+  Qt::CursorShape backgroundShape = Qt::ArrowCursor;
+  switch (m) {
+  case Mode::Type:
+    backgroundShape = Qt::IBeamCursor;
+    break;
+  case Mode::Mark: case Mode::Freehand:
+    backgroundShape = Qt::CrossCursor;
+    break;
+  case Mode::Annotate:    
+    marginShape = backgroundShape = Qt::CrossCursor;
+    break;
+  case Mode::Highlight: case Mode::Strikeout: case Mode::Plain:
+    break;
+  default:
+    break;
+  }
+  foreach (SheetScene *sh, sheets) {
+    sh->marginItem()->setCursor(marginShape);
+    sh->backgroundItem()->setCursor(backgroundShape);
+  }
+}
+    

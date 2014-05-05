@@ -30,6 +30,8 @@ public:
   QGraphicsView *eventView() const;
   /* This is the view from which the current mouse or key event comes */
   void setEventView(QGraphicsView *);
+  QGraphicsRectItem *backgroundItem() { return bgItem; }
+  QGraphicsRectItem *marginItem() { return margItem; }
 signals:
   void leaveTitle();
 protected:
@@ -54,7 +56,7 @@ private:
   class QGraphicsTextItem *dateItem;
   class QGraphicsLineItem *leftMarginItem;
   class QGraphicsLineItem *topMarginItem;
-  //  class QGraphicsRectItem *bgItem;
+  class QGraphicsRectItem *bgItem, *margItem;
   bool contInMargin;
   QPointer<QGraphicsObject> overlay;
   QPointer<QGraphicsView> eventView_;

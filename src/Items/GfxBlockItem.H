@@ -40,10 +40,12 @@ public:
   bool makesOwnNotes() const { return isWritable(); }
 public slots:
   void sizeToFit();
+  void modeChange();
 public: // should be protected, but EntryScene calls it
   virtual void mousePressEvent(QGraphicsSceneMouseEvent *);
 protected:
   virtual void dragEnterEvent(class QGraphicsSceneDragDropEvent *);
+  virtual void dragLeaveEvent(class QGraphicsSceneDragDropEvent *);
   virtual void dropEvent(class QGraphicsSceneDragDropEvent *);
   void importDroppedText(QString txt, QPointF p);
   void importDroppedUrl(QUrl const &url, QPointF p);

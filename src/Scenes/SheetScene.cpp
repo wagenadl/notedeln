@@ -40,13 +40,20 @@ SheetScene::~SheetScene() {
 void SheetScene::makeBackground() {
   setSceneRect(0, 0,
 	       style_.real("page-width"), style_.real("page-height"));
-  //  setBackgroundBrush(QBrush(style_.color("background-color")));
 
-  //bgItem = addRect(0, 0,
-  //		   style_.real("page-width"), style_.real("page-height"),
-  //		   QPen(Qt::NoPen),
-  //		   QBrush(style_.color("background-color"))); 
-  //bgItem->setZValue(-100);
+  margItem
+    = addRect(0, 0, style_.real("page-width"), style_.real("page-height"),
+	      QPen(Qt::NoPen), QBrush(style_.color("background-color"))); 
+  margItem->setZValue(-100);
+  
+  bgItem
+    = addRect(style_.real("margin-left"), style_.real("margin-top"),
+	      style_.real("page-width")
+	      - style_.real("margin-left") - style_.real("margin-right"),
+	      style_.real("page-height")
+	      - style_.real("margin-top") - style_.real("margin-bottom"),
+	      QPen(Qt::NoPen), QBrush(style_.color("background-color"))); 
+  bgItem->setZValue(-90);
    
   leftMarginItem
     = addLine(style_.real("margin-left")-1, 0,

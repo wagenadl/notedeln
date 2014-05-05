@@ -213,14 +213,38 @@ void GfxBlockItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
 
 void GfxBlockItem::makeWritable() {
   BlockItem::makeWritable();
-  setCursor(Qt::CrossCursor);
+  connect(mode(), SIGNAL(modeChanged(Mode::M)),
+	  SLOT(modeChange()));
   setAcceptDrops(true);
 }
 
 void GfxBlockItem::dragEnterEvent(QGraphicsSceneDragDropEvent *e) {
   QMimeData const *md = e->mimeData();
-  if (md->hasImage() || md->hasUrls() || md->hasText())
+  if (md->hasImage() || md->hasUrls() || md->hasText()) {
     e->setDropAction(Qt::CopyAction);
+    setCursor(Qt::CrossCursor);
+  }
+}
+
+void GfxBlockItem::dragLeaveEvent(QGraphicsSceneDragDropEvent *e) {
+  modeChange();
+  BlockItem::dragLeaveEvent(e);
+}
+
+void GfxBlockItem::modeChange() {
+  Qt::CursorShape cs = Qt::ArrowCursor;
+  switch (mode()->mode()) {
+  case Mode::Annotate:
+    cs = Qt::CrossCursor;
+  break;
+  case Mode::Type: case Mode::Mark: case Mode::Freehand:
+    if (isWritable())
+      cs = Qt::CrossCursor;
+    break;
+  default:
+    break;
+  }
+  setCursor(cs);
 }
 
 void GfxBlockItem::dropEvent(QGraphicsSceneDragDropEvent *e) {

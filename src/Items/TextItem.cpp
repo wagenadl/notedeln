@@ -811,13 +811,27 @@ bool TextItem::shouldResize(QPointF p) const {
  
 void TextItem::modeChange(Mode::M m) {
   Qt::CursorShape cs = defaultCursor();
-  if (m==Mode::Type && isWritable())
-    cs = Qt::IBeamCursor;
-  if (m==Mode::MoveResize && mayMove) {
-    if (shouldResize(cursorPos))
-      cs = Qt::SplitHCursor;
-    else
-      cs = Qt::SizeAllCursor;
+  switch (m) {
+  case Mode::Type:
+    if (isWritable())
+      cs = Qt::IBeamCursor;
+    break;
+  case Mode::Annotate:
+    cs = Qt::CrossCursor;
+    break;
+  case Mode::MoveResize:
+    if (mayMove) {
+      if (shouldResize(cursorPos))
+	cs = Qt::SplitHCursor;
+      else
+	cs = Qt::SizeAllCursor;
+    }
+    break;
+  case Mode::Highlight: case Mode::Strikeout: case Mode::Plain:
+    cs = Qt::UpArrowCursor;
+    break;
+  default:
+    break;
   }
   text->setCursor(cs);
 }

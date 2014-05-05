@@ -673,17 +673,6 @@ int PageView::pageNumber() const {
 }
 
 void PageView::modeChange() {
-  qDebug() << "PageView::modeChange" << mode()->mode();
-  switch (mode()->mode()) {
-  case Mode::Browse: viewport()->setCursor(Qt::ArrowCursor); break;
-  case Mode::Type: viewport()->setCursor(Qt::IBeamCursor); break;
-  case Mode::MoveResize: viewport()->setCursor(Qt::ArrowCursor); break;
-  case Mode::Mark: viewport()->setCursor(Qt::CrossCursor); break;
-  case Mode::Freehand: viewport()->setCursor(Qt::CrossCursor); break;
-  case Mode::Annotate: viewport()->setCursor(Qt::IBeamCursor); break;
-  case Mode::Highlight: viewport()->setCursor(Qt::ArrowCursor); break;
-  case Mode::Strikeout: viewport()->setCursor(Qt::ArrowCursor); break;
-  case Mode::Plain: viewport()->setCursor(Qt::ArrowCursor); break;
-  case Mode::Table: viewport()->setCursor(Qt::IBeamCursor); break;
-  }
+  if (currentSection==Entries)
+    entryScene->modeChange(mode()->mode());
 }
