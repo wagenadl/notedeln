@@ -9,7 +9,6 @@
 "balloon-mode-highlight": "Drag the mouse over existing text to highlight it.",
 "balloon-mode-strikeout": "Drag the mouse over existing text to strike it out.",
 "balloon-mode-plain": "Drag the mouse over existing text to remove highlighting and strike outs.",
-"balloon-mode-table": "Click below existing contents to create a new table. (Tables can be edited in Type mode (“<font color=\"blue\">A</font>❘” icon). Use Tab and Enter in combination with Shift and Control to navigate tables.)",
 "balloon-nav-toc": "Go to table of contents.",
 "balloon-nav-find": "Search for phrase anywhere in notebook.",
 "balloon-nav-p10": "Flip back 10 pages.",

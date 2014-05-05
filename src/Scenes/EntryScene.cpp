@@ -744,12 +744,6 @@ bool EntryScene::mousePressEvent(QGraphicsSceneMouseEvent *e, SheetScene *s) {
       take = true;
     }
     break;
-  case Mode::Table:
-    if (!it && isWritable() && !inMargin(sp)) {
-      newTableBlockAt(sp, sh);
-      take = true;
-    }
-    break;
   case Mode::Annotate: 
     if (it && it->makesOwnNotes())
       it->createNote(it->mapFromScene(sp));
