@@ -30,6 +30,8 @@ public:
   class TableData const *table() const;
   virtual bool isEmpty() const;
   class TableData *table();
+  TextBlockData *deepCopyAsTextBlock() const;
+  static TableBlockData *deepCopyFromTextBlock(TextBlockData *);
 protected:
   void loadMore(QVariantMap const &src);
 private:

@@ -142,6 +142,7 @@ void TextItem::initializeFormat() {
 
 void TextItem::docChange() {
   QString plainText = text->toPlainText();
+
   if (data()->text() == plainText) {
     // trivial change; this happens if markup changes
     return;

@@ -190,6 +190,8 @@ TextItem *TextBlockItem::text() const {
 }
 
 void TextBlockItem::sizeToFit() {
+  if (beingDeleted())
+    return;
   double h0 = data()->height();
   //  double h1 = 0;
   //  foreach (TextItem *ti, frags) 

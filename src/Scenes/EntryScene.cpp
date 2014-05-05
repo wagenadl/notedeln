@@ -388,7 +388,7 @@ void EntryScene::joinTextBlocks(int iblock_pre, int iblock_post) {
   restackBlocks(iblock_pre);
   gotoSheetOfBlock(iblock_pre);
   tbi->setFocus();
-  QTextCursor c(tbi->text()->document());
+  QTextCursor c(tbi->document());
   c.setPosition(pos);
   tbi->setTextCursor(c);
 }  
@@ -817,6 +817,20 @@ void EntryScene::addUnlockedWarning() {
   }
 }  
 
+int EntryScene::findBlock(Data const *d0) const {
+  BlockData const *bd = 0;
+  for (Data const *d=d0; d; d=d->parent()) {
+    bd = dynamic_cast<BlockData const*>(d);
+    if (bd)
+      break;
+  }
+  if (!bd)
+    return -1;
+  for (int i=0; i<blockItems.size(); i++) 
+    if (blockItems[i]->data() == bd)
+      return i;
+  return -1;
+}
 
 int EntryScene::findBlock(Item const *i) const {
   BlockItem const *bi = i->ancestralBlock();
@@ -1182,9 +1196,62 @@ void EntryScene::modeChange(Mode::M m) {
 }
     
 void EntryScene::makeUnicellular(TableData *td) {
-  qDebug() << "makeuni " << td;
-}
+  int iblock = findBlock(td);
+  qDebug() << "makeuni" << td << iblock;
+  if (iblock<0)
+    return;
 
+  TableBlockItem *tbi0 = dynamic_cast<TableBlockItem *>(blockItems[iblock]);
+  ASSERT(tbi0);
+  TextBlockData *tbd1 = tbi0->data()->deepCopyAsTextBlock();
+
+  deleteBlock(iblock);
+  TextBlockItem *tbi1 = injectTextBlock(tbd1, iblock);
+
+  // remove spurious new lines
+  QTextCursor c(tbi1->document());
+  c.setPosition(0);
+  c.deleteChar();
+  c.movePosition(QTextCursor::End);
+  c.deletePreviousChar();
+  
+  restackBlocks(iblock);
+  gotoSheetOfBlock(iblock);
+  tbi1->setFocus();
+  tbi1->setTextCursor(c);
+}
+  
 void EntryScene::makeMulticellular(int pos, TextData *td) {
-  qDebug() << "makemulti " << pos << td;
+  int iblock = findBlock(td);
+  qDebug() << "makemulti " << pos << td << iblock;
+  if (iblock<0)
+    return;
+
+  TextBlockItem *tbi0 = dynamic_cast<TextBlockItem *>(blockItems[iblock]);
+  ASSERT(tbi0);
+
+  // prep for table conversion
+  QTextCursor c(tbi0->document());
+  c.setPosition(pos);
+  if (!c.atEnd())
+    return;
+  c.insertText("\n");
+  c.setPosition(0);
+  c.insertText("\n");
+  c.movePosition(QTextCursor::End);
+  c.insertText("\n");
+
+  
+  TableBlockData *tbd1 = TableBlockData::deepCopyFromTextBlock(tbi0->data());
+  ASSERT(tbd1);
+
+  deleteBlock(iblock);
+  TableBlockItem *tbi1 = injectTableBlock(tbd1, iblock);
+
+  QTextCursor c1(tbi1->document());
+  c1.setPosition(pos+2);
+  restackBlocks(iblock);
+  gotoSheetOfBlock(iblock);
+  tbi1->setFocus();
+  tbi1->setTextCursor(c1);
 }

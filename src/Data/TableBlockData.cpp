@@ -52,3 +52,56 @@ void TableBlockData::loadMore(QVariantMap const &src) {
 bool TableBlockData::isEmpty() const {
   return BlockData::isEmpty() && table_->isEmpty();
 }
+
+TextBlockData *TableBlockData::deepCopyAsTextBlock() const {
+  QVariantMap tbd0 = save();
+  tbd0["typ"] = "textblock";
+  QVariantList cc = tbd0["cc"].toList();
+  for (int i=0; i<cc.size(); i++) {
+    QVariantMap cm = cc[i].toMap();
+    if (cm["typ"]=="table") {
+      cm["typ"] = "text";
+      cm.remove("len");
+      cc[i] = cm;
+      break;
+    }
+  }
+  tbd0["cc"] = cc;
+  TextBlockData *tbd1 = new TextBlockData();
+  tbd1->load(tbd0);
+  return tbd1;
+}
+
+TableBlockData *TableBlockData::deepCopyFromTextBlock(TextBlockData *tb) {
+  QString t0 = tb->text()->text();
+  if (!t0.startsWith("\n"))
+    return 0;
+  int idx = t0.indexOf("\n", 1);
+  if (idx<0)
+    return 0;
+  if (t0.indexOf("\n", idx+1) != t0.length()-1)
+    return 0;
+  
+  QVariantMap tbd0 = tb->save();
+  tbd0["typ"] = "tableblock";
+  QVariantList cc = tbd0["cc"].toList();
+  for (int i=0; i<cc.size(); i++) {
+    QVariantMap cm = cc[i].toMap();
+    if (cm["typ"]=="text") {
+      cm["typ"] = "table";
+      QVariantList ll;
+      ll.append(idx-1);
+      ll.append(t0.length()-idx-2);
+      cm["len"] = ll;
+      cm["nc"] = 2;
+      cm["nr"] = 1;
+      cc[i] = cm;
+      break;
+    }
+  }
+  tbd0["cc"] = cc;
+  TableBlockData *tbd1 = new TableBlockData();
+  tbd1->load(tbd0);
+  return tbd1;
+}
+
