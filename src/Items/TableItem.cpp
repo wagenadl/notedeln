@@ -39,6 +39,10 @@ TableItem::TableItem(TableData *data, Item *parent):
 	.insertText(data->cellContents(r, c));
 
   finalizeConstructor();
+
+  connect(this, SIGNAL(mustNormalizeCursor()),
+	  SLOT(normalizeCursorPosition()),
+	  Qt::QueuedConnection);
 }
 
 TableItem::~TableItem() {
@@ -143,19 +147,32 @@ bool TableItem::keyPressWithControl(QKeyEvent *e) {
     return false;
   QTextCursor cursor(textCursor());
   switch (e->key()) {
-  case Qt::Key_Delete: case Qt::Key_Backspace:
+  case Qt::Key_Delete: case Qt::Key_Backspace: {
+    bool ok = false;
+    int r0, nr, c0, nc;  
     if (cursor.hasComplexSelection()) {
-      int r0, nr, c0, nc;
       cursor.selectedTableCells(&r0, &nr, &c0, &nc);
-      if (nr==int(data()->rows())) {
+      ok = true;
+    } else if (isWholeCellSelected(cursor)) {
+      QTextTableCell c(table->cellAt(cursor));
+      r0 = c.row();
+      c0 = c.column();
+      nr = 1;
+      nc = 1;
+      ok = true;
+    }
+    if (ok) {
+      if (nr==int(data()->rows()) && data()->columns()>1) {
         deleteColumns(c0, nc);
+	normalizeCursorPosition();
         return true;
-      } else if (nc==int(data()->columns())) {
-        deleteRows(r0, r0);
+      } else if (nc==int(data()->columns()) && data()->rows()>1) {
+        deleteRows(r0, nr);
+	normalizeCursorPosition();
         return true;
       }
     }
-    break;
+  } break;
   case Qt::Key_V:
     tryToPaste();
     return true;
@@ -171,18 +188,51 @@ bool TableItem::keyPressWithControl(QKeyEvent *e) {
     foreach (QTextCursor c, normalizeSelection(textCursor()))
       toggleSimpleStyle(MarkupData::Italic, c);
     return true;
-  case Qt::Key_8:
+  case Qt::Key_8: case Qt::Key_Asterisk:
     foreach (QTextCursor c, normalizeSelection(textCursor()))
       toggleSimpleStyle(MarkupData::Bold, c);
     return true;
-  case Qt::Key_Minus:
+  case Qt::Key_Underscore:
     foreach (QTextCursor c, normalizeSelection(textCursor()))
       toggleSimpleStyle(MarkupData::Underline, c);
+    return true;
+  case Qt::Key_1: case Qt::Key_Exclam:
+    foreach (QTextCursor c, normalizeSelection(textCursor()))
+      toggleSimpleStyle(MarkupData::Emphasize, c);
+    return true;
+  case Qt::Key_Equal:
+    foreach (QTextCursor c, normalizeSelection(textCursor()))
+      toggleSimpleStyle(MarkupData::StrikeThrough, c);
     return true;
   default:
     return false;
   }
   return false;
+}
+
+bool TableItem::normalizeCursorPosition() {
+  QTextCursor cursor(textCursor());
+  if (table->cellAt(cursor).isValid()) {
+    qDebug() << "normalize position: valid";
+    return false;
+  }
+
+  if (cursor.atStart()) {
+    QTextCursor p0 = table->cellAt(0,0).firstCursorPosition();
+    qDebug() << "normalize: at start" << p0.position();
+    setTextCursor(p0);
+  } else { // assume at end
+    QTextCursor p0(table->cellAt(data()->rows()-1, data()->columns()-1)
+		   .lastCursorPosition());
+    qDebug() << "normalize: at end" << p0.position();
+    setTextCursor(p0);
+  }
+  return true;
+}
+
+bool TableItem::mousePress(QGraphicsSceneMouseEvent *e) {
+  emit mustNormalizeCursor();
+  return TextItem::mousePress(e);
 }
 
 bool TableItem::keyPress(QKeyEvent *e) {
@@ -202,8 +252,11 @@ bool TableItem::keyPress(QKeyEvent *e) {
       return true;
     else if (keyPressWithControl(e))
       return true;
-    else
-      return TextItem::keyPress(e);
+    else if (TextItem::keyPress(e)) {
+      emit mustNormalizeCursor();
+      return true;
+    } else
+      return false;
   } else if (cursor.atStart()) {
     // before table
     if (key==Qt::Key_Right || key==Qt::Key_Down)
@@ -328,8 +381,6 @@ QList<QTextCursor> TableItem::normalizeSelection(QTextCursor const &cursor)
   cursor.selectedTableCells(&r0, &nr, &c0, &nc);
   int r1 = r0+nr-1;
   int c1 = c0+nc-1;
-  qDebug() << "normalizeselection r:" << r0 << r1
-           << "c:"<<c0<<c1;
 
   for (int r=r0; r<=r1; r++) {
     for (int c=c0; c<=c1; c++) {
@@ -340,33 +391,20 @@ QList<QTextCursor> TableItem::normalizeSelection(QTextCursor const &cursor)
       lst << m;
     }
   }
-  qDebug() << "->";
-  foreach (QTextCursor x, lst) 
-    qDebug() << "  " << x.hasSelection()
-             << x.selectionStart() << x.selectionEnd();
+
   return lst;
 }
-  
-QList<int> TableItem::wholeRowsInSelection(QTextCursor const &cursor) const {
-  QList<int> lst;
-  if (!cursor.hasComplexSelection())
-    return lst;
-  int r0, nr, c0, nc;
-  cursor.selectedTableCells(&r0, &nr, &c0, &nc);
-  if (nc==table->columns()) 
-    for (int r=r0; r<r0+nr; r++)
-      lst.append(r);
-    return lst;
+
+bool TableItem::isWholeCellSelected(QTextCursor const &cursor) const {
+  QTextTableCell c0 = table->cellAt(cursor.selectionStart());
+  QTextTableCell c1 = table->cellAt(cursor.selectionEnd());
+  if (!c0.isValid() || !c1.isValid())
+    return false;
+  return cursor.selectionStart() == c0.firstCursorPosition().position()
+    &&  cursor.selectionEnd() == c1.lastCursorPosition().position();
 }
 
-QList<int> TableItem::wholeColumnsInSelection(QTextCursor const &cursor) const {
-  QList<int> lst;
-  if (!cursor.hasComplexSelection())
-    return lst;
-  int r0, nr, c0, nc;
-  cursor.selectedTableCells(&r0, &nr, &c0, &nc);
-  if (nr==table->rows()) 
-    for (int c=c0; c<c0+nc; c++)
-      lst.append(c);
-    return lst;
+bool TableItem::focusIn(QFocusEvent *e) {
+  emit mustNormalizeCursor();
+  return TextItem::focusIn(e);
 }

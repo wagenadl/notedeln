@@ -38,12 +38,17 @@ public:
   void deleteRows(int r0, int nr);
   void deleteColumns(int c0, int nc);
   QList<QTextCursor> normalizeSelection(QTextCursor const &) const;
-  QList<int> wholeRowsInSelection(QTextCursor const &) const;
-  QList<int> wholeColumnsInSelection(QTextCursor const &) const;
+  bool isWholeCellSelected(QTextCursor const &) const;
+public slots:
+  bool normalizeCursorPosition(); // true if changed
 protected slots:
   virtual void docChange();
+signals:
+  void mustNormalizeCursor();
 protected:
+  virtual bool mousePress(QGraphicsSceneMouseEvent *);
   virtual bool keyPress(QKeyEvent *);
+  virtual bool focusIn(QFocusEvent *);
   bool tryToPaste();
 private:
   bool keyPressAsMotion(QKeyEvent *, class QTextTableCell const &);
