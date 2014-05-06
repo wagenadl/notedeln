@@ -31,6 +31,7 @@ public:
   CachedPointer<T> &operator=(CachedPointer<T> const &p);
 private:
   void deref();
+  bool moreThanOne() const;
 private:
   QAtomicPointer<T> *objp;
   QAtomicInt *cntr;
