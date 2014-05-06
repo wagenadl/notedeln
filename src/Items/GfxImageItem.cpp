@@ -25,6 +25,7 @@
 #include "GfxMarkItem.H"
 #include "GfxSketchItem.H"
 #include "BlockItem.H"
+#include "Cursors.H"
 
 #include <QProcess>
 #include <QDebug>
@@ -323,7 +324,7 @@ void GfxImageItem::setCursor(Qt::CursorShape newCursor) {
   if (newCursor==oldCursor)
     return;
   
-  QGraphicsObject::setCursor(newCursor);
+  QGraphicsObject::setCursor(Cursors::refined(newCursor));
   oldCursor = newCursor;
 }
 

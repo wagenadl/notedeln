@@ -82,7 +82,42 @@ bool TableItem::keyPressAsMotion(QKeyEvent *e, QTextTableCell const &cell) {
   bool ctrl = e->modifiers() & Qt::ControlModifier;
   int row = cell.row();
   int col = cell.column();
+  QTextCursor cursor(textCursor());
   switch (e->key()) {
+  case Qt::Key_Backspace:
+    if (!cursor.hasSelection()) {
+      if (col==0 && isRowEmpty(row) && table->rows()>1) {
+	deleteRows(row, 1);
+	if (row>0)
+	  gotoCell(row-1, lastNonEmptyCellInRow(row));
+	else
+	  normalizeCursorPosition();
+	return true;
+      } else if (isColumnEmpty(col) && table->columns()>1) {
+	deleteColumns(col, 1);
+	if (col>0)
+	  gotoCell(row, col-1);
+	else
+	  normalizeCursorPosition();
+	return true;
+      }
+    }
+    break;
+  case Qt::Key_Delete:
+    if (!cursor.hasSelection()) {
+      if (col==0 && isRowEmpty(row) && table->rows()>1) {
+	deleteRows(row, 1);
+	gotoCell(row, col);
+	normalizeCursorPosition();
+	return true;
+      } else if (isColumnEmpty(col) && table->columns()>1) {
+	deleteColumns(col, 1);
+	gotoCell(row, col);
+	normalizeCursorPosition();
+	return true;
+      }
+    }
+    break;
   case Qt::Key_Tab:
     qDebug() << "tab";
     if (shft && ctrl) 
@@ -95,14 +130,12 @@ bool TableItem::keyPressAsMotion(QKeyEvent *e, QTextTableCell const &cell) {
         --row;
         col = table->columns()-1;
       }
-      selectCell(row, col);
+      gotoCell(row, col, true);
     } else {
       ++col;
-      if (col>=table->columns()) {
-        ++row;
-        col = 0;
-      }
-      selectCell(row, col);
+      if (col>=table->columns()) 
+	insertColumn(col);
+      gotoCell(row, col);
     }
     return true;
   case Qt::Key_Backtab:
@@ -114,7 +147,7 @@ bool TableItem::keyPressAsMotion(QKeyEvent *e, QTextTableCell const &cell) {
       --row;
       col = table->columns()-1;
     }
-    selectCell(row, col);
+    gotoCell(row, col, true);
     return true;
   case Qt::Key_Enter: case Qt::Key_Return:
     qDebug() << "enter";
@@ -125,16 +158,17 @@ bool TableItem::keyPressAsMotion(QKeyEvent *e, QTextTableCell const &cell) {
     if (shft) {
       if (row==0)
         insertRow(row++);
-      selectCell(row-1, 0);
+      gotoCell(row-1, 0, true);
     } else {
       if (row>=table->rows()-1)
         insertRow(row+1);
-      selectCell(row+1, 0);
+      gotoCell(row+1, 0, true);
     }
     return true;
   default:
-    return false;
+    break;
   }
+  return false;
 }
 
 bool TableItem::tryToPaste() {
@@ -146,22 +180,22 @@ bool TableItem::keyPressWithControl(QKeyEvent *e) {
   if (!(e->modifiers() & Qt::ControlModifier))
     return false;
   QTextCursor cursor(textCursor());
+  bool selcel = false;
+  int r0, nr, c0, nc;  
+  if (cursor.hasComplexSelection()) {
+    cursor.selectedTableCells(&r0, &nr, &c0, &nc);
+    selcel = true;
+  } else {
+    QTextTableCell c(table->cellAt(cursor));
+    r0 = c.row();
+    c0 = c.column();
+    nr = 1;
+    nc = 1;
+    selcel = isWholeCellSelected(cursor);
+  }
   switch (e->key()) {
-  case Qt::Key_Delete: case Qt::Key_Backspace: {
-    bool ok = false;
-    int r0, nr, c0, nc;  
-    if (cursor.hasComplexSelection()) {
-      cursor.selectedTableCells(&r0, &nr, &c0, &nc);
-      ok = true;
-    } else if (isWholeCellSelected(cursor)) {
-      QTextTableCell c(table->cellAt(cursor));
-      r0 = c.row();
-      c0 = c.column();
-      nr = 1;
-      nc = 1;
-      ok = true;
-    }
-    if (ok) {
+  case Qt::Key_Delete: case Qt::Key_Backspace: 
+    if (selcel) {
       if (nr==int(data()->rows()) && data()->columns()>1) {
         deleteColumns(c0, nc);
 	normalizeCursorPosition();
@@ -172,7 +206,48 @@ bool TableItem::keyPressWithControl(QKeyEvent *e) {
         return true;
       }
     }
-  } break;
+    break;
+  case Qt::Key_A: 
+    if (selcel) {
+      if (nr==table->rows() && nc==table->columns()) {
+	// everything selected; cycle back to just one cell
+	selectCell(ctrla_r0, ctrla_c0);
+      } else if (nr==table->rows()) {
+	// column selected -> select table
+	QTextCursor cur0(table->cellAt(0,0).firstCursorPosition());
+	QTextCursor cur1(table->cellAt(table->rows()-1, table->columns()-1)
+			 .lastCursorPosition());
+	cur0.setPosition(cur1.position(), QTextCursor::KeepAnchor);
+	setTextCursor(cur0);
+      } else if (nc==table->columns()) {
+	// row selected -> select column
+	if (ctrla_c0<0)
+	  ctrla_c0 = 0;
+	else if (ctrla_c0>=table->columns())
+	  ctrla_c0 = table->columns()-1;
+	QTextCursor cur0(table->cellAt(0,ctrla_c0).firstCursorPosition());
+	QTextCursor cur1(table->cellAt(table->rows()-1,ctrla_c0)
+			 .lastCursorPosition());
+	cur0.setPosition(cur1.position(), QTextCursor::KeepAnchor);
+	setTextCursor(cur0);
+      } else {
+	// less than a row, less than a column -> select row
+	  if (ctrla_r0<r0)
+	    ctrla_r0 = r0;
+	  else if (ctrla_r0>=r0+nr)
+	    ctrla_r0 = r0+nr-1;
+	  QTextCursor cur0(table->cellAt(ctrla_r0,0).firstCursorPosition());
+	  QTextCursor cur1(table->cellAt(ctrla_r0, table->columns()-1)
+			   .lastCursorPosition());
+	  cur0.setPosition(cur1.position(), QTextCursor::KeepAnchor);
+	  setTextCursor(cur0);
+      }
+    } else {
+      // no cells selected -> select cell
+      ctrla_r0 = r0; ctrla_c0 = c0;
+      selectCell(r0, c0);
+    }
+    return true;    
   case Qt::Key_V:
     tryToPaste();
     return true;
@@ -273,6 +348,37 @@ bool TableItem::keyPress(QKeyEvent *e) {
     emit futileMovementKey(key, mod);
     return true;
   }
+}
+
+bool TableItem::isCellEmpty(int r, int c) const {
+  if (r<0 || c<0 || r>=table->rows() || c>=table->columns())
+    return false;
+  QTextTableCell cell(table->cellAt(r, c));
+  if (!cell.isValid())
+    return false;
+  return cell.lastCursorPosition().position()
+    == cell.firstCursorPosition().position();
+}
+
+bool TableItem::isColumnEmpty(int c) const {
+  for (int r=0; r<table->rows(); r++)
+    if (!isCellEmpty(r, c))
+      return false;
+  return true;
+}
+  
+bool TableItem::isRowEmpty(int r) const {
+  for (int c=0; c<table->columns(); c++)
+    if (!isCellEmpty(r, c))
+      return false;
+  return true;
+}
+
+int TableItem::lastNonEmptyCellInRow(int r) const {
+  for (int c=table->columns()-1; c>0; c--)
+    if (!isCellEmpty(r, c))
+      return c;
+  return 0;
 }
 
 void TableItem::gotoCell(int r, int c, bool toEnd) {

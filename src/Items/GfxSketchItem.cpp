@@ -26,6 +26,7 @@
 #include <QEventLoop>
 #include "Assert.H"
 #include "BlockItem.H"
+#include "Cursors.H"
 
 #define MAX_DISTORT 3
 
@@ -206,7 +207,7 @@ void GfxSketchItem::modeChange(Mode::M m) {
   if (m==Mode::MoveResize)
     setCursor(Qt::SizeAllCursor);
   else 
-    setCursor(Qt::CrossCursor);
+    setCursor(Cursors::crossCursor());
 }
 
 void GfxSketchItem::makeWritable() {

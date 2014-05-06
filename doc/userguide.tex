@@ -1,4 +1,5 @@
 \documentclass[11pt]{report}
+\usepackage{mathptm}
 \usepackage{newcent}
 \usepackage[letterpaper]{geometry}
 \usepackage[perpage]{footmisc}
@@ -101,7 +102,7 @@ happy if eln turned into a community-supported open source project.
 
 Eln notebooks consist of ``entries'' that fill one or more pages.
 Each entry has a title and consists of paragraphs of text, tables, and/or
-graphics canvases. Typesetting is rudimentary: you can create italics
+graphics canvases. Typesetting is deliberately simple: you can create italics
 and bold face text as well as super- and subscripts, but you cannot
 choose typefaces or font sizes (except as a global option). These
 limits were a conscious design choice: the hope is that this will
@@ -135,9 +136,9 @@ editing regardless of the size of the notebook;
 potential of hard disk corruption;
 \item It makes it convenient to use
 external version control software to archive your notebooks
-(Bazaar\footnote{http://bazaar.canonical.com.} and
-Git \footnote{http://git-scm.com (free and open source despite the
-  ``.com'' domain).} are
+(Bazaar\footnote{http://bazaar.canonical.com (free and open source despite the
+  ``.com'' domain).} and
+Git\footnote{http://git-scm.com (ditto).} are
 explicitly supported);
 \item It facilitates electronically verifying when an
 entry was created; and
@@ -323,7 +324,9 @@ pressing ``Delete.''
 
 \section{Adding tables}
 
-Tables can be inserted as their own paragraphs (``F10''). Navigation
+Tables can be inserted as their own paragraphs. Simply start typing
+the contents of the first table cell, then hit ``Tab'' to create a
+second cell. Navigation
 within a table is with ``Tab'' and ``Shift''+``Tab'' for left and
 right, ``Enter'' and ``Shift''+``Enter'' for next and previous line,
 and of course the arrow keys. New columns or rows can be inserted by
@@ -524,6 +527,20 @@ toggled between indented paragraphs (the default), non-indented
 paragraphs, and ``dedented'' paragraph, which is useful for typing
 bullet lists. This is done by placing the cursor at the beginning of a
 paragraph and pressing ``Shift''+``Tab.''
+
+\section{Typesetting mathematics}
+
+When typing mathematical equations, having to frequently press
+``Control''+``Backslash'' for special characters and
+``Control''+``Slash'' for italics can get tiring. If so, you can press
+``Control``+``Back tick'' (that's the key to the left of the ``1'' on
+most keyboards) to enter (and exit) ``math'' mode. In math mode,
+special characters can be entered simply by typing their name and
+single-character words are typeset in italics. Additionally, simple
+subscripts and superscripts can be typeset by just typing underscore
+or hat followed by the text of the sub- or superscript. As a result, a
+basic equation like ``$\int_1^\infty 1/x^2\, \mathrm{d}x = 1$'' can be typeset simple
+by typing ``int\_$\!$\_1$^\wedge$inf 1/x$^\wedge$2 dx = 1''.
 
 \section{Exporting and printing}
 

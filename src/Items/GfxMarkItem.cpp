@@ -18,6 +18,7 @@
 
 #include "GfxMarkItem.H"
 #include "BlockItem.H"
+#include "Cursors.H"
 
 #include <QPainter>
 #include <QPen>
@@ -157,7 +158,7 @@ void GfxMarkItem::modeChange(Mode::M m) {
   if (m==Mode::MoveResize)
     setCursor(Qt::SizeAllCursor);
   else 
-    setCursor(Qt::CrossCursor);
+    setCursor(Cursors::crossCursor());
 }
 
 void GfxMarkItem::makeWritable() {

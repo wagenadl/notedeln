@@ -37,6 +37,7 @@
 #include "GfxMarkItem.H"
 #include "GfxSketchItem.H"
 #include "Assert.H"
+#include "Cursors.H"
 
 GfxBlockItem::GfxBlockItem(GfxBlockData *data, Item *parent):
   BlockItem(data, parent) {
@@ -184,6 +185,7 @@ void GfxBlockItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
     switch (mod) {
     case Mode::Mark:
       GfxMarkItem::newMark(e->pos(), this);
+      sizeToFit();
       take = true;
       break;
     case Mode::Freehand: {
@@ -216,13 +218,14 @@ void GfxBlockItem::makeWritable() {
   connect(mode(), SIGNAL(modeChanged(Mode::M)),
 	  SLOT(modeChange()));
   setAcceptDrops(true);
+  modeChange(); // so that cursor gets set
 }
 
 void GfxBlockItem::dragEnterEvent(QGraphicsSceneDragDropEvent *e) {
   QMimeData const *md = e->mimeData();
   if (md->hasImage() || md->hasUrls() || md->hasText()) {
     e->setDropAction(Qt::CopyAction);
-    setCursor(Qt::CrossCursor);
+    setCursor(Cursors::crossCursor());
   }
 }
 
@@ -244,7 +247,7 @@ void GfxBlockItem::modeChange() {
   default:
     break;
   }
-  setCursor(cs);
+  setCursor(Cursors::refined(cs));
 }
 
 void GfxBlockItem::dropEvent(QGraphicsSceneDragDropEvent *e) {

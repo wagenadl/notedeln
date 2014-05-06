@@ -16,5 +16,7 @@
      <file>icons/nav-next.svg</file>
      <file>icons/nav-n10.svg</file>
      <file>icons/nav-end.svg</file>
+
+     <file>icons/crosshair.png</file>
  </qresource>
 </RCC>

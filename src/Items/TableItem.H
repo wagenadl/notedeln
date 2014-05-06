@@ -37,6 +37,10 @@ public:
   void insertColumn(int before);
   void deleteRows(int r0, int nr);
   void deleteColumns(int c0, int nc);
+  bool isCellEmpty(int r, int c) const;
+  bool isColumnEmpty(int c) const;
+  bool isRowEmpty(int r) const;
+  int lastNonEmptyCellInRow(int r) const; // 0 if none
   QList<QTextCursor> normalizeSelection(QTextCursor const &) const;
   bool isWholeCellSelected(QTextCursor const &) const;
 public slots:
@@ -60,6 +64,7 @@ private:
 private:
   QTextTable *table;
   bool ignoreChanges;
+  int ctrla_r0, ctrla_c0;
 };
 
 #endif

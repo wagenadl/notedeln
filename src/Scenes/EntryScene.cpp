@@ -42,6 +42,7 @@
 #include "TextItemText.H"
 #include "SvgFile.H"
 #include "Restacker.H"
+#include "Cursors.H"
 
 #include <QGraphicsView>
 #include <QGraphicsTextItem>
@@ -1186,8 +1187,8 @@ void EntryScene::modeChange(Mode::M m) {
     break;
   }
   foreach (SheetScene *sh, sheets) {
-    sh->marginItem()->setCursor(marginShape);
-    sh->backgroundItem()->setCursor(backgroundShape);
+    sh->marginItem()->setCursor(Cursors::refined(marginShape));
+    sh->backgroundItem()->setCursor(Cursors::refined(backgroundShape));
   }
 }
     

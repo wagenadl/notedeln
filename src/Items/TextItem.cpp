@@ -31,6 +31,7 @@
 #include "TeXCodes.H"
 #include "Digraphs.H"
 #include "TextBlockItem.H"
+#include "Cursors.H"
 
 #include <QFont>
 #include <QTextDocument>
@@ -846,7 +847,7 @@ void TextItem::modeChange(Mode::M m) {
   default:
     break;
   }
-  text->setCursor(cs);
+  text->setCursor(Cursors::refined(cs));
 }
 
 void TextItem::hoverMove(QGraphicsSceneHoverEvent *e) {
