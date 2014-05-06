@@ -32,6 +32,7 @@ public:
 private:
   void deref();
   bool moreThanOne() const;
+  T *pointer() const;
 private:
   QAtomicPointer<T> *objp;
   QAtomicInt *cntr;

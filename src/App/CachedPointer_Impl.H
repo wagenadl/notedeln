@@ -57,17 +57,17 @@ public:
     cntr = new QAtomicInt(1);
   }
   operator bool() const {
-    return moreThanOne() && *objp!=0;
+    return moreThanOne() && pointer()!=0;
   }
   T &operator*() const {
     ASSERT(moreThanOne());
-    return **objp;
+    return *pointer();
   }
   T *operator->() const {
-    return moreThanOne() ? *objp : 0;
+    return moreThanOne() ? pointer() : 0;
   }
   T *obj() const {
-    return moreThanOne() ? *objp : 0;
+    return moreThanOne() ? pointer() : 0;
   }
   CachedPointer<T> &operator=(CachedPointer<T> const &p) {
     if (p.objp == objp) {
@@ -94,12 +94,19 @@ private:
     }
   }
   bool moreThanOne() const {
-#if QT_VERSION >= 0x050100
-    return cntr->loadAcquire()>1;
+#if QT_VERSION >= 0x050000
+    return cntr->load()>1;
 #else
-    return cntr->fetchAndAddAcquire(0)>0;
+    return *cntr > 1;
 #endif
   }
+  T *pointer() const {
+#if QT_VERSION >= 0x050000
+    return objp->load();
+#else
+    return *objp;
+#endif
+  }    
 private:
   QAtomicPointer<T> *objp;
   QAtomicInt *cntr;
