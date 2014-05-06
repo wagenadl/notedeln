@@ -45,7 +45,7 @@ void ToolView::autoMask() {
 
 void ToolView::mousePressEvent(QMouseEvent *e) {
   QPointF x = mapToScene(e->pos());
-  if (!tools->itemAt(x))
+  if (!tools->itemAt(x, QTransform()))
     e->ignore();
   QGraphicsView::mousePressEvent(e);
 }
