@@ -100,9 +100,9 @@ private:
 protected:
   bool tryFootnote();
   virtual bool tryToPaste();
-  bool tryScriptStyles(QTextCursor);
+  bool tryScriptStyles(QTextCursor, bool onlyIfBalanced=false);
   bool tryAutoLink();
-  bool tryTeXCode();
+  bool tryTeXCode(bool noX=false);
   void toggleSimpleStyle(MarkupData::Style type, class QTextCursor const &c);
   bool charBeforeIsLetter(int pos) const;
   bool charAfterIsLetter(int pos) const;
@@ -122,6 +122,7 @@ public:
   virtual void paint(QPainter*, const QStyleOptionGraphicsItem*, QWidget*);
 protected:
   void finalizeConstructor(int sheetOnly=-1);
+  bool keyPressAsSimpleStyle(int key, QTextCursor const &cursor);
 protected:
   bool mayMark;
   bool mayNote;

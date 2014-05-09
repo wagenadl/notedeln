@@ -19,6 +19,8 @@
 #include "TableBlockData.H"
 #include "TableData.H"
 #include "Assert.H"
+#include <QSet>
+#include <QDebug>
 
 static Data::Creator<TableBlockData> c("tableblock");
 
@@ -69,19 +71,36 @@ TextBlockData *TableBlockData::deepCopyAsTextBlock() const {
   tbd0["cc"] = cc;
   TextBlockData *tbd1 = new TextBlockData();
   tbd1->load(tbd0);
+  // now we must remove spurious "\n" and reorganize markups
+  QSet<int> removedNewlines;
+  QString s = tbd1->text()->text();
+  for (int k=s.indexOf("\n"); k>=0; k=s.indexOf("\n", k+1))
+    removedNewlines << k;
+  s.remove("\n");
+  tbd1->text()->setText(s);
+  
+  foreach (MarkupData *md, tbd1->text()->children<MarkupData>()) {
+    int s0 = md->start();
+    int e0 = md->end();
+    int preStart=0;
+    int preEnd=0;
+    foreach (int split, removedNewlines) {
+      if (s0>split)
+	preStart++;
+      if (e0>split)
+	preEnd++;
+    }
+    md->setStart(s0-preStart);
+    md->setEnd(e0-preEnd);
+  }
+  
   return tbd1;
 }
 
-TableBlockData *TableBlockData::deepCopyFromTextBlock(TextBlockData *tb) {
-  QString t0 = tb->text()->text();
-  if (!t0.startsWith("\n"))
-    return 0;
-  int idx = t0.indexOf("\n", 1);
-  if (idx<0)
-    return 0;
-  if (t0.indexOf("\n", idx+1) != t0.length()-1)
-    return 0;
-  
+TableBlockData *TableBlockData::deepCopyFromTextBlock(TextBlockData *tb,
+						      int pos) {
+  QString s = tb->text()->text();
+
   QVariantMap tbd0 = tb->save();
   tbd0["typ"] = "tableblock";
   QVariantList cc = tbd0["cc"].toList();
@@ -90,8 +109,8 @@ TableBlockData *TableBlockData::deepCopyFromTextBlock(TextBlockData *tb) {
     if (cm["typ"]=="text") {
       cm["typ"] = "table";
       QVariantList ll;
-      ll.append(idx-1);
-      ll.append(t0.length()-idx-2);
+      ll.append(pos);
+      ll.append(s.size()-pos);
       cm["len"] = ll;
       cm["nc"] = 2;
       cm["nr"] = 1;
@@ -102,6 +121,18 @@ TableBlockData *TableBlockData::deepCopyFromTextBlock(TextBlockData *tb) {
   tbd0["cc"] = cc;
   TableBlockData *tbd1 = new TableBlockData();
   tbd1->load(tbd0);
+
+  s.insert(pos, "\n");
+  s.insert(0, "\n");
+  s.append("\n");
+  tbd1->text()->setText(s);
+
+  foreach (MarkupData *md, tbd1->text()->children<MarkupData>()) {
+    int s0 = md->start();
+    int e0 = md->end();
+    md->setStart(s0 + (s0>=pos ? 2 : 1));
+    md->setEnd(e0 + (e0>pos ? 2 : 1));
+  }
   return tbd1;
 }
 

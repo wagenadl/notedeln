@@ -31,7 +31,7 @@ public:
   virtual bool isEmpty() const;
   class TableData *table();
   TextBlockData *deepCopyAsTextBlock() const;
-  static TableBlockData *deepCopyFromTextBlock(TextBlockData *);
+  static TableBlockData *deepCopyFromTextBlock(TextBlockData *, int pos);
 protected:
   void loadMore(QVariantMap const &src);
 private:

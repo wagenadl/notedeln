@@ -148,6 +148,7 @@ void TextItem::docChange() {
     // trivial change; this happens if markup changes
     return;
   }
+  qDebug() << "docchange" << plainText << " was " << data()->text();
   ASSERT(isWritable());
   data()->setText(plainText);
   emit textChanged();
@@ -350,6 +351,12 @@ bool TextItem::keyPressAsMotion(QKeyEvent *e) {
 bool TextItem::keyPressWithControl(QKeyEvent *e) {
   if (!(e->modifiers() & Qt::ControlModifier))
     return false;
+  if (keyPressAsSimpleStyle(e->key(), textCursor()))
+    return true;
+
+  if (mode()->mathMode())
+    tryTeXCode(true);
+  
   switch (e->key()) {
   case Qt::Key_V:
     tryToPaste();
@@ -359,30 +366,6 @@ bool TextItem::keyPressWithControl(QKeyEvent *e) {
     return true;
   case Qt::Key_L:
     tryExplicitLink();
-    return true;
-  case Qt::Key_Slash:
-    if (mode()->mathMode())
-      tryTeXCode();
-    toggleSimpleStyle(MarkupData::Italic, textCursor());
-    return true;
-  case Qt::Key_8: case Qt::Key_Asterisk:
-    toggleSimpleStyle(MarkupData::Bold, textCursor());
-    return true;
-  case Qt::Key_6: // cas Qt::Key_Hat:
-    toggleSimpleStyle(MarkupData::Superscript, textCursor());
-    return true;
-  case Qt::Key_Minus: // Underscore and Minus are on the same key
-    // on my keyboard, but they generate different codes
-    toggleSimpleStyle(MarkupData::Subscript, textCursor());
-    return true;
-  case Qt::Key_Underscore:
-    toggleSimpleStyle(MarkupData::Underline, textCursor());
-    return true;
-  case Qt::Key_1: case Qt::Key_Exclam:
-    toggleSimpleStyle(MarkupData::Emphasize, textCursor());
-    return true;
-  case Qt::Key_Equal:
-    toggleSimpleStyle(MarkupData::StrikeThrough, textCursor());
     return true;
   case Qt::Key_Period:
     tryScriptStyles(textCursor());
@@ -410,7 +393,38 @@ bool TextItem::keyPressWithControl(QKeyEvent *e) {
   }
 }
 
-bool TextItem::tryTeXCode() {
+bool TextItem::keyPressAsSimpleStyle(int key, QTextCursor const &cursor) {
+  switch (key) {
+  case Qt::Key_Slash:
+    if (mode()->mathMode())
+      tryTeXCode();
+    toggleSimpleStyle(MarkupData::Italic, cursor);
+    return true;
+  case Qt::Key_8: case Qt::Key_Asterisk: case Qt::Key_Comma:
+    toggleSimpleStyle(MarkupData::Bold, cursor);
+    return true;
+  case Qt::Key_6: // cas Qt::Key_Hat:
+    toggleSimpleStyle(MarkupData::Superscript, cursor);
+    return true;
+  case Qt::Key_Minus: // Underscore and Minus are on the same key
+    // on my keyboard, but they generate different codes
+    toggleSimpleStyle(MarkupData::Subscript, cursor);
+    return true;
+  case Qt::Key_Underscore:
+    toggleSimpleStyle(MarkupData::Underline, cursor);
+    return true;
+  case Qt::Key_1: case Qt::Key_Exclam:
+    toggleSimpleStyle(MarkupData::Emphasize, cursor);
+    return true;
+  case Qt::Key_Equal:
+    toggleSimpleStyle(MarkupData::StrikeThrough, cursor);
+    return true;
+  default:
+    return false;
+  }
+}
+
+bool TextItem::tryTeXCode(bool noX) {
   QTextCursor c(textCursor());
   if (!c.hasSelection()) {
     QTextCursor m = document()->find(QRegExp("([^A-Za-z])"),
@@ -425,6 +439,8 @@ bool TextItem::tryTeXCode() {
   // got a word
   QString key = c.selectedText();
   if (!TeXCodes::contains(key))
+    return false;
+  if (noX && key.size()==1)
     return false;
   QString val = TeXCodes::map(key);
   c.deleteChar(); // delete the word
@@ -555,7 +571,15 @@ bool TextItem::charAfterIsLetter(int pos) const {
 }
 
 
-bool TextItem::tryScriptStyles(QTextCursor c) {
+static bool balancedBrackets(QString s) {
+  static QString brackets = QString::fromUtf8("()<>{}[]{}⁅⁆〈〉⎡⎤⎣⎦❬❭❰❱❲❳❴❵⟦⟧⟨⟩⟪⟫⟬⟭⦃⦄⦇⦈⦉⦊⦋⦌⦍⦎⦏⦐⦑⦒⦓⦔⦕⦖⦗⦘⧼⧽〈〉《》「」『』【】〔〕〖〗〘〙");
+ for (int i=0; i<brackets.size(); i+=2)
+   if (s.count(brackets[i]) != s.count(brackets[i+1]))
+     return false;
+ return true;
+}
+
+bool TextItem::tryScriptStyles(QTextCursor c, bool onlyIfBalanced) {
   /* Returns true if we decide to make a superscript or subscript, that is,
      if there is a preceding "^" or "_".
    */
@@ -565,6 +589,14 @@ bool TextItem::tryScriptStyles(QTextCursor c) {
     return false; // no "^" or "_"
   if (m.selectionEnd() == c.position())
     return false; // empty selection
+
+  qDebug() << "tryScriptStyles " << onlyIfBalanced;
+  if (onlyIfBalanced) {
+    QTextCursor scr(m);
+    scr.setPosition(c.position(), QTextCursor::KeepAnchor);
+    if (!balancedBrackets(scr.selectedText()))
+      return false;
+  }  
   
   QString mrk = m.selectedText();
   m.deleteChar();

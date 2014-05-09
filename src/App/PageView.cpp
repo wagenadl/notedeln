@@ -139,47 +139,40 @@ void PageView::keyPressEvent(QKeyEvent *e) {
       mode()->setMode(Mode::Browse);
     break;
   case Qt::Key_F2:
-    if (currentSection==Entries)
-      mode()->setMode(Mode::Browse);
-    mode()->setMode(Mode::Type);
+    if (currentSection==Entries) {
+      mode()->setMode(Mode::Type);
+      mode()->setMathMode(e->modifiers() & Qt::ShiftModifier);
+    }
     break;
   case Qt::Key_F3:
     if (currentSection==Entries)
-      mode()->setMode(Mode::Browse);
-    mode()->setMode(Mode::MoveResize);
+      mode()->setMode(Mode::MoveResize);
     break;
   case Qt::Key_F4:
     if (currentSection==Entries)
-      mode()->setMode(Mode::Browse);
-    mode()->setMode(Mode::Mark);
+      mode()->setMode(Mode::Mark);
     break;
   case Qt::Key_F5:
     if (currentSection==Entries)
-      mode()->setMode(Mode::Browse);
-    mode()->setMode(Mode::Freehand);
+      mode()->setMode(Mode::Freehand);
     break;
   case Qt::Key_F6:
     if (currentSection==Entries)
-      mode()->setMode(Mode::Browse);
-    mode()->setMode(Mode::Annotate);
+      mode()->setMode(Mode::Annotate);
     break;
   case Qt::Key_F7:
     if (currentSection==Entries)
-      mode()->setMode(Mode::Browse);
-    mode()->setMode(Mode::Highlight);
+      mode()->setMode(Mode::Highlight);
     break;
   case Qt::Key_F8:
     if (currentSection==Entries)
-      mode()->setMode(Mode::Browse);
-    mode()->setMode(Mode::Strikeout);
+      mode()->setMode(Mode::Strikeout);
     break;
   case Qt::Key_F9:
     if (currentSection==Entries)
-      mode()->setMode(Mode::Browse);
-    mode()->setMode(Mode::Plain);
+      mode()->setMode(Mode::Plain);
     break;
-  case Qt::Key_QuoteLeft: case Qt::Key_AsciiTilde:
-    qDebug() << "QL" << e->key();
+  case Qt::Key_QuoteLeft: case Qt::Key_AsciiTilde: case Qt::Key_4:
     if (e->modifiers() & Qt::ControlModifier)
       mode()->setMathMode(!mode()->mathMode());
     else

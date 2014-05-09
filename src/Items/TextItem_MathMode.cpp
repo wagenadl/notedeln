@@ -7,6 +7,10 @@
 #include <QTextDocument>
 #include <QDebug>
 
+static bool isLatinLetter(QChar x) {
+  return (x>='A' && x<='Z') || (x>='a' && x<='z');
+}
+
 bool TextItem::keyPressAsMath(QKeyEvent *e) {
   //  int key = e->key();
   //  Qt::KeyboardModifiers mod = e->modifiers();
@@ -19,22 +23,48 @@ bool TextItem::keyPressAsMath(QKeyEvent *e) {
     }
     // we may italicize or deitalice
     QChar prevChar = document()->characterAt(c.position()-1);
-    if ((prevChar>='A' && prevChar<='Z') || (prevChar>='a' && prevChar<='z')) {
-      // previous was also a letter; potential deitalicize
-      MarkupData *md = markupAt(c.position(), MarkupData::Italic);
-      if (md)
-        markings_->deleteMark(md);
-      c.insertText(txt);
-      if (prevChar=='d') // magic for "dx"
-        addMarkup(MarkupData::Italic,
-                  c.position()-txt.length(), c.position());
+    QChar antePrevChar = document()->characterAt(c.position()-2);
+    if (isLatinLetter(prevChar)) {
+      // previous was also a letter; potential deitalicize or bold face
+      MarkupData *mdi = markupAt(c.position(), MarkupData::Italic);
+      MarkupData *mdb = markupAt(c.position(), MarkupData::Bold);
+      if (prevChar==txt[0] && !isLatinLetter(antePrevChar)) {
+	// we had the same letter before -> cycle faces
+	// order is italic -> bold italic -> bold -> plain -> italic
+	if (mdb) {
+	  if (mdi) 
+	    markings_->deleteMark(mdi);
+	  else
+	    markings_->deleteMark(mdb);
+	} else {
+	  if (mdi) 
+	    addMarkup(MarkupData::Bold, c.position()-1, c.position());
+	  else
+	    addMarkup(MarkupData::Italic, c.position()-1, c.position());
+	}
+      } else {
+	// previous was _different_ letter; we'll deitalicize / debold; redup
+	if (mdi)
+	  markings_->deleteMark(mdi);
+	if (mdb) {
+	  markings_->deleteMark(mdb);
+	  c.insertText(QString(prevChar));
+	}
+	c.insertText(txt);
+	if (prevChar=='d') { // magic for "dx"
+	  QChar antePrevChar = document()->characterAt(c.position()-2);
+	  if (!(antePrevChar>='A' && antePrevChar<='Z')
+	      && !(antePrevChar>='a' && antePrevChar<='z')) 
+	    addMarkup(MarkupData::Italic,
+		      c.position()-txt.length(), c.position());
+	}
+      }
       return true; // got it
     } else {
-      // previous was not a letter, let's italicize, except for "e"
+      // previous was not a letter, let's italicize
       c.insertText(txt);
-      if (true) // (txt != "e")
-        addMarkup(MarkupData::Italic,
-                  c.position()-txt.length(), c.position());
+      addMarkup(MarkupData::Italic,
+		c.position()-txt.length(), c.position());
       return true; // got it
     }
   } else if (txt=="-") {
@@ -42,48 +72,25 @@ bool TextItem::keyPressAsMath(QKeyEvent *e) {
       c.deleteChar();
     c.insertText(QString::fromUtf8("−"));
     return true;
-  } else if (txt=="^") {
-    if (c.hasSelection()) 
-      return false; // we're overwriting, let some other piece of code deal.
-    // de-italicize "e^"
-    if (document()->characterAt(c.position()-1)=='e') {
-      MarkupData *md = markupAt(c.position(), MarkupData::Italic);
-      if (md)
-        markings_->deleteMark(md);
-    }
-    tryScriptStyles(c);
-    return false; // let the hat be inserted
   } else if (txt!="") {
     // we may apply finished TeX Code
     if (c.hasSelection()) 
       return false; // we're overwriting, let some other piece of code deal.
-    QTextCursor m = document()->find(QRegExp("([^A-Za-z])"),
-				     c, QTextDocument::FindBackward);
-    int start = m.hasSelection() ? m.selectionEnd() : 0;
-    if (start<c.position()) {
-      c.setPosition(start, QTextCursor::KeepAnchor);
-      QString key = c.selectedText();
-      if (key.size()<2)
-        return false;
-      if (!TeXCodes::contains(key))
-        return false;
-      c.deleteChar();
-      QString val = TeXCodes::map(key);
-      if (val.startsWith("x")) {
-        if (document()->characterAt(c.position()-1).isSpace())
-          c.deletePreviousChar(); // delete previous space
-        c.insertText(val.mid(1));
-      } else {
-        c.insertText(val);
+    tryTeXCode(true);
+    if (txt=="^") {
+      // de-italicize "e^"
+      if (document()->characterAt(c.position()-1)=='e') {
+	MarkupData *md = markupAt(c.position(), MarkupData::Italic);
+	if (md)
+	  markings_->deleteMark(md);
       }
-    }
-    qDebug() << "ti_mm: " << txt;
-    if (txt=="_") {
+      tryScriptStyles(c);
+    } else if (txt=="_") {
       tryScriptStyles(c);
     } else if (txt==" ") {
       if (QString(",;.:").contains(document()->characterAt(c.position()-1)))
 	c.movePosition(QTextCursor::Left);
-      tryScriptStyles(c);
+      tryScriptStyles(c, true);
     }
     return false; // still insert the character
   } else {

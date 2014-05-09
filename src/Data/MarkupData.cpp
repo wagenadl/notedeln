@@ -140,9 +140,9 @@ bool MarkupData::insert(int pos, int len) {
 bool MarkupData::update(int pos, int del, int ins) {
   bool chg = false;
   if (del>ins) 
-    chg = cut(pos, del-ins);
+    chg = cut(pos+ins, del-ins);
   else if (ins>del) 
-    chg = insert(pos, ins-del);
+    chg = insert(pos+del, ins-del);
   if (chg)
     markModified(InternalMod);
   return chg;

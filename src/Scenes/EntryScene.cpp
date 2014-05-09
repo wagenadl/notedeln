@@ -378,6 +378,9 @@ void EntryScene::joinTextBlocks(int iblock_pre, int iblock_post) {
     = dynamic_cast<TextBlockItem*>(blockItems[iblock_post]);
   ASSERT(tbi_pre);
   ASSERT(tbi_post);
+  if (dynamic_cast<TableBlockData*>(tbi_pre->data())
+      || dynamic_cast<TableBlockData*>(tbi_post->data()))
+    return; // don't try to merge tables
   TextBlockData *block1 = Data::deepCopy(tbi_pre->data());
   TextBlockData *block2 = Data::deepCopy(tbi_post->data());
   int pos = block1->text()->text().size();
@@ -1205,16 +1208,11 @@ void EntryScene::makeUnicellular(TableData *td) {
   deleteBlock(iblock);
   TextBlockItem *tbi1 = injectTextBlock(tbd1, iblock);
 
-  // remove spurious new lines
-  QTextCursor c(tbi1->document());
-  c.setPosition(0);
-  c.deleteChar();
-  c.movePosition(QTextCursor::End);
-  c.deletePreviousChar();
-  
   restackBlocks(iblock);
   gotoSheetOfBlock(iblock);
   tbi1->setFocus();
+  QTextCursor c = tbi1->textCursor();
+  c.movePosition(QTextCursor::End);
   tbi1->setTextCursor(c);
 }
   
@@ -1226,20 +1224,10 @@ void EntryScene::makeMulticellular(int pos, TextData *td) {
 
   TextBlockItem *tbi0 = dynamic_cast<TextBlockItem *>(blockItems[iblock]);
   ASSERT(tbi0);
+  qDebug() << tbi0 << tbi0->text();
 
-  // prep for table conversion
-  QTextCursor c(tbi0->document());
-  c.setPosition(pos);
-  if (!c.atEnd())
-    return;
-  c.insertText("\n");
-  c.setPosition(0);
-  c.insertText("\n");
-  c.movePosition(QTextCursor::End);
-  c.insertText("\n");
-
-  
-  TableBlockData *tbd1 = TableBlockData::deepCopyFromTextBlock(tbi0->data());
+  TableBlockData *tbd1 = TableBlockData::deepCopyFromTextBlock(tbi0->data(),
+							       pos);
   ASSERT(tbd1);
 
   deleteBlock(iblock);

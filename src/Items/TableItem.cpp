@@ -89,14 +89,14 @@ bool TableItem::keyPressAsMotion(QKeyEvent *e, QTextTableCell const &cell) {
       if (col==0 && isRowEmpty(row) && table->rows()>1) {
 	deleteRows(row, 1);
 	if (row>0)
-	  gotoCell(row-1, lastNonEmptyCellInRow(row));
+	  gotoCell(row-1, lastNonEmptyCellInRow(row), true);
 	else
 	  normalizeCursorPosition();
 	return true;
       } else if (isColumnEmpty(col) && table->columns()>1) {
 	deleteColumns(col, 1);
 	if (col>0)
-	  gotoCell(row, col-1);
+	  gotoCell(row, col-1, true);
 	else
 	  normalizeCursorPosition();
 	return true;
@@ -259,28 +259,11 @@ bool TableItem::keyPressWithControl(QKeyEvent *e) {
     if (!cursor.hasComplexSelection())
       tryExplicitLink(); // links cannot span cells
     return true;
-  case Qt::Key_Slash:
-    foreach (QTextCursor c, normalizeSelection(textCursor()))
-      toggleSimpleStyle(MarkupData::Italic, c);
-    return true;
-  case Qt::Key_8: case Qt::Key_Asterisk:
-    foreach (QTextCursor c, normalizeSelection(textCursor()))
-      toggleSimpleStyle(MarkupData::Bold, c);
-    return true;
-  case Qt::Key_Underscore:
-    foreach (QTextCursor c, normalizeSelection(textCursor()))
-      toggleSimpleStyle(MarkupData::Underline, c);
-    return true;
-  case Qt::Key_1: case Qt::Key_Exclam:
-    foreach (QTextCursor c, normalizeSelection(textCursor()))
-      toggleSimpleStyle(MarkupData::Emphasize, c);
-    return true;
-  case Qt::Key_Equal:
-    foreach (QTextCursor c, normalizeSelection(textCursor()))
-      toggleSimpleStyle(MarkupData::StrikeThrough, c);
-    return true;
   default:
-    return false;
+    foreach (QTextCursor c, normalizeSelection(textCursor()))
+      if (!keyPressAsSimpleStyle(e->key(), c))
+	return false;
+    return true;
   }
   return false;
 }
