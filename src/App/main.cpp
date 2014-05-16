@@ -38,31 +38,11 @@ int main(int argc, char **argv) {
 
   Notebook *nb = 0;
   if (argc==1) {
-    QDir here(QDir::current());
-    if (here.path().endsWith(".nb") && here.exists("toc.json") && here.exists("book.json") && here.exists("pages")) {
-      // inside a notebook
-      if (AlreadyOpen::check(here.path()))
-	return 0;
-      nb = Notebook::load(here.path());
-    }
-    if (!nb) {
-      QStringList lb = SplashScene::localNotebooks();
-      if (lb.size()==1) {
-	if (AlreadyOpen::check(lb[0]))
-	  return 0;
-        nb = Notebook::load(lb[0]);
-      }
-    }
-    if (!nb)
-      nb = SplashScene::openNotebook();
+    nb = SplashScene::openNotebook();
   } else if (argc==2) {
-    if (argv[1]==QString("-splash")) {
-      nb = SplashScene::openNotebook();
-    } else {
-      if (AlreadyOpen::check(argv[1]))
-	  return 0;
-      nb = Notebook::load(argv[1]);
-    }
+    if (AlreadyOpen::check(argv[1]))
+      return 0;
+    nb = Notebook::load(argv[1]);
   } else if (argc==3 && argv[1]==QString("-new")) {
     if (QDir(argv[2]).exists()) {
       qDebug() << "eln: Cannot create new notebook '" << argv[2]
@@ -74,7 +54,6 @@ int main(int argc, char **argv) {
     qDebug() << "Usage: eln";
     qDebug() << "Usage: eln notebook";
     qDebug() << "Usage: eln -new notebook";
-    qDebug() << "Usage: eln -splash";
     return 1;
   }
   if (!nb) {
