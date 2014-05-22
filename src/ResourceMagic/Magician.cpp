@@ -18,6 +18,8 @@
 
 #include "Magician.H"
 #include <QDebug>
+#include <QtGlobal>
+#include <QStringList>
 
 Magician::Magician() {
 }
@@ -101,19 +103,46 @@ void SimpleMagician::setObjectUrlBuilder(QString s) {
 }
 
 bool UrlMagician::matches(QString s) const {
-  return s.startsWith("http://")
-    || s.startsWith("https://")
-    || s.startsWith("file://")
-    || s.startsWith("www.")
-    || s.startsWith("/");
+  if (s.startsWith("http://")
+      || s.startsWith("https://")
+      || s.startsWith("file://")
+      || s.startsWith("~/")
+      || s.startsWith("/"))
+    return true;
+
+  QStringList spl = s.split("/");
+  if (spl[0].startsWith("www.")
+      || spl[0].endsWith(".com")
+      || spl[0].endsWith(".net")
+      || spl[0].endsWith(".org")
+      || spl[0].endsWith(".edu"))
+    return true;
+
+  return false;
 }
 
 QUrl UrlMagician::objectUrl(QString s) const {
-  if (s.startsWith("www."))
-    return QUrl("http://" + s);
-  else if (s.startsWith("/"))
-    return QUrl("file://" + s);
-  else
+  if (s.startsWith("http://")
+      || s.startsWith("https://")
+      || s.startsWith("file://"))
     return QUrl(s);
+
+  if (s.startsWith("/"))
+    return QUrl("file://" + s);
+
+  if (s.startsWith("~/")) {
+    QString home = qgetenv("HOME");
+    return QUrl("file://" + home + "/" + s.mid(2));
+  }
+  
+  QStringList spl = s.split("/");  
+  if (spl[0].startsWith("www.")
+      || spl[0].endsWith(".com")
+      || spl[0].endsWith(".net")
+      || spl[0].endsWith(".org")
+      || spl[0].endsWith(".edu"))
+    return QUrl("http://" + s);
+
+  return QUrl(s);
 }
 
