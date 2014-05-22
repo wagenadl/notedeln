@@ -54,22 +54,6 @@ static QTextCursor basicLinkAt(QTextCursor const &c) {
   return m;
 }
 
-QTextCursor ResourceMagic::autoLinkAt(QTextCursor const &c, Style const &) {
-  QTextCursor m = basicLinkAt(c);
-  if (!m.hasSelection())
-    return m;
-  QString txt = m.selectedText();
-  if (txt.startsWith("file://")
-      || txt.startsWith("http://")
-      || txt.startsWith("www."))
-    // || QRegExp("/[^/]+?/[^/]+").indexIn(txt)==0) // filenames?
-    return m;
-
-  m.clearSelection();
-  return m;
-}
-
-
 QTextCursor ResourceMagic::explicitLinkAt(QTextCursor const &c,
 					  Style const &) {
   if (c.hasSelection()) 

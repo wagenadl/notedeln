@@ -101,7 +101,6 @@ protected:
   bool tryFootnote();
   virtual bool tryToPaste();
   bool tryScriptStyles(QTextCursor, bool onlyIfBalanced=false);
-  bool tryAutoLink();
   bool tryTeXCode(bool noX=false);
   void toggleSimpleStyle(MarkupData::Style type, class QTextCursor const &c);
   bool charBeforeIsLetter(int pos) const;

@@ -499,8 +499,6 @@ bool TextItem::keyPressAsSpecialEvent(QKeyEvent *e) {
       p->initializeFormat();
       return true;
     }
-  } else if (QString(",; \n").contains(e->text()) && tryAutoLink()) {
-    return false; // don't gobble these keys, so don't return true
   }
   return false;
 }
@@ -607,32 +605,6 @@ bool TextItem::tryScriptStyles(QTextCursor c, bool onlyIfBalanced) {
   return true;
 }
 
-bool TextItem::tryAutoLink() {
-  /* Returns true if we decide to mark some text as a hyperlink, that is, if
-     (1) there is text beginning with "http://", "https://" or "www." before
-         us,
-     (2) and that text was not preceded by a word character
-     (3) and there are no spaces or ";" or "," between it and us.
-     Additionally, if the character before us is ".", it will not be part
-     of the URL.
-  */
-  QTextCursor m = ResourceMagic::autoLinkAt(textCursor(), style());
-  if (!m.hasSelection())
-    return false;
-  
-  // gotcha
-  int start = m.selectionStart();
-  int end = m.selectionEnd();
-  MarkupData *oldmd = markupAt(start, end, MarkupData::Link);
-  if (oldmd) {
-    if (oldmd->start()==start && oldmd->end()==end)
-      return false; // preexisting, no significant change
-    else
-      markings_->deleteMark(oldmd);
-  }
-  addMarkup(MarkupData::Link, start, end);
-  return true;
-}
 
 void TextItem::toggleSimpleStyle(MarkupData::Style type,
                                  QTextCursor const &c) {

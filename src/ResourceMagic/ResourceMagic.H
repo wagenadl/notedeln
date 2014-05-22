@@ -47,12 +47,6 @@ public:
            with punctutation at end removed, plus anything before that fits
 	   one of the magic regexps.
    */
-  static QTextCursor autoLinkAt(QTextCursor const &, class Style const &);
-  /*:F autoLinkAt
-   *:D Scans the vicinity of the given text cursor for anything that can only
-       be interpreted as a link. The "vicinity" is the contiguous non-white
-       space area around the cursor, with punctutation at end removed.
-   */
 private:
   QString refText;
   class Magicians const &magicians;
