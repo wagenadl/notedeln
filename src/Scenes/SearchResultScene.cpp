@@ -75,6 +75,7 @@ void SearchResultScene::populate() {
       headers.last()->setPos(0, y0);
       sheetnos.last() += 1;
       sheet += 1;
+      this->sheet(sheet,true)->addItem(headers.last());
       y = y0 + headers.last()->childrenBoundingRect().height();
     }
   }
