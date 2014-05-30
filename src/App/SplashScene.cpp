@@ -91,13 +91,13 @@ void SplashScene::makeItems() {
   connect(bsi, SIGNAL(leftClick(QString)), SLOT(openExisting()));
   addItem(bsi);
   bsi->setPos(x, y);
-  y += DY;
+  y += DY; ///2;
 
   bsi = new BookSplashItem("Create new notebook...");
   connect(bsi, SIGNAL(leftClick(QString)), SLOT(createNew()));
   addItem(bsi);
   bsi->setPos(x, y);
-  y += DY;
+  y += DY; ///2;
 
   QStringList dirs = localNotebooks();
   QSet<QString> absdirs;

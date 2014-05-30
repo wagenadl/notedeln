@@ -73,6 +73,8 @@ void BookSplashItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
     
 void BookSplashItem::paint(QPainter *p,
                            const QStyleOptionGraphicsItem *, QWidget *) {
+  double height = boundingRect().height();
+
   /* Draw a box */
   QColor blk("black");
   blk.setAlphaF(0.25);
@@ -81,21 +83,21 @@ void BookSplashItem::paint(QPainter *p,
   p->setPen(Qt::NoPen);
   p->setBrush(blk);
   p->drawRoundedRect(QRectF(SHRINK, SHRINK,
-                            BOXWIDTH-2*SHRINK, BOXHEIGHT-2*SHRINK),
+                            BOXWIDTH-2*SHRINK, height-2*SHRINK),
                      BOXRAD, BOXRAD);
     
   p->setBrush(wht);
 
   p->drawRoundedRect(QRectF(SHRINK+HOVERDX, SHRINK+HOVERDX,
                             BOXWIDTH-2*SHRINK-HOVERDX,
-                            BOXHEIGHT-2*SHRINK-HOVERDX),
+                            height-2*SHRINK-HOVERDX),
                      BOXRAD, BOXRAD);
 
   /* Draw contents */
   QFont f(Style::defaultStyle().font("splash-font"));
 
   // title
-  double y = 4;
+  double y = dirname.isEmpty() ? 4 /*8*/ : 4;
   f.setPointSizeF(14);
   p->setFont(f);
   p->setBrush(QBrush(Qt::NoBrush));
@@ -139,5 +141,6 @@ void BookSplashItem::paint(QPainter *p,
 }
 
 QRectF BookSplashItem::boundingRect() const {
-  return QRectF(0, 0, BOXWIDTH, BOXHEIGHT);
+  double height = /*dirname.isEmpty() ? BOXHEIGHT/2 : */ BOXHEIGHT;
+  return QRectF(0, 0, BOXWIDTH, height);
 }
