@@ -39,6 +39,8 @@ int main(int argc, char **argv) {
   Notebook *nb = 0;
   if (argc==1) {
     nb = SplashScene::openNotebook();
+    if (!nb)
+      return 0;
   } else if (argc==2) {
     if (AlreadyOpen::check(argv[1]))
       return 0;
