@@ -24,6 +24,7 @@
 #include "Notebook.H"
 #include "RecentBooks.H"
 #include "App.H"
+#include "Fonts.H"
 #include <QDesktopWidget>
 #include <QDebug>
 #include <stdlib.h>
@@ -36,6 +37,8 @@ int main(int argc, char **argv) {
   eln_grabsignals();
   app.setWindowIcon(QIcon(":/eln.png"));
 
+  Fonts fonts;
+  
   Notebook *nb = 0;
   if (argc==1) {
     nb = SplashScene::openNotebook();

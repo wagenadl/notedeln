@@ -210,7 +210,6 @@ Notebook *SplashScene::openNotebook() {
   appname += " (debug vsn)";
 #endif
   gv->setWindowTitle(appname);
-  gv->show();
   
   QSizeF size = gv->sizeHint();
   double dpiX = QApplication::desktop()->logicalDpiX();
@@ -219,7 +218,9 @@ Notebook *SplashScene::openNotebook() {
 
   Notebook *nb = 0;
   while (nb==0) {
+    gv->show();
     el.exec();
+    gv->hide();
     if (ss->named.isEmpty())
       break;
     if (ss->newRequested) {

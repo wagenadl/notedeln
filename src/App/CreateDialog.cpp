@@ -1,6 +1,6 @@
 // CreateDialog.cpp
 
-#include "CreateDialog.h"
+#include "CreateDialog.H"
 
 #include <QPushButton>
 #include <QRadioButton>
