@@ -223,7 +223,14 @@ void EntryScene::resetSheetCount() {
 	maxsheet = fnd->sheet();
   }
   setSheetCount(maxsheet + 1);
-}  
+}
+
+void EntryScene::setSheetCount(int n) {
+  BaseScene::setSheetCount(n);
+  TOCEntry *te = data()->book()->toc()->entry(data()->startPage());
+  ASSERT(te);
+  te->setSheetCount(n);
+}
 
 void EntryScene::redateBlocks() {
   QDate cre = data()->created().date();

@@ -56,7 +56,7 @@ protected:
   bool inTopMargin(QPointF scenePos) const;
   bool inBottomMargin(QPointF scenePos) const;
   bool inSideMargin(QPointF scenePos) const;
-  void setSheetCount(int n);
+  virtual void setSheetCount(int n);
   void setContInMargin(bool x=true);
   int findSheet(class SheetScene *); // -1 if not found
 public: // for SheetScene only

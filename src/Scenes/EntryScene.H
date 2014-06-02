@@ -62,6 +62,8 @@ signals:
 protected:
   bool mousePressEvent(QGraphicsSceneMouseEvent *, SheetScene *);
   bool keyPressEvent(QKeyEvent *, SheetScene *);
+protected:
+  void setSheetCount(int);
 protected slots:
   void titleEdited();
   void vChanged(int block);
