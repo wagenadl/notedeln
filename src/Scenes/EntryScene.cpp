@@ -154,9 +154,9 @@ EntryScene::~EntryScene() {
 void EntryScene::titleEdited() {
   foreach (SheetScene *s, sheets)
     s->repositionTitle();
-  TOCEntry *te = data()->book()->toc()->entry(data()->startPage());
-  ASSERT(te);
-  te->setTitle(title());
+//  TOCEntry *te = data()->book()->toc()->entry(data()->startPage());
+//  ASSERT(te);
+//  te->setTitle(title());
 }
 
 TitleData *EntryScene::fancyTitle() const {
@@ -227,9 +227,9 @@ void EntryScene::resetSheetCount() {
 
 void EntryScene::setSheetCount(int n) {
   BaseScene::setSheetCount(n);
-  TOCEntry *te = data()->book()->toc()->entry(data()->startPage());
-  ASSERT(te);
-  te->setSheetCount(n);
+//  TOCEntry *te = data()->book()->toc()->entry(data()->startPage());
+//  ASSERT(te);
+//  te->setSheetCount(n);
 }
 
 void EntryScene::redateBlocks() {
@@ -1084,7 +1084,7 @@ int EntryScene::startPage() const {
 }
 
 QString EntryScene::title() const {
-  return data_->title()->current()->text();
+  return data_->title()->text()->text();
 }
 
 bool EntryScene::isWritable() const {

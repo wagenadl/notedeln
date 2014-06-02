@@ -277,7 +277,7 @@ void Notebook::titleMod() {
   ASSERT(pg);
   TOCEntry *e = toc()->entry(pg->startPage());
   ASSERT(e);
-  e->setTitle(pg->title()->current()->text());
+  e->setTitle(pg->title()->text()->text());
 }
 
 void Notebook::sheetCountMod() {

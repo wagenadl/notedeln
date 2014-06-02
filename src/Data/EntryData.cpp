@@ -58,8 +58,9 @@ bool EntryData::isEmpty() const {
 void EntryData::insertBlockBefore(BlockData *b, Data *ref) {
   insertChildBefore(b, ref);
   connect(b, SIGNAL(newSheet(int)), SLOT(newSheet()));
-  if (b->sheet()>maxSheet) {
-    maxSheet = b->sheet();
+  connect(b, SIGNAL(sheetCountMod(int)), SLOT(newSheet()));
+  if (b->lastSheet()>maxSheet) {
+    maxSheet = b->lastSheet();
     emit sheetCountMod();
   }
 }
@@ -67,8 +68,9 @@ void EntryData::insertBlockBefore(BlockData *b, Data *ref) {
 void EntryData::addBlock(BlockData *b) {
   addChild(b);
   connect(b, SIGNAL(newSheet(int)), SLOT(newSheet()));
-  if (b->sheet()>maxSheet) {
-    maxSheet = b->sheet();
+  connect(b, SIGNAL(sheetCountMod(int)), SLOT(newSheet()));
+  if (b->lastSheet()>maxSheet) {
+    maxSheet = b->lastSheet();
     emit sheetCountMod();
   }
 }
@@ -86,8 +88,8 @@ void EntryData::newSheet() {
   // I think we can actually assume the last block is on the last page,
   // but I am going to be bloody minded about it.
   foreach (BlockData *b, blocks()) {
-    if (b->sheet()>newMax)
-      newMax = b->sheet();
+    if (b->lastSheet()>newMax)
+      newMax = b->lastSheet();
   }
   bool doEmit = maxSheet>=0;
   if (newMax != maxSheet) {
@@ -109,6 +111,7 @@ void EntryData::loadMore(QVariantMap const &src) {
     if (b->sheet() > maxSheet)
       maxSheet = b->sheet();
     connect(b, SIGNAL(newSheet(int)), SLOT(newSheet()));
+    connect(b, SIGNAL(sheetCountMod(int)), SLOT(newSheet()));
   }
 }
 
@@ -117,7 +120,7 @@ TitleData *EntryData::title() const {
 }
 
 QString EntryData::titleText() const {
-  return title_->current()->text();
+  return title_->text()->text();
 }
 
 int EntryData::startPage() const {

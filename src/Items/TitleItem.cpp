@@ -22,7 +22,7 @@
 #include <QTextDocument>
 
 TitleItem::TitleItem(TitleData *data, Item *parent):
-  TextItem(data->current(), parent), d(data) {
+  TextItem(data->text(), parent), d(data) {
 
   setFont(style().font("title-font"));
   setDefaultTextColor(style().color("title-color"));
@@ -32,7 +32,7 @@ TitleItem::TitleItem(TitleData *data, Item *parent):
 
 TitleItem::TitleItem(TitleData *data, int sheetno,
 		     QTextDocument *altdoc, Item *parent):
-  TextItem(data->current(), parent, true, altdoc), d(data) {
+  TextItem(data->text(), parent, true, altdoc), d(data) {
 
   setFont(style().font("title-font"));
   setDefaultTextColor(style().color("title-color"));
@@ -53,8 +53,8 @@ void TitleItem::deleteLater() {
 
 void TitleItem::docChange() {
   QString plainText = text->toPlainText();
-  if (data()->current()->text() != plainText)
-    data()->revise();
+//  if (data()->text()->text() != plainText)
+//    data()->revise();
 
   TextItem::docChange();
 }

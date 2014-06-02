@@ -48,11 +48,13 @@ void TOCEntry::setStartPage(int n) {
 }
 
 void TOCEntry::setTitle(QString t) {
+  qDebug() << "TOCEntry::setTitle" << t;
   title_ = t;
   markModified();
 }
 
 void TOCEntry::setSheetCount(int n) {
+  qDebug() << "TOCEntry::setSheetCount" << n;
   sheetCount_ = n;
   markModified();
 }

@@ -554,7 +554,7 @@ void PageView::wheelEvent(QWheelEvent *e) {
 }
 
 void PageView::createContinuationEntry() {
-  QString newTtl = entryScene->data()->title()->current()->text();
+  QString newTtl = entryScene->data()->title()->text()->text();
   if (!newTtl.endsWith(QString::fromUtf8(" (cont’d)")))
     newTtl += QString::fromUtf8(" (cont’d)");
   int oldPage = entryScene->startPage() + currentSheet;
@@ -581,7 +581,7 @@ void PageView::createContinuationEntry() {
   gotoEntryPage(newPage);
   ASSERT(entryScene);
   // (So now entryScene refers to the new page.)
-  entryScene->data()->title()->revise()->setText(newTtl);
+  entryScene->data()->title()->text()->setText(newTtl);
   
   // Create reverse note
   QPointF revNotePos(style.real("margin-left"),

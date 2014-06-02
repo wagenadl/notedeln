@@ -17,6 +17,7 @@
 // TextData.C
 
 #include "TextData.H"
+#include <QDebug>
 
 static Data::Creator<TextData> c("text");
 
@@ -44,6 +45,7 @@ void TextData::setText(QString const &t) {
   if (text_==t)
     return;
   text_ = t;
+  qDebug() << "TextData::setText" << t;
   markModified();
 }
 

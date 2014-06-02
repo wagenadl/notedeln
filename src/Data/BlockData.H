@@ -34,7 +34,7 @@ public:
   // read properties
   double y0() const;
   double height() const;
-  int sheet() const;
+  int sheet() const; // i.e. start sheet
   // QList<class NoteData *> notes() const;
   QList<double> const &sheetSplits() const;
   // write properties
@@ -63,8 +63,10 @@ public:
   void setSheet(int);
   bool setSheetAndY0(int n, double y0); // true if anything new
   virtual bool isEmpty() const;
+  int lastSheet() const;
 signals:
   void newSheet(int); // not emitted during loading
+  void sheetCountMod(int);
 protected:
   virtual void loadMore(QVariantMap const &);
   virtual void saveMore(QVariantMap &) const;

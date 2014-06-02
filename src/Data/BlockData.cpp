@@ -42,6 +42,10 @@ int BlockData::sheet() const {
   return sheet_;
 }
 
+int BlockData::lastSheet() const {
+  return sheet() + ssplits.size()-1;
+}
+
 void BlockData::setY0(double y0) {
   if (y0_==y0)
     return;
@@ -93,9 +97,14 @@ QList<double> const &BlockData::sheetSplits() const {
 }
 
 void BlockData::setSheetSplits(QList<double> const &s) {
+  int n0 = ssplits.size();
   if (ssplits==s)
     return;
   ssplits = s;
+  int n1 = ssplits.size();
+  if (n1!=n0)
+    if (!loading())
+      emit sheetCountMod(n1+1);
   markModified(InternalMod);
 }
 

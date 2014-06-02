@@ -29,20 +29,14 @@ class TitleData: public Data {
 public:
   TitleData(Data *parent=0);
   virtual ~TitleData();
-  QList<TextData *> versions() const;
-  TextData const *current() const;
-  TextData *current(); // usu. better to use revise()
-  TextData const *orig() const;
-  TextData *revise();
-  /* revise() creates a new version if previous is more than X hours old.
-     For the convenience of TitleItem, the new "current" pointer is always
-     the same as the old "current" pointer; the newly created copy is saved
-     as the old version.
-  */
+  TextData const *text() const;
+  TextData *text(); // usu. better to use revise()
   bool isDefault() const;
   static QString defaultTitle();
 signals:
   void textMod();
+protected:
+  virtual void loadMore(QVariantMap const &);
 };
 
 #endif
