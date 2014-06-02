@@ -22,6 +22,7 @@
 #include "BookSplashItem.H"
 #include "Style.H"
 #include "AlreadyOpen.H"
+#include "Version.H"
 
 #include <QFileDialog>
 #include <QMessageBox>
@@ -76,8 +77,10 @@ void SplashScene::makeBackground() {
 
   QGraphicsTextItem *eln = addText("ELN", style.font("splash-font"));
   centerAt(eln, style.real("page-width")/2, style.real("page-height") - 50);
-  QGraphicsTextItem *dw = addText(QString::fromUtf8("(C) Daniel Wagenaar 2013–2014"),
-                                  style.font("splash-small-font"));
+  QGraphicsTextItem *dw
+    = addText(QString("v. ") + VERSION + QString::fromUtf8(" — ")
+	      + QString::fromUtf8("(C) Daniel Wagenaar 2013–2014"),
+	      style.font("splash-small-font"));
   centerAt(dw, style.real("page-width")/2, style.real("page-height") - 20);
 
 }
