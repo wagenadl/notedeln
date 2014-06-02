@@ -6,7 +6,6 @@
 #include <QDebug>
 
 Fonts::Fonts() {
-    qDebug() << "FONTS";
   QStringList ff;
   ff << ":fonts/Ubuntu-BI.ttf";
   ff << ":fonts/Ubuntu-B.ttf";
@@ -14,5 +13,5 @@ Fonts::Fonts() {
   ff << ":fonts/Ubuntu-R.ttf";
 
   foreach (QString f, ff)
-    qDebug() << "adding font " << f << QFontDatabase::addApplicationFont(f);
+    QFontDatabase::addApplicationFont(f);
 }

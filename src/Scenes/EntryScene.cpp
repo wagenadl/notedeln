@@ -154,6 +154,9 @@ EntryScene::~EntryScene() {
 void EntryScene::titleEdited() {
   foreach (SheetScene *s, sheets)
     s->repositionTitle();
+  TOCEntry *te = data()->book()->toc()->entry(data()->startPage());
+  ASSERT(te);
+  te->setTitle(title());
 }
 
 TitleData *EntryScene::fancyTitle() const {

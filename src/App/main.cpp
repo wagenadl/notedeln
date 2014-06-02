@@ -36,7 +36,6 @@ int main(int argc, char **argv) {
   App app(argc, argv);
   eln_grabsignals();
   app.setWindowIcon(QIcon(":/eln.png"));
-qDebug() << "MAIN";
   Fonts fonts;
   
   Notebook *nb = 0;
