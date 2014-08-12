@@ -175,12 +175,20 @@ TOC *TOC::rebuild(QDir pages) {
   }
 
   TOC *toc = new TOC();
-  foreach (QString fn, pg2file) {
+  foreach (int n, pg2file.keys()) {
+    QString fn = pg2file[n];
     EntryFile *f = EntryFile::load(pages.absoluteFilePath(fn), 0);
     if (!f) {
       qDebug() << "Failed to load " << fn << " - Aborting";
       delete toc;
       return 0;
+    }
+    int m = f->data()->startPage();
+    if (m!=n) {
+      qDebug() << "TOC::rebuildTOC " << n << ":" << fn
+               << ": Page number in file is " << m << ". Corrected.";
+      f->data()->setStartPage(n);
+      f->saveNow();
     }
     toc->addEntry(f->data());
     delete f;

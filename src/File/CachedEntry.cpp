@@ -27,7 +27,6 @@ CachedEntry const &CachedEntry::operator=(CachedEntry const &p) {
 }
 
 CachedEntry::~CachedEntry() {
-  qDebug() << "~CachedEntry - saving file";
   if (obj() && obj()->file())
     obj()->file()->saveNow();
 }

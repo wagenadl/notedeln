@@ -27,7 +27,6 @@ TitleData::TitleData(Data *parent): Data(parent) {
   setType("title");
   TextData *v0 = new TextData(this);
   v0->setText(defaultTitle());
-  qDebug() << "TitleData" << v0;
   connect(v0, SIGNAL(mod()), this, SIGNAL(textMod()));
 }
 
