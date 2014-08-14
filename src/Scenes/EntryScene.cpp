@@ -195,7 +195,7 @@ void EntryScene::positionBlocks() {
   foreach (int jsheet, refootsheets)
     Restacker::sneakilyRepositionNotes(blockItems, jsheet);    
   
-  setSheetCount(isheet+1);
+  resetSheetCount();
 }
 
 void EntryScene::restackBlocks(int start) {
@@ -1133,7 +1133,7 @@ GfxNoteItem *EntryScene::newNote(int sheet,
   GfxNoteItem *note = ti->newNote(ti->mapFromScene(scenePos1),
 				  ti->mapFromScene(scenePos2));
   if (note)
-    note->data()->setSheet(scenePos1.y()/style().real("page-height"));
+    note->data()->setSheet(sheet);
   return note;  
 }
 

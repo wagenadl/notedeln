@@ -88,6 +88,8 @@ bool BlockData::setSheetAndY0(int n, double y0) {
   sheet_ = n;
   y0_ = y0;
   markModified(InternalMod);
+  if (!loading())
+    emit newSheet(n);
   return true;
 }
 

@@ -559,6 +559,11 @@ void PageView::createContinuationEntry() {
     newTtl += QString::fromUtf8(" (cont’d)");
   int oldPage = entryScene->startPage() + currentSheet;
   int newPage = book->toc()->newPageNumber();
+  qDebug() << "createContinuationEntry. startPage=" << oldPage
+	   << " sheet=" << currentSheet
+	   << " newpage=" << newPage
+	   << " (start=" << entryScene->data()->startPage()
+	   << " n=" << entryScene->data()->sheetCount() << ")";
   Style const &style = book->style();
 
   // Create forward note
