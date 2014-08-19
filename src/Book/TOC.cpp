@@ -191,7 +191,7 @@ TOC *TOC::rebuild(QDir pages) {
       f->saveNow();
     }
     toc->addEntry(f->data());
-    qDebug() << "For page " << n << " sheets: " << f->data()->sheetCount();
+    qDebug() << "For page " << n << ": sheets: " << f->data()->sheetCount();
     delete f;
   }
 
