@@ -18,6 +18,7 @@
 
 #include "BlockData.H"
 #include "EntryData.H"
+#include <QDebug>
 
 BlockData::BlockData(Data *parent): Data(parent) {
   y0_ = 0;
@@ -43,7 +44,8 @@ int BlockData::sheet() const {
 }
 
 int BlockData::lastSheet() const {
-  return sheet() + ssplits.size()-1;
+  qDebug() << "lastSheet" << sheet() << ssplits.size();
+  return sheet() + ssplits.size();
 }
 
 void BlockData::setY0(double y0) {

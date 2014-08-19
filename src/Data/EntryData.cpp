@@ -108,8 +108,8 @@ void EntryData::loadMore(QVariantMap const &src) {
 
   maxSheet = 0;
   foreach (BlockData *b, blocks()) {
-    if (b->sheet() > maxSheet)
-      maxSheet = b->sheet();
+    if (b->lastSheet() > maxSheet)
+      maxSheet = b->lastSheet();
     connect(b, SIGNAL(newSheet(int)), SLOT(newSheet()));
     connect(b, SIGNAL(sheetCountMod(int)), SLOT(newSheet()));
   }
