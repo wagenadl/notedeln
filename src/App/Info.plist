@@ -13,7 +13,7 @@
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleExecutable</key>
-	<string>eln</string>
+	<string>elnmac.sh</string>
 	<key>CFBundleIdentifier</key>
 	<string>net.danielwagenaar.eln</string>
 	<key>NOTE</key>
