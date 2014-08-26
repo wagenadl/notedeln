@@ -73,7 +73,8 @@ void HoverRegion::paint(QPainter *p,
     c.setAlpha(int(255*ti->style().real("hover-not-found-alpha")));
   }    
   p->setBrush(c);
-  p->setClipRect(ti->clipRect());
+  if (!ti->clipRect().isEmpty())
+    p->setClipRect(ti->clipRect());
   p->drawPath(bounds);
 }
 

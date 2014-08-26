@@ -38,6 +38,7 @@ LateNoteItem::LateNoteItem(LateNoteData *data, Item *parent):
   if (data->isRecent()) {
     makeWritable();
   }
+  setFlag(QGraphicsItem::ItemSendsScenePositionChanges, true);
 }
 
 LateNoteItem::~LateNoteItem() {
@@ -58,6 +59,19 @@ void LateNoteItem::prepDateItem() {
     lbl = myDate.toString(style().string("date-format"));
   dateItem->setPlainText(lbl);
   setDateItemPosition();
+}
+
+QVariant LateNoteItem::itemChange(GraphicsItemChange change,
+				  QVariant const &value) {
+  switch (change) {
+  case ItemScenePositionHasChanged:
+    // this actually happens when the page title gets positioned
+    setDateItemPosition();
+    break;
+  default:
+    break;
+  }
+  return GfxNoteItem::itemChange(change, value);
 }
 
 void LateNoteItem::setDateItemPosition() {

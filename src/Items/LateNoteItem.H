@@ -34,6 +34,8 @@ public:
 protected:
   virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *);
   virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *);
+  virtual QVariant itemChange(GraphicsItemChange change,
+			      QVariant const &value);
 private:
   void prepDateItem();
   void setDateItemPosition();
