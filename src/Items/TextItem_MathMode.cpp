@@ -24,6 +24,13 @@ bool TextItem::keyPressAsMath(QKeyEvent *e) {
     // we may italicize or deitalice
     QChar prevChar = document()->characterAt(c.position()-1);
     QChar antePrevChar = document()->characterAt(c.position()-2);
+    int dpos = 1;
+    if (prevChar == 0x200a) {
+      // thin space
+      prevChar = antePrevChar;
+      antePrevChar = document()->characterAt(c.position()-3);
+      dpos = 2;
+    }
     if (isLatinLetter(prevChar)) {
       // previous was also a letter; potential deitalicize or bold face
       MarkupData *mdi = markupAt(c.position(), MarkupData::Italic);
@@ -38,33 +45,36 @@ bool TextItem::keyPressAsMath(QKeyEvent *e) {
 	    markings_->deleteMark(mdb);
 	} else {
 	  if (mdi) 
-	    addMarkup(MarkupData::Bold, c.position()-1, c.position());
+	    addMarkup(MarkupData::Bold, c.position()-dpos, c.position());
 	  else
-	    addMarkup(MarkupData::Italic, c.position()-1, c.position());
+	    addMarkup(MarkupData::Italic, c.position()-dpos, c.position());
 	}
       } else {
 	// previous was _different_ letter; we'll deitalicize / debold; redup
 	if (mdi)
 	  markings_->deleteMark(mdi);
-	if (mdb) {
+	if (mdb) 
 	  markings_->deleteMark(mdb);
+        if (dpos>1)
+          c.deletePreviousChar();
+        if (mdb)
 	  c.insertText(QString(prevChar));
-	}
 	c.insertText(txt);
 	if (prevChar=='d') { // magic for "dx"
-	  QChar antePrevChar = document()->characterAt(c.position()-2);
 	  if (!(antePrevChar>='A' && antePrevChar<='Z')
-	      && !(antePrevChar>='a' && antePrevChar<='z')) 
+	      && !(antePrevChar>='a' && antePrevChar<='z')) {
+            c.insertText(QString::fromUtf8(" "));
 	    addMarkup(MarkupData::Italic,
-		      c.position()-txt.length(), c.position());
+		      c.position()-txt.length()-1, c.position());
+          }
 	}
       }
       return true; // got it
     } else {
       // previous was not a letter, let's italicize
-      c.insertText(txt);
+      c.insertText(txt + QString::fromUtf8(" "));
       addMarkup(MarkupData::Italic,
-		c.position()-txt.length(), c.position());
+		c.position()-txt.length() - 1, c.position());
       return true; // got it
     }
   } else if (txt=="-") {

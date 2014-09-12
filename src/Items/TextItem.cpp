@@ -647,6 +647,12 @@ void TextItem::toggleSimpleStyle(MarkupData::Style type,
     markings_->deleteMark(oldmd);
   else if (start<end) 
     addMarkup(type, start, end);
+  if (type==MarkupData::Italic) {
+    QTextCursor d(c);
+    if (d.hasSelection())
+      d.setPosition(d.selectionEnd());
+    d.insertText(QString::fromUtf8(" ")); // hair space 0x200a
+  }
 }
   
 void TextItem::addMarkup(MarkupData::Style t, int start, int end) {
