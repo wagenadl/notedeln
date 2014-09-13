@@ -25,6 +25,7 @@
 #include "SheetScene.H"
 #include "PageView.H"
 #include "TextData.H"
+#include "OpenCmd.H"
 
 #include <QPainter>
 #include <QGraphicsSceneHoverEvent>
@@ -218,9 +219,9 @@ void HoverRegion::openLink() {
   } else {
     QStringList args;
     args << r->sourceURL().toString();
-    bool ok = QProcess::startDetached("gnome-open", args);
+    bool ok = QProcess::startDetached(OpenCmd::command(), args);
     if (!ok)
-      qDebug() << "Failed to start external process 'gnome-open'";
+      qDebug() << "Failed to start external process " << OpenCmd::command();
   }
 }
 
@@ -258,9 +259,9 @@ void HoverRegion::openArchive() {
   } else {
     QStringList args;
     args << r->archivePath();
-    bool ok = QProcess::startDetached("gnome-open", args);
+    bool ok = QProcess::startDetached(OpenCmd::command(), args);
     if (!ok)
-      qDebug() << "Failed to start external process 'gnome-open'";
+      qDebug() << "Failed to start external process " << OpenCmd::command();
   }
 }  
 

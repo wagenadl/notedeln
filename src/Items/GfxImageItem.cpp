@@ -26,6 +26,7 @@
 #include "GfxSketchItem.H"
 #include "BlockItem.H"
 #include "Cursors.H"
+#include "OpenCmd.H"
 
 #include <QProcess>
 #include <QDebug>
@@ -192,9 +193,9 @@ void GfxImageItem::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *e) {
       args << r->sourceURL().toString();
     else
       args << r->archivePath();
-    bool ok = QProcess::startDetached("gnome-open", args);
+    bool ok = QProcess::startDetached(OpenCmd::command(), args);
     if (!ok)
-      qDebug() << "GfxImageItem: Failed to start external process 'gnome-open'";
+      qDebug() << "GfxImageItem: Failed to start external process " << OpenCmd::command();;
   }
   e->accept();
 }
