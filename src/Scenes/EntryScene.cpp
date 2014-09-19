@@ -775,6 +775,8 @@ bool EntryScene::mousePressEvent(QGraphicsSceneMouseEvent *e, SheetScene *s) {
   return take;
 }
 
+
+
 bool EntryScene::keyPressEvent(QKeyEvent *e, SheetScene *s) {
   if (e->key()==Qt::Key_Tab || e->key()==Qt::Key_Backtab) {
     TextItemText *focus = dynamic_cast<TextItemText*>(s->focusItem());
@@ -861,6 +863,22 @@ int EntryScene::findBlock(QPointF scenepos, int sheet) const {
   }
   return -1;
 }
+
+bool EntryScene::dropEvent(QGraphicsSceneDragDropEvent *e, SheetScene *s) {
+  qDebug() << "dropEvent";
+  QMimeData const *md = e->mimeData();
+  QPointF scenePos = e->scenePos();
+  int sheet = findSheet(s);
+  if (md->hasImage())
+    return importDroppedImage(scenePos, sheet,
+			    qvariant_cast<QImage>(md->imageData()),
+			    QUrl());
+  else if (md->hasUrls())
+    return importDroppedUrls(scenePos, sheet, md->urls());
+  else
+    return false;
+}
+
 
 bool EntryScene::tryToPaste(SheetScene *s) {
   /* We get it first.

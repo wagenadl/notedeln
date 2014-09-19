@@ -148,7 +148,6 @@ void TextItem::docChange() {
     // trivial change; this happens if markup changes
     return;
   }
-  qDebug() << "docchange" << plainText << " was " << data()->text();
   ASSERT(isWritable());
   data()->setText(plainText);
   emit textChanged();
@@ -608,26 +607,26 @@ bool TextItem::tryScriptStyles(QTextCursor c, bool onlyIfBalanced) {
 
 void TextItem::toggleSimpleStyle(MarkupData::Style type,
                                  QTextCursor const &c) {
-  MarkupData *oldmd = markupAt(c.position(), type);
-  int start=-1;
-  int end=-1;
+  int start = -1;
+  int end = -1;
   if (c.hasSelection()) {
     start = c.selectionStart();
     end = c.selectionEnd();
   } else {
     int base = c.position();
-    if (document()->characterAt(base-1).isDigit()) {
-      start = base-1;
+    if (document()->characterAt(base-1).unicode() == 0x200a) 
+      base--;
+    start = end = base;
+    if (document()->characterAt(start-1).isDigit()) {
+      start--;
       while (document()->characterAt(start-1).isDigit())
 	start--;
-      end = base;
       while (document()->characterAt(end).isDigit())
 	end++;
-    } else if (document()->characterAt(base-1).isLetter()) {
+    } else if (document()->characterAt(start-1).isLetter()) {
       start = base-1;
       while (document()->characterAt(start-1).isLetter())
 	start--;
-      end = base;
       while (document()->characterAt(end).isLetter())
 	end++;
     } else {
@@ -642,16 +641,24 @@ void TextItem::toggleSimpleStyle(MarkupData::Style type,
     start = min;
   if (end>max)
     end = max;
+
+  MarkupData *oldmd = markupAt(start, type);
   
-  if (oldmd && oldmd->start()==start && oldmd->end()==end) 
+  if (oldmd && oldmd->start()==start && oldmd->end()==end) {
     markings_->deleteMark(oldmd);
-  else if (start<end) 
+    if (type==MarkupData::Italic
+	&& document()->characterAt(end).unicode()==0x200a) {
+      QTextCursor d(c);
+      d.setPosition(end);
+      d.deleteChar();
+    }
+  } else if (start<end) {
     addMarkup(type, start, end);
-  if (type==MarkupData::Italic) {
-    QTextCursor d(c);
-    if (d.hasSelection())
-      d.setPosition(d.selectionEnd());
-    d.insertText(QString::fromUtf8(" ")); // hair space 0x200a
+    if (type==MarkupData::Italic) {
+      QTextCursor d(c);
+      d.setPosition(end);
+      d.insertText(QString::fromUtf8(" ")); // hair space 0x200a
+    }
   }
 }
   

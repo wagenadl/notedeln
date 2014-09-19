@@ -37,6 +37,8 @@ signals:
 protected:
   virtual void mousePressEvent(QGraphicsSceneMouseEvent *);
   virtual void keyPressEvent(QKeyEvent *);
+  virtual void dragEnterEvent(QGraphicsSceneDragDropEvent *);
+  virtual void dropEvent(QGraphicsSceneDragDropEvent *);
   virtual void drawBackground(QPainter *, const QRectF &);
 private slots:
   void futileTitleMovement(int, Qt::KeyboardModifiers);

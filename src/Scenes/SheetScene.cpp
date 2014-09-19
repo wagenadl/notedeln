@@ -13,6 +13,7 @@
 #include <QPainter>
 #include <QTextDocument>
 #include <QGraphicsView>
+#include <QGraphicsSceneDragDropEvent>
 
 SheetScene::SheetScene(class Style const &s, BaseScene *parent):
   QGraphicsScene(parent), base(parent), style_(s) {
@@ -30,7 +31,6 @@ SheetScene::SheetScene(class Style const &s, BaseScene *parent):
   contInMargin = false;
   
   setItemIndexMethod(NoIndex);
-
   makeBackground();
 }
 
@@ -247,6 +247,18 @@ void SheetScene::mousePressEvent(QGraphicsSceneMouseEvent *e) {
   if (base && base->mousePressEvent(e, this))
     return;
   QGraphicsScene::mousePressEvent(e);
+}
+
+void SheetScene::dragEnterEvent(QGraphicsSceneDragDropEvent *e) {
+  qDebug() << "sheetscene: dragenter";
+  e->acceptProposedAction(); // we pretend we can accept anything
+}
+
+void SheetScene::dropEvent(QGraphicsSceneDragDropEvent *e) {
+  qDebug() << "sheetscene: drop";
+  if (base && base->dropEvent(e, this))
+    return;
+  QGraphicsScene::dropEvent(e);
 }
 
 void SheetScene::keyPressEvent(QKeyEvent *e) {

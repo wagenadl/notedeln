@@ -162,7 +162,6 @@ void TextMarkings::deleteMark(MarkupData *m) {
 }
 
 void TextMarkings::update(int pos, int del, int ins) {
-  //  qDebug() << "TextMarkings::update" << pos << del << ins;
   // First round: update every span, deleting empty spans
   for (QList<Span>::iterator i=spans.begin(); i!=spans.end(); ) {
     if ((*i).update(parent(), pos, del, ins, this)) {

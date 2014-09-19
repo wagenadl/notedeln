@@ -224,3 +224,7 @@ bool BaseScene::mousePressEvent(QGraphicsSceneMouseEvent *, SheetScene *) {
 bool BaseScene::keyPressEvent(QKeyEvent *, SheetScene *) {
   return false;
 }
+
+bool BaseScene::dropEvent(QGraphicsSceneDragDropEvent *, SheetScene *) {
+  return false;
+}

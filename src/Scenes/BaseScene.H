@@ -60,8 +60,9 @@ protected:
   void setContInMargin(bool x=true);
   int findSheet(class SheetScene *); // -1 if not found
 public: // for SheetScene only
-  virtual bool mousePressEvent(QGraphicsSceneMouseEvent *e, SheetScene *s);
-  virtual bool keyPressEvent(QKeyEvent *e, SheetScene *s);
+  virtual bool mousePressEvent(QGraphicsSceneMouseEvent *, SheetScene *);
+  virtual bool keyPressEvent(QKeyEvent *, SheetScene *);
+  virtual bool dropEvent(QGraphicsSceneDragDropEvent *, SheetScene *);
 protected:
   int nSheets; // number of sheets
   Data *data;

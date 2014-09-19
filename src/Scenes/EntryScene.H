@@ -62,6 +62,7 @@ signals:
 protected:
   bool mousePressEvent(QGraphicsSceneMouseEvent *, SheetScene *);
   bool keyPressEvent(QKeyEvent *, SheetScene *);
+  bool dropEvent(QGraphicsSceneDragDropEvent *, SheetScene *);
 protected:
   void setSheetCount(int);
 protected slots:
