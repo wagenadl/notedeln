@@ -101,7 +101,7 @@ void TOCScene::relayout() {
     lines[k]->setLine(0, h, pw, h);
   }
   
-  if (sheet+1<sheetCount())
+  if (sheet+1 != sheetCount())
     setSheetCount(sheet+1);
 }
 

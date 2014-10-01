@@ -30,6 +30,7 @@ TextData::~TextData() {
 }
 
 bool TextData::isEmpty() const {
+  qDebug() << "TextData:isempty" << text_.isEmpty() << markups().isEmpty();
   return text_.isEmpty() && markups().isEmpty();
 }
 

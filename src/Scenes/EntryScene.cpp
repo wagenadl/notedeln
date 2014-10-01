@@ -236,6 +236,8 @@ void EntryScene::redateBlocks() {
   QDateTime cre = data()->created();
   QDateTime mod = cre;
   QMap<BlockItem *, QString> txt;
+  bool first = true;
+  double tmin = style().real("auto-timestamp-min-dt");
   for (int i=0; i<blockItems.size(); i++) {
     if (blockItems[i]->data()->isEmpty() && i<blockItems.size()-1)
       continue;
@@ -243,14 +245,15 @@ void EntryScene::redateBlocks() {
     QDateTime mod1 = blockItems[i]->data()->modified();
     if (cre1.date()==cre.date() && mod1.date()==mod.date()) {
       // at most a time difference
-      if (mod.secsTo(cre1) >= 300 || i==0 || cre.secsTo(cre1) < 0) {
+      if (tmin>0
+	  && (cre.secsTo(cre1) >= tmin || cre.secsTo(cre1) < 0 || first)) {
 	QString txt1 = cre1.toString("h:mm ap");
-	if (i>0 && (mod.time().hour()>=12 || cre1.time().hour()<12)) {
+	if (i>0 && (cre.time().hour()>=12 || cre1.time().hour()<12)) {
 	  // no need for am/pm
 	  //	  txt1 = txt1.left(txt1.length()-3);
 	}
 	if (cre.secsTo(cre1)<0)
-	  txt += " (!)";
+	  txt1 += " (!)";
 	txt[blockItems[i]] = txt1;
       }
     } else {
@@ -259,18 +262,19 @@ void EntryScene::redateBlocks() {
         txt1 = cre1.toString(style().string("date-format-yearless"));
       else
         txt1 = cre1.toString(style().string("date-format"));
-      if (mod1!=cre1) {
+      if (mod1.date()!=cre1.date()) {
         // date range
         txt1 += QString::fromUtf8("‒"); // figure dash
         if (mod1.date().year()==cre1.date().year())
-  	txt1 += mod1.toString(style().string("date-format-yearless"));
+	  txt1 += mod1.toString(style().string("date-format-yearless"));
         else
-  	txt1 += mod1.toString(style().string("date-format"));
+	  txt1 += mod1.toString(style().string("date-format"));
       }
       txt[blockItems[i]] = txt1;
     }
     cre = cre1;
     mod = mod1;
+    first = false;
   }
 
   foreach (BlockItem *i, blockDateItems.keys()) {
@@ -286,13 +290,15 @@ void EntryScene::redateBlocks() {
       dateItem->setFont(style().font("date-font"));
       dateItem->setDefaultTextColor(style().color("date-color"));
     }
-      qDebug() << "Add date " << txt[i];
+    qDebug() << "Add date " << txt[i];
     dateItem->setPlainText(txt[i]);
-    QPointF sp = i->scenePos();
+    QPointF sp = i->sceneBoundingRect().topLeft();
     QRectF br = dateItem->sceneBoundingRect();
+    qDebug() << sp << i->scenePos();
     double ml = style().real("margin-left");
     dateItem->setPos(QPointF(ml - br.width() - 2 - sp.x(),
-			     style().real("text-block-above")));
+			     sp.y() - br.y()
+			     + style().real("text-block-above")));
   }    
 }
 
