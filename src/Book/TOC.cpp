@@ -18,6 +18,8 @@
 
 #include "TOC.H"
 #include <QDebug>
+#include <QMessageBox>
+#include <QApplication>
 #include "TOCEntry.H"
 #include "EntryData.H"
 #include "EntryFile.H"
@@ -144,33 +146,43 @@ Notebook *TOC::book() const {
   return nb;
 }
 
+static TOC *errorReturn(QString s) {
+  QMessageBox mb(QMessageBox::Critical, "Failure to rebuild TOC",
+		 QString("No TOC file found in notebook folder and I could ")
+		 + "not reconstruct it:\n\n"
+		 + s + "\n\n"
+		 + "Manual recovery will be needed.",
+		 QMessageBox::Abort);
+  mb.addButton("Quit", QMessageBox::RejectRole);
+  mb.exec();
+  QApplication::quit();
+  return 0;
+}  
 
 TOC *TOC::rebuild(QDir pages) {
   QMap<int, QString> pg2file;
+  QMap<int, QString> pg2uuid;
   foreach (QFileInfo const &fi, pages.entryInfoList()) {
     if (!fi.isFile())
       continue;
     QString fn = fi.fileName();
     if (fn.endsWith(".moved") || fn.endsWith(".THIS")
-        || fn.endsWith(".OTHER") || fn.endsWith(".BASE")) {
-      qDebug() << "Presence of " << fn
-               << " indicates unsuccessful bzr update. Aborting";
-      return 0;
-    }
+        || fn.endsWith(".OTHER") || fn.endsWith(".BASE"))
+      return errorReturn("Presence of " + fn
+			 + " indicates unsuccessful bzr update.");
     if (!fn.endsWith(".json"))
       continue;
-    QRegExp re("^(\\d\\d*)-?.*.json");
+    QRegExp re("^(\\d\\d*)-?(.*).json");
     if (re.exactMatch(fn)) {
       int n = re.cap(1).toInt();
+      pg2uuid[n] = re.cap(2);
       qDebug() << "Found " << fn << " for page " << n;
-      if (pg2file.contains(n)) {
-        qDebug() << "Duplicate page number: " << n << " - Aborting";
-        return 0;
-      }
+      if (pg2file.contains(n))
+	return errorReturn("Duplicate page number: "
+			   + QString::number(n) + ".");
       pg2file[n] = fn;
     } else {
-      qDebug() << "Cannot parse " << fn << " as a page file name - Aborting";
-      return 0;
+      return errorReturn("Cannot parse " + fn + " as a page file name.");
     }
   }
 
@@ -178,18 +190,26 @@ TOC *TOC::rebuild(QDir pages) {
   foreach (int n, pg2file.keys()) {
     QString fn = pg2file[n];
     EntryFile *f = EntryFile::load(pages.absoluteFilePath(fn), 0);
-    if (!f) {
-      qDebug() << "Failed to load " << fn << " - Aborting";
-      delete toc;
-      return 0;
-    }
+    if (!f) 
+      return errorReturn("Failed to load " + fn + ".");
+    bool mustsave = false;
     int m = f->data()->startPage();
     if (m!=n) {
       qDebug() << "TOC::rebuildTOC " << n << ":" << fn
                << ": Page number in file is " << m << ". Corrected.";
       f->data()->setStartPage(n);
-      f->saveNow();
+      mustsave = true;
     }
+    QString id = f->data()->uuid();
+    if (id!=pg2uuid[n]) {
+      qDebug() << "TOC::rebuildTOC " << n << ":" << fn
+               << ": UUID in file is " << id << ". Corrected.";
+      f->data()->setUuid(pg2uuid[n]);
+      mustsave = true;
+    }
+    if (mustsave)
+      f->saveNow();
+    
     toc->addEntry(f->data());
     qDebug() << "For page " << n << ": sheets: " << f->data()->sheetCount();
     delete f;

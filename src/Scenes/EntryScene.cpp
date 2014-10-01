@@ -233,28 +233,42 @@ void EntryScene::setSheetCount(int n) {
 }
 
 void EntryScene::redateBlocks() {
-  QDate cre = data()->created().date();
-  QDate mod = cre;
+  QDateTime cre = data()->created();
+  QDateTime mod = cre;
   QMap<BlockItem *, QString> txt;
   for (int i=0; i<blockItems.size(); i++) {
-    QDate cre1 = blockItems[i]->data()->created().date();
-    QDate mod1 = blockItems[i]->data()->modified().date();
-    if (cre1==cre && mod1==mod)
+    if (blockItems[i]->data()->isEmpty() && i<blockItems.size()-1)
       continue;
-    QString txt1;
-    if (cre1.year()==cre.year())
-      txt1 = cre1.toString(style().string("date-format-yearless"));
-    else
-      txt1 = cre1.toString(style().string("date-format"));
-    if (mod1!=cre1) {
-      // date range
-      txt1 += QString::fromUtf8("‒"); // figure dash
-      if (mod1.year()==cre1.year())
-	txt1 += mod1.toString(style().string("date-format-yearless"));
+    QDateTime cre1 = blockItems[i]->data()->created();
+    QDateTime mod1 = blockItems[i]->data()->modified();
+    if (cre1.date()==cre.date() && mod1.date()==mod.date()) {
+      // at most a time difference
+      if (mod.secsTo(cre1) >= 300 || i==0 || cre.secsTo(cre1) < 0) {
+	QString txt1 = cre1.toString("h:mm ap");
+	if (i>0 && (mod.time().hour()>=12 || cre1.time().hour()<12)) {
+	  // no need for am/pm
+	  //	  txt1 = txt1.left(txt1.length()-3);
+	}
+	if (cre.secsTo(cre1)<0)
+	  txt += " (!)";
+	txt[blockItems[i]] = txt1;
+      }
+    } else {
+      QString txt1;
+      if (cre1.date().year()==cre.date().year())
+        txt1 = cre1.toString(style().string("date-format-yearless"));
       else
-	txt1 += mod1.toString(style().string("date-format"));
+        txt1 = cre1.toString(style().string("date-format"));
+      if (mod1!=cre1) {
+        // date range
+        txt1 += QString::fromUtf8("‒"); // figure dash
+        if (mod1.date().year()==cre1.date().year())
+  	txt1 += mod1.toString(style().string("date-format-yearless"));
+        else
+  	txt1 += mod1.toString(style().string("date-format"));
+      }
+      txt[blockItems[i]] = txt1;
     }
-    txt[blockItems[i]] = txt1;
     cre = cre1;
     mod = mod1;
   }
@@ -272,6 +286,7 @@ void EntryScene::redateBlocks() {
       dateItem->setFont(style().font("date-font"));
       dateItem->setDefaultTextColor(style().color("date-color"));
     }
+      qDebug() << "Add date " << txt[i];
     dateItem->setPlainText(txt[i]);
     QPointF sp = i->scenePos();
     QRectF br = dateItem->sceneBoundingRect();

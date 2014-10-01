@@ -68,16 +68,7 @@ void Notebook::loadme() {
   if (!tocFile_) {
     qDebug() << "No TOC file found, trying to rebuild";
     TOC *t = TOC::rebuild(root.filePath("pages"));
-    if (!t) {
-      QMessageBox mb(QMessageBox::Critical, "eln",
-                     "No TOC file found in notebook folder and I could "
-                     "not reconstruct it. Manual recovery will be needed. "
-                     "See debug log for more information.",
-                     QMessageBox::Abort);
-        mb.addButton("Quit", QMessageBox::RejectRole);
-        mb.exec();
-        QApplication::quit();
-    }
+    ASSERT(t);
     tocFile_ = TOCFile::createFromData(t, root.filePath("toc.json"));
     tocFile_->saveNow(true);
   }
