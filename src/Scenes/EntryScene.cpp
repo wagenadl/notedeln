@@ -292,12 +292,13 @@ void EntryScene::redateBlocks() {
     }
     qDebug() << "Add date " << txt[i];
     dateItem->setPlainText(txt[i]);
-    QPointF sp = i->sceneBoundingRect().topLeft();
-    QRectF br = dateItem->sceneBoundingRect();
-    qDebug() << sp << i->scenePos();
+    QRectF br = i->sceneBoundingRect();
+    QPointF bs0 = i->scenePos();
+    QRectF dr = dateItem->sceneBoundingRect();
+    QPointF ds0 = dateItem->scenePos();
     double ml = style().real("margin-left");
-    dateItem->setPos(QPointF(ml - br.width() - 2 - sp.x(),
-			     sp.y() - br.y()
+    dateItem->setPos(QPointF(ml - dr.width() - 2 - bs0.x(),
+			     (br.top() - bs0.y()) - (dr.top() - ds0.y())
 			     + style().real("text-block-above")));
   }    
 }
