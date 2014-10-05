@@ -27,6 +27,7 @@ class EntryData: public Data {
   Q_OBJECT;
   Q_PROPERTY(int startPage READ startPage WRITE setStartPage)
   Q_PROPERTY(bool unlocked READ isUnlocked WRITE setUnlocked)
+  Q_PROPERTY(int stampTime READ stampTime WRITE setStampTime)
 public:
   // constructor and destructor  
   EntryData(Data *parent=0);
@@ -34,9 +35,13 @@ public:
   // read properties
   int startPage() const;
   bool isUnlocked() const;
+  int stampTime() const;
+  /* stampTime > 0 means: always stamp; < 0 means: never stamp; = 0 means
+     stamp if auto-timestamp-min-dt is exceeded. */
   // write properties
   void setStartPage(int);
   void setUnlocked(bool);
+  void setStampTime(int);
   // other
   class TitleData *title() const;
   QString titleText() const;
@@ -61,6 +66,7 @@ private slots:
 protected:
   int startPage_;
   bool unlocked_;
+  int stampTime_;
   TitleData *title_;
   int maxSheet;
   Notebook *nb;

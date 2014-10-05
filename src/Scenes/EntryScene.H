@@ -56,6 +56,7 @@ public:
 public slots:
   void notifyChildless(class BlockItem *);
   void modeChange(Mode::M);
+  void redateBlocks();
 signals:
   void restacked();
   void sheetRequest(int);
@@ -95,7 +96,6 @@ private:
   void positionBlocks();
   void restackBlocks(int start);
   void resetSheetCount();
-  void redateBlocks();
   void positionTitleItem();
   void positionNofNAndDateItems();
   int findLastBlockOnSheet(int sheet); // returns -1 if none

@@ -237,7 +237,8 @@ void EntryScene::redateBlocks() {
   QDateTime mod = cre;
   QMap<BlockItem *, QString> txt;
   bool first = true;
-  double tmin = style().real("auto-timestamp-min-dt");
+  int st = data()->stampTime();
+  double tmin = style().real("auto-timestamp-min-dt"); 
   for (int i=0; i<blockItems.size(); i++) {
     if (blockItems[i]->data()->isEmpty() && i<blockItems.size()-1)
       continue;
@@ -245,8 +246,9 @@ void EntryScene::redateBlocks() {
     QDateTime mod1 = blockItems[i]->data()->modified();
     if (cre1.date()==cre.date() && mod1.date()==mod.date()) {
       // at most a time difference
-      if (tmin>0
-	  && (cre.secsTo(cre1) >= tmin || cre.secsTo(cre1) < 0 || first)) {
+      if (st>0 || (st==0 && (tmin>0
+			     && (cre.secsTo(cre1) >= tmin
+				 || cre.secsTo(cre1) < 0 || first)))) {
 	QString txt1 = cre1.toString("h:mm ap");
 	if (i>0 && (cre.time().hour()>=12 || cre1.time().hour()<12)) {
 	  // no need for am/pm
@@ -287,8 +289,8 @@ void EntryScene::redateBlocks() {
     QGraphicsTextItem *dateItem = blockDateItems[i];
     if (!dateItem) {
       dateItem = blockDateItems[i] = new QGraphicsTextItem(i);
-      dateItem->setFont(style().font("date-font"));
-      dateItem->setDefaultTextColor(style().color("date-color"));
+      dateItem->setFont(style().font("timestamp-font"));
+      dateItem->setDefaultTextColor(style().color("timestamp-color"));
     }
     qDebug() << "Add date " << txt[i];
     dateItem->setPlainText(txt[i]);

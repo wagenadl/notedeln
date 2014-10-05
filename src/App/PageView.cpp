@@ -253,6 +253,27 @@ void PageView::keyPressEvent(QKeyEvent *e) {
     else
       take = false;
     break;
+  case Qt::Key_T:
+    if (currentSection==Entries
+        && (e->modifiers() & Qt::ControlModifier)) {
+      int st = entryScene->data()->stampTime();
+      if (entryScene->style().real("auto-timestamp-min-dt") > 1) {
+	if (st>0)
+	  st = -1;
+	else if (st<0)
+	  st = 0;
+	else
+	  st = 1;
+      } else {
+	if (st>0)
+	  st = -1;
+	else
+	  st = 1;
+      }
+      entryScene->data()->setStampTime(st);
+      entryScene->redateBlocks();
+    }
+    break;
   case Qt::Key_P:
     if (e->modifiers() & Qt::ControlModifier) 
       printDialog();

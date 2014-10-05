@@ -33,6 +33,7 @@ EntryData::EntryData(Data *parent): Data(parent) {
   setType("page");
   startPage_ = 1;
   unlocked_ = false;
+  stampTime_ = 0;
   title_ = new TitleData(this);
   connect(title_, SIGNAL(textMod()), SIGNAL(titleMod()));
   maxSheet = 0;
@@ -131,6 +132,10 @@ bool EntryData::isUnlocked() const {
   return unlocked_;
 }
 
+int EntryData::stampTime() const {
+  return stampTime_;
+}
+
 void EntryData::setStartPage(int s) {
   if (startPage_==s)
     return;
@@ -142,6 +147,13 @@ void EntryData::setUnlocked(bool u) {
   if (unlocked_==u)
     return;
   unlocked_ = u;
+  markModified(InternalMod);
+}
+
+void EntryData::setStampTime(int s) {
+  if (stampTime_==s)
+    return;
+  stampTime_ = s;
   markModified(InternalMod);
 }
 
