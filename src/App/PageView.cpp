@@ -272,6 +272,8 @@ void PageView::keyPressEvent(QKeyEvent *e) {
       }
       entryScene->data()->setStampTime(st);
       entryScene->redateBlocks();
+    } else {
+      take = false;
     }
     break;
   case Qt::Key_P:

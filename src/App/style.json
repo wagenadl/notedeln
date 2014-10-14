@@ -152,7 +152,7 @@
 "popup-delay": 1.0,
 "popup-background-color": "#ffffc0",
 "auto-timestamp-min-dt": 0,
-"date-font-family": "Ubuntu",
-"date-font-size": 11,
-"timestamp-color": "#aaaaaa"
+"timestamp-font-family": "Ubuntu",
+"timestamp-font-size": 11,
+"timestamp-color": "#888888"
 }

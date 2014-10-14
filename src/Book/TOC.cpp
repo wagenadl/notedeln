@@ -172,7 +172,7 @@ TOC *TOC::rebuild(QDir pages) {
 			 + " indicates unsuccessful bzr update.");
     if (!fn.endsWith(".json"))
       continue;
-    QRegExp re("^(\\d\\d*)-?(.*).json");
+    QRegExp re("^(\\d\\d*)-(.*).json");
     if (re.exactMatch(fn)) {
       int n = re.cap(1).toInt();
       pg2uuid[n] = re.cap(2);
@@ -182,7 +182,18 @@ TOC *TOC::rebuild(QDir pages) {
 			   + QString::number(n) + ".");
       pg2file[n] = fn;
     } else {
-      return errorReturn("Cannot parse " + fn + " as a page file name.");
+      QRegExp re("^(\\d\\d*).json");
+      if (re.exactMatch(fn)) {
+	int n = re.cap(1).toInt();
+	pg2uuid[n] = "";
+	qDebug() << "Found " << fn << " for page " << n;
+	if (pg2file.contains(n))
+	  return errorReturn("Duplicate page number: "
+			     + QString::number(n) + ".");
+	pg2file[n] = fn;
+      } else {      
+	return errorReturn("Cannot parse " + fn + " as a page file name.");
+      }
     }
   }
 
@@ -203,7 +214,7 @@ TOC *TOC::rebuild(QDir pages) {
     QString id = f->data()->uuid();
     if (id!=pg2uuid[n]) {
       qDebug() << "TOC::rebuildTOC " << n << ":" << fn
-               << ": UUID in file is " << id << ". Corrected.";
+               << ": UUID in file is " << id << ". Corrected to " << pg2uuid[n];
       f->data()->setUuid(pg2uuid[n]);
       mustsave = true;
     }
