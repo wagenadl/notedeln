@@ -23,6 +23,7 @@
 #include <QGraphicsView>
 #include <QMap>
 #include "CachedPointer.H"
+#include <QDropEvent>
 
 class PageView: public QGraphicsView {
   Q_OBJECT;
@@ -51,6 +52,7 @@ public slots:
   void lastPage();
   void openFindDialog();
   void htmlDialog();
+  void drop(QDropEvent);
 signals:
   void onEntryPage(int, int); // start-page-of-entry, sheet-no
   void onFrontMatter(int);
@@ -64,6 +66,8 @@ protected:
   void keyReleaseEvent(QKeyEvent *);
   void mousePressEvent(QMouseEvent *);
   void wheelEvent(QWheelEvent *);
+  //  void dragEnterEvent(QDragEnterEvent *);
+  //  void dragMoveEvent(QDragMoveEvent *);
 private:
   void leavePage();
   void printDialog();

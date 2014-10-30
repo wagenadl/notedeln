@@ -57,6 +57,9 @@ PageEditor::PageEditor(SceneBank *bank): bank(bank) {
 	  toolview->toolbars(), SLOT(hideTools()));
   connect(view, SIGNAL(scaled(double)),
 	  toolview, SLOT(setScale(double)));
+
+  connect(toolview, SIGNAL(drop(QDropEvent)),
+	  view, SLOT(drop(QDropEvent)));
    
   toolview->setGeometry(0, 0, width(), height());
   setCentralWidget(view);

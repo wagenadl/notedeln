@@ -65,6 +65,8 @@ PageView::PageView(SceneBank *bank, QWidget *parent):
   wheelDeltaStepSize = book->style().real("wheelstep");
 
   connect(mode(), SIGNAL(modeChanged(Mode::M)), SLOT(modeChange()));
+
+  setAcceptDrops(true);
 }
 
 PageView::~PageView() {
@@ -696,4 +698,9 @@ int PageView::pageNumber() const {
 void PageView::modeChange() {
   if (currentSection==Entries)
     entryScene->modeChange(mode()->mode());
+}
+
+void PageView::drop(QDropEvent e) {
+  qDebug() << "PageView::drop";
+  dropEvent(&e);
 }

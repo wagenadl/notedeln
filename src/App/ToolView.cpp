@@ -5,6 +5,7 @@
 #include <QMouseEvent>
 #include <QDebug>
 #include <QGraphicsItem>
+#include <QDragEnterEvent>
 
 ToolView::ToolView(Mode *mode, QWidget *parent): QGraphicsView(parent) {
   tools = new ToolScene(mode, this);
@@ -19,6 +20,8 @@ ToolView::ToolView(Mode *mode, QWidget *parent): QGraphicsView(parent) {
   setScene(tools);
   connect(tools, SIGNAL(changed(const QList<QRectF> &)),
 	  SLOT(autoMask()));
+
+  setAcceptDrops(true);
 }
 
 ToolView::~ToolView() {
@@ -49,3 +52,16 @@ void ToolView::mousePressEvent(QMouseEvent *e) {
     e->ignore();
   QGraphicsView::mousePressEvent(e);
 }
+
+void ToolView::dragEnterEvent(QDragEnterEvent *e) {
+  e->acceptProposedAction();
+}  
+
+void ToolView::dragMoveEvent(QDragMoveEvent *e) {
+  e->acceptProposedAction();
+}  
+
+void ToolView::dropEvent(QDropEvent *e) {
+  emit drop(*e);
+  e->acceptProposedAction();
+}  
