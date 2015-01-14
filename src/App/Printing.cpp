@@ -25,9 +25,9 @@
 #include "EntryScene.H"
 #include "Assert.H"
 #include "Toolbars.H"
+#include "PrintDialog.H"
 
 #include <QPrinter>
-#include <QPrintDialog>
 #include <QProgressDialog>
 #include <QPainter>
 #include <QDebug>
@@ -40,21 +40,24 @@ void PageView::printDialog() {
      - All: whole book
   */
   QPrinter printer;
-  QPrintDialog dialog(&printer, this);
+  PrintDialog dialog(this);
   dialog.setWindowTitle(tr("Print book"));
-  dialog.setOption(QAbstractPrintDialog::PrintToFile);
-  dialog.setOption(QAbstractPrintDialog::PrintPageRange);
-  dialog.setOption(QAbstractPrintDialog::PrintSelection);
-  dialog.setOption(QAbstractPrintDialog::PrintShowPageSize);
-  dialog.setOption(QAbstractPrintDialog::PrintCurrentPage);
-
-  dialog.setMinMax(1, book->toc()->newPageNumber()-1);
-  dialog.setFromTo(1, book->toc()->newPageNumber()-1);
+  dialog.setMaxTOCPage(bank->tocScene()->sheetCount());
+  dialog.setMaxPage(book->toc()->newPageNumber()-1);
   
   if (dialog.exec() != QDialog::Accepted) 
     return;
 
   hide();
+
+  if (dialog.toFile()) {
+    printer.setOutputFileName(dialog.filename());
+  } else {
+    printer.setOutputFileName(QString());
+    printer.setPrinterName(dialog.printername());
+    printer.setDuplex(dialog.isDuplex()
+                      ? QPrinter::DuplexAuto : QPrinter::DuplexNone);
+  }
   
   QProgressDialog progress("Printing...", "Abort", 0, 1000, this);
   progress.setWindowModality(Qt::WindowModal);
@@ -65,111 +68,145 @@ void PageView::printDialog() {
 
   int oldPage = currentPage;
   int oldSection = currentSection;
-  
-  int tocCount = bank->tocScene()->sheetCount();
-  int pgsCount = book->toc()->newPageNumber()-1;
-  
-  switch (printer.printRange()) {
-  case QAbstractPrintDialog::AllPages:
-    progress.setMaximum(1+tocCount+pgsCount);
-    bank->frontScene()->print(&printer, &p);
-    progress.setValue(1);
-    if (!progress.wasCanceled()) {
-      printer.newPage();
-      bank->tocScene()->print(&printer, &p);
-    }
-    foreach (int startPage, book->toc()->entries().keys()) {
-      progress.setValue(1+tocCount+startPage);
-      if (progress.wasCanceled())
-        break;
-      gotoEntryPage(startPage);
-      ASSERT(entryScene);
-      printer.newPage();
-      entryScene->print(&printer, &p);
-    }
-    progress.setValue(progress.maximum());
-    switch (oldSection) {
-    case Front:
-      gotoFront();
+
+  int nfront = dialog.printFrontPage() ? 1 : 0;
+  int ntoc = 0;
+  if (dialog.printTOC()) {
+    switch (dialog.tocRange()) {
+    case PrintDialog::All:
+      ntoc = bank->tocScene()->sheetCount();
       break;
-    case TOC:
-      gotoTOC(oldPage);
+    case PrintDialog::CurrentPage:
+      ntoc = (oldSection==TOC) ? 1 : 0;
       break;
-    case Entries:
-      gotoEntryPage(oldPage);
+    case PrintDialog::FromTo:
+      ntoc = 1 + dialog.tocTo() - dialog.tocFrom();
+      break;
+    case PrintDialog::CurrentEntry: // this cannot happen
+      ntoc = 0;
       break;
     }
-    break;
-  case QAbstractPrintDialog::Selection:
-    switch (currentSection) {
-    case Front:
+  }
+  int nentries = 0;
+  if (dialog.printEntries()) {
+    switch (dialog.entriesRange()) {
+    case PrintDialog::All:
+      nentries = book->toc()->newPageNumber()-1;
+      break;
+    case PrintDialog::CurrentPage:
+      nentries = (oldSection==Entries) ? 1 : 0;
+      break;
+    case PrintDialog::CurrentEntry:
+      nentries = (oldSection==Entries) ? entryScene->sheetCount() : 0;
+      break;
+    case PrintDialog::FromTo:
+      nentries = 1 + dialog.entriesTo() - dialog.entriesFrom();
+      break;
+    }
+  }
+
+  progress.setMaximum(nfront + ntoc + nentries);
+  progress.setValue(0);
+  bool any = false;
+  try {
+    if (nfront) {
       bank->frontScene()->print(&printer, &p);
-      progress.setValue(progress.maximum());
-      break;
-    case TOC:
-      bank->tocScene()->print(&printer, &p);
-      progress.setValue(progress.maximum());
-      gotoTOC(oldPage);
-      break;
-    case Entries:
-      entryScene->print(&printer, &p);
-      progress.setValue(progress.maximum());
-      gotoEntryPage(oldPage);
-      break;
+      progress.setValue(progress.value()+nfront);
+      any = true;
     }
-    break;
-  case QAbstractPrintDialog::PageRange: {
-    int from = printer.fromPage();
-    int to = printer.toPage();
-    progress.setMaximum(to);
-    progress.setMinimum(from);
-    bool first = true;
-    foreach (int startPage, book->toc()->entries().keys()) {
-      progress.setValue(startPage);
-      if (progress.wasCanceled())
+    if (progress.wasCanceled())
+      throw 0;
+    if (ntoc) {
+      if (any)
+        printer.newPage();
+      switch (dialog.tocRange()) {
+      case PrintDialog::All:
+        bank->tocScene()->print(&printer, &p);
         break;
-      if (to>=startPage &&
-	  from<startPage+book->toc()->entry(startPage)->sheetCount()) {
-	gotoEntryPage(startPage);
-	ASSERT(entryScene);
-	if (!first)
-	  printer.newPage();
-	first = !entryScene->print(&printer, &p, from-startPage, to-startPage);
+      case PrintDialog::CurrentPage:
+        bank->tocScene()->print(&printer, &p,
+                                currentSheet, currentSheet);
+        break;
+      case PrintDialog::FromTo:
+        bank->tocScene()->print(&printer, &p,
+                                dialog.tocFrom()-1, dialog.tocTo()-1);
+        break;
+      case PrintDialog::CurrentEntry:
+        break; // this cannot happen
       }
+      progress.setValue(progress.value()+ntoc);
+      any = true;
     }
-    progress.setValue(progress.maximum());
-    switch (oldSection) {
-    case Front:
-      gotoFront();
-      break;
-    case TOC:
-      gotoTOC(oldPage);
-      break;
-    case Entries:
-      gotoEntryPage(oldPage);
-      break;
+
+    if (progress.wasCanceled())
+      throw 0;
+    
+    if (nentries) {
+      switch (dialog.entriesRange()) {
+      case PrintDialog::All:
+        foreach (int startPage, book->toc()->entries().keys()) {
+          progress.setValue(nfront + ntoc + startPage);
+          if (progress.wasCanceled())
+            throw 0;
+          gotoEntryPage(startPage);
+          ASSERT(entryScene);
+          if (any)
+            printer.newPage();
+          entryScene->print(&printer, &p);
+          any = true;
+        }
+        break;
+      case PrintDialog::CurrentPage:
+        if (any)
+          printer.newPage();
+        entryScene->print(&printer, &p, currentSheet, currentSheet);
+        progress.setValue(nfront + ntoc + nentries);
+        any = true;
+        break;
+      case PrintDialog::CurrentEntry:
+        if (any)
+          printer.newPage();
+        entryScene->print(&printer, &p);
+        break;
+      case PrintDialog::FromTo: {
+        int from = dialog.entriesFrom();
+        int to = dialog.entriesTo();
+        foreach (int startPage, book->toc()->entries().keys()) {
+          if (progress.wasCanceled())
+            throw 0;
+          if (to>=startPage &&
+              from<startPage+book->toc()->entry(startPage)->sheetCount()) {
+            gotoEntryPage(startPage);
+            ASSERT(entryScene);
+            if (any)
+              printer.newPage();
+            any = entryScene->print(&printer, &p, from-startPage, to-startPage);
+            progress.setValue(progress.value() + entryScene->sheetCount());
+          }
+        }
+      } break;
+      }
+      any = true;
+      progress.setValue(nfront + ntoc + nentries);
     }
-  } break;
-  case QAbstractPrintDialog::CurrentPage:
-    switch (currentSection) {
-    case Front:
-      bank->frontScene()->print(&printer, &p);
-      break;
-    case TOC:
-      bank->tocScene()->print(&printer, &p,
-			      currentSheet, currentSheet);
-      break;
-    case Entries:
-      entryScene->print(&printer, &p,
-			currentSheet, currentSheet);
-      break;
-    }
-    progress.setValue(progress.maximum());
+  } catch (int) {
+    // abort
+  }
+
+  progress.setValue(progress.maximum());
+
+  switch (oldSection) {
+  case Front:
+    gotoFront();
+    break;
+  case TOC:
+    gotoTOC(oldPage);
+    break;
+  case Entries:
+    gotoEntryPage(oldPage);
     break;
   }
 
   show();
-  
-  return;
 }
       

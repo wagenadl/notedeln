@@ -1,176 +1,145 @@
 // PrintDialog.cpp
 
 #include "PrintDialog.H"
-#include <QVBoxLayout>
-#include <QHBoxLayout>
-#include <QLabel>
-#include <QComboBox>
-#include <QFormLayout>
-#include <QPrinter>
-#include <QPrinterInfo>
-#include <QLineEdit>
-#include <QCheckBox>
-#include <QPushButton>
+#include "ui_PrintDialog.h"
 #include <QDebug>
+#include <QPrinterInfo>
+#include <QDir>
+#include <QFileDialog>
 
 PrintDialog::PrintDialog(QWidget *parent): QDialog(parent) {
+  ui = new Ui_printDialog();
+  ui->setupUi(this);
 
-  foreach (QPrinterInfo const &x, QPrinterInfo::availablePrinters())
-    availPr.append(x);
-
-  QVBoxLayout *mainLayout = new QVBoxLayout;
-  QFormLayout *formLayout = new QFormLayout;
-  QHBoxLayout *actionLayout = new QHBoxLayout;
-
-  printers = new QComboBox;
-  //  location = new QLabel;
-  //  type = new QLabel;
-  filename = new QLineEdit;
-  duplex = new QCheckBox("Duplex");
-  from = new QLineEdit;
-  to = new QLineEdit;
-  rangeCombo = new QComboBox;
+  connect(ui->pPrinter, SIGNAL(toggled(bool)), SLOT(setDestination()));
+  connect(ui->pPrinterName, SIGNAL(currentIndexChanged(int)),
+          SLOT(setDestination()));
+  connect(ui->pFile, SIGNAL(toggled(bool)), SLOT(setDestination()));
+  connect(ui->rtRange, SIGNAL(toggled(bool)), SLOT(toggleTocRange(bool)));
+  connect(ui->reRange, SIGNAL(toggled(bool)), SLOT(toggleEntriesRange(bool)));
+  connect(ui->pBrowse, SIGNAL(clicked(bool)), SLOT(browse()));
   
-  QPushButton *browse = new QPushButton("...");
-  QHBoxLayout *fileLayout = new QHBoxLayout;
-  QHBoxLayout *rangeLayout = new QHBoxLayout;
-  QPushButton *cancel = new QPushButton("Cancel");
-  QPushButton *print = new QPushButton("Print");
+  QList<QPrinterInfo> printers = QPrinterInfo::availablePrinters();
+  if (printers.isEmpty()) {
+    ui->pPrinter->setEnabled(false);
+    ui->pPrinterName->setEnabled(false);
+    ui->pFile->setChecked(true);
+  } else {
+    foreach (QPrinterInfo const &p, printers)
+      ui->pPrinterName->addItem(p.printerName());
+    ui->pPrinter->setChecked(true);
+  }
 
-  foreach (QPrinterInfo const &x, availPr) 
-    printers->addItem(x.printerName());
-  printers->insertSeparator(availPr.size());
-  printers->addItem("Print to file (pdf)");
-
-  QMap<PrintRange, QString> rn;
-  rn[AllPages] = "All pages";
-  rn[CurrentEntry] = "Current entry";
-  // etc.
-  foreach (QString x, rn)
-    rangeCombo->addItem(x); // in order
-
-  rangeLayout->addWidget(new QLabel("from"));
-  rangeLayout->addWidget(from);
-  rangeLayout->addWidget(new QLabel("to"));
-  rangeLayout->addWidget(to);
-  
-  QFrame *hline = new QFrame;
-  hline->setFrameShape(QFrame::HLine);
-  hline->setFrameShadow(QFrame::Raised);
-  hline->setLineWidth(1);
-  
-  formLayout->addRow("Printer", printers);
-  fileLayout->addWidget(filename);
-  fileLayout->addWidget(browse);
-  formLayout->addRow("Filename", fileLayout);
-  formLayout->addRow("Range", rangeCombo);
-
-  formLayout->addRow("", duplex);
-
-  actionLayout->addWidget(cancel);
-  actionLayout->addStretch();
-  actionLayout->addWidget(print);
-  
-  mainLayout->addLayout(formLayout);
-  mainLayout->addWidget(hline);
-  mainLayout->addLayout(actionLayout);
-  
-  setLayout(mainLayout);
-  resize(sizeHint());
-
-  connect(printers, SIGNAL(currentIndexChanged(int)), SLOT(printerChanged()));
-  connect(browse, SIGNAL(clicked(bool)), SLOT(startBrowse()));
-  connect(cancel, SIGNAL(clicked(bool)), SLOT(reject()));
-  connect(print, SIGNAL(clicked(bool)), SLOT(accept()));
-  
-  printerChanged();
-
+  ui->pFileName->setText(QDir::home().absoluteFilePath("output.pdf"));
 }
 
 PrintDialog::~PrintDialog() {
 }
 
-void PrintDialog::printerChanged() {
-  int i = printers->currentIndex();
-  if (i<availPr.size()) {
-    // actual printer
-    filename->setEnabled(false);
-    duplex->setEnabled(true);
-  } else {
-    filename->setEnabled(true);
-    duplex->setEnabled(false);
-  }
+void PrintDialog::setDestination() {
+  bool isPrinter = ui->pPrinter->isChecked();
+  ui->oDuplex->setEnabled(isPrinter);
+  ui->pPrinterName->setEnabled(isPrinter);
+  ui->pFileName->setEnabled(!isPrinter);
+  ui->pBrowse->setEnabled(!isPrinter);
 }
 
-void PrintDialog::rangeChanged() {
-  qDebug() << "PrintDialog::rangeChanged";
+void PrintDialog::toggleTocRange(bool t) {
+  ui->rtrFrom->setEnabled(t);
+  ui->rtrTo->setEnabled(t);
 }
+
+void PrintDialog::toggleEntriesRange(bool t) {
+  ui->rerFrom->setEnabled(t);
+  ui->rerTo->setEnabled(t);
+}
+
+void PrintDialog::browse() {
+  QString oldfn = ui->pFileName->text();
+  QString dir;
+  if (oldfn.contains("/"))
+    dir = oldfn.left(oldfn.lastIndexOf("/"));
+
+  QString fn = QFileDialog::getSaveFileName(NULL, "Output filename",
+                                            dir, "*.pdf");
+  if (fn.isEmpty())
+    return;
   
-
-void PrintDialog::startBrowse() {
-  qDebug() << "PrintDialog::startBrowse";
+  if (!fn.endsWith(".pdf"))
+    fn += ".pdf";
+  ui->pFileName->setText(fn);
 }
 
-
-
-
-
-
-int PrintDialog::romanToInt(QString s) {
-  int res = 0;
-  QMap<QString, int> tbl;
-  tbl["i"] = 1;
-  tbl["v"] = 5;
-  tbl["x"] = 10;
-  tbl["l"] = 50;
-  tbl["c"] = 100;
-  tbl["d"] = 500;
-  tbl["m"] = 1000;
-  while (!s.isEmpty()) {
-    int i = tbl[s[0].toLower()];
-    if (i==0)
-      return -1;
-    if (s.length()>=2) {
-      int j = tbl[s[1].toLower()];
-      if (j==0)
-        return -1;
-      if (j>i) {
-        res += j - i;
-        s = s.mid(2);
-      } else {
-        res += i;
-        s = s.mid(1);
-      }
-    } else {
-        res += i;
-        s = s.mid(1);
-    }
-  }
-  return res;
+bool PrintDialog::toFile() const {
+  return ui->pFile->isChecked();
 }
 
-QString PrintDialog::intToRoman(int n) {
-  char const *huns[] = {"", "C", "CC", "CCC", "CD", "D", "DC", "DCC", "DCCC", "CM"};
-  char const *tens[] = {"", "X", "XX", "XXX", "XL", "L", "LX", "LXX", "LXXX", "XC"};
-  char const *ones[] = {"", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX"};
+QString PrintDialog::filename() const {
+  return ui->pFileName->text();
+}
 
-  QString res;
+QString PrintDialog::printername() const {
+  return ui->pPrinterName->currentText();
+}
 
-  if (n>=5000)
-    return QString::number(n);
-  
-  // Following code adapted from "paxdiablo" at stackoverflow
-  while (n >= 1000) {
-    res += "M";
-    n -= 1000;
-  }
+bool PrintDialog::isDuplex() const {
+  return ui->oDuplex->isChecked();
+}
 
-  res +=  huns[n/100];
-  n = n % 100;
-  res += tens[n/10];
-  n = n % 10;
-  res += ones[n];
+bool PrintDialog::printFrontPage() const {
+  return ui->rFrontPage->isChecked();
+}
 
-  return res;
+bool PrintDialog::printTOC() const {
+  return ui->rTOC->isChecked();
+}
+
+bool PrintDialog::printEntries() const {
+  return ui->rEntries->isChecked();
+}
+
+PrintDialog::Range PrintDialog::tocRange() const {
+  if (ui->rtAll->isChecked())
+    return All;
+  else if (ui->rtCurrent->isChecked())
+    return CurrentPage;
+  else
+    return FromTo;
+}
+int PrintDialog::tocFrom() const {
+  return ui->rtrFrom->value();
+}
+
+int PrintDialog::tocTo() const {
+  return ui->rtrTo->value();
+}
+
+PrintDialog::Range PrintDialog::entriesRange() const {
+  if (ui->reAll->isChecked())
+    return All;
+  else if (ui->reCurrentPage->isChecked())
+    return CurrentPage;
+  else if (ui->reCurrentEntry->isChecked())
+    return CurrentEntry;
+  else
+    return FromTo;
+}
+
+int PrintDialog::entriesFrom() const {
+  return ui->rerFrom->value();
+}
+
+int PrintDialog::entriesTo() const {
+  return ui->rerTo->value();
+}
+
+void PrintDialog::setMaxPage(int n) {
+  ui->rerFrom->setMaximum(n);
+  ui->rerTo->setMaximum(n);
+}
+
+void PrintDialog::setMaxTOCPage(int n) {
+  ui->rtrFrom->setMaximum(n);
+  ui->rtrTo->setMaximum(n);
 }
 

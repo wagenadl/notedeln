@@ -114,6 +114,7 @@ bool BaseScene::print(QPrinter *prt, QPainter *p,
   if (lastSheet>=nSheets)
     lastSheet = nSheets-1;
   if (lastSheet<nSheets-1
+      && pgNoToString(startPage())<"a"
       && pgNoToString(startPage()+lastSheet+1)
       .startsWith(pgNoToString(startPage()+lastSheet)))
     // slightly convoluted way to pick up continuation pages.

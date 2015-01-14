@@ -32,6 +32,12 @@ for %%f in (%SUBDIRS%) do (
     echo     %%q ^\>> %%f\%%f.pri
   )
   echo. >> %%\%%f.pri
+
+  echo FORMS += ^\>> %%f\%%f.pri
+  for %%q in (%%f\*.ui) do (
+    echo     %%q ^\>> %%f\%%f.pri
+  )
+  echo. >> %%\%%f.pri
 )
 
 echo. >> eln.pri

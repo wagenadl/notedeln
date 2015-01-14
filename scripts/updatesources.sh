@@ -27,6 +27,10 @@ for DIR in $SUBDIRS; do
     echo "RESOURCES += \\" >> $DIR/$DIR.pri
     find $DIR -name \*.qrc -exec echo "    " '{}' " \\" ';' >> $DIR/$DIR.pri
     echo "" >> $DIR/$DIR.pri
+
+    echo "FORMS += \\" >> $DIR/$DIR.pri
+    find $DIR -name \*.ui -exec echo "    " '{}' " \\" ';' >> $DIR/$DIR.pri
+    echo "" >> $DIR/$DIR.pri
 done
 
 echo "" >> eln.pri
