@@ -201,6 +201,13 @@ void HoverRegion::calcBounds() const {
     pos = npos;
   }
 
+  if (ti->clips()) {
+    QPainterPath clp;
+    clp.addRect(ti->mapRectToScene(ti->clipRect()));
+    qDebug() << bounds << clp;
+    bounds = bounds.intersected(clp);
+  }
+  
   start = md->start();
   end = md->end();
   if (resource() && !md->resourceTags().contains(refText())) 

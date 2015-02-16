@@ -19,6 +19,7 @@ FindOverlay::FindOverlay(SheetScene *scene, QString phrase) {
     //    BlockItem *bi = ti->ancestralBlock();
     int idx = -1;
     QString txt = ti->data()->text().toLower();
+    qDebug() << (void*)ti  << (void*)(ti->ancestralBlock()) << txt;
     while (true) {
       idx = txt.indexOf(phrase, idx+1);
       if (idx<0)

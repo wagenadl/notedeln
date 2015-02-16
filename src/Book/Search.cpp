@@ -61,7 +61,6 @@ void Search::addToResults(QList<SearchResult> &dest, QString phrase,
       res.page = dataPage;
       res.startPageOfEntry = entryPage;
       res.entryTitle = entryTitle;
-      res.context = td->text();
       TableData const *tbld = dynamic_cast<TableData const *>(td);
       if (tbld)
         res.context = untable(tbld);

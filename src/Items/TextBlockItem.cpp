@@ -59,7 +59,7 @@ TextBlockItem::TextBlockItem(TextBlockData *data, Item *parent,
   ysplit.push_back(data->height());
   QRectF r0 = frags[0]->netBounds();
   for (int i=0; i<frags.size(); i++) {
-    if (frags.size()>1)
+    if (frags.size()>1) 
       frags[i]->setClip(QRectF(r0.left(), ysplit[i],
 			       r0.width(), ysplit[i+1]-ysplit[i]));
     connect(frags[i], SIGNAL(invisibleFocus(QPointF)),
