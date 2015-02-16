@@ -29,6 +29,7 @@ struct SearchResult {
   QString context; // entire text of containing object
   QString entryTitle;
   QDateTime cre, mod; // of containing object
+  QString uuid; // of containing object
   QList<int> whereInContext;
 };
 

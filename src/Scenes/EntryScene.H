@@ -38,6 +38,7 @@ public:
   bool isWritable() const;
   int findBlock(class Item const *) const; // -1 if none
   int findBlock(class Data const *) const; // -1 if none
+  class BlockItem const *findBlockByUUID(QString uuid) const; // -1 if none
   int findBlock(QPointF scenePos, int sheet) const; // -1 if none
   void newFootnote(int block, QString tag);
   bool dropBelow(QPointF scenePos, int sheet, class QMimeData const *md);

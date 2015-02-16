@@ -71,7 +71,8 @@ void SearchDialog::newSearch() {
   }
 }
 
-void SearchDialog::gotoPage(int n, Qt::KeyboardModifiers m, QString phrase) {
+void SearchDialog::gotoPage(int n, Qt::KeyboardModifiers m,
+                            QString uuid, QString phrase) {
   if (!pgView) {
     qDebug() << "SearchDialog: Pageview disappeared on me.";
     return;
@@ -81,6 +82,8 @@ void SearchDialog::gotoPage(int n, Qt::KeyboardModifiers m, QString phrase) {
     view = pgView->newView(QString::number(n));
   else
     pgView->gotoEntryPage(n);
+
+  view->ensureSearchVisible(uuid, phrase);
   
   view->window()->raise();
   qDebug() << "gotoPage" << n << phrase;

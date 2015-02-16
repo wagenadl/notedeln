@@ -15,6 +15,8 @@ public:
   DATAACCESS(TOCEntry);
   void reset();
   void addResult(SearchResult const &res, QGraphicsItem *parent);
+signals:
+  void clicked(int, Qt::KeyboardModifiers, QString); // page number; uuid
 protected:
   virtual void mousePressEvent(QGraphicsSceneMouseEvent *);
 private:
@@ -25,6 +27,7 @@ private:
   QList<class QGraphicsTextItem *> items;
   QList<double> ytop;
   QList<int> pgno;
+  QList<QString> uuid;
 };
 
 #endif

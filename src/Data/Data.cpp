@@ -384,3 +384,14 @@ void Data::setUuid(QString const &u) {
   uuid_ = u;
   markModified(InternalMod);
 }
+
+Data const *Data::findChildByUUID(QString id) const {
+  if (uuid_==id)
+    return this;
+  foreach (Data const *c, allChildren()) {
+    Data const *r = c->findChildByUUID(id);
+    if (r)
+      return r;
+  }
+  return 0;
+}

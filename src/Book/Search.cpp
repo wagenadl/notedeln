@@ -68,6 +68,7 @@ void Search::addToResults(QList<SearchResult> &dest, QString phrase,
         res.context = td->text();
       res.cre = td->created();
       res.mod = td->modified();
+      res.uuid = td->uuid();
       int i0 = res.context.indexOf(phrase, 0, Qt::CaseInsensitive);
       while (i0>=0) {
         res.whereInContext << i0;

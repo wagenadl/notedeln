@@ -53,6 +53,7 @@ public slots:
   void openFindDialog();
   void htmlDialog();
   void drop(QDropEvent);
+  void ensureSearchVisible(QString uuid, QString phrase);
 signals:
   void onEntryPage(int, int); // start-page-of-entry, sheet-no
   void onFrontMatter(int);

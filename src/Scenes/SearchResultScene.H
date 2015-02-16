@@ -17,10 +17,10 @@ public:
   virtual void populate();
   virtual QString title() const;
 public slots:
-  //  void gotoSheet(int);
-  void pageNumberClick(int, Qt::KeyboardModifiers);
+  void pageNumberClick(int, Qt::KeyboardModifiers, QString); // pgno, uuid
 signals:
-  void pageNumberClicked(int, Qt::KeyboardModifiers, QString);
+  void pageNumberClicked(int, Qt::KeyboardModifiers,
+                         QString, QString); // pgno, uuid, phrase
 protected:
   virtual QString pgNoToString(int) const;
 private:

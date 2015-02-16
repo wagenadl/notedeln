@@ -704,3 +704,13 @@ void PageView::drop(QDropEvent e) {
   qDebug() << "PageView::drop";
   dropEvent(&e);
 }
+
+void PageView::ensureSearchVisible(QString uuid, QString phrase) {
+  if (!currentSection==Entries)
+    return;
+  BlockItem const *blki = entryScene->findBlockByUUID(uuid);
+  if (!blki) {
+    qDebug() << "EnsureSearchVisible: block not found";
+    return;
+  }
+}

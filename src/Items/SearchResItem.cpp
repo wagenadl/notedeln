@@ -21,6 +21,7 @@ void SearchResItem::reset() {
   items.clear();
   ytop.clear();
   pgno.clear();
+  uuid.clear();
 }
 
 void SearchResItem::addResult(SearchResult const &res,
@@ -47,6 +48,7 @@ void SearchResItem::addResult(SearchResult const &res,
   items << ti;
   ytop << h0;
   pgno << res.page;
+  uuid << res.uuid;
 }
 
 
@@ -140,12 +142,16 @@ void SearchResItem::fillText(QTextDocument *doc, SearchResult const &res) {
 
 void SearchResItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
   int pg = -1;
-  for (int k=0; k<items.size(); k++) 
-    if (e->pos().y() >= ytop[k])
+  QString id;
+  for (int k=0; k<items.size(); k++) {
+    if (e->pos().y() >= ytop[k]) {
       pg = pgno[k];
+      id = uuid[k];
+    }
+  }
   if (pg>=0) {
-    qDebug() << "SearchResItem: clicked " << pg;
-    emit clicked(pg, e->modifiers());
+    qDebug() << "SearchResItem: clicked " << pg << id;
+    emit clicked(pg, e->modifiers(), id);
   } else {
     TOCItem::mousePressEvent(e);
   }

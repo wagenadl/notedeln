@@ -851,6 +851,13 @@ void EntryScene::addUnlockedWarning() {
     QRectF br = unlockedItem->sceneBoundingRect();
     unlockedItem->setPos(style().real("page-width") - br.width() - 4, 4);
   }
+}
+
+BlockItem const *EntryScene::findBlockByUUID(QString uuid) const {
+  for (int i=0; i<blockItems.size(); i++) 
+    if (blockItems[i]->data()->findChildByUUID(uuid))
+      return blockItems[i];
+  return 0;
 }  
 
 int EntryScene::findBlock(Data const *d0) const {
