@@ -1,4 +1,3 @@
-
 // Items/TextBlockItem.cpp - This file is part of eln
 
 /* eln is free software: you can redistribute it and/or modify
@@ -355,4 +354,23 @@ void TextBlockItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
 void TextBlockItem::focusInEvent(QFocusEvent*e) {
   qDebug() << "TBI: focusin";
   BlockItem::focusInEvent(e);
+}
+
+int TextBlockItem::findFragmentForPhrase(QString phrase) const {
+  QTextCursor c(document()->find(phrase));
+  if (c.isNull())
+    return -1;
+  QTextBlock b = document()->findBlock(c.position());
+  if (!b.isValid())
+    return -1;
+  QTextLayout *lay = b.layout();
+  QTextLine l = lay->lineForTextPosition(c.position()-b.position());
+  int y = l.position().y();
+  int i=0;
+  foreach (int y0, data()->sheetSplits()) {
+    if (y<y0)
+      return i;
+    i++;
+  }
+  return i;
 }

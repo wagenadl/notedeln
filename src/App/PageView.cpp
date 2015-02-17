@@ -30,6 +30,7 @@
 #include "Assert.H"
 #include "Mode.H"
 #include "BlockItem.H"
+#include "TextBlockItem.H"
 #include "TextItem.H"
 #include "GfxNoteItem.H"
 #include "SearchDialog.H"
@@ -712,5 +713,19 @@ void PageView::ensureSearchVisible(QString uuid, QString phrase) {
   if (!blki) {
     qDebug() << "EnsureSearchVisible: block not found";
     return;
+  }
+  TextBlockItem const *tbi = dynamic_cast<TextBlockItem const *>(blki);
+  if (!tbi) {
+    qDebug() << "EnsureSearchVisible: not a text block";
+    return;
+  }
+  int ifr = tbi->findFragmentForPhrase(phrase);
+  if (ifr<0) {
+    qDebug() << "EnsureSearchVisible: phrase not found in block!?";
+    return;
+  }
+  while (ifr>0) {
+    nextPage();
+    --ifr;
   }
 }
