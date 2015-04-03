@@ -1,3 +1,10 @@
+eln (0.4.417) trusty; urgency=low
+
+   * Up to date to bzr revision 417
+
+ -- Daniel Wagenaar <wagenadl@uc.edu>  Mon, 09 Feb 2015 13:19:32 -0500
+
+
 eln (0.4.2) trusty; urgency=low
 
   * Incremental updates
