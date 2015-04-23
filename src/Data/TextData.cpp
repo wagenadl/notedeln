@@ -73,3 +73,47 @@ int TextData::offsetOfFootnoteTag(QString s) const {
       return md->start();
   return -1;
 }
+
+void TextData::loadMore(QVariantMap const &src) {
+  Data::loadMore(src);
+  linestarts.clear();
+  if (src.contains("lines"))
+    foreach (QVariant v, src["lines"].toList())
+      linestarts.append(v.toInt());  
+}
+
+void TextData::saveMore(QVariantMap &dst) const {
+  Data::saveMore(dst);
+  QVariantList xl;
+  foreach (int i, linestarts)
+    xl.append(QVariant(i));
+  dst["lines"] = QVariant(xl);
+}
+
+QList<int> const &TextData::lineStarts() const {
+  return linestarts;
+}
+
+void TextData::setLineStart(int i, int s) {
+  while (linestarts.size()<i)
+    linestarts<<0;
+  linestarts[i] = s;
+  markModified(InternalMod);
+}
+
+void TextData::setLineStarts(QList<int> const &s) {
+  linestarts = s;
+  markModified(InternalMod);
+}
+
+QList<int> TextData::paragraphStarts() const {
+  QList<int> res;
+  int off = 0;
+  while (off>=0) {
+    res << off;
+    off = text_.indexOf("\n", off+1);
+    if (off>=0)
+      off++;
+  }
+  return res;
+}

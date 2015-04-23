@@ -31,10 +31,14 @@ public:
   virtual ~TextData();
    // read properties
   QString text() const;
+  QList<int> paragraphStarts() const;
+  QList<int> const &lineStarts() const;
   // write properties
   void setText(QString const &);
-  /* If you change the text in the presence of markups, you are responsible
-     for updating the markups */
+  /* If you change the text, you are responsible for updating the
+     markups and the line starts. */
+  void setLineStart(int iline, int offset);
+  void setLineStarts(QList<int> const &);
   // other
   bool isEmpty() const;
   QList<MarkupData *> markups() const;
@@ -43,7 +47,11 @@ public:
   void deleteMarkup(MarkupData *);
   int offsetOfFootnoteTag(QString) const;
 protected:
+  virtual void loadMore(QVariantMap const &);
+  virtual void saveMore(QVariantMap &) const;
+protected:
   QString text_;
+  QList<int> linestarts;
 };
 
 #endif
