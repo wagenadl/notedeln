@@ -95,7 +95,7 @@ int Style::integer(QString k) const {
 
 QFont Style::font(QString k) const {
   QFont f(string(k + "-family"));
-  f.setPointSizeF(real(k + "-size"));
+  f.setPixelSize(100./72*real(k + "-size"));
   return f;
 }
 

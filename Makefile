@@ -21,7 +21,8 @@ inst: all
 	install webgrab/webgrab $(INSTALLPATH)/webgrab
 
 deb:	all
-	debuild -us -uc -Idebug -Irelease -I.bzr -Ieln -Ieln_debug -Iwebgrab/webgrab -Irepairtoc/eln-repairtoc -Ifrontimage.xcf -IMakefile.Debug -IMakefile.Release
+	scripts/updatechangelog
+	debuild -us -uc -Idebug -Irelease -I.git -Ieln -Ieln_debug -Iwebgrab/webgrab -Irepairtoc/eln-repairtoc -Ifrontimage.xcf -IMakefile.Debug -IMakefile.Release
 
 macclean:; rm -rf eln.app eln.dmg
 

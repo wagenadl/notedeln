@@ -1,9 +1,14 @@
+eln (0.5.1) trusty; urgency=medium
+
+  * Up-to-date with commit e4ca2ffcced0db3a25efa62ec1c2c1e24486b6b4
+
+ -- Daniel Wagenaar <daniel.wagenaar@uc.edu>  Mon, 20 Apr 2015 11:17:21 -0400
+
 eln (0.4.417) trusty; urgency=low
 
    * Up to date to bzr revision 417
 
- -- Daniel Wagenaar <wagenadl@uc.edu>  Mon, 09 Feb 2015 13:19:32 -0500
-
+ -- Daniel Wagenaar <daniel.wagenaar@uc.edu>  Mon, 20 Apr 2015 11:17:04 -0400
 
 eln (0.4.2) trusty; urgency=low
 

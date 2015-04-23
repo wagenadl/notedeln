@@ -40,3 +40,4 @@ webgrab_debug
 *pro.user
 src/webgrab
 ui_PrintDialog.h
+ui_NewBookDialog.h
