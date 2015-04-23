@@ -14,8 +14,8 @@
    along with eln.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "TransientShading.H"
-#include "TextItem.H"
+#include "TransientShading.h"
+#include "TextItem.h"
 
 #include <QPainter>
 #include <QTextBlock>

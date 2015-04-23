@@ -16,7 +16,7 @@
 
 // App.C
 
-#include "App.H"
+#include "App.h"
 #include <stdio.h>
 
 App::App(int &argc, char **argv): QApplication(argc, argv) {

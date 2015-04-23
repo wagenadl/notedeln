@@ -16,7 +16,7 @@
 
 // GfxSketchItem.C
 
-#include "GfxSketchItem.H"
+#include "GfxSketchItem.h"
 #include <QPainter>
 #include <QPen>
 #include <QBrush>
@@ -24,9 +24,9 @@
 #include <QGraphicsSceneMouseEvent>
 #include <QCursor>
 #include <QEventLoop>
-#include "Assert.H"
-#include "BlockItem.H"
-#include "Cursors.H"
+#include "Assert.h"
+#include "BlockItem.h"
+#include "Cursors.h"
 
 #define MAX_DISTORT 3
 

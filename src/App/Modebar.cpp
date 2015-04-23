@@ -16,11 +16,11 @@
 
 // Modebar.C
 
-#include "Modebar.H"
-#include "ToolItem.H"
-#include "Mode.H"
-#include "MarkSizeItem.H"
-#include "LineWidthItem.H"
+#include "Modebar.h"
+#include "ToolItem.h"
+#include "Mode.h"
+#include "MarkSizeItem.h"
+#include "LineWidthItem.h"
 
 Modebar::Modebar(Mode *mode, QGraphicsItem *parent):
   Toolbar(parent), mode(mode) {

@@ -16,7 +16,7 @@
 
 // GfxImageData.C
 
-#include "GfxImageData.H"
+#include "GfxImageData.h"
 #include <QRectF>
 #include <QDebug>
 #include <QImage>

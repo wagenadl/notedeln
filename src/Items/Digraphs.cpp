@@ -16,10 +16,10 @@
 
 // Digraphs.C
 
-#include "Digraphs.H"
+#include "Digraphs.h"
 
-#include "Assert.H"
-#include "JSONFile.H"
+#include "Assert.h"
+#include "JSONFile.h"
 
 QMap<QString, QMap<QString, QString> > const &Digraphs::chars() {
   static QMap<QString, QMap<QString, QString> > c;

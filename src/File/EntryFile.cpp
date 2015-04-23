@@ -16,11 +16,11 @@
 
 // EntryFile.C
 
-#include "EntryFile.H"
-#include "ResManager.H"
+#include "EntryFile.h"
+#include "ResManager.h"
 #include <QDebug>
-#include "Assert.H"
-#include "UUID.H"
+#include "Assert.h"
+#include "UUID.h"
 
 static QString basicFilename(int pgno, QString uuid) {
   return QString("%1-%2") . arg(pgno, 4, 10, QChar('0')) . arg(uuid);

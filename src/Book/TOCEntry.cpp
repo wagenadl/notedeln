@@ -16,7 +16,7 @@
 
 // TOCEntry.C
 
-#include "TOCEntry.H"
+#include "TOCEntry.h"
 #include <QDebug>
 
 static Data::Creator<TOCEntry> c("entry");

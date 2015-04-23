@@ -16,10 +16,10 @@
 
 // ResLoader.C
 
-#include "ResLoader.H"
-#include "Resource.H"
-#include "Assert.H"
-#include "WebGrab.H"
+#include "ResLoader.h"
+#include "Resource.h"
+#include "Assert.h"
+#include "WebGrab.h"
 
 #include <QNetworkAccessManager>
 #include <QNetworkReply>

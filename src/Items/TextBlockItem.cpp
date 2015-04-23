@@ -16,19 +16,19 @@
 
 // TextBlockItem.C
 
-#include "TextBlockItem.H"
-#include "TextItem.H"
-#include "TextItemText.H"
-#include "TextBlockData.H"
-#include "Style.H"
-#include "EntryScene.H"
+#include "TextBlockItem.h"
+#include "TextItem.h"
+#include "TextItemText.h"
+#include "TextBlockData.h"
+#include "Style.h"
+#include "EntryScene.h"
 
 #include <QTextCursor>
 #include <QTextBlock>
 #include <QTextLayout>
 #include <QTextDocument>
 #include <QDebug>
-#include "Assert.H"
+#include "Assert.h"
 
 TICreator::~TICreator() {
 }

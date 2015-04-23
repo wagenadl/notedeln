@@ -1,19 +1,19 @@
 // Search.cpp
 
-#include "Search.H"
+#include "Search.h"
 
-#include "TextBlockData.H"
-#include "TitleData.H"
-#include "TableBlockData.H"
-#include "LateNoteData.H"
-#include "FootnoteData.H"
-#include "Index.H"
-#include "WordIndex.H"
-#include "Assert.H"
+#include "TextBlockData.h"
+#include "TitleData.h"
+#include "TableBlockData.h"
+#include "LateNoteData.h"
+#include "FootnoteData.h"
+#include "Index.h"
+#include "WordIndex.h"
+#include "Assert.h"
 
 #include <QSet>
 #include <QDebug>
-#include "TableData.H"
+#include "TableData.h"
 
 Search::Search(Notebook *book): book(book) {
 }

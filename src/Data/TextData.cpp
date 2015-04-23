@@ -16,7 +16,7 @@
 
 // TextData.C
 
-#include "TextData.H"
+#include "TextData.h"
 #include <QDebug>
 
 static Data::Creator<TextData> c("text");

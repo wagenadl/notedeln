@@ -1,7 +1,7 @@
 // ToolScene.cpp
 
-#include "ToolScene.H"
-#include "Toolbars.H"
+#include "ToolScene.h"
+#include "Toolbars.h"
 
 ToolScene::ToolScene(Mode *mode, QObject *parent): QGraphicsScene(parent) {
   bars = new Toolbars(mode, 0);

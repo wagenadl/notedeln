@@ -16,9 +16,9 @@
 
 // MarkShapeBar.C
 
-#include "MarkShapeBar.H"
-#include "MarkSizeItem.H"
-#include "Mode.H"
+#include "MarkShapeBar.h"
+#include "MarkSizeItem.h"
+#include "Mode.h"
 #include <QDebug>
 
 MarkShapeBar::MarkShapeBar(Mode *mode, QGraphicsItem *parent):

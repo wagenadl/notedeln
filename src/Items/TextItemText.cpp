@@ -16,8 +16,8 @@
 
 // TextItemText.C
 
-#include "TextItemText.H"
-#include "TextItem.H"
+#include "TextItemText.h"
+#include "TextItem.h"
 #include <QDebug>
 #include <QGraphicsSceneHoverEvent>
 #include <QStyleOptionGraphicsItem>

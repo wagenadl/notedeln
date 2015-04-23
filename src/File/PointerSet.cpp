@@ -1,6 +1,6 @@
 // PointerSet.cpp
 
-#include "PointerSet.H"
+#include "PointerSet.h"
 
 void PointerSet::insert(QObject *o) {
   data.insert(o);

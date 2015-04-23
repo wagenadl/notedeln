@@ -16,7 +16,7 @@
 
 // LineWidthItem.C
 
-#include "LineWidthItem.H"
+#include "LineWidthItem.h"
 #include <QPainter>
 
 LineWidthItem::LineWidthItem(double lw): lw(lw), c("black") {

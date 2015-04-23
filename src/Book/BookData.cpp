@@ -16,7 +16,7 @@
 
 // BookData.C
 
-#include "BookData.H"
+#include "BookData.h"
 
 static Data::Creator<BookData> c("book");
 

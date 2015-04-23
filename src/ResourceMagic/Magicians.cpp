@@ -16,9 +16,9 @@
 
 // Magicians.C
 
-#include "Magicians.H"
-#include "DWBibMagician.H"
-#include "WebPageMagician.H"
+#include "Magicians.h"
+#include "DWBibMagician.h"
+#include "WebPageMagician.h"
 
 QMap<Style const *, Magicians *> &Magicians::stylemap() {
   static QMap<Style const *, Magicians *> map;

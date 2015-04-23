@@ -16,7 +16,7 @@
 
 // SplashView.C
 
-#include "SplashView.H"
+#include "SplashView.h"
 
 #include <QGraphicsScene>
 #include <QCloseEvent>

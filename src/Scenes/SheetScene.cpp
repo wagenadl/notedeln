@@ -1,10 +1,10 @@
 // SheetScene.cpp
 
-#include "SheetScene.H"
-#include "BaseScene.H"
-#include "Style.H"
-#include "TextData.H"
-#include "TitleItem.H"
+#include "SheetScene.h"
+#include "BaseScene.h"
+#include "Style.h"
+#include "TextData.h"
+#include "TitleItem.h"
 
 #include <QGraphicsTextItem>
 #include <QGraphicsRectItem>

@@ -1,15 +1,15 @@
 // SearchDialog.cpp
 
-#include "SearchDialog.H"
+#include "SearchDialog.h"
 
-#include "PageView.H"
-#include "Search.H"
-#include "SearchResultScene.H"
-#include "SearchView.H"
-#include "BookData.H"
-#include "FindOverlay.H"
-#include "Assert.H"
-#include "SheetScene.H"
+#include "PageView.h"
+#include "Search.h"
+#include "SearchResultScene.h"
+#include "SearchView.h"
+#include "BookData.h"
+#include "FindOverlay.h"
+#include "Assert.h"
+#include "SheetScene.h"
 
 #include <QInputDialog>
 #include <QProgressDialog>

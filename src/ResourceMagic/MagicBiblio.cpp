@@ -16,10 +16,10 @@
 
 // MagicBiblio.C
 
-#include "MagicBiblio.H"
+#include "MagicBiblio.h"
 
-#include "JSONFile.H"
-#include "Style.H"
+#include "JSONFile.h"
+#include "Style.h"
 
 #include <QVariantMap>
 #include <QRegExp>

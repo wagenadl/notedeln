@@ -1,6 +1,6 @@
 // Fonts.cpp
 
-#include "Fonts.H"
+#include "Fonts.h"
 #include <QFontDatabase>
 #include <QStringList>
 #include <QDebug>

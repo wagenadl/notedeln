@@ -16,8 +16,8 @@
 
 // TitleItem.C
 
-#include "TitleItem.H"
-#include "Style.H"
+#include "TitleItem.h"
+#include "Style.h"
 #include <QDebug>
 #include <QTextDocument>
 

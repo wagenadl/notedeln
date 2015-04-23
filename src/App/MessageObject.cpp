@@ -16,8 +16,8 @@
 
 // MessageObject.C
 
-#include "MessageObject.H"
-#include "Style.H"
+#include "MessageObject.h"
+#include "Style.h"
 
 MessageObject::MessageObject(QString msg, Style const &):
   QGraphicsTextItem() {

@@ -1,6 +1,6 @@
 // Random.cpp
 
-#include "Random.H"
+#include "Random.h"
 #include <QDateTime>
 #include <QHash>
 #include <QNetworkInterface>

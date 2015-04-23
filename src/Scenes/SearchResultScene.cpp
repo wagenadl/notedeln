@@ -1,14 +1,14 @@
 // SearchResultScene.cpp
 
-#include "SearchResultScene.H"
-#include "TOCEntry.H"
+#include "SearchResultScene.h"
+#include "TOCEntry.h"
 #include <QGraphicsItem>
-#include "SearchResItem.H"
+#include "SearchResItem.h"
 #include <QTextDocument>
 #include <QTextCursor>
-#include "Roman.H"
+#include "Roman.h"
 #include <QDebug>
-#include "SheetScene.H"
+#include "SheetScene.h"
 
 SearchResultScene::SearchResultScene(QString phrase, QString title,
 				     QList<SearchResult> results,

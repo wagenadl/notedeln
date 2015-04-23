@@ -16,8 +16,8 @@
 
 // GfxNoteData.C
 
-#include "GfxNoteData.H"
-#include "Assert.H"
+#include "GfxNoteData.h"
+#include "Assert.h"
 #include <math.h>
 
 static Data::Creator<GfxNoteData> c("gfxnote");

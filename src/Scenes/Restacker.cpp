@@ -1,14 +1,14 @@
 // Restacker.cpp
 
-#include "Restacker.H"
-#include "BlockItem.H"
-#include "FocusProxyCache.H"
-#include "Style.H"
-#include "FootnoteItem.H"
-#include "EntryScene.H"
-#include "SheetScene.H"
+#include "Restacker.h"
+#include "BlockItem.h"
+#include "FocusProxyCache.h"
+#include "Style.h"
+#include "FootnoteItem.h"
+#include "EntryScene.h"
+#include "SheetScene.h"
 #include <QDebug>
-#include "Footstacker.H"
+#include "Footstacker.h"
 
 Restacker::Restacker(QList<BlockItem *> const &blocks, int s):
   blocks(blocks), start(s) {

@@ -16,14 +16,14 @@
 
 // DragLine.C
 
-#include "DragLine.H"
-#include "Style.H"
+#include "DragLine.h"
+#include "Style.h"
 #include <QBrush>
 #include <QPen>
-#include "Item.H"
+#include "Item.h"
 #include <QEventLoop>
 #include <QGraphicsSceneMouseEvent>
-#include "Assert.H"
+#include "Assert.h"
 #include <QGraphicsScene>
 
 DragLine::DragLine(QPointF p0, QGraphicsItem *parent):

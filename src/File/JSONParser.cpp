@@ -16,7 +16,7 @@
 
 // JSONParser.C
 
-#include "JSONParser.H"
+#include "JSONParser.h"
 #include <QDebug>
 
 void JSONParser::Error::report() const {

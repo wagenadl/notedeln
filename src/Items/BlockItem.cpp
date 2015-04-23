@@ -16,13 +16,13 @@
 
 // BlockItem.C
 
-#include "BlockItem.H"
-#include "BlockData.H"
-#include "TextItem.H"
-#include "EntryScene.H"
-#include "FootnoteItem.H"
-#include "FootnoteData.H"
-#include "Mode.H"
+#include "BlockItem.h"
+#include "BlockData.h"
+#include "TextItem.h"
+#include "EntryScene.h"
+#include "FootnoteItem.h"
+#include "FootnoteData.h"
+#include "Mode.h"
 
 #include <QGraphicsSceneMouseEvent>
 #include <QDebug>

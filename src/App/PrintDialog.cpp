@@ -1,6 +1,6 @@
 // PrintDialog.cpp
 
-#include "PrintDialog.H"
+#include "PrintDialog.h"
 #include "ui_PrintDialog.h"
 #include <QDebug>
 #include <QPrinterInfo>

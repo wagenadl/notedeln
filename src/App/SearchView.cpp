@@ -1,13 +1,13 @@
 // SearchView.cpp
 
-#include "SearchView.H"
-#include "SearchResultScene.H"
+#include "SearchView.h"
+#include "SearchResultScene.h"
 #include <QKeyEvent>
 #include <QWheelEvent>
 #include <QPrinter>
 #include <QPrintDialog>
 #include <QDebug>
-#include "SheetScene.H"
+#include "SheetScene.h"
 
 SearchView::SearchView(SearchResultScene *scene, QWidget *parent):
   QGraphicsView(parent), srs(scene) {

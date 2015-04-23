@@ -16,7 +16,7 @@
 
 // GfxPointsData.C
 
-#include "GfxPointsData.H"
+#include "GfxPointsData.h"
 #include <QPointF>
 
 static Data::Creator<GfxPointsData> c("gfxpoints");

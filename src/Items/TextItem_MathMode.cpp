@@ -1,8 +1,8 @@
 // MathMode.cpp
 
-#include "TextItem.H"
-#include "TextMarkings.H"
-#include "TeXCodes.H"
+#include "TextItem.h"
+#include "TextMarkings.h"
+#include "TeXCodes.h"
 #include <QKeyEvent>
 #include <QTextDocument>
 #include <QDebug>

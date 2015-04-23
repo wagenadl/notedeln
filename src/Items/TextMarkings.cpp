@@ -16,15 +16,15 @@
 
 // TextMarkings.C
 
-#include "TextMarkings.H"
+#include "TextMarkings.h"
 #include <QTextCursor>
 #include <QDebug>
-#include "TextItem.H"
-#include "Style.H"
-#include "ResManager.H"
-#include "HoverRegion.H"
+#include "TextItem.h"
+#include "Style.h"
+#include "ResManager.h"
+#include "HoverRegion.h"
 #include <QSet>
-#include "Assert.H"
+#include "Assert.h"
 
 TextMarkings::TextMarkings(TextData *data, TextItem *parent):
   QGraphicsObject(parent), data(data) {

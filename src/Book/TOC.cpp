@@ -16,15 +16,15 @@
 
 // TOC.C
 
-#include "TOC.H"
+#include "TOC.h"
 #include <QDebug>
 #include <QMessageBox>
 #include <QApplication>
-#include "TOCEntry.H"
-#include "EntryData.H"
-#include "EntryFile.H"
-#include "TitleData.H"
-#include "Assert.H"
+#include "TOCEntry.h"
+#include "EntryData.h"
+#include "EntryFile.h"
+#include "TitleData.h"
+#include "Assert.h"
 
 static Data::Creator<TOC> c("toc");
 

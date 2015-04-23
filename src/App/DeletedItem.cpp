@@ -16,9 +16,9 @@
 
 // DeletedItem.C
 
-#include "DeletedItem.H"
-#include "Assert.H"
-#include "BlockItem.H"
+#include "DeletedItem.h"
+#include "Assert.h"
+#include "BlockItem.h"
 
 DeletedItem::DeletedItem(Item *item) {
   ASSERT(item);

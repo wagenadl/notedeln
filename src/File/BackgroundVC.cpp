@@ -1,13 +1,13 @@
 // BackgroundVC.cpp
 
-#include "BackgroundVC.H"
+#include "BackgroundVC.h"
 #include <QDebug>
 #include <QProcess>
 #include <QTimer>
 
-#include "DataFile.H"
-#include "DFBlocker.H"
-#include "Assert.H"
+#include "DataFile.h"
+#include "DFBlocker.h"
+#include "Assert.h"
 
 #ifdef Q_OS_LINUX
 #include <sys/types.h>

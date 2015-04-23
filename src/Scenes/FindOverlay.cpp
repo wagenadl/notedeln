@@ -1,12 +1,12 @@
 // FindOverlay.cpp
 
-#include "FindOverlay.H"
-#include "SheetScene.H"
-#include "TextItem.H"
-#include "MarkupData.H"
-#include "FindRegion.H"
-#include "BlockItem.H"
-#include "GfxNoteItem.H"
+#include "FindOverlay.h"
+#include "SheetScene.h"
+#include "TextItem.h"
+#include "MarkupData.h"
+#include "FindRegion.h"
+#include "BlockItem.h"
+#include "GfxNoteItem.h"
 #include <QDebug>
 
 FindOverlay::FindOverlay(SheetScene *scene, QString phrase) {

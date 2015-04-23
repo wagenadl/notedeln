@@ -16,7 +16,7 @@
 
 // Roman.C
 
-#include "Roman.H"
+#include "Roman.h"
 
 Roman::Roman(int n): n(n) {
   s = "";

@@ -16,10 +16,10 @@
 
 // Toolbar.C
 
-#include "Toolbar.H"
+#include "Toolbar.h"
 #include <QDebug>
-#include "Assert.H"
-#include "ToolItem.H"
+#include "Assert.h"
+#include "ToolItem.h"
 #include <QTimerEvent>
 
 #define TOOLGRID 31.5

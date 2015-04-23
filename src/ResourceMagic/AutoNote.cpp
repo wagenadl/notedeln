@@ -17,12 +17,12 @@
 // AutoNote.C
 
 
-#include "AutoNote.H"
-#include "TextItem.H"
-#include "Style.H"
-#include "ResManager.H"
-#include "TextData.H"
-#include "MagicBiblio.H"
+#include "AutoNote.h"
+#include "TextItem.h"
+#include "Style.h"
+#include "ResManager.h"
+#include "TextData.h"
+#include "MagicBiblio.h"
 
 #include <QDebug>
 

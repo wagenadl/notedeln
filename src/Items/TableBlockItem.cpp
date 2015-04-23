@@ -16,8 +16,8 @@
 
 // TableBlockItem.cpp
 
-#include "TableBlockItem.H"
-#include "TableItem.H"
+#include "TableBlockItem.h"
+#include "TableItem.h"
 
 TTICreator::~TTICreator() {
 }

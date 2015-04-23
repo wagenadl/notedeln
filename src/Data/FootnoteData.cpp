@@ -16,7 +16,7 @@
 
 // FootnoteData.C
 
-#include "FootnoteData.H"
+#include "FootnoteData.h"
 
 static Data::Creator<FootnoteData> c("footnote");
 
