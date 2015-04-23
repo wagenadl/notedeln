@@ -16,14 +16,14 @@
 
 // BaseScene.C
 
-#include "BaseScene.H"
+#include "BaseScene.h"
 
-#include "Style.H"
-#include "Data.H"
-#include "Assert.H"
-#include "PageView.H"
-#include "SheetScene.H"
-#include "TitleItem.H"
+#include "Style.h"
+#include "Data.h"
+#include "Assert.h"
+#include "PageView.h"
+#include "SheetScene.h"
+#include "TitleItem.h"
 
 #include <QGraphicsTextItem>
 #include <QGraphicsLineItem>
@@ -35,7 +35,7 @@
 #include <QPrinter>
 #include <QSignalMapper>
 
-#include "Notebook.H"
+#include "Notebook.h"
 
 BaseScene::BaseScene(Data *data, QObject *parent):
   QObject(parent),

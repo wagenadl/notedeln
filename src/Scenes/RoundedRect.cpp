@@ -16,7 +16,7 @@
 
 // RoundedRect.C
 
-#include "RoundedRect.H"
+#include "RoundedRect.h"
 #include <QPainter>
 
 RoundedRect::RoundedRect(QGraphicsItem *parent):

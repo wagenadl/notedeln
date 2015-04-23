@@ -16,11 +16,11 @@
 
 // FootnoteItem.C
 
-#include "FootnoteItem.H"
-#include "FootnoteData.H"
-#include "TextItem.H"
-#include "AutoNote.H"
-#include "Assert.H"
+#include "FootnoteItem.h"
+#include "FootnoteData.h"
+#include "TextItem.h"
+#include "AutoNote.h"
+#include "Assert.h"
 
 #include <QDebug>
 

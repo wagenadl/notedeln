@@ -16,12 +16,12 @@
 
 // FrontScene.C
 
-#include "FrontScene.H"
+#include "FrontScene.h"
 
-#include "BookData.H"
-#include "Notebook.H"
-#include "Style.H"
-#include "RoundedRect.H"
+#include "BookData.h"
+#include "Notebook.h"
+#include "Style.h"
+#include "RoundedRect.h"
 
 #include <math.h>
 #include <QTextBlockFormat>

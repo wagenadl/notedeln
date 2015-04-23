@@ -16,8 +16,8 @@
 
 // Navbar.C
 
-#include "Navbar.H"
-#include "ToolItem.H"
+#include "Navbar.h"
+#include "ToolItem.h"
 
 #define NAV_TOC "toc"
 #define NAV_FIND "find"

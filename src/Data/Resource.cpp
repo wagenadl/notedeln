@@ -16,12 +16,12 @@
 
 // Resource.C
 
-#include "Resource.H"
-#include "ResLoader.H"
+#include "Resource.h"
+#include "ResLoader.h"
 #include <QImage>
 #include <QDebug>
-#include "ResourceMagic.H"
-#include "Magician.H"
+#include "ResourceMagic.h"
+#include "Magician.h"
 
 static Data::Creator<Resource> c("res");
 

@@ -16,21 +16,21 @@
 
 // main.C
 
-#include "PageEditor.H"
-#include "SceneBank.H"
+#include "PageEditor.h"
+#include "SceneBank.h"
 #include <QApplication>
 #include <QFile>
 #include <QDir>
-#include "Notebook.H"
-#include "RecentBooks.H"
-#include "App.H"
-#include "Fonts.H"
+#include "Notebook.h"
+#include "RecentBooks.h"
+#include "App.h"
+#include "Fonts.h"
 #include <QDesktopWidget>
 #include <QDebug>
 #include <stdlib.h>
-#include "Assert.H"
-#include "SplashScene.H"
-#include "AlreadyOpen.H"
+#include "Assert.h"
+#include "SplashScene.h"
+#include "AlreadyOpen.h"
 
 int main(int argc, char **argv) {
   App app(argc, argv);

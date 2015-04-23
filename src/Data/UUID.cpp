@@ -1,7 +1,7 @@
 // UUID.cpp
 
-#include "UUID.H"
-#include "Random.H"
+#include "UUID.h"
+#include "Random.h"
 
 QString UUID::create(int bits) {
   QString res;

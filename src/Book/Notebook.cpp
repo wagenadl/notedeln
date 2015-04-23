@@ -17,17 +17,17 @@
 
 // Notebook.C
 
-#include "Notebook.H"
-#include "TOC.H"
-#include "EntryFile.H"
-#include "TitleData.H"
-#include "Style.H"
-#include "Assert.H"
-#include "Mode.H"
-#include "RecentBooks.H"
-#include "VersionControl.H"
-#include "BackgroundVC.H"
-#include "Index.H"
+#include "Notebook.h"
+#include "TOC.h"
+#include "EntryFile.h"
+#include "TitleData.h"
+#include "Style.h"
+#include "Assert.h"
+#include "Mode.h"
+#include "RecentBooks.h"
+#include "VersionControl.h"
+#include "BackgroundVC.h"
+#include "Index.h"
 #include <QApplication>
 #include <QMessageBox>
 #include <QTimer>

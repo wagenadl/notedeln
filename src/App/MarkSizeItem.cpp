@@ -16,9 +16,9 @@
 
 // MarkSizeItem.C
 
-#include "MarkSizeItem.H"
+#include "MarkSizeItem.h"
 #include <QPainter>
-#include "GfxMarkItem.H"
+#include "GfxMarkItem.h"
 
 MarkSizeItem::MarkSizeItem(double ms):
   ms(ms), c("black"), shp(GfxMarkData::SolidCircle) {

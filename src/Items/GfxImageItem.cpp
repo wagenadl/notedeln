@@ -16,24 +16,24 @@
 
 // GfxImageItem.C
 
-#include "GfxImageItem.H"
-#include "GfxImageData.H"
-#include "EntryScene.H"
-#include "Mode.H"
-#include "GfxNoteData.H"
-#include "GfxNoteItem.H"
-#include "GfxMarkItem.H"
-#include "GfxSketchItem.H"
-#include "BlockItem.H"
-#include "Cursors.H"
-#include "OpenCmd.H"
+#include "GfxImageItem.h"
+#include "GfxImageData.h"
+#include "EntryScene.h"
+#include "Mode.h"
+#include "GfxNoteData.h"
+#include "GfxNoteItem.h"
+#include "GfxMarkItem.h"
+#include "GfxSketchItem.h"
+#include "BlockItem.h"
+#include "Cursors.h"
+#include "OpenCmd.h"
 
 #include <QProcess>
 #include <QDebug>
 #include <QGraphicsSceneMouseEvent>
 #include <QGraphicsSceneHoverEvent>
 #include <QKeyEvent>
-#include "ResManager.H"
+#include "ResManager.h"
 #include <QCursor>
 #include <math.h>
 

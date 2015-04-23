@@ -16,16 +16,16 @@
 
 // HoverRegion.C
 
-#include "HoverRegion.H"
-#include "TextItem.H"
-#include "PreviewPopper.H"
-#include "ResManager.H"
-#include "ResourceMagic.H"
-#include "Assert.H"
-#include "SheetScene.H"
-#include "PageView.H"
-#include "TextData.H"
-#include "OpenCmd.H"
+#include "HoverRegion.h"
+#include "TextItem.h"
+#include "PreviewPopper.h"
+#include "ResManager.h"
+#include "ResourceMagic.h"
+#include "Assert.h"
+#include "SheetScene.h"
+#include "PageView.h"
+#include "TextData.h"
+#include "OpenCmd.h"
 
 #include <QPainter>
 #include <QGraphicsSceneHoverEvent>

@@ -16,9 +16,9 @@
 
 // GfxMarkItem.C
 
-#include "GfxMarkItem.H"
-#include "BlockItem.H"
-#include "Cursors.H"
+#include "GfxMarkItem.h"
+#include "BlockItem.h"
+#include "Cursors.h"
 
 #include <QPainter>
 #include <QPen>

@@ -1,11 +1,11 @@
 // Index.cpp
 
-#include "Index.H"
-#include "WordIndex.H"
-#include "Assert.H"
+#include "Index.h"
+#include "WordIndex.h"
+#include "Assert.h"
 #include <QFile>
-#include "EntryData.H"
-#include "WordSet.H"
+#include "EntryData.h"
+#include "WordSet.h"
 
 Index::Index(QString rootDir, class TOC *toc, QObject *parent):
   QObject(parent), rootdir(rootDir) {

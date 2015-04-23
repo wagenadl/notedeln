@@ -16,15 +16,15 @@
 
 // Data.C
 
-#include "Data.H"
+#include "Data.h"
 #include <QSet>
 #include <QMetaProperty>
-#include "EntryData.H"
+#include "EntryData.h"
 #include <QDebug>
-#include "Style.H"
-#include "Notebook.H"
-#include "Assert.H"
-#include "UUID.H"
+#include "Style.h"
+#include "Notebook.h"
+#include "Assert.h"
+#include "UUID.h"
 
 Data::Data(Data *parent0): QObject(parent0) {
   loading_ = false;

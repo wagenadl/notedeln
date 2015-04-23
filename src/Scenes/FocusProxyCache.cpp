@@ -1,6 +1,6 @@
 // FocusProxyCache.cpp
 
-#include "FocusProxyCache.H"
+#include "FocusProxyCache.h"
 
 FocusProxyCache::FocusProxyCache(QGraphicsItem *gi) {
   if (gi->hasFocus())

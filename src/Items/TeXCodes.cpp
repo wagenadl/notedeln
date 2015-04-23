@@ -16,9 +16,9 @@
 
 // TeXCodes.C
 
-#include "TeXCodes.H"
-#include "Assert.H"
-#include "JSONFile.H"
+#include "TeXCodes.h"
+#include "Assert.h"
+#include "JSONFile.h"
 
 QMap<QString, QString> const &TeXCodes::chars() {
   static QMap<QString, QString> c;

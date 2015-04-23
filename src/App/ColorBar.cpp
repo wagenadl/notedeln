@@ -16,10 +16,10 @@
 
 // ColorBar.C
 
-#include "ColorBar.H"
-#include "MarkSizeItem.H"
-#include "LineWidthItem.H"
-#include "Mode.H"
+#include "ColorBar.h"
+#include "MarkSizeItem.h"
+#include "LineWidthItem.h"
+#include "Mode.h"
 #include <QDebug>
 
 static char const *colors[] = {

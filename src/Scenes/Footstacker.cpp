@@ -1,6 +1,6 @@
 // Footstacker.cpp
 
-#include "Footstacker.H"
+#include "Footstacker.h"
 #include <QMultiMap>
 
 Footstacker::Footstacker(BlockItem *bi): bi(bi) {

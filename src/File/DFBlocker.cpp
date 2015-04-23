@@ -1,7 +1,7 @@
 // DFBlocker.cpp
 
-#include "DFBlocker.H"
-#include "DataFile.H"
+#include "DFBlocker.h"
+#include "DataFile.h"
 #include <QTimerEvent>
 
 DFBlocker::DFBlocker(QObject *parent): QObject(parent) {

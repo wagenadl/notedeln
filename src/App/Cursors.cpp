@@ -1,6 +1,6 @@
 // Cursors.cpp
 
-#include "Cursors.H"
+#include "Cursors.h"
 #include <QPixmap>
 
 QPixmap &Cursors::crossPixmap() {

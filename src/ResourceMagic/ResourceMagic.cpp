@@ -16,11 +16,11 @@
 
 // ResourceMagic.C
 
-#include "ResourceMagic.H"
-#include "Style.H"
-#include "Resource.H"
-#include "Magician.H"
-#include "Magicians.H"
+#include "ResourceMagic.h"
+#include "Style.h"
+#include "Resource.h"
+#include "Magician.h"
+#include "Magicians.h"
 
 #include <QTextCursor>
 #include <QTextDocument>

@@ -16,8 +16,8 @@
 
 // Assert.C
 
-#include "Assert.H"
-#include "App.H"
+#include "Assert.h"
+#include "App.h"
 #include <QDebug>
 
 #include <stdio.h>

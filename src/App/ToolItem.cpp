@@ -16,10 +16,10 @@
 
 // ToolItem.C
 
-#include "ToolItem.H"
-#include "Toolbar.H"
-#include "Translate.H"
-#include "Style.H"
+#include "ToolItem.h"
+#include "Toolbar.h"
+#include "Translate.h"
+#include "Style.h"
 #include <QSvgRenderer>
 #include <QGraphicsSceneMouseEvent>
 #include <QGraphicsDropShadowEffect>

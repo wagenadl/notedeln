@@ -16,13 +16,13 @@
 
 // SplashScene.C
 
-#include "SplashScene.H"
-#include "SplashView.H"
-#include "Notebook.H"
-#include "BookSplashItem.H"
-#include "Style.H"
-#include "AlreadyOpen.H"
-#include "Version.H"
+#include "SplashScene.h"
+#include "SplashView.h"
+#include "Notebook.h"
+#include "BookSplashItem.h"
+#include "Style.h"
+#include "AlreadyOpen.h"
+#include "Version.h"
 
 #include <QFileDialog>
 #include <QMessageBox>

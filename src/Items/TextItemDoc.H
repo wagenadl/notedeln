@@ -27,7 +27,8 @@ public:
   QColor color() const { return color_; }
   // Other functions
   QRectF boundingRect() const { return br; }
-  void relayout(int startOffset=0);
+  void relayout();
+  void partialRelayout(int startOffset);
   void render(class QPainter *, QRectF roi=QRectF()) const;
   int find(QPointF) const; // return offset from graphical position
   QRectF locate(int offset) const; // returns a 1-pix wide rectangle
@@ -40,8 +41,7 @@ private:
   double width_;
   double lineheight_;
   QColor color_;
-  QRectF br;
-  
+  QRectF br; 
 };
 
 #endif

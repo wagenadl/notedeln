@@ -16,11 +16,11 @@
 
 // Message.C
 
-#include "Message.H"
+#include "Message.h"
 #include <QDebug>
-#include "Assert.H"
+#include "Assert.h"
 #include <QGraphicsScene>
-#include "MessageObject.H"
+#include "MessageObject.h"
 
 
 QMap<Notebook const *, QList<Message *> >&Message::messages() {

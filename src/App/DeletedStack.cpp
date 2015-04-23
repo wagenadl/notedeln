@@ -16,10 +16,10 @@
 
 // DeletedStack.C
 
-#include "DeletedStack.H"
-#include "GfxData.H"
-#include "GfxNoteItem.H"
-#include "TextItem.H"
+#include "DeletedStack.h"
+#include "GfxData.h"
+#include "GfxNoteItem.h"
+#include "TextItem.h"
 
 #include <QDebug>
 

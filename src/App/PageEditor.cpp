@@ -16,13 +16,13 @@
 
 // PageEditor.C
 
-#include "PageEditor.H"
-#include "PageView.H"
-#include "ToolView.H"
-#include "Toolbars.H"
-#include "SceneBank.H"
-#include "Notebook.H"
-#include "Navbar.H"
+#include "PageEditor.h"
+#include "PageView.h"
+#include "ToolView.h"
+#include "Toolbars.h"
+#include "SceneBank.h"
+#include "Notebook.h"
+#include "Navbar.h"
 
 #include <QDebug>
 #include <QKeyEvent>

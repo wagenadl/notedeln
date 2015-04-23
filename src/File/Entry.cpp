@@ -1,8 +1,8 @@
 // Entry.C
 
-#include "Entry.H"
-#include "EntryData.H"
-#include "EntryFile.H"
+#include "Entry.h"
+#include "EntryData.h"
+#include "EntryFile.h"
 #include <QDebug>
 
 Entry::Entry(EntryData *data): data_(data), file_(0) {
