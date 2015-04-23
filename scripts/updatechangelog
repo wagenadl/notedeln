@@ -1,0 +1,22 @@
+#!/bin/zsh
+
+function fail {
+  echo $1
+  exit 1
+}
+
+PACKAGE=eln
+VERSION=`cat version`
+PATCHLEVEL=`cat patchlevel`
+(( PATCHLEVEL=$PATCHLEVEL+1 ))
+
+
+LASTCOMMIT=`git log -n 1 | head -1| cut -f2 -d' '`
+
+debchange --newversion $VERSION.$PATCHLEVEL --package $PACKAGE \
+    "Up-to-date with commit $LASTCOMMIT" \
+    || fail "Cannot update changelog" 
+
+debchange --release \
+    "Up-to-date with commit $LASTCOMMIT" \
+    || fail "Cannot update changelog"
