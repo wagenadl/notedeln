@@ -5,19 +5,145 @@
 #include <QRegExp>
 #include <QFontMetricsF>
 #include "MarkupEdgeMap.h"
+#include <QVector>
 
-TextItemDoc::TextItemDoc(TextData *data): data(data) {
+class TextItemDocData {
+public:
+  TextData *data;
+  QFont font_;
+  double indent_;
+  double width_;
+  double lineheight_;
+  QColor color_;
+  QRectF br;
+public:
+  TextItemDocData(TextData *data): data(data) { }
+  QVector<double> const &charWidths() const;
+  void forgetMetrics() { metrics_.clear(); forgetWidths(); }
+  void forgetWidths() { charwidths.clear(); }
+  QMap<MarkupData::Styles, QFontMetricsF> const &metrics() const;
+  // map will contain Normal, Italic, Bold, and Superscript and combinations
+  static MarkupData::Styles simplifiedStyle(MarkupData::Styles s);
+private:
+  mutable QMap<MarkupData::Styles, QFontMetricsF> metrics_;
+  mutable QVector<double> charwidths;
+};
+
+MarkupData::Styles TextItemDocData::simplifiedStyle(MarkupData::Styles s) {
+  if (s & MarkupData::Subscript)
+    s |=  MarkupData::Superscript;
+  return s & (MarkupData::Italic | MarkupData::Bold | MarkupData::Italic);
+}
+
+static QFont italicVersion(QFont f) {
+  f.setStyle(QFont::StyleItalic);
+  return f;
+}
+
+static QFont boldVersion(QFont f) {
+  f.setWeight(QFont::Bold);
+  return f;
+}
+
+static QFont scriptVersion(QFont f) {
+  f.setPixelSize(0.8*f.pixelSize());
+  return f;
+}
+
+QVector<double> const &TextItemDocData::charWidths() const {
+  if (!charwidths.isEmpty()) {
+    // should I assert that the text is unchanged somehow?
+    return charwidths;
+  }
+  
+  /* Returns widths for every character. */
+  /* Currently does not yet do italics correction, but it will. */
+  
+  QMap<MarkupData::Styles, QFontMetricsF> const &fms = metrics();
+  QMap<int, MarkupData::Styles> ends;
+  QMap<int, MarkupData::Styles> starts;
+  foreach (MarkupData *m, data->markups()) {
+    if (m->end()>m->start())
+      starts[m->start()] |= m->style();
+    ends[m->end()] |= m->style();
+  }
+
+  MarkupData::Styles current = MarkupData::Normal;
+  QMap<MarkupData::Styles, QFontMetricsF>::const_iterator currentit
+    = fms.find(MarkupData::Normal);
+  QString text = data->text();
+  int N = text.size();
+  charwidths.resize(N);
+  for (int n=0; n<N; n++) {
+    QChar c = text[n];
+    if (ends.contains(n)) {
+      current &= ~ends[n];
+      currentit = fms.find(simplifiedStyle(current));
+    }
+    if (starts.contains(n)) {
+      current |= ends[n];
+      currentit = fms.find(simplifiedStyle(current));
+    }
+
+    charwidths[n] = (*currentit).width(c);
+  }
+  return charwidths;  
+}
+
+QMap<MarkupData::Styles, QFontMetricsF> const
+&TextItemDocData::metrics() const {
+  if (metrics_.isEmpty()) {
+    metrics_.insert(MarkupData::Normal, QFontMetricsF(font_));
+    metrics_.insert(MarkupData::Italic, QFontMetricsF(italicVersion(font_)));
+    metrics_.insert(MarkupData::Bold, QFontMetricsF(boldVersion(font_)));
+    metrics_.insert(MarkupData::Bold | MarkupData::Italic,
+                   QFontMetricsF(italicVersion(boldVersion(font_))));
+    metrics_.insert(MarkupData::Superscript,
+                   QFontMetricsF(scriptVersion(font_)));
+    metrics_.insert(MarkupData::Superscript | MarkupData::Italic,
+                   QFontMetricsF(italicVersion(scriptVersion(font_))));
+    metrics_.insert(MarkupData::Superscript | MarkupData::Bold,
+                   QFontMetricsF(boldVersion(scriptVersion(font_))));
+    metrics_.insert(MarkupData::Superscript | MarkupData::Bold
+                   | MarkupData::Italic,
+                   QFontMetricsF(italicVersion
+                                 (boldVersion(scriptVersion(font_)))));
+  }
+  return metrics_;
+}
+
+void TextItemDoc::setFont(QFont const &f) { d->font_ = f; d->forgetMetrics(); }
+QFont TextItemDoc::font() const { return d->font_; }
+void TextItemDoc::setIndent(double pix) { d->indent_ = pix; }
+double TextItemDoc::indent() const { return d->indent_; }
+void TextItemDoc::setWidth(double pix) { d->width_ = pix; }
+double TextItemDoc::width() const { return d->width_; }
+void TextItemDoc::setLineHeight(double pix) { d->lineheight_ = pix; }
+double TextItemDoc::lineHeight() const { return d->lineheight_; }
+void TextItemDoc::setColor(QColor const &c) { d->color_ = c; }
+QColor TextItemDoc::color() const { return d->color_; }
+QRectF TextItemDoc::boundingRect() const { return d->br; }
+
+TextItemDoc::TextItemDoc(TextData *data): d(new TextItemDocData(data)) {
+}
+
+TextItemDoc::~TextItemDoc() {
+  delete d;
 }
 
 void TextItemDoc::relayout() {
+  d->forgetMetrics();
+  
   /* We'll relayout the entire text. We are not handling tables yet. */
-  /* First, let's find splittable positions. */
+  QVector<double> charwidths = d->charWidths();
+
+  /* Let's find splittable positions. */
   QList<int> bitstarts;
   QList<QString> bits;
   QList<bool> spacebefore;
   QList<bool> parbefore;
 
-  QString text = data->text();
+  QString text = d->data->text();
   QRegExp re(QString::fromUtf8("[-— \n] *"));
   int off = 0;
   spacebefore << false;
@@ -38,74 +164,31 @@ void TextItemDoc::relayout() {
     }
   }
 
-  /* Find the edges that matter for each bit */
-  QList< QMap<int, MarkupData::Styles> > edgesperbit;
-  QMap<int, MarkupData::Styles> edgemap
-    = MarkupEdgeMap(data->markups()).edges();
-  QList<int> edges = edgemap.keys();
-  for (int i=0; i<bits.size(); i++) {
-    QMap<int, MarkupData::Styles> myedges;
-    MarkupData::Styles atstart = MarkupData::Normal;
-    MarkupData::Styles atend  = MarkupData::Normal;
-    int bitstart = bitstarts[i];
-    int bitend = bitstart + bits[i].size();
-    foreach (int e, edges) {
-      if (e<=bitstart)
-        atstart = edgemap[e];
-      else if (e>=bitstart && e<bitend)
-        myedges[e-bitstart] = edgemap[e];
-      else if (e==bitend) 
-        atend = edgemap[e];
-    }
-    myedges[0] = atstart;
-    myedges[bitend-bitstart] = atend;
-    edgesperbit << myedges;
-  }
-
-  QFontMetricsF fm(font_);
+  QFontMetricsF fm(d->font_);
   double spacewidth = fm.width(" ");
-  double itcorrection = spacewidth / 6;
   
   /* Next, find the widths of all the bits */
-  QList<double> widths;
-  for (int i=0; i<bits.size(); i++) {
-    if (bits[i].isEmpty()) {
-      widths << 0;
-    } else {
-      QList<int> edges = edgesperbit[i].keys();
-      QList<MarkupData::Styles> styles = edgesperbit[i].values();
-      double w = 0;
-      for (int k=0; k<edges.size()-1; k++) {
-        QString subbit = bits[i].mid(edges[k], edges[k+1]-edges[k]);
-        MarkupData::Styles st = styles[k];
-        QFont f = font_;
-        if (st & MarkupData::Italic)
-          f.setStyle(QFont::StyleItalic);
-        if (st & MarkupData::Bold)
-          f.setWeight(QFont::Bold);
-        if ((st & MarkupData::Superscript) || (st & MarkupData::Subscript))
-          f.setPixelSize(0.7*f.pixelSize());
-        QFontMetricsF fm(f);
-        if (k>0 && (st & MarkupData::Italic)
-            && !(styles[k-1] & MarkupData::Italic))
-          w += itcorrection;
-        w += fm.width(subbit);
-      }
-      if ((styles[styles.size()-2] & MarkupData::Italic)
-          && !(styles[styles.size()-1] & MarkupData::Italic))
-        w += itcorrection;
-      widths << w;
-    }
+  int N = bits.size();
+  QVector<double> widths;
+  widths.resize(N);
+  for (int i=0; i<N; i++) {
+    double w = 0;
+    int k0 = bitstarts[i];
+    QString bit = bits[i];
+    int K = bit.size();
+    for (int k=0; k<K; k++)
+      w += charwidths[k+k0];
+    widths[N] = w;
   }
   
   /* Now, let's lay out some paragraphs... */
   QList<int> linestarts;
   for (int idx=0; idx<bits.size(); ) {
-    double availwidth = width_;
-    if (parbefore[idx] && indent_>0)
-      availwidth -= indent_;
-    else if (!parbefore[idx] && indent_<0)
-      availwidth+= indent_;
+    double availwidth = d->width_;
+    if (parbefore[idx] && d->indent_>0)
+      availwidth -= d->indent_;
+    else if (!parbefore[idx] && d->indent_<0)
+      availwidth+= d->indent_;
     linestarts << bitstarts[idx];
     double usedwidth = 0;
     while (idx<bits.size()) {
@@ -126,9 +209,10 @@ void TextItemDoc::relayout() {
     }
   }
 
-  data->setLineStarts(linestarts);
+  d->data->setLineStarts(linestarts);
 }
 
 void TextItemDoc::partialRelayout(int) {
   relayout();
 }
+
