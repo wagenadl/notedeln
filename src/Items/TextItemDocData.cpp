@@ -2,19 +2,9 @@
 
 #include "TextItemDocData.h"
 
- QFont TextItemDocData::italicVersion(QFont f) {
-  f.setStyle(QFont::StyleItalic);
-  return f;
-}
-
- QFont TextItemDocData::boldVersion(QFont f) {
-  f.setWeight(QFont::Bold);
-  return f;
-}
-
-QFont TextItemDocData::scriptVersion(QFont f) {
-  f.setPixelSize(0.8*f.pixelSize());
-  return f;
+void TextItemDocData::setBaseFont(QFont const &f) {
+  baseFont = f;
+  fv.setBase(f);
 }
 
 void TextItemDocData::setCharWidths(QVector<double> const &cw) {
@@ -37,7 +27,6 @@ void TextItemDocData::recalcSomeWidths(int start, int end) const {
     end = -1;
   }
   
-  QMap<MarkupData::Styles, QFontMetricsF> const &fms = metrics();
   QMap<int, MarkupData::Styles> ends;
   QMap<int, MarkupData::Styles> starts;
   foreach (MarkupData *m, text->markups()) {
@@ -54,8 +43,7 @@ void TextItemDocData::recalcSomeWidths(int start, int end) const {
       current |= ends[n];
   }    
 
-  QMap<MarkupData::Styles, QFontMetricsF>::const_iterator currentit
-    = fms.find(simplifiedStyle(current));
+  QFontMetricsF const *fm = fv.metrics(current);
   
   QString txt = text->text();
   int N = txt.size();
@@ -67,42 +55,14 @@ void TextItemDocData::recalcSomeWidths(int start, int end) const {
     QChar c = txt[n];
     if (ends.contains(n)) {
       current &= ~ends[n];
-      currentit = fms.find(simplifiedStyle(current));
+      fm = fv.metrics(current);
     }
     if (starts.contains(n)) {
       current |= ends[n];
-      currentit = fms.find(simplifiedStyle(current));
+      fm = fv.metrics(current);
     }
 
-    charwidths[n] = (*currentit).width(c);
+    charwidths[n] = fm->width(c);
   }
 }
 
-MarkupData::Styles TextItemDocData::simplifiedStyle(MarkupData::Styles s) {
-  if (s & MarkupData::Subscript)
-    s |=  MarkupData::Superscript;
-  return s & (MarkupData::Italic | MarkupData::Bold | MarkupData::Italic);
-}
-
-QMap<MarkupData::Styles, QFontMetricsF> const &TextItemDocData::metrics() const {
-  if (!mtr.isEmpty())
-    return mtr;
-  
-  mtr.insert(MarkupData::Normal, QFontMetricsF(font));
-  mtr.insert(MarkupData::Italic, QFontMetricsF(italicVersion(font)));
-  mtr.insert(MarkupData::Bold, QFontMetricsF(boldVersion(font)));
-  mtr.insert(MarkupData::Bold | MarkupData::Italic,
-		  QFontMetricsF(italicVersion(boldVersion(font))));
-  mtr.insert(MarkupData::Superscript,
-		  QFontMetricsF(scriptVersion(font)));
-  mtr.insert(MarkupData::Superscript | MarkupData::Italic,
-		  QFontMetricsF(italicVersion(scriptVersion(font))));
-  mtr.insert(MarkupData::Superscript | MarkupData::Bold,
-		  QFontMetricsF(boldVersion(scriptVersion(font))));
-  mtr.insert(MarkupData::Superscript | MarkupData::Bold
-		  | MarkupData::Italic,
-		  QFontMetricsF(italicVersion
-				(boldVersion(scriptVersion(font)))));
-
-  return mtr;
-}

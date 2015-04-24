@@ -6,8 +6,8 @@
 #include <QRegExp>
 #include <QFontMetricsF>
 
-void TextItemDoc::setFont(QFont const &f) { d->font = f; d->forgetMetrics(); }
-QFont TextItemDoc::font() const { return d->font; }
+void TextItemDoc::setFont(QFont const &f) { d->setBaseFont(f); }
+QFont TextItemDoc::font() const { return d->baseFont; }
 void TextItemDoc::setIndent(double pix) { d->indent = pix; }
 double TextItemDoc::indent() const { return d->indent; }
 void TextItemDoc::setWidth(double pix) { d->width = pix; }
@@ -59,7 +59,7 @@ void TextItemDoc::relayout(bool preserveWidth) {
     }
   }
 
-  QFontMetricsF fm(d->font);
+  QFontMetricsF fm(d->baseFont);
   double spacewidth = fm.width(" ");
   
   /* Next, find the widths of all the bits */
