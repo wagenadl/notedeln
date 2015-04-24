@@ -29,13 +29,15 @@ public:
   // Other functions
   QRectF boundingRect() const;
   
-  void relayout();
+  void relayout(bool preserveWidths=false);
   void partialRelayout(int startOffset);
   void render(class QPainter *, QRectF roi=QRectF()) const;
   int find(QPointF) const; // return offset from graphical position
   QRectF locate(int offset) const; // returns a 1-pix wide rectangle
   // at the location of the given offset.
   // The rectangle will be appropriately sized for a cursor.
+  void insert(int offset, QString text);
+  void remove(int offset, int length);
 private:
   class TextItemDocData *d;
 };
