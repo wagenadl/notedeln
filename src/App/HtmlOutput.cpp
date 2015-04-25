@@ -335,6 +335,8 @@ void HtmlOutput::add(TextData const *source, ResManager const *resmgr,
     case MarkupData::Emphasize: tag = "span class=\"emph\""; break;
     case MarkupData::Normal: tag = ""; break;
     case MarkupData::Selected:
+    case MarkupData::DeadLink:
+    case MarkupData::SearchResult:
       Q_ASSERT(0); // this should not happen
       break;
     }

@@ -8,6 +8,7 @@
 #include <QPainter>
 #include <math.h>
 #include "MarkupEdges.h"
+#include "Style.h"
 
 TextItemDoc::TextItemDoc(TextData *data): d(new TextItemDocData(data)) {
   d->linestarts = d->text->lineStarts();
@@ -315,6 +316,8 @@ void TextItemDoc::render(QPainter *p, QRectF roi) const {
 
   FontVariants &fonts = d->fonts();
   double ascent = fonts.metrics(MarkupStyles())->ascent();
+  double xheight = fonts.metrics(MarkupStyles())->xHeight();
+  double descent = fonts.metrics(MarkupStyles())->descent();
   QVector<double> const &cw = d->charWidths();
 
   int n0 = floor(roi.top()/d->lineheight);
@@ -332,7 +335,10 @@ void TextItemDoc::render(QPainter *p, QRectF roi) const {
   for (int n=n0; n<n1; n++) {
     int start = d->linestarts[n];
     int end = (n+1<N) ? d->linestarts[n+1] : txt.size();
-    double ybase = n*d->lineheight + ascent;
+    double ytop = n*d->lineheight;
+    double ybase = ytop + ascent + 1;
+    double ybottom = ybase + descent;
+    
     bool parstart = n==0 || txt[start-1]=='\n';
     double x = (parstart && d->indent>0) ? d->indent
       : (!parstart && d->indent<0) ? -d->indent
@@ -360,10 +366,38 @@ void TextItemDoc::render(QPainter *p, QRectF roi) const {
     for (int q=0; q<Q; q++) {
       QString bit = line.mid(nowedges[q] - start,
                              nowedges[q+1] - nowedges[q]);
-      p->setFont(*fonts.font(nowstyles[q]));
-      p->drawText(QPointF(x, ybase), bit);
+      MarkupStyles const &s = nowstyles[q];
+      double y0 = s.contains(MarkupData::Superscript) ? ybase + xheight*.7
+        : s.contains(MarkupData::Subscript) ? ybase - xheight *.5
+        : ybase;
+
+      double x0 = x;
       for (int k=nowedges[q]; k<nowedges[q+1]; q++)
         x += cw[k];
+
+      QString bgcol;
+      if (s.contains(MarkupData::Link)) 
+        bgcol = "hover-found";
+      else if (s.contains(MarkupData::DeadLink)) 
+        bgcol = "hover-not-found";
+      else if (s.contains(MarkupData::SearchResult))
+        bgcol = "transientshading";
+      if (!bgcol.isEmpty()) {
+        QColor bg(d->text->style().color(bgcol + "-color"));
+        bg.setAlpha(255*d->text->style().real(bgcol + "-alpha"));
+        p->setPen(QPen(Qt::NoPen));
+        p->setBrush(bg);
+        p->drawRect(QRectF(QPointF(x0, ytop), QPointF(x, ybottom)));
+        // p->setBrush(Qt::NoBrush);
+      }
+
+      if (s.contains(MarkupData::FootnoteRef))
+        p->setPen(QPen(d->text->style().color("customref-color")));
+      else
+        p->setPen(QPen(color()));
+      
+      p->setFont(*fonts.font(s));
+      p->drawText(QPointF(x0, y0), bit);
     }
   }
 }

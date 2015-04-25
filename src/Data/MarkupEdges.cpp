@@ -7,7 +7,7 @@
 
 
 MarkupEdges::MarkupEdges(QList<MarkupData *> const &mdd,
-                         int selstart, int selend) {
+                         QList<TransientMarkup> const &trans) {
   QMap<int, MarkupStyles> starts;
   QMap<int, MarkupStyles> ends;
   QSet<int> all;
@@ -18,10 +18,12 @@ MarkupEdges::MarkupEdges(QList<MarkupData *> const &mdd,
       all << md->start() << md->end();
     }
   }
-  if (selstart>=0 && selend>selstart) {
-    starts[selstart].add(MarkupData::Selected);
-    ends[selend].add(MarkupData::Selected);
-    all << selstart << selend;
+  foreach (TransientMarkup const &tm, trans) {
+    if (tm.end()>tm.start()) {
+      starts[tm.start()].add(tm.style());
+      ends[tm.end()].add(tm.style());
+      all << tm.start() << tm.end();
+    }
   }
 
   MarkupStyles st;
