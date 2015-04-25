@@ -28,7 +28,10 @@ public:
   QColor color() const;
   // Other functions
   QRectF boundingRect() const;
-  
+  QString text() const;
+  QVector<int> lineStarts() const;
+  int lineStartFor(int pos) const;
+  int lineEndFor(int pos) const;
   void relayout(bool preserveWidths=false);
   void partialRelayout(int startOffset);
   void render(class QPainter *, QRectF roi=QRectF()) const;
