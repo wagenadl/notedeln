@@ -156,8 +156,8 @@ void TextItemDoc::partialRelayout(int /*offset*/) {
 }
 
 template <typename T> int findLastLE(QVector<T> const &vec, T key) {
-  /* Given a sorted vector, returns the index of the last element in the vector
-     that does not exceed key.
+  /* Given a sorted vector, returns the index of the last element in the
+     vector that does not exceed key.
      Returns -1 if there is no such element.
    */
   int n0 = 0;
@@ -172,6 +172,22 @@ template <typename T> int findLastLE(QVector<T> const &vec, T key) {
       n1 = nk;
   }
   return n0;
+}
+
+template <typename T> int findFirstGT(QVector<T> const &vec, T key) {
+  /* Given a sorted vector, returns the index of the first element in the
+     vector that exceeds key.
+     Returns -1 if there is no such element.
+   */
+  int N = vec.size();
+  if (N==0 || vec[N-1]<=key)
+    return -1;
+  else if (vec[0]>key)
+    return 0;
+  // So now I now that the first element is <=key and the final element >key
+  // That means that this will return nonnegative:
+  int k = findLastLE(vec, key);
+  return k+1;
 }
 
 QRectF TextItemDoc::locate(int offset) const {
@@ -258,11 +274,18 @@ void TextItemDoc::remove(int offset, int length) {
      character width table, and line starts.
   */
 
-  if (length<=0)
-    return;
+  if (offset<0) {
+    length += offset;
+    offset = 0;
+  }
   
   QString t0 = d->text->text();
-  Q_ASSERT(offset+length <= t0.size());
+
+  if (length+offset > t0.size())
+    length = t0.size() - offset;
+  
+  if (length<=0)
+    return;
 
   QVector<double> cw0 = d->charWidths();
   int N0 = cw0.size();
@@ -340,3 +363,29 @@ void TextItemDoc::render(QPainter *p, QRectF roi) const {
     }
   }
 }
+
+QString TextItemDoc::text() const {
+  return d->text->text();
+}
+
+QVector<int> TextItemDoc::lineStarts() const {
+  Q_ASSERT(!d->linestarts.isEmpty());
+  return d->linestarts;
+}
+
+int TextItemDoc::lineStartFor(int pos) const {
+  QVector<int> starts = lineStarts();
+  int line = findLastLE(starts, pos);
+  Q_ASSERT(line>=0);
+  return starts[line];
+}
+
+int TextItemDoc::lineEndFor(int pos) const {
+  QVector<int> starts = lineStarts();
+  int line = findFirstGT(starts, pos);
+  if (line<0)
+    return text().size();
+  else
+    return starts[line]-1;
+}
+
