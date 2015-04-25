@@ -90,7 +90,7 @@ void TextData::saveMore(QVariantMap &dst) const {
   dst["lines"] = QVariant(xl);
 }
 
-QList<int> const &TextData::lineStarts() const {
+QVector<int> const &TextData::lineStarts() const {
   return linestarts;
 }
 
@@ -101,7 +101,7 @@ void TextData::setLineStart(int i, int s) {
   markModified(InternalMod);
 }
 
-void TextData::setLineStarts(QList<int> const &s) {
+void TextData::setLineStarts(QVector<int> const &s) {
   linestarts = s;
   markModified(InternalMod);
 }

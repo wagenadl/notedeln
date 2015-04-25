@@ -5,6 +5,7 @@
 #include "TextData.h"
 #include <QRegExp>
 #include <QFontMetricsF>
+#include <QPainter>
 
 void TextItemDoc::setFont(QFont const &f) { d->setBaseFont(f); }
 QFont TextItemDoc::font() const { return d->baseFont; }
@@ -19,6 +20,9 @@ QColor TextItemDoc::color() const { return d->color; }
 QRectF TextItemDoc::boundingRect() const { return d->br; }
 
 TextItemDoc::TextItemDoc(TextData *data): d(new TextItemDocData(data)) {
+  d->linestarts = d->text->lineStarts();
+  if (d->linestarts.isEmpty())
+    relayout();
 }
 
 TextItemDoc::~TextItemDoc() {
@@ -59,6 +63,8 @@ void TextItemDoc::relayout(bool preserveWidth) {
     }
   }
 
+  /* Really, the spacewidth should be based on the local font,
+     but for right now... */
   QFontMetricsF fm(d->baseFont);
   double spacewidth = fm.width(" ");
   
@@ -106,6 +112,9 @@ void TextItemDoc::relayout(bool preserveWidth) {
 
   d->linestarts = linestarts;
   // We *won't* copy it back to the TextData
+
+  d->br = QRectF(QPointF(0, 0),
+                 QSizeF(d->width, linestarts.size()*d->lineheight));
 }
 
 void TextItemDoc::partialRelayout(int /*offset*/) {
@@ -181,6 +190,10 @@ int TextItemDoc::find(QPointF xy) const {
 }
 
 void TextItemDoc::insert(int offset, QString text) {
+  /* Inserts text into the document, updating the MarkupData,
+     character width table, and line starts.
+  */
+     
   if (text.isEmpty())
     return;
 
@@ -208,6 +221,10 @@ void TextItemDoc::insert(int offset, QString text) {
 }
 
 void TextItemDoc::remove(int offset, int length) {
+  /* Removes text from the document, updating the MarkupData,
+     character width table, and line starts.
+  */
+
   if (length<=0)
     return;
   
@@ -232,3 +249,68 @@ void TextItemDoc::remove(int offset, int length) {
   /* Really what we should do is try to preserve most linestarts. */
 }
   
+void TextItemDoc::render(QPainter *p, QRectF roi) const {
+  QString txt = d->text->text();
+  int N = d->linestarts.size();
+  MarkupData::Styles style = MarkupData::Normal;
+
+  QMap<int, MarkupData::Styles> ends;
+  QMap<int, MarkupData::Styles> starts;
+  foreach (MarkupData *m, d->text->markups()) {
+    if (m->end()>m->start())
+      starts[m->start()] |= m->style();
+    ends[m->end()] |= m->style();
+  }
+  
+  FontVariants &fonts = d->fonts();
+  double ascent = fonts.metrics(style)->ascent();
+  QVector<double> const &cw = d->charWidths();
+
+  for (int n=0; n<N; n++) {
+    int start = d->linestarts[n];
+    int end = (n+1<N) ? d->linestarts[n+1] : txt.size();
+    double ytop = n*d->lineheight;
+    double ybot = (n+1)*d->lineheight;
+    double ybase = ytop + ascent;
+    if (ytop < roi.bottom() && ybot > roi.top()) {
+      bool parstart = n==0 || txt[start-1]=='\n';
+      double x = (parstart && d->indent>0) ? d->indent
+        : (!parstart && d->indent<0) ? -d->indent
+        : 0;
+      QString line = txt.mid(start, end-start);
+
+      QMap<int, MarkupData::Styles> edges;
+      edges[start] = style;
+      for (int k=start; k<end; k++) {
+        if (ends.contains(k)) {
+          style &= ~starts[k];
+          edges[k] = style;
+        }
+        if (starts.contains(k)) {
+          style |= starts[k];
+          edges[k] = style;
+        }
+      }
+      edges[end] = style;
+      int Q = edges.size()-1;
+      for (int q=0; q<Q; q++) {
+        QString bit = line.mid(edges[q]-start, edges[q+1]-edges[q]);
+        p->setFont(*fonts.font(edges[q]));
+        p->drawText(QPointF(x, ybase), bit);
+        for (int k=edges[q]; k<edges[q+1]; q++)
+          x += cw[k];
+      }
+    } else if (ytop < roi.bottom()) {
+      // update style; we'll need them later
+      for (int k=start; k<end; k++) {
+        if (ends.contains(k)) 
+          style &= ~starts[k];
+        if (starts.contains(k)) 
+          style |= starts[k];
+      }
+    } else {
+      break;
+      // line below roi, we don't care
+    }
+  }
+}

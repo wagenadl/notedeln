@@ -27,10 +27,10 @@ public:
   TextItemDocData(TextData *text): text(text) { }
   QVector<double> const &charWidths() const;
   void forgetWidths() { charwidths.clear(); }
-  QMap<MarkupData::Styles, QFontMetricsF> const &metrics() const;
   // map will contain Normal, Italic, Bold, and Superscript and combinations
   void recalcSomeWidths(int start=0, int end=-1) const;
   void setCharWidths(QVector<double> const &);
+  FontVariants &fonts() const { return fv; }
 private:
   mutable QMap<MarkupData::Styles, QFontMetricsF> mtr;
   mutable QVector<double> charwidths;

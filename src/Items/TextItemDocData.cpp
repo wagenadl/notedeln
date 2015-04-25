@@ -40,7 +40,7 @@ void TextItemDocData::recalcSomeWidths(int start, int end) const {
     if (ends.contains(n)) 
       current &= ~ends[n];
     if (starts.contains(n)) 
-      current |= ends[n];
+      current |= starts[n];
   }    
 
   QFontMetricsF const *fm = fv.metrics(current);
@@ -58,7 +58,7 @@ void TextItemDocData::recalcSomeWidths(int start, int end) const {
       fm = fv.metrics(current);
     }
     if (starts.contains(n)) {
-      current |= ends[n];
+      current |= starts[n];
       fm = fv.metrics(current);
     }
 

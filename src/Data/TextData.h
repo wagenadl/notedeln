@@ -22,6 +22,7 @@
 
 #include "Data.h"
 #include "MarkupData.h"
+#include <QVector>
 
 class TextData: public Data {
   Q_OBJECT;
@@ -32,13 +33,13 @@ public:
    // read properties
   QString text() const;
   QList<int> paragraphStarts() const;
-  QList<int> const &lineStarts() const;
+  QVector<int> const &lineStarts() const;
   // write properties
   void setText(QString const &);
   /* If you change the text, you are responsible for updating the
      markups and the line starts. */
   void setLineStart(int iline, int offset);
-  void setLineStarts(QList<int> const &);
+  void setLineStarts(QVector<int> const &);
   // other
   bool isEmpty() const;
   QList<MarkupData *> markups() const;
@@ -51,7 +52,7 @@ protected:
   virtual void saveMore(QVariantMap &) const;
 protected:
   QString text_;
-  QList<int> linestarts;
+  QVector<int> linestarts;
 };
 
 #endif
