@@ -44,6 +44,22 @@ double TextItemDoc::width() const {
   return d->width;
 }
 
+void TextItemDoc::setLeftMargin(double pix) {
+  d->leftmargin = pix;
+}
+
+double TextItemDoc::leftMargin() const {
+  return d->leftmargin;
+}
+
+void TextItemDoc::setRightMargin(double pix) {
+  d->rightmargin = pix;
+}
+
+double TextItemDoc::rightMargin() const {
+  return d->rightmargin;
+}
+
 void TextItemDoc::setLineHeight(double pix) {
   d->lineheight = pix;
 }
@@ -120,11 +136,9 @@ void TextItemDoc::relayout(bool preserveWidth) {
   /* Now, let's lay out some paragraphs... */
   QVector<int> linestarts;
   for (int idx=0; idx<bits.size(); ) {
-    double availwidth = d->width;
-    if (parbefore[idx] && d->indent>0)
+    double availwidth = d->width - d->leftmargin - d->rightmargin;
+    if (parbefore[idx])
       availwidth -= d->indent;
-    else if (!parbefore[idx] && d->indent<0)
-      availwidth+= d->indent;
     linestarts << bitstarts[idx];
     double usedwidth = 0;
     while (idx<bits.size()) {
@@ -200,7 +214,7 @@ QRectF TextItemDoc::locate(int offset) const {
   Q_ASSERT(line>=0);
   double ytop = line * d->lineheight;
   double ybot = ytop + d->lineheight;
-  double xl = 0;
+  double xl = d->leftmargin;
   int pos = starts[line];
   while (pos<offset)
     xl += charw[pos++];
@@ -210,8 +224,8 @@ QRectF TextItemDoc::locate(int offset) const {
 int TextItemDoc::find(QPointF xy) const {
   Q_ASSERT(!d->linestarts.isEmpty());
   
-  double x = xy.x();
-  if (x<0 || x>d->width)
+  double x = xy.x() - d->leftmargin;
+  if (x<0 || x>d->width - d->leftmargin - d->rightmargin)
     return -1;
 
   double y = xy.y();
@@ -224,10 +238,14 @@ int TextItemDoc::find(QPointF xy) const {
     return -1;
 
   QVector<double> const &charw = d->charWidths();
-  
 
   int pos = starts[line];
   int npos = line+1<starts.size() ? starts[line+1] : d->text->text().size();
+
+  bool startpar = line==0 || text()[pos-1]==QChar('\n');
+  if (startpar)
+    x -= d->indent;
+  
   double x0 = 0;
   while (pos<npos) {
     double x1 = x0 + charw[pos];
@@ -340,9 +358,8 @@ void TextItemDoc::render(QPainter *p, QRectF roi) const {
     double ybottom = ybase + descent;
     
     bool parstart = n==0 || txt[start-1]=='\n';
-    double x = (parstart && d->indent>0) ? d->indent
-      : (!parstart && d->indent<0) ? -d->indent
-      : 0;
+    double x = parstart ? d->indent : 0;
+    x += d->leftmargin;
     QString line = txt.mid(start, end-start);
 
     QVector<int> nowedges;

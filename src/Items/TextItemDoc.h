@@ -23,6 +23,10 @@ public:
   QFont font() const;
   void setIndent(double pix);
   double indent() const;
+  void setLeftMargin(double pix);
+  double leftMargin() const;
+  void setRightMargin(double pix);
+  double rightMargin() const;
   void setWidth(double pix);
   double width() const;
   void setLineHeight(double pix);
