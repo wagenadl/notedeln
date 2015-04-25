@@ -265,17 +265,10 @@ void TextBlockItem::ensureVisible(QPointF p) {
 double TextBlockItem::splittableY(double y) {
   QTextDocument *doc = frags[0]->document();
   double bestY = 0;
-  qDebug() << "TBI: h " << data()->height() << netBounds().height()
-	   << text()->netBounds().height()
-	   << text()->titxt()->boundingRect().height();
   for (QTextBlock blk = doc->firstBlock(); blk.isValid(); blk=blk.next()) {
     QTextLayout *lay = blk.layout();
     double y0 = lay->position().y();
     QRectF bb = lay->boundingRect();
-    qDebug() << "TBI: sply " << y << y0 << bb;
-    for (int i=0; i<lay->lineCount(); i++) {
-      qDebug() << "  " << i << lay->lineAt(i).rect().bottom();
-    }
     if (y0 + bb.bottom() <= y) {
       bestY = y0 + bb.bottom();
     } else if (y0+bb.top()<y) {

@@ -134,8 +134,6 @@ protected:
   int lateMarkStart;
   QRectF clip_;
   bool hasAltDoc;
-public:
-  TextItemText *titxt() { return text; } // };
 };
 
 #endif
