@@ -33,18 +33,19 @@ class MarkupData: public Data {
   Q_ENUMS(Style);
 public:
   enum Style {
-    Normal = 0,
-    Italic = 1,
-    Bold = 2,
-    Underline = 4,
-    Link = 8,
-    FootnoteRef = 16,
-    Superscript = 32,
-    Subscript = 64,
-    StrikeThrough = 128,
-    Emphasize = 256,
+    // Don't mess with these; they are saved in the .json
+    Normal,
+    Italic,
+    Bold,
+    Underline,
+    Link,
+    FootnoteRef,
+    Superscript,
+    Subscript,
+    StrikeThrough,
+    Emphasize,
+    Selected, // this is never saved in json; just for MarkupStyles
   };
-  Q_DECLARE_FLAGS(Styles, Style);
 public:
   MarkupData(Data *parent=0);
   MarkupData(int start, int end, Style style, Data *parent=0);
@@ -79,7 +80,5 @@ private:
 bool mergeable(MarkupData const *, MarkupData const *);
 /* returns true iff other is of the two have same style and overlap */
 
-
-Q_DECLARE_OPERATORS_FOR_FLAGS(MarkupData::Styles)
 
 #endif

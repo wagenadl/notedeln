@@ -334,6 +334,9 @@ void HtmlOutput::add(TextData const *source, ResManager const *resmgr,
     case MarkupData::StrikeThrough: tag = "s"; break;
     case MarkupData::Emphasize: tag = "span class=\"emph\""; break;
     case MarkupData::Normal: tag = ""; break;
+    case MarkupData::Selected:
+      Q_ASSERT(0); // this should not happen
+      break;
     }
     startTags[md->start()].insert(tag);
     endTags[md->end()].insert(tag);

@@ -1,6 +1,7 @@
 // TextItemDocData.cpp
 
 #include "TextItemDocData.h"
+#include "MarkupEdges.h"
 
 void TextItemDocData::setBaseFont(QFont const &f) {
   baseFont = f;
@@ -26,23 +27,15 @@ void TextItemDocData::recalcSomeWidths(int start, int end) const {
     start = 0;
     end = -1;
   }
+
+  MarkupStyles current;
+  MarkupEdges edges(text->markups());
+  foreach (int k, edges.keys()) 
+    if (k<start)
+      current = edges[k];
+    else
+      break;
   
-  QMap<int, MarkupData::Styles> ends;
-  QMap<int, MarkupData::Styles> starts;
-  foreach (MarkupData *m, text->markups()) {
-    if (m->end()>m->start())
-      starts[m->start()] |= m->style();
-    ends[m->end()] |= m->style();
-  }
-
-  MarkupData::Styles current = MarkupData::Normal;
-  for (int n=0; n<start; n++) {
-    if (ends.contains(n)) 
-      current &= ~ends[n];
-    if (starts.contains(n)) 
-      current |= starts[n];
-  }    
-
   QFontMetricsF const *fm = fv.metrics(current);
   
   QString txt = text->text();
@@ -53,12 +46,8 @@ void TextItemDocData::recalcSomeWidths(int start, int end) const {
   
   for (int n=start; n<end; n++) {
     QChar c = txt[n];
-    if (ends.contains(n)) {
-      current &= ~ends[n];
-      fm = fv.metrics(current);
-    }
-    if (starts.contains(n)) {
-      current |= starts[n];
+    if (edges.contains(n)) {
+      current = edges[n];
       fm = fv.metrics(current);
     }
 

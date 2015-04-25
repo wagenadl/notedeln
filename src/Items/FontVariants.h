@@ -6,7 +6,7 @@
 
 #include <QFont>
 #include <QFontMetricsF>
-#include "MarkupData.h"
+#include "MarkupStyles.h"
 
 class FontVariants {
 public:
@@ -14,16 +14,15 @@ public:
   FontVariants();
   ~FontVariants();
   void setBase(QFont const &);
-  QFont const *font(MarkupData::Styles);
-  QFontMetricsF const *metrics(MarkupData::Styles);
+  QFont const *font(MarkupStyles);
+  QFontMetricsF const *metrics(MarkupStyles);
 private:
-  static MarkupData::Styles simplifiedStyle(MarkupData::Styles);
   static QFont *italicVersion(QFont const *f);
   static QFont *boldVersion(QFont const *f);
   static QFont *scriptVersion(QFont const *f);
 private:
-  QMap<MarkupData::Styles, QFont *> fmap;
-  QMap<MarkupData::Styles, QFontMetricsF *> fmmap;
+  QMap<MarkupStyles, QFont *> fmap;
+  QMap<MarkupStyles, QFontMetricsF *> fmmap;
 };
 
 #endif

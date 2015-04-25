@@ -5,11 +5,11 @@
 
 
 FontVariants::FontVariants() {
-  fmap[MarkupData::Normal] = new QFont();
+  fmap[MarkupStyles()] = new QFont();
 }
 
 FontVariants::FontVariants(QFont const &base) {
-  fmap[MarkupData::Normal] = new QFont(base);
+  fmap[MarkupStyles()] = new QFont(base);
 }
 
 void FontVariants::setBase(QFont const &base) {
@@ -19,7 +19,7 @@ void FontVariants::setBase(QFont const &base) {
     delete fm;
   fmap.clear();
   fmmap.clear();
-  fmap[MarkupData::Normal] = new QFont(base);
+  fmap[MarkupStyles()] = new QFont(base);
 }  
 
 FontVariants::~FontVariants() {
@@ -29,31 +29,25 @@ FontVariants::~FontVariants() {
     delete fm;
 }
 
-MarkupData::Styles FontVariants::simplifiedStyle(MarkupData::Styles s) {
-  if (s & MarkupData::Subscript)
-    s |=  MarkupData::Superscript;
-  return s & (MarkupData::Italic | MarkupData::Bold | MarkupData::Italic);
-}
-
-QFont const *FontVariants::font(MarkupData::Styles s) {
-  s = simplifiedStyle(s);
+QFont const *FontVariants::font(MarkupStyles s) {
+  s = s.simplified();
   if (fmap.contains(s)) {
     return fmap[s];
-  } else if (s & MarkupData::Italic) {
-    fmap[s] = italicVersion(font(s & ~MarkupData::Italic));
+  } else if (s.contains(MarkupData::Italic)) {
+    fmap[s] = italicVersion(font(s.without(MarkupData::Italic)));
     return fmap[s];
-  } else if (s & MarkupData::Bold) {
-    fmap[s] = boldVersion(font(s & ~MarkupData::Bold));
+  } else if (s.contains(MarkupData::Bold)) {
+    fmap[s] = boldVersion(font(s.without(MarkupData::Bold)));
     return fmap[s];
-  } else if (s & MarkupData::Superscript) {
-    fmap[s] = scriptVersion(font(s & ~MarkupData::Superscript));
+  } else if (s.contains(MarkupData::Superscript)) {
+    fmap[s] = scriptVersion(font(s.without(MarkupData::Superscript)));
     return fmap[s];
   }
   Q_ASSERT(0); // this shouldn't happen
 }
 
-QFontMetricsF const *FontVariants::metrics(MarkupData::Styles s) {
-  s = simplifiedStyle(s);
+QFontMetricsF const *FontVariants::metrics(MarkupStyles s) {
+  s = s.simplified();
   if (!fmmap.contains(s))
     fmmap[s] = new QFontMetricsF(*font(s));
   return fmmap[s];

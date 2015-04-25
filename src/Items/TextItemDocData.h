@@ -11,6 +11,7 @@
 #include <QColor>
 #include <QRectF>
 #include "FontVariants.h"
+#include "MarkupStyles.h"
 
 class TextItemDocData {
 public:
@@ -32,7 +33,7 @@ public:
   void setCharWidths(QVector<double> const &);
   FontVariants &fonts() const { return fv; }
 private:
-  mutable QMap<MarkupData::Styles, QFontMetricsF> mtr;
+  mutable QMap<MarkupStyles, QFontMetricsF> mtr;
   mutable QVector<double> charwidths;
   mutable FontVariants fv;
 };
