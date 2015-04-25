@@ -137,10 +137,8 @@ void TextItemDoc::relayout(bool preserveWidth) {
   QVector<int> linestarts;
   for (int idx=0; idx<bits.size(); ) {
     double availwidth = d->width - d->leftmargin - d->rightmargin;
-    if (parbefore[idx] && d->indent>0)
+    if (parbefore[idx])
       availwidth -= d->indent;
-    else if (!parbefore[idx] && d->indent<0)
-      availwidth+= d->indent;
     linestarts << bitstarts[idx];
     double usedwidth = 0;
     while (idx<bits.size()) {
@@ -245,10 +243,8 @@ int TextItemDoc::find(QPointF xy) const {
   int npos = line+1<starts.size() ? starts[line+1] : d->text->text().size();
 
   bool startpar = line==0 || text()[pos-1]==QChar('\n');
-  if (startpar && d->indent>0)
+  if (startpar)
     x -= d->indent;
-  else if (!startpar && d->indent<0)
-    x += d->indent;
   
   double x0 = 0;
   while (pos<npos) {
@@ -358,9 +354,7 @@ void TextItemDoc::render(QPainter *p, QRectF roi) const {
     double ybottom = ybase + descent;
     
     bool parstart = n==0 || txt[start-1]=='\n';
-    double x = (parstart && d->indent>0) ? d->indent
-      : (!parstart && d->indent<0) ? -d->indent
-      : 0;
+    double x = parstart ? d->indent : 0;
     x += d->leftmargin;
     QString line = txt.mid(start, end-start);
 
