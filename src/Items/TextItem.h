@@ -24,7 +24,6 @@
 #include <QTextCursor>
 #include "MarkupData.h"
 #include "Item.h"
-#include "TextItemText.h"
 #include "Mode.h"
 #include "TextData.h"
 
@@ -32,7 +31,7 @@ class TextItem: public Item {
   Q_OBJECT;
 public:
   TextItem(TextData *data, Item *parent, bool noFinalize=false,
-	   class QTextDocument *altdoc=0);
+	   class TextItemDoc *altdoc=0);
   // only descendents should set noFinalize=true!
   ~TextItem();
   DATAACCESS(TextData);
@@ -111,10 +110,10 @@ public: // pass-through
   void setFont(QFont f) { text->setFont(f); }
   QColor defaultTextColor() const { return text->defaultTextColor(); }
   void setDefaultTextColor(QColor c) { text->setDefaultTextColor(c); }
-  QTextDocument *document() const { return text->document(); }
+  TextItemDoc *document() const { return text; }
   void setTextWidth(double d);
   double textWidth() const { return text->textWidth(); }
-  QTextCursor textCursor() const { return text->textCursor(); }
+  TextCursor textCursor() const { return text->textCursor(); }
   void setTextCursor(QTextCursor c) { text->setTextCursor(c); }
 public:
   virtual QRectF boundingRect() const;
