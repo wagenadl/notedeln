@@ -3,6 +3,13 @@
 #include "TextItemDocData.h"
 #include "MarkupEdges.h"
 
+TextItemDocData::TextItemDocData(TextData *text): text(text) {
+  indent = 0;
+  width = 1000; // hmm
+  leftmargin = rightmargin = 0;
+  lineheight = 15; // hmm
+}
+
 void TextItemDocData::setBaseFont(QFont const &f) {
   baseFont = f;
   fv.setBase(f);

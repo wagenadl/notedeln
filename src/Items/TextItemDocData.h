@@ -21,11 +21,13 @@ public:
   void setBaseFont(QFont const &);
   double indent;
   double width;
+  double leftmargin;
+  double rightmargin;
   double lineheight;
   QColor color;
   QRectF br;
 public:
-  TextItemDocData(TextData *text): text(text) { }
+  TextItemDocData(TextData *text);
   QVector<double> const &charWidths() const;
   void forgetWidths() { charwidths.clear(); }
   // map will contain Normal, Italic, Bold, and Superscript and combinations
