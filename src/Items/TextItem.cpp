@@ -16,10 +16,8 @@
 
 // TextItem.C
 
-#include <QTextLayout>
 #include "TextItem.h"
 #include "TextData.h"
-#include "TextMarkings.h"
 #include "Mode.h"
 #include "EntryScene.h"
 #include "Style.h"
@@ -32,14 +30,11 @@
 #include "Digraphs.h"
 #include "TextBlockItem.h"
 #include "Cursors.h"
+#include "TextItemDoc.h"
 
 #include <QFont>
-#include <QTextDocument>
-#include <QTextCursor>
-#include <QTextBlockFormat>
 #include <QKeyEvent>
 #include <QDebug>
-#include <QTextBlock>
 #include <QApplication>
 #include <QClipboard>
 #include <QMimeData>
@@ -51,13 +46,14 @@
 #include "LateNoteData.h" 
 
 TextItem::TextItem(TextData *data, Item *parent, bool noFinalize,
-		   QTextDocument *altdoc):
+		   TextItemDoc *altdoc):
   Item(data, parent) {
-  hasAltDoc = altdoc;
+  hasAltDoc = altdoc!=NULL;
   markings_ = 0;
-  text = new TextItemText(this);
   if (altdoc)
-    text->setDocument(altdoc);
+    text = altdoc;
+  else
+    text = new TextItemDoc(data, this);
   
   mayMark = true;
   mayNote = false;
@@ -67,19 +63,8 @@ TextItem::TextItem(TextData *data, Item *parent, bool noFinalize,
 
   if (!altdoc)
     initializeFormat();
-  
-  text->setTextInteractionFlags(Qt::TextSelectableByMouse);
-  connect(text, SIGNAL(invisibleFocus(QPointF)),
-	  this, SIGNAL(invisibleFocus(QPointF)));
 
-  if (!altdoc) {
-    text->setPlainText(data->text());
-    QTextCursor tc(textCursor());
-    tc.movePosition(QTextCursor::Start);
-    QTextBlockFormat fmt = tc.blockFormat();
-    tc.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
-    tc.setBlockFormat(fmt);
-  }
+  cursor = TextCursor(text);
   
   if (!noFinalize) 
     finalizeConstructor();
@@ -93,11 +78,6 @@ void TextItem::finalizeConstructor(int sheet) {
     if (!dynamic_cast<LateNoteData *>(gnd)) // ugly, but hey.
       if (sheet<0 || gnd->sheet()==sheet)
 	create(gnd, this);
-
-  if (!markings_)
-    markings_ = new TextMarkings(data(), this);
-  if (hasAltDoc)
-    markings_->setSecundary();
 
   connect(document(), SIGNAL(contentsChange(int, int, int)),
 	  this, SLOT(docChange()));
@@ -119,18 +99,14 @@ void TextItem::makeWritable() {
 void TextItem::makeWritableNoRecurse() {
   // this ugliness is for the sake of title items that have notes attached
   Item::makeWritableNoRecurse();
-  text->setTextInteractionFlags(Qt::TextEditorInteraction);
-  text->setCursor(QCursor(Qt::IBeamCursor));
   setFlag(ItemIsFocusable);
-  setFocusProxy(text);
 }
 
 void TextItem::setAllowMoves() {
   mayMove = true;
   setAcceptHoverEvents(true);
-  text->setAcceptHoverEvents(true);
-  connect(mode(), SIGNAL(modeChanged(Mode::M)),
-	  SLOT(modeChange(Mode::M)));
+  setAcceptHoverEvents(true);
+  connect(mode(), SIGNAL(modeChanged(Mode::M)), SLOT(modeChange(Mode::M)));
 }
 
 TextItem::~TextItem() {
@@ -142,46 +118,55 @@ void TextItem::initializeFormat() {
 }
 
 void TextItem::docChange() {
-  QString plainText = text->toPlainText();
-
-  if (data()->text() == plainText) {
-    // trivial change; this happens if markup changes
-    return;
-  }
-  ASSERT(isWritable());
-  data()->setText(plainText);
   emit textChanged();
 }
 
-bool TextItem::focusIn(QFocusEvent *) {
-  return false;
+void TextItem::focusInEvent(QFocusEvent *e) {
+  QGraphicsItem::focusInEvent(e);
 }
 
-bool TextItem::focusOut(QFocusEvent *) {
-  if (document()->isEmpty()) {
+void TextItem::focusOutEvent(QFocusEvent *e) {
+  if (document()->isEmpty()) 
     emit abandoned();
+
+  // drop selection unless it's just the mouse pointer moving out of the window
+  if (scene()) {
+    QGraphicsItem *fi = scene()->focusItem();
+    if (fi != this) {
+      TextCursor c(textCursor());
+      c.clearSelection();
+      setTextCursor(c);
+    }
   }
-  return false;
+
+  QGraphicsTextItem::focusOutEvent(e);
 }
 
-bool TextItem::mouseDoubleClick(QGraphicsSceneMouseEvent *e) {
+void TextItem::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *e) {
   if (e->button()!=Qt::LeftButton)
-    return false;
-  if (mode()->mode()==Mode::Type)
-    return false;
-  if (text->hasFocus())
-    text->clearFocus();
-  e->ignore();
-  return true;
+    take = false;
+  else if (mode()->mode()==Mode::Type)
+    take = false;
+  else if (hasFocus())
+    clearFocus();
+  e->accept();
 }
 
-bool TextItem::mousePress(QGraphicsSceneMouseEvent *e) {
+void TextItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
   switch (e->button()) {
   case Qt::LeftButton:
     switch (mode()->mode()) {
-    case Mode::Type: 
-      qDebug() << "TI:mousepress:type";
-      return false; // TextItemText will decide whether to edit or not
+    case Mode::Type: {
+      int pos = text->locate(e->pos());
+      if (pos>=0) {
+        TextCursor c = textCursor();
+        c.setPosition(pos,
+                      e->modifiers() & Qt::ShiftModifer
+                      ? TextCursor::KeepAnchor
+                      : Textcursor::MoveAnchor);
+        setTextCursor(c);
+      }
+    } break;
     case Mode::MoveResize:
       if (mayMove) {
         bool resize = shouldResize(e->pos());
@@ -202,16 +187,15 @@ bool TextItem::mousePress(QGraphicsSceneMouseEvent *e) {
     default:
       break;
     }
-    e->accept();
-    if (text->hasFocus())
-      text->clearFocus();
-    return true;
+    if (mode->mode()!=Mode::Type && hasFocus())
+      clearFocus();
+    break;
   case Qt::MiddleButton:
     if (mode()->mode() == Mode::Type) {
       QClipboard *cb = QApplication::clipboard();
       QString txt = cb->text(QClipboard::Selection);
       if (!txt.isEmpty()) {
-      	QTextCursor c = textCursor();
+      	TextCursor c = textCursor();
       	int pos = pointToPos(e->pos());
       	if (pos>=0) 
       	  c.setPosition(pos);
@@ -219,25 +203,19 @@ bool TextItem::mousePress(QGraphicsSceneMouseEvent *e) {
       	setFocus();
       	setTextCursor(c);
       }
-      return false;
-      // Bizarrely, if I call accept() and return true, the text is inserted
-      // yet again, but with unwanted formatting.
-      //   e->accept();
-      //   return true;
-    } else {
-      return false;
     }
   default:
-    return false;
+    break;
   }
+  e->accept();
 }
 
 int TextItem::pointToPos(QPointF p) const {
-  return ::pointToPos(text, text->mapFromParent(p));
+  return text->find(p);
 }
 
 QPointF TextItem::posToPoint(int pos) const {
-  return text->mapToParent(::posToPoint(text, pos));
+  return text->locate(p);
 }
       
 
@@ -547,14 +525,15 @@ bool TextItem::keyPressAsSpecialChar(QKeyEvent *e) {
 }
 
   
-bool TextItem::keyPress(QKeyEvent *e) {
-  return
-    keyPressWithControl(e)
-    || keyPressAsSpecialChar(e)
-    || (mode()->mathMode() && keyPressAsMath(e))
-    || keyPressAsMotion(e)
-    || keyPressAsSpecialEvent(e)
-    ;
+void TextItem::keyPressEvent(QKeyEvent *e) {
+  if (keyPressWithControl(e)
+      || keyPressAsSpecialChar(e)
+      || (mode()->mathMode() && keyPressAsMath(e))
+      || keyPressAsMotion(e)
+      || keyPressAsSpecialEvent(e))
+    e->accept();
+  else
+    e->ignore();
 }
 
 bool TextItem::charBeforeIsLetter(int pos) const {

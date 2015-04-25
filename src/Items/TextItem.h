@@ -20,12 +20,11 @@
 
 #define TEXTITEM_H
 
-#include <QGraphicsTextItem>
-#include <QTextCursor>
 #include "MarkupData.h"
 #include "Item.h"
 #include "Mode.h"
 #include "TextData.h"
+#include "TextCursor.h"
 
 class TextItem: public Item {
   Q_OBJECT;
@@ -33,7 +32,7 @@ public:
   TextItem(TextData *data, Item *parent, bool noFinalize=false,
 	   class TextItemDoc *altdoc=0);
   // only descendents should set noFinalize=true!
-  ~TextItem();
+  virtual ~TextItem();
   DATAACCESS(TextData);
   virtual void makeWritable();
   virtual void makeWritableNoRecurse();
@@ -67,13 +66,12 @@ signals:
 protected:
   void mouseMoveEvent(QGraphicsSceneMouseEvent *);
   void mouseReleaseEvent(QGraphicsSceneMouseEvent *);
-protected:
-  friend class TextItemText;
-  virtual bool mousePress(QGraphicsSceneMouseEvent *);
-  virtual bool mouseDoubleClick(QGraphicsSceneMouseEvent *);
-  virtual bool keyPress(QKeyEvent *);
-  virtual bool focusIn(QFocusEvent *);
-  virtual bool focusOut(QFocusEvent *);
+  void mousePressEvent(QGraphicsSceneMouseEvent *);
+  void mouseDoubleClickEvent(QGraphicsSceneMouseEvent *);
+  void keyPressEvent(QKeyEvent *);
+  void focusInEvent(QFocusEvent *);
+  void focusOutEvent(QFocusEvent *);
+  void hoverMoveEvent(QGraphicsSceneHoverEvent *);
 private:
   bool keyPressAsMath(QKeyEvent *);
   bool keyPressAsMotion(QKeyEvent *);
@@ -87,7 +85,6 @@ public:
   void updateRefText(QString oldText, QString newText);
   // for use by TextMarkings to signal change of reference text
   QString markedText(MarkupData *);
-  void hoverMove(QGraphicsSceneHoverEvent *);
   void setBoxVisible(bool);
   bool tryExplicitLink();
 private:
@@ -108,13 +105,13 @@ protected:
   void attemptMarkup(QPointF p, MarkupData::Style);
 public: // pass-through
   void setFont(QFont f) { text->setFont(f); }
-  QColor defaultTextColor() const { return text->defaultTextColor(); }
-  void setDefaultTextColor(QColor c) { text->setDefaultTextColor(c); }
+  QColor defaultTextColor() const { return text->color(); }
+  void setDefaultTextColor(QColor c) { text->setColor(c); }
   TextItemDoc *document() const { return text; }
-  void setTextWidth(double d);
-  double textWidth() const { return text->textWidth(); }
-  TextCursor textCursor() const { return text->textCursor(); }
-  void setTextCursor(QTextCursor c) { text->setTextCursor(c); }
+  void setTextWidth(double d) { text->setWidth(d); }
+  double textWidth() const { return text->width(); }
+  TextCursor textCursor() const { return cursor; }
+  void setTextCursor(TextCursor c);
 public:
   virtual QRectF boundingRect() const;
   virtual void paint(QPainter*, const QStyleOptionGraphicsItem*, QWidget*);
@@ -125,14 +122,14 @@ protected:
   bool mayMark;
   bool mayNote;
   bool allowParagraphs_;
-  class TextMarkings *markings_;
-  class TextItemText *text;
+  class TextItemDoc *text;
   bool mayMove;
   QPointF cursorPos;
   MarkupData::Style lateMarkType;
   int lateMarkStart;
   QRectF clip_;
-  bool hasAltDoc;
+  bool hasAltDoc; // i.e., we don't own the doc
+  TextCursor cursor;
 };
 
 #endif

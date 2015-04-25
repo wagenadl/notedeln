@@ -33,7 +33,7 @@ public:
     int e;
   };
 public:
-  TextCursor(TextItemDoc *doc, int pos=0, int anc=-1);
+  TextCursor(TextItemDoc *doc=0, int pos=0, int anc=-1);
   bool isValid() const;
   bool atStart() const;
   bool atEnd() const;

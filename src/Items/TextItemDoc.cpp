@@ -267,6 +267,8 @@ void TextItemDoc::insert(int offset, QString text) {
 
   relayout(true);
   /* Really what we should do is try to preserve most linestarts. */
+
+  emit contentsChange(offset, 0, dN);
 }
 
 void TextItemDoc::remove(int offset, int length) {
@@ -303,6 +305,8 @@ void TextItemDoc::remove(int offset, int length) {
 
   relayout(true);
   /* Really what we should do is try to preserve most linestarts. */
+
+  emit contentsChange(offset, dN, 0);
 }
   
 void TextItemDoc::render(QPainter *p, QRectF roi) const {

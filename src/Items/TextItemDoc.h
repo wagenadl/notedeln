@@ -4,13 +4,16 @@
 
 #define TEXTITEMDOC_H
 
+#include <QObject>
+
 #include <QFont>
 #include <QColor>
 #include <QRectF>
 
-class TextItemDoc {
+class TextItemDoc: public QObject {
+  Q_OBJECT;
 public:
-  TextItemDoc(class TextData *data);
+  TextItemDoc(class TextData *data, QObject *parent=0);
   // Properties
   /* Setting a property does _not_ trigger automatic relayout. You must
      call relayout() directly.
@@ -41,6 +44,8 @@ public:
   // The rectangle will be appropriately sized for a cursor.
   void insert(int offset, QString text);
   void remove(int offset, int length);
+signals:
+  void contentsChange(int pos, int nDel, int nIns);
 private:
   class TextItemDocData *d;
 };

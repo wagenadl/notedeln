@@ -599,7 +599,7 @@ void PageView::createContinuationEntry() {
                      + style.real("pgno-sep"));
   GfxNoteItem *fwdNote = entryScene->newNote(currentSheet, fwdNotePos);
   TextItem *fwdNoteTI = fwdNote->textItem();
-  QTextCursor cursor = fwdNoteTI->textCursor();
+  TextCursor cursor = fwdNoteTI->textCursor();
   QString fwdNoteText = QString("(see p. %1)").arg(newPage);
   cursor.insertText(fwdNoteText);
   cursor.setPosition(fwdNoteText.size()-1);
