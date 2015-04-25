@@ -28,16 +28,15 @@ class TitleItem: public TextItem {
   Q_OBJECT;
 public:
   TitleItem(TitleData *data, Item *parent=0);
-  TitleItem(TitleData *data, int sheetno, QTextDocument *altdoc=0, 
+  TitleItem(TitleData *data, int sheetno, class TextItemDoc *altdoc=0, 
 	    Item *parent=0);
   virtual ~TitleItem();
   TitleData const *data() const { ASSERT(d); return d; }
   TitleData *data() { ASSERT(d); return d; }
   virtual void deleteLater();
-protected slots:
-  virtual void docChange();
+protected:
+  void focusInEvent(QFocusEvent *);
 private:
-  virtual bool focusIn(QFocusEvent *);
   TitleData *d;
 };
 

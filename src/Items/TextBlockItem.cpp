@@ -18,15 +18,12 @@
 
 #include "TextBlockItem.h"
 #include "TextItem.h"
-#include "TextItemText.h"
+#include "TextItemDoc.h"
 #include "TextBlockData.h"
 #include "Style.h"
 #include "EntryScene.h"
 
-#include <QTextCursor>
-#include <QTextBlock>
-#include <QTextLayout>
-#include <QTextDocument>
+#include "TextCursor.h"
 #include <QDebug>
 #include "Assert.h"
 
@@ -34,7 +31,7 @@ TICreator::~TICreator() {
 }
 
 TextItem *TICreator::create(TextData *data, Item *parent,
-			    QTextDocument *altdoc) const {
+			    TextItemDoc *altdoc) const {
   return new TextItem(data, parent, false, altdoc);
 }
 
@@ -118,11 +115,11 @@ void TextBlockItem::initializeFormat() {
   foreach (TextItem *ti, frags) 
     setTIFormat(ti);
 
-  QTextCursor tc(frags[0]->document());
-  QTextBlockFormat fmt = tc.blockFormat();
-  fmt.setLineHeight(style().real(disp ? "display-paragraph-line-spacing"
-                                 : "paragraph-line-spacing")*100,
-                    QTextBlockFormat::ProportionalHeight);
+  TextItemDoc *doc = frags[0]->document();
+  TextCursor tc(doc);
+  doc->setLineHeight(style().real("text-font-size") *
+                     style().real(disp ? "display-paragraph-line-spacing"
+                                  : "paragraph-line-spacing"));
   double indent =
     data()->indented() ? style().real("paragraph-indent")
     : data()->dedented() ? -style().real("paragraph-indent")

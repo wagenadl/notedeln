@@ -22,6 +22,7 @@
 #include "EntryData.h"
 #include "Assert.h"
 
+#include <QPen>
 #include <QBrush>
 #include <QDebug>
 

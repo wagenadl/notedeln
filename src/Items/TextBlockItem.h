@@ -31,7 +31,7 @@ class TICreator {
 public:
   virtual ~TICreator();
   virtual class TextItem *create(TextData *data, Item *parent,
-				 class QTextDocument *altdoc=0) const;
+				 class TextItemDoc *altdoc=0) const;
 };
 
 class TextBlockItem: public BlockItem {

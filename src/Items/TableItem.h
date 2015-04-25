@@ -22,11 +22,26 @@
 
 #include "TextItem.h"
 #include "TableData.h"
-#include <QTextCursor>
+#include "TextCursor.h"
 #include <QList>
 
 class TableItem: public TextItem {
   Q_OBJECT;
+public:
+  class Cell {
+  public:
+    Cell(TableItem *tbl, int c=-1, int r=-1): tbl(tbl), c(c), r(r) { }
+    int row() const { return r; }
+    int column() const { return c; }
+    void setRow(int r1) { r = r1; }
+    void setColumn(int c1) { c = c1; }
+    bool isValid() const { return c>=0 && r>=0; }
+    int firstPosition() const;
+    int lastPosition() const;
+  private:
+    TableItem *tbl;
+    int c, r;
+  };
 public:
   TableItem(TableData *data, Item *parent);
   virtual ~TableItem();
@@ -41,8 +56,8 @@ public:
   bool isColumnEmpty(int c) const;
   bool isRowEmpty(int r) const;
   int lastNonEmptyCellInRow(int r) const; // 0 if none
-  QList<QTextCursor> normalizeSelection(QTextCursor const &) const;
-  bool isWholeCellSelected(QTextCursor const &) const;
+  QList<TextCursor> normalizeSelection(TextCursor const &) const;
+  bool isWholeCellSelected(TextCursor const &) const;
 public slots:
   bool normalizeCursorPosition(); // true if changed
 protected slots:
@@ -52,17 +67,15 @@ signals:
 signals: 
   void mustNormalizeCursor(); // private use only: must enforce cursor posn
 protected:
-  virtual bool mousePress(QGraphicsSceneMouseEvent *);
-  virtual bool keyPress(QKeyEvent *);
-  virtual bool focusIn(QFocusEvent *);
+  void mousePressEvent(QGraphicsSceneMouseEvent *);
+  void keyPressEvent(QKeyEvent *);
+  void focusInEvent(QFocusEvent *);
   bool tryToPaste();
 private:
-  bool keyPressAsMotion(QKeyEvent *, class QTextTableCell const &);
-  bool keyPressWithControl(QKeyEvent *);
+  bool keyPressAsMotion(QKeyEvent *e, Cell const &cell);
+  bool keyPressWithControl(QKeyEvent *e);
+  Cell cellAt(TextCursor const &) const;
 private:
-  QTextTableFormat format();
-private:
-  QTextTable *table;
   bool ignoreChanges;
   int ctrla_r0, ctrla_c0;
 };

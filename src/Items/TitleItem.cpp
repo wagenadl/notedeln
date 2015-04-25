@@ -31,7 +31,7 @@ TitleItem::TitleItem(TitleData *data, Item *parent):
 }
 
 TitleItem::TitleItem(TitleData *data, int sheetno,
-		     QTextDocument *altdoc, Item *parent):
+		     TextItemDoc *altdoc, Item *parent):
   TextItem(data->text(), parent, true, altdoc), d(data) {
 
   setFont(style().font("title-font"));
@@ -51,21 +51,14 @@ void TitleItem::deleteLater() {
   TextItem::deleteLater();
 }
 
-void TitleItem::docChange() {
-  QString plainText = text->toPlainText();
-//  if (data()->text()->text() != plainText)
-//    data()->revise();
-
-  TextItem::docChange();
-}
- 
-bool TitleItem::focusIn(QFocusEvent *) {
-  if (text->toPlainText()==TitleData::defaultTitle()) {
-    QTextCursor c = textCursor(); //(document());
+void TitleItem::focusInEvent(QFocusEvent *e) {
+  if (text->text()==TitleData::defaultTitle()) {
+    // select the title
+    TextCursor c = textCursor();
     c.setPosition(0);
-    c.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
+    c.movePosition(TextCursor::End, TextCursor::KeepAnchor);
     setTextCursor(c);
   }
-  return false;
+  TextItem::focusInEvent(e);
 }
 

@@ -37,15 +37,10 @@ FootnoteItem::FootnoteItem(FootnoteData *data, Item *parent):
 
   updateTag();
   text()->setAllowParagraphs(false);
+  text()->document()->setIndent(0);
+  text()->document()->setLineHeight(style().real("text-font-size") * 1.15);
+  // CHECK THIS NUMBER
 
-  QTextCursor tc(text()->document());
-  QTextBlockFormat fmt = tc.blockFormat();
-  fmt.setLineHeight(100, QTextBlockFormat::ProportionalHeight);
-  fmt.setTextIndent(0.0);
-  fmt.setTopMargin(0.0);
-  fmt.setBottomMargin(0.0);
-  tc.setBlockFormat(fmt);
-  text()->setTextWidth(text()->textWidth()); // crazy way to fix HoverRegions
   connect(text(), SIGNAL(abandoned()), this, SLOT(abandon()));
 }
 

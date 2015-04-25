@@ -17,9 +17,7 @@
 // TableItem.cpp
 
 #include "TableItem.h"
-#include <QTextDocument>
 #include <QTextTable>
-#include "TextMarkings.h"
 #include <QKeyEvent>
 #include <QDebug>
 
@@ -29,6 +27,8 @@ TableItem::TableItem(TableData *data, Item *parent):
      table has not been constructed yet, so unfortunately, we'll have to
      rebuild the document.
   */
+  qDebug() << "TableItems not currently functional";
+  /*
   text->setPlainText("");
   
   QTextCursor c(document());
@@ -43,11 +43,13 @@ TableItem::TableItem(TableData *data, Item *parent):
   connect(this, SIGNAL(mustNormalizeCursor()),
 	  SLOT(normalizeCursorPosition()),
 	  Qt::QueuedConnection);
+  */
 }
 
 TableItem::~TableItem() {
 }
 
+/*
 QTextTableFormat TableItem::format() {
   // should read from style
   QTextTableFormat fmt;
@@ -58,8 +60,10 @@ QTextTableFormat TableItem::format() {
   fmt.setCellSpacing(1);
   return fmt;
 }
+*/
 
 void TableItem::docChange() {
+  /*
   if (data()->text() == text->toPlainText())
     return; // trivial change
 
@@ -73,16 +77,17 @@ void TableItem::docChange() {
       if (l != data()->cellLength(r, c))
 	data()->setCellLength(r, c, l, true);
     }
-  }  
+  }
+  */
   TextItem::docChange();
 }
 
-bool TableItem::keyPressAsMotion(QKeyEvent *e, QTextTableCell const &cell) {
+bool TableItem::keyPressAsMotion(QKeyEvent *e, TableItem::Cell const &cell) {
   bool shft = e->modifiers() & Qt::ShiftModifier;
   bool ctrl = e->modifiers() & Qt::ControlModifier;
   int row = cell.row();
   int col = cell.column();
-  QTextCursor cursor(textCursor());
+  TextCursor cursor(textCursor());
   switch (e->key()) {
   case Qt::Key_Backspace:
     if (!cursor.hasSelection()) {
@@ -288,59 +293,48 @@ bool TableItem::normalizeCursorPosition() {
   return true;
 }
 
-bool TableItem::mousePress(QGraphicsSceneMouseEvent *e) {
+void TableItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
   emit mustNormalizeCursor();
-  return TextItem::mousePress(e);
+  TextItem::mousePress(e);
 }
 
-bool TableItem::keyPress(QKeyEvent *e) {
+void TableItem::keyPressEvent(QKeyEvent *e) {
   /* This is where we implement insertion and deletion of rows and columns,
      augmented tab/enter navigation, and prevention of out-of-table text
      insertion.
      We do not, here, have to worry about routine maintenance of cell sizes;
      that happens in docChange().
   */
-  QTextCursor cursor(textCursor());
-  QTextTableCell cell = table->cellAt(cursor);
+  TextCursor cursor(textCursor());
+  QPoint cell = cellAt(cursor);
   int key = e->key();
   Qt::KeyboardModifiers mod = e->modifiers();
   if (cell.isValid()) {
     // inside the table
-    if (keyPressAsMotion(e, cell))
-      return true;
-    else if (keyPressWithControl(e))
-      return true;
-    else if (TextItem::keyPress(e)) {
-      if (!table->cellAt(textCursor()).isValid()) {
+    if (keyPressAsMotion(e, cell)) {
+      ;
+    } else if (keyPressWithControl(e)) {
+      ;
+    } else if (TextItem::keyPress(e)) {
+      if (cellAt(textCursor()).x()>=0) {
 	setTextCursor(cursor); // revert cursor before trying to move
 	emit futileMovementKey(e->key(), e->modifiers());
       }
-      return true;
-    } else
-      return false;
-  } else if (cursor.atStart()) {
-    // before table - this should not be happening any more
-    emit futileMovementKey(key, mod);
-    return true;
-  } else if (cursor.atEnd()) {
-    // after table - this should not be happening any more
-    emit futileMovementKey(key, mod);
-    return true;
+    } else {
+      e->ignore();
+    }
   } else {
-    // don't know where we are. no good.
-    emit futileMovementKey(key, mod);
-    return true;
+    e->ignore();
   }
 }
 
 bool TableItem::isCellEmpty(int r, int c) const {
   if (r<0 || c<0 || r>=table->rows() || c>=table->columns())
     return false;
-  QTextTableCell cell(table->cellAt(r, c));
+  Cell cell(this, c, r);
   if (!cell.isValid())
     return false;
-  return cell.lastCursorPosition().position()
-    == cell.firstCursorPosition().position();
+  return cell.firstPosition()==cell.lastPosition();
 }
 
 bool TableItem::isColumnEmpty(int c) const {
