@@ -21,41 +21,40 @@
 #include "Resource.h"
 #include "Magician.h"
 #include "Magicians.h"
+#include "TextItemDoc.h"
 
-#include <QTextCursor>
-#include <QTextDocument>
 #include <QRegExp>
 #include <QDebug>
 
-static QTextCursor basicLinkAt(QTextCursor const &c) {
-  QTextDocument *doc = c.document();
-  QTextCursor e = doc->find(QRegExp("\\s"), c);
+static TextCursor basicLinkAt(TextCursor const &c) {
+  TextItemDoc *doc = c.document();
+  TextCursor e = c.findForward(QRegExp("\\s"));
   int end = e.hasSelection() ? e.selectionStart() : -1;
   if (end<0) {
     e = c;
-    e.movePosition(QTextCursor::End);
+    e.movePosition(TextCursor::End);
     end = e.position();
   }
-  while (end>0
-	 && QString::fromUtf8(";:.,)]}’”!?—").contains(doc->characterAt(end-1)))
+  QString endchars = QString::fromUtf8(";:.,)]}’”!?—");
+  while (end>0 && endchars.contains(doc->characterAt(end-1)))
     end--;
-  QTextCursor s = doc->find(QRegExp("\\s"), c, QTextDocument::FindBackward);
+  TextCursor s = c.findBackward(QRegExp("\\s"));
   int start = s.hasSelection() ? s.selectionEnd() : 0;
-  while (start<end
-	 && QString::fromUtf8("([{‘“¡¿—").contains(doc->characterAt(start)))
+  QString startchars = QString::fromUtf8("([{‘“¡¿—");
+  while (start<end && startchars.contains(doc->characterAt(start)))
     start++;
   if (start>=end)
-    return QTextCursor();
+    return TextCursor();
     
   // Now, start..end is the area that we will work with
-  QTextCursor m = c;
+  TextCursor m = c;
   m.setPosition(start);
-  m.setPosition(end, QTextCursor::KeepAnchor);
+  m.setPosition(end, TextCursor::KeepAnchor);
   return m;
 }
 
-QTextCursor ResourceMagic::explicitLinkAt(QTextCursor const &c,
-					  Style const &) {
+TextCursor ResourceMagic::explicitLinkAt(TextCursor const &c,
+					 Style const &) {
   if (c.hasSelection()) 
     return c;
   else

@@ -64,7 +64,7 @@ signals:
   void mousePress(QPointF, Qt::MouseButton);
   void refTextChange(QString oldText, QString newText);
   void multicellular(int pos, TextData *td);
-protected:
+public:
   void mouseMoveEvent(QGraphicsSceneMouseEvent *);
   void mouseReleaseEvent(QGraphicsSceneMouseEvent *);
   void mousePressEvent(QGraphicsSceneMouseEvent *);
@@ -109,10 +109,10 @@ public: // pass-through
   QColor defaultTextColor() const { return text->color(); }
   void setDefaultTextColor(QColor c) { text->setColor(c); }
   TextItemDoc *document() const { return text; }
-  void setTextWidth(double d) { text->setWidth(d); }
+  void setTextWidth(double d);
   double textWidth() const { return text->width(); }
   TextCursor textCursor() const { return cursor; }
-  void setTextCursor(TextCursor c);
+  void setTextCursor(TextCursor const &c);
 public:
   virtual QRectF boundingRect() const;
   virtual void paint(QPainter*, const QStyleOptionGraphicsItem*, QWidget*);
@@ -133,6 +133,7 @@ protected:
   QRectF clip_;
   bool hasAltDoc; // i.e., we don't own the doc
   TextCursor cursor;
+  bool boxvis;
 };
 
 #endif

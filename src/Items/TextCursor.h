@@ -40,7 +40,7 @@ public:
   bool atEnd() const;
   void deleteChar();
   void deletePreviousChar();
-  TextItemDoc *document();
+  TextItemDoc *document() const;
   void insertText(QString);
   bool movePosition(MoveOperation op, MoveMode m=MoveAnchor);
   void setPosition(int pos, MoveMode m=MoveAnchor);

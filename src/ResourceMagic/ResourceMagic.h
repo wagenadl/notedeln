@@ -20,7 +20,7 @@
 
 #define RESOURCEMAGIC_H
 
-#include <QTextCursor>
+#include "TextCursor.h"
 #include "Data.h"
 
 class ResourceMagic: public QObject {
@@ -38,7 +38,7 @@ public:
   //  bool keepAlways() const; // true if a resource should be kept even if nothing can be downloaded
   void next();
 public:
-  static QTextCursor explicitLinkAt(QTextCursor const &, class Style const &);
+  static TextCursor explicitLinkAt(TextCursor const &, class Style const &);
   /*:F explicitLinkAt
    *:D Scans the vicinity of the given text cursor for anything that could
        be interpreted as a magic link. The "vicinity" is:

@@ -178,6 +178,7 @@ QString MarkupData::styleName(Style s) {
     return "so";
   case Emphasize:
     return "emph";
+  default:
+    return "?";
   }
-  return "?";
 }

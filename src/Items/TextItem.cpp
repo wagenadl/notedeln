@@ -32,6 +32,7 @@
 #include "Cursors.h"
 #include "TextItemDoc.h"
 
+#include <QPainter>
 #include <QFont>
 #include <QKeyEvent>
 #include <QDebug>
@@ -60,6 +61,8 @@ TextItem::TextItem(TextData *data, Item *parent, bool noFinalize,
   lateMarkType = MarkupData::Normal;
   allowParagraphs_ = true;
 
+  boxvis = false;
+  
   if (!altdoc)
     initializeFormat();
 
@@ -745,7 +748,7 @@ bool TextItem::tryExplicitLink() {
   MarkupData *oldmd = markupAt(start, end, MarkupData::Link);
   if (oldmd) {
     // undo link mark
-    markings_->deleteMark(oldmd);
+    deleteMarkup(oldmd);
     // if the old link exactly matches our selection, just drop it;
     // otherwise, replace it.
     if  (oldmd->start()==start && oldmd->end()==end) 
@@ -771,7 +774,7 @@ bool TextItem::tryFootnote() {
   int i = bs->findBlock(anc);
   ASSERT(i>=0);
   
-  QTextCursor c = textCursor();
+  TextCursor c = textCursor();
   MarkupData *oldmd = markupAt(c.position(), MarkupData::FootnoteRef);
   int start=-1;
   int end=-1;
@@ -781,11 +784,10 @@ bool TextItem::tryFootnote() {
     end = c.selectionEnd();
     mayDelete = true;
   } else {
-    QTextCursor m = document()->find(QRegExp("[^-\\w]"), c,
-				     QTextDocument::FindBackward);
+    TextCursor m = c.findBackward(QRegExp("[^-\\w]"));
     QString mrk = m.selectedText();
     start = m.hasSelection() ? m.selectionEnd() : 0;
-    m = document()->find(QRegExp("[^-\\w]"), c);
+    m = c.findForward(QRegExp("[^-\\w]"));
     end = m.hasSelection() ? m.selectionStart() : data()->text().size();
     if (start==end && start>0) 
       if (approvedMark(mrk))
@@ -798,7 +800,7 @@ bool TextItem::tryFootnote() {
       BlockItem *bi = ancestralBlock();
       if (bi) 
 	bi->refTextChange(oldmd->text(), ""); // remove any footnotes
-      markings_->deleteMark(oldmd);
+      deleteMarkup(oldmd);
     } else {
       return false; // should perhaps give focus to the footnote
     }
@@ -824,7 +826,7 @@ bool TextItem::tryToPaste() {
     return false; // perhaps we should allow URLs, but format specially?
   } else if (md->hasText()) {
     QString txt = md->text();
-    QTextCursor c = textCursor();
+    TextCursor c = textCursor();
     c.insertText(txt);
     return true;
   } else {
@@ -875,10 +877,10 @@ void TextItem::modeChange(Mode::M m) {
   default:
     break;
   }
-  text->setCursor(Cursors::refined(cs));
+  setCursor(Cursors::refined(cs));
 }
 
-void TextItem::hoverMove(QGraphicsSceneHoverEvent *e) {
+void TextItem::hoverMoveEvent(QGraphicsSceneHoverEvent *e) {
   cursorPos = e->pos(); // cache for the use of modifierChanged
   modeChange(mode()->mode());
   e->accept();
@@ -889,25 +891,37 @@ void TextItem::updateRefText(QString olds, QString news) {
 }
 
 QRectF TextItem::boundingRect() const {
-  return QRectF();
-  //  return text->boundingRect();
+  return text->boundingRect();
 }
 
-void TextItem::paint(QPainter*, const QStyleOptionGraphicsItem*, QWidget*) {
+void TextItem::paint(QPainter *p, const QStyleOptionGraphicsItem*, QWidget*) {
+  if (!text)
+    return;
+  
+  if (clips())
+    p->setClipRect(clip_);
+  if (boxvis) {
+    QPen pen(QColor("#000000"));
+    pen.setWidth(1);
+    pen.setStyle(Qt::DashLine);
+    p->setPen(pen);
+    p->drawRect(boundingRect().adjusted(.5, .5, -.5, -.5));
+  }
+  text->render(p);
 }
 
 void TextItem::setBoxVisible(bool v) {
-  text->setBoxVisible(v);
+  boxvis = v;
+  update();
 }
 
 void TextItem::setTextWidth(double d) {
-  text->setTextWidth(d);
+  text->setWidth(d);
   emit widthChanged();
 }
 
 void TextItem::insertBasicHtml(QString html, int pos) {
-  QTextCursor c(document());
-  c.setPosition(pos);
+  TextCursor c(document(), pos);
   QRegExp tag("<(.*)>");
   tag.setMinimal(true);
   QList<int> italicStarts;
@@ -938,7 +952,7 @@ void TextItem::insertBasicHtml(QString html, int pos) {
 }
 
 QRectF TextItem::netBounds() const {
-  return text->mapRectToParent(text->boundingRect());
+  return text->boundingRect();
 }
 
 QRectF TextItem::clipRect() const {
@@ -952,12 +966,15 @@ bool TextItem::clips() const {
 void TextItem::setClip(QRectF r) {
   qDebug() << "TI::setClip " << r << boundingRect() << netBounds();
   clip_ = r;
-  text->setClip(r);
+  update();
 }
 
 void TextItem::unclip() {
   clip_ = QRectF();
-  text->unclip();
+  update();
 }
 
-  
+void TextItem::setTextCursor(TextCursor const &tc) {
+  cursor = tc;
+  update();
+}

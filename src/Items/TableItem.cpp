@@ -508,3 +508,72 @@ void TableItem::focusInEvent(QFocusEvent *e) {
   emit mustNormalizeCursor();
   TextItem::focusInEvent(e);
 }
+
+/* Here is an example of a table block in current eln page json:
+
+       { "typ": "tableblock",
+      "cre": "2014-03-06T10:35:44",
+      "mod": "2014-03-06T10:42:14",
+      "h": 298.0,
+      "ind": 1,
+      "sheet": 0,
+      "y0": 176.375,
+      "cc": [
+        { "typ": "table",
+          "cre": "2014-03-06T10:35:44",
+          "mod": "2014-03-06T10:42:14",
+          "len": [
+            13,
+            20,
+            7,
+            25,
+            91,
+            7,
+            14,
+            22,
+            7,
+            13,
+            68,
+            7,
+            10,
+            40,
+            7,
+            12,
+            42,
+            7
+          ],
+          "nc": 3,
+          "nr": 6,
+          "text": "\nXimena Bernal\nAnimal communication\nEEB web\nEsteban Fernandez-Juricic\nEvo of vert. visual system, Antipredator, foraging, and mating behav. Appl. sensory ecology\nEEB web\nRichard Howard\nEvo. of mating systems\nEEB web\nJeffrey Lucas\nAnimal comm., sensory ecol., call cplxty in birds, dynamic game thy.\nEEB web\nKevin Otto\nNeuroprosthesis, sys. n.sci., neurotech.\nD&D web\nDonald Ready\nCell, mol., gen. of Drosophila retina dev.\nD&D web\n"
+        }
+      ]
+    },
+*/
+
+/* I am not sure that I really want to keep the LEN field in the
+   future. After all, it can be reconstructed from the locations of
+   the NL characters.
+*/
+
+int TableItem::Cell::firstPosition() const {
+  ASSERT(0);
+  return 0;
+}
+
+int TableItem::Cell::lastPosition() const {
+  ASSERT(0);
+  return 0;
+}
+
+TableItem::Cell TableItem::cell(int col, int row) const {
+  return Cell(this, col, row);
+}
+
+TableItem::Cell TableItem::cellAt(TextCursor const &tc) const {
+  return cellAt(tc.position());
+}
+
+TableItem::Cell TableItem::cellAt(int pos) const {
+  ASSERT(0);
+  return Cell(this, 0, 0);
+}

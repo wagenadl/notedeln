@@ -426,8 +426,7 @@ void EntryScene::joinTextBlocks(int iblock_pre, int iblock_post) {
   restackBlocks(iblock_pre);
   gotoSheetOfBlock(iblock_pre);
   tbi->setFocus();
-  QTextCursor c(tbi->document());
-  c.setPosition(pos);
+  TextCursor c(tbi->document(), pos);
   tbi->setTextCursor(c);
 }  
 
@@ -564,7 +563,7 @@ void EntryScene::futileMovement(int block) {
   FutileMovementInfo fmi = tbi->lastFutileMovement();
   int tgtidx = -1;
   if (fmi.key()==Qt::Key_Enter || fmi.key()==Qt::Key_Return) {
-    QTextCursor c = tbi->textCursor();
+    TextCursor c = tbi->textCursor();
     if (c.atEnd()) 
       newTextBlock(block, true);
     else
@@ -598,12 +597,12 @@ void EntryScene::futileMovement(int block) {
 
   if (tgtidx<0) {
     // no target, go to start/end of current
-    QTextCursor c = tbi->textCursor();
+    TextCursor c = tbi->textCursor();
     if (fmi.key()==Qt::Key_Down) {
-      c.movePosition(QTextCursor::End);
+      c.movePosition(TextCursor::End);
       tbi->setTextCursor(c);
     } else if (fmi.key()==Qt::Key_Up) {
-      c.movePosition(QTextCursor::Start);
+      c.movePosition(TextCursor::Start);
       tbi->setTextCursor(c);
     }
     return;
@@ -632,29 +631,30 @@ void EntryScene::futileMovement(int block) {
   //  ti->clearFocus();
   //}
   
-  QTextDocument *doc = tgt->document();
-  QTextCursor c(doc);
-  QPointF p = tgt->text()->mapFromParent(tgt->mapFromScene(fmi.scenePos()));
+  TextItemDoc *doc = tgt->document();
+  TextCursor c(doc);
+  QPointF p = tgt->mapFromScene(fmi.scenePos());
   // Since we only use p.x, this calc is OK, even when fmi.scenePos was
   // in another fragment.
   switch (fmi.key()) {
   case Qt::Key_Left: 
-    c.movePosition(QTextCursor::End);
+    c.movePosition(TextCursor::End);
     break;
   case Qt::Key_Up: {
-    QTextBlock blk = doc->lastBlock();
-    QTextLayout *lay = blk.layout();
-    QTextLine l = lay->lineAt(lay->lineCount()-1);
-    c.setPosition(blk.position() + l.xToCursor(p.x() - lay->position().x()));
+    int N = doc->text().size();
+    QPointF endp = doc->locate(N).center();
+    QPointF tgtp(p.x(), endp.y());
+    int idx = doc->find(tgtp);
+    c.setPosition(idx>=0 ? idx : N);
     break; }
   case Qt::Key_Right:
-    c.movePosition(QTextCursor::Start);
+    c.movePosition(TextCursor::Start);
     break;
   case Qt::Key_Down: {
-    QTextBlock blk = doc->firstBlock();
-    QTextLayout *lay = blk.layout();
-    QTextLine l = lay->lineAt(0);
-    c.setPosition(l.xToCursor(p.x() - blk.layout()->position().x()));
+    QPointF startp = doc->locate(0).center();
+    QPointF tgtp(p.x(), startp.y());
+    int idx = doc->find(tgtp);
+    c.setPosition(idx>=0 ? idx : 0);
     break; }
   }
   qDebug() << "EntryScene::futilemovement setcursor " << c.position();
@@ -678,8 +678,8 @@ void EntryScene::focusFirst(int isheet) {
   }
   if (firstbi) {
     firstbi->setFocus();
-    QTextCursor tc = firstbi->textCursor();
-    tc.movePosition(QTextCursor::Start);
+    TextCursor tc = firstbi->textCursor();
+    tc.movePosition(TextCursor::Start);
     if (isheet>=0 && !firstbi->data()->sheetSplits().isEmpty()) {
       // make sure we pick the right fragment
       TextItem *i = firstbi->fragment(isheet-firstbi->data()->sheet());
@@ -688,8 +688,8 @@ void EntryScene::focusFirst(int isheet) {
       clip.setRight(10000); // I really don't care about x position
       while (!clip.contains(i->posToPoint(tc.position()))) {
 	int p = tc.position();
-	tc.movePosition(QTextCursor::Down);
-	tc.movePosition(QTextCursor::StartOfLine);
+	tc.movePosition(TextCursor::Down);
+	tc.movePosition(TextCursor::StartOfLine);
 	if (tc.position()==p)
 	  break;
       }
@@ -719,8 +719,8 @@ void EntryScene::focusEnd(int isheet) {
   }
   if (lastbi) {
     lastbi->setFocus();
-    QTextCursor tc = lastbi->textCursor();
-    tc.movePosition(QTextCursor::End);
+    TextCursor tc = lastbi->textCursor();
+    tc.movePosition(TextCursor::End);
     if (isheet>=0 && !lastbi->data()->sheetSplits().isEmpty()) {
       // make sure we pick the right fragment
       TextItem *i = lastbi->fragment(isheet-lastbi->data()->sheet());
@@ -729,8 +729,8 @@ void EntryScene::focusEnd(int isheet) {
       clip.setRight(10000); // I really don't care about x position
       while (!clip.contains(i->posToPoint(tc.position()))) {
 	int p = tc.position();
-	tc.movePosition(QTextCursor::Up);
-	tc.movePosition(QTextCursor::EndOfLine);
+	tc.movePosition(TextCursor::Up);
+	tc.movePosition(TextCursor::EndOfLine);
 	if (tc.position()==p)
 	  break;
       }
@@ -748,7 +748,7 @@ void EntryScene::vChanged(int block) {
   ASSERT(block>=0 && block<blockItems.size());
   TextBlockItem *tbi = dynamic_cast<TextBlockItem*>(blockItems[block]);
   if (tbi) {
-    QTextCursor c = tbi->textCursor();
+    TextCursor c = tbi->textCursor();
     restackBlocks(block);
     tbi->setTextCursor(c);
   } else {
@@ -803,7 +803,7 @@ bool EntryScene::mousePressEvent(QGraphicsSceneMouseEvent *e, SheetScene *s) {
 
 bool EntryScene::keyPressEvent(QKeyEvent *e, SheetScene *s) {
   if (e->key()==Qt::Key_Tab || e->key()==Qt::Key_Backtab) {
-    TextItemText *focus = dynamic_cast<TextItemText*>(s->focusItem());
+    TextItem *focus = dynamic_cast<TextItem *>(s->focusItem());
     if (focus) {
       focus->keyPressEvent(e);
       e->accept();
@@ -925,10 +925,12 @@ bool EntryScene::tryToPaste(SheetScene *s) {
     return false;
   
   QPointF scenePos;
-  QGraphicsTextItem *fi = dynamic_cast<QGraphicsTextItem*>(s->focusItem());
+  TextItem *fi = dynamic_cast<TextItem*>(s->focusItem());
 
   if (fi) {
-    scenePos = fi->mapToScene(posToPoint(fi, fi->textCursor().position()));
+    TextItemDoc *doc = fi->document();
+    int pos = fi->textCursor().position();
+    scenePos = fi->mapToScene(doc->locate(pos).center());
   } else {
     QList<QGraphicsView*> vv = s->views();
     if (vv.isEmpty()) {
@@ -1087,7 +1089,8 @@ bool EntryScene::importDroppedText(QPointF scenePos, int sheet,
   if (itemReturn)
     *itemReturn = ti;
   
-  QTextCursor c = ti->textCursor();
+  TextCursor c = ti->textCursor();
+  //  TextItemDoc *doc = ti->document();
   int pos = ti->pointToPos(ti->mapFromScene(scenePos));
   if (pos>=0)
     c.setPosition(pos);
@@ -1270,8 +1273,8 @@ void EntryScene::makeUnicellular(TableData *td) {
   restackBlocks(iblock);
   gotoSheetOfBlock(iblock);
   tbi1->setFocus();
-  QTextCursor c = tbi1->textCursor();
-  c.movePosition(QTextCursor::End);
+  TextCursor c = tbi1->textCursor();
+  c.movePosition(TextCursor::End);
   tbi1->setTextCursor(c);
 }
   
@@ -1292,7 +1295,7 @@ void EntryScene::makeMulticellular(int pos, TextData *td) {
   deleteBlock(iblock);
   TableBlockItem *tbi1 = injectTableBlock(tbd1, iblock);
 
-  QTextCursor c1(tbi1->document());
+  TextCursor c1(tbi1->document());
   c1.setPosition(pos+2);
   restackBlocks(iblock);
   gotoSheetOfBlock(iblock);

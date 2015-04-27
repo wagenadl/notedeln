@@ -61,7 +61,7 @@ void TextCursor::deletePreviousChar() {
   }
 }
 
-TextItemDoc *TextCursor::document() {
+TextItemDoc *TextCursor::document() const {
   return doc;
 }
 
