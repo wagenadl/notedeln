@@ -30,7 +30,7 @@ class TableItem: public TextItem {
 public:
   class Cell {
   public:
-    Cell(TableItem *tbl, int c=-1, int r=-1): tbl(tbl), c(c), r(r) { }
+    Cell(TableItem const *tbl, int c=-1, int r=-1): tbl(tbl), c(c), r(r) { }
     int row() const { return r; }
     int column() const { return c; }
     void setRow(int r1) { r = r1; }
@@ -39,7 +39,7 @@ public:
     int firstPosition() const;
     int lastPosition() const;
   private:
-    TableItem *tbl;
+    TableItem const *tbl;
     int c, r;
   };
 public:
@@ -75,6 +75,8 @@ private:
   bool keyPressAsMotion(QKeyEvent *e, Cell const &cell);
   bool keyPressWithControl(QKeyEvent *e);
   Cell cellAt(TextCursor const &) const;
+  Cell cellAt(int pos) const;
+  Cell cell(int c, int r) const;
 private:
   bool ignoreChanges;
   int ctrla_r0, ctrla_c0;

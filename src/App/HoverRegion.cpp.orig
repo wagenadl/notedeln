@@ -29,11 +29,6 @@
 
 #include <QPainter>
 #include <QGraphicsSceneHoverEvent>
-#include <QTextBlock>
-#include <QTextCursor>
-#include <QTextDocument>
-#include <QTextLayout>
-#include <QTextLine>
 #include <QDebug>
 #include <QProcess>
 
@@ -152,9 +147,9 @@ bool HoverRegion::hasPreview() const {
 }
 
 QString HoverRegion::refText() const {
-  QTextCursor c(ti->document());
+  TextCursor c(ti->document());
   c.setPosition(md->start());
-  c.setPosition(md->end(), QTextCursor::KeepAnchor);
+  c.setPosition(md->end(), TextCursor::KeepAnchor);
   return c.selectedText();
 }
 

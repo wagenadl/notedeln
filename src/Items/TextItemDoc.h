@@ -33,14 +33,16 @@ public:
   double lineHeight() const;
   void setColor(QColor const &c);
   QColor color() const;
+  bool isEmpty() const;
   // Other functions
+  QChar characterAt(int pos) const;
   QRectF boundingRect() const;
   QString text() const;
   QVector<int> lineStarts() const;
   int lineStartFor(int pos) const;
   int lineEndFor(int pos) const;
   void relayout(bool preserveWidths=false);
-  void partialRelayout(int startOffset);
+  void partialRelayout(int startOffset, int endOffset);
   void render(class QPainter *, QRectF roi=QRectF()) const;
   int find(QPointF) const; // return offset from graphical position
   QRectF locate(int offset) const; // returns a 1-pix wide rectangle
@@ -48,6 +50,7 @@ public:
   // The rectangle will be appropriately sized for a cursor.
   void insert(int offset, QString text);
   void remove(int offset, int length);
+  int find(QString) const; // offset or -1
 signals:
   void contentsChange(int pos, int nDel, int nIns);
 private:

@@ -41,6 +41,7 @@ public:
   void setAllowMoves();
   void addMarkup(MarkupData::Style t, int start, int end);
   void addMarkup(MarkupData *); // we appropriate the data!
+  void deleteMarkup(MarkupData *);
   bool allowNotes() const;
   void setAllowNotes(bool y=true);
   void insertBasicHtml(QString html, int pos);
@@ -96,9 +97,9 @@ private:
 protected:
   bool tryFootnote();
   virtual bool tryToPaste();
-  bool tryScriptStyles(QTextCursor, bool onlyIfBalanced=false);
+  bool tryScriptStyles(TextCursor, bool onlyIfBalanced=false);
   bool tryTeXCode(bool noX=false);
-  void toggleSimpleStyle(MarkupData::Style type, class QTextCursor const &c);
+  void toggleSimpleStyle(MarkupData::Style type, class TextCursor const &c);
   bool charBeforeIsLetter(int pos) const;
   bool charAfterIsLetter(int pos) const;
   bool shouldResize(QPointF) const;
@@ -117,7 +118,9 @@ public:
   virtual void paint(QPainter*, const QStyleOptionGraphicsItem*, QWidget*);
 protected:
   void finalizeConstructor(int sheetOnly=-1);
-  bool keyPressAsSimpleStyle(int key, QTextCursor const &cursor);
+  bool keyPressAsSimpleStyle(int key, TextCursor const &cursor);
+  void tryMove(TextCursor::MoveOperation op, int key,
+               Qt::KeyboardModifiers mod);
 protected:
   bool mayMark;
   bool mayNote;

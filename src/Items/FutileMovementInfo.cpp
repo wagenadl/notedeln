@@ -33,15 +33,10 @@ FutileMovementInfo::FutileMovementInfo(int key, Qt::KeyboardModifiers mod,
   modifiers_ = mod;
   pos_ = 0;
   if (src) {
-    QTextCursor c = src->textCursor();
+    TextCursor c = src->textCursor();
     pos_ = c.position();
-    QTextBlock b = c.block();
-    QTextLayout *lay = b.layout();
-    QPointF xy0 = lay->position(); // in item
-    int p = c.positionInBlock();
-    QTextLine line = lay->lineForTextPosition(p);
-    QPointF xy(line.cursorToX(p), line.y()+line.ascent()); // in layout
-    scenePos_ = src->mapToScene(xy0 + xy);
+    QPointF xy0 = src->document()->locate(pos_).center();
+    scenePos_ = src->mapToScene(xy0);
   }
 }
 

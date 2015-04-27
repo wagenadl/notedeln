@@ -33,8 +33,9 @@ public:
     int e;
   };
 public:
-  TextCursor(TextItemDoc *doc=0, int pos=0, int anc=-1);
+  TextCursor(class TextItemDoc *doc=0, int pos=0, int anc=-1);
   bool isValid() const;
+  bool isNull() const { return !isValid(); }
   bool atStart() const;
   bool atEnd() const;
   void deleteChar();
@@ -49,6 +50,13 @@ public:
   int selectionEnd() const;
   bool hasSelection() const;
   void clearSelection();
+  int position() const;
+  bool operator==(TextCursor const &) const;
+  TextCursor findForward(QString) const; // start of string not before POS
+  TextCursor findBackward(QString) const; // end of string not after POS
+  TextCursor findForward(QRegExp) const;
+  TextCursor findBackward(QRegExp) const;
+  /* findForward and findBackward ignore any selection in the source cursor. */
 private:
   void clampPosition();
 private:

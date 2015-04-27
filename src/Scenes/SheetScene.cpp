@@ -191,7 +191,7 @@ TitleItem *SheetScene::fancyTitleItem() {
 }
 
 void SheetScene::setFancyTitle(TitleData *data, int sheet,
-			       QTextDocument *doc) {
+			       TextItemDoc *doc) {
   if (plainTitleItem)
     plainTitleItem->deleteLater();
   plainTitleItem = 0;
@@ -206,7 +206,7 @@ void SheetScene::setFancyTitle(TitleData *data, int sheet,
   repositionTitle();
 }
 
-QTextDocument *SheetScene::fancyTitleDocument() {
+TextItemDoc *SheetScene::fancyTitleDocument() {
   if (fancyTitleItem_)
     return fancyTitleItem_->document();
   else

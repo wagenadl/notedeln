@@ -39,7 +39,7 @@
 #include "GfxNoteItem.h"
 #include "GfxNoteData.h"
 #include "TableItem.h"
-#include "TextItemText.h"
+
 #include "SvgFile.h"
 #include "Restacker.h"
 #include "Cursors.h"

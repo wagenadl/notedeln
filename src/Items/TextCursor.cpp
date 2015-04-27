@@ -183,3 +183,56 @@ bool TextCursor::hasSelection() const {
   return anc>=0;
 }
 
+int TextCursor::position() const {
+  return pos;
+}
+
+bool TextCursor::operator==(TextCursor const &a) const {
+  return doc==a.doc && pos==a.pos && anc==a.anc;
+}
+
+TextCursor TextCursor::findForward(QString s) const {
+  if (!isValid())
+    return TextCursor();
+  QString txt = doc->text();
+  int off = txt.indexOf(s, pos);
+  if (off>=0)
+    return TextCursor(doc, off, s.length());
+  else
+    return TextCursor();
+}
+
+TextCursor TextCursor::findBackward(QString s) const {
+  if (!isValid())
+    return TextCursor();
+  QString txt = doc->text();
+  int off = txt.lastIndexOf(s, pos-s.length());
+  if (off>=0)
+    return TextCursor(doc, off, s.length());
+  else
+    return TextCursor();
+}
+
+TextCursor TextCursor::findForward(QRegExp re) const {
+  if (!isValid())
+    return TextCursor();
+  QString txt = doc->text();
+  int off = re.indexIn(txt, pos);
+  if (off>=0)
+    return TextCursor(doc, off, re.cap().size());
+  else
+    return TextCursor();
+}
+
+TextCursor TextCursor::findBackward(QRegExp re) const {
+  if (!isValid())
+    return TextCursor();
+  QString txt = doc->text().left(pos);
+  // This makes sure that we won't capture beyond POS, 
+  int off = re.lastIndexIn(txt);
+  if (off>=0)
+    return TextCursor(doc, off, re.cap().length());
+  else
+    return TextCursor();
+}
+

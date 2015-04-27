@@ -41,7 +41,7 @@ public:
 		TICreator const &tic=TICreator());
   virtual ~TextBlockItem();
   DATAACCESS(TextBlockData);
-  QTextDocument *document() const;
+  TextItemDoc *document() const;
   class TextItem *text() const;
   bool isEmpty() const;
   bool lastParIsEmpty() const;
@@ -52,8 +52,8 @@ public:
   virtual void makeWritable();
   void initializeFormat();
   void setTIFormat(class TextItem *);
-  QTextCursor textCursor() const; // looks at focused fragment, if any
-  void setTextCursor(QTextCursor c);
+  TextCursor textCursor() const; // looks at focused fragment, if any
+  void setTextCursor(TextCursor c);
   int findFragmentForPhrase(QString phrase) const; // -1 if not found
 public: // splitpar stuff:
   virtual double splittableY(double hmax);

@@ -1,10 +1,8 @@
 // MathMode.cpp
 
 #include "TextItem.h"
-#include "TextMarkings.h"
 #include "TeXCodes.h"
 #include <QKeyEvent>
-#include <QTextDocument>
 #include <QDebug>
 
 static bool isLatinLetter(QChar x) {
@@ -15,7 +13,7 @@ bool TextItem::keyPressAsMath(QKeyEvent *e) {
   //  int key = e->key();
   //  Qt::KeyboardModifiers mod = e->modifiers();
   QString txt = e->text();
-  QTextCursor c = textCursor();
+  TextCursor c = textCursor();
   if ((txt>="A" && txt<="Z") || (txt>="a" && txt<="z")) {
     if (c.hasSelection()) {
       // we are going to overwrite this selection, I guess
@@ -40,9 +38,9 @@ bool TextItem::keyPressAsMath(QKeyEvent *e) {
 	// order is italic -> bold italic -> bold -> plain -> italic
 	if (mdb) {
 	  if (mdi) 
-	    markings_->deleteMark(mdi);
+	    deleteMarkup(mdi);
 	  else
-	    markings_->deleteMark(mdb);
+	    deleteMarkup(mdb);
 	} else {
 	  if (mdi) 
 	    addMarkup(MarkupData::Bold, c.position()-dpos, c.position());
@@ -52,9 +50,9 @@ bool TextItem::keyPressAsMath(QKeyEvent *e) {
       } else {
 	// previous was _different_ letter; we'll deitalicize / debold; redup
 	if (mdi)
-	  markings_->deleteMark(mdi);
+          deleteMarkup(mdi);
 	if (mdb) 
-	  markings_->deleteMark(mdb);
+	  deleteMarkup(mdb);
         if (dpos>1)
           c.deletePreviousChar();
         if (mdb)
@@ -92,14 +90,14 @@ bool TextItem::keyPressAsMath(QKeyEvent *e) {
       if (document()->characterAt(c.position()-1)=='e') {
 	MarkupData *md = markupAt(c.position(), MarkupData::Italic);
 	if (md)
-	  markings_->deleteMark(md);
+          deleteMarkup(md);
       }
       tryScriptStyles(c);
     } else if (txt=="_") {
       tryScriptStyles(c);
     } else if (txt==" ") {
       if (QString(",;.:").contains(document()->characterAt(c.position()-1)))
-	c.movePosition(QTextCursor::Left);
+	c.movePosition(TextCursor::Left);
       tryScriptStyles(c, true);
     }
     return false; // still insert the character

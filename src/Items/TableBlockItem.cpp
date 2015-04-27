@@ -37,7 +37,8 @@ TableBlockItem::TableBlockItem(TableBlockData *data, Item *parent):
   connect(item_, SIGNAL(unicellular(TableData*)),
 	  this, SIGNAL(unicellular(TableData*)));
 
-  QTextCursor tc(item_->document());
+  /*
+  TextCursor tc(item_->document());
   QTextBlockFormat fmt = tc.blockFormat();
   fmt.setTextIndent(0);
   fmt.setLineHeight(100,
@@ -45,6 +46,7 @@ TableBlockItem::TableBlockItem(TableBlockData *data, Item *parent):
   tc.movePosition(QTextCursor::Start);
   tc.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
   tc.setBlockFormat(fmt);
+  */
 }
 
 TableBlockItem::~TableBlockItem() {

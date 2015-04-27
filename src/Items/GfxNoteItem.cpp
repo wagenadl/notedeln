@@ -43,20 +43,13 @@ GfxNoteItem::GfxNoteItem(GfxNoteData *data, Item *parent):
   if (data->textWidth()>1)
     text->setTextWidth(data->textWidth());
 
-  QTextCursor tc(text->document());
-  QTextBlockFormat fmt = tc.blockFormat();
-  fmt.setLineHeight(style().real("note-line-spacing")*100,
-		    QTextBlockFormat::ProportionalHeight);
-  tc.movePosition(QTextCursor::Start);
-  tc.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
-  tc.setBlockFormat(fmt);
-
+  text->document()->setLineHeight(style().real("note-font-size")
+                                  *style().real("note-line-spacing"));
   
   connect(text, SIGNAL(abandoned()),
 	  this, SLOT(abandon()), Qt::QueuedConnection);
 		     
   setFlag(ItemIsFocusable);
-  setFocusProxy(text);
   connect(text->document(), SIGNAL(contentsChanged()),
 	  SLOT(updateTextPos()));
   updateTextPos();
@@ -96,47 +89,13 @@ static QPointF retract(QPointF p, double d) {
 QPointF GfxNoteItem::nearestCorner(QPointF pbase) {
   double yof = style().real("note-y-offset");
   double xof = style().real("note-x-inset");
-  QTextBlock b0 = text->document()->firstBlock();
-  QTextLayout *lay0 = b0.layout();
-  QPointF p0 = lay0->position() + text->pos() - pbase;
-  QTextBlock bn = text->document()->lastBlock();
-  QTextLayout *layn = bn.layout();
-  QPointF pn = layn->position() + text->pos() - pbase;
-  if (lay0->lineCount()==0) { // this shouldn't happen, I think
-    return pbase;
-  } else {
-    QRectF l0rect = lay0->lineAt(0).naturalTextRect();
-    l0rect.translate(p0);
-    QRectF lnrect = layn->lineAt(layn->lineCount()-1).naturalTextRect();
-    lnrect.translate(pn);
-    QPointF tl = l0rect.topLeft() + QPointF(xof, -yof);
-    QPointF tr = l0rect.topRight() + QPointF(-xof, -yof);
-    QPointF bl = lnrect.topLeft() + QPointF(xof, -yof);
-    QPointF br = lnrect.topRight() + QPointF(-xof, -yof);
-    double dyt = tl.y();
-    double dyb = bl.y();
-    QPointF p;
-    if (fabs(dyt)<fabs(dyb)) {
-      double dxl = tl.x();
-      double dxr = tr.x();
-      if (dxl>0) 
-	p = retract(tl, xof*1.5);
-      else if (dxr<0)
-	p = retract(tr, xof*1.5);
-      else
-	p = retract((tl+tr)/2, xof*1.5);
-    } else {
-      double dxl = bl.x();
-      double dxr = br.x();
-      if (dxl>0) 
-	p = retract(bl, xof*1.5);
-      else if (dxr<0)
-	p = retract(br, xof*1.5);
-      else
-	p = retract((bl+br)/2, xof*1.5);
-    }
-    return pbase + p;
-  }
+  QRectF docr = text->document()->boundingRect();
+  double y = (fabs(docr.top()-yof)<fabs(docr.bottom()-yof))
+              ? docr.top() : docr.bottom();
+  double x = (fabs(docr.left()-xof)<fabs(docr.right()-xof))
+              ? docr.left() : docr.right();
+  return QPointF(x, y);
+  // I don't know if this is good enough
 }
   
 
@@ -288,13 +247,13 @@ void GfxNoteItem::translate(QPointF dxy) {
 void GfxNoteItem::futileMovementKey(int k, Qt::KeyboardModifiers) {
   switch (k) {
   case Qt::Key_Left: case Qt::Key_Up: {
-    QTextCursor c(text->textCursor());
-    c.movePosition(QTextCursor::Start);
+    TextCursor c(text->textCursor());
+    c.movePosition(TextCursor::Start);
     text->setTextCursor(c);
   } break;
   case Qt::Key_Right: case Qt::Key_Down: {
-    QTextCursor c(text->textCursor());
-    c.movePosition(QTextCursor::End);
+    TextCursor c(text->textCursor());
+    c.movePosition(TextCursor::End);
     text->setTextCursor(c);
   } break;
   default:

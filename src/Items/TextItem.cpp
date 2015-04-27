@@ -22,7 +22,7 @@
 #include "EntryScene.h"
 #include "Style.h"
 #include "ResManager.h"
-#include "HoverRegion.h"
+//#include "HoverRegion.h"
 #include "BlockItem.h"
 #include "ResourceMagic.h"
 #include "Assert.h"
@@ -49,7 +49,6 @@ TextItem::TextItem(TextData *data, Item *parent, bool noFinalize,
 		   TextItemDoc *altdoc):
   Item(data, parent) {
   hasAltDoc = altdoc!=NULL;
-  markings_ = 0;
   if (altdoc)
     text = altdoc;
   else
@@ -139,14 +138,14 @@ void TextItem::focusOutEvent(QFocusEvent *e) {
     }
   }
 
-  QGraphicsTextItem::focusOutEvent(e);
+  QGraphicsItem::focusOutEvent(e);
 }
 
 void TextItem::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *e) {
   if (e->button()!=Qt::LeftButton)
-    take = false;
+    ;
   else if (mode()->mode()==Mode::Type)
-    take = false;
+    ;
   else if (hasFocus())
     clearFocus();
   e->accept();
@@ -157,13 +156,13 @@ void TextItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
   case Qt::LeftButton:
     switch (mode()->mode()) {
     case Mode::Type: {
-      int pos = text->locate(e->pos());
+      int pos = text->find(e->pos());
       if (pos>=0) {
         TextCursor c = textCursor();
         c.setPosition(pos,
-                      e->modifiers() & Qt::ShiftModifer
+                      e->modifiers() & Qt::ShiftModifier
                       ? TextCursor::KeepAnchor
-                      : Textcursor::MoveAnchor);
+                      : TextCursor::MoveAnchor);
         setTextCursor(c);
       }
     } break;
@@ -187,7 +186,7 @@ void TextItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
     default:
       break;
     }
-    if (mode->mode()!=Mode::Type && hasFocus())
+    if (mode()->mode()!=Mode::Type && hasFocus())
       clearFocus();
     break;
   case Qt::MiddleButton:
@@ -215,7 +214,7 @@ int TextItem::pointToPos(QPointF p) const {
 }
 
 QPointF TextItem::posToPoint(int pos) const {
-  return text->locate(p);
+  return text->locate(pos).center();
 }
       
 
@@ -255,15 +254,15 @@ void TextItem::mouseMoveEvent(QGraphicsSceneMouseEvent *evt) {
 	if (mds<e && mde>s) {
           MarkupData::Style mdst = md->style();
           QDateTime cre = md->created();
-          markings_->deleteMark(md);
+          deleteMarkup(md);
           if (mde>e) {
-            markings_->newMark(mdst, e, mde);
+            addMarkup(mdst, e, mde);
             MarkupData *md1 = markupAt(e, mdst);
             if (md1)
               md1->setCreated(cre);
           }
           if (mds<s) {
-            markings_->newMark(mdst, mds, s);
+            addMarkup(mdst, mds, s);
             MarkupData *md1 = markupAt(s, mdst);
             if (md1)
               md1->setCreated(cre);
@@ -288,7 +287,7 @@ void TextItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *) {
 bool TextItem::keyPressAsMotion(QKeyEvent *e) {
   switch (e->key()) {
   case Qt::Key_Escape: {
-    QTextCursor c = textCursor();
+    TextCursor c = textCursor();
     c.clearSelection();
     setTextCursor(c);
     clearFocus();
@@ -308,12 +307,23 @@ bool TextItem::keyPressAsMotion(QKeyEvent *e) {
       emit futileMovementKey(e->key(), e->modifiers());
       return true;
     } break;
-  case Qt::Key_Left: case Qt::Key_Up:
-  case Qt::Key_Right: case Qt::Key_Down:
+  case Qt::Key_Left:
+    tryMove(TextCursor::Left, e->key(), e->modifiers());
+    return true;
+  case Qt::Key_Up:
+    tryMove(TextCursor::Up, e->key(), e->modifiers());
+    return true;
+  case Qt::Key_Right:
+    tryMove(TextCursor::Right, e->key(), e->modifiers());
+    return true;
+  case Qt::Key_Down:
+    tryMove(TextCursor::Down, e->key(), e->modifiers());
+    return true;
+    /*
   case Qt::Key_PageUp: case Qt::Key_PageDown: {
-    QTextCursor pre = textCursor();
+    TextCursor pre = textCursor();
     text->internalKeyPressEvent(e);
-    QTextCursor post = textCursor();
+    TextCursor post = textCursor();
     if (e->key()==Qt::Key_PageDown) {
       qDebug() << "TextItem::pagedown " << pre.position() << ";" << post.position();
     }
@@ -321,8 +331,22 @@ bool TextItem::keyPressAsMotion(QKeyEvent *e) {
       emit futileMovementKey(e->key(), e->modifiers());
     return true;
   } break;
+    */
   }
   return false;
+}
+
+void TextItem::tryMove(TextCursor::MoveOperation op,
+                       int key,
+                       Qt::KeyboardModifiers mod) {
+  TextCursor c = textCursor();
+  TextCursor::MoveMode mm = mod & Qt::ShiftModifier ? TextCursor::KeepAnchor
+    : TextCursor::MoveAnchor;
+  c.movePosition(op, mm);
+  if (c==textCursor())
+    emit futileMovementKey(key, mod);
+  else
+    setTextCursor(c);
 }
 
 bool TextItem::keyPressWithControl(QKeyEvent *e) {
@@ -370,7 +394,7 @@ bool TextItem::keyPressWithControl(QKeyEvent *e) {
   }
 }
 
-bool TextItem::keyPressAsSimpleStyle(int key, QTextCursor const &cursor) {
+bool TextItem::keyPressAsSimpleStyle(int key, TextCursor const &cursor) {
   switch (key) {
   case Qt::Key_Slash:
     if (mode()->mathMode())
@@ -402,16 +426,15 @@ bool TextItem::keyPressAsSimpleStyle(int key, QTextCursor const &cursor) {
 }
 
 bool TextItem::tryTeXCode(bool noX) {
-  QTextCursor c(textCursor());
+  TextCursor c(textCursor());
   if (!c.hasSelection()) {
-    QTextCursor m = document()->find(QRegExp("([^A-Za-z])"),
-				     c, QTextDocument::FindBackward);
+    TextCursor m = c.findBackward(QRegExp("([^A-Za-z])"));
     int start = m.hasSelection() ? m.selectionEnd() : 0;
-    m = document()->find(QRegExp("([^A-Za-z])"),
-			 start);
+    m.setPosition(start);
+    m = m.findForward(QRegExp("([^A-Za-z])"));
     int end = m.hasSelection() ? m.selectionStart() : data()->text().size();
     c.setPosition(start);
-    c.setPosition(end, QTextCursor::KeepAnchor);
+    c.setPosition(end, TextCursor::KeepAnchor);
   }
   // got a word
   QString key = c.selectedText();
@@ -436,7 +459,7 @@ bool TextItem::tryTeXCode(bool noX) {
 
 bool TextItem::keyPressAsSpecialEvent(QKeyEvent *e) {
   if (e->key()==Qt::Key_Tab || e->key()==Qt::Key_Backtab) {
-    QTextCursor tc(textCursor());
+    TextCursor tc(textCursor());
     
     TextBlockItem *p = dynamic_cast<TextBlockItem *>(parent());
     if (p) {
@@ -461,7 +484,10 @@ bool TextItem::keyPressAsSpecialEvent(QKeyEvent *e) {
           p->data()->setIndented(true);
       } else {
 	// no control, no shift, not at start
-	QTextDocument *doc = document();
+        qDebug() << "Convert to table currently not implemented";
+        ASSERT(0);
+        /*
+	TextItemDoc *doc = document();
 	if (doc->blockCount()==1
 	    && doc->firstBlock().lineCount()==1
 	    && doc->firstBlock().layout()->lineAt(0).naturalTextWidth()
@@ -472,6 +498,7 @@ bool TextItem::keyPressAsSpecialEvent(QKeyEvent *e) {
 	} else {
 	  return false; // allow Tab to be inserted
 	}
+        */
       }
       p->initializeFormat();
       return true;
@@ -481,7 +508,7 @@ bool TextItem::keyPressAsSpecialEvent(QKeyEvent *e) {
 }
 
 bool TextItem::keyPressAsSpecialChar(QKeyEvent *e) {
-  QTextCursor c(textCursor());
+  TextCursor c(textCursor());
   QChar charBefore = document()->characterAt(c.position()-1);
   QChar charBefore2 = document()->characterAt(c.position()-2);
   QString charNow = e->text();
@@ -555,12 +582,11 @@ static bool balancedBrackets(QString s) {
  return true;
 }
 
-bool TextItem::tryScriptStyles(QTextCursor c, bool onlyIfBalanced) {
+bool TextItem::tryScriptStyles(TextCursor c, bool onlyIfBalanced) {
   /* Returns true if we decide to make a superscript or subscript, that is,
      if there is a preceding "^" or "_".
    */
-  QTextCursor m = document()->find(QRegExp("\\^|_"),
-				   c, QTextDocument::FindBackward);
+  TextCursor m = c.findBackward(QRegExp("\\^|_"));
   if (!m.hasSelection())
     return false; // no "^" or "_"
   if (m.selectionEnd() == c.position())
@@ -568,8 +594,8 @@ bool TextItem::tryScriptStyles(QTextCursor c, bool onlyIfBalanced) {
 
   qDebug() << "tryScriptStyles " << onlyIfBalanced;
   if (onlyIfBalanced) {
-    QTextCursor scr(m);
-    scr.setPosition(c.position(), QTextCursor::KeepAnchor);
+    TextCursor scr(m);
+    scr.setPosition(c.position(), TextCursor::KeepAnchor);
     if (!balancedBrackets(scr.selectedText()))
       return false;
   }  
@@ -585,7 +611,7 @@ bool TextItem::tryScriptStyles(QTextCursor c, bool onlyIfBalanced) {
 
 
 void TextItem::toggleSimpleStyle(MarkupData::Style type,
-                                 QTextCursor const &c) {
+                                 TextCursor const &c) {
   int start = -1;
   int end = -1;
   if (c.hasSelection()) {
@@ -614,39 +640,45 @@ void TextItem::toggleSimpleStyle(MarkupData::Style type,
     start = refineStart(start, base);
     end = refineEnd(end, base);
   }
-  int min = c.block().position();
-  int max = min + c.block().length() - 1;
-  if (start<min)
-    start = min;
-  if (end>max)
-    end = max;
 
   MarkupData *oldmd = markupAt(start, type);
   
   if (oldmd && oldmd->start()==start && oldmd->end()==end) {
-    markings_->deleteMark(oldmd);
+    deleteMarkup(oldmd);
     if (type==MarkupData::Italic
 	&& document()->characterAt(end).unicode()==0x200a) {
-      QTextCursor d(c);
+      qDebug() << "Italic correction - should eventually go away";
+      TextCursor d(c);
       d.setPosition(end);
       d.deleteChar();
     }
   } else if (start<end) {
     addMarkup(type, start, end);
     if (type==MarkupData::Italic) {
-      QTextCursor d(c);
+      TextCursor d(c);
       d.setPosition(end);
       d.insertText(QString::fromUtf8(" ")); // hair space 0x200a
+      qDebug() << "Italic correction - should eventually go away";
     }
   }
 }
+
+void TextItem::deleteMarkup(MarkupData *d) {
+  int s = d->start();
+  int e = d->end();
+  data()->deleteMarkup(d);
+  text->partialRelayout(s, e);
+  update();
+}
   
 void TextItem::addMarkup(MarkupData::Style t, int start, int end) {
-  markings_->newMark(t, start, end);
+  addMarkup(new MarkupData(start, end, t));
 }
 
 void TextItem::addMarkup(MarkupData *d) {
-  markings_->newMark(d);
+  data()->addMarkup(d);
+  text->partialRelayout(d->start(), d->end());
+  update();
 }
 
 MarkupData *TextItem::markupAt(int pos, MarkupData::Style typ) {
@@ -698,14 +730,14 @@ static bool approvedMark(QString s) {
 
 QString TextItem::markedText(MarkupData *md) {
   ASSERT(md);
-  QTextCursor c = textCursor();
+  TextCursor c = textCursor();
   c.setPosition(md->start());
-  c.setPosition(md->end(), QTextCursor::KeepAnchor);
+  c.setPosition(md->end(), TextCursor::KeepAnchor);
   return c.selectedText();
 }
 
 bool TextItem::tryExplicitLink() {
-  QTextCursor m = ResourceMagic::explicitLinkAt(textCursor(), style());
+  TextCursor m = ResourceMagic::explicitLinkAt(textCursor(), style());
   if (!m.hasSelection())
     return false;
   int start = m.selectionStart();

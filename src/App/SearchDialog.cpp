@@ -7,7 +7,7 @@
 #include "SearchResultScene.h"
 #include "SearchView.h"
 #include "BookData.h"
-#include "FindOverlay.h"
+//#include "FindOverlay.h"
 #include "Assert.h"
 #include "SheetScene.h"
 
@@ -90,5 +90,6 @@ void SearchDialog::gotoPage(int n, Qt::KeyboardModifiers m,
   qDebug() << "gotoPage" << n << phrase;
   SheetScene *bs = dynamic_cast<SheetScene *>(view->scene());
   ASSERT(bs);
-  bs->setOverlay(new FindOverlay(bs, phrase));
+  //  bs->setOverlay(new FindOverlay(bs, phrase));
+  ASSERT(0);
 }

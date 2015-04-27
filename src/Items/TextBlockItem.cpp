@@ -26,6 +26,7 @@
 #include "TextCursor.h"
 #include <QDebug>
 #include "Assert.h"
+#include <math.h>
 
 TICreator::~TICreator() {
 }
@@ -127,17 +128,14 @@ void TextBlockItem::initializeFormat() {
   double leftmargin = disp ? style().real("display-paragraph-left-margin") : 0;
   if (data()->dedented())
     leftmargin +=  style().real("paragraph-indent");
-  fmt.setTextIndent(indent);
-  fmt.setLeftMargin(leftmargin);
-  fmt.setRightMargin(disp ? style().real("display-paragraph-right-margin") : 0);
-  //fmt.setTopMargin(style().real("paragraph-top-margin"));
-  //  fmt.setBottomMargin(style().real("paragraph-bottom-margin"));
-  tc.movePosition(QTextCursor::Start);
-  tc.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
-  tc.setBlockFormat(fmt);
+  doc->setIndent(indent);
+  doc->setLeftMargin(leftmargin);
+  doc->setRightMargin(disp ? style().real("display-paragraph-right-margin")
+                      : 0);
+  doc->relayout();
 }  
 
-QTextDocument *TextBlockItem::document() const {
+TextItemDoc *TextBlockItem::document() const {
   ASSERT(frags[0]);
   return frags[0]->document();
 }
@@ -152,16 +150,15 @@ bool TextBlockItem::isEmpty() const {
 }
 
 bool TextBlockItem::lastParIsEmpty() const {
-  QTextBlock b = document()->lastBlock();
-  QString t = b.text();
-  bool e = t.isEmpty();
-  return e;
+  TextData *dat = text()->data();
+  QList<int> pargs = dat->paragraphStarts();
+  return pargs.last()==dat->text().size();
 }
 
 void TextBlockItem::dropEmptyLastPar() {
   if (lastParIsEmpty()) {
-    QTextCursor c(document());
-    c.movePosition(QTextCursor::End);
+    TextCursor c(document());
+    c.movePosition(TextCursor::End);
     c.deletePreviousChar();
   }
 }
@@ -218,14 +215,14 @@ QList<TextItem *> TextBlockItem::fragments() {
   return l;
 }
 
-QTextCursor TextBlockItem::textCursor() const {
+TextCursor TextBlockItem::textCursor() const {
   foreach (TextItem *ti, frags)
     if (ti->hasFocus())
       return ti->textCursor();
   return text()->textCursor();
 }
 
-void TextBlockItem::setTextCursor(QTextCursor c) {
+void TextBlockItem::setTextCursor(TextCursor c) {
   QPointF pos = frags[0]->posToPoint(c.position());
   int tgt = 0;
   qDebug() << "TBI::setTextCursor" << pos;
@@ -251,7 +248,7 @@ void TextBlockItem::ensureVisible(QPointF p) {
       emit sheetRequest(data()->sheet() + i);
       frags[i]->setFocus();
       int pos = frags[i]->pointToPos(p);
-      QTextCursor c(frags[i]->textCursor());
+      TextCursor c(frags[i]->textCursor());
       c.setPosition(pos);
       frags[i]->setTextCursor(c);
       return;
@@ -260,23 +257,8 @@ void TextBlockItem::ensureVisible(QPointF p) {
 }
 
 double TextBlockItem::splittableY(double y) {
-  QTextDocument *doc = frags[0]->document();
-  double bestY = 0;
-  for (QTextBlock blk = doc->firstBlock(); blk.isValid(); blk=blk.next()) {
-    QTextLayout *lay = blk.layout();
-    double y0 = lay->position().y();
-    QRectF bb = lay->boundingRect();
-    if (y0 + bb.bottom() <= y) {
-      bestY = y0 + bb.bottom();
-    } else if (y0+bb.top()<y) {
-      for (int i=0; i<lay->lineCount(); i++) {
-	QTextLine ln = lay->lineAt(i);
-	if (y0 + ln.rect().bottom() <= y)
-	  bestY = y0 + ln.rect().bottom();
-      }
-    }
-  }
-  return bestY;
+  TextItemDoc *doc = frags[0]->document();
+  return doc->lineHeight() * floor(y/doc->lineHeight());
 }
 
 void TextBlockItem::unsplit() {
@@ -347,15 +329,13 @@ void TextBlockItem::focusInEvent(QFocusEvent*e) {
 }
 
 int TextBlockItem::findFragmentForPhrase(QString phrase) const {
-  QTextCursor c(document()->find(phrase));
-  if (c.isNull())
+  int k = document()->find(phrase);
+  if (k<0)
     return -1;
-  QTextBlock b = document()->findBlock(c.position());
-  if (!b.isValid())
+  QRectF r = document()->locate(k);
+  if (r.isEmpty())
     return -1;
-  QTextLayout *lay = b.layout();
-  QTextLine l = lay->lineForTextPosition(c.position()-b.position());
-  int y = l.position().y();
+  double y = r.center().y();
   int i=0;
   foreach (int y0, data()->sheetSplits()) {
     if (y<y0)

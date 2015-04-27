@@ -19,14 +19,14 @@ public:
   /* n should count 0..N-1 but is printed as 1..N */
   void setTitle(QString const &title);
   void setFancyTitle(class TitleData *data, int sheet,
-		     class QTextDocument *doc=0);
+		     class TextItemDoc *doc=0);
   class TitleItem *fancyTitleItem();
   void setPageNumber(QString n);
   void setContInMargin(bool x=true);
   Style const &style() const { return style_; }
   void setOverlay(QGraphicsObject *);
   void repositionTitle();
-  QTextDocument *fancyTitleDocument();
+  class TextItemDoc *fancyTitleDocument();
   QGraphicsView *eventView() const;
   /* This is the view from which the current mouse or key event comes */
   void setEventView(QGraphicsView *);

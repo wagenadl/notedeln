@@ -10,7 +10,8 @@
 #include "MarkupEdges.h"
 #include "Style.h"
 
-TextItemDoc::TextItemDoc(TextData *data): d(new TextItemDocData(data)) {
+TextItemDoc::TextItemDoc(TextData *data, QObject *parent):
+  QObject(parent), d(new TextItemDocData(data)) {
   d->linestarts = d->text->lineStarts();
   if (d->linestarts.isEmpty())
     relayout();
@@ -166,7 +167,7 @@ void TextItemDoc::relayout(bool preserveWidth) {
                  QSizeF(d->width, linestarts.size()*d->lineheight));
 }
 
-void TextItemDoc::partialRelayout(int /*offset*/) {
+void TextItemDoc::partialRelayout(int /* start */, int /* end */) {
   relayout();
 }
 
@@ -444,3 +445,14 @@ int TextItemDoc::lineEndFor(int pos) const {
     return starts[line]-1;
 }
 
+bool TextItemDoc::isEmpty() const {
+  return d->text->isEmpty();
+}
+
+QChar TextItemDoc::characterAt(int pos) const {
+  return d->text->text()[pos];
+}
+
+int TextItemDoc::find(QString s) const {
+  return text().indexOf(s);
+}
