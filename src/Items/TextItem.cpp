@@ -32,6 +32,7 @@
 #include "Cursors.h"
 #include "TextItemDoc.h"
 
+#include <math.h>
 #include <QPainter>
 #include <QFont>
 #include <QKeyEvent>
@@ -155,11 +156,13 @@ void TextItem::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *e) {
 }
 
 void TextItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
+  qDebug() << "TI mouse";
   switch (e->button()) {
   case Qt::LeftButton:
     switch (mode()->mode()) {
     case Mode::Type: {
       int pos = text->find(e->pos());
+      qDebug() << "TI: mouse" << e->pos() << pos;
       if (pos>=0) {
         TextCursor c = textCursor();
         c.setPosition(pos,
@@ -909,7 +912,14 @@ void TextItem::paint(QPainter *p, const QStyleOptionGraphicsItem*, QWidget*) {
     p->setPen(pen);
     p->drawRect(boundingRect().adjusted(.5, .5, -.5, -.5));
   }
+  // render selection box...
   text->render(p);
+
+  if (hasFocus()) {
+    QRectF r = text->locate(cursor.position()).adjusted(-10, 0, 10, 0);
+    p->setPen(QPen(QColor("red")));
+    p->drawText(r, Qt::AlignCenter, "|");
+  }
 }
 
 void TextItem::setBoxVisible(bool v) {
@@ -979,5 +989,6 @@ void TextItem::unclip() {
 
 void TextItem::setTextCursor(TextCursor const &tc) {
   cursor = tc;
+  setFocus();
   update();
 }

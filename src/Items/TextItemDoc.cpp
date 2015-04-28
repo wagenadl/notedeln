@@ -239,7 +239,7 @@ QRectF TextItemDoc::locate(int offset) const {
   QVector<int> const &starts = d->linestarts;
   int line = findLastLE(starts, offset);
   Q_ASSERT(line>=0);
-  double ytop = line * d->lineheight;
+  double ytop = line * d->lineheight + 4;
   double ybot = ytop + d->lineheight;
   double xl = d->leftmargin;
   int pos = starts[line];
@@ -255,7 +255,7 @@ int TextItemDoc::find(QPointF xy) const {
   if (x<0 || x>d->width - d->leftmargin - d->rightmargin)
     return -1;
 
-  double y = xy.y();
+  double y = xy.y() - 4;
   int line = int(y/d->lineheight);
   if (line<0)
     return -1;
@@ -272,6 +272,8 @@ int TextItemDoc::find(QPointF xy) const {
   bool startpar = line==0 || text()[pos-1]==QChar('\n');
   if (startpar)
     x -= d->indent;
+
+  qDebug() << "TID:find" << x << y;
   
   double x0 = 0;
   while (pos<npos) {
@@ -279,6 +281,7 @@ int TextItemDoc::find(QPointF xy) const {
     if (x1>x)
       return pos;
     pos++;
+    x0 = x1;
   }
   return pos==npos ? npos : pos-1; // return position at end of line
   // rather than at start of next line if possible

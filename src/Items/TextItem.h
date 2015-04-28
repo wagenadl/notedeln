@@ -65,14 +65,14 @@ signals:
   void refTextChange(QString oldText, QString newText);
   void multicellular(int pos, TextData *td);
 public:
-  void mouseMoveEvent(QGraphicsSceneMouseEvent *);
-  void mouseReleaseEvent(QGraphicsSceneMouseEvent *);
-  void mousePressEvent(QGraphicsSceneMouseEvent *);
-  void mouseDoubleClickEvent(QGraphicsSceneMouseEvent *);
-  void keyPressEvent(QKeyEvent *);
-  void focusInEvent(QFocusEvent *);
-  void focusOutEvent(QFocusEvent *);
-  void hoverMoveEvent(QGraphicsSceneHoverEvent *);
+  virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *);
+  virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *);
+  virtual void mousePressEvent(QGraphicsSceneMouseEvent *);
+  virtual void mouseDoubleClickEvent(QGraphicsSceneMouseEvent *);
+  virtual void keyPressEvent(QKeyEvent *);
+  virtual void focusInEvent(QFocusEvent *);
+  virtual void focusOutEvent(QFocusEvent *);
+  virtual void hoverMoveEvent(QGraphicsSceneHoverEvent *);
 private:
   bool keyPressAsMath(QKeyEvent *);
   bool keyPressAsMotion(QKeyEvent *);
