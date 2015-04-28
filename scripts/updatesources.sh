@@ -17,7 +17,7 @@ for DIR in $SUBDIRS; do
     echo "# on " `date` >> $DIR/$DIR.pri
     echo "" >> $DIR/$DIR.pri
     echo "HEADERS += \\" >> $DIR/$DIR.pri
-    find $DIR -name \*.H -exec echo "    " '{}' " \\" ';' >> $DIR/$DIR.pri
+    find $DIR -name \*.h -exec echo "    " '{}' " \\" ';' >> $DIR/$DIR.pri
     echo "" >> $DIR/$DIR.pri
 
     echo "SOURCES += \\" >> $DIR/$DIR.pri
