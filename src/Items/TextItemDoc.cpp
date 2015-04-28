@@ -95,7 +95,7 @@ void TextItemDoc::relayout(bool preserveWidth) {
   /* Let's find splittable positions. */
   QVector<int> bitstarts;
   QVector<QString> bits;
-  QVector<bool> spacebefore;
+  QVector<QString> caps;
   QVector<bool> parbefore;
 
   QString txt = d->text->text();
@@ -106,9 +106,8 @@ void TextItemDoc::relayout(bool preserveWidth) {
   qDebug() << cw;
 
 
-  QRegExp re(QString::fromUtf8("[-/— \n] *"));
+  QRegExp re(QString::fromUtf8("[-/— \n]"));
   int off = 0;
-  spacebefore << false;
   parbefore << true;
   while (off>=0) {
     int start = off;
@@ -117,32 +116,44 @@ void TextItemDoc::relayout(bool preserveWidth) {
     if (off<0) {
       // last
       bits << txt.mid(start);
+      caps << "";
     } else {
       QString cap = re.cap();
-      bits << txt.mid(start, off-start) + cap.trimmed();
+      bits << txt.mid(start, off-start);
+      caps << cap;
       off = off + cap.length();
       parbefore << cap.contains("\n");
-      spacebefore << cap.contains(" ");
     }
   }
 
-  qDebug() << "bits: " << bitstarts << bits << parbefore << spacebefore;
-
-  /* Next, find the widths of all the bits */
+  /* Next, find the widths of all the bits and caps */
   int N = bits.size();
   QVector<double> widths;
+  QVector<double> capwidths;
   widths.resize(N);
+  capwidths.resize(N);
   for (int i=0; i<N; i++) {
-    double w = 0;
     int k0 = bitstarts[i];
     QString bit = bits[i];
     int K = bit.size();
+    double w = 0;
     for (int k=0; k<K; k++)
       w += charwidths[k+k0];
     widths[i] = w;
+
+    k0 += K;
+    QString cap = caps[i];
+    K = cap.size();
+    w = 0;
+    for (int k=0; k<K; k++)
+      w += charwidths[k+k0];
+    capwidths[i] = w;
   }
 
   QVector<double> ww = widths;
+  ww.resize(5);
+  qDebug() << ww;
+  ww = capwidths;
   ww.resize(5);
   qDebug() << ww;
   
@@ -162,18 +173,21 @@ void TextItemDoc::relayout(bool preserveWidth) {
       // let's add words to the line
       if (usedwidth==0) {
         // at start of line, unconditionally add
-        line += bits[idx];
-        usedwidth += widths[idx];
+        line += bits[idx] + caps[idx];
+        usedwidth += widths[idx] + capwidths[idx];
         idx++;
       } else if (parbefore[idx]) {
         break;
       } else {
         double nextwidth = widths[idx];
-        if (spacebefore[idx])
-          nextwidth += charwidths[bitstarts[idx]-1];
+	bool trivcap = QString(" \n").contains(caps[idx]);
+	if (!trivcap)
+	  nextwidth += capwidths[idx]; // must fit the cap as well
         if (usedwidth+nextwidth < availwidth) {
           line += bits[idx];
           usedwidth += nextwidth;
+	  if (trivcap)
+	    usedwidth += capwidths[idx]; // it wasn't counted before
           idx++;
         } else {
           break;

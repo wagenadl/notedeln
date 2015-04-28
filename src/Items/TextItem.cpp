@@ -138,9 +138,8 @@ void TextItem::focusOutEvent(QFocusEvent *e) {
   if (scene()) {
     QGraphicsItem *fi = scene()->focusItem();
     if (fi != this) {
-      TextCursor c(textCursor());
-      c.clearSelection();
-      setTextCursor(c);
+      cursor.clearSelection();
+      update();
     }
   }
 
@@ -166,12 +165,12 @@ void TextItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
       int pos = text->find(e->pos());
       qDebug() << "TI: mouse" << e->pos() << pos;
       if (pos>=0) {
-        TextCursor c = textCursor();
-        c.setPosition(pos,
-                      e->modifiers() & Qt::ShiftModifier
-                      ? TextCursor::KeepAnchor
-                      : TextCursor::MoveAnchor);
-        setTextCursor(c);
+        cursor.setPosition(pos,
+			   e->modifiers() & Qt::ShiftModifier
+			   ? TextCursor::KeepAnchor
+			   : TextCursor::MoveAnchor);
+	setFocus();
+	update();
       }
     } break;
     case Mode::MoveResize:
@@ -202,13 +201,12 @@ void TextItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
       QClipboard *cb = QApplication::clipboard();
       QString txt = cb->text(QClipboard::Selection);
       if (!txt.isEmpty()) {
-      	TextCursor c = textCursor();
       	int pos = pointToPos(e->pos());
-      	if (pos>=0) 
-      	  c.setPosition(pos);
-      	c.insertText(txt);
-      	setFocus();
-      	setTextCursor(c);
+      	if (pos>=0) {
+      	  cursor.setPosition(pos);
+	  cursor.insertText(txt);
+	  setFocus();
+	}
       }
     }
   default:
@@ -466,33 +464,32 @@ bool TextItem::keyPressAsSimpleStyle(int key, TextCursor const &cursor) {
 }
 
 bool TextItem::tryTeXCode(bool noX) {
-  TextCursor c(textCursor());
-  if (!c.hasSelection()) {
-    TextCursor m = c.findBackward(QRegExp("([^A-Za-z])"));
+  if (!cursor.hasSelection()) {
+    TextCursor m = cursor.findBackward(QRegExp("([^A-Za-z])"));
     int start = m.hasSelection() ? m.selectionEnd() : 0;
     m.setPosition(start);
     m = m.findForward(QRegExp("([^A-Za-z])"));
     int end = m.hasSelection() ? m.selectionStart() : data()->text().size();
-    c.setPosition(start);
-    c.setPosition(end, TextCursor::KeepAnchor);
+    cursor.setPosition(start);
+    cursor.setPosition(end, TextCursor::KeepAnchor);
   }
   // got a word
-  QString key = c.selectedText();
+  QString key = cursor.selectedText();
   if (!TeXCodes::contains(key))
     return false;
   if (noX && key.size()==1)
     return false;
   QString val = TeXCodes::map(key);
-  c.deleteChar(); // delete the word
-  if (document()->characterAt(c.position()-1)=='\\')
-    c.deletePreviousChar(); // delete any preceding backslash
+  cursor.deleteChar(); // delete the word
+  if (document()->characterAt(cursor.position()-1)=='\\')
+    cursor.deletePreviousChar(); // delete any preceding backslash
   if (val.startsWith("x")) {
     // this is "vec", or "dot", or similar
-    if (document()->characterAt(c.position()-1).isSpace())
-      c.deletePreviousChar(); // delete previous space
-    c.insertText(val.mid(1));
+    if (document()->characterAt(cursor.position()-1).isSpace())
+      cursor.deletePreviousChar(); // delete previous space
+    cursor.insertText(val.mid(1));
   } else {
-    c.insertText(val); // insert the replacement code
+    cursor.insertText(val); // insert the replacement code
   }
   return true;
 }
