@@ -25,8 +25,10 @@ TitleItem::TitleItem(TitleData *data, Item *parent):
   TextItem(data->text(), parent), d(data) {
 
   setFont(style().font("title-font"));
+  setLineHeight(style().lineSpacing("title-font", 1));
   setDefaultTextColor(style().color("title-color"));
   setAllowParagraphs(false);
+  document()->relayout();
   setZValue(10); // stack before other stuff so that late notes go in front
 }
 
@@ -35,8 +37,10 @@ TitleItem::TitleItem(TitleData *data, int sheetno,
   TextItem(data->text(), parent, true, altdoc), d(data) {
 
   setFont(style().font("title-font"));
+  setLineHeight(style().lineSpacing("title-font", 1));
   setDefaultTextColor(style().color("title-color"));
   setAllowParagraphs(false);
+  document()->relayout();
   setZValue(10); // stack before other stuff so that late notes go in front
   finalizeConstructor(sheetno);
 }

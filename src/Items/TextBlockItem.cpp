@@ -118,14 +118,14 @@ void TextBlockItem::initializeFormat() {
 
   TextItemDoc *doc = frags[0]->document();
   TextCursor tc(doc);
-  doc->setLineHeight(style().real("text-font-size") *
-                     style().real(disp ? "display-paragraph-line-spacing"
-                                  : "paragraph-line-spacing"));
+  doc->setLineHeight(style().lineSpacing("text-font",
+                                         disp ? "display-paragraph-line-spacing"
+                                         : "paragraph-line-spacing"));
   double indent =
     data()->indented() ? style().real("paragraph-indent")
     : data()->dedented() ? -style().real("paragraph-indent")
     : 0;
-  double leftmargin = disp ? style().real("display-paragraph-left-margin") : 0;
+  double leftmargin = disp ? style().real("display-paragraph-left-margin") : 4;
   if (data()->dedented())
     leftmargin +=  style().real("paragraph-indent");
   doc->setIndent(indent);

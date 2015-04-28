@@ -9,10 +9,12 @@
 #include <math.h>
 #include "MarkupEdges.h"
 #include "Style.h"
+#include <QDebug>
 
 TextItemDoc::TextItemDoc(TextData *data, QObject *parent):
   QObject(parent), d(new TextItemDocData(data)) {
   d->linestarts = d->text->lineStarts();
+  qDebug() << "TextItemDoc constructor" << d->linestarts;
   if (d->linestarts.isEmpty())
     relayout();
 }
@@ -62,6 +64,7 @@ double TextItemDoc::rightMargin() const {
 }
 
 void TextItemDoc::setLineHeight(double pix) {
+  qDebug() << "TID: lh=" << pix;
   d->lineheight = pix;
 }
 
@@ -95,7 +98,14 @@ void TextItemDoc::relayout(bool preserveWidth) {
   QVector<bool> parbefore;
 
   QString txt = d->text->text();
-  QRegExp re(QString::fromUtf8("[-— \n] *"));
+
+  qDebug() << "TID::relayout" << txt;
+  QVector<double> cw = charwidths;
+  cw.resize(5);
+  qDebug() << cw;
+
+
+  QRegExp re(QString::fromUtf8("[-/— \n] *"));
   int off = 0;
   spacebefore << false;
   parbefore << true;
@@ -108,18 +118,15 @@ void TextItemDoc::relayout(bool preserveWidth) {
       bits << txt.mid(start);
     } else {
       QString cap = re.cap();
-      bits << txt.mid(start, off-start);
+      bits << txt.mid(start, off-start) + cap.trimmed();
       off = off + cap.length();
       parbefore << cap.contains("\n");
       spacebefore << cap.contains(" ");
     }
   }
 
-  /* Really, the spacewidth should be based on the local font,
-     but for right now... */
-  QFontMetricsF fm(d->baseFont);
-  double spacewidth = fm.width(" ");
-  
+  qDebug() << "bits: " << bitstarts << bits << parbefore << spacebefore;
+
   /* Next, find the widths of all the bits */
   int N = bits.size();
   QVector<double> widths;
@@ -131,40 +138,59 @@ void TextItemDoc::relayout(bool preserveWidth) {
     int K = bit.size();
     for (int k=0; k<K; k++)
       w += charwidths[k+k0];
-    widths[N] = w;
+    widths[i] = w;
   }
+
+  QVector<double> ww = widths;
+  ww.resize(5);
+  qDebug() << ww;
   
   /* Now, let's lay out some paragraphs... */
   QVector<int> linestarts;
+  qDebug() << d->width << d->leftmargin << d->rightmargin << d->indent;
   for (int idx=0; idx<bits.size(); ) {
+    // let's lay out one line
     double availwidth = d->width - d->leftmargin - d->rightmargin;
+    qDebug() << "availwidth" << availwidth;
     if (parbefore[idx])
       availwidth -= d->indent;
     linestarts << bitstarts[idx];
     double usedwidth = 0;
+    QString line = "";
     while (idx<bits.size()) {
-      // let's lay out a line
+      // let's add words to the line
       if (usedwidth==0) {
         // at start of line, unconditionally add
-        idx++;
+        line += bits[idx];
         usedwidth += widths[idx];
+        idx++;
+      } else if (parbefore[idx]) {
+        break;
       } else {
-        double nextwidth = widths[idx] + (spacebefore[idx] ? spacewidth : 0);
+        double nextwidth = widths[idx];
+        if (spacebefore[idx])
+          nextwidth += charwidths[bitstarts[idx]-1];
         if (usedwidth+nextwidth < availwidth) {
-          idx++;
+          line += bits[idx];
           usedwidth += nextwidth;
+          idx++;
         } else {
           break;
         }
       }
     }
+    qDebug() << line << usedwidth;
   }
 
+  qDebug() << linestarts;
+  
   d->linestarts = linestarts;
   // We *won't* copy it back to the TextData
 
   d->br = QRectF(QPointF(0, 0),
-                 QSizeF(d->width, linestarts.size()*d->lineheight));
+                 QSizeF(d->width, linestarts.size()*d->lineheight + 4));
+
+  qDebug() << d->br;
 }
 
 void TextItemDoc::partialRelayout(int /* start */, int /* end */) {
@@ -331,6 +357,10 @@ void TextItemDoc::remove(int offset, int length) {
   
 void TextItemDoc::render(QPainter *p, QRectF roi) const {
   QString txt = d->text->text();
+  if (roi.isNull())
+    roi = p->clipBoundingRect();
+  qDebug() << "TextItemDoc::render" << roi << txt;
+  qDebug() << "  " << d->linestarts;
   int N = d->linestarts.size();
 
   FontVariants &fonts = d->fonts();
@@ -339,8 +369,13 @@ void TextItemDoc::render(QPainter *p, QRectF roi) const {
   double descent = fonts.metrics(MarkupStyles())->descent();
   QVector<double> const &cw = d->charWidths();
 
-  int n0 = floor(roi.top()/d->lineheight);
+  int n0 = floor((roi.top()-4)/d->lineheight);
   int n1 = ceil(roi.bottom()/d->lineheight);
+  if (n0<0)
+    n0 = 0;
+  if (n1>d->linestarts.size())
+    n1 = d->linestarts.size();
+  
   int k0 = d->linestarts[n0];
 
   MarkupEdges edges(d->text->markups());
@@ -350,12 +385,14 @@ void TextItemDoc::render(QPainter *p, QRectF roi) const {
       style = edges[k];
     else
       break;
+
+  qDebug() << edges.keys();
   
   for (int n=n0; n<n1; n++) {
     int start = d->linestarts[n];
     int end = (n+1<N) ? d->linestarts[n+1] : txt.size();
-    double ytop = n*d->lineheight;
-    double ybase = ytop + ascent + 1;
+    double ytop = n*d->lineheight + 4;
+    double ybase = ytop + ascent;
     double ybottom = ybase + descent;
     
     bool parstart = n==0 || txt[start-1]=='\n';
@@ -369,6 +406,7 @@ void TextItemDoc::render(QPainter *p, QRectF roi) const {
       nowedges << start;
       nowstyles << style;
     }
+
     foreach (int k, edges.keys()) {
       if (k>=start && k<end) {
         style = edges[k];
@@ -379,21 +417,33 @@ void TextItemDoc::render(QPainter *p, QRectF roi) const {
       }
     }
     nowedges << end;
+
+    qDebug() << "line " << n;
+    qDebug() << nowedges;
+    QVector<int> ddd;
+    foreach (MarkupStyles s, nowstyles)
+      ddd << s.toInt();
+    qDebug() << ddd;
+    
     
     int Q = nowedges.size()-1;
     for (int q=0; q<Q; q++) {
       QString bit = line.mid(nowedges[q] - start,
                              nowedges[q+1] - nowedges[q]);
+      while (bit.endsWith("\n"))
+        bit = bit.left(bit.size()-1);
       MarkupStyles const &s = nowstyles[q];
       double y0 = s.contains(MarkupData::Superscript) ? ybase + xheight*.7
         : s.contains(MarkupData::Subscript) ? ybase - xheight *.5
         : ybase;
 
       double x0 = x;
-      for (int k=nowedges[q]; k<nowedges[q+1]; q++)
+      for (int k=nowedges[q]; k<nowedges[q+1]; k++)
         x += cw[k];
 
       QString bgcol;
+      if (s.contains(MarkupData::Emphasize))
+        bgcol = "emphasize-color";
       if (s.contains(MarkupData::Link)) 
         bgcol = "hover-found";
       else if (s.contains(MarkupData::DeadLink)) 
@@ -414,7 +464,14 @@ void TextItemDoc::render(QPainter *p, QRectF roi) const {
       else
         p->setPen(QPen(color()));
       
-      p->setFont(*fonts.font(s));
+      if (s.contains(MarkupData::StrikeThrough)) {
+        QFont f(*fonts.font(s));
+        f.setStrikeOut(true);
+        p->setFont(f);
+      } else {
+        p->setFont(*fonts.font(s));
+      }
+       
       p->drawText(QPointF(x0, y0), bit);
     }
   }

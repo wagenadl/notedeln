@@ -900,6 +900,8 @@ void TextItem::paint(QPainter *p, const QStyleOptionGraphicsItem*, QWidget*) {
   
   if (clips())
     p->setClipRect(clip_);
+  else
+    p->setClipRect(boundingRect());
   if (boxvis) {
     QPen pen(QColor("#000000"));
     pen.setWidth(1);
@@ -917,6 +919,7 @@ void TextItem::setBoxVisible(bool v) {
 
 void TextItem::setTextWidth(double d) {
   text->setWidth(d);
+  text->relayout();
   emit widthChanged();
 }
 

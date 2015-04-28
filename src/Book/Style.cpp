@@ -99,6 +99,14 @@ QFont Style::font(QString k) const {
   return f;
 }
 
+double Style::lineSpacing(QString font, QString scale) const {
+  return lineSpacing(font, real(scale));
+}
+
+double Style::lineSpacing(QString font, double scale) const {
+  return real(font + "-size") * scale * 1.55;
+}
+
 QColor Style::color(QString k) const {
   QColor c(string(k));
   if (!c.isValid()) {

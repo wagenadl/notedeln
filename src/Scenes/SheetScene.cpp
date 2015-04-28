@@ -165,7 +165,7 @@ void SheetScene::setTitle(QString const &title) {
 }
 
 void SheetScene::repositionTitle() {
-  double l = style_.real("margin-left") + style_.real("title-indent");
+  double l = style_.real("margin-left") + style_.real("title-indent") + 4;
   double r = style_.real("page-width") - style_.real("margin-right");
   if (dateItem) {
     double dateX = dateItem->mapToScene(dateItem->boundingRect().topLeft()).x();
@@ -182,8 +182,10 @@ void SheetScene::repositionTitle() {
 		? fancyTitleItem_->netBounds() 
 		: titleItem->boundingRect())
     .bottomLeft();
+  qDebug() << "Reposition title" << l << bl;
   titleItem->setPos(l - bl.x(),
-                    style_.real("margin-top") - style_.real("title-sep") - bl.y());
+                    style_.real("margin-top")
+                    - style_.real("title-sep") - bl.y());
 }
 
 TitleItem *SheetScene::fancyTitleItem() {

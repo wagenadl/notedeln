@@ -106,6 +106,7 @@ protected:
   void attemptMarkup(QPointF p, MarkupData::Style);
 public: // pass-through
   void setFont(QFont f) { text->setFont(f); }
+  void setLineHeight(double h) { text->setLineHeight(h); }
   QColor defaultTextColor() const { return text->color(); }
   void setDefaultTextColor(QColor c) { text->setColor(c); }
   TextItemDoc *document() const { return text; }

@@ -43,14 +43,14 @@ GfxNoteItem::GfxNoteItem(GfxNoteData *data, Item *parent):
   if (data->textWidth()>1)
     text->setTextWidth(data->textWidth());
 
-  text->document()->setLineHeight(style().real("note-font-size")
-                                  *style().real("note-line-spacing"));
+  text->document()->setLineHeight(style().lineSpacing("note-font",
+                                                      "note-line-spacing"));
   
   connect(text, SIGNAL(abandoned()),
 	  this, SLOT(abandon()), Qt::QueuedConnection);
 		     
   setFlag(ItemIsFocusable);
-  connect(text->document(), SIGNAL(contentsChanged()),
+  connect(text->document(), SIGNAL(contentsChange(int, int, int)),
 	  SLOT(updateTextPos()));
   updateTextPos();
 }
@@ -89,13 +89,27 @@ static QPointF retract(QPointF p, double d) {
 QPointF GfxNoteItem::nearestCorner(QPointF pbase) {
   double yof = style().real("note-y-offset");
   double xof = style().real("note-x-inset");
-  QRectF docr = text->document()->boundingRect();
-  double y = (fabs(docr.top()-yof)<fabs(docr.bottom()-yof))
-              ? docr.top() : docr.bottom();
-  double x = (fabs(docr.left()-xof)<fabs(docr.right()-xof))
-              ? docr.left() : docr.right();
-  return QPointF(x, y);
-  // I don't know if this is good enough
+  QRectF docr = text->document()->boundingRect()
+    .adjusted(xof, -yof, -xof, -yof).translated(text->pos() - pbase);
+
+  QPointF p;
+  if (fabs(docr.top()) < fabs(docr.bottom())) {
+    if (docr.left()>0)
+      p = retract(docr.topLeft(), xof*1.5);
+    else if (docr.right()<0)
+      p = retract(docr.topRight(), xof*1.5);
+    else
+      p = retract((docr.topLeft()+docr.topRight())/2, xof*1.5);
+  } else {
+    if (docr.left()>0)
+      p = retract(docr.bottomLeft(), xof*1.5);
+    else if (docr.right()<0)
+      p = retract(docr.bottomRight(), xof*1.5);
+    else
+      p = retract((docr.bottomLeft()+docr.bottomRight())/2, xof*1.5);
+  }
+  
+  return pbase + p;
 }
   
 

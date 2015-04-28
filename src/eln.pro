@@ -19,6 +19,12 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += webkitwidgets
 DEPENDPATH +=  $$sourcedirs
 INCLUDEPATH += $$sourcedirs
 
+OBJECTS_DIR=../build/release
+CONFIG(debug, debug|release) { OBJECTS_DIR=../build/debug }
+MOC_DIR = $${OBJECTS_DIR}
+RCC_DIR = $${OBJECTS_DIR}
+UI_DIR = $${OBJECTS_DIR}
+
 win: RC_FILE = App/winicon.rc
 mac {
     ICON = App/eln.icns

@@ -33,6 +33,8 @@ public:
   int integer(QString) const;
   QColor color(QString) const;
   QFont font(QString) const;
+  double lineSpacing(QString font, QString scale) const;
+  double lineSpacing(QString font, double scale) const;
   QVariantMap const &options() const;
   bool contains(QString) const;
   static Style const &defaultStyle();

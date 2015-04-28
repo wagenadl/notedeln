@@ -50,6 +50,7 @@ public:
   uint hash() const { return qHash(ss); }
   bool operator<(MarkupStyles const &a) const { return ss<a.ss; }
   bool operator==(MarkupStyles const &a) const { return ss==a.ss; }
+  int toInt() const { return ss; }
 private:
   unsigned int ss;
 };

@@ -33,13 +33,13 @@ FootnoteItem::FootnoteItem(FootnoteData *data, Item *parent):
   tag_->setDefaultTextColor(style().color("footnote-tag-color"));
 
   text()->setFont(style().font("footnote-def-font"));
+  text()->setLineHeight(style().lineSpacing("footnote-def-font", 1.15));
   text()->setDefaultTextColor(style().color("footnote-def-color"));
 
   updateTag();
   text()->setAllowParagraphs(false);
   text()->document()->setIndent(0);
-  text()->document()->setLineHeight(style().real("text-font-size") * 1.15);
-  // CHECK THIS NUMBER
+  text()->document()->relayout();
 
   connect(text(), SIGNAL(abandoned()), this, SLOT(abandon()));
 }

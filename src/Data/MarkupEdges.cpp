@@ -4,7 +4,7 @@
 #include <QMap>
 #include <QSet>
 #include <QList>
-
+#include <QDebug>
 
 MarkupEdges::MarkupEdges(QList<MarkupData *> const &mdd,
                          QList<TransientMarkup> const &trans) {
@@ -26,12 +26,19 @@ MarkupEdges::MarkupEdges(QList<MarkupData *> const &mdd,
     }
   }
 
+  qDebug() << "MarkupEdges";
   MarkupStyles st;
-  foreach (int k, all) {
-    if (ends.contains(k))
+  QList<int> alls = all.toList();
+  qSort(alls);
+  foreach (int k, alls) {
+    if (ends.contains(k)) {
       st.remove(ends[k]);
-    if (starts.contains(k))
+      qDebug() << "at" << k << " ends->" << st.toInt();
+    }
+    if (starts.contains(k)) {
       st.add(starts[k]);
+      qDebug() << "at" << k << " starts->" << st.toInt();
+    }      
     insert(k, st);
   }
   if (!contains(0))
