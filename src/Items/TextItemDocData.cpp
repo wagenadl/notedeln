@@ -9,6 +9,7 @@ TextItemDocData::TextItemDocData(TextData *text): text(text) {
   leftmargin = rightmargin = 0;
   lineheight = 15; // hmm
   selstart = selend = -1;
+  writable = false;
 }
 
 void TextItemDocData::setBaseFont(QFont const &f) {

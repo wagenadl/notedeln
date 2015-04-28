@@ -642,7 +642,7 @@ void EntryScene::futileMovement(int block) {
     break;
   case Qt::Key_Up: {
     int N = doc->text().size();
-    QPointF endp = doc->locate(N).center();
+    QPointF endp = doc->locate(N);
     QPointF tgtp(p.x(), endp.y());
     int idx = doc->find(tgtp);
     c.setPosition(idx>=0 ? idx : N);
@@ -651,7 +651,7 @@ void EntryScene::futileMovement(int block) {
     c.movePosition(TextCursor::Start);
     break;
   case Qt::Key_Down: {
-    QPointF startp = doc->locate(0).center();
+    QPointF startp = doc->locate(0);
     QPointF tgtp(p.x(), startp.y());
     int idx = doc->find(tgtp);
     c.setPosition(idx>=0 ? idx : 0);
@@ -930,7 +930,7 @@ bool EntryScene::tryToPaste(SheetScene *s) {
   if (fi) {
     TextItemDoc *doc = fi->document();
     int pos = fi->textCursor().position();
-    scenePos = fi->mapToScene(doc->locate(pos).center());
+    scenePos = fi->mapToScene(doc->locate(pos));
   } else {
     QList<QGraphicsView*> vv = s->views();
     if (vv.isEmpty()) {

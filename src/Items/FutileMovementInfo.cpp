@@ -35,7 +35,7 @@ FutileMovementInfo::FutileMovementInfo(int key, Qt::KeyboardModifiers mod,
   if (src) {
     TextCursor c = src->textCursor();
     pos_ = c.position();
-    QPointF xy0 = src->document()->locate(pos_).center();
+    QPointF xy0 = src->document()->locate(pos_);
     scenePos_ = src->mapToScene(xy0);
   }
 }

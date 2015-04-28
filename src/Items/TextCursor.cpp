@@ -69,6 +69,7 @@ void TextCursor::insertText(QString s) {
   Q_ASSERT(doc);
   if (hasSelection())
     deleteChar();
+  s.replace("\t", "    ");
   doc->insert(pos, s);
   pos += s.size();
 }
@@ -112,15 +113,15 @@ bool TextCursor::movePosition(TextCursor::MoveOperation op,
     pos = doc->text().size();
     break;
   case Up: {
-    QPointF here = doc->locate(pos).topRight();
-    QPointF above(here.x(), here.y() - doc->lineHeight()/2);
+    QPointF here = doc->locate(pos);
+    QPointF above = here - QPointF(0, doc->lineHeight());
     pos = doc->find(above);
     if (pos<0)
       pos = 0;
   } break;
   case Down: {
-    QPointF here = doc->locate(pos).bottomRight();
-    QPointF below(here.x(), here.y() + doc->lineHeight()/2);
+    QPointF here = doc->locate(pos);
+    QPointF below = here + QPointF(0, doc->lineHeight());
     pos = doc->find(below);
     if (pos<0)
       pos = doc->text().size();
@@ -185,6 +186,10 @@ bool TextCursor::hasSelection() const {
 
 int TextCursor::position() const {
   return pos;
+}
+
+int TextCursor::anchor() const {
+  return anc;
 }
 
 bool TextCursor::operator==(TextCursor const &a) const {

@@ -52,12 +52,12 @@ public:
      Otherwise, they get clamped to beginning/end of line for x violations,
      or to start/end of document for y violations.
   */
-  QRectF locate(int offset) const; // returns a 1-pix wide rectangle
-  // at the location of the given offset.
-  // The rectangle will be appropriately sized for a cursor.
+  QPointF locate(int offset) const; // returns the location of the given
+  // offset. The location will be on the baseline of the line of text.
   void insert(int offset, QString text);
   void remove(int offset, int length);
   int find(QString) const; // offset or -1
+  void makeWritable();
 signals:
   void contentsChange(int pos, int nDel, int nIns);
 private:

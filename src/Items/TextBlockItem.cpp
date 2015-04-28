@@ -332,10 +332,7 @@ int TextBlockItem::findFragmentForPhrase(QString phrase) const {
   int k = document()->find(phrase);
   if (k<0)
     return -1;
-  QRectF r = document()->locate(k);
-  if (r.isEmpty())
-    return -1;
-  double y = r.center().y();
+  double y = document()->locate(k).y();
   int i=0;
   foreach (int y0, data()->sheetSplits()) {
     if (y<y0)

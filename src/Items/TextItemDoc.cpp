@@ -186,7 +186,9 @@ void TextItemDoc::relayout(bool preserveWidth) {
   qDebug() << linestarts;
   
   d->linestarts = linestarts;
-  // We *won't* copy it back to the TextData
+
+  if (d->writable)
+    d->text->setLineStarts(linestarts);
 
   d->br = QRectF(QPointF(0, 0),
                  QSizeF(d->width, linestarts.size()*d->lineheight + 4));
@@ -233,7 +235,7 @@ template <typename T> int findFirstGT(QVector<T> const &vec, T key) {
   return k+1;
 }
 
-QRectF TextItemDoc::locate(int offset) const {
+QPointF TextItemDoc::locate(int offset) const {
   Q_ASSERT(!d->linestarts.isEmpty());
   
   QVector<double> const &charw = d->charWidths();
@@ -241,12 +243,16 @@ QRectF TextItemDoc::locate(int offset) const {
   int line = findLastLE(starts, offset);
   Q_ASSERT(line>=0);
   double ytop = line * d->lineheight + 4;
-  double ybot = ytop + d->lineheight;
+  double ascent = d->fonts().metrics(MarkupStyles())->ascent();
   double xl = d->leftmargin;
   int pos = starts[line];
+  bool startpar = line==0 || text()[pos-1]==QChar('\n');
+  if (startpar)
+    xl += d->indent;
+
   while (pos<offset)
     xl += charw[pos++];
-  return QRectF(QPointF(xl-.5, ytop), QPointF(xl+.5, ybot));
+  return QPointF(xl, ytop + ascent);
 }
 
 int TextItemDoc::find(QPointF xy, bool strict) const {
@@ -327,14 +333,15 @@ void TextItemDoc::insert(int offset, QString text) {
   
   QVector<double> cw1(N0 + dN);
   memcpy(cw1.data(), cw0.data(), offset*sizeof(double));
-  memcpy(&cw1[offset+dN], &cw0[offset],
+  memcpy(cw1.data()+offset+dN, cw0.data()+offset,
 	 (N0-offset)*sizeof(double));
+  d->setCharWidths(cw1);
 
   d->text->setText(t0.left(offset) + text + t0.mid(offset));
   foreach (MarkupData *md, d->text->markups()) 
     md->update(N0, 0, dN);
       
-  d->recalcSomeWidths(N0, N0+dN);
+  d->recalcSomeWidths(offset, offset+dN);
 
   relayout(true);
   /* Really what we should do is try to preserve most linestarts. */
@@ -371,8 +378,9 @@ void TextItemDoc::remove(int offset, int length) {
 
   QVector<double> cw1(N0 - dN);
   memcpy(cw1.data(), cw0.data(), offset*sizeof(double));
-  memcpy(&cw1[offset], &cw0[offset+dN],
+  memcpy(cw1.data()+offset, cw0.data()+offset+dN,
 	 (N0-offset-dN)*sizeof(double));
+  d->setCharWidths(cw1);
 
   relayout(true);
   /* Really what we should do is try to preserve most linestarts. */
@@ -576,4 +584,8 @@ void TextItemDoc::setSelection(TextCursor const &c) {
 
 void TextItemDoc::clearSelection() {
   d->selstart = d->selend = -1;
+}
+
+void TextItemDoc::makeWritable() {
+  d->writable = true;
 }

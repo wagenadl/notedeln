@@ -79,6 +79,7 @@ private:
   bool keyPressAsSpecialChar(QKeyEvent *);
   bool keyPressWithControl(QKeyEvent *);
   bool keyPressAsSpecialEvent(QKeyEvent *);
+  bool keyPressAsInsertion(QKeyEvent *);
 protected slots:
   virtual void docChange();
   virtual void modeChange(Mode::M);
@@ -97,6 +98,7 @@ private:
 protected:
   bool tryFootnote();
   virtual bool tryToPaste();
+  virtual bool tryToCopy() const;
   bool tryScriptStyles(TextCursor, bool onlyIfBalanced=false);
   bool tryTeXCode(bool noX=false);
   void toggleSimpleStyle(MarkupData::Style type, class TextCursor const &c);
@@ -104,6 +106,9 @@ protected:
   bool charAfterIsLetter(int pos) const;
   bool shouldResize(QPointF) const;
   void attemptMarkup(QPointF p, MarkupData::Style);
+  void updateMarkup(int pos);
+  bool muckWithIndentation(class TextBlockItem *p,
+			   Qt::KeyboardModifiers mod);
 public: // pass-through
   void setFont(QFont f) { text->setFont(f); }
   void setLineHeight(double h) { text->setLineHeight(h); }

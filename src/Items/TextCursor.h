@@ -51,6 +51,7 @@ public:
   bool hasSelection() const;
   void clearSelection();
   int position() const;
+  int anchor() const;
   bool operator==(TextCursor const &) const;
   TextCursor findForward(QString) const; // start of string not before POS
   TextCursor findBackward(QString) const; // end of string not after POS

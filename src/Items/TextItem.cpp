@@ -103,6 +103,7 @@ void TextItem::makeWritableNoRecurse() {
   // this ugliness is for the sake of title items that have notes attached
   Item::makeWritableNoRecurse();
   setFlag(ItemIsFocusable);
+  text->makeWritable();
 }
 
 void TextItem::setAllowMoves() {
@@ -122,6 +123,7 @@ void TextItem::initializeFormat() {
 
 void TextItem::docChange() {
   emit textChanged();
+  update();
 }
 
 void TextItem::focusInEvent(QFocusEvent *e) {
@@ -220,7 +222,7 @@ int TextItem::pointToPos(QPointF p) const {
 }
 
 QPointF TextItem::posToPoint(int pos) const {
-  return text->locate(pos).center();
+  return text->locate(pos);
 }
       
 
@@ -237,10 +239,24 @@ void TextItem::attemptMarkup(QPointF p, MarkupData::Style m) {
 
 void TextItem::mouseMoveEvent(QGraphicsSceneMouseEvent *evt) {
   int pos = pointToPos(evt->pos());
-  qDebug() << "TextItem::mouseMove" << lateMarkStart << evt->pos() << pos
-	   << MarkupData::styleName(lateMarkType);
-  if (pos<0)
-    return;
+  switch (mode()->mode()) {
+  case Mode::Browse:
+  case Mode::Type: {
+    int anc = cursor.hasSelection() ? cursor.anchor() : cursor.position();
+    setTextCursor(TextCursor(text, pos, anc));
+    } break;
+  case Mode::Highlight:
+  case Mode::Strikeout:
+  case Mode::Plain: 
+    if (pos>=0)
+      updateMarkup(pos);
+    break;
+  default:
+    break;
+  }
+}
+
+void TextItem::updateMarkup(int pos) {
   int s, e;
   if (lateMarkStart<pos) {
     s = lateMarkStart;
@@ -254,26 +270,26 @@ void TextItem::mouseMoveEvent(QGraphicsSceneMouseEvent *evt) {
     // unmark
     foreach (MarkupData *md, data()->children<MarkupData>()) {
       if (md->isRecent() && (md->style()==MarkupData::Emphasize
-                             || md->style()==MarkupData::StrikeThrough)) {
-        int mds = md->start();
-        int mde = md->end();
+			     || md->style()==MarkupData::StrikeThrough)) {
+	int mds = md->start();
+	int mde = md->end();
 	if (mds<e && mde>s) {
-          MarkupData::Style mdst = md->style();
-          QDateTime cre = md->created();
-          deleteMarkup(md);
-          if (mde>e) {
-            addMarkup(mdst, e, mde);
-            MarkupData *md1 = markupAt(e, mdst);
-            if (md1)
-              md1->setCreated(cre);
-          }
-          if (mds<s) {
-            addMarkup(mdst, mds, s);
-            MarkupData *md1 = markupAt(s, mdst);
-            if (md1)
-              md1->setCreated(cre);
-          }
-        }
+	  MarkupData::Style mdst = md->style();
+	  QDateTime cre = md->created();
+	  deleteMarkup(md);
+	  if (mde>e) {
+	    addMarkup(mdst, e, mde);
+	    MarkupData *md1 = markupAt(e, mdst);
+	    if (md1)
+	      md1->setCreated(cre);
+	  }
+	  if (mds<s) {
+	    addMarkup(mdst, mds, s);
+	    MarkupData *md1 = markupAt(s, mdst);
+	    if (md1)
+	      md1->setCreated(cre);
+	  }
+	}
       }
     }
   } else {
@@ -293,26 +309,30 @@ void TextItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *) {
 bool TextItem::keyPressAsMotion(QKeyEvent *e) {
   switch (e->key()) {
   case Qt::Key_Escape: {
-    TextCursor c = textCursor();
-    c.clearSelection();
-    setTextCursor(c);
+    cursor.clearSelection();
     clearFocus();
   } return true;
   case Qt::Key_Return: case Qt::Key_Enter:
-    if (!allowParagraphs_) {
+    if (allowParagraphs_) {
+      cursor.insertText("\n");
+    } else {
       emit futileMovementKey(e->key(), e->modifiers());
-      return true;
-    } break;
+    }
+    return true;
   case Qt::Key_Backspace:
-    if (textCursor().atStart() && !textCursor().hasSelection()) {
+    if (cursor.atStart() && !cursor.hasSelection()) {
       emit futileMovementKey(e->key(), e->modifiers());
-      return true;
-    } break;
+    } else {
+      cursor.deletePreviousChar();
+    }
+    return true;
   case Qt::Key_Delete:
-    if (textCursor().atEnd() && !textCursor().hasSelection()) {
+    if (cursor.atEnd() && !cursor.hasSelection()) {
       emit futileMovementKey(e->key(), e->modifiers());
-      return true;
-    } break;
+    } else {
+      cursor.deleteChar();
+    }
+    return true;
   case Qt::Key_Left:
     tryMove(TextCursor::Left, e->key(), e->modifiers());
     return true;
@@ -324,6 +344,12 @@ bool TextItem::keyPressAsMotion(QKeyEvent *e) {
     return true;
   case Qt::Key_Down:
     tryMove(TextCursor::Down, e->key(), e->modifiers());
+    return true;
+  case Qt::Key_Home:
+    tryMove(TextCursor::StartOfLine, e->key(), e->modifiers());
+    return true;
+  case Qt::Key_End:
+    tryMove(TextCursor::EndOfLine, e->key(), e->modifiers());
     return true;
     /*
   case Qt::Key_PageUp: case Qt::Key_PageDown: {
@@ -367,6 +393,14 @@ bool TextItem::keyPressWithControl(QKeyEvent *e) {
   switch (e->key()) {
   case Qt::Key_V:
     tryToPaste();
+    return true;
+  case Qt::Key_C:
+    tryToCopy();
+    return true;
+  case Qt::Key_X:
+    if (tryToCopy()) {
+      cursor.deleteChar();
+    }
     return true;
   case Qt::Key_N:
     tryFootnote();
@@ -465,92 +499,104 @@ bool TextItem::tryTeXCode(bool noX) {
 
 bool TextItem::keyPressAsSpecialEvent(QKeyEvent *e) {
   if (e->key()==Qt::Key_Tab || e->key()==Qt::Key_Backtab) {
-    TextCursor tc(textCursor());
-    
     TextBlockItem *p = dynamic_cast<TextBlockItem *>(parent());
-    if (p) {
-      // we are in a text block, so we could fiddle with indentation
-      bool hasIndent = p->data()->indented();
-      bool hasDedent = p->data()->dedented();
-      bool hasShift = e->modifiers() & Qt::ShiftModifier;
-      bool hasControl = e->modifiers() & Qt::ControlModifier;
-      if (hasControl) {
-        p->data()->setDisplayed(!p->data()->displayed());
-      } else if (hasShift) {
-        if (hasIndent) 
-          p->data()->setIndented(false);
-        else if (hasDedent)
-          p->data()->setIndented(true);
-        else
-          p->data()->setDedented(true);
-      } else if (tc.position()==0) {
-	if (hasIndent)
-	  return false; // allow Tab to be inserted at start
-	else
-          p->data()->setIndented(true);
-      } else {
-	// no control, no shift, not at start
-        qDebug() << "Convert to table currently not implemented";
-        ASSERT(0);
-        /*
-	TextItemDoc *doc = document();
-	if (doc->blockCount()==1
-	    && doc->firstBlock().lineCount()==1
-	    && doc->firstBlock().layout()->lineAt(0).naturalTextWidth()
-	    < (style().real("page-width")-style().real("margin-left")
-	       -style().real("margin-right"))*2.0/3.0) {
-	  emit multicellular(tc.position(), data());
-	  return true; // do not allow Tab to be inserted
-	} else {
-	  return false; // allow Tab to be inserted
-	}
-        */
-      }
-      p->initializeFormat();
-      return true;
-    }
+    if (p) 
+      if (muckWithIndentation(p, e->modifiers()))
+	return true;
   }
   return false;
 }
 
+bool TextItem::muckWithIndentation(TextBlockItem *p,
+				   Qt::KeyboardModifiers mod) {
+  // we are in a text block, so we could fiddle with indentation
+  bool hasIndent = p->data()->indented();
+  bool hasDedent = p->data()->dedented();
+  if (mod & Qt::ControlModifier) {
+    p->data()->setDisplayed(!p->data()->displayed());
+  } else if (mod & Qt::ShiftModifier) {
+    if (hasIndent) 
+      p->data()->setIndented(false);
+    else if (hasDedent)
+      p->data()->setIndented(true);
+    else
+      p->data()->setDedented(true);
+  } else if (QRegExp("\\s*").exactMatch(text->text().left(cursor.position()))) {
+    if (hasIndent)
+      return false; // allow Tab to be inserted at start
+    else
+      p->data()->setIndented(true);
+  } else {
+    // no control, no shift, not at start
+    qDebug() << "Convert to table currently not implemented";
+    ASSERT(0);
+    /*
+      TextItemDoc *doc = document();
+      if (doc->blockCount()==1
+      && doc->firstBlock().lineCount()==1
+      && doc->firstBlock().layout()->lineAt(0).naturalTextWidth()
+      < (style().real("page-width")-style().real("margin-left")
+      -style().real("margin-right"))*2.0/3.0) {
+      emit multicellular(tc.position(), data());
+      return true; // do not allow Tab to be inserted
+      } else {
+      return false; // allow Tab to be inserted
+      }
+    */
+  }
+  prepareGeometryChange();
+  p->initializeFormat();
+  update();
+  return true;
+}
+
+bool TextItem::keyPressAsInsertion(QKeyEvent *e) {
+  if (mode()->mode()!=Mode::Type)
+    return false;
+  QString now = e->text();
+  if (now.isEmpty())
+    return false;
+  cursor.insertText(now);
+  return true;
+}
+
 bool TextItem::keyPressAsSpecialChar(QKeyEvent *e) {
-  TextCursor c(textCursor());
-  QChar charBefore = document()->characterAt(c.position()-1);
-  QChar charBefore2 = document()->characterAt(c.position()-2);
+  QChar charBefore = document()->characterAt(cursor.position()-1);
+  QChar charBefore2 = document()->characterAt(cursor.position()-2);
   QString charNow = e->text();
   QString digraph = QString(charBefore) + charNow;
   QString trigraph = QString(charBefore2) + digraph;
   if (Digraphs::contains(digraph)) {
-    c.deletePreviousChar();
-    c.insertText(Digraphs::map(digraph));
+    cursor.deletePreviousChar();
+    cursor.insertText(Digraphs::map(digraph));
     return true;
   } else if (Digraphs::contains(trigraph)) {
-    c.deletePreviousChar();
-    c.deletePreviousChar();
-    c.insertText(Digraphs::map(trigraph));
+    cursor.deletePreviousChar();
+    cursor.deletePreviousChar();
+    cursor.insertText(Digraphs::map(trigraph));
     return true;
   } else if (Digraphs::contains(charNow)) {
-    c.insertText(Digraphs::map(charNow));
+    cursor.insertText(Digraphs::map(charNow));
     return true;
   } else if (charNow=="\"") {
     if (charBefore.isSpace() || charBefore.isNull()
 	|| digraph=="(\"" || digraph=="[\"" || digraph=="{\""
 	|| digraph==QString::fromUtf8("‘\"")) 
-      c.insertText(QString::fromUtf8("“"));
+      cursor.insertText(QString::fromUtf8("“"));
     else
-      c.insertText(QString::fromUtf8("”"));
+      cursor.insertText(QString::fromUtf8("”"));
     return true;
   } else if (digraph==QString::fromUtf8("--")) {
-    c.deletePreviousChar();
-    if (document()->characterAt(c.position()-1).isDigit()) 
-      c.insertText(QString::fromUtf8("‒")); // figure dash
+    cursor.deletePreviousChar();
+    if (document()->characterAt(cursor.position()-1).isDigit()) 
+      cursor.insertText(QString::fromUtf8("‒")); // figure dash
     else 
-      c.insertText(QString::fromUtf8("–")); // en dash
+      cursor.insertText(QString::fromUtf8("–")); // en dash
     return true;
   } else if (charNow[0].isDigit() && charBefore==QChar('-')
 	     && QString(" ([{^_@$/").contains(charBefore2)) {
-    c.deletePreviousChar();
-    c.insertText(QString::fromUtf8("−")); // replace minus sign
+    cursor.deletePreviousChar();
+    cursor.insertText(QString::fromUtf8("−")); // replace minus sign
     return false; // insert digit as normal
   } else {
     return false;
@@ -563,7 +609,8 @@ void TextItem::keyPressEvent(QKeyEvent *e) {
       || keyPressAsSpecialChar(e)
       || (mode()->mathMode() && keyPressAsMath(e))
       || keyPressAsMotion(e)
-      || keyPressAsSpecialEvent(e))
+      || keyPressAsSpecialEvent(e)
+      || keyPressAsInsertion(e))
     e->accept();
   else
     e->ignore();
@@ -819,6 +866,15 @@ bool TextItem::tryFootnote() {
   }
 }
 
+bool TextItem::tryToCopy() const {
+  if (!cursor.hasSelection())
+    return false;
+  QString txt = cursor.selectedText();
+  QClipboard *cb = QApplication::clipboard();
+  cb->setText(txt);
+  return true;
+}
+
 bool TextItem::tryToPaste() {
   QClipboard *cb = QApplication::clipboard();
   QMimeData const *md = cb->mimeData(QClipboard::Clipboard);
@@ -916,9 +972,9 @@ void TextItem::paint(QPainter *p, const QStyleOptionGraphicsItem*, QWidget*) {
   text->render(p);
 
   if (hasFocus()) {
-    QRectF r = text->locate(cursor.position()).adjusted(-10, 0, 10, 0);
+    QPointF xy = text->locate(cursor.position());
     p->setPen(QPen(QColor("red")));
-    p->drawText(r, Qt::AlignCenter, "|");
+    p->drawText(xy - QPointF(2, 0), "|");
   }
 }
 
@@ -990,6 +1046,13 @@ void TextItem::unclip() {
 void TextItem::setTextCursor(TextCursor const &tc) {
   cursor = tc;
   text->setSelection(tc);
-  setFocus();
+  if (mode()->mode()==Mode::Type)
+    setFocus();
+  else
+    clearFocus();
+  if (cursor.hasSelection()) {
+    QClipboard *cb = QApplication::clipboard();
+    cb->setText(cursor.selectedText(), QClipboard::Selection);
+  }    
   update();
 }

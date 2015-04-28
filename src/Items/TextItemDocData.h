@@ -27,6 +27,7 @@ public:
   QColor color;
   QRectF br;
   int selstart, selend;
+  bool writable;
 public:
   TextItemDocData(TextData *text);
   QVector<double> const &charWidths() const;
