@@ -26,6 +26,7 @@ public:
   double lineheight;
   QColor color;
   QRectF br;
+  int selstart, selend;
 public:
   TextItemDocData(TextData *text);
   QVector<double> const &charWidths() const;

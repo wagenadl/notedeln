@@ -43,6 +43,8 @@ public:
   int lineEndFor(int pos) const;
   void relayout(bool preserveWidths=false);
   void partialRelayout(int startOffset, int endOffset);
+  void setSelection(class TextCursor const &c);
+  void clearSelection();
   void render(class QPainter *, QRectF roi=QRectF()) const;
   int find(QPointF) const; // return offset from graphical position
   QRectF locate(int offset) const; // returns a 1-pix wide rectangle

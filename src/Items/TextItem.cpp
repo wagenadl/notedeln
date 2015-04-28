@@ -989,6 +989,7 @@ void TextItem::unclip() {
 
 void TextItem::setTextCursor(TextCursor const &tc) {
   cursor = tc;
+  text->setSelection(tc);
   setFocus();
   update();
 }

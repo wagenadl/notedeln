@@ -10,6 +10,7 @@
 #include "MarkupEdges.h"
 #include "Style.h"
 #include <QDebug>
+#include "TextCursor.h"
 
 TextItemDoc::TextItemDoc(TextData *data, QObject *parent):
   QObject(parent), d(new TextItemDocData(data)) {
@@ -381,7 +382,10 @@ void TextItemDoc::render(QPainter *p, QRectF roi) const {
   
   int k0 = d->linestarts[n0];
 
-  MarkupEdges edges(d->text->markups());
+  QList<TransientMarkup> tmm;
+  if (d->selstart>=0)
+    tmm << TransientMarkup(d->selstart, d->selend, MarkupData::Selected);
+  MarkupEdges edges(d->text->markups(), tmm);
   MarkupStyles style;
   foreach (int k, edges.keys()) 
     if (k<k0)
@@ -445,9 +449,11 @@ void TextItemDoc::render(QPainter *p, QRectF roi) const {
         x += cw[k];
 
       QString bgcol;
-      if (s.contains(MarkupData::Emphasize))
-        bgcol = "emphasize-color";
-      if (s.contains(MarkupData::Link)) 
+      if (s.contains(MarkupData::Selected))
+        bgcol = "selected";
+      else if (s.contains(MarkupData::Emphasize))
+        bgcol = "emphasize";
+      else if (s.contains(MarkupData::Link)) 
         bgcol = "hover-found";
       else if (s.contains(MarkupData::DeadLink)) 
         bgcol = "hover-not-found";
@@ -515,4 +521,17 @@ QChar TextItemDoc::characterAt(int pos) const {
 
 int TextItemDoc::find(QString s) const {
   return text().indexOf(s);
+}
+
+void TextItemDoc::setSelection(TextCursor const &c) {
+  if (c.hasSelection()) {
+    d->selstart = c.selectionStart();
+    d->selend = c.selectionEnd();
+  } else {
+    clearSelection();
+  }
+}
+
+void TextItemDoc::clearSelection() {
+  d->selstart = d->selend = -1;
 }
