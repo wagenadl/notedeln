@@ -46,7 +46,12 @@ public:
   void setSelection(class TextCursor const &c);
   void clearSelection();
   void render(class QPainter *, QRectF roi=QRectF()) const;
-  int find(QPointF) const; // return offset from graphical position
+  int find(QPointF p, bool strict=false) const;
+  /* Return offset from graphical position.
+     If STRICT is set, points outside the bounding rectangle return -1.
+     Otherwise, they get clamped to beginning/end of line for x violations,
+     or to start/end of document for y violations.
+  */
   QRectF locate(int offset) const; // returns a 1-pix wide rectangle
   // at the location of the given offset.
   // The rectangle will be appropriately sized for a cursor.

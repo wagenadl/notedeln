@@ -249,26 +249,47 @@ QRectF TextItemDoc::locate(int offset) const {
   return QRectF(QPointF(xl-.5, ytop), QPointF(xl+.5, ybot));
 }
 
-int TextItemDoc::find(QPointF xy) const {
+int TextItemDoc::find(QPointF xy, bool strict) const {
   Q_ASSERT(!d->linestarts.isEmpty());
-  
+
+  double w = d->width - d->leftmargin - d->rightmargin;
   double x = xy.x() - d->leftmargin;
-  if (x<0 || x>d->width - d->leftmargin - d->rightmargin)
-    return -1;
+
+  if (strict)
+    if (x<0 || x>w)
+      return -1;
+
+  if (x<0)
+    x = 0;
+  else if (x>w)
+    x = w;
 
   double y = xy.y() - 4;
   int line = int(y/d->lineheight);
-  if (line<0)
-    return -1;
 
+  if (strict)
+    if (line<0)
+      return -1;
+  
   QVector<int> const &starts = d->linestarts;
-  if (line>=starts.size())
-    return -1;
+  int h = starts.size();
+
+  if (strict)
+    if (line>=h)
+      return -1;
+
+  if (line<0)
+    return 0;
+
+  int N = d->text->text().size();
+
+  if (line>=h)
+    return N;
 
   QVector<double> const &charw = d->charWidths();
 
   int pos = starts[line];
-  int npos = line+1<starts.size() ? starts[line+1] : d->text->text().size();
+  int npos = line+1<h ? starts[line+1] : N;
 
   bool startpar = line==0 || text()[pos-1]==QChar('\n');
   if (startpar)
@@ -279,12 +300,12 @@ int TextItemDoc::find(QPointF xy) const {
   double x0 = 0;
   while (pos<npos) {
     double x1 = x0 + charw[pos];
-    if (x1>x)
+    if (x0+x1>=2*x) // past the halfway point of the character?
       return pos;
     pos++;
     x0 = x1;
   }
-  return pos==npos ? npos : pos-1; // return position at end of line
+  return pos>=N ? N : npos-1; // return position at end of line
   // rather than at start of next line if possible
 }
 
