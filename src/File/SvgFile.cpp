@@ -16,12 +16,12 @@
 
 // SvgFile.cpp
 
-#include "SvgFile.H"
+#include "SvgFile.h"
 #include <QTemporaryFile>
 #include <QProcess>
 #include <QDir>
 #include <QDebug>
-#include "WebGrab.H"
+#include "WebGrab.h"
 
 namespace SvgFile {
   QImage downloadAsImage(QUrl const &url) {

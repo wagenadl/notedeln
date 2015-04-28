@@ -16,14 +16,14 @@
 
 // Style.C
 
-#include "Style.H"
+#include "Style.h"
 #include <QFile>
 #include <QDir>
 #include <QFileInfo>
 #include <QDebug>
 #include <QColor>
-#include "JSONParser.H"
-#include "Assert.H"
+#include "JSONParser.h"
+#include "Assert.h"
 
 Style const &Style::defaultStyle() {
   static Style s;

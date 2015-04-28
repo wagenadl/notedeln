@@ -16,8 +16,8 @@
 
 // BookSplashItem.C
 
-#include "BookSplashItem.H"
-#include "Style.H"
+#include "BookSplashItem.h"
+#include "Style.h"
 
 #include <QGraphicsSceneMouseEvent>
 #include <QPainter>

@@ -16,7 +16,7 @@
 
 // Mode.C
 
-#include "Mode.H"
+#include "Mode.h"
 
 Mode::Mode(QObject *parent): QObject(parent) {
   m = Browse;

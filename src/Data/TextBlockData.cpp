@@ -16,11 +16,11 @@
 
 // TextBlockData.C
 
-#include "TextBlockData.H"
+#include "TextBlockData.h"
 #include <QDebug>
-#include "FootnoteData.H"
-#include "Assert.H"
-#include "GfxNoteData.H"
+#include "FootnoteData.h"
+#include "Assert.h"
+#include "GfxNoteData.h"
 
 static Data::Creator<TextBlockData> c("textblock");
 

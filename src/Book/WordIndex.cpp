@@ -14,14 +14,14 @@
    along with eln.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "WordIndex.H"
-#include "Notebook.H"
-#include "TOC.H"
-#include "EntryFile.H"
-#include "EntryData.H"
-#include "JSONFile.H"
-#include "Assert.H"
-#include "WordSet.H"
+#include "WordIndex.h"
+#include "Notebook.h"
+#include "TOC.h"
+#include "EntryFile.h"
+#include "EntryData.h"
+#include "JSONFile.h"
+#include "Assert.h"
+#include "WordSet.h"
 
 WordIndex::WordIndex(QObject *parent): QObject(parent) {
 }

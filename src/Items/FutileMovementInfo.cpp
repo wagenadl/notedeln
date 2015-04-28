@@ -16,8 +16,8 @@
 
 // FutileMovementInfo.C
 
-#include "FutileMovementInfo.H"
-#include "TextItem.H"
+#include "FutileMovementInfo.h"
+#include "TextItem.h"
 #include <QTextCursor>
 #include <QTextBlock>
 #include <QTextLayout>

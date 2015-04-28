@@ -16,8 +16,8 @@
 
 // BlockData.C
 
-#include "BlockData.H"
-#include "EntryData.H"
+#include "BlockData.h"
+#include "EntryData.h"
 #include <QDebug>
 
 BlockData::BlockData(Data *parent): Data(parent) {

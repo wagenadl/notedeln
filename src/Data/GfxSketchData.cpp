@@ -16,7 +16,7 @@
 
 // GfxSketchData.C
 
-#include "GfxSketchData.H"
+#include "GfxSketchData.h"
 
 static Data::Creator<GfxSketchData> c("gfxsketch");
 

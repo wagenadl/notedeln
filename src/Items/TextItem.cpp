@@ -17,21 +17,21 @@
 // TextItem.C
 
 #include <QTextLayout>
-#include "TextItem.H"
-#include "TextData.H"
-#include "TextMarkings.H"
-#include "Mode.H"
-#include "EntryScene.H"
-#include "Style.H"
-#include "ResManager.H"
-#include "HoverRegion.H"
-#include "BlockItem.H"
-#include "ResourceMagic.H"
-#include "Assert.H"
-#include "TeXCodes.H"
-#include "Digraphs.H"
-#include "TextBlockItem.H"
-#include "Cursors.H"
+#include "TextItem.h"
+#include "TextData.h"
+#include "TextMarkings.h"
+#include "Mode.h"
+#include "EntryScene.h"
+#include "Style.h"
+#include "ResManager.h"
+#include "HoverRegion.h"
+#include "BlockItem.h"
+#include "ResourceMagic.h"
+#include "Assert.h"
+#include "TeXCodes.h"
+#include "Digraphs.h"
+#include "TextBlockItem.h"
+#include "Cursors.h"
 
 #include <QFont>
 #include <QTextDocument>
@@ -47,8 +47,8 @@
 #include <QCursor>
 #include <QGraphicsSceneMouseEvent>
 
-#include "LateNoteItem.H" 
-#include "LateNoteData.H" 
+#include "LateNoteItem.h" 
+#include "LateNoteData.h" 
 
 TextItem::TextItem(TextData *data, Item *parent, bool noFinalize,
 		   QTextDocument *altdoc):

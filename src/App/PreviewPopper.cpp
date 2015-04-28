@@ -16,14 +16,14 @@
 
 // PreviewPopper.C
 
-#include "PreviewPopper.H"
-#include "Resource.H"
+#include "PreviewPopper.h"
+#include "Resource.h"
 #include <QApplication>
 #include <QDesktopWidget>
 #include <QLabel>
 #include <QGraphicsSceneHoverEvent>
 #include <QDebug>
-#include "Assert.H"
+#include "Assert.h"
 
 PreviewPopper::PreviewPopper(Resource *res,
 			     QPoint center, QObject *parent):

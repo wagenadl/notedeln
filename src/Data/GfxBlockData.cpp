@@ -16,8 +16,8 @@
 
 // GfxBlockData.C
 
-#include "GfxBlockData.H"
-#include "GfxData.H"
+#include "GfxBlockData.h"
+#include "GfxData.h"
 #include <QDebug>
 
 static Data::Creator<GfxBlockData> c("gfxblock");

@@ -16,28 +16,28 @@
 
 // GfxBlockItem.C
 
-#include "GfxBlockItem.H"
-#include "GfxBlockData.H"
-#include "Mode.H"
-#include "EntryScene.H"
-#include "Style.H"
+#include "GfxBlockItem.h"
+#include "GfxBlockData.h"
+#include "Mode.h"
+#include "EntryScene.h"
+#include "Style.h"
 #include <QPainter>
 #include <QDebug>
-#include "ResManager.H"
-#include "TextItem.H"
-#include "GfxImageData.H"
-#include "GfxImageItem.H"
-#include "GfxNoteData.H"
-#include "GfxNoteItem.H"
+#include "ResManager.h"
+#include "TextItem.h"
+#include "GfxImageData.h"
+#include "GfxImageItem.h"
+#include "GfxNoteData.h"
+#include "GfxNoteItem.h"
 #include <math.h>
 #include <QGraphicsSceneMouseEvent>
-#include "SvgFile.H"
+#include "SvgFile.h"
 #include <QMimeData>
 #include <QCursor>
-#include "GfxMarkItem.H"
-#include "GfxSketchItem.H"
-#include "Assert.H"
-#include "Cursors.H"
+#include "GfxMarkItem.h"
+#include "GfxSketchItem.h"
+#include "Assert.h"
+#include "Cursors.h"
 
 GfxBlockItem::GfxBlockItem(GfxBlockData *data, Item *parent):
   BlockItem(data, parent) {

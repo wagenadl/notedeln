@@ -16,12 +16,12 @@
 
 // TOCScene.C
 
-#include "TOCScene.H"
-#include "TOC.H"
-#include "Roman.H"
-#include "SheetScene.H"
+#include "TOCScene.h"
+#include "TOC.h"
+#include "Roman.h"
+#include "SheetScene.h"
 #include <QGraphicsLineItem>
-#include "TOCItem.H"
+#include "TOCItem.h"
 #include <QDebug>
 
 TOCScene::TOCScene(TOC *data, QObject *parent):

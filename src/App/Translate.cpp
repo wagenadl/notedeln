@@ -1,7 +1,7 @@
 // Translate.cpp
 
-#include "Translate.H"
-#include "JSONFile.H"
+#include "Translate.h"
+#include "JSONFile.h"
 #include <QDebug>
 
 QString Translate::_(QString key) {

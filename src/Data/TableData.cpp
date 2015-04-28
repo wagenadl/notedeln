@@ -16,8 +16,8 @@
 
 // TableData.C
 
-#include "TableData.H"
-#include "Assert.H"
+#include "TableData.h"
+#include "Assert.h"
 
 static Data::Creator<TableData> c("table");
 

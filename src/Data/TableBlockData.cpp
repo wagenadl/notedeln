@@ -16,9 +16,9 @@
 
 // TableBlockData.cpp
 
-#include "TableBlockData.H"
-#include "TableData.H"
-#include "Assert.H"
+#include "TableBlockData.h"
+#include "TableData.h"
+#include "Assert.h"
 #include <QSet>
 #include <QDebug>
 

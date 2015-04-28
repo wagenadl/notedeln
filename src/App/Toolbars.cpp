@@ -16,13 +16,13 @@
 
 // Toolbars.C
 
-#include "Toolbars.H"
-#include "Modebar.H"
-#include "LineWidthBar.H"
-#include "MarkSizeBar.H"
-#include "MarkShapeBar.H"
-#include "ColorBar.H"
-#include "Navbar.H"
+#include "Toolbars.h"
+#include "Modebar.h"
+#include "LineWidthBar.h"
+#include "MarkSizeBar.h"
+#include "MarkShapeBar.h"
+#include "ColorBar.h"
+#include "Navbar.h"
 
 #include <QDebug>
 

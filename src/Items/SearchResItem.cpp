@@ -1,7 +1,7 @@
 // SearchResItem.cpp
 
-#include "SearchResItem.H"
-#include "Search.H"
+#include "SearchResItem.h"
+#include "Search.h"
 #include <QGraphicsTextItem>
 #include <QTextDocument>
 #include <QTextCursor>

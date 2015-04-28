@@ -16,10 +16,10 @@
 
 // TableItem.cpp
 
-#include "TableItem.H"
+#include "TableItem.h"
 #include <QTextDocument>
 #include <QTextTable>
-#include "TextMarkings.H"
+#include "TextMarkings.h"
 #include <QKeyEvent>
 #include <QDebug>
 

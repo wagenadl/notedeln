@@ -1,7 +1,7 @@
 // ToolView.cpp
 
-#include "ToolView.H"
-#include "ToolScene.H"
+#include "ToolView.h"
+#include "ToolScene.h"
 #include <QMouseEvent>
 #include <QDebug>
 #include <QGraphicsItem>

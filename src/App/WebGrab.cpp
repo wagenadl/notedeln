@@ -1,6 +1,6 @@
 // WebGrab.cpp - part of ELN
 
-#include "WebGrab.H"
+#include "WebGrab.h"
 #include <QApplication>
 
 QString WebGrab::executable() {

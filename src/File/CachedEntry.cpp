@@ -1,8 +1,8 @@
 // CachedEntry.cpp
 
-#include "CachedEntry.H"
-#include "EntryData.H"
-#include "EntryFile.H"
+#include "CachedEntry.h"
+#include "EntryData.h"
+#include "EntryFile.h"
 #include <QDebug>
 
 

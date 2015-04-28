@@ -16,11 +16,11 @@
 
 // JSONFile.C
 
-#include "JSONFile.H"
+#include "JSONFile.h"
 #include <QFile>
 #include <QDebug>
 
-#include "JSONParser.H"
+#include "JSONParser.h"
   
 
 namespace JSONFile {

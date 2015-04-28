@@ -16,16 +16,16 @@
 
 #define NOHIDETOOLBARS 0
 
-#include "SceneBank.H"
-#include "PageView.H"
-#include "Notebook.H"
-#include "TOC.H"
-#include "TOCScene.H"
-#include "FrontScene.H"
-#include "EntryScene.H"
-#include "Assert.H"
-#include "Toolbars.H"
-#include "PrintDialog.H"
+#include "SceneBank.h"
+#include "PageView.h"
+#include "Notebook.h"
+#include "TOC.h"
+#include "TOCScene.h"
+#include "FrontScene.h"
+#include "EntryScene.h"
+#include "Assert.h"
+#include "Toolbars.h"
+#include "PrintDialog.h"
 
 #include <QPrinter>
 #include <QProgressDialog>

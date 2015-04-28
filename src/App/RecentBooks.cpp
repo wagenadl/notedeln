@@ -16,11 +16,11 @@
 
 // RecentBooks.C
 
-#include "RecentBooks.H"
-#include "Notebook.H"
-#include "BookFile.H"
+#include "RecentBooks.h"
+#include "Notebook.h"
+#include "BookFile.h"
 #include <QSettings>
-#include "Assert.H"
+#include "Assert.h"
 
 #define MAXLISTLENGTH 20
 

@@ -16,8 +16,8 @@
 
 // GfxData.C
 
-#include "GfxData.H"
-#include "GfxBlockData.H"
+#include "GfxData.h"
+#include "GfxBlockData.h"
 
 GfxData::GfxData(Data *parent): Data(parent) {
   setType("gfx");

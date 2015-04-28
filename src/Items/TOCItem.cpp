@@ -16,9 +16,9 @@
 
 // TOCItem.C
 
-#include "TOCItem.H"
-#include "TOCEntry.H"
-#include "TOCScene.H"
+#include "TOCItem.h"
+#include "TOCEntry.h"
+#include "TOCScene.h"
 #include <QGraphicsSceneMouseEvent>
 #include <QDebug>
 #include <QDateTime>

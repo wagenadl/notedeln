@@ -1,13 +1,13 @@
 // SceneBank.cpp
 
-#include "SceneBank.H"
+#include "SceneBank.h"
 
-#include "Notebook.H"
-#include "FrontScene.H"
-#include "TOCScene.H"
-#include "EntryScene.H"
-#include "EntryFile.H"
-#include "Assert.H"
+#include "Notebook.h"
+#include "FrontScene.h"
+#include "TOCScene.h"
+#include "EntryScene.h"
+#include "EntryFile.h"
+#include "Assert.h"
 
 SceneBank::SceneBank(Notebook *nb): nb(nb) {
   frontScene_ = new FrontScene(nb, this);

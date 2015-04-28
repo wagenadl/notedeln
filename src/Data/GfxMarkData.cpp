@@ -16,7 +16,7 @@
 
 // GfxMarkData.C
 
-#include "GfxMarkData.H"
+#include "GfxMarkData.h"
 
 static Data::Creator<GfxMarkData> c("gfxmark");
 

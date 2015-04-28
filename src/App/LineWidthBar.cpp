@@ -16,9 +16,9 @@
 
 // LineWidthBar.C
 
-#include "LineWidthBar.H"
-#include "LineWidthItem.H"
-#include "Mode.H"
+#include "LineWidthBar.h"
+#include "LineWidthItem.h"
+#include "Mode.h"
 
 static double lineWidths[] = {
   0.5,

@@ -16,9 +16,9 @@
 
 // TitleData.C
 
-#include "TitleData.H"
-#include "Style.H"
-#include "Notebook.H"
+#include "TitleData.h"
+#include "Style.h"
+#include "Notebook.h"
 #include <QDebug>
 
 static Data::Creator<TitleData> c("title");

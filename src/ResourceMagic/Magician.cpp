@@ -16,7 +16,7 @@
 
 // Magician.C
 
-#include "Magician.H"
+#include "Magician.h"
 #include <QDebug>
 #include <QtGlobal>
 #include <QStringList>

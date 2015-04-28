@@ -16,13 +16,13 @@
 
 // EntryData.C
 
-#include "EntryData.H"
-#include "BlockData.H"
-#include "TitleData.H"
+#include "EntryData.h"
+#include "BlockData.h"
+#include "TitleData.h"
 #include <QDebug>
-#include "Notebook.H"
-#include "ResManager.H"
-#include "Assert.H"
+#include "Notebook.h"
+#include "ResManager.h"
+#include "Assert.h"
 
 static Data::Creator<EntryData> c("page");
 // I would *like* to rename the typ:page to typ:entry, but I cannot, because

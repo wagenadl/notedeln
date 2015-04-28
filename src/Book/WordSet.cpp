@@ -14,8 +14,8 @@
    along with eln.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "WordSet.H"
-#include "TextData.H"
+#include "WordSet.h"
+#include "TextData.h"
 
 WordSet::WordSet(QObject *parent): QObject(parent) {
   outofdate = false;

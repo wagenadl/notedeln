@@ -16,9 +16,9 @@
 
 // MarkSizeBar.C
 
-#include "MarkSizeBar.H"
-#include "MarkSizeItem.H"
-#include "Mode.H"
+#include "MarkSizeBar.h"
+#include "MarkSizeItem.h"
+#include "Mode.h"
 #include <QDebug>
 
 static double markSizes[] = {

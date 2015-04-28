@@ -16,9 +16,9 @@
 
 // DWBibMagician.C
 
-#include "DWBibMagician.H"
-#include "Style.H"
-#include "MagicBiblio.H"
+#include "DWBibMagician.h"
+#include "Style.h"
+#include "MagicBiblio.h"
 #include <QDebug>
 
 DWBibMagician::DWBibMagician(): style(Style::defaultStyle()) {

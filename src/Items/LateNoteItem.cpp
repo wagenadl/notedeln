@@ -16,11 +16,11 @@
 
 // LateNoteItem.C
 
-#include "LateNoteItem.H"
-#include "LateNoteData.H"
-#include "TextItem.H"
-#include "EntryData.H"
-#include "Assert.H"
+#include "LateNoteItem.h"
+#include "LateNoteData.h"
+#include "TextItem.h"
+#include "EntryData.h"
+#include "Assert.h"
 
 #include <QBrush>
 #include <QDebug>

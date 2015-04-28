@@ -16,13 +16,13 @@
 
 // DataFile.C
 
-#include "DataFile.H"
+#include "DataFile.h"
 #include <QDebug>
 #include <QTimer>
-#include "JSONFile.H"
-#include "Assert.H"
-#include "DFBlocker.H"
-#include "PointerSet.H"
+#include "JSONFile.h"
+#include "Assert.h"
+#include "DFBlocker.h"
+#include "PointerSet.h"
 
 double DataFile0::saveDelay_ = 10; // save every 10 s
 

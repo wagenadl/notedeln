@@ -16,9 +16,9 @@
 
 // MarkupData.C
 
-#include "MarkupData.H"
-#include "TextData.H"
-#include "Assert.H"
+#include "MarkupData.h"
+#include "TextData.h"
+#include "Assert.h"
 #include <QDebug>
 
 static Data::Creator<MarkupData> c("markup");

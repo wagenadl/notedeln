@@ -14,7 +14,7 @@
    along with eln.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "AlreadyOpen.H"
+#include "AlreadyOpen.h"
 
 #include <QLocalServer>
 #include <QLocalSocket>

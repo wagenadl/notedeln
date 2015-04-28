@@ -1,7 +1,7 @@
 // FindRegion.cpp
 
-#include "FindRegion.H"
-#include "TextItem.H"
+#include "FindRegion.h"
+#include "TextItem.h"
 #include <QPainter>
 
 FindRegion::FindRegion(MarkupData *md, TextItem *item,

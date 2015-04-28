@@ -16,7 +16,7 @@
 
 // ResManager.C
 
-#include "ResManager.H"
+#include "ResManager.h"
 #include <QImage>
 #include <QDebug>
 

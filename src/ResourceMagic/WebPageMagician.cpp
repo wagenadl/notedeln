@@ -16,8 +16,8 @@
 
 // WebPageMagician.C
 
-#include "WebPageMagician.H"
-#include "Assert.H"
+#include "WebPageMagician.h"
+#include "Assert.h"
 #include <QDebug>
 #include <QWebPage>
 #include <QWebElement>

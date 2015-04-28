@@ -17,7 +17,7 @@
 
 // LateNoteData.C
 
-#include "LateNoteData.H"
+#include "LateNoteData.h"
 
 static Data::Creator<LateNoteData> c("latenote");
 

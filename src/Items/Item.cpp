@@ -16,22 +16,22 @@
 
 // Item.C
 
-#include "Item.H"
-#include "EntryScene.H"
+#include "Item.h"
+#include "EntryScene.h"
 #include <QDebug>
-#include "Notebook.H"
-#include "LateNoteItem.H"
-#include "FootnoteItem.H" // for debug
-#include "EntryScene.H"
+#include "Notebook.h"
+#include "LateNoteItem.h"
+#include "FootnoteItem.h" // for debug
+#include "EntryScene.h"
 #include <QGraphicsSceneMouseEvent>
-#include "DragLine.H"
-#include "App.H"
-#include "GfxData.H"
-#include "GfxNoteData.H"
-#include "Assert.H"
+#include "DragLine.h"
+#include "App.h"
+#include "GfxData.h"
+#include "GfxNoteData.h"
+#include "Assert.h"
 #include <QGraphicsDropShadowEffect>
-#include "Mode.H"
-#include "BlockItem.H"
+#include "Mode.h"
+#include "BlockItem.h"
 
 Item::Item(Data *d, Item *parent): QGraphicsObject(parent), d(d) {
   ASSERT(d);

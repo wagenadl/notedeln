@@ -16,14 +16,14 @@
 
 // GfxNoteItem.C
 
-#include "GfxNoteItem.H"
-#include "GfxNoteData.H"
-#include "TextItem.H"
+#include "GfxNoteItem.h"
+#include "GfxNoteData.h"
+#include "TextItem.h"
 #include <QDebug>
 #include <QGraphicsSceneMouseEvent>
 #include <QTextDocument>
-#include "Assert.H"
-#include "BlockItem.H"
+#include "Assert.h"
+#include "BlockItem.h"
 #include <QTextBlock>
 #include <QTextLayout>
 #include <QTextLine>

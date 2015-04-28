@@ -16,7 +16,7 @@
 
 // Icons.C
 
-#include "Icons.H"
+#include "Icons.h"
 #include <QFile>
 
 Icons::Icons() {
