@@ -382,18 +382,21 @@ void TextItemDoc::remove(int offset, int length) {
 
 static QColor alphaBlend(QColor base, QColor over) {
   double r0 = base.redF();
-  double r1 = over.redF();
   double g0 = base.greenF();
-  double g1 = over.greenF();
   double b0 = base.blueF();
-  double b1 = over.blueF();
   double a0 = base.alphaF();
+
+  double r1 = over.redF();
+  double g1 = over.greenF();
+  double b1 = over.blueF();
   double a1 = over.alphaF();
+
   /* Equations from wikipedia */
-  double r = a0*r0 + a1*r1*(1-a0);
-  double g = a0*g0 + a1*g1*(1-a0);
-  double b = a0*b0 + a1*b1*(1-a0);
   double a = 1 - (1-a0)*(1-a1);
+  double r = a1/a*r1 + (1-a1/a)*r0;
+  double g = a1/a*g1 + (1-a1/a)*g0;
+  double b = a1/a*b1 + (1-a1/a)*b0;
+  
   QColor out;
   out.setRgbF(r, g, b, a);
   return out;
@@ -488,7 +491,7 @@ void TextItemDoc::render(QPainter *p, QRectF roi) const {
       for (int k=nowedges[q]; k<nowedges[q+1]; k++)
         x += cw[k];
 
-      QColor bgcol; bgcol.setAlpha(0);
+      QColor bgcol("#ffffff"); bgcol.setAlphaF(0);
       Style const &st(d->text->style());
       if (s.contains(MarkupData::DeadLink)) 
         bgcol = alphaBlend(bgcol, st.alphaColor("hover-not-found"));

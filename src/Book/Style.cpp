@@ -108,7 +108,7 @@ double Style::lineSpacing(QString font, double scale) const {
 }
 
 QColor Style::color(QString k) const {
-  if (!k.endsWith("-color"))
+  if (!k.endsWith("color"))
     k += "-color";
   QColor c(string(k));
   if (!c.isValid()) {
