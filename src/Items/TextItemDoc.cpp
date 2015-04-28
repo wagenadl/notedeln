@@ -379,7 +379,26 @@ void TextItemDoc::remove(int offset, int length) {
 
   emit contentsChange(offset, dN, 0);
 }
-  
+
+static QColor alphaBlend(QColor base, QColor over) {
+  double r0 = base.redF();
+  double r1 = over.redF();
+  double g0 = base.greenF();
+  double g1 = over.greenF();
+  double b0 = base.blueF();
+  double b1 = over.blueF();
+  double a0 = base.alphaF();
+  double a1 = over.alphaF();
+  /* Equations from wikipedia */
+  double r = a0*r0 + a1*r1*(1-a0);
+  double g = a0*g0 + a1*g1*(1-a0);
+  double b = a0*b0 + a1*b1*(1-a0);
+  double a = 1 - (1-a0)*(1-a1);
+  QColor out;
+  out.setRgbF(r, g, b, a);
+  return out;
+}
+
 void TextItemDoc::render(QPainter *p, QRectF roi) const {
   QString txt = d->text->text();
   if (roi.isNull())
@@ -469,24 +488,23 @@ void TextItemDoc::render(QPainter *p, QRectF roi) const {
       for (int k=nowedges[q]; k<nowedges[q+1]; k++)
         x += cw[k];
 
-      QString bgcol;
-      if (s.contains(MarkupData::Selected))
-        bgcol = "selected";
-      else if (s.contains(MarkupData::Emphasize))
-        bgcol = "emphasize";
+      QColor bgcol; bgcol.setAlpha(0);
+      Style const &st(d->text->style());
+      if (s.contains(MarkupData::DeadLink)) 
+        bgcol = alphaBlend(bgcol, st.alphaColor("hover-not-found"));
       else if (s.contains(MarkupData::Link)) 
-        bgcol = "hover-found";
-      else if (s.contains(MarkupData::DeadLink)) 
-        bgcol = "hover-not-found";
-      else if (s.contains(MarkupData::SearchResult))
-        bgcol = "transientshading";
-      if (!bgcol.isEmpty()) {
-        QColor bg(d->text->style().color(bgcol + "-color"));
-        bg.setAlpha(255*d->text->style().real(bgcol + "-alpha"));
+        bgcol = alphaBlend(bgcol, st.alphaColor("hover-found"));
+      if (s.contains(MarkupData::Emphasize))
+        bgcol = alphaBlend(bgcol, st.alphaColor("emphasize"));
+      if (s.contains(MarkupData::SearchResult))
+        bgcol = alphaBlend(bgcol, st.alphaColor("transientshading"));
+      if (s.contains(MarkupData::Selected))
+        bgcol = alphaBlend(bgcol, st.alphaColor("selected"));
+      if (bgcol.alpha()>0) {
         p->setPen(QPen(Qt::NoPen));
-        p->setBrush(bg);
+        p->setBrush(bgcol);
         p->drawRect(QRectF(QPointF(x0, ytop), QPointF(x, ybottom)));
-        // p->setBrush(Qt::NoBrush);
+        p->setBrush(Qt::NoBrush);
       }
 
       if (s.contains(MarkupData::FootnoteRef))

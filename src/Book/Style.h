@@ -32,6 +32,7 @@ public:
   bool flag(QString) const;
   int integer(QString) const;
   QColor color(QString) const;
+  QColor alphaColor(QString) const;
   QFont font(QString) const;
   double lineSpacing(QString font, QString scale) const;
   double lineSpacing(QString font, double scale) const;

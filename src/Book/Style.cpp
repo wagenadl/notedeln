@@ -108,12 +108,20 @@ double Style::lineSpacing(QString font, double scale) const {
 }
 
 QColor Style::color(QString k) const {
+  if (!k.endsWith("-color"))
+    k += "-color";
   QColor c(string(k));
   if (!c.isValid()) {
     qDebug() << "Not a valid color: " << k << string(k);
     ASSERT(0); // this is not actually fatal, so don't crash unless debug
   }
   return c;    
+}
+
+QColor Style::alphaColor(QString k) const {
+  QColor c(color(k + "-color"));
+  c.setAlphaF(real(k + "-alpha"));
+  return c;
 }
 
 QVariantMap const &Style::options() const {
