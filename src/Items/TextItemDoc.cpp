@@ -14,12 +14,27 @@
 #include "TableItemDoc.h"
 #include "TableData.h"
 
+
+TextItemDoc *TextItemDoc::create(TextData *data, QObject *parent) {
+  TableData *tabledata = dynamic_cast<TableData *>(data);
+  TextItemDoc *doc =  tabledata ?
+    new TableItemDoc(tabledata, parent)
+    : new TextItemDoc(data, parent);
+  doc->finalizeConstructor();
+  return doc;
+}
+
+
 TextItemDoc::TextItemDoc(TextData *data, QObject *parent):
   QObject(parent), d(new TextItemDocData(data)) {
   d->linestarts = d->text->lineStarts();
-  qDebug() << "TextItemDoc constructor" << d->linestarts;
+}
+
+void TextItemDoc::finalizeConstructor() {
   if (d->linestarts.isEmpty())
     relayout();
+  else
+    buildLinePos();
 }
 
 TextItemDoc::~TextItemDoc() {
@@ -202,14 +217,26 @@ void TextItemDoc::relayout(bool preserveWidth) {
   qDebug() << linestarts;
   
   d->linestarts = linestarts;
+  buildLinePos();
 
   if (d->writable)
     d->text->setLineStarts(linestarts);
 
-  d->br = QRectF(QPointF(0, 0),
-                 QSizeF(d->width, linestarts.size()*d->lineheight + 4));
+}
 
-  qDebug() << d->br;
+void TextItemDoc::buildLinePos() {
+  double ascent = d->fonts().metrics(MarkupStyles())->ascent();
+  int K = d->linestarts.size();
+  d->linepos.resize(K);
+  for (int k=0; k<K; k++) {
+    double x = d->leftmargin;
+    double y = 4 + k*d->lineheight + ascent;
+    if (k==0 || text()[d->linestarts[k]-1]==QChar('\n'))
+      x += d->indent;
+    d->linepos[k] = QPointF(x, y);
+  } 
+
+  d->br = QRectF(QPointF(0, 0), QSizeF(d->width, K*d->lineheight + 4));
 }
 
 void TextItemDoc::partialRelayout(int /* start */, int /* end */) {
@@ -258,77 +285,44 @@ QPointF TextItemDoc::locate(int offset) const {
   QVector<int> const &starts = d->linestarts;
   int line = findLastLE(starts, offset);
   Q_ASSERT(line>=0);
-  double ytop = line * d->lineheight + 4;
-  double ascent = d->fonts().metrics(MarkupStyles())->ascent();
-  double xl = d->leftmargin;
+  QPointF xy = d->linepos[line];
   int pos = starts[line];
-  bool startpar = line==0 || text()[pos-1]==QChar('\n');
-  if (startpar)
-    xl += d->indent;
 
   while (pos<offset)
-    xl += charw[pos++];
-  return QPointF(xl, ytop + ascent);
+    xy += QPointF(0, charw[pos++]);
+  
+  return xy;
 }
 
-int TextItemDoc::find(QPointF xy, bool strict) const {
-  Q_ASSERT(!d->linestarts.isEmpty());
+int TextItemDoc::find(QPointF xy) const {
+  Q_ASSERT(!d->linepos.isEmpty());
 
-  double w = d->width - d->leftmargin - d->rightmargin;
-  double x = xy.x() - d->leftmargin;
-
-  if (strict)
-    if (x<0 || x>w)
-      return -1;
-
-  if (x<0)
-    x = 0;
-  else if (x>w)
-    x = w;
-
-  double y = xy.y() - 4;
-  int line = int(y/d->lineheight);
-
-  if (strict)
-    if (line<0)
-      return -1;
-  
-  QVector<int> const &starts = d->linestarts;
-  int h = starts.size();
-
-  if (strict)
-    if (line>=h)
-      return -1;
-
-  if (line<0)
+  double ascent = d->fonts().metrics(MarkupStyles())->ascent();
+  int K = d->linepos.size();
+  if (xy.y() < d->linepos[0].y() - ascent)
     return 0;
-
-  int N = d->text->text().size();
-
-  if (line>=h)
-    return N;
-
-  QVector<double> const &charw = d->charWidths();
-
-  int pos = starts[line];
-  int npos = line+1<h ? starts[line+1] : N;
-
-  bool startpar = line==0 || text()[pos-1]==QChar('\n');
-  if (startpar)
-    x -= d->indent;
-
-  qDebug() << "TID:find" << x << y;
-  
-  double x0 = 0;
-  while (pos<npos) {
-    double x1 = x0 + charw[pos];
-    if (x0+x1>=2*x) // past the halfway point of the character?
-      return pos;
-    pos++;
-    x0 = x1;
+  for (int line=0; line<K; line++) {
+    double y0 = d->linepos[line].y() - ascent;
+    if (xy.y()>=y0 && xy.y()<y0 + d->lineheight) {
+      // got it
+      double x = xy.x() - d->linepos[line].x();
+      int pos = d->linestarts[line];
+      int N = d->text->text().size();
+      int npos = line+1<K ? d->linestarts[line+1] : N;
+      QVector<double> const &charw = d->charWidths();
+      double x0 = 0;
+      while (pos<npos) {
+	double x1 = x0 + charw[pos];
+	if (x0+x1>=2*x) // past the halfway point of the character?
+	  return pos;
+	pos++;
+	x0 = x1;
+      }
+      return pos>=N ? N : npos-1; // return position at end of line
+      // rather than at start of next line if possible
+    }
   }
-  return pos>=N ? N : npos-1; // return position at end of line
-  // rather than at start of next line if possible
+  return d->text->text().size();
 }
 
 void TextItemDoc::insert(int offset, QString text) {
@@ -604,12 +598,4 @@ void TextItemDoc::clearSelection() {
 
 void TextItemDoc::makeWritable() {
   d->writable = true;
-}
-
-TextItemDoc *TextItemDoc::create(TextData *data, QObject *parent) {
-  TableData *tabledata = dynamic_cast<TableData *>(data);
-  if (tabledata)
-    return new TableItemDoc(tabledata, parent);
-  else
-    return new TextItemDoc(data, parent);
 }

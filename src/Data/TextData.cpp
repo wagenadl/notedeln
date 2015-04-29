@@ -84,10 +84,12 @@ void TextData::loadMore(QVariantMap const &src) {
 
 void TextData::saveMore(QVariantMap &dst) const {
   Data::saveMore(dst);
-  QVariantList xl;
-  foreach (int i, linestarts)
-    xl.append(QVariant(i));
-  dst["lines"] = QVariant(xl);
+  if (!linestarts.isEmpty()) {
+    QVariantList xl;
+    foreach (int i, linestarts)
+      xl.append(QVariant(i));
+    dst["lines"] = QVariant(xl);
+  }
 }
 
 QVector<int> const &TextData::lineStarts() const {

@@ -17,7 +17,7 @@ class TextItemDocData {
 public:
   TextData *text;
   QVector<int> linestarts;
-  QFont baseFont; // do not set directly
+  QFont baseFont; // do not set directly, use access function instead:
   void setBaseFont(QFont const &);
   double indent;
   double width;
@@ -28,6 +28,7 @@ public:
   QRectF br;
   int selstart, selend;
   bool writable;
+  QVector<QPointF> linepos;
 public:
   TextItemDocData(TextData *text);
   QVector<double> const &charWidths() const;

@@ -43,15 +43,15 @@ public:
   QVector<int> lineStarts() const;
   int lineStartFor(int pos) const;
   int lineEndFor(int pos) const;
-  void relayout(bool preserveWidths=false);
-  void partialRelayout(int startOffset, int endOffset);
+  virtual void relayout(bool preserveWidths=false);
+  virtual void partialRelayout(int startOffset, int endOffset);
   void setSelection(class TextCursor const &c);
   void clearSelection();
   void render(class QPainter *, QRectF roi=QRectF()) const;
-  int find(QPointF p, bool strict=false) const;
+  virtual int find(QPointF p) const;
   /* Return offset from graphical position.
-     If STRICT is set, points outside the bounding rectangle return -1.
-     Otherwise, they get clamped to beginning/end of line for x violations,
+     Points outside the bounding rectangle
+     get clamped to beginning/end of line for x violations,
      or to start/end of document for y violations.
   */
   QPointF locate(int offset) const; // returns the location of the given
@@ -60,9 +60,12 @@ public:
   void remove(int offset, int length);
   int find(QString) const; // offset or -1
   void makeWritable();
+protected:
+  virtual void finalizeConstructor();
+  virtual void buildLinePos();
 signals:
   void contentsChange(int pos, int nDel, int nIns);
-private:
+protected:
   class TextItemDocData *d;
 };
 
