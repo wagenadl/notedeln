@@ -9,10 +9,12 @@
 #include <QFont>
 #include <QColor>
 #include <QRectF>
+#include <QMap>
 
 class TextItemDoc: public QObject {
   Q_OBJECT;
 public:
+  static TextItemDoc *create(class TextData *data, QObject *parent=0);
   TextItemDoc(class TextData *data, QObject *parent=0);
   // Properties
   /* Setting a property does _not_ trigger automatic relayout. You must

@@ -11,6 +11,8 @@
 #include "Style.h"
 #include <QDebug>
 #include "TextCursor.h"
+#include "TableItemDoc.h"
+#include "TableData.h"
 
 TextItemDoc::TextItemDoc(TextData *data, QObject *parent):
   QObject(parent), d(new TextItemDocData(data)) {
@@ -602,4 +604,12 @@ void TextItemDoc::clearSelection() {
 
 void TextItemDoc::makeWritable() {
   d->writable = true;
+}
+
+TextItemDoc *TextItemDoc::create(TextData *data, QObject *parent) {
+  TableData *tabledata = dynamic_cast<TableData *>(data);
+  if (tabledata)
+    return new TableItemDoc(tabledata, parent);
+  else
+    return new TextItemDoc(data, parent);
 }
