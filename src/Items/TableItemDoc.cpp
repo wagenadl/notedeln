@@ -1,6 +1,8 @@
 // TableItemDoc.cpp
 
 #include "TableItemDoc.h"
+#include "TableData.h"
+#include "TextItemDocData.h"
 
 TableItemDoc::TableItemDoc(class TableData *data, QObject *parent):
   TextItemDoc(data, parent) {
@@ -16,7 +18,7 @@ TableItemDoc::TableItemDoc(class TableData *data, QObject *parent):
 }
 
 void TableItemDoc::relayout(bool preserveWidths) {
-  if (!preserveWidth)
+  if (!preserveWidths)
     d->forgetWidths();
   buildLinePos();
 }
@@ -41,7 +43,7 @@ void TableItemDoc::buildLinePos() {
   double ascent = d->fonts().metrics(MarkupStyles())->ascent();
   for (int r=0; r<R; r++) {
     double x = 4.0 + 4.5;
-    double y = 4.0 + r*d->lineHeight + ascent;
+    double y = 4.0 + r*d->lineheight + ascent;
     for (int c=0; c<C; c++)  {
       d->linepos[c+C*r] = QPointF(x, y);
       x += columnWidth[c] + 9.0; // margin
@@ -53,3 +55,11 @@ TableData *TableItemDoc::table() {
   return dynamic_cast<TableData*>(d->text);
 }
 
+
+int TableItemDoc::firstPosition() const {
+  return 1;
+}
+
+int TableItemDoc::lastPosition() const {
+  return d->text->text().size() - 1;
+}

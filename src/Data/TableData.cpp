@@ -18,115 +18,141 @@
 
 #include "TableData.h"
 #include "Assert.h"
+#include <QDebug>
 
 static Data::Creator<TableData> c("table");
 
 TableData::TableData(Data *parent): TextData(parent) {
   setType("table");
   nc = nr = 2;
-  // in actual practice, this will usu. be overwritten soon
-  lengths.resize(nr*nc);
-  starts.resize(nr*nc);
   text_ = "\n\n\n\n\n"; // one more than number of cells
-  firstInvalidStart = 0;
+  recalculate();
 }
 
 TableData::~TableData() {
+}
+
+void TableData::recalculate() {
+  if (countCells() != nc*nr) {
+    valid = false;
+    return;
+  }
+
+  lengths.resize(nc*nr);
+  starts.resize(nc*nr);
+  int offset = 1;
+  for (int n=0; n<nc*nr; n++) {
+    int next = text_.indexOf("\n", offset);
+    starts[n] = offset;
+    lengths[n] = next - offset;
+    offset = next + 1;
+  }
+  valid = true;
 }
 
 bool TableData::isEmpty() const {
   return false;
 }
 
-unsigned int TableData::rows() const {
+int TableData::rows() const {
   return nr;
 }
 
-unsigned int TableData::columns() const {
+int TableData::columns() const {
   return nc;
 }
 
-void TableData::setRows(unsigned int r) {
+void TableData::setRows(int r) {
   if (nr==r)
     return;
   nr = r;
-  lengths.resize(nr*nc);
-  starts.resize(nr*nc);
-  firstInvalidStart = 0;
-  markModified();
+  recalculate();
+  if (valid) 
+    markModified();
+  else
+    qDebug() << "TableData::setRows: Not saving: inconsistent count";
 }
 
-void TableData::setColumns(unsigned int c) {
+void TableData::setColumns(int c) {
   if (nc==c)
     return;
   nc = c;
-  lengths.resize(nr*nc);
-  starts.resize(nr*nc);
-  firstInvalidStart = 0;
-  markModified();
+  recalculate();
+  if (valid) 
+    markModified();
+  else
+    qDebug() << "TableData::setColumns: Not saving: inconsistent count";
 }
 
-unsigned int TableData::cellLength(unsigned int r, unsigned int c) const {
-  ASSERT(r<nr && c<nc);
+void TableData::setText(QString t, bool hushhush) {
+  if (text_ == t)
+    return;
+  TextData::setText(t, true);
+  recalculate();
+  if (valid) {
+    if (!hushhush)
+      markModified();
+  } else {
+    qDebug() << "TableData::setColumns: Not saving: inconsistent count";
+  }
+}    
+  
+    
+
+bool TableData::isValid() const {
+  return valid;
+}
+
+int TableData::countCells() const {
+  int count = 0;
+  int offset = 1;
+  while (true) {
+    int next = text_.indexOf("\n", offset);
+    if (next<0)
+      return count;
+    offset = next+1;
+    count++;
+  }
+}
+
+int TableData::rc2index(int r, int c) const {
+  ASSERT(r>=0 && r<nr && c>=0 && c<nc);
+  return r*nc+c;
+}
+
+
+int TableData::cellLength(int r, int c) const {
   return lengths[rc2index(r, c)];
 }
 
-void TableData::setCellLength(unsigned int r, unsigned int c,
-			      unsigned int len,
-			      bool hushhush) {
-  ASSERT(r<nr && c<nc);
-  unsigned int idx = rc2index(r, c);
-  if (lengths[idx]==len)
-    return;
-  lengths[idx] = len;
-  if (firstInvalidStart > idx)
-    firstInvalidStart = idx + 1;
-  if (!hushhush)
-    markModified();
+int TableData::cellStart(int r, int c) const {
+  return starts[rc2index(r, c) ];
 }
 
-unsigned int TableData::cellStart(unsigned int r, unsigned int c) const {
-  ASSERT(r<nr && c<nc);
-  unsigned int idx = rc2index(r, c);
-  if (firstInvalidStart==0) {
-    starts[0] = 1;
-    firstInvalidStart = 1;
-  }
-  while (firstInvalidStart<=idx) {
-    starts[firstInvalidStart] = starts[firstInvalidStart-1]
-      + lengths[firstInvalidStart-1] + 1;
-    firstInvalidStart++;
-  }
-  return starts[idx];
-}
-
-QString TableData::cellContents(unsigned int r, unsigned int c) const {
-  ASSERT(r<nr && c<nc);
+QString TableData::cellContents(int r, int c) const {
   return text().mid(cellStart(r, c), cellLength(r, c));
 }
 
-void TableData::loadMore(QVariantMap const &src) {
-  lengths.clear();
-  foreach (QVariant v, src["len"].toList())
-    lengths.append(v.toInt());
-  starts.resize(lengths.size());
-  firstInvalidStart = 0;
+void TableData::loadMore(QVariantMap const &) {
+  // We don't load cell lengths any more: they are trivial to recalculate
+  recalculate();
 }
 
 void TableData::saveMore(QVariantMap &dst) const {
+  // We do save cell lengths still, for compatibility with earlier versions
   QVariantList xl;
-  foreach (unsigned int l, lengths)
+  foreach (int l, lengths)
     xl.append(QVariant(l));
   dst["len"] = QVariant(xl);
 }
 
 void TableData::setLineStarts(QVector<int> const &) {
-  qDebug() << "TableData does not you line starts. setLineStarts ignored.";
+  qDebug() << "TableData does not use line starts. setLineStarts ignored.";
 }
 
-QList<int> TableData::lineStarts() const {
-  qDebug() << "TableData does not you line starts. Returning cell starts.";
+QVector<int> const &TableData::lineStarts() const {
+  qDebug() << "TableData does not use line starts. Returning cell starts.";
   //
-  xxx
+  return starts;
 }
   

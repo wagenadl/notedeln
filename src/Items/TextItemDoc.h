@@ -43,12 +43,13 @@ public:
   QVector<int> lineStarts() const;
   int lineStartFor(int pos) const;
   int lineEndFor(int pos) const;
+  int lineFor(int pos) const;
   virtual void relayout(bool preserveWidths=false);
   virtual void partialRelayout(int startOffset, int endOffset);
   void setSelection(class TextCursor const &c);
   void clearSelection();
   void render(class QPainter *, QRectF roi=QRectF()) const;
-  virtual int find(QPointF p) const;
+  virtual int find(QPointF p, bool strict=false) const;
   /* Return offset from graphical position.
      Points outside the bounding rectangle
      get clamped to beginning/end of line for x violations,
@@ -60,6 +61,8 @@ public:
   void remove(int offset, int length);
   int find(QString) const; // offset or -1
   void makeWritable();
+  virtual int firstPosition() const;
+  virtual int lastPosition() const;
 protected:
   virtual void finalizeConstructor();
   virtual void buildLinePos();

@@ -122,15 +122,18 @@ void TextItem::initializeFormat() {
 }
 
 void TextItem::docChange() {
+  prepareGeometryChange();
   emit textChanged();
   update();
 }
 
 void TextItem::focusInEvent(QFocusEvent *e) {
   QGraphicsItem::focusInEvent(e);
+  setBoxVisible(true);
 }
 
 void TextItem::focusOutEvent(QFocusEvent *e) {
+  setBoxVisible(false);
   if (document()->isEmpty()) 
     emit abandoned();
 
@@ -307,8 +310,12 @@ void TextItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *) {
 bool TextItem::keyPressAsMotion(QKeyEvent *e) {
   switch (e->key()) {
   case Qt::Key_Escape: {
-    cursor.clearSelection();
-    clearFocus();
+    if (cursor.hasSelection()) {
+      cursor.clearSelection();
+      update();
+    } else {
+      clearFocus();
+    }
   } return true;
   case Qt::Key_Return: case Qt::Key_Enter:
     if (allowParagraphs_) {
@@ -335,13 +342,19 @@ bool TextItem::keyPressAsMotion(QKeyEvent *e) {
     tryMove(TextCursor::Left, e->key(), e->modifiers());
     return true;
   case Qt::Key_Up:
-    tryMove(TextCursor::Up, e->key(), e->modifiers());
+    if (text->lineFor(cursor.position())==0)
+      emit futileMovementKey(e->key(), e->modifiers());
+    else
+      tryMove(TextCursor::Up, e->key(), e->modifiers());
     return true;
   case Qt::Key_Right:
     tryMove(TextCursor::Right, e->key(), e->modifiers());
     return true;
   case Qt::Key_Down:
-    tryMove(TextCursor::Down, e->key(), e->modifiers());
+    if (text->lineFor(cursor.position())==text->lineStarts().size()-1)
+      emit futileMovementKey(e->key(), e->modifiers());
+    else
+      tryMove(TextCursor::Down, e->key(), e->modifiers());
     return true;
   case Qt::Key_Home:
     tryMove(TextCursor::StartOfLine, e->key(), e->modifiers());
@@ -399,6 +412,10 @@ bool TextItem::keyPressWithControl(QKeyEvent *e) {
     if (tryToCopy()) {
       cursor.deleteChar();
     }
+    return true;
+  case Qt::Key_A:
+    cursor.setPosition(0);
+    cursor.movePosition(TextCursor::End, TextCursor::KeepAnchor);
     return true;
   case Qt::Key_N:
     tryFootnote();
@@ -551,7 +568,7 @@ bool TextItem::keyPressAsInsertion(QKeyEvent *e) {
   if (mode()->mode()!=Mode::Type)
     return false;
   QString now = e->text();
-  if (now.isEmpty())
+  if (now.isEmpty() || now[0]<32 || now[0]==127)
     return false;
   cursor.insertText(now);
   return true;
@@ -959,17 +976,19 @@ void TextItem::paint(QPainter *p, const QStyleOptionGraphicsItem*, QWidget*) {
   else
     p->setClipRect(boundingRect());
   if (boxvis) {
-    QPen pen(QColor("#000000"));
+    QPen pen(QColor("#cccccc"));
     pen.setWidth(1);
-    pen.setStyle(Qt::DashLine);
+    //    pen.setStyle(Qt::DashLine);
     p->setPen(pen);
-    p->drawRect(boundingRect().adjusted(.5, .5, -.5, -.5));
+    p->drawRect(boundingRect().adjusted(1, 1, -1, -1));
   }
   // render selection box...
+  text->setSelection(cursor);
   text->render(p);
 
   if (hasFocus()) {
     QPointF xy = text->locate(cursor.position());
+    qDebug() << "cursor at " << cursor.position() << xy;
     p->setPen(QPen(QColor("red")));
     p->drawText(xy - QPointF(2, 0), "|");
   }
@@ -981,6 +1000,7 @@ void TextItem::setBoxVisible(bool v) {
 }
 
 void TextItem::setTextWidth(double d) {
+  prepareGeometryChange();
   text->setWidth(d);
   text->relayout();
   emit widthChanged();

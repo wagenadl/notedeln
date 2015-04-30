@@ -23,10 +23,10 @@ Search::~Search() {
 
 QString Search::untable(TableData const *tbld) {
   QString res = "";
-  for (unsigned int r=0; r<tbld->rows(); r++) {
+  for (int r=0; r<tbld->rows(); r++) {
     if (r>0)
       res += "\n";
-    for (unsigned int c=0; c<tbld->columns(); c++) {
+    for (int c=0; c<tbld->columns(); c++) {
       if (c>0)
         res += " | ";
       res += tbld->cellContents(r, c);

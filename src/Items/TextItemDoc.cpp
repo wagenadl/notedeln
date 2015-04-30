@@ -289,18 +289,18 @@ QPointF TextItemDoc::locate(int offset) const {
   int pos = starts[line];
 
   while (pos<offset)
-    xy += QPointF(0, charw[pos++]);
+    xy += QPointF(charw[pos++], 0);
   
   return xy;
 }
 
-int TextItemDoc::find(QPointF xy) const {
+int TextItemDoc::find(QPointF xy, bool strict) const {
   Q_ASSERT(!d->linepos.isEmpty());
 
   double ascent = d->fonts().metrics(MarkupStyles())->ascent();
   int K = d->linepos.size();
   if (xy.y() < d->linepos[0].y() - ascent)
-    return 0;
+    return strict ? -1 : 0;
   for (int line=0; line<K; line++) {
     double y0 = d->linepos[line].y() - ascent;
     if (xy.y()>=y0 && xy.y()<y0 + d->lineheight) {
@@ -311,6 +311,8 @@ int TextItemDoc::find(QPointF xy) const {
       int npos = line+1<K ? d->linestarts[line+1] : N;
       QVector<double> const &charw = d->charWidths();
       double x0 = 0;
+      if (strict && x<x0)
+	return -1;
       while (pos<npos) {
 	double x1 = x0 + charw[pos];
 	if (x0+x1>=2*x) // past the halfway point of the character?
@@ -318,11 +320,14 @@ int TextItemDoc::find(QPointF xy) const {
 	pos++;
 	x0 = x1;
       }
-      return pos>=N ? N : npos-1; // return position at end of line
+      if (strict && x>x0)
+	return -1;
+      else
+	return pos>=N ? N : npos-1; // return position at end of line
       // rather than at start of next line if possible
     }
   }
-  return d->text->text().size();
+  return strict ? -1 : d->text->text().size();
 }
 
 void TextItemDoc::insert(int offset, QString text) {
@@ -555,6 +560,12 @@ QVector<int> TextItemDoc::lineStarts() const {
   return d->linestarts;
 }
 
+int TextItemDoc::lineFor(int pos) const {
+  QVector<int> starts = lineStarts();
+  int line = findLastLE(starts, pos);
+  return line;
+}
+
 int TextItemDoc::lineStartFor(int pos) const {
   QVector<int> starts = lineStarts();
   int line = findLastLE(starts, pos);
@@ -598,4 +609,12 @@ void TextItemDoc::clearSelection() {
 
 void TextItemDoc::makeWritable() {
   d->writable = true;
+}
+
+int TextItemDoc::firstPosition() const {
+  return 0;
+}
+
+int TextItemDoc::lastPosition() const {
+  return d->text->text().size();
 }

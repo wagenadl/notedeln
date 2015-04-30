@@ -30,34 +30,37 @@ class TableData: public TextData {
 public:
   TableData(Data *parent=0);
   virtual ~TableData();
-  unsigned int rows() const;
-  unsigned int columns() const;
-  void setRows(unsigned int r); // invalidates cell lengths
-  void setColumns(unsigned int c); // invalidates cell lengths
-  unsigned int cellLength(unsigned int r, unsigned int c) const;
-  unsigned int cellStart(unsigned int r, unsigned int c) const;
-  virtual void setText(QString);
-  /* setText() automatically recalculates the cell lengths. You are
-     still responsible for updating markups. */
-  QString cellContents(unsigned int r, unsigned int c) const;
+  void setRows(int r);
+  void setColumns(int c);
+  virtual void setText(QString, bool hushhush=false);
+  int rows() const;
+  int columns() const;
+  int cellLength(int r, int c) const;
+  int cellStart(int r, int c) const;
+  QString cellContents(int r, int c) const;
   virtual bool isEmpty() const;
+  bool isValid() const;
+  /* setRows, setColumns, and setText automatically recalculate cell starts
+     and lengths, but only if everything is consistent.
+     This function reports on consistency.
+  */
 protected:
   void loadMore(QVariantMap const &src);
   void saveMore(QVariantMap &dst) const;
 protected:
-  inline unsigned int rc2index(unsigned int r, unsigned int c) const {
-    return r*nc+c;
-  }
+  int rc2index(int r, int c) const;
+  void recalculate();
+  int countCells() const;
 protected:
-  unsigned int nr;
-  unsigned int nc;
-  QVector<unsigned int> lengths;
+  int nr;
+  int nc;
 private:
   virtual QVector<int> const &lineStarts() const;
   virtual void setLineStarts(QVector<int> const &);
 private:
-  mutable QVector<unsigned int> starts;
-  mutable unsigned int firstInvalidStart;
+  QVector<int> lengths;
+  QVector<int> starts;
+  bool valid;
 };
 
 #endif

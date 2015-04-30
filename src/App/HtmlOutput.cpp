@@ -240,9 +240,9 @@ void HtmlOutput::add(TableBlockItem const *source, ResManager const *resmgr) {
   html << "<div class=\"tableblock\">\n";
   html << "<table>\n";
   TableData const *td = source->data()->table();
-  for (unsigned int r=0; r<td->rows(); r++) {
+  for (int r=0; r<td->rows(); r++) {
     html << "<tr>\n";
-    for (unsigned int c=0; c<td->columns(); c++) {
+    for (int c=0; c<td->columns(); c++) {
       html << "<td>\n";
       add(td, resmgr,
 	  td->cellStart(r, c), 

@@ -42,11 +42,12 @@ QList<MarkupData *> TextData::markups() const {
   return children<MarkupData>();
 }
 
-void TextData::setText(QString const &t) {
+void TextData::setText(QString const &t, bool hushhush) {
   if (text_==t)
     return;
   text_ = t;
-  markModified();
+  if (!hushhush)
+    markModified();
 }
 
 MarkupData *TextData::addMarkup(int start, int end,

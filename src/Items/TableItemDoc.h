@@ -12,6 +12,8 @@ public:
   TableItemDoc(class TableData *data, QObject *parent=0);
   virtual ~TableItemDoc() { }
   virtual void relayout(bool preserveWidths=false);
+  virtual int firstPosition() const;
+  virtual int lastPosition() const;
 protected:
   void buildLinePos();
 protected:

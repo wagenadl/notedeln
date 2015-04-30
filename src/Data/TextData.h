@@ -35,9 +35,10 @@ public:
   QList<int> paragraphStarts() const;
   virtual QVector<int> const &lineStarts() const;
   // write properties
-  virtual void setText(QString const &);
+  virtual void setText(QString const &, bool hushhush=false);
   /* If you change the text, you are responsible for updating the
      markups and the line starts. */
+  /* If hushhush is true, the data are not saved. */
   virtual void setLineStarts(QVector<int> const &);
   // other
   bool isEmpty() const;
