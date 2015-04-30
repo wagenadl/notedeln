@@ -120,3 +120,13 @@ void TableData::saveMore(QVariantMap &dst) const {
   dst["len"] = QVariant(xl);
 }
 
+void TableData::setLineStarts(QVector<int> const &) {
+  qDebug() << "TableData does not you line starts. setLineStarts ignored.";
+}
+
+QList<int> TableData::lineStarts() const {
+  qDebug() << "TableData does not you line starts. Returning cell starts.";
+  //
+  xxx
+}
+  

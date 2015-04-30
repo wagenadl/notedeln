@@ -96,13 +96,6 @@ QVector<int> const &TextData::lineStarts() const {
   return linestarts;
 }
 
-void TextData::setLineStart(int i, int s) {
-  while (linestarts.size()<i)
-    linestarts<<0;
-  linestarts[i] = s;
-  markModified(InternalMod);
-}
-
 void TextData::setLineStarts(QVector<int> const &s) {
   linestarts = s;
   markModified(InternalMod);

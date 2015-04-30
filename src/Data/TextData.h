@@ -33,13 +33,12 @@ public:
    // read properties
   QString text() const;
   QList<int> paragraphStarts() const;
-  QVector<int> const &lineStarts() const;
+  virtual QVector<int> const &lineStarts() const;
   // write properties
-  void setText(QString const &);
+  virtual void setText(QString const &);
   /* If you change the text, you are responsible for updating the
      markups and the line starts. */
-  void setLineStart(int iline, int offset);
-  void setLineStarts(QVector<int> const &);
+  virtual void setLineStarts(QVector<int> const &);
   // other
   bool isEmpty() const;
   QList<MarkupData *> markups() const;
