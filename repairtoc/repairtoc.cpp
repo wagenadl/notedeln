@@ -21,7 +21,7 @@
 #include <QDebug>
 #include <QDateTime>
 
-#include "JSONFile.H"
+#include "JSONFile.h"
 
 #include <stdio.h>
 #include <stdlib.h>
