@@ -16,7 +16,7 @@
 
 // MozillaPage.C
 
-#include "MozillaPage.H"
+#include "MozillaPage.h"
 #include <QDebug>
 
 MozillaPage::MozillaPage(QObject *parent): QWebPage(parent) {

@@ -16,7 +16,7 @@
 
 // Printer.C
 
-#include "Printer.H"
+#include "Printer.h"
 #include <QPrinter>
 #include <QPainter>
 #include <QPrintDialog>

@@ -9,5 +9,5 @@ CONFIG-=app_bundle
 CONFIG(debug, debug|release) { TARGET=$${TARGET}_debug }
 
 # Input
-HEADERS += Printer.H Options.H MozillaPage.H
+HEADERS += Printer.h Options.h MozillaPage.h
 SOURCES += Printer.cpp Options.cpp MozillaPage.cpp webgrab.cpp

@@ -16,7 +16,7 @@
 
 // Options.C
 
-#include "Options.H"
+#include "Options.h"
 #include <QApplication>
 #include <stdio.h>
 #include <stdlib.h>
