@@ -3,6 +3,7 @@
 #include "TableItemDoc.h"
 #include "TableData.h"
 #include "TextItemDocData.h"
+#include <QDebug>
 
 TableItemDoc::TableItemDoc(class TableData *data, QObject *parent):
   TextItemDoc(data, parent) {
@@ -39,6 +40,7 @@ void TableItemDoc::buildLinePos() {
 	columnWidth[c] = w;
     }
   }
+  qDebug() << "TID::buildLinePos colw" << columnWidth;
   d->linepos.resize(C*R);
   double ascent = d->fonts().metrics(MarkupStyles())->ascent();
   for (int r=0; r<R; r++) {
@@ -49,6 +51,8 @@ void TableItemDoc::buildLinePos() {
       x += columnWidth[c] + 9.0; // margin
     }
   }
+  qDebug() << "TID:bLP pos" << d->linepos;
+  d->br = QRectF(QPointF(0, 0), QSizeF(d->width, R*d->lineheight + 4));
 }
 
 TableData *TableItemDoc::table() {

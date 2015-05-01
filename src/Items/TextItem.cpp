@@ -54,7 +54,7 @@ TextItem::TextItem(TextData *data, Item *parent, bool noFinalize,
   if (altdoc)
     text = altdoc;
   else
-    text = new TextItemDoc(data, this);
+    text = TextItemDoc::create(data, this);
   
   mayMark = true;
   mayNote = false;
@@ -542,7 +542,6 @@ bool TextItem::muckWithIndentation(TextBlockItem *p,
       p->data()->setIndented(true);
   } else {
     // no control, no shift, not at start
-    qDebug() << "Convert to table currently not implemented";
     if (document()->lineStarts().size()==1) 
       emit multicellular(cursor.position(), data());
     return true; 

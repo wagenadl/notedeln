@@ -117,11 +117,8 @@ void TextItemDoc::relayout(bool preserveWidth) {
 
   QString txt = d->text->text();
 
-  qDebug() << "TID::relayout" << txt;
   QVector<double> cw = charwidths;
   cw.resize(5);
-  qDebug() << cw;
-
 
   QRegExp re(QString::fromUtf8("[-/— \n]"));
   int off = 0;
@@ -167,20 +164,11 @@ void TextItemDoc::relayout(bool preserveWidth) {
     capwidths[i] = w;
   }
 
-  QVector<double> ww = widths;
-  ww.resize(5);
-  qDebug() << ww;
-  ww = capwidths;
-  ww.resize(5);
-  qDebug() << ww;
-  
   /* Now, let's lay out some paragraphs... */
   QVector<int> linestarts;
-  qDebug() << d->width << d->leftmargin << d->rightmargin << d->indent;
   for (int idx=0; idx<bits.size(); ) {
     // let's lay out one line
     double availwidth = d->width - d->leftmargin - d->rightmargin;
-    qDebug() << "availwidth" << availwidth;
     if (parbefore[idx])
       availwidth -= d->indent;
     linestarts << bitstarts[idx];
@@ -211,11 +199,8 @@ void TextItemDoc::relayout(bool preserveWidth) {
         }
       }
     }
-    qDebug() << line << usedwidth;
   }
 
-  qDebug() << linestarts;
-  
   d->linestarts = linestarts;
   buildLinePos();
 
@@ -425,12 +410,9 @@ static QColor alphaBlend(QColor base, QColor over) {
   return out;
 }
 
-void TextItemDoc::render(QPainter *p, QRectF roi) const {
+void TextItemDoc::render(QPainter *p, QRectF /*roi*/) const {
   QString txt = d->text->text();
-  if (roi.isNull())
-    roi = p->clipBoundingRect();
-  qDebug() << "TextItemDoc::render" << roi << txt;
-  qDebug() << "  " << d->linestarts;
+  qDebug() << "TextItemDoc::render" << txt << d->linestarts;
   int N = d->linestarts.size();
 
   FontVariants &fonts = d->fonts();
@@ -439,12 +421,13 @@ void TextItemDoc::render(QPainter *p, QRectF roi) const {
   double descent = fonts.metrics(MarkupStyles())->descent();
   QVector<double> const &cw = d->charWidths();
 
-  int n0 = floor((roi.top()-4)/d->lineheight);
-  int n1 = ceil(roi.bottom()/d->lineheight);
-  if (n0<0)
+  int n0 = 0; // floor((roi.top()-4)/d->lineheight);
+  int n1 = d->linestarts.size(); //ceil(roi.bottom()/d->lineheight);
+  /*  if (n0<0)
     n0 = 0;
   if (n1>d->linestarts.size())
     n1 = d->linestarts.size();
+  */
   
   int k0 = d->linestarts[n0];
 
@@ -459,18 +442,18 @@ void TextItemDoc::render(QPainter *p, QRectF roi) const {
     else
       break;
 
-  qDebug() << edges.keys();
+  qDebug() << "TID:render:edges" << edges.keys();
   
   for (int n=n0; n<n1; n++) {
     int start = d->linestarts[n];
     int end = (n+1<N) ? d->linestarts[n+1] : txt.size();
-    double ytop = n*d->lineheight + 4;
-    double ybase = ytop + ascent;
+    double ybase = d->linepos[n].y();
+    double ytop = ybase - ascent;
     double ybottom = ybase + descent;
     
-    bool parstart = n==0 || txt[start-1]=='\n';
-    double x = parstart ? d->indent : 0;
-    x += d->leftmargin;
+    // bool parstart = n==0 || txt[start-1]=='\n';
+    double x = d->linepos[n].x();//parstart ? d->indent : 0;
+    //    x += d->leftmargin;
     QString line = txt.mid(start, end-start);
 
     QVector<int> nowedges;
@@ -491,13 +474,10 @@ void TextItemDoc::render(QPainter *p, QRectF roi) const {
     }
     nowedges << end;
 
-    qDebug() << "line " << n;
-    qDebug() << nowedges;
     QVector<int> ddd;
     foreach (MarkupStyles s, nowstyles)
       ddd << s.toInt();
-    qDebug() << ddd;
-    
+    qDebug() << "line " << n << "edges" << nowedges << ddd;
     
     int Q = nowedges.size()-1;
     for (int q=0; q<Q; q++) {

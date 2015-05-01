@@ -26,18 +26,15 @@ MarkupEdges::MarkupEdges(QList<MarkupData *> const &mdd,
     }
   }
 
-  qDebug() << "MarkupEdges";
   MarkupStyles st;
   QList<int> alls = all.toList();
   qSort(alls);
   foreach (int k, alls) {
     if (ends.contains(k)) {
       st.remove(ends[k]);
-      qDebug() << "at" << k << " ends->" << st.toInt();
     }
     if (starts.contains(k)) {
       st.add(starts[k]);
-      qDebug() << "at" << k << " starts->" << st.toInt();
     }      
     insert(k, st);
   }

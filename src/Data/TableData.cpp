@@ -33,6 +33,7 @@ TableData::~TableData() {
 }
 
 void TableData::recalculate() {
+  qDebug() << "TD::recalculate" << countCells() << nc << nr;
   if (countCells() != nc*nr) {
     valid = false;
     return;
@@ -47,6 +48,7 @@ void TableData::recalculate() {
     lengths[n] = next - offset;
     offset = next + 1;
   }
+  qDebug() << "TD::reclc" << starts << lengths;
   valid = true;
 }
 
