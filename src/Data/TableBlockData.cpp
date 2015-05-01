@@ -99,8 +99,6 @@ TextBlockData *TableBlockData::deepCopyAsTextBlock() const {
 
 TableBlockData *TableBlockData::deepCopyFromTextBlock(TextBlockData *tb,
 						      int pos) {
-  QString s = tb->text()->text();
-
   QVariantMap tbd0 = tb->save();
   tbd0["typ"] = "tableblock";
   QVariantList cc = tbd0["cc"].toList();
@@ -108,12 +106,15 @@ TableBlockData *TableBlockData::deepCopyFromTextBlock(TextBlockData *tb,
     QVariantMap cm = cc[i].toMap();
     if (cm["typ"]=="text") {
       cm["typ"] = "table";
-      QVariantList ll;
-      ll.append(pos);
-      ll.append(s.size()-pos);
-      cm["len"] = ll;
       cm["nc"] = 2;
       cm["nr"] = 1;
+      QString txt = cm["text"].toString();
+      txt.replace("\n", " ");
+      QVariantList ll;
+      ll.append(pos);
+      ll.append(txt.size()-pos);
+      cm["text"] = "\n" + txt.left(pos) + "\n" + txt.mid(pos) + "\n";
+      cm["len"] = ll;
       cc[i] = cm;
       break;
     }
@@ -121,11 +122,6 @@ TableBlockData *TableBlockData::deepCopyFromTextBlock(TextBlockData *tb,
   tbd0["cc"] = cc;
   TableBlockData *tbd1 = new TableBlockData();
   tbd1->load(tbd0);
-
-  s.insert(pos, "\n");
-  s.insert(0, "\n");
-  s.append("\n");
-  tbd1->text()->setText(s);
 
   foreach (MarkupData *md, tbd1->text()->children<MarkupData>()) {
     int s0 = md->start();

@@ -21,6 +21,7 @@ TableItemDoc::TableItemDoc(class TableData *data, QObject *parent):
 void TableItemDoc::relayout(bool preserveWidths) {
   if (!preserveWidths)
     d->forgetWidths();
+  d->linestarts = table()->lineStarts();
   buildLinePos();
 }
 

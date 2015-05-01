@@ -33,7 +33,7 @@ TableData::~TableData() {
 }
 
 void TableData::recalculate() {
-  qDebug() << "TD::recalculate" << countCells() << nc << nr;
+  qDebug() << "TD::recalculate" << countCells() << nc << nr << text_;
   if (countCells() != nc*nr) {
     valid = false;
     return;
@@ -86,7 +86,8 @@ void TableData::setColumns(int c) {
     qDebug() << "TableData::setColumns: Not saving: inconsistent count";
 }
 
-void TableData::setText(QString t, bool hushhush) {
+void TableData::setText(QString const &t, bool hushhush) {
+  qDebug() << "TableData::setText" << t << hushhush;
   if (text_ == t)
     return;
   TextData::setText(t, true);
@@ -95,7 +96,7 @@ void TableData::setText(QString t, bool hushhush) {
     if (!hushhush)
       markModified();
   } else {
-    qDebug() << "TableData::setColumns: Not saving: inconsistent count";
+    qDebug() << "TableData::setText: Not saving: inconsistent count";
   }
 }    
   
@@ -153,8 +154,6 @@ void TableData::setLineStarts(QVector<int> const &) {
 }
 
 QVector<int> const &TableData::lineStarts() const {
-  qDebug() << "TableData does not use line starts. Returning cell starts.";
-  //
   return starts;
 }
   

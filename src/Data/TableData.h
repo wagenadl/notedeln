@@ -32,13 +32,14 @@ public:
   virtual ~TableData();
   void setRows(int r);
   void setColumns(int c);
-  virtual void setText(QString, bool hushhush=false);
+  virtual void setText(QString const &, bool hushhush=false);
   int rows() const;
   int columns() const;
   int cellLength(int r, int c) const;
   int cellStart(int r, int c) const;
   QString cellContents(int r, int c) const;
   virtual bool isEmpty() const;
+  virtual QVector<int> const &lineStarts() const;
   bool isValid() const;
   /* setRows, setColumns, and setText automatically recalculate cell starts
      and lengths, but only if everything is consistent.
@@ -55,7 +56,6 @@ protected:
   int nr;
   int nc;
 private:
-  virtual QVector<int> const &lineStarts() const;
   virtual void setLineStarts(QVector<int> const &);
 private:
   QVector<int> lengths;

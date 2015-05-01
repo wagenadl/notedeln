@@ -82,7 +82,6 @@ double TextItemDoc::rightMargin() const {
 }
 
 void TextItemDoc::setLineHeight(double pix) {
-  qDebug() << "TID: lh=" << pix;
   d->lineheight = pix;
 }
 
@@ -412,7 +411,6 @@ static QColor alphaBlend(QColor base, QColor over) {
 
 void TextItemDoc::render(QPainter *p, QRectF /*roi*/) const {
   QString txt = d->text->text();
-  qDebug() << "TextItemDoc::render" << txt << d->linestarts;
   int N = d->linestarts.size();
 
   FontVariants &fonts = d->fonts();
@@ -442,8 +440,6 @@ void TextItemDoc::render(QPainter *p, QRectF /*roi*/) const {
     else
       break;
 
-  qDebug() << "TID:render:edges" << edges.keys();
-  
   for (int n=n0; n<n1; n++) {
     int start = d->linestarts[n];
     int end = (n+1<N) ? d->linestarts[n+1] : txt.size();
@@ -474,11 +470,6 @@ void TextItemDoc::render(QPainter *p, QRectF /*roi*/) const {
     }
     nowedges << end;
 
-    QVector<int> ddd;
-    foreach (MarkupStyles s, nowstyles)
-      ddd << s.toInt();
-    qDebug() << "line " << n << "edges" << nowedges << ddd;
-    
     int Q = nowedges.size()-1;
     for (int q=0; q<Q; q++) {
       QString bit = line.mid(nowedges[q] - start,
