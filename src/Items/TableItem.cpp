@@ -32,6 +32,7 @@ TableItem::~TableItem() {
 }
 
 void TableItem::docChange() {
+  qDebug () << "TableItem::docChange";
   TextItem::docChange();
 }
 
@@ -45,41 +46,42 @@ bool TableItem::keyPressAsMotion(QKeyEvent *e) {
   case Qt::Key_Backspace:
     if (cursor.hasSelection()) {
       qDebug() << "TableItem: delete selection";
+    } else if (col==0 && isRowEmpty(row) && data()->rows()>1) {
+      deleteRows(row, 1);
+      if (row>0)
+	gotoCell(row-1, lastNonEmptyCellInRow(row), true);
+      else
+	normalizeCursorPosition();
+    } else if (isColumnEmpty(col) && data()->columns()>1) {
+      deleteColumns(col, 1);
+      if (col>0)
+	gotoCell(row, col-1, true);
+      else
+	normalizeCursorPosition();
     } else {
-      if (col==0 && isRowEmpty(row) && data()->rows()>1) {
-	deleteRows(row, 1);
-	if (row>0)
-	  gotoCell(row-1, lastNonEmptyCellInRow(row), true);
-	else
-	  normalizeCursorPosition();
-	return true;
-      } else if (isColumnEmpty(col) && data()->columns()>1) {
-	deleteColumns(col, 1);
-	if (col>0)
-	  gotoCell(row, col-1, true);
-	else
-	  normalizeCursorPosition();
-	return true;
-      }
+      if (cursor.position() > cel.firstPosition()) 
+	cursor.deletePreviousChar();
+      else if (col>0)
+	gotoCell(row, col-1, true);
+      else if (row>0)
+	gotoCell(row-1, data()->columns()-1, true);
     }
-    break;
+    return true;
   case Qt::Key_Delete:
     if (cursor.hasSelection()) {
       qDebug() << "TableItem: delete selection";
-    } else {
-      if (col==0 && isRowEmpty(row) && data()->rows()>1) {
-	deleteRows(row, 1);
-	gotoCell(row, col);
-	normalizeCursorPosition();
-	return true;
-      } else if (isColumnEmpty(col) && data()->columns()>1) {
-	deleteColumns(col, 1);
-	gotoCell(row, col);
-	normalizeCursorPosition();
-	return true;
-      }
+    } else if (col==0 && isRowEmpty(row) && data()->rows()>1) {
+      deleteRows(row, 1);
+      gotoCell(row, col);
+      normalizeCursorPosition();
+    } else if (isColumnEmpty(col) && data()->columns()>1) {
+      deleteColumns(col, 1);
+      gotoCell(row, col);
+      normalizeCursorPosition();
+    } else if (cursor.position() < cel.lastPosition()) {
+      cursor.deleteChar();
     }
-    break;
+    return true;
   case Qt::Key_Tab:
     if (shft && ctrl) 
       insertColumn(col++);
@@ -119,15 +121,32 @@ bool TableItem::keyPressAsMotion(QKeyEvent *e) {
         insertRow(row++);
       gotoCell(row-1, 0, true);
     } else {
-      if (row>=int(data()->rows()-1))
-        insertRow(row+1);
-      gotoCell(row+1, 0, true);
+      if (nothingAfter(cursor)) {
+	cursor.movePosition(TextCursor::End);
+	emit futileMovementKey(e->key(), e->modifiers());
+      } else {
+	if (row>=data()->rows()-1)
+	  insertRow(row+1);
+	gotoCell(row+1, 0, true);
+      }
     }
     return true;
   default:
     break;
   }
   return false;
+}
+
+bool TableItem::nothingAfter(TextCursor const &curs) const {
+  Cell cel(lastCellAt(curs));
+  if (cel.row()<data()->rows()-1)
+    return false;
+  if (curs.position()!=cel.lastPosition())
+    return false;
+  for (int c=cel.column()+1; c<data()->columns(); c++) 
+    if (!cell(cel.row(), c).isEmpty())
+      return false;
+  return true;
 }
 
 bool TableItem::tryToPaste(bool /*noparagraphs*/) {
@@ -223,7 +242,12 @@ bool TableItem::keyPressWithControl(QKeyEvent *e) {
 bool TableItem::normalizeCursorPosition() {
   TextCursor c0 = cursor;
   cursor.clampPosition();
-  return !(c0==cursor);
+  if (c0!=cursor) {
+    qDebug() << "TableItem::normalizeCursorPosition actually did something";
+    return true;
+  } else {
+    return false;
+  }
 }
 
 void TableItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
@@ -329,6 +353,8 @@ void TableItem::deleteRows(int r0, int n) {
 
   data()->setRows(R - n);
   data()->setText(newcells.join("\n"));
+  text->relayout();
+  docChange();
 
   if (R-n==1 && C==1)
     emit unicellular(data());
@@ -365,7 +391,8 @@ void TableItem::deleteColumns(int c0, int n) {
   
   data()->setColumns(C - n);
   data()->setText(newcells.join("\n"));
-
+  text->relayout();
+  docChange();
   if (C-n==1 && R==1)
     emit unicellular(data());
 }
@@ -396,6 +423,8 @@ void TableItem::insertRow(int before) {
   
   data()->setRows(R+1);
   data()->setText(newcells.join("\n"));
+  text->relayout();
+  docChange();  
 }
 
 void TableItem::insertColumn(int before) {
@@ -424,6 +453,8 @@ void TableItem::insertColumn(int before) {
   
   data()->setColumns(C+1);
   data()->setText(newcells.join("\n"));
+  text->relayout();
+  docChange();  
 }
 
 QList<TextCursor> TableItem::normalizeSelection(TextCursor const &cursor)
@@ -457,6 +488,11 @@ TextCursor TableItem::cursorRestrictedTo(Cell const &cel) const {
   }
 }
 
+bool TableItem::selectionSpansCells(TextCursor const &cursor) const {
+  return firstCellAt(cursor) != lastCellAt(cursor);
+}
+  
+
 bool TableItem::isWholeCellSelected(TextCursor const &cursor) const {
   Cell first = firstCellAt(cursor);
   Cell last = lastCellAt(cursor);
@@ -488,6 +524,10 @@ int TableItem::Cell::firstPosition() const {
 int TableItem::Cell::lastPosition() const {
   ASSERT(isValid());
   return tbl->data()->cellStart(r, c) + tbl->data()->cellLength(r, c);
+}
+
+bool TableItem::Cell::isEmpty() const {
+  return firstPosition()==lastPosition();
 }
 
 TableItem::Cell TableItem::cell(int row, int col) const {

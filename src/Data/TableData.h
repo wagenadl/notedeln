@@ -45,11 +45,11 @@ public:
      and lengths, but only if everything is consistent.
      This function reports on consistency.
   */
+  int rc2index(int r, int c) const;
 protected:
   void loadMore(QVariantMap const &src);
   void saveMore(QVariantMap &dst) const;
 protected:
-  int rc2index(int r, int c) const;
   void recalculate();
   int countCells() const;
 protected:

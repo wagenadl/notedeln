@@ -39,7 +39,9 @@ public:
     bool isValid() const;
     int firstPosition() const;
     int lastPosition() const;
+    bool isEmpty() const;
     bool operator==(Cell const &a) const;
+    bool operator!=(Cell const &a) const { return !operator==(a); }
   private:
     TableItem const *tbl;
     int r, c;
@@ -60,6 +62,8 @@ public:
   int lastNonEmptyCellInRow(int r) const; // 0 if none
   QList<TextCursor> normalizeSelection(TextCursor const &) const;
   bool isWholeCellSelected(TextCursor const &) const;
+  bool selectionSpansCells(TextCursor const &) const;
+  bool nothingAfter(TextCursor const &) const;
 public slots:
   bool normalizeCursorPosition(); // true if changed
 protected slots:

@@ -284,14 +284,14 @@ int TextItemDoc::find(QPointF xy, bool strict) const {
   double ascent = d->fonts().metrics(MarkupStyles())->ascent();
   int K = d->linepos.size();
   if (xy.y() < d->linepos[0].y() - ascent)
-    return strict ? -1 : 0;
+    return strict ? -1 : firstPosition();
   for (int line=0; line<K; line++) {
     double y0 = d->linepos[line].y() - ascent;
     if (xy.y()>=y0 && xy.y()<y0 + d->lineheight) {
       // got it
       double x = xy.x() - d->linepos[line].x();
       int pos = d->linestarts[line];
-      int N = d->text->text().size();
+      int N = lastPosition();
       int npos = line+1<K ? d->linestarts[line+1] : N;
       QVector<double> const &charw = d->charWidths();
       double x0 = 0;

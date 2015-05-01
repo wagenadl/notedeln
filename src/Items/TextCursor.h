@@ -53,6 +53,7 @@ public:
   int position() const;
   int anchor() const;
   bool operator==(TextCursor const &) const;
+  bool operator!=(TextCursor const &a) const { return !operator==(a); }
   TextCursor findForward(QString) const; // start of string not before POS
   TextCursor findBackward(QString) const; // end of string not after POS
   TextCursor findForward(QRegExp) const;

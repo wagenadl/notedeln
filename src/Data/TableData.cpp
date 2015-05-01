@@ -119,6 +119,7 @@ int TableData::countCells() const {
 }
 
 int TableData::rc2index(int r, int c) const {
+  ASSERT(valid);
   ASSERT(r>=0 && r<nr && c>=0 && c<nc);
   return r*nc+c;
 }

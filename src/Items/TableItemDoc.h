@@ -14,9 +14,13 @@ public:
   virtual void relayout(bool preserveWidths=false);
   virtual int firstPosition() const;
   virtual int lastPosition() const;
+  virtual int find(QPointF p, bool strict=true) const;
+  QPointF cellLocation(int r, int c) const;
+  QRectF cellBoundingRect(int r, int c) const;
 protected:
   void buildLinePos();
 protected:
+  TableData const *table() const;
   TableData *table();
 };
 
