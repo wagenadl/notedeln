@@ -23,7 +23,7 @@
 #include <QObject>
 #include <QSizeF>
 
-#include "Options.H"
+#include "Options.h"
 
 class Printer: public QObject {
   Q_OBJECT;

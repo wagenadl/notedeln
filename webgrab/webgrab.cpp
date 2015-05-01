@@ -20,9 +20,9 @@
 #include <QGraphicsScene>
 #include <QWebPage>
 #include <QDebug>
-#include "MozillaPage.H"
-#include "Printer.H"
-#include "Options.H"
+#include "MozillaPage.h"
+#include "Printer.h"
+#include "Options.h"
 
 int main(int argc, char **argv) {
   QApplication app(argc, argv);
