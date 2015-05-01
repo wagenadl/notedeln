@@ -1,6 +1,12 @@
 #ifndef VERSION_H
 #define VERSION_H
 
-#define VERSION "0.4.0"
+#include <QString>
+#include <QDateTime>
+
+namespace Version {
+  QString toString();
+  QDateTime buildDate();
+};
 
 #endif

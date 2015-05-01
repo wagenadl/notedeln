@@ -26,13 +26,15 @@ RCC_DIR = $${OBJECTS_DIR}
 UI_DIR = $${OBJECTS_DIR}
 
 win: RC_FILE = App/winicon.rc
+
 mac {
     ICON = App/eln.icns
     QMAKE_INFO_PLIST = App/Info.plist
     OTHER_FILES += App/Info.plist
     TARGET = ../eln
     }
-# acdeployqt myapplication.app
+
+# macdeployqt myapplication.app
 # hdiutil create -format UDBZ -quiet -srcfolder myapplication.app myapplication.dmg 
 
 for(sd, sourcedirs): include($${sd}/$${sd}.pri)

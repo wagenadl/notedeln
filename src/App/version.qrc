@@ -1,0 +1,6 @@
+<!DOCTYPE RCC><RCC version="1.0">
+ <qresource>
+<file alias="version">../../version</file>
+<file alias="patchlevel">../../patchlevel</file>
+</qresource>
+</RCC>
