@@ -129,7 +129,7 @@ void TextItem::docChange() {
 
 void TextItem::focusInEvent(QFocusEvent *e) {
   QGraphicsItem::focusInEvent(e);
-  setBoxVisible(true);
+  // setBoxVisible(true);
 }
 
 void TextItem::focusOutEvent(QFocusEvent *e) {
@@ -543,20 +543,9 @@ bool TextItem::muckWithIndentation(TextBlockItem *p,
   } else {
     // no control, no shift, not at start
     qDebug() << "Convert to table currently not implemented";
-    ASSERT(0);
-    /*
-      TextItemDoc *doc = document();
-      if (doc->blockCount()==1
-      && doc->firstBlock().lineCount()==1
-      && doc->firstBlock().layout()->lineAt(0).naturalTextWidth()
-      < (style().real("page-width")-style().real("margin-left")
-      -style().real("margin-right"))*2.0/3.0) {
-      emit multicellular(tc.position(), data());
-      return true; // do not allow Tab to be inserted
-      } else {
-      return false; // allow Tab to be inserted
-      }
-    */
+    if (document()->lineStarts().size()==1) 
+      emit multicellular(cursor.position(), data());
+    return true; 
   }
   prepareGeometryChange();
   p->initializeFormat();
@@ -889,7 +878,7 @@ bool TextItem::tryToCopy() const {
   return true;
 }
 
-bool TextItem::tryToPaste() {
+bool TextItem::tryToPaste(bool nonewlines) {
   QClipboard *cb = QApplication::clipboard();
   QMimeData const *md = cb->mimeData(QClipboard::Clipboard);
   qDebug() << "TextItem::tryToPaste" << md;
@@ -899,6 +888,8 @@ bool TextItem::tryToPaste() {
     return false; // perhaps we should allow URLs, but format specially?
   } else if (md->hasText()) {
     QString txt = md->text();
+    if (nonewlines)
+      txt.replace("\n", " ");
     TextCursor c = textCursor();
     c.insertText(txt);
     return true;
@@ -975,6 +966,7 @@ void TextItem::paint(QPainter *p, const QStyleOptionGraphicsItem*, QWidget*) {
     p->setClipRect(clip_);
   else
     p->setClipRect(boundingRect());
+
   if (boxvis) {
     QPen pen(QColor("#cccccc"));
     pen.setWidth(1);
@@ -982,7 +974,7 @@ void TextItem::paint(QPainter *p, const QStyleOptionGraphicsItem*, QWidget*) {
     p->setPen(pen);
     p->drawRect(boundingRect().adjusted(1, 1, -1, -1));
   }
-  // render selection box...
+
   text->setSelection(cursor);
   text->render(p);
 

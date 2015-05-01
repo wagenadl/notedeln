@@ -15,21 +15,23 @@ TextCursor::Range::Range(int a, int b) {
 
 TextCursor::TextCursor(TextItemDoc *doc, int pos, int anc):
   doc(doc), pos(pos), anc(anc) {
+  if (doc && pos<doc->firstPosition())
+    pos = doc->firstPosition();
 }
                                                    
 bool TextCursor::isValid() const {
   if (!doc)
     return false;
-  int N = doc->text().size();
-  return pos>=0 && pos<=N && anc<=N;
+  return pos>=doc->firstPosition() && pos<=doc->lastPosition()
+    && (anc<0 || (anc>=doc->firstPosition() && anc<=doc->lastPosition()));
 }
 
 bool TextCursor::atStart() const {
-  return pos==0;
+  return doc ? pos<=doc->firstPosition() : false;
 }
 
 bool TextCursor::atEnd() const {
-  return doc ? pos==doc->text().size() : false;
+  return doc ? pos>=doc->lastPosition() : false;
 }
 
 void TextCursor::clearSelection() {
@@ -107,10 +109,10 @@ bool TextCursor::movePosition(TextCursor::MoveOperation op,
       ++pos;
     break;
   case Start:
-    pos=0;
+    pos = doc->firstPosition();
     break;
   case End:
-    pos = doc->text().size();
+    pos = doc->lastPosition();
     break;
   case Up: {
     QPointF here = doc->locate(pos);
@@ -158,11 +160,18 @@ void TextCursor::setPosition(int p, TextCursor::MoveMode m) {
 
 void TextCursor::clampPosition() {
   Q_ASSERT(doc);
-  if (pos<0)
-    pos = 0;
-  int N = doc->text().size();
-  if (pos>N)
-    pos = N;
+  int n0 = doc->firstPosition();
+  int n1 = doc->lastPosition();
+  if (pos<n0)
+    pos = n0;
+  if (pos>n1)
+    pos = n1;
+  if (anc>=0) {
+    if (anc<n0)
+      anc = n0;
+    if (anc>n1)
+      anc = n1;
+  }
 }
 
 TextCursor::Range TextCursor::selectedRange() const {

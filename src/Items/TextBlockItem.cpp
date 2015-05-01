@@ -48,6 +48,7 @@ TextBlockItem::TextBlockItem(TextBlockData *data, Item *parent,
   setPos(style().real("margin-left"), 0);
 
   frags << tic.create(data->text(), this);
+  
   QList<double> ysplit = data->sheetSplits();
   for (int i=0; i<ysplit.size(); i++) 
     frags << tic.create(data->text(), 0, frags[0]->document());
@@ -225,11 +226,9 @@ TextCursor TextBlockItem::textCursor() const {
 void TextBlockItem::setTextCursor(TextCursor c) {
   QPointF pos = frags[0]->posToPoint(c.position());
   int tgt = 0;
-  qDebug() << "TBI::setTextCursor" << pos;
   for (int i=0; i<frags.size(); i++) {
     if (!frags[i]->clips()
 	|| frags[i]->clipRect().contains(pos)) {
-      qDebug() << "   gotcha " << i;
       tgt = i;
       break;
     }
@@ -241,10 +240,8 @@ void TextBlockItem::setTextCursor(TextCursor c) {
 }
 
 void TextBlockItem::ensureVisible(QPointF p) {
-  qDebug() << "TBI: ensure visible";
   for (int i=0; i<frags.size(); i++) {
     if (frags[i]->clipRect().contains(p)) {
-      qDebug() << "TBI: ensure visible scene" << i;
       emit sheetRequest(data()->sheet() + i);
       frags[i]->setFocus();
       int pos = frags[i]->pointToPos(p);
@@ -262,7 +259,6 @@ double TextBlockItem::splittableY(double y) {
 }
 
 void TextBlockItem::unsplit() {
-  qDebug() << "TBI:unsplit" << frags.size() << data()->sheetSplits().size();
   while (frags.size()>1) {
     TextItem *ti = frags.takeLast();
     if (ti)
@@ -319,12 +315,10 @@ void TextBlockItem::split(QList<double> ysplit) {
 }
 
 void TextBlockItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
-  qDebug() << "TBI: mousepress";
   BlockItem::mousePressEvent(e);
 }
 
 void TextBlockItem::focusInEvent(QFocusEvent*e) {
-  qDebug() << "TBI: focusin";
   BlockItem::focusInEvent(e);
 }
 

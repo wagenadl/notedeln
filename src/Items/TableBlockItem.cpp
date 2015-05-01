@@ -18,12 +18,13 @@
 
 #include "TableBlockItem.h"
 #include "TableItem.h"
+#include <QDebug>
 
 TTICreator::~TTICreator() {
 }
 
 TextItem *TTICreator::create(TextData *data, Item *parent,
-			     QTextDocument *altdoc) const {
+                             TextItemDoc *altdoc) const {
   TableData *d = dynamic_cast<TableData*>(data);
   ASSERT(d);
   ASSERT(altdoc==0);

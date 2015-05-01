@@ -58,7 +58,6 @@ public:
   TextCursor findForward(QRegExp) const;
   TextCursor findBackward(QRegExp) const;
   /* findForward and findBackward ignore any selection in the source cursor. */
-private:
   void clampPosition();
 private:
   TextItemDoc *doc;

@@ -30,17 +30,19 @@ class TableItem: public TextItem {
 public:
   class Cell {
   public:
-    Cell(TableItem const *tbl, int c=-1, int r=-1): tbl(tbl), c(c), r(r) { }
+    Cell(TableItem const *tbl=NULL, int r=-1, int c=-1):
+      tbl(tbl), r(r), c(c) { }
     int row() const { return r; }
     int column() const { return c; }
     void setRow(int r1) { r = r1; }
     void setColumn(int c1) { c = c1; }
-    bool isValid() const { return c>=0 && r>=0; }
+    bool isValid() const;
     int firstPosition() const;
     int lastPosition() const;
+    bool operator==(Cell const &a) const;
   private:
     TableItem const *tbl;
-    int c, r;
+    int r, c;
   };
 public:
   TableItem(TableData *data, Item *parent);
@@ -70,13 +72,15 @@ protected:
   void mousePressEvent(QGraphicsSceneMouseEvent *);
   void keyPressEvent(QKeyEvent *);
   void focusInEvent(QFocusEvent *);
-  bool tryToPaste();
+  virtual bool tryToPaste(bool nonewlines=true);
 private:
-  bool keyPressAsMotion(QKeyEvent *e, Cell const &cell);
+  bool keyPressAsMotion(QKeyEvent *e);
   bool keyPressWithControl(QKeyEvent *e);
-  Cell cellAt(TextCursor const &) const;
+  Cell firstCellAt(TextCursor const &) const;
+  Cell lastCellAt(TextCursor const &) const;
   Cell cellAt(int pos) const;
   Cell cell(int c, int r) const;
+  TextCursor cursorRestrictedTo(Cell const &) const;
 private:
   bool ignoreChanges;
   int ctrla_r0, ctrla_c0;

@@ -22,75 +22,30 @@
 #include <QDebug>
 
 TableItem::TableItem(TableData *data, Item *parent):
-  TextItem(data, parent, true) {
-  /* The plain text has been written into the QTextDocument, but the
-     table has not been constructed yet, so unfortunately, we'll have to
-     rebuild the document.
-  */
-  qDebug() << "TableItems not currently functional";
-  /*
-  text->setPlainText("");
-  
-  QTextCursor c(document());
-  table = c.insertTable(data->rows(), data->columns(), format());
-  for (unsigned int r=0; r<data->rows(); r++)
-    for (unsigned int c=0; c<data->columns(); c++)
-      table->cellAt(r, c).firstCursorPosition()
-	.insertText(data->cellContents(r, c));
-
-  finalizeConstructor();
-
+  TextItem(data, parent) {
   connect(this, SIGNAL(mustNormalizeCursor()),
 	  SLOT(normalizeCursorPosition()),
 	  Qt::QueuedConnection);
-  */
 }
 
 TableItem::~TableItem() {
 }
 
-/*
-QTextTableFormat TableItem::format() {
-  // should read from style
-  QTextTableFormat fmt;
-  fmt.setBackground(QColor("#ffffff"));
-  fmt.setBorderBrush(QColor("#aaffdd"));
-  fmt.setBorderStyle(QTextFrameFormat::BorderStyle_Outset);
-  fmt.setCellPadding(4);
-  fmt.setCellSpacing(1);
-  return fmt;
-}
-*/
-
 void TableItem::docChange() {
-  /*
-  if (data()->text() == text->toPlainText())
-    return; // trivial change
-
-  // Reassess all cells. This could be made a lot smarter.
-  // But beware: this method is used by insert row/column.
-  for (unsigned int r=0; r<data()->rows(); r++) {
-    for (unsigned int c=0; c<data()->columns(); c++) {
-      int p0 = table->cellAt(r, c).firstCursorPosition().position();
-      int p1 = table->cellAt(r, c).lastCursorPosition().position();
-      unsigned int l = p1 - p0;
-      if (l != data()->cellLength(r, c))
-	data()->setCellLength(r, c, l, true);
-    }
-  }
-  */
   TextItem::docChange();
 }
 
-bool TableItem::keyPressAsMotion(QKeyEvent *e, TableItem::Cell const &cell) {
+bool TableItem::keyPressAsMotion(QKeyEvent *e) {
   bool shft = e->modifiers() & Qt::ShiftModifier;
   bool ctrl = e->modifiers() & Qt::ControlModifier;
-  int row = cell.row();
-  int col = cell.column();
-  TextCursor cursor(textCursor());
+  Cell cel = firstCellAt(cursor);
+  int row = cel.row();
+  int col = cel.column();
   switch (e->key()) {
   case Qt::Key_Backspace:
-    if (!cursor.hasSelection()) {
+    if (cursor.hasSelection()) {
+      qDebug() << "TableItem: delete selection";
+    } else {
       if (col==0 && isRowEmpty(row) && data()->rows()>1) {
 	deleteRows(row, 1);
 	if (row>0)
@@ -109,7 +64,9 @@ bool TableItem::keyPressAsMotion(QKeyEvent *e, TableItem::Cell const &cell) {
     }
     break;
   case Qt::Key_Delete:
-    if (!cursor.hasSelection()) {
+    if (cursor.hasSelection()) {
+      qDebug() << "TableItem: delete selection";
+    } else {
       if (col==0 && isRowEmpty(row) && data()->rows()>1) {
 	deleteRows(row, 1);
 	gotoCell(row, col);
@@ -124,7 +81,6 @@ bool TableItem::keyPressAsMotion(QKeyEvent *e, TableItem::Cell const &cell) {
     }
     break;
   case Qt::Key_Tab:
-    qDebug() << "tab";
     if (shft && ctrl) 
       insertColumn(col++);
     else if (ctrl)
@@ -144,7 +100,6 @@ bool TableItem::keyPressAsMotion(QKeyEvent *e, TableItem::Cell const &cell) {
     }
     return true;
   case Qt::Key_Backtab:
-    qDebug() << "backtab";
     if (ctrl) 
       insertColumn(col++);
     --col;
@@ -155,7 +110,6 @@ bool TableItem::keyPressAsMotion(QKeyEvent *e, TableItem::Cell const &cell) {
     gotoCell(row, col, true);
     return true;
   case Qt::Key_Enter: case Qt::Key_Return:
-    qDebug() << "enter";
     if (shft && ctrl)
       insertRow(row++);
     else if (ctrl)
@@ -176,28 +130,21 @@ bool TableItem::keyPressAsMotion(QKeyEvent *e, TableItem::Cell const &cell) {
   return false;
 }
 
-bool TableItem::tryToPaste() {
-  qDebug() << "TableItem::tryToPaste";
-  return TextItem::tryToPaste();
+bool TableItem::tryToPaste(bool /*noparagraphs*/) {
+  return TextItem::tryToPaste(true);
 }
 
 bool TableItem::keyPressWithControl(QKeyEvent *e) {
   if (!(e->modifiers() & Qt::ControlModifier))
     return false;
-  TextCursor cursor(textCursor());
-  bool selcel = false;
-  int r0, nr, c0, nc;  
-  /* if (cursor.hasComplexSelection()) {
-    cursor.selectedTableCells(&r0, &nr, &c0, &nc);
-    selcel = true;
-  } else */ {
-    Cell c(cellAt(cursor));
-    r0 = c.row();
-    c0 = c.column();
-    nr = 1;
-    nc = 1;
-    selcel = isWholeCellSelected(cursor);
-  }
+  Cell first = firstCellAt(cursor);
+  Cell last = lastCellAt(cursor);
+  bool selcel = isWholeCellSelected(cursor);
+  int r0 = first.row();
+  int c0 = first.column();
+  int nr = last.row() - r0 + 1;
+  int nc = last.column() - c0 + 1;
+
   switch (e->key()) {
   case Qt::Key_Delete: case Qt::Key_Backspace: 
     if (selcel) {
@@ -257,16 +204,12 @@ bool TableItem::keyPressWithControl(QKeyEvent *e) {
     tryToPaste();
     return true;
   case Qt::Key_N:
-    /*
-    if (!cursor.hasComplexSelection())
+    if (nr==1 && nc==1)
       tryFootnote(); // footnote refs cannot span cells
-    */
     return true; 
   case Qt::Key_L:
-    /*
-    if (!cursor.hasComplexSelection())
+    if (nr==1 && nc==1)
       tryExplicitLink(); // links cannot span cells
-    */
     return true;
   default:
     foreach (TextCursor c, normalizeSelection(textCursor()))
@@ -278,23 +221,9 @@ bool TableItem::keyPressWithControl(QKeyEvent *e) {
 }
 
 bool TableItem::normalizeCursorPosition() {
-  TextCursor cursor(textCursor());
-  if (cellAt(cursor).isValid()) {
-    qDebug() << "normalize position: valid";
-    return false;
-  }
-
-  if (cursor.atStart()) {
-    TextCursor p0(document(), cell(0,0).firstPosition());
-    qDebug() << "normalize: at start" << p0.position();
-    setTextCursor(p0);
-  } else { // assume at end
-    TextCursor p0(document(), cell(data()->columns()-1, data()->rows()-1)
-                  .lastPosition());
-    qDebug() << "normalize: at end" << p0.position();
-    setTextCursor(p0);
-  }
-  return true;
+  TextCursor c0 = cursor;
+  cursor.clampPosition();
+  return !(c0==cursor);
 }
 
 void TableItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
@@ -306,35 +235,23 @@ void TableItem::keyPressEvent(QKeyEvent *e) {
   /* This is where we implement insertion and deletion of rows and columns,
      augmented tab/enter navigation, and prevention of out-of-table text
      insertion.
-     We do not, here, have to worry about routine maintenance of cell sizes;
-     that happens in docChange().
   */
-  TextCursor cursor(textCursor());
-  Cell cell = cellAt(cursor);
-  int key = e->key();
-  Qt::KeyboardModifiers mod = e->modifiers();
-  if (cell.isValid()) {
-    // inside the table
-    if (keyPressAsMotion(e, cell)) {
-      ;
-    } else if (keyPressWithControl(e)) {
-      ;
-    } else {
-      TextItem::keyPressEvent(e);
-      if (cellAt(textCursor()).isValid()) {
-	setTextCursor(cursor); // revert cursor before trying to move
-	emit futileMovementKey(e->key(), e->modifiers());
-      }
-    }
+  if (keyPressAsMotion(e)) {
+    ;
+  } else if (keyPressWithControl(e)) {
+    ;
   } else {
-    e->ignore();
+    TextCursor c0 = cursor;
+    TextItem::keyPressEvent(e);
+    setTextCursor(c0); // revert cursor before trying to move
+    emit futileMovementKey(e->key(), e->modifiers());
   }
 }
 
 bool TableItem::isCellEmpty(int r, int c) const {
   if (r<0 || c<0 || r>=data()->rows() || c>=data()->columns())
     return false;
-  Cell cell(this, c, r);
+  Cell cell(this, r, c);
   if (!cell.isValid())
     return false;
   return cell.firstPosition()==cell.lastPosition();
@@ -362,146 +279,197 @@ int TableItem::lastNonEmptyCellInRow(int r) const {
 }
 
 void TableItem::gotoCell(int r, int c, bool toEnd) {
+  int C = data()->columns();
+  int R = data()->rows();
   if (r<0)
-    r=0;
+    r = 0;
   if (c<0)
-    c=0;
-  if (r>=data()->rows())
-    r=data()->rows()-1;
-  if (c>=data()->columns())
-    c=data()->columns()-1;
+    c = 0;
+  if (r>=R)
+    r = R - 1;
+  if (c>=C)
+    c = C - 1;
   ASSERT(r>=0 && c>=0);
-  Cell cel(cell(c, r));
-  ASSERT(cel.isValid());
   if (toEnd)
-    setTextCursor(TextCursor(document(), cel.lastPosition()));
+    setTextCursor(TextCursor(document(), cell(r,c).lastPosition()));
   else
-    setTextCursor(TextCursor(document(), cel.firstPosition()));
+    setTextCursor(TextCursor(document(), cell(r,c).firstPosition()));
 }
 
 void TableItem::selectCell(int r, int c) {
   gotoCell(r, c);
-  TextCursor cursor(textCursor());
-  Cell cel(cellAt(cursor));
-  ASSERT(cel.isValid());
-  cursor.setPosition(cel.lastPosition(),
+  cursor.setPosition(cell(r, c).lastPosition(),
 		     TextCursor::KeepAnchor);
-  setTextCursor(cursor);
+  update();
 }
 
 void TableItem::deleteRows(int r0, int n) {
-  int rows = data()->rows();
+  int C = data()->columns();
+  int R = data()->rows();
   if (r0<0) {
     n += r0;
     r0 = 0;
   }
-  if (r0+n>rows)
-    n = rows - r0;
-  if (r0==0 && n==rows)
+  if (r0+n>R)
+    n = R - r0;
+  if (r0==0 && n==R)
     n--; // refuse to delete all rows
   if (n<=0)
     return;
-  
-  data()->setRows(rows - n);
-  //table->removeRows(r0, n);
-  ASSERT(0);
 
-  if (data()->rows()==1 && data()->columns()==1)
+  QStringList oldcells = data()->text().split("\n");
+  // first and last are always empty, then come the actual cells
+  QStringList newcells;
+
+  newcells << oldcells.takeFirst();
+  for (int r=0; r<r0; r++) 
+    for (int c=0; c<C; c++)
+      newcells << oldcells.takeFirst();
+  for (int r=r0; r<r0+n; r++)
+    for (int c=0; c<C; c++)
+      oldcells.takeFirst();
+  for (int r=r0+n; r<R; r++)
+    for (int c=0; c<C; c++)
+      newcells << oldcells.takeFirst();
+  newcells << oldcells.takeFirst();
+  ASSERT(oldcells.isEmpty());
+
+  data()->setRows(R - n);
+  data()->setText(newcells.join("\n"));
+
+  if (R-n==1 && C==1)
     emit unicellular(data());
 }
 
 void TableItem::deleteColumns(int c0, int n) {
-  int cols = data()->columns();
+  int R = data()->rows();
+  int C = data()->columns();
   if (c0<0) {
     n += c0;
     c0 = 0;
   }
-  if (c0+n>cols)
-    n = cols - c0;
-  if (c0==0 && n==cols)
+  if (c0+n>C)
+    n = C - c0;
+  if (c0==0 && n==C)
     n--; // refuse to delete all columns
   if (n<=0)
     return;
-  
-  data()->setColumns(cols - n);
-  //table->removeColumns(c0, n);
-  ASSERT(0);
 
-  if (data()->rows()==1 && data()->columns()==1)
+  QStringList oldcells = data()->text().split("\n");
+  // first and last are always empty, then come the actual cells
+  QStringList newcells;
+  newcells << oldcells.takeFirst();
+  for (int r=0; r<R; r++) {
+    for (int c=0; c<c0; c++)
+      newcells << oldcells.takeFirst();
+    for (int c=c0; c<c0+n; c++)
+      oldcells.takeFirst();
+    for (int c=c0+n; c<C; c++)
+      newcells << oldcells.takeFirst();
+  }
+  newcells << oldcells.takeFirst();
+  ASSERT(oldcells.isEmpty());
+  
+  data()->setColumns(C - n);
+  data()->setText(newcells.join("\n"));
+
+  if (C-n==1 && R==1)
     emit unicellular(data());
 }
 
 void TableItem::insertRow(int before) {
-  int rows = data()->rows();
+  int C = data()->columns();
+  int R = data()->rows();
   if (before<0)
     before = 0;
-  if (before>rows)
-    before = rows;
+  if (before>R)
+    before = R;
 
-  data()->setRows(rows+1);
+  QStringList oldcells = data()->text().split("\n");
+  // first and last are always empty, then come the actual cells
+  QStringList newcells;
 
-  /*
-  if (before==rows)
-    table->appendRows(1);
-  else
-    table->insertRows(before, 1);
-  */
-  ASSERT(0);
+  newcells << oldcells.takeFirst();
+  for (int r=0; r<before; r++) 
+    for (int c=0; c<C; c++)
+      newcells << oldcells.takeFirst();
+  for (int c=0; c<C; c++)
+    newcells << "";
+  for (int r=before; r<R; r++)
+    for (int c=0; c<C; c++)
+      newcells << oldcells.takeFirst();
+  newcells << oldcells.takeFirst();
+  ASSERT(oldcells.isEmpty());
+  
+  data()->setRows(R+1);
+  data()->setText(newcells.join("\n"));
 }
 
 void TableItem::insertColumn(int before) {
-  int cols = data()->columns();
+  int R = data()->rows();
+  int C = data()->columns();
+
   if (before<0)
     before = 0;
-  if (before>cols)
-    before = cols;
+  if (before>C)
+    before = C;
 
-  data()->setColumns(cols+1);
+  QStringList oldcells = data()->text().split("\n");
+  // first and last are always empty, then come the actual cells
+  QStringList newcells;
 
-  /*
-  if (before==cols)
-    table->appendColumns(1);
-  else
-    table->insertColumns(before, 1);
-  */
-  ASSERT(0);
+  newcells << oldcells.takeFirst();
+  for (int r=0; r<R; r++) {
+    for (int c=0; c<before; c++)
+      newcells << oldcells.takeFirst();
+    newcells << "";
+    for (int c=before; c<C; c++)
+      newcells << oldcells.takeFirst();
+  }
+  newcells << oldcells.takeFirst();
+  ASSERT(oldcells.isEmpty());
+  
+  data()->setColumns(C+1);
+  data()->setText(newcells.join("\n"));
 }
 
 QList<TextCursor> TableItem::normalizeSelection(TextCursor const &cursor)
   const {
-  ASSERT(0);
-  /*
-  QList<TextCursor> lst;
-  if (!cursor.hasComplexSelection()) {
-    lst << cursor;
-    return lst;
-  }
-  int r0, nr, c0, nc;
-  cursor.selectedTableCells(&r0, &nr, &c0, &nc);
-  int r1 = r0+nr-1;
-  int c1 = c0+nc-1;
+  Cell first = firstCellAt(cursor);
+  Cell last = lastCellAt(cursor);
 
-  for (int r=r0; r<=r1; r++) {
-    for (int c=c0; c<=c1; c++) {
-      QTextCursor m=cursor;
-      m.setPosition(table->cellAt(r,c).firstCursorPosition().position());
-      m.setPosition(table->cellAt(r,c).lastCursorPosition().position(),
-                    QTextCursor::KeepAnchor);
-      lst << m;
-    }
-  }
+  QList<TextCursor> lst;
+  for (int r=first.row(); r<=last.row(); r++) 
+    for (int c=first.column(); c<=last.column(); c++) 
+      lst << cursorRestrictedTo(cell(r, c));
 
   return lst;
-  */
+}
+
+TextCursor TableItem::cursorRestrictedTo(Cell const &cel) const {
+  int pos = cursor.position();
+  if (pos<cel.firstPosition())
+    pos = cel.firstPosition();
+  else if (pos>cel.lastPosition())
+    pos = cel.lastPosition();
+  if (cursor.hasSelection()) {
+    int anc = cursor.anchor();
+    if (anc<cel.firstPosition())
+      anc = cel.firstPosition();
+    else if (anc>cel.lastPosition())
+      anc = cel.lastPosition();
+    return TextCursor(document(), pos, anc);
+  } else {
+    return TextCursor(document(), pos);
+  }
 }
 
 bool TableItem::isWholeCellSelected(TextCursor const &cursor) const {
-  Cell c0 = cellAt(cursor.selectionStart());
-  Cell c1 = cellAt(cursor.selectionEnd());
-  if (!c0.isValid() || !c1.isValid())
-    return false;
-  return cursor.selectionStart() == c0.firstPosition()
-    &&  cursor.selectionEnd() == c1.lastPosition();
+  Cell first = firstCellAt(cursor);
+  Cell last = lastCellAt(cursor);
+  TextCursor::Range r = cursor.selectedRange();
+  return r.start()==first.firstPosition()
+    && r.end()==last.lastPosition();
 }
 
 void TableItem::focusInEvent(QFocusEvent *e) {
@@ -555,25 +523,49 @@ void TableItem::focusInEvent(QFocusEvent *e) {
    the NL characters.
 */
 
+bool TableItem::Cell::isValid() const {
+  return tbl && c>=0 && r>=0
+    && c<tbl->data()->columns()
+    && r<tbl->data()->rows();
+}
+
+bool TableItem::Cell::operator==(Cell const &a) const {
+  return tbl==a.tbl && c==a.c && r==a.r;
+}
+
 int TableItem::Cell::firstPosition() const {
-  ASSERT(0);
-  return 0;
+  ASSERT(isValid());
+  return tbl->data()->cellStart(r, c);
 }
 
 int TableItem::Cell::lastPosition() const {
-  ASSERT(0);
-  return 0;
+  ASSERT(isValid());
+  return tbl->data()->cellStart(r, c) + tbl->data()->cellLength(r, c);
 }
 
-TableItem::Cell TableItem::cell(int col, int row) const {
-  return Cell(this, col, row);
+TableItem::Cell TableItem::cell(int row, int col) const {
+  return Cell(this, row, col);
 }
 
-TableItem::Cell TableItem::cellAt(TextCursor const &tc) const {
-  return cellAt(tc.position());
+TableItem::Cell TableItem::firstCellAt(TextCursor const &tc) const {
+  TextCursor::Range rr = tc.selectedRange();
+  return cellAt(rr.start());
+}
+
+TableItem::Cell TableItem::lastCellAt(TextCursor const &tc) const {
+  TextCursor::Range rr = tc.selectedRange();
+  return cellAt(rr.end());
 }
 
 TableItem::Cell TableItem::cellAt(int pos) const {
-  ASSERT(0);
-  return Cell(this, 0, 0);
+  int C = data()->columns();
+  int R = data()->rows();
+  for (int r=0; r<R; r++) {
+    for (int c=0; c<C; c++) {
+      Cell cel(this, r, c);
+      if (pos>=cel.firstPosition() && pos<=cel.lastPosition())
+        return cel;
+    }
+  }
+  return Cell();
 }

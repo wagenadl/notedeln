@@ -97,7 +97,7 @@ private:
   int refineEnd(int end, int base);
 protected:
   bool tryFootnote();
-  virtual bool tryToPaste();
+  virtual bool tryToPaste(bool noparagraphs=false);
   virtual bool tryToCopy() const;
   bool tryScriptStyles(TextCursor, bool onlyIfBalanced=false);
   bool tryTeXCode(bool noX=false);
