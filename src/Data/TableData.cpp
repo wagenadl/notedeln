@@ -134,7 +134,7 @@ int TableData::cellStart(int r, int c) const {
 }
 
 int TableData::cellEnd(int r, int c) const {
-  return cellStart(r, c) + cellEnd(r, c);
+  return cellStart(r, c) + cellLength(r, c);
 }
 
 QString TableData::cellContents(int r, int c) const {

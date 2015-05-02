@@ -44,6 +44,8 @@ QFont const *FontVariants::font(MarkupStyles s) {
     return fmap[s];
   }
   Q_ASSERT(0); // this shouldn't happen
+  static QFont foo;
+  return &foo;
 }
 
 QFontMetricsF const *FontVariants::metrics(MarkupStyles s) {

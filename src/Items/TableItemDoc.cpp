@@ -114,3 +114,15 @@ int TableItemDoc::find(QPointF xy, bool /*strict*/) const {
   }
   return -1;
 }
+
+QString TableItemDoc::selectedText(int start, int end) const {
+  TableCellRange rng(table(), start, end);
+  if (rng.isSingleCell())
+    return TextItemDoc::selectedText(start, end);
+
+  QStringList texts;
+  for (int r=rng.firstRow(); r<=rng.lastRow(); r++) 
+    for (int c=rng.firstColumn(); c<=rng.lastColumn(); c++) 
+      texts << table()->cellContents(r, c);
+  return texts.join("\n");
+}

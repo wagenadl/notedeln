@@ -28,6 +28,7 @@ public:
                  int nr=0, int nc=0):
     tbl(tbl), r0(r0), c0(c0), nr(nr), nc(nc) { }
   bool isEmpty() const { return nr==0 || nc==0; }
+  bool isSingleCell() const { return nr==1 && nc==1; }
   int firstRow() const { return r0; }
   int firstColumn() const { return c0; }
   int lastRow() const { return r0+nr-1; }
