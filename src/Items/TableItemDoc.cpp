@@ -80,12 +80,12 @@ QPointF TableItemDoc::cellLocation(int r, int c) const {
 
 QRectF TableItemDoc::cellBoundingRect(int r, int c) const {
   double ascent = d->fonts().metrics(MarkupStyles())->ascent();
-  double descent = d->fonts().metrics(MarkupStyles())->descent();
+  double height = d->lineheight;
   int C = table()->columns();
   QPointF topLeft = cellLocation(r, c) - QPointF(4.5, ascent);
   QPointF bottomRight = (c+1<C)
-    ? cellLocation(r, c + 1) + QPointF(-4.5, descent)
-    : QPointF(d->width, topLeft.y() + ascent+descent);
+    ? cellLocation(r, c + 1) + QPointF(-4.5, height - ascent)
+    : QPointF(d->width, topLeft.y() + height);
   return QRectF(topLeft, bottomRight);
 }
 

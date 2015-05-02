@@ -10,6 +10,8 @@
 #include <QColor>
 #include <QRectF>
 #include <QMap>
+#include "MarkupEdges.h"
+#include <QList>
 
 class TextItemDoc: public QObject {
   Q_OBJECT;
@@ -46,9 +48,8 @@ public:
   int lineFor(int pos) const;
   virtual void relayout(bool preserveWidths=false);
   virtual void partialRelayout(int startOffset, int endOffset);
-  void setSelection(class TextCursor const &c);
-  void clearSelection();
-  void render(class QPainter *, QRectF roi=QRectF()) const;
+  void render(class QPainter *p,
+              QList<TransientMarkup> tmm=QList<TransientMarkup>()) const;
   virtual int find(QPointF p, bool strict=false) const;
   /* Return offset from graphical position.
      Points outside the bounding rectangle

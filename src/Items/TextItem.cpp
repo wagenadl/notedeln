@@ -238,8 +238,18 @@ void TextItem::attemptMarkup(QPointF p, MarkupData::Style m) {
   grabMouse();
 }
 
+QList<TransientMarkup> TextItem::representCursor() const {
+  QList<TransientMarkup> tmm;
+  if (cursor.hasSelection())
+    tmm << TransientMarkup(cursor.selectionStart(), cursor.selectionEnd(),
+                           MarkupData::Selected);
+  return tmm;
+}
+
 void TextItem::mouseMoveEvent(QGraphicsSceneMouseEvent *evt) {
   int pos = pointToPos(evt->pos());
+  if (pos<0)
+    return;
   switch (mode()->mode()) {
   case Mode::Browse:
   case Mode::Type: {
@@ -249,8 +259,7 @@ void TextItem::mouseMoveEvent(QGraphicsSceneMouseEvent *evt) {
   case Mode::Highlight:
   case Mode::Strikeout:
   case Mode::Plain: 
-    if (pos>=0)
-      updateMarkup(pos);
+    updateMarkup(pos);
     break;
   default:
     break;
@@ -974,8 +983,8 @@ void TextItem::paint(QPainter *p, const QStyleOptionGraphicsItem*, QWidget*) {
     p->drawRect(boundingRect().adjusted(1, 1, -1, -1));
   }
 
-  text->setSelection(cursor);
-  text->render(p);
+  QList<TransientMarkup> tmm = representCursor();
+  text->render(p, tmm);
 
   if (hasFocus()) {
     QPointF xy = text->locate(cursor.position());
@@ -1053,7 +1062,6 @@ void TextItem::unclip() {
 
 void TextItem::setTextCursor(TextCursor const &tc) {
   cursor = tc;
-  text->setSelection(tc);
   if (mode()->mode()==Mode::Type)
     setFocus();
   else

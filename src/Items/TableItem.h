@@ -46,6 +46,22 @@ public:
     TableItem const *tbl;
     int r, c;
   };
+  class CellRange {
+  public:
+    CellRange(TableItem const *tbl=0, int r0=-1, int c0=-1,
+              int nr=0, int nc=0): tbl(tbl), r0(r0), c0(c0), nr(nr), nc(nc) {
+    }
+    bool isEmpty() const { return nr==0 || nc==0; }
+    int firstRow() const { return r0; }
+    int firstColumn() const { return c0; }
+    int lastRow() const { return r0+nr-1; }
+    int lastColumn() const { return c0+nc-1; }
+    int rows() const { return nr; }
+    int columns() const { return nc; }
+  private:
+    TableItem const *tbl;
+    int r0, c0, nr, nc;
+  };
 public:
   TableItem(TableData *data, Item *parent);
   virtual ~TableItem();
@@ -60,10 +76,10 @@ public:
   bool isColumnEmpty(int c) const;
   bool isRowEmpty(int r) const;
   int lastNonEmptyCellInRow(int r) const; // 0 if none
-  QList<TextCursor> normalizeSelection(TextCursor const &) const;
-  bool isWholeCellSelected(TextCursor const &) const;
-  bool selectionSpansCells(TextCursor const &) const;
-  bool nothingAfter(TextCursor const &) const;
+  QList<TextCursor> normalizeSelection() const;
+  bool isWholeCellSelected() const;
+  bool selectionSpansCells() const;
+  bool nothingAfterCursor() const;
 public slots:
   bool normalizeCursorPosition(); // true if changed
 protected slots:
@@ -77,14 +93,15 @@ protected:
   void keyPressEvent(QKeyEvent *);
   void focusInEvent(QFocusEvent *);
   virtual bool tryToPaste(bool nonewlines=true);
+  virtual QList<TransientMarkup> representCursor() const;
 private:
   bool keyPressAsMotion(QKeyEvent *e);
   bool keyPressWithControl(QKeyEvent *e);
-  Cell firstCellAt(TextCursor const &) const;
-  Cell lastCellAt(TextCursor const &) const;
+  Cell cellAtCursor() const;
+  CellRange selectedCells() const;
+  TextCursor cursorSelectingCell(Cell const &cel) const;
   Cell cellAt(int pos) const;
   Cell cell(int c, int r) const;
-  TextCursor cursorRestrictedTo(Cell const &) const;
 private:
   bool ignoreChanges;
   int ctrla_r0, ctrla_c0;

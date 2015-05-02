@@ -25,6 +25,8 @@
 #include "Mode.h"
 #include "TextData.h"
 #include "TextCursor.h"
+#include <QList>
+#include "MarkupEdges.h"
 
 class TextItem: public Item {
   Q_OBJECT;
@@ -127,6 +129,7 @@ protected:
   bool keyPressAsSimpleStyle(int key, TextCursor const &cursor);
   void tryMove(TextCursor::MoveOperation op, int key,
                Qt::KeyboardModifiers mod);
+  virtual QList<TransientMarkup> representCursor() const;
 protected:
   bool mayMark;
   bool mayNote;

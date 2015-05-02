@@ -8,7 +8,6 @@ TextItemDocData::TextItemDocData(TextData *text): text(text) {
   width = 1000; // hmm
   leftmargin = rightmargin = 0;
   lineheight = 15; // hmm
-  selstart = selend = -1;
   writable = false;
 }
 

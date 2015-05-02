@@ -409,7 +409,7 @@ static QColor alphaBlend(QColor base, QColor over) {
   return out;
 }
 
-void TextItemDoc::render(QPainter *p, QRectF /*roi*/) const {
+void TextItemDoc::render(QPainter *p, QList<TransientMarkup> tmm) const {
   QString txt = d->text->text();
   int N = d->linestarts.size();
 
@@ -419,19 +419,11 @@ void TextItemDoc::render(QPainter *p, QRectF /*roi*/) const {
   double descent = fonts.metrics(MarkupStyles())->descent();
   QVector<double> const &cw = d->charWidths();
 
-  int n0 = 0; // floor((roi.top()-4)/d->lineheight);
-  int n1 = d->linestarts.size(); //ceil(roi.bottom()/d->lineheight);
-  /*  if (n0<0)
-    n0 = 0;
-  if (n1>d->linestarts.size())
-    n1 = d->linestarts.size();
-  */
+  int n0 = 0; 
+  int n1 = d->linestarts.size();
   
   int k0 = d->linestarts[n0];
 
-  QList<TransientMarkup> tmm;
-  if (d->selstart>=0)
-    tmm << TransientMarkup(d->selstart, d->selend, MarkupData::Selected);
   MarkupEdges edges(d->text->markups(), tmm);
   MarkupStyles style;
   foreach (int k, edges.keys()) 
@@ -563,19 +555,6 @@ QChar TextItemDoc::characterAt(int pos) const {
 
 int TextItemDoc::find(QString s) const {
   return text().indexOf(s);
-}
-
-void TextItemDoc::setSelection(TextCursor const &c) {
-  if (c.hasSelection()) {
-    d->selstart = c.selectionStart();
-    d->selend = c.selectionEnd();
-  } else {
-    clearSelection();
-  }
-}
-
-void TextItemDoc::clearSelection() {
-  d->selstart = d->selend = -1;
 }
 
 void TextItemDoc::makeWritable() {

@@ -26,7 +26,6 @@ public:
   double lineheight;
   QColor color;
   QRectF br;
-  int selstart, selend;
   bool writable;
   QVector<QPointF> linepos;
 public:

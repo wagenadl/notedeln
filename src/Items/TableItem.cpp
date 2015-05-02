@@ -39,7 +39,7 @@ void TableItem::docChange() {
 bool TableItem::keyPressAsMotion(QKeyEvent *e) {
   bool shft = e->modifiers() & Qt::ShiftModifier;
   bool ctrl = e->modifiers() & Qt::ControlModifier;
-  Cell cel = firstCellAt(cursor);
+  Cell cel = cellAtCursor();
   int row = cel.row();
   int col = cel.column();
   switch (e->key()) {
@@ -121,7 +121,7 @@ bool TableItem::keyPressAsMotion(QKeyEvent *e) {
         insertRow(row++);
       gotoCell(row-1, 0, true);
     } else {
-      if (nothingAfter(cursor)) {
+      if (nothingAfterCursor()) {
 	cursor.movePosition(TextCursor::End);
 	emit futileMovementKey(e->key(), e->modifiers());
       } else {
@@ -137,11 +137,11 @@ bool TableItem::keyPressAsMotion(QKeyEvent *e) {
   return false;
 }
 
-bool TableItem::nothingAfter(TextCursor const &curs) const {
-  Cell cel(lastCellAt(curs));
+bool TableItem::nothingAfterCursor() const {
+  Cell cel(cellAtCursor());
   if (cel.row()<data()->rows()-1)
     return false;
-  if (curs.position()!=cel.lastPosition())
+  if (cursor.position()!=cel.lastPosition())
     return false;
   for (int c=cel.column()+1; c<data()->columns(); c++) 
     if (!cell(cel.row(), c).isEmpty())
@@ -156,13 +156,12 @@ bool TableItem::tryToPaste(bool /*noparagraphs*/) {
 bool TableItem::keyPressWithControl(QKeyEvent *e) {
   if (!(e->modifiers() & Qt::ControlModifier))
     return false;
-  Cell first = firstCellAt(cursor);
-  Cell last = lastCellAt(cursor);
-  bool selcel = isWholeCellSelected(cursor);
-  int r0 = first.row();
-  int c0 = first.column();
-  int nr = last.row() - r0 + 1;
-  int nc = last.column() - c0 + 1;
+  CellRange rng = selectedCells();
+  bool selcel = isWholeCellSelected();
+  int r0 = rng.firstRow();
+  int c0 = rng.firstColumn();
+  int nr = rng.rows();
+  int nc = rng.columns();
 
   switch (e->key()) {
   case Qt::Key_Delete: case Qt::Key_Backspace: 
@@ -231,7 +230,7 @@ bool TableItem::keyPressWithControl(QKeyEvent *e) {
       tryExplicitLink(); // links cannot span cells
     return true;
   default:
-    foreach (TextCursor c, normalizeSelection(textCursor()))
+    foreach (TextCursor c, normalizeSelection())
       if (!keyPressAsSimpleStyle(e->key(), c))
 	return false;
     return true;
@@ -260,7 +259,7 @@ void TableItem::keyPressEvent(QKeyEvent *e) {
     ;
   } else if (keyPressWithControl(e)) {
     ;
-  } else {
+  } else if (!selectionSpansCells()) {
     TextItem::keyPressEvent(e);
   }
 }
@@ -457,48 +456,40 @@ void TableItem::insertColumn(int before) {
   docChange();  
 }
 
-QList<TextCursor> TableItem::normalizeSelection(TextCursor const &cursor)
-  const {
-  Cell first = firstCellAt(cursor);
-  Cell last = lastCellAt(cursor);
-
+QList<TextCursor> TableItem::normalizeSelection() const {
   QList<TextCursor> lst;
-  for (int r=first.row(); r<=last.row(); r++) 
-    for (int c=first.column(); c<=last.column(); c++) 
-      lst << cursorRestrictedTo(cell(r, c));
-
+  if (selectionSpansCells()) {
+    CellRange rng = selectedCells();
+    for (int r=rng.firstRow(); r<=rng.lastRow(); r++) 
+      for (int c=rng.firstColumn(); c<=rng.lastColumn(); c++) 
+        lst << cursorSelectingCell(cell(r, c));
+  } else {
+    lst << cursor;
+  }
   return lst;
 }
 
-TextCursor TableItem::cursorRestrictedTo(Cell const &cel) const {
-  int pos = cursor.position();
-  if (pos<cel.firstPosition())
-    pos = cel.firstPosition();
-  else if (pos>cel.lastPosition())
-    pos = cel.lastPosition();
-  if (cursor.hasSelection()) {
-    int anc = cursor.anchor();
-    if (anc<cel.firstPosition())
-      anc = cel.firstPosition();
-    else if (anc>cel.lastPosition())
-      anc = cel.lastPosition();
-    return TextCursor(document(), pos, anc);
-  } else {
-    return TextCursor(document(), pos);
-  }
+TextCursor TableItem::cursorSelectingCell(Cell const &cel) const {
+  TextCursor curs = cursor;
+  curs.setPosition(cel.firstPosition());
+  curs.setPosition(cel.lastPosition(), TextCursor::KeepAnchor);
+  return curs;
 }
 
-bool TableItem::selectionSpansCells(TextCursor const &cursor) const {
-  return firstCellAt(cursor) != lastCellAt(cursor);
+bool TableItem::selectionSpansCells() const {
+  CellRange cr = selectedCells();
+  return cr.columns()>1 || cr.rows()>1;
 }
   
 
-bool TableItem::isWholeCellSelected(TextCursor const &cursor) const {
-  Cell first = firstCellAt(cursor);
-  Cell last = lastCellAt(cursor);
+bool TableItem::isWholeCellSelected() const {
+  if (!cursor.hasSelection())
+    return false;
+  if (selectionSpansCells())
+    return true;
+  Cell cel = cellAtCursor();
   TextCursor::Range r = cursor.selectedRange();
-  return r.start()==first.firstPosition()
-    && r.end()==last.lastPosition();
+  return r.start()==cel.firstPosition() && r.end()==cel.lastPosition();
 }
 
 void TableItem::focusInEvent(QFocusEvent *e) {
@@ -507,9 +498,13 @@ void TableItem::focusInEvent(QFocusEvent *e) {
 }
 
 bool TableItem::Cell::isValid() const {
-  return tbl && c>=0 && r>=0
-    && c<tbl->data()->columns()
-    && r<tbl->data()->rows();
+  if (tbl && c>=0 && r>=0
+      && c<tbl->data()->columns()
+      && r<tbl->data()->rows())
+    return true;
+  qDebug() << "TableItem::Cell::notValid" << tbl << r << c
+           << "(" << tbl->data()->rows() << tbl->data()->columns() << ")";
+  return false;
 }
 
 bool TableItem::Cell::operator==(Cell const &a) const {
@@ -534,14 +529,27 @@ TableItem::Cell TableItem::cell(int row, int col) const {
   return Cell(this, row, col);
 }
 
-TableItem::Cell TableItem::firstCellAt(TextCursor const &tc) const {
-  TextCursor::Range rr = tc.selectedRange();
-  return cellAt(rr.start());
+TableItem::CellRange TableItem::selectedCells() const {
+  TextCursor::Range rr = cursor.selectedRange();
+  Cell a = cellAt(rr.start());
+  Cell b = cellAt(rr.end());
+  int r0 = a.row();
+  int dr = b.row() - a.row();
+  if (dr<0) {
+    r0 += dr;
+    dr = -dr;
+  }
+  int c0 = a.column();
+  int dc = b.column() - a.column();
+  if (dc<0) {
+    c0 += dc;
+    dc = -dc;
+  }
+  return CellRange(this, r0, c0, dr+1, dc+1);
 }
 
-TableItem::Cell TableItem::lastCellAt(TextCursor const &tc) const {
-  TextCursor::Range rr = tc.selectedRange();
-  return cellAt(rr.end());
+TableItem::Cell TableItem::cellAtCursor() const {
+  return cellAt(cursor.position());
 }
 
 TableItem::Cell TableItem::cellAt(int pos) const {
@@ -556,3 +564,23 @@ TableItem::Cell TableItem::cellAt(int pos) const {
   }
   return Cell();
 }
+
+
+QList<TransientMarkup> TableItem::representCursor() const {
+  QList<TransientMarkup> tmm;
+  if (cursor.hasSelection()) {
+    if (selectionSpansCells()) {
+      CellRange rng = selectedCells();
+      for (int r=rng.firstRow(); r<=rng.lastRow(); r++)
+        for (int c=rng.firstColumn(); c<=rng.lastColumn(); c++)
+          tmm << TransientMarkup(cell(r,c).firstPosition(),
+                                 cell(r,c).lastPosition(),
+                                 MarkupData::Selected);
+    } else {
+      tmm << TransientMarkup(cursor.selectionStart(), cursor.selectionEnd(),
+                             MarkupData::Selected);
+    }
+  }
+  return tmm;
+}
+
