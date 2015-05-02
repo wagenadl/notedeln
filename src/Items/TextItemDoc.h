@@ -64,6 +64,7 @@ public:
   void makeWritable();
   virtual int firstPosition() const;
   virtual int lastPosition() const;
+  virtual QString selectedText(int start, int end) const;
 protected:
   virtual void finalizeConstructor();
   virtual void buildLinePos();

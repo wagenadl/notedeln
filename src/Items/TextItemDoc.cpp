@@ -568,3 +568,7 @@ int TextItemDoc::firstPosition() const {
 int TextItemDoc::lastPosition() const {
   return d->text->text().size();
 }
+
+QString TextItemDoc::selectedText(int start, int end) const {
+  return d->text->text().mid(start, end-start);
+}

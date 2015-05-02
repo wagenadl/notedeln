@@ -81,7 +81,7 @@ QString TextCursor::selectedText() const {
   if (!hasSelection())
     return "";
   Range r = selectedRange();
-  return doc->text().mid(r.start(), r.size());
+  return doc->selectedText(r.start(), r.end());
 }
 
 bool TextCursor::movePosition(TextCursor::MoveOperation op,
