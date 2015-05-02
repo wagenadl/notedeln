@@ -38,9 +38,6 @@ public:
   void insertColumn(int before);
   void deleteRows(int r0, int nr);
   void deleteColumns(int c0, int nc);
-  bool isColumnEmpty(int c) const;
-  bool isRowEmpty(int r) const;
-  int lastNonEmptyCellInRow(int r) const; // 0 if none
   QList<TextCursor> normalizeSelection() const;
   bool isWholeCellSelected() const;
   bool selectionSpansCells() const;
@@ -65,8 +62,6 @@ private:
   TableCell cellAtCursor() const;
   TableCellRange selectedCells() const;
   TextCursor cursorSelectingCell(TableCell const &cel) const;
-  TableCell cellAt(int pos) const;
-  TableCell cell(int c, int r) const;
 private:
   bool ignoreChanges;
   int ctrla_r0, ctrla_c0;

@@ -46,13 +46,13 @@ bool TableItem::keyPressAsMotion(QKeyEvent *e) {
   case Qt::Key_Backspace:
     if (cursor.hasSelection()) {
       qDebug() << "TableItem: delete selection";
-    } else if (col==0 && isRowEmpty(row) && data()->rows()>1) {
+    } else if (col==0 && data()->isRowEmpty(row) && data()->rows()>1) {
       deleteRows(row, 1);
       if (row>0)
-	gotoCell(row-1, lastNonEmptyCellInRow(row), true);
+	gotoCell(row-1, data()->lastNonEmptyCellInRow(row), true);
       else
 	normalizeCursorPosition();
-    } else if (isColumnEmpty(col) && data()->columns()>1) {
+    } else if (data()->isColumnEmpty(col) && data()->columns()>1) {
       deleteColumns(col, 1);
       if (col>0)
 	gotoCell(row, col-1, true);
@@ -70,11 +70,11 @@ bool TableItem::keyPressAsMotion(QKeyEvent *e) {
   case Qt::Key_Delete:
     if (cursor.hasSelection()) {
       qDebug() << "TableItem: delete selection";
-    } else if (col==0 && isRowEmpty(row) && data()->rows()>1) {
+    } else if (col==0 && data()->isRowEmpty(row) && data()->rows()>1) {
       deleteRows(row, 1);
       gotoCell(row, col);
       normalizeCursorPosition();
-    } else if (isColumnEmpty(col) && data()->columns()>1) {
+    } else if (data()->isColumnEmpty(col) && data()->columns()>1) {
       deleteColumns(col, 1);
       gotoCell(row, col);
       normalizeCursorPosition();
@@ -144,7 +144,7 @@ bool TableItem::nothingAfterCursor() const {
   if (cursor.position()!=cel.lastPosition())
     return false;
   for (int c=cel.column()+1; c<data()->columns(); c++) 
-    if (!cell(cel.row(), c).isEmpty())
+    if (!data()->cell(cel.row(), c).isEmpty())
       return false;
   return true;
 }
@@ -184,9 +184,9 @@ bool TableItem::keyPressWithControl(QKeyEvent *e) {
 	selectCell(ctrla_r0, ctrla_c0);
       } else if (nr==int(data()->rows())) {
 	// column selected -> select table
-	TextCursor cur0(document(), cell(0,0).firstPosition());
-	TextCursor cur1(document(), cell(data()->columns()-1,
-                                         data()->rows()-1).lastPosition());
+	TextCursor cur0(document(), data()->cellStart(0,0));
+	TextCursor cur1(document(), data()->cellEnd(data()->columns()-1,
+                                                    data()->rows()-1));
 	cur0.setPosition(cur1.position(), TextCursor::KeepAnchor);
 	setTextCursor(cur0);
       } else if (nc==int(data()->columns())) {
@@ -195,9 +195,9 @@ bool TableItem::keyPressWithControl(QKeyEvent *e) {
 	  ctrla_c0 = 0;
 	else if (ctrla_c0>=int(data()->columns()))
 	  ctrla_c0 = int(data()->columns()-1);
-	TextCursor cur0(document(), cell(ctrla_c0, 0).firstPosition());
+	TextCursor cur0(document(), data()->cellStart(ctrla_c0, 0));
 	TextCursor cur1(document(),
-                        cell(ctrla_c0, data()->rows()-1).lastPosition());
+                        data()->cellEnd(ctrla_c0, data()->rows()-1));
 	cur0.setPosition(cur1.position(), TextCursor::KeepAnchor);
 	setTextCursor(cur0);
       } else {
@@ -206,9 +206,9 @@ bool TableItem::keyPressWithControl(QKeyEvent *e) {
 	    ctrla_r0 = r0;
 	  else if (ctrla_r0>=r0+nr)
 	    ctrla_r0 = r0+nr-1;
-	  TextCursor cur0(document(), cell(0, ctrla_r0).firstPosition());
-	  TextCursor cur1(document(), cell(data()->columns()-1, ctrla_r0)
-                          .lastPosition());
+	  TextCursor cur0(document(), data()->cellStart(0, ctrla_r0));
+	  TextCursor cur1(document(),
+                          data()->cellEnd(data()->columns()-1, ctrla_r0));
 	  cur0.setPosition(cur1.position(), TextCursor::KeepAnchor);
 	  setTextCursor(cur0);
       }
@@ -264,27 +264,6 @@ void TableItem::keyPressEvent(QKeyEvent *e) {
   }
 }
 
-bool TableItem::isColumnEmpty(int c) const {
-  for (int r=0; r<data()->rows(); r++)
-    if (!cell(r,c).isEmpty())
-      return false;
-  return true;
-}
-  
-bool TableItem::isRowEmpty(int r) const {
-  for (int c=0; c<data()->columns(); c++)
-    if (!cell(r,c).isEmpty())
-      return false;
-  return true;
-}
-
-int TableItem::lastNonEmptyCellInRow(int r) const {
-  for (int c=data()->columns()-1; c>0; c--)
-    if (!cell(r,c).isEmpty())
-      return c;
-  return 0;
-}
-
 void TableItem::gotoCell(int r, int c, bool toEnd) {
   int C = data()->columns();
   int R = data()->rows();
@@ -298,15 +277,14 @@ void TableItem::gotoCell(int r, int c, bool toEnd) {
     c = C - 1;
   ASSERT(r>=0 && c>=0);
   if (toEnd)
-    setTextCursor(TextCursor(document(), cell(r,c).lastPosition()));
+    setTextCursor(TextCursor(document(), data()->cellEnd(r,c)));
   else
-    setTextCursor(TextCursor(document(), cell(r,c).firstPosition()));
+    setTextCursor(TextCursor(document(), data()->cellStart(r,c)));
 }
 
 void TableItem::selectCell(int r, int c) {
   gotoCell(r, c);
-  cursor.setPosition(cell(r, c).lastPosition(),
-		     TextCursor::KeepAnchor);
+  cursor.setPosition(data()->cellEnd(r, c), TextCursor::KeepAnchor);
   update();
 }
 
@@ -453,7 +431,7 @@ QList<TextCursor> TableItem::normalizeSelection() const {
     TableCellRange rng = selectedCells();
     for (int r=rng.firstRow(); r<=rng.lastRow(); r++) 
       for (int c=rng.firstColumn(); c<=rng.lastColumn(); c++) 
-        lst << cursorSelectingCell(cell(r, c));
+        lst << cursorSelectingCell(data()->cell(r, c));
   } else {
     lst << cursor;
   }
@@ -488,15 +466,10 @@ void TableItem::focusInEvent(QFocusEvent *e) {
   TextItem::focusInEvent(e);
 }
 
-
-TableCell TableItem::cell(int row, int col) const {
-  return TableCell(data(), row, col);
-}
-
 TableCellRange TableItem::selectedCells() const {
   TextCursor::Range rr = cursor.selectedRange();
-  TableCell a = cellAt(rr.start());
-  TableCell b = cellAt(rr.end());
+  TableCell a = data()->cellAt(rr.start());
+  TableCell b = data()->cellAt(rr.end());
   int r0 = a.row();
   int dr = b.row() - a.row();
   if (dr<0) {
@@ -513,20 +486,7 @@ TableCellRange TableItem::selectedCells() const {
 }
 
 TableCell TableItem::cellAtCursor() const {
-  return cellAt(cursor.position());
-}
-
-TableCell TableItem::cellAt(int pos) const {
-  int C = data()->columns();
-  int R = data()->rows();
-  for (int r=0; r<R; r++) {
-    for (int c=0; c<C; c++) {
-      TableCell cel(data(), r, c);
-      if (pos>=cel.firstPosition() && pos<=cel.lastPosition())
-        return cel;
-    }
-  }
-  return TableCell();
+  return data()->cellAt(cursor.position());
 }
 
 
@@ -537,8 +497,8 @@ QList<TransientMarkup> TableItem::representCursor() const {
       TableCellRange rng = selectedCells();
       for (int r=rng.firstRow(); r<=rng.lastRow(); r++)
         for (int c=rng.firstColumn(); c<=rng.lastColumn(); c++)
-          tmm << TransientMarkup(cell(r,c).firstPosition(),
-                                 cell(r,c).lastPosition(),
+          tmm << TransientMarkup(data()->cellStart(r,c),
+                                 data()->cellEnd(r,c),
                                  MarkupData::Selected);
     } else {
       tmm << TransientMarkup(cursor.selectionStart(), cursor.selectionEnd(),

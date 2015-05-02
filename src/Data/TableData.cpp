@@ -133,8 +133,38 @@ int TableData::cellStart(int r, int c) const {
   return starts[rc2index(r, c) ];
 }
 
+int TableData::cellEnd(int r, int c) const {
+  return cellStart(r, c) + cellEnd(r, c);
+}
+
 QString TableData::cellContents(int r, int c) const {
   return text().mid(cellStart(r, c), cellLength(r, c));
+}
+
+bool TableData::isColumnEmpty(int c) const {
+  for (int r=0; r<nr; r++)
+    if (!isCellEmpty(r,c))
+      return false;
+  return true;
+}
+  
+bool TableData::isRowEmpty(int r) const {
+  for (int c=0; c<nc; c++)
+    if (!isCellEmpty(r,c))
+      return false;
+  return true;
+}
+
+bool TableData::isCellEmpty(int r, int c) const {
+  return cellLength(r,c)==0;
+}
+
+
+int TableData::lastNonEmptyCellInRow(int r) const {
+  for (int c=nc-1; c>0; c--)
+    if (!isCellEmpty(r,c))
+      return c;
+  return 0;
 }
 
 void TableData::loadMore(QVariantMap const &) {
@@ -158,3 +188,17 @@ QVector<int> const &TableData::lineStarts() const {
   return starts;
 }
   
+TableCell TableData::cellAt(int pos) const {
+  for (int r=0; r<nr; r++) {
+    for (int c=0; c<nc; c++) {
+      TableCell cel(this, r, c);
+      if (pos>=cel.firstPosition() && pos<=cel.lastPosition())
+        return cel;
+    }
+  }
+  return TableCell();
+}
+
+TableCell TableData::cell(int row, int col) const {
+  return TableCell(this, row, col);
+}

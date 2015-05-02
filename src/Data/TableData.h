@@ -21,6 +21,7 @@
 #define TABLEDATA_H
 
 #include "TextData.h"
+#include "TableCell.h"
 #include <QVector>
 
 class TableData: public TextData {
@@ -37,7 +38,12 @@ public:
   int columns() const;
   int cellLength(int r, int c) const;
   int cellStart(int r, int c) const;
+  int cellEnd(int r, int c) const;
   QString cellContents(int r, int c) const;
+  bool isRowEmpty(int r) const;
+  bool isColumnEmpty(int c) const;
+  bool isCellEmpty(int r, int c) const;
+  int lastNonEmptyCellInRow(int r) const; // 0 if none
   virtual bool isEmpty() const;
   virtual QVector<int> const &lineStarts() const;
   bool isValid() const;
@@ -45,6 +51,8 @@ public:
      and lengths, but only if everything is consistent.
      This function reports on consistency.
   */
+  TableCell cellAt(int pos) const;
+  TableCell cell(int c, int r) const;
   int rc2index(int r, int c) const;
 protected:
   void loadMore(QVariantMap const &src);
