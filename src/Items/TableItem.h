@@ -24,44 +24,10 @@
 #include "TableData.h"
 #include "TextCursor.h"
 #include <QList>
+#include "TableCell.h"
 
 class TableItem: public TextItem {
   Q_OBJECT;
-public:
-  class Cell {
-  public:
-    Cell(TableItem const *tbl=NULL, int r=-1, int c=-1):
-      tbl(tbl), r(r), c(c) { }
-    int row() const { return r; }
-    int column() const { return c; }
-    void setRow(int r1) { r = r1; }
-    void setColumn(int c1) { c = c1; }
-    bool isValid() const;
-    int firstPosition() const;
-    int lastPosition() const;
-    bool isEmpty() const;
-    bool operator==(Cell const &a) const;
-    bool operator!=(Cell const &a) const { return !operator==(a); }
-  private:
-    TableItem const *tbl;
-    int r, c;
-  };
-  class CellRange {
-  public:
-    CellRange(TableItem const *tbl=0, int r0=-1, int c0=-1,
-              int nr=0, int nc=0): tbl(tbl), r0(r0), c0(c0), nr(nr), nc(nc) {
-    }
-    bool isEmpty() const { return nr==0 || nc==0; }
-    int firstRow() const { return r0; }
-    int firstColumn() const { return c0; }
-    int lastRow() const { return r0+nr-1; }
-    int lastColumn() const { return c0+nc-1; }
-    int rows() const { return nr; }
-    int columns() const { return nc; }
-  private:
-    TableItem const *tbl;
-    int r0, c0, nr, nc;
-  };
 public:
   TableItem(TableData *data, Item *parent);
   virtual ~TableItem();
@@ -72,7 +38,6 @@ public:
   void insertColumn(int before);
   void deleteRows(int r0, int nr);
   void deleteColumns(int c0, int nc);
-  bool isCellEmpty(int r, int c) const;
   bool isColumnEmpty(int c) const;
   bool isRowEmpty(int r) const;
   int lastNonEmptyCellInRow(int r) const; // 0 if none
@@ -97,11 +62,11 @@ protected:
 private:
   bool keyPressAsMotion(QKeyEvent *e);
   bool keyPressWithControl(QKeyEvent *e);
-  Cell cellAtCursor() const;
-  CellRange selectedCells() const;
-  TextCursor cursorSelectingCell(Cell const &cel) const;
-  Cell cellAt(int pos) const;
-  Cell cell(int c, int r) const;
+  TableCell cellAtCursor() const;
+  TableCellRange selectedCells() const;
+  TextCursor cursorSelectingCell(TableCell const &cel) const;
+  TableCell cellAt(int pos) const;
+  TableCell cell(int c, int r) const;
 private:
   bool ignoreChanges;
   int ctrla_r0, ctrla_c0;
