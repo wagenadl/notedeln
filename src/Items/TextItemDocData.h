@@ -28,6 +28,9 @@ public:
   QRectF br;
   bool writable;
   QVector<QPointF> linepos;
+  double ascent;
+  double xheight;
+  double descent;
 public:
   TextItemDocData(TextData *text);
   QVector<double> const &charWidths() const;

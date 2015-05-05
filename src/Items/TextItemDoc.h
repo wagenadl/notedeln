@@ -65,9 +65,10 @@ public:
   virtual int firstPosition() const;
   virtual int lastPosition() const;
   virtual QString selectedText(int start, int end) const;
+  virtual double splittableY(double ymax) const;
+  virtual void buildLinePos();
 protected:
   virtual void finalizeConstructor();
-  virtual void buildLinePos();
 signals:
   void contentsChange(int pos, int nDel, int nIns);
 protected:

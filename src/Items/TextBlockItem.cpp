@@ -103,7 +103,7 @@ void TextBlockItem::setTIFormat(TextItem *ti) {
 
   ti->setTextWidth(style().real("page-width")
 		   - style().real("margin-left")
-		   - style().real("margin-right"));
+		   - style().real("margin-right"), false);
   ti->setPos(0, style().real("text-block-above"));
 
   ti->setFont(style().font(disp ? "display-text-font" : "text-font"));
@@ -133,7 +133,7 @@ void TextBlockItem::initializeFormat() {
   doc->setLeftMargin(leftmargin);
   doc->setRightMargin(disp ? style().real("display-paragraph-right-margin")
                       : 0);
-  doc->relayout();
+  doc->buildLinePos();
 }  
 
 TextItemDoc *TextBlockItem::document() const {
@@ -255,7 +255,7 @@ void TextBlockItem::ensureVisible(QPointF p) {
 
 double TextBlockItem::splittableY(double y) {
   TextItemDoc *doc = frags[0]->document();
-  return doc->lineHeight() * floor(y/doc->lineHeight());
+  return doc->splittableY(y);
 }
 
 void TextBlockItem::unsplit() {

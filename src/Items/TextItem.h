@@ -59,7 +59,7 @@ public:
 signals:
   void invisibleFocus(QPointF);
   void textChanged();
-  void widthChanged();
+  //  void widthChanged();
   void abandoned(); // escape pressed while empty
   void futileMovementKey(int, Qt::KeyboardModifiers);
   /* also emitted for enter press or for delete/backspace at end/start */
@@ -117,7 +117,7 @@ public: // pass-through
   QColor defaultTextColor() const { return text->color(); }
   void setDefaultTextColor(QColor c) { text->setColor(c); }
   TextItemDoc *document() const { return text; }
-  void setTextWidth(double d);
+  void setTextWidth(double d, bool relayout=true);
   double textWidth() const { return text->width(); }
   TextCursor textCursor() const { return cursor; }
   void setTextCursor(TextCursor const &c);

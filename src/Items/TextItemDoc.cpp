@@ -28,6 +28,9 @@ TextItemDoc *TextItemDoc::create(TextData *data, QObject *parent) {
 TextItemDoc::TextItemDoc(TextData *data, QObject *parent):
   QObject(parent), d(new TextItemDocData(data)) {
   d->linestarts = d->text->lineStarts();
+  qDebug() <<"TextItemDoc: linestarts" << d->linestarts << d->text->text().left(10);
+  if (!d->linestarts.isEmpty())
+    qDebug() << "  last: " << d->text->text().mid(d->linestarts.last(), 10);
 }
 
 void TextItemDoc::finalizeConstructor() {
@@ -201,6 +204,9 @@ void TextItemDoc::relayout(bool preserveWidth) {
   }
 
   d->linestarts = linestarts;
+
+  qDebug() <<"TextItemDoc::relayout -> linestarts" << d->linestarts;
+
   buildLinePos();
 
   if (d->writable)
@@ -209,12 +215,11 @@ void TextItemDoc::relayout(bool preserveWidth) {
 }
 
 void TextItemDoc::buildLinePos() {
-  double ascent = d->fonts().metrics(MarkupStyles())->ascent();
   int K = d->linestarts.size();
   d->linepos.resize(K);
   for (int k=0; k<K; k++) {
     double x = d->leftmargin;
-    double y = 4 + k*d->lineheight + ascent;
+    double y = 4 + k*d->lineheight + d->ascent;
     if (k==0 || text()[d->linestarts[k]-1]==QChar('\n'))
       x += d->indent;
     d->linepos[k] = QPointF(x, y);
@@ -414,9 +419,6 @@ void TextItemDoc::render(QPainter *p, QList<TransientMarkup> tmm) const {
   int N = d->linestarts.size();
 
   FontVariants &fonts = d->fonts();
-  double ascent = fonts.metrics(MarkupStyles())->ascent();
-  double xheight = fonts.metrics(MarkupStyles())->xHeight();
-  double descent = fonts.metrics(MarkupStyles())->descent();
   QVector<double> const &cw = d->charWidths();
 
   int n0 = 0; 
@@ -436,8 +438,8 @@ void TextItemDoc::render(QPainter *p, QList<TransientMarkup> tmm) const {
     int start = d->linestarts[n];
     int end = (n+1<N) ? d->linestarts[n+1] : txt.size();
     double ybase = d->linepos[n].y();
-    double ytop = ybase - ascent;
-    double ybottom = ybase + descent;
+    double ytop = ybase - d->ascent;
+    double ybottom = ybase + d->descent;
     
     // bool parstart = n==0 || txt[start-1]=='\n';
     double x = d->linepos[n].x();//parstart ? d->indent : 0;
@@ -469,8 +471,8 @@ void TextItemDoc::render(QPainter *p, QList<TransientMarkup> tmm) const {
       while (bit.endsWith("\n"))
         bit = bit.left(bit.size()-1);
       MarkupStyles const &s = nowstyles[q];
-      double y0 = s.contains(MarkupData::Superscript) ? ybase + xheight*.7
-        : s.contains(MarkupData::Subscript) ? ybase - xheight *.5
+      double y0 = s.contains(MarkupData::Superscript) ? ybase + d->xheight*.7
+        : s.contains(MarkupData::Subscript) ? ybase - d->xheight *.5
         : ybase;
 
       double x0 = x;
@@ -572,3 +574,15 @@ int TextItemDoc::lastPosition() const {
 QString TextItemDoc::selectedText(int start, int end) const {
   return d->text->text().mid(start, end-start);
 }
+
+double TextItemDoc::splittableY(double ymax) const {
+  double ybest = -1;
+  foreach (QPointF lp, d->linepos) {
+    double y = lp.y() - d->ascent - 1;
+    if (y>ybest && y<=ymax)
+      ybest = y;
+  }
+  return ybest>0 ? ybest : ymax;
+}
+
+  

@@ -999,11 +999,12 @@ void TextItem::setBoxVisible(bool v) {
   update();
 }
 
-void TextItem::setTextWidth(double d) {
-  prepareGeometryChange();
+void TextItem::setTextWidth(double d, bool relayout) {
   text->setWidth(d);
-  text->relayout();
-  emit widthChanged();
+  if (relayout) {
+    prepareGeometryChange();
+    text->relayout();
+  }
 }
 
 void TextItem::insertBasicHtml(QString html, int pos) {

@@ -41,7 +41,7 @@ GfxNoteItem::GfxNoteItem(GfxNoteData *data, Item *parent):
   text->setFont(style().font("note-font"));
   text->setDefaultTextColor(QColor(style().string("note-text-color")));
   if (data->textWidth()>1)
-    text->setTextWidth(data->textWidth());
+    text->setTextWidth(data->textWidth(), false);
 
   text->document()->setLineHeight(style().lineSpacing("note-font",
                                                       "note-line-spacing"));

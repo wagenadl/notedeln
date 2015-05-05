@@ -104,7 +104,7 @@ double Style::lineSpacing(QString font, QString scale) const {
 }
 
 double Style::lineSpacing(QString font, double scale) const {
-  return real(font + "-size") * scale * 1.55;
+  return real(font + "-size") * scale * 1.58;
 }
 
 QColor Style::color(QString k) const {

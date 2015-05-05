@@ -175,7 +175,7 @@ void SheetScene::repositionTitle() {
   }
   double w = r - l;
   if (fancyTitleItem_)
-    fancyTitleItem_->setTextWidth(w);
+    fancyTitleItem_->setTextWidth(w, false);
   if (plainTitleItem)
     plainTitleItem->setTextWidth(w);    
   QPointF bl = (fancyTitleItem_

@@ -14,6 +14,9 @@ TextItemDocData::TextItemDocData(TextData *text): text(text) {
 void TextItemDocData::setBaseFont(QFont const &f) {
   baseFont = f;
   fv.setBase(f);
+  ascent = fv.metrics(MarkupStyles())->ascent();
+  xheight = fv.metrics(MarkupStyles())->xHeight();
+  descent = fv.metrics(MarkupStyles())->descent();
 }
 
 void TextItemDocData::setCharWidths(QVector<double> const &cw) {
