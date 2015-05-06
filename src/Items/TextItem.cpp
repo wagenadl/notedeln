@@ -656,7 +656,6 @@ bool TextItem::tryScriptStyles(TextCursor c, bool onlyIfBalanced) {
   if (m.selectionEnd() == c.position())
     return false; // empty selection
 
-  qDebug() << "tryScriptStyles " << onlyIfBalanced;
   if (onlyIfBalanced) {
     TextCursor scr(m);
     scr.setPosition(c.position(), TextCursor::KeepAnchor);

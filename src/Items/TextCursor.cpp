@@ -233,7 +233,7 @@ TextCursor TextCursor::findForward(QRegExp re) const {
   QString txt = doc->text();
   int off = re.indexIn(txt, pos);
   if (off>=0)
-    return TextCursor(doc, off, re.cap().size());
+    return TextCursor(doc, off, off+re.cap().size());
   else
     return TextCursor();
 }
@@ -244,8 +244,9 @@ TextCursor TextCursor::findBackward(QRegExp re) const {
   QString txt = doc->text().left(pos);
   // This makes sure that we won't capture beyond POS, 
   int off = re.lastIndexIn(txt);
+
   if (off>=0)
-    return TextCursor(doc, off, re.cap().length());
+    return TextCursor(doc, off, off+re.cap().length());
   else
     return TextCursor();
 }
