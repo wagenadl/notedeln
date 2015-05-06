@@ -476,8 +476,8 @@ void TextItemDoc::render(QPainter *p, QList<TransientMarkup> tmm) const {
       while (bit.endsWith("\n"))
         bit = bit.left(bit.size()-1);
       MarkupStyles const &s = nowstyles[q];
-      double y0 = s.contains(MarkupData::Superscript) ? ybase + d->xheight*.7
-        : s.contains(MarkupData::Subscript) ? ybase - d->xheight *.5
+      double y0 = s.contains(MarkupData::Superscript) ? ybase - d->xheight*.6
+        : s.contains(MarkupData::Subscript) ? ybase + d->xheight *.5
         : ybase;
 
       double x0 = x;

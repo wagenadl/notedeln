@@ -468,7 +468,7 @@ bool TextItem::keyPressAsSimpleStyle(int key, TextCursor const &cursor) {
   case Qt::Key_8: case Qt::Key_Asterisk: case Qt::Key_Comma:
     toggleSimpleStyle(MarkupData::Bold, cursor);
     return true;
-  case Qt::Key_6: // cas Qt::Key_Hat:
+  case Qt::Key_6: // case Qt::Key_Hat:
     toggleSimpleStyle(MarkupData::Superscript, cursor);
     return true;
   case Qt::Key_Minus: // Underscore and Minus are on the same key
