@@ -112,13 +112,14 @@ protected:
   bool muckWithIndentation(class TextBlockItem *p,
 			   Qt::KeyboardModifiers mod);
 public: // pass-through
-  void setFont(QFont f) { text->setFont(f); }
-  void setLineHeight(double h) { text->setLineHeight(h); }
+  void setFont(QFont f);
   QColor defaultTextColor() const { return text->color(); }
   void setDefaultTextColor(QColor c) { text->setColor(c); }
   TextItemDoc *document() const { return text; }
   void setTextWidth(double d, bool relayout=true);
   double textWidth() const { return text->width(); }
+  void setLineHeight(double h);
+  double lineHeight() const { return text->lineHeight(); }
   TextCursor textCursor() const { return cursor; }
   void setTextCursor(TextCursor const &c);
 public:

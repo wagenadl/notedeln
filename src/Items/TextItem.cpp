@@ -1073,3 +1073,13 @@ void TextItem::setTextCursor(TextCursor const &tc) {
   }    
   update();
 }
+
+void TextItem::setLineHeight(double h) {
+  text->setLineHeight(h);
+  text->recalculateCharacterWidths();
+}
+
+void TextItem::setFont(QFont f) {
+ text->setFont(f);
+ text->recalculateCharacterWidths();
+}

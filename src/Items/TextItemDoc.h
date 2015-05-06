@@ -66,6 +66,7 @@ public:
   virtual int lastPosition() const;
   virtual QString selectedText(int start, int end) const;
   virtual double splittableY(double ymax) const;
+  void recalculateCharacterWidths();
   virtual void buildLinePos();
 protected:
   virtual void finalizeConstructor();

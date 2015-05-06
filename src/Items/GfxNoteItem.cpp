@@ -43,9 +43,8 @@ GfxNoteItem::GfxNoteItem(GfxNoteData *data, Item *parent):
   if (data->textWidth()>1)
     text->setTextWidth(data->textWidth(), false);
 
-  text->document()->setLineHeight(style().lineSpacing("note-font",
-                                                      "note-line-spacing"));
-  text->document()->buildLinePos();
+  text->setLineHeight(style().lineSpacing("note-font",
+					  "note-line-spacing"));
   
   connect(text, SIGNAL(abandoned()),
 	  this, SLOT(abandon()), Qt::QueuedConnection);

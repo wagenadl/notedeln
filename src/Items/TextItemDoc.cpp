@@ -104,6 +104,11 @@ QRectF TextItemDoc::boundingRect() const {
   return d->br;
 }
 
+void TextItemDoc::recalculateCharacterWidths() {
+  d->forgetWidths();
+  buildLinePos();
+}
+
 void TextItemDoc::relayout(bool preserveWidth) {
   if (!preserveWidth)
     d->forgetWidths();

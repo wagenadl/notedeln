@@ -28,7 +28,7 @@ TitleItem::TitleItem(TitleData *data, Item *parent):
   setLineHeight(style().lineSpacing("title-font", 1));
   setDefaultTextColor(style().color("title-color"));
   setAllowParagraphs(false);
-  document()->buildLinePos();
+  //  document()->recalculatebuildLinePos();
   setZValue(10); // stack before other stuff so that late notes go in front
 }
 
