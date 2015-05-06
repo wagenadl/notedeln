@@ -45,6 +45,7 @@ GfxNoteItem::GfxNoteItem(GfxNoteData *data, Item *parent):
 
   text->document()->setLineHeight(style().lineSpacing("note-font",
                                                       "note-line-spacing"));
+  text->document()->buildLinePos();
   
   connect(text, SIGNAL(abandoned()),
 	  this, SLOT(abandon()), Qt::QueuedConnection);
