@@ -348,7 +348,7 @@ void TextItemDoc::insert(int offset, QString text) {
 
   d->text->setText(t0.left(offset) + text + t0.mid(offset));
   foreach (MarkupData *md, d->text->markups()) 
-    md->update(N0, 0, dN);
+    md->update(offset, 0, dN);
       
   d->recalcSomeWidths(offset, offset+dN);
 
@@ -383,7 +383,7 @@ void TextItemDoc::remove(int offset, int length) {
   
   d->text->setText(t0.left(offset) + t0.mid(offset+length));
   foreach (MarkupData *md, d->text->markups()) 
-    md->update(N0, dN, 0);
+    md->update(offset, dN, 0);
 
   QVector<double> cw1(N0 - dN);
   memcpy(cw1.data(), cw0.data(), offset*sizeof(double));
