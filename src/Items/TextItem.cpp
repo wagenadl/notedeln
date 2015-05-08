@@ -744,11 +744,11 @@ void TextItem::addMarkup(MarkupData *d) {
   update();
 }
 
-MarkupData *TextItem::markupAt(int pos, MarkupData::Style typ) {
+MarkupData *TextItem::markupAt(int pos, MarkupData::Style typ) const {
   return markupAt(pos, pos, typ);
 }
 
-MarkupData *TextItem::markupAt(int start, int end, MarkupData::Style typ) {
+MarkupData *TextItem::markupAt(int start, int end, MarkupData::Style typ) const {
   foreach (MarkupData *md, data()->children<MarkupData>()) 
     if (md->style()==typ && md->end()>=start && md->start()<=end)
       return md;

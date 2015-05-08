@@ -91,10 +91,10 @@ public:
   QString markedText(MarkupData *);
   void setBoxVisible(bool);
   bool tryExplicitLink();
+  MarkupData *markupAt(int pos, MarkupData::Style type) const;
+  MarkupData *markupAt(int start, int end, MarkupData::Style type) const;
 private:
   void initializeFormat();
-  MarkupData *markupAt(int pos, MarkupData::Style type);
-  MarkupData *markupAt(int start, int end, MarkupData::Style type);
   int refineStart(int start, int base);
   int refineEnd(int end, int base);
 protected:
