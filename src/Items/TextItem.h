@@ -83,10 +83,10 @@ private:
   bool keyPressAsSpecialEvent(QKeyEvent *);
   bool keyPressAsInsertion(QKeyEvent *);
 protected slots:
+  virtual void markupChange(MarkupData *);
   virtual void docChange();
   virtual void modeChange(Mode::M);
 public:
-  void updateRefText(QString oldText, QString newText);
   // for use by TextMarkings to signal change of reference text
   QString markedText(MarkupData *);
   void setBoxVisible(bool);
@@ -144,6 +144,8 @@ protected:
   bool hasAltDoc; // i.e., we don't own the doc
   TextCursor cursor;
   bool boxvis;
+  class LinkHelper *linkHelper;
+  QMap<MarkupData *, QString> reftexts;
 };
 
 #endif

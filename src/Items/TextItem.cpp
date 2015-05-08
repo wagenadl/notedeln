@@ -31,6 +31,7 @@
 #include "TextBlockItem.h"
 #include "Cursors.h"
 #include "TextItemDoc.h"
+#include "LinkHelper.h"
 
 #include <math.h>
 #include <QPainter>
@@ -82,8 +83,10 @@ void TextItem::finalizeConstructor(int sheet) {
       if (sheet<0 || gnd->sheet()==sheet)
 	create(gnd, this);
 
-  connect(document(), SIGNAL(contentsChange(int, int, int)),
+  connect(document(), SIGNAL(contentsChanged(int, int, int)),
 	  this, SLOT(docChange()));
+  connect(document(), SIGNAL(markupChanged(MarkupData *)),
+	  this, SLOT(markupChange(MarkupData *)));
 }
 
 bool TextItem::allowNotes() const {
@@ -121,7 +124,8 @@ void TextItem::initializeFormat() {
   setDefaultTextColor(style().color("text-color"));
 }
 
-void TextItem::docChange() {
+void TextItem::docChange(int pos, int rem, int ins) {
+  linkHelper->updateText(pos, rem, ins);
   prepareGeometryChange();
   emit textChanged();
   update();
@@ -729,7 +733,9 @@ void TextItem::toggleSimpleStyle(MarkupData::Style type,
 void TextItem::deleteMarkup(MarkupData *d) {
   int s = d->start();
   int e = d->end();
+  linkHelper->removeMarkup(d);
   data()->deleteMarkup(d);
+  reftexts.remove(d);
   text->partialRelayout(s, e);
   update();
 }
@@ -740,6 +746,9 @@ void TextItem::addMarkup(MarkupData::Style t, int start, int end) {
 
 void TextItem::addMarkup(MarkupData *d) {
   data()->addMarkup(d);
+  if (d->style()==MarkupData::FootnoteRef)
+    reftexts[d] = d->text();
+  linkHelper->addMarkup(d);
   text->partialRelayout(d->start(), d->end());
   update();
 }
@@ -954,11 +963,28 @@ void TextItem::modeChange(Mode::M m) {
 void TextItem::hoverMoveEvent(QGraphicsSceneHoverEvent *e) {
   cursorPos = e->pos(); // cache for the use of modifierChanged
   modeChange(mode()->mode());
+  linkHelper->mouseMove(e);
   e->accept();
 }
 
-void TextItem::updateRefText(QString olds, QString news) {
-  emit refTextChange(olds, news);
+void TextItem::markupChange(MarkupData *md) {
+  if (!md)
+    return;
+  switch (md->style()) {
+  case MarkupData::FootnoteRef: {
+    QString olds = reftexts.contains(md) ? reftexts[md] : "";
+    QString news = md->text();
+    if (news!=olds) {
+      reftexts[md] = news;
+      emit refTextChange(olds, news);
+    }
+  } break;
+  case MarkupData::Link:
+    linkHelper->updateMarkup(md);
+    break;
+  default:
+    break;
+  }
 }
 
 QRectF TextItem::boundingRect() const {

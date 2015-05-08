@@ -348,14 +348,15 @@ void TextItemDoc::insert(int offset, QString text) {
 
   d->text->setText(t0.left(offset) + text + t0.mid(offset));
   foreach (MarkupData *md, d->text->markups()) 
-    md->update(offset, 0, dN);
+    if (md->update(offset, 0, dN))
+      emit markupChanged(md);
       
   d->recalcSomeWidths(offset, offset+dN);
 
   relayout(true);
   /* Really what we should do is try to preserve most linestarts. */
 
-  emit contentsChange(offset, 0, dN);
+  emit contentsChanged(offset, 0, dN);
 }
 
 void TextItemDoc::remove(int offset, int length) {
@@ -383,7 +384,8 @@ void TextItemDoc::remove(int offset, int length) {
   
   d->text->setText(t0.left(offset) + t0.mid(offset+length));
   foreach (MarkupData *md, d->text->markups()) 
-    md->update(offset, dN, 0);
+    if (md->update(offset, dN, 0))
+      emit markupChanged(md);
 
   QVector<double> cw1(N0 - dN);
   memcpy(cw1.data(), cw0.data(), offset*sizeof(double));
@@ -394,7 +396,7 @@ void TextItemDoc::remove(int offset, int length) {
   relayout(true);
   /* Really what we should do is try to preserve most linestarts. */
 
-  emit contentsChange(offset, dN, 0);
+  emit contentsChanged(offset, dN, 0);
 }
 
 static QColor alphaBlend(QColor base, QColor over) {

@@ -71,7 +71,8 @@ public:
 protected:
   virtual void finalizeConstructor();
 signals:
-  void contentsChange(int pos, int nDel, int nIns);
+  void contentsChanged(int pos, int nDel, int nIns);
+  void markupChanged(MarkupData *md);
 protected:
   class TextItemDocData *d;
 };

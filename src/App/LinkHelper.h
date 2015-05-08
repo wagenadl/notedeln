@@ -10,7 +10,11 @@ public:
   virtual ~LinkHelper();
   bool mousePress(QGraphicsSceneMouseEvent *);
   bool mouseDoubleClick(QGraphicsSceneMouseEvent *);
-  void mouseMove(QGraphicsSceneMouseEvent *);
+  void mouseMove(QGraphicsSceneHoverEvent *);
+public:
+  void updateMarkup(MarkupData *);
+  void newMarkup(MarkupData *);
+  void removeMarkup(MarkupData *);
 private:
   MarkupData *findMarkup(QGraphicsSceneMouseEvent *) const;
   void mouseCore(QGraphicsSceneMouseEvent *);

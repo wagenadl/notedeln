@@ -39,16 +39,12 @@ public:
   Resource *getArchiveAndPreview(QUrl source, QString altRes=""); // does not wait for completion
   Resource *getPreviewOnly(QUrl source, QString altRes=""); // does not wait for completion
   void dropResource(Resource *);
+  void perhapsDropResource(QString);
   Resource *newResource(QString altRes="");
 private:
   QDir dir;
 private:
-  /* We could implement some maps and use the loadMore() mechanism to
-     build them up, but that would require that addChild/deleteChild be
-     made virtual, because otherwise there is no way to update the maps.
-     So for now, we will not use any maps. Most pages will have so
-     few resources that it isn't really worth it anyway.
-  */
+  bool anyoneUsing(QString tag, Data *tree=0) const;
 };
 
 #endif

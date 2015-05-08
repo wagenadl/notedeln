@@ -35,16 +35,7 @@ void LinkHelper::mouseCore(QGraphicsSceneMouseEvent *e) {
   perhapsLeave(md);
   if (md==0)
     return false;
-  if (links.contains(md) && !links[md].isValid()) {
-    /* It is possible that a markup data got deleted and that a new markup
-       data got constructed at the same address. In that case, the old map
-       entry should be dropped.
-    */
-    links[md]->deleteLater();
-    links.remove(md);
-  }
-  if (!links.contains(md))
-    links[md] = new OneLink(md, item);
+  ASSERT(links.contains(md));
   current = links[md];
 }
 
@@ -64,3 +55,18 @@ void LinkHelper::mouseMove(QGraphicsSceneMouseEvent *e) {
   if (current && current!=oc)
     current->enter();
 }
+
+void LinkHelper::newMarkup(MarkupData *md) {
+  links[md] = new OneLink(md, item);
+}
+
+void LinkHelper::removeMarkup(MarkupData *md) {
+  ASSERT(links.contains(md));
+  links[md]->deleteLater();
+  links.remove(md);
+}
+
+void LinkHelper::updateMarkup(MarkupData *md) {
+  ASSERT(links.contains(md));
+  links[md]->update();
+

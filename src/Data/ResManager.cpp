@@ -77,6 +77,23 @@ Resource *ResManager::getPreviewOnly(QUrl source, QString altRes) {
   return res;
 }
 
+void ResManager::perhapsDropResource(QString tag) {
+  Resource *res = byTag(tag);
+  if (res && anyoneUsing(tag))
+    dropResource(res);
+}
+
+bool ResManager::anyoneUsing(QString tag, Data *tree) const {
+  if (!tree)
+    tree = parent();
+  if (tree->resourceTags().contains(tag))
+    return true;
+  foreach (Data *d, tree->allChildren())
+    if (anyoneUsing(tag, d))
+      return true;
+  return false;
+}
+ 
 void ResManager::dropResource(Resource *r) {
   if (!r)
     return;

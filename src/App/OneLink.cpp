@@ -42,15 +42,20 @@ OneLink::OneLink(class MarkupData *md, class TextItem *item):
 OneLink::~OneLink() {
 }
 
-/* This happened in paint():
+void OneLink::update() {
   if (!hasArchive() || !hasPreview()) {
     if (ti->isWritable()) {
       getArchiveAndPreview();
     }
   }
-
-  It must happen whenever the MarkupData changes or periodically.
-*/
+  /*
+    This must happen whenever the MarkupData changes or periodically.
+    Previously, this was assured because TextMarkings got an update() whenever
+    text was inserted or removed from the item. It also had newMark() and
+    deleteMark() functions to update the list of HoverRegions. This
+    functionality should now move to LinkHelper.
+  */
+}
   
 bool OneLink::mousePress(QGraphicsSceneMouseEvent *e) {
   if (ti->mode()->mode()==Mode::Browse
@@ -189,9 +194,11 @@ void OneLink::getArchiveAndPreview() {
   }
   
   QString newRef = refText();
-  if (newRef!=lastRef && !lastRef.isEmpty())
+  if (newRef!=lastRef && !lastRef.isEmpty()) {
     md->detachResource(lastRef);
-    
+    md->resManager()->perhapsDropResource(lastRef);
+  }
+  
   lastRef = newRef;
 
   Resource *r = resmgr->byTag(newRef);

@@ -4,9 +4,7 @@
 
 #define ONELINK_H
 
-#include "MarkupData.h"
-#include "TextItem.h"
-#include <QPointer>
+#include <QObject>
 
 class OneLink: public QObject {
 public:
@@ -15,7 +13,7 @@ public:
   bool mouseDoubleClick(QGraphicsSceneMouseEvent *);
   void enter(QGraphicsSceneMouseEvent *);
   void leave();
-  bool isValid() const  { return !md.isNull(); }
+  void update();
 private slots:
   void downloadFinished();
 protected:
@@ -29,9 +27,9 @@ protected:
   void activate(QGraphicsSceneMouseEvent *);
   void openPage(bool newView=false);
 private:
-  QPointer<MarkupData> md;
-  QPointer<TextItem> ti;
-  class PreviewPopper *popper;
+  MarkupData *md; // we do not own
+  TextItem *ti; // we do not own
+  class PreviewPopper *popper; // we own
   QString lastRef;
   bool lastRefIsNew;
   bool busy;  

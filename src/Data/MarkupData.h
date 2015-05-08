@@ -66,7 +66,8 @@ public:
   /* only call merge() if mergeable() returns true! */
   bool update(int pos, int del, int ins);
   /* An insertion either immediately before or after our markup will not
-     be put inside it. An insertion over an empty markup will go before it. */
+     be put inside it. An insertion over an empty markup will go before it.
+     Returns true if a change was made. */
   QString text() const; // only works if our parent is TextData
   static QString styleName(Style);
 private:
