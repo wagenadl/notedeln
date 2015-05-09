@@ -4,19 +4,25 @@
 #include "TextItem.h"
 #include "OneLink.h"
 
-LinkHelper::LinkHelper(class TextItem *parent): QObject(parent) {
+#include <QGraphicsSceneMouseEvent>
+#include <QGraphicsSceneHoverEvent>
+#include <QDebug>
+
+LinkHelper::LinkHelper(TextItem *parent): QObject(parent) {
   item = parent;
   current = 0;
+  foreach (MarkupData *md, parent->data()->children<MarkupData>())
+    newMarkup(md);
 }
 
 LinkHelper::~LinkHelper() {
 }
 
-MarkupData *LinkHelper::findMarkup(QGraphicsSceneMouseEvent *e) const {
-  int pos = item->pointToPos(e->pos());
+MarkupData *LinkHelper::findMarkup(QPointF p) const {
+  int pos = item->pointToPos(p, true);
   if (pos<0)
     return 0;
-  return item->markup(pos, MarkupData::Link);
+  return item->markupAt(pos, MarkupData::Link);
 }
 
 void LinkHelper::perhapsLeave(MarkupData *md) {
@@ -30,30 +36,32 @@ void LinkHelper::perhapsLeave(MarkupData *md) {
   current = 0;
 }
 
-void LinkHelper::mouseCore(QGraphicsSceneMouseEvent *e) {
-  MarkupData *md = findMarkup(e);
+void LinkHelper::mouseCore(QPointF p) {
+  MarkupData *md = findMarkup(p);
   perhapsLeave(md);
   if (md==0)
-    return false;
+    return;
   ASSERT(links.contains(md));
+  if (current!=links[md])
+    qDebug() << "LinkHelper::mouseCore" << p << item->pointToPos(p, true) << md->start() << md->end();
   current = links[md];
 }
 
 bool LinkHelper::mousePress(QGraphicsSceneMouseEvent *e) {
-  mouseCore(e);
+  mouseCore(e->pos());
   return current ? current->mousePress(e) : false;
 }
 
 bool LinkHelper::mouseDoubleClick(QGraphicsSceneMouseEvent *e) {
-  mouseCore(e);
+  mouseCore(e->pos());
   return current ? current->mouseDoubleClick(e) : false;
 }
 
-void LinkHelper::mouseMove(QGraphicsSceneMouseEvent *e) {
+void LinkHelper::mouseMove(QGraphicsSceneHoverEvent *e) {
   OneLink *oc = current;
-  mouseCore(e);
+  mouseCore(e->pos());
   if (current && current!=oc)
-    current->enter();
+    current->enter(e);
 }
 
 void LinkHelper::newMarkup(MarkupData *md) {
@@ -69,4 +77,9 @@ void LinkHelper::removeMarkup(MarkupData *md) {
 void LinkHelper::updateMarkup(MarkupData *md) {
   ASSERT(links.contains(md));
   links[md]->update();
+}
 
+void LinkHelper::updateAll() {
+  foreach (OneLink *l, links)
+    l->update();
+}

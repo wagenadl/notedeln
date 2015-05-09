@@ -37,12 +37,15 @@ OneLink::OneLink(class MarkupData *md, class TextItem *item):
   popper = 0;
   busy = false;
   lastRef = "";
+  update();
 }
 
 OneLink::~OneLink() {
 }
 
 void OneLink::update() {
+  qDebug() << "OneLink::update" << refText();
+  
   if (!hasArchive() || !hasPreview()) {
     if (ti->isWritable()) {
       getArchiveAndPreview();
@@ -58,6 +61,8 @@ void OneLink::update() {
 }
   
 bool OneLink::mousePress(QGraphicsSceneMouseEvent *e) {
+  qDebug() << "OneLink::mousePress" << refText();
+
   if (ti->mode()->mode()==Mode::Browse
       || (e->modifiers() & Qt::ControlModifier)) {
     activate(e);
@@ -81,6 +86,8 @@ bool OneLink::mouseDoubleClick(QGraphicsSceneMouseEvent *e) {
 }
 
 void OneLink::enter(QGraphicsSceneHoverEvent *e) {
+  qDebug() << "OneLink::enter" << refText();
+  
   if (popper) {
     popper->popup();
     return;
@@ -237,7 +244,6 @@ void OneLink::downloadFinished() {
     // at least somewhat successful
     qDebug() << "Attaching new resource" << lastRef;
     md->attachResource(lastRef);
-    update();
   } else {
     // utter failure
     if (lastRefIsNew) {

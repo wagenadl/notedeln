@@ -559,7 +559,12 @@ bool TextItemDoc::isEmpty() const {
 }
 
 QChar TextItemDoc::characterAt(int pos) const {
-  return d->text->text()[pos];
+  if (pos<0)
+    return QChar(0);
+  QString const &t = d->text->text();
+  if (pos>=t.size())
+    return QChar(0);
+  return t[pos];
 }
 
 int TextItemDoc::find(QString s) const {

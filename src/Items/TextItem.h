@@ -48,7 +48,7 @@ public:
   void setAllowNotes(bool y=true);
   void insertBasicHtml(QString html, int pos);
   // Only <b> and <i> tags are supported at present
-  int pointToPos(QPointF) const;
+  int pointToPos(QPointF, bool strict=false) const;
   QPointF posToPoint(int) const;
   //  QRectF fittedRect() const;
   QRectF netBounds() const;

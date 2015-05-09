@@ -5,13 +5,16 @@
 #define ONELINK_H
 
 #include <QObject>
+#include <QGraphicsSceneMouseEvent>
+#include <QGraphicsSceneHoverEvent>
 
 class OneLink: public QObject {
 public:
-  OneLink(MarkupData *md, TextItem *item);
+  OneLink(class MarkupData *md, class TextItem *item);
+virtual ~OneLink();
   bool mousePress(QGraphicsSceneMouseEvent *);
   bool mouseDoubleClick(QGraphicsSceneMouseEvent *);
-  void enter(QGraphicsSceneMouseEvent *);
+  void enter(QGraphicsSceneHoverEvent *);
   void leave();
   void update();
 private slots:

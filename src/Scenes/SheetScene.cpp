@@ -182,7 +182,6 @@ void SheetScene::repositionTitle() {
 		? fancyTitleItem_->netBounds() 
 		: titleItem->boundingRect())
     .bottomLeft();
-  qDebug() << "Reposition title" << l << bl;
   titleItem->setPos(l - bl.x(),
                     style_.real("margin-top")
                     - style_.real("title-sep") - bl.y() - 4);

@@ -167,7 +167,7 @@ void BaseScene::setSheetCount(int n) {
 	      focusFirstMapper, SLOT(map()));
       focusFirstMapper->setMapping(s, k);
       connect(s->fancyTitleItem()->document(),
-              SIGNAL(contentsChange(int, int, int)),
+              SIGNAL(contentsChanged(int, int, int)),
 	      SLOT(titleEdited()));
       
     } else {

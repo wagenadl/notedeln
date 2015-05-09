@@ -56,6 +56,8 @@ TextItem::TextItem(TextData *data, Item *parent, bool noFinalize,
     text = altdoc;
   else
     text = TextItemDoc::create(data, this);
+
+  linkHelper = new LinkHelper(this);
   
   mayMark = true;
   mayNote = false;
@@ -107,6 +109,7 @@ void TextItem::makeWritableNoRecurse() {
   Item::makeWritableNoRecurse();
   setFlag(ItemIsFocusable);
   text->makeWritable();
+  linkHelper->updateAll();
 }
 
 void TextItem::setAllowMoves() {
@@ -124,8 +127,7 @@ void TextItem::initializeFormat() {
   setDefaultTextColor(style().color("text-color"));
 }
 
-void TextItem::docChange(int pos, int rem, int ins) {
-  linkHelper->updateText(pos, rem, ins);
+void TextItem::docChange() {
   prepareGeometryChange();
   emit textChanged();
   update();
@@ -164,13 +166,11 @@ void TextItem::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *e) {
 }
 
 void TextItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
-  qDebug() << "TI mouse";
   switch (e->button()) {
   case Qt::LeftButton:
     switch (mode()->mode()) {
     case Mode::Type: {
       int pos = text->find(e->pos());
-      qDebug() << "TI: mouse" << e->pos() << pos;
       if (pos>=0) {
         cursor.setPosition(pos,
 			   e->modifiers() & Qt::ShiftModifier
@@ -222,8 +222,8 @@ void TextItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
   e->accept();
 }
 
-int TextItem::pointToPos(QPointF p) const {
-  return text->find(p);
+int TextItem::pointToPos(QPointF p, bool strict) const {
+  return text->find(p, strict);
 }
 
 QPointF TextItem::posToPoint(int pos) const {
@@ -232,9 +232,7 @@ QPointF TextItem::posToPoint(int pos) const {
       
 
 void TextItem::attemptMarkup(QPointF p, MarkupData::Style m) {
-  qDebug() << "TextItem::attemptMarkup" << p << m;
   int pos = pointToPos(p);
-  qDebug() << "  pos:"<<pos;
   if (pos<0)
     return;
   lateMarkType = m;
@@ -309,10 +307,6 @@ void TextItem::updateMarkup(int pos) {
   } else {
     addMarkup(lateMarkType, s, e); // will be auto-merged
   }
-  qDebug() << "  -> markings now:";
-  foreach (MarkupData *md, data()->children<MarkupData>()) 
-    qDebug() << "    " << md->styleName(md->style())
-             << md->start() << md->end();
 }
 
 void TextItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *) {
@@ -748,7 +742,7 @@ void TextItem::addMarkup(MarkupData *d) {
   data()->addMarkup(d);
   if (d->style()==MarkupData::FootnoteRef)
     reftexts[d] = d->text();
-  linkHelper->addMarkup(d);
+  linkHelper->newMarkup(d);
   text->partialRelayout(d->start(), d->end());
   update();
 }
@@ -897,7 +891,6 @@ bool TextItem::tryToCopy() const {
 bool TextItem::tryToPaste(bool nonewlines) {
   QClipboard *cb = QApplication::clipboard();
   QMimeData const *md = cb->mimeData(QClipboard::Clipboard);
-  qDebug() << "TextItem::tryToPaste" << md;
   if (md->hasImage()) {
     return false;
   } else if (md->hasUrls()) {
@@ -1013,7 +1006,6 @@ void TextItem::paint(QPainter *p, const QStyleOptionGraphicsItem*, QWidget*) {
 
   if (hasFocus()) {
     QPointF xy = text->locate(cursor.position());
-    qDebug() << "cursor at " << cursor.position() << xy;
     p->setPen(QPen(QColor("red")));
     p->drawText(xy - QPointF(2, 0), "|");
   }
@@ -1076,7 +1068,6 @@ bool TextItem::clips() const {
 }
 
 void TextItem::setClip(QRectF r) {
-  qDebug() << "TI::setClip " << r << boundingRect() << netBounds();
   clip_ = r;
   update();
 }

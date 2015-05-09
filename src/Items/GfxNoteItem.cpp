@@ -50,7 +50,7 @@ GfxNoteItem::GfxNoteItem(GfxNoteData *data, Item *parent):
 	  this, SLOT(abandon()), Qt::QueuedConnection);
 		     
   setFlag(ItemIsFocusable);
-  connect(text->document(), SIGNAL(contentsChange(int, int, int)),
+  connect(text->document(), SIGNAL(contentsChanged(int, int, int)),
 	  SLOT(updateTextPos()));
   updateTextPos();
 }
