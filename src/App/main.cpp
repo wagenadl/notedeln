@@ -31,6 +31,7 @@
 #include "Assert.h"
 #include "SplashScene.h"
 #include "AlreadyOpen.h"
+#include "DefaultSize.h"
 
 int main(int argc, char **argv) {
   App app(argc, argv);
@@ -70,10 +71,7 @@ int main(int argc, char **argv) {
   SceneBank *bank = new SceneBank(nb);
   PageEditor *editor = new PageEditor(bank);
 
-  QSizeF size = editor->sizeHint();
-  double dpiX = app.desktop()->logicalDpiX();
-  double dpiY = app.desktop()->logicalDpiY();
-  editor->resize(size.width()*dpiX/72, size.height()*dpiY/72);
+  editor->resize(DefaultSize::onScreenSize(editor->sizeHint()));
   new AlreadyOpen(nb->dirPath(), editor);
   editor->show();
   int r = app.exec();

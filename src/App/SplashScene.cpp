@@ -16,6 +16,7 @@
 
 // SplashScene.C
 
+#include "DefaultSize.h"
 #include "SplashScene.h"
 #include "SplashView.h"
 #include "Notebook.h"
@@ -216,10 +217,7 @@ Notebook *SplashScene::openNotebook() {
 #endif
   gv->setWindowTitle(appname);
   
-  QSizeF size = gv->sizeHint();
-  double dpiX = QApplication::desktop()->logicalDpiX();
-  double dpiY = QApplication::desktop()->logicalDpiY();
-  gv->resize(size.width()*dpiX/72, size.height()*dpiY/72);
+  gv->resize(DefaultSize::onScreenSize(gv->sizeHint()));
 
   Notebook *nb = 0;
   while (nb==0) {
