@@ -121,14 +121,9 @@ bool TableItem::keyPressAsMotion(QKeyEvent *e) {
         insertRow(row++);
       gotoCell(row-1, 0, true);
     } else {
-      if (nothingAfterCursor()) {
-	cursor.movePosition(TextCursor::End);
-	emit futileMovementKey(e->key(), e->modifiers());
-      } else {
-	if (row>=data()->rows()-1)
-	  insertRow(row+1);
-	gotoCell(row+1, 0, true);
-      }
+      if (row>=data()->rows()-1)
+	insertRow(row+1);
+      gotoCell(row+1, 0, true);
     }
     return true;
   default:
