@@ -186,10 +186,8 @@ TextItem *TextBlockItem::text() const {
 void TextBlockItem::sizeToFit() {
   if (beingDeleted())
     return;
+  frags[0]->document()->relayout();
   double h0 = data()->height();
-  //  double h1 = 0;
-  //  foreach (TextItem *ti, frags) 
-  //    h1 += ti->mapRectToParent(ti->netBounds()).height();
   double h1 = frags[0]->mapRectToParent(frags[0]->netBounds()).height();
   if (h1!=h0) {
     if (isWritable())
