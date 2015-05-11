@@ -708,21 +708,8 @@ void TextItem::toggleSimpleStyle(MarkupData::Style type,
   
   if (oldmd && oldmd->start()==start && oldmd->end()==end) {
     deleteMarkup(oldmd);
-    if (type==MarkupData::Italic
-	&& document()->characterAt(end).unicode()==0x200a) {
-      qDebug() << "Italic correction - should eventually go away";
-      TextCursor d(c);
-      d.setPosition(end);
-      d.deleteChar();
-    }
   } else if (start<end) {
     addMarkup(type, start, end);
-    if (type==MarkupData::Italic) {
-      TextCursor d(c);
-      d.setPosition(end);
-      d.insertText(QString::fromUtf8(" ")); // hair space 0x200a
-      qDebug() << "Italic correction - should eventually go away";
-    }
   }
 }
 
