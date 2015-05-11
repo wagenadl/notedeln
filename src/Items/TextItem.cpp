@@ -416,9 +416,8 @@ bool TextItem::keyPressWithControl(QKeyEvent *e) {
     tryToCopy();
     return true;
   case Qt::Key_X:
-    if (tryToCopy()) {
+    if (tryToCopy())
       cursor.deleteChar();
-    }
     return true;
   case Qt::Key_A:
     cursor.setPosition(0);
@@ -431,25 +430,25 @@ bool TextItem::keyPressWithControl(QKeyEvent *e) {
     tryExplicitLink();
     return true;
   case Qt::Key_Period:
-    tryScriptStyles(textCursor());
+    tryScriptStyles();
     return true;
   case Qt::Key_Backslash:
     tryTeXCode();
     return true;
   case Qt::Key_2:
-    insertBasicHtml(QString::fromUtf8("²"), textCursor().position());
+    cursor.insertText(QString::fromUtf8("²"));
     return true;
   case Qt::Key_3:
-    insertBasicHtml(QString::fromUtf8("³"), textCursor().position());
+    cursor.insertText(QString::fromUtf8("³"));
     return true;
   case Qt::Key_4:
-    insertBasicHtml(QString::fromUtf8("⁴"), textCursor().position());
+    cursor.insertText(QString::fromUtf8("⁴"));
     return true;
   case Qt::Key_Space:
-    insertBasicHtml(QString::fromUtf8(" "), textCursor().position());
+    cursor.insertText(QString::fromUtf8(" "));
     return true;
   case Qt::Key_Enter: case Qt::Key_Return:
-    insertBasicHtml(QString("\n"), textCursor().position());
+    cursor.insertText(QString("\n"));
     return true;
   default:
     return false;
@@ -644,29 +643,32 @@ static bool balancedBrackets(QString s) {
  return true;
 }
 
-bool TextItem::tryScriptStyles(TextCursor c, bool onlyIfBalanced) {
+bool TextItem::tryScriptStyles(bool onlyIfBalanced) {
   /* Returns true if we decide to make a superscript or subscript, that is,
      if there is a preceding "^" or "_".
    */
-  TextCursor m = c.findBackward(QRegExp("\\^|_"));
+  TextCursor m = cursor.findBackward(QRegExp("\\^|_"));
   if (!m.hasSelection())
     return false; // no "^" or "_"
-  if (m.selectionEnd() == c.position())
-    return false; // empty selection
+  if (m.selectionEnd() == cursor.position())
+    return false; // empty target
+
+  QString mrk = m.selectedText();
 
   if (onlyIfBalanced) {
     TextCursor scr(m);
-    scr.setPosition(c.position(), TextCursor::KeepAnchor);
+    scr.setPosition(cursor.position(), TextCursor::KeepAnchor);
     if (!balancedBrackets(scr.selectedText()))
       return false;
   }  
-  
-  QString mrk = m.selectedText();
+
+  cursor.movePosition(TextCursor::Left);
   m.deleteChar();
+
   addMarkup(mrk=="^"
 	    ? MarkupData::Superscript
 	    : MarkupData::Subscript,
-	    m.position(), c.position());
+	    m.selectionStart(), cursor.position());
   return true;
 }
 

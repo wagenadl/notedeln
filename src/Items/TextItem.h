@@ -101,7 +101,7 @@ protected:
   bool tryFootnote();
   virtual bool tryToPaste(bool noparagraphs=false);
   virtual bool tryToCopy() const;
-  bool tryScriptStyles(TextCursor, bool onlyIfBalanced=false);
+  bool tryScriptStyles(bool onlyIfBalanced=false);
   bool tryTeXCode(bool noX=false);
   void toggleSimpleStyle(MarkupData::Style type, class TextCursor const &c);
   bool charBeforeIsLetter(int pos) const;
