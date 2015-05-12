@@ -16,6 +16,7 @@
 
 // TableItem.cpp
 
+#include <QPainter>
 #include "TableItem.h"
 #include <QTextTable>
 #include <QKeyEvent>
@@ -484,6 +485,16 @@ TableCell TableItem::cellAtCursor() const {
   return data()->cellAt(cursor.position());
 }
 
+void TableItem::paint(QPainter *p,
+		      const QStyleOptionGraphicsItem *o, QWidget *w) {
+  TextItem::paint(p, o, w);
+  QPen pen(text->color());
+  pen.setWidth(1);
+  p->setPen(pen);
+  QRectF r = boundingRect();
+  p->drawLine(r.topLeft()+QPointF(1, 1), r.topRight()+QPointF(-1, 1));
+  p->drawLine(r.bottomLeft()+QPointF(1, -1), r.bottomRight()+QPointF(-1, -1));
+}
 
 QList<TransientMarkup> TableItem::representCursor() const {
   QList<TransientMarkup> tmm;
