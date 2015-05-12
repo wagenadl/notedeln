@@ -188,7 +188,6 @@ void GfxNoteItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *e) {
   ungrabMouse();
   if (resizing) {
     data()->setTextWidth(text->textWidth());
-    text->setBoxVisible(false);
     updateTextPos();
   } else {
     QPointF ptext = text->pos() - QPointF(0, style().real("note-y-offset"));
@@ -236,7 +235,6 @@ void GfxNoteItem::childMousePress(QPointF, Qt::MouseButton b, bool resizeFlag) {
 	initialTextWidth = text->netBounds().width()+2;
 	text->setTextWidth(initialTextWidth);
       }
-      text->setBoxVisible(true);
     }
     grabMouse();
   }
