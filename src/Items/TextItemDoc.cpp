@@ -590,7 +590,7 @@ QString TextItemDoc::selectedText(int start, int end) const {
 double TextItemDoc::splittableY(double ymax) const {
   double ybest = -1;
   foreach (QPointF lp, d->linepos) {
-    double y = lp.y() - d->ascent - 1;
+    double y = lp.y() - d->ascent - 4;
     if (y>ybest && y<=ymax)
       ybest = y;
   }
