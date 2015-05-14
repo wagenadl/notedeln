@@ -41,6 +41,7 @@ public:
   // Other functions
   QChar characterAt(int pos) const;
   QRectF boundingRect() const;
+  virtual QRectF tightBoundingRect() const;
   QString text() const;
   QVector<int> lineStarts() const;
   int lineStartFor(int pos) const;

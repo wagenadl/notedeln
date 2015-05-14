@@ -16,6 +16,7 @@ public:
   virtual int lastPosition() const;
   virtual int find(QPointF p, bool strict=true) const;
   virtual QString selectedText(int start, int end) const;
+  virtual QRectF tightBoundingRect() const;
   QPointF cellLocation(int r, int c) const;
   QRectF cellBoundingRect(int r, int c) const;
 protected:

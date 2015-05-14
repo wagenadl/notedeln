@@ -421,6 +421,35 @@ static QColor alphaBlend(QColor base, QColor over) {
   return out;
 }
 
+QRectF TextItemDoc::tightBoundingRect() const {
+  double xl = 1e6;
+  double xr = -1e6;
+  double yt = 1e6;
+  double yb = -1e6;
+  int N = d->linestarts.size();
+  for (int n=0; n<N; n++) {
+    QPointF p0 = d->linepos[n];
+    double x = p0.x();
+    double y = p0.y() - d->ascent;
+    if (x<xl)
+      xl = x;
+    if (y<yt)
+      yt = y;
+    y = p0.y() + d->descent;
+    if (y>yb)
+      yb = y;
+    qDebug() << yt << yb;
+    QVector<double> const &cw = d->charWidths();
+    int k0 = d->linestarts[n];
+    int k1 = (n==N-1) ? cw.size() : d->linestarts[n+1]-1;
+    for (int k=k0; k<k1; k++)
+      x += cw[k];
+    if (x>xr)
+      xr = x;
+  }
+  return QRectF(QPointF(xl, yt), QPointF(xr, yb));
+}
+
 void TextItemDoc::render(QPainter *p, QList<TransientMarkup> tmm) const {
   QString txt = d->text->text();
   int N = d->linestarts.size();

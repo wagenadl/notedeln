@@ -493,9 +493,9 @@ void TableItem::paint(QPainter *p,
   QPen pen(text->color());
   pen.setWidth(1);
   p->setPen(pen);
-  QRectF r = boundingRect();
-  p->drawLine(r.topLeft()+QPointF(4, 6), r.topRight()+QPointF(-4, 6));
-  p->drawLine(r.bottomLeft()+QPointF(4, -6), r.bottomRight()+QPointF(-4, -6));
+  QRectF r = text->tightBoundingRect();
+  p->drawLine(r.topLeft()+QPointF(1, 1), r.topRight()+QPointF(-1, 1));
+  p->drawLine(r.bottomLeft()+QPointF(1, -1), r.bottomRight()+QPointF(-1, -1));
 }
 
 QList<TransientMarkup> TableItem::representCursor() const {

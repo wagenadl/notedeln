@@ -129,3 +129,8 @@ QString TableItemDoc::selectedText(int start, int end) const {
       texts << table()->cellContents(r, c);
   return texts.join("\n");
 }
+
+QRectF TableItemDoc::tightBoundingRect() const {
+  return boundingRect().adjusted(3, 5, -3, -5);
+}
+
