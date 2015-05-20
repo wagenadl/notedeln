@@ -22,6 +22,9 @@
 #include "JSONFile.h"
 #include "Assert.h"
 #include "WordSet.h"
+#include <QDebug>
+#include <QMessageBox>
+#include <QProgressDialog>
 
 WordIndex::WordIndex(QObject *parent): QObject(parent) {
 }
@@ -59,17 +62,37 @@ bool WordIndex::save(QString filename) {
   return JSONFile::save(idx, filename);
 }
 
-void WordIndex::build(class TOC *toc, QString pagesDir) {
+bool WordIndex::build(class TOC *toc, QString pagesDir) {
+  QProgressDialog mb("Index found missing or corrupted."
+                     " Attempting to rebuild...", "Cancel",
+                     0, toc->newPageNumber());
+  mb.setWindowModality(Qt::WindowModal);
+  mb.setMinimumDuration(0);
+  mb.setValue(1);
   index.clear();
+  QStringList warns;
   foreach (int pg, toc->entries().keys()) {
+    mb.setValue(pg);
+    if (mb.wasCanceled())
+      return false;
     QString uuid = toc->entry(pg)->uuid();
     EntryFile *f = ::loadEntry(pagesDir, pg, uuid, 0);
-    WordSet ws;
-    ws.add(f->data());
-    foreach (QString w, ws.toSet())
-      index[w].insert(pg);
-    delete f;
-  }  
+    if (f) {
+      WordSet ws;
+      ws.add(f->data());
+      foreach (QString w, ws.toSet())
+        index[w].insert(pg);
+      delete f;
+    } else {
+      qDebug() << "WordIndex::build - Cannot load entry" << pg << uuid;
+      warns << QString("%1").arg(pg);
+    }
+  }
+  if (!warns.isEmpty())
+    QMessageBox::warning(0, "eln", "The following pages could not be loaded"
+                         " while rebuilding the search index: "
+                         + warns.join(", ") + ".", QMessageBox::Close);
+  return true;
 }
 
 void WordIndex::rebuildEntry(int startPage, WordSet *ws) {

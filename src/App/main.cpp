@@ -39,7 +39,7 @@ int main(int argc, char **argv) {
   eln_grabsignals();
   app.setWindowIcon(QIcon(":/eln.png"));
   Fonts fonts;
-  
+
   Notebook *nb = 0;
   if (argc==1) {
     nb = SplashScene::openNotebook();
@@ -60,16 +60,16 @@ int main(int argc, char **argv) {
     QString fn = argv[2];
     if (QDir(fn).exists()) {
       QMessageBox::critical(0, "eln",
-                            "Cannot create new notebook '" + fn
+                            "Could not create new notebook '" + fn
                             + "': found existing notebook",
-                            QMessageBox::Close);
+                            QMessageBox::Abort);
       return 1;
     }
     nb = Notebook::create(fn);
     if (!nb) {
       QMessageBox::critical(0, "eln",
                             "Could not create new notebook at '" + fn + "'",
-                            QMessageBox::Close);
+                            QMessageBox::Abort);
       return 1;
     }
       

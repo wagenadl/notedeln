@@ -26,7 +26,10 @@
 
 typedef DataFile<EntryData> EntryFile;
 EntryFile *createEntry(QDir const &dir, int n, QObject *parent=0);
+/* createEntry returns NULL if the file cannot be created */
 EntryFile *loadEntry(QDir const &dir, int n, QString uuid, QObject *parent=0);
+/* loadEntry returns NULL if the file cannot be found */
+
 bool deleteEntryFile(QDir dir, int n, QString uuid);
 
 #endif

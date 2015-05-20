@@ -203,9 +203,15 @@ CachedEntry Notebook::entry(int n)  {
       return ce;
   }
 
-  QString uuid = toc()->entry(n)->uuid();
-
-  EntryFile *f = ::loadEntry(QDir(root.filePath("pages")), n, uuid, this);
+  EntryFile *f = 0;
+  if (toc()->contains(n)) {
+    QString uuid = toc()->entry(n)->uuid();
+    f = ::loadEntry(QDir(root.filePath("pages")), n, uuid, this);
+    if (!f) 
+      f = recoverFromMissingEntry(n);
+  } else {
+    f = recoverFromMissingEntry(n);
+  }
   ASSERT(f);
   CachedEntry entry(f);
   pgFiles[n] = entry;
@@ -220,7 +226,10 @@ CachedEntry Notebook::entry(int n)  {
 }
 
 CachedEntry Notebook::createEntry(int n) {
-  ASSERT(!pgFiles.contains(n));
+  if (pgFiles.contains(n)) {
+    return recoverFromExistingEntry(n);
+  }
+
   EntryFile *f = ::createEntry(root.filePath("pages"), n, this);
   if (!f)
     return CachedEntry();
@@ -369,4 +378,29 @@ Mode *Notebook::mode() const {
 
 Index *Notebook::index() const {
   return index_;
+}
+
+
+CachedEntry Notebook::recoverFromExistingEntry(int pgno) {
+  QMessageBox::critical(0, "eln",
+                        QString("Page %1 already exists while trying to create"
+                                " a new entry. This is a sign of TOC"
+                                " corruption. ELN will exit now and attempt"
+                                " to rebuild the TOC when you restart it.")
+                        .arg(pgno), QMessageBox::Ok);
+  root.remove("toc.json");
+  ::exit(1);
+  return CachedEntry();
+}
+
+EntryFile *Notebook::recoverFromMissingEntry(int pgno) {
+  QMessageBox::critical(0, "eln",
+                        QString("Page %1 could not be loaded."
+                                " This is a sign of TOC"
+                                " corruption. ELN will exit now and attempt"
+                                " to rebuild the TOC when you restart it.")
+                        .arg(pgno), QMessageBox::Ok);
+  root.remove("toc.json");
+  ::exit(1);
+  return 0;
 }

@@ -36,10 +36,15 @@ public:
   /* Returns null if couldn't create, e.g., if already exists */
 public:
   ~Notebook();
-  bool hasEntry(int pgno) const;    // } pgno must 
-  CachedEntry entry(int pgno);       // } be the first
-  CachedEntry createEntry(int pgno); // } sheet of an
-  bool deleteEntry(int pgno);       // } Entry
+  /* For hasEntry, entry, createEntry, and deleteEntry, pgno must be
+     the first sheet of an Entry. */
+  bool hasEntry(int pgno) const;
+  CachedEntry entry(int pgno);
+  /* If the entry does not exist, we assume TOC corruption and try to recover.
+     If recovery fails, the program exits. */
+  CachedEntry createEntry(int pgno);
+  /* The entry must not already exist. Else, the program exits. */
+  bool deleteEntry(int pgno);
   class TOC *toc() const;
   class Index *index() const;
   class BookData *bookData() const;
@@ -76,6 +81,8 @@ private slots:
 private:
   void loadme();
   void unloadme();
+  CachedEntry recoverFromExistingEntry(int pgno);
+  EntryFile *recoverFromMissingEntry(int pgno);  
 private:
   QDir root;
   QMap<int, CachedEntry> pgFiles;

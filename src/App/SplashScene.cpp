@@ -229,7 +229,7 @@ Notebook *SplashScene::openNotebook() {
     if (ss->newRequested) {
       nb = Notebook::create(ss->named);
       if (!nb) 
-        QMessageBox::warning(gv, "eln",
+        QMessageBox::critical(gv, "eln",
                              "'" + ss->named + "' could not be created.",
                              QMessageBox::Cancel);
     } else {
@@ -237,7 +237,7 @@ Notebook *SplashScene::openNotebook() {
 	break;
       nb = Notebook::load(ss->named);
       if (!nb) 
-        QMessageBox::warning(gv, "eln",
+        QMessageBox::critical(gv, "eln",
                              "'" + ss->named + "' could not be loaded.",
                              QMessageBox::Cancel);
     }

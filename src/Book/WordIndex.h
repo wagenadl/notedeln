@@ -29,7 +29,8 @@ public:
   virtual ~WordIndex();
   bool load(QString filename);
   bool save(QString filename);
-  void build(class TOC *toc, QString pagesDir);
+  bool build(class TOC *toc, QString pagesDir);
+  /* Returns true unless canceled by user. */
   void rebuildEntry(int startPage, class WordSet *ws);
   void dropEntry(int startPage);
   QSet<int> findWord(QString word);

@@ -61,6 +61,7 @@ public:
      and parsable as entries. Furthermore, there must not be any duplicate
      entries. And there may not be any ".THIS", ".OTHER", ".BASE", or ".moved"
      files in the folder, which would indicate an unsuccessful bzr update.
+     Reports graphically to user.
    */
   
 protected:

@@ -25,6 +25,7 @@
 #include "EntryFile.h"
 #include "TitleData.h"
 #include "Assert.h"
+#include <QProgressDialog>
 
 static Data::Creator<TOC> c("toc");
 
@@ -162,6 +163,11 @@ static TOC *errorReturn(QString s) {
 TOC *TOC::rebuild(QDir pages) {
   QMap<int, QString> pg2file;
   QMap<int, QString> pg2uuid;
+  QProgressDialog mb("Table of contents found missing or corrupted."
+                     " Attempting to rebuild...", "Cancel", 0, 1000);
+  mb.setWindowModality(Qt::WindowModal);
+  mb.setMinimumDuration(0);
+  mb.setValue(1);
   foreach (QFileInfo const &fi, pages.entryInfoList()) {
     if (!fi.isFile())
       continue;
@@ -198,7 +204,17 @@ TOC *TOC::rebuild(QDir pages) {
   }
 
   TOC *toc = new TOC();
+  int N = 0;
+  foreach (int n, pg2file.keys())
+    if (n>N)
+      N = n;
+  mb.setMaximum(N);
+  
   foreach (int n, pg2file.keys()) {
+    mb.setValue(n);
+    if (mb.wasCanceled()) 
+      return 0;
+
     QString fn = pg2file[n];
     EntryFile *f = EntryFile::load(pages.absoluteFilePath(fn), 0);
     if (!f) 

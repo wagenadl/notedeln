@@ -14,8 +14,8 @@ Index::Index(QString rootDir, class TOC *toc, QObject *parent):
   if (QFile(fn).exists()) {
     widx->load(fn);
   } else {
-    widx->build(toc, rootdir + "/pages");
-    widx->save(fn);
+    if (widx->build(toc, rootdir + "/pages"))
+      widx->save(fn);
   }
 }
 

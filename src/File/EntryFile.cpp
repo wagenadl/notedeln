@@ -31,7 +31,8 @@ EntryFile *createEntry(QDir const &dir, int n, QObject *parent) {
   QString fn0 = basicFilename(n, uuid);
   QString pfn = dir.absoluteFilePath(fn0 + ".json");
   EntryFile *f = EntryFile::create(pfn, parent);
-  ASSERT(f);
+  if (!f)
+    return 0;
   f->data()->setUuid(uuid);
   ResManager *r = new ResManager(f->data());
   QString resfn = dir.absoluteFilePath(fn0 + ".res");
@@ -78,7 +79,9 @@ EntryFile *loadEntry(QDir const &dir, int n, QString uuid, QObject *parent) {
     fn0 = QString::number(n); // quietly revert to old style
   QString pfn = dir.absoluteFilePath(fn0 + ".json");
   EntryFile *f = EntryFile::load(pfn, parent);
-  ASSERT(f);
+  if (!f)
+    return 0;
+
   ResManager *r = f->data()->firstChild<ResManager>();
   if (!r)
     r = new ResManager(f->data());
