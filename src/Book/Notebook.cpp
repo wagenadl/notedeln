@@ -65,6 +65,13 @@ void Notebook::loadme() {
   bookFile_->data()->setBook(this);
 
   tocFile_ = TOCFile::load(root.filePath("toc.json"), this);
+  if (tocFile_ && !tocFile_->data()->verify(root.filePath("pages"))) {
+    qDebug() << "TOC verification failed - will rebuild TOC and index";
+    delete tocFile_;
+    tocFile_ = 0;
+    root.remove("toc.json");
+    root.remove("index.json");
+  }
   if (!tocFile_) {
     qDebug() << "No TOC file found, trying to rebuild";
     TOC *t = TOC::rebuild(root.filePath("pages"));
@@ -389,6 +396,7 @@ CachedEntry Notebook::recoverFromExistingEntry(int pgno) {
                                 " to rebuild the TOC when you restart it.")
                         .arg(pgno), QMessageBox::Ok);
   root.remove("toc.json");
+  root.remove("index.json");
   ::exit(1);
   return CachedEntry();
 }
@@ -401,6 +409,7 @@ EntryFile *Notebook::recoverFromMissingEntry(int pgno) {
                                 " to rebuild the TOC when you restart it.")
                         .arg(pgno), QMessageBox::Ok);
   root.remove("toc.json");
+  root.remove("index.json");
   ::exit(1);
   return 0;
 }

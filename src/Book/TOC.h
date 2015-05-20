@@ -54,7 +54,11 @@ public:
   bool isLast(TOCEntry const *) const;
   void setBook(class Notebook *);
   virtual class Notebook *book() const; // pointer to parent book, if any.
+  bool verify(QDir pages) const;
 public:
+  static void readPageDir(QDir pages,
+                          QMap<int, QString> &pg2file_out,
+                          QMap<int, QString> &pg2uuid_out);
   static TOC *rebuild(QDir pages);
   /* Builds a TOC structure from a pages folder.
      This /only/ works if all the .json files in that folder are readable
