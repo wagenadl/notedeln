@@ -42,6 +42,8 @@ public:
   bool isWholeCellSelected() const;
   bool selectionSpansCells() const;
   bool nothingAfterCursor() const;
+public:
+  virtual void paint(QPainter*, const QStyleOptionGraphicsItem*, QWidget*);
 public slots:
   bool normalizeCursorPosition(); // true if changed
 protected slots:

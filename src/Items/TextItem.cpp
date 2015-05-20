@@ -65,8 +65,6 @@ TextItem::TextItem(TextData *data, Item *parent, bool noFinalize,
   lateMarkType = MarkupData::Normal;
   allowParagraphs_ = true;
 
-  boxvis = false;
-  
   if (!altdoc)
     initializeFormat();
 
@@ -135,11 +133,9 @@ void TextItem::docChange() {
 
 void TextItem::focusInEvent(QFocusEvent *e) {
   QGraphicsItem::focusInEvent(e);
-  // setBoxVisible(true);
 }
 
 void TextItem::focusOutEvent(QFocusEvent *e) {
-  setBoxVisible(false);
   if (document()->isEmpty()) 
     emit abandoned();
 
@@ -982,14 +978,6 @@ void TextItem::paint(QPainter *p, const QStyleOptionGraphicsItem*, QWidget*) {
   else
     p->setClipRect(boundingRect());
 
-  if (boxvis) {
-    QPen pen(QColor("#cccccc"));
-    pen.setWidth(1);
-    //    pen.setStyle(Qt::DashLine);
-    p->setPen(pen);
-    p->drawRect(boundingRect().adjusted(1, 1, -1, -1));
-  }
-
   QList<TransientMarkup> tmm = representCursor();
   text->render(p, tmm);
 
@@ -998,11 +986,6 @@ void TextItem::paint(QPainter *p, const QStyleOptionGraphicsItem*, QWidget*) {
     p->setPen(QPen(QColor("red")));
     p->drawText(xy - QPointF(2, 0), "|");
   }
-}
-
-void TextItem::setBoxVisible(bool v) {
-  boxvis = v;
-  update();
 }
 
 void TextItem::setTextWidth(double d, bool relayout) {

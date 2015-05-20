@@ -30,6 +30,7 @@ void TableItemDoc::buildLinePos() {
   int R = table()->rows();
   QVector<double> columnWidth(C, 9.0);  // minimum column width = 9 pt
   QVector<double> const &cw = d->charWidths();
+  double right = 0;
   for (int r=0; r<R; r++) {
     for (int c=0; c<C; c++) {
       int pos = table()->cellStart(r, c);
@@ -41,19 +42,21 @@ void TableItemDoc::buildLinePos() {
 	columnWidth[c] = w;
     }
   }
-  qDebug() << "TID::buildLinePos colw" << columnWidth;
   d->linepos.resize(C*R);
+  double x0 = 12;
+  double y0 = 6;
   double ascent = d->fonts().metrics(MarkupStyles())->ascent();
   for (int r=0; r<R; r++) {
-    double x = 4.0 + 4.5;
-    double y = 4.0 + r*d->lineheight + ascent;
+    double x = 4.5 + x0;
+    double y = y0 + 4.0 + r*d->lineheight + ascent;
     for (int c=0; c<C; c++)  {
       d->linepos[c+C*r] = QPointF(x, y);
       x += columnWidth[c] + 9.0; // margin
+      right = x;
     }
   }
-  qDebug() << "TID:bLP pos" << d->linepos;
-  d->br = QRectF(QPointF(0, 0), QSizeF(d->width, R*d->lineheight + 4));
+  d->br = QRectF(QPointF(x0 - 4, 0),
+		 QPointF(right - 1, R*d->lineheight + 4 + 2*y0));
 }
 
 TableData const *TableItemDoc::table() const {
@@ -82,10 +85,10 @@ QRectF TableItemDoc::cellBoundingRect(int r, int c) const {
   double ascent = d->fonts().metrics(MarkupStyles())->ascent();
   double height = d->lineheight;
   int C = table()->columns();
-  QPointF topLeft = cellLocation(r, c) - QPointF(4.5, ascent);
+  QPointF topLeft = cellLocation(r, c) - QPointF(4.5, ascent + 2);
   QPointF bottomRight = (c+1<C)
-    ? cellLocation(r, c + 1) + QPointF(-4.5, height - ascent)
-    : QPointF(d->width, topLeft.y() + height);
+    ? cellLocation(r, c + 1) + QPointF(-4.5, height - ascent - 2)
+    : QPointF(d->br.right(), topLeft.y() + height);
   return QRectF(topLeft, bottomRight);
 }
 
@@ -126,3 +129,8 @@ QString TableItemDoc::selectedText(int start, int end) const {
       texts << table()->cellContents(r, c);
   return texts.join("\n");
 }
+
+QRectF TableItemDoc::tightBoundingRect() const {
+  return boundingRect().adjusted(3, 5, -3, -5);
+}
+

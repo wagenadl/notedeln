@@ -89,7 +89,6 @@ protected slots:
 public:
   // for use by TextMarkings to signal change of reference text
   QString markedText(MarkupData *);
-  void setBoxVisible(bool);
   bool tryExplicitLink();
   MarkupData *markupAt(int pos, MarkupData::Style type) const;
   MarkupData *markupAt(int start, int end, MarkupData::Style type) const;
@@ -143,7 +142,6 @@ protected:
   QRectF clip_;
   bool hasAltDoc; // i.e., we don't own the doc
   TextCursor cursor;
-  bool boxvis;
   class LinkHelper *linkHelper;
   QMap<MarkupData *, QString> reftexts;
 };

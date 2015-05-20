@@ -16,6 +16,7 @@
 
 // TableItem.cpp
 
+#include <QPainter>
 #include "TableItem.h"
 #include <QTextTable>
 #include <QKeyEvent>
@@ -49,7 +50,7 @@ bool TableItem::keyPressAsMotion(QKeyEvent *e) {
     } else if (col==0 && data()->isRowEmpty(row) && data()->rows()>1) {
       deleteRows(row, 1);
       if (row>0)
-	gotoCell(row-1, data()->lastNonEmptyCellInRow(row), true);
+	gotoCell(row-1, data()->columns()-1, true);
       else
 	normalizeCursorPosition();
     } else if (data()->isColumnEmpty(col) && data()->columns()>1) {
@@ -59,6 +60,8 @@ bool TableItem::keyPressAsMotion(QKeyEvent *e) {
       else
 	normalizeCursorPosition();
     } else {
+      qDebug() << "table backspace" << cursor.position() << cel.firstPosition()
+	       << col << row << "C" << data()->columns();
       if (cursor.position() > cel.firstPosition()) 
 	cursor.deletePreviousChar();
       else if (col>0)
@@ -484,6 +487,16 @@ TableCell TableItem::cellAtCursor() const {
   return data()->cellAt(cursor.position());
 }
 
+void TableItem::paint(QPainter *p,
+		      const QStyleOptionGraphicsItem *o, QWidget *w) {
+  TextItem::paint(p, o, w);
+  QPen pen(text->color());
+  pen.setWidth(1);
+  p->setPen(pen);
+  QRectF r = text->tightBoundingRect();
+  p->drawLine(r.topLeft()+QPointF(1, 1), r.topRight()+QPointF(-1, 1));
+  p->drawLine(r.bottomLeft()+QPointF(1, -1), r.bottomRight()+QPointF(-1, -1));
+}
 
 QList<TransientMarkup> TableItem::representCursor() const {
   QList<TransientMarkup> tmm;

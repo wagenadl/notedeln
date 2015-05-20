@@ -87,29 +87,37 @@ static QPointF retract(QPointF p, double d) {
 }
 
 QPointF GfxNoteItem::nearestCorner(QPointF pbase) {
-  double yof = style().real("note-y-offset");
-  double xof = style().real("note-x-inset");
-  QRectF docr = text->document()->boundingRect()
-    .adjusted(xof, -yof, -xof, -yof).translated(text->pos() - pbase);
+  QRectF docr = text->document()->tightBoundingRect()
+    .translated(text->pos() - pbase);
 
   QPointF p;
-  if (fabs(docr.top()) < fabs(docr.bottom())) {
-    if (docr.left()>0)
-      p = retract(docr.topLeft(), xof*1.5);
-    else if (docr.right()<0)
-      p = retract(docr.topRight(), xof*1.5);
+  if (docr.left()<=0 && docr.right()>=0) {
+    if (docr.bottom()<0)
+      p = (docr.bottomLeft() + docr.bottomRight()) / 2;
+    else if (docr.top()>0)
+      p = (docr.topLeft() + docr.topRight()) / 2;
     else
-      p = retract((docr.topLeft()+docr.topRight())/2, xof*1.5);
+      p = QPointF(0, 0);
+  } else if (docr.top()<=0 && docr.bottom()>=0) {
+    if (docr.left()>0)
+      p = (docr.topLeft() + docr.bottomLeft()) / 2;
+    else if (docr.right()<0)
+      p = (docr.topRight() + docr.bottomRight()) / 2;
+    else
+      p = QPointF(0, 0);
+  } else if (docr.top()>0) {
+    if (docr.left()>0)
+      p = docr.topLeft();
+    else
+      p = docr.topRight();
   } else {
     if (docr.left()>0)
-      p = retract(docr.bottomLeft(), xof*1.5);
-    else if (docr.right()<0)
-      p = retract(docr.bottomRight(), xof*1.5);
+      p = docr.bottomLeft();
     else
-      p = retract((docr.bottomLeft()+docr.bottomRight())/2, xof*1.5);
+      p = docr.bottomRight();
   }
-  
-  return pbase + p;
+
+  return pbase + retract(p, 3);
 }
   
 
@@ -140,8 +148,12 @@ void GfxNoteItem::updateTextPos() {
       line->setPen(QPen(QBrush(QColor(style().string("note-line-color"))),
 			style().real("note-line-width")));
     }
-    line->setLine(QLineF(QPointF(0,0), nearestCorner()));
-    line->show();
+    QPointF oth = nearestCorner();
+    line->setLine(QLineF(QPointF(0,0), oth));
+    if (oth.manhattanLength()<1e-4) 
+      line->hide();
+    else 
+      line->show();
   } else {
     if (line)
       line->hide();
@@ -176,8 +188,13 @@ void GfxNoteItem::mouseMoveEvent(QGraphicsSceneMouseEvent *e) {
       QLineF l = line->line(); // origLine;
       if (e->modifiers() & Qt::ShiftModifier) 
 	l.setP1(l.p1() + delta);
-      l.setP2(nearestCorner(l.p1()));
+      QPointF oth = nearestCorner(l.p1());
+      l.setP2(oth);
       line->setLine(l);
+      if ((oth-l.p1()).manhattanLength() < 1e-4) 
+	line->hide();
+      else
+	line->show();
     }
   }
   e->accept();
@@ -188,7 +205,6 @@ void GfxNoteItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *e) {
   ungrabMouse();
   if (resizing) {
     data()->setTextWidth(text->textWidth());
-    text->setBoxVisible(false);
     updateTextPos();
   } else {
     QPointF ptext = text->pos() - QPointF(0, style().real("note-y-offset"));
@@ -236,7 +252,6 @@ void GfxNoteItem::childMousePress(QPointF, Qt::MouseButton b, bool resizeFlag) {
 	initialTextWidth = text->netBounds().width()+2;
 	text->setTextWidth(initialTextWidth);
       }
-      text->setBoxVisible(true);
     }
     grabMouse();
   }
