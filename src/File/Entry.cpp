@@ -4,11 +4,12 @@
 #include "EntryData.h"
 #include "EntryFile.h"
 #include <QDebug>
+#include "Assert.h"
 
 Entry::Entry(EntryData *data): data_(data), file_(0) {
 }
 
-Entry::Entry(EntryFile *file): data_(file->data()), file_(file) {
+Entry::Entry(EntryFile *file): data_(file ? file->data(): 0), file_(file) {
 }
 
 Entry::~Entry() {
@@ -21,9 +22,11 @@ Entry::~Entry() {
 }   
 
 EntryData *Entry::data() const {
+  ASSERT(isValid());
   return data_;
 }
 
 EntryFile *Entry::file() const {
+  ASSERT(hasFile());
   return file_;
 }

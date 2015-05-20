@@ -26,8 +26,16 @@ CachedEntry const &CachedEntry::operator=(CachedEntry const &p) {
   return *this;
 }
 
+bool CachedEntry::isValid() const {
+  return obj() && obj()->isValid();
+}
+
+bool CachedEntry::hasFile() const {
+  return obj() && obj()->hasFile();
+}
+
 CachedEntry::~CachedEntry() {
-  if (obj() && obj()->file())
+  if (obj() && obj()->hasFile())
     obj()->file()->saveNow();
 }
 

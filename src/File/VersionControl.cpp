@@ -24,6 +24,7 @@
 #include <QProcess>
 #include <QDebug>
 #include <QDir>
+#include <QPushButton>
 
 #ifdef Q_OS_LINUX
 #include <sys/types.h>
@@ -129,31 +130,46 @@ bool runGit(QString cmd, QStringList args, QString label,
 }
   
 bool update(QString path, QString program) {
-  bool success = false;
-  QString cwd = QDir::currentPath();
-  QString se;
-  QDir::setCurrent(path);
   if (program == "")
     return false;
 
+  QString cwd = QDir::currentPath();
+  QString se;
+
+  QDir::setCurrent(path);
+  bool success = false;
   if (program == "bzr") 
     success = runBzr("update", QStringList(), "Updating with bzr...", 0, &se);
   else if (program == "git")
     success = runGit("pull", QStringList(), "Updating with git...", 0, &se);
-    
   QDir::setCurrent(cwd);
+
   if (se.isEmpty())
     se = "(no message)";
   if (!success) {
     QMessageBox mb(QMessageBox::Warning, "eln version control",
-		   "Update of '" + path + "' failed.",
-		   QMessageBox::Ignore);
-    mb.addButton("Quit", QMessageBox::RejectRole);
+		   "Update of '" + path + "' failed.", 0);
+    QAbstractButton *editb
+      = mb.addButton("Edit anyway", QMessageBox::DestructiveRole);
+    QAbstractButton *rob
+      = mb.addButton("Open read-only", QMessageBox::AcceptRole);
+    QAbstractButton *quitb
+      = mb.addButton("Quit", QMessageBox::RejectRole);
     mb.setDetailedText(se);
-    int r = mb.exec();
-    qDebug() << r;
-    if (r==0)
+    mb.exec();
+    QAbstractButton *r = mb.clickedButton();
+    if (r==editb) {
+      // edit anyway
+    } else if (r==rob) {
+      // open read only
+      QMessageBox::warning(0, "eln missing feature",
+                           "Read-only access is not yet implemented."
+                           " Opening in the normal way."
+                           " Please be careful not to change anything!");
+    } else {
+      // QApplication::quit();  // should we do this?
       exit(1); // immediate and total abort
+    }
   }
   return success;
 }

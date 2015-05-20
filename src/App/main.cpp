@@ -32,6 +32,7 @@
 #include "SplashScene.h"
 #include "AlreadyOpen.h"
 #include "DefaultSize.h"
+#include <QMessageBox>
 
 int main(int argc, char **argv) {
   App app(argc, argv);
@@ -45,26 +46,40 @@ int main(int argc, char **argv) {
     if (!nb)
       return 0;
   } else if (argc==2) {
-    if (AlreadyOpen::check(argv[1]))
+    QString fn = argv[1];
+    if (AlreadyOpen::check(fn))
       return 0;
-    nb = Notebook::load(argv[1]);
-  } else if (argc==3 && argv[1]==QString("-new")) {
-    if (QDir(argv[2]).exists()) {
-      qDebug() << "eln: Cannot create new notebook '" << argv[2]
-	       << "': found existing notebook";
+    nb = Notebook::load(fn);
+    if (!nb) {
+      QMessageBox::critical(0, "eln",
+                            "Could not open notebook at '" + fn + "'",
+                            QMessageBox::Close);
       return 1;
     }
-    nb = Notebook::create(argv[2]);
+  } else if (argc==3 && argv[1]==QString("-new")) {
+    QString fn = argv[2];
+    if (QDir(fn).exists()) {
+      QMessageBox::critical(0, "eln",
+                            "Cannot create new notebook '" + fn
+                            + "': found existing notebook",
+                            QMessageBox::Close);
+      return 1;
+    }
+    nb = Notebook::create(fn);
+    if (!nb) {
+      QMessageBox::critical(0, "eln",
+                            "Could not create new notebook at '" + fn + "'",
+                            QMessageBox::Close);
+      return 1;
+    }
+      
   } else {
     qDebug() << "Usage: eln";
     qDebug() << "Usage: eln notebook";
     qDebug() << "Usage: eln -new notebook";
     return 1;
   }
-  if (!nb) {
-    qDebug() << "Notebook not found";
-    return 1;
-  }
+  ASSERT(nb);
 
   QObject::connect(&app, SIGNAL(aboutToQuit()), nb, SLOT(commitNow()));
 

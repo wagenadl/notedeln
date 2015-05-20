@@ -127,6 +127,8 @@ void Notebook::unloadme() {
 }
 
 bool Notebook::reload() {
+  /* This is untested code */
+  
   if (backgroundVC && backgroundVC->isBusy())
     return false;
 
