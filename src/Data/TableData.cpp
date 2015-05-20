@@ -85,7 +85,6 @@ void TableData::setColumns(int c) {
 }
 
 void TableData::setText(QString const &t, bool hushhush) {
-  qDebug() << "TableData::setText" << t << hushhush;
   if (text_ == t)
     return;
   TextData::setText(t, true);

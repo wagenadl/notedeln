@@ -44,7 +44,6 @@ int BlockData::sheet() const {
 }
 
 int BlockData::lastSheet() const {
-  qDebug() << "lastSheet" << sheet() << ssplits.size();
   return sheet() + ssplits.size();
 }
 

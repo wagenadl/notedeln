@@ -231,7 +231,6 @@ void TOC::readPageDir(QDir pages,
     if (re.exactMatch(fn)) {
       int n = re.cap(1).toInt();
       pg2uuid[n] = re.cap(2);
-      qDebug() << "Found " << fn << " for page " << n;
       if (pg2file.contains(n))
         errorReturn("Duplicate page number: "
                     + QString::number(n) + ".");
@@ -241,7 +240,6 @@ void TOC::readPageDir(QDir pages,
       if (re.exactMatch(fn)) {
 	int n = re.cap(1).toInt();
 	pg2uuid[n] = "";
-	qDebug() << "Found " << fn << " for page " << n;
 	if (pg2file.contains(n))
 	  errorReturn("Duplicate page number: "
                       + QString::number(n) + ".");
@@ -299,7 +297,6 @@ TOC *TOC::rebuild(QDir pages) {
       f->saveNow();
     
     toc->addEntry(f->data());
-    qDebug() << "For page " << n << ": sheets: " << f->data()->sheetCount();
     delete f;
   }
 
