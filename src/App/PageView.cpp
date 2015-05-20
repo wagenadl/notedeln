@@ -84,7 +84,6 @@ void PageView::resizeEvent(QResizeEvent *e) {
 }
 
 bool PageView::gotoSheet(int n) {
-  qDebug() << "PageView gotosheet("<<n<<")";
   if (n<0)
     return false;
   switch (currentSection) {
@@ -197,7 +196,6 @@ void PageView::keyPressEvent(QKeyEvent *e) {
     previousPage();
     break;
   case Qt::Key_PageDown:
-    qDebug() << "PageView::pagedown";
     nextPage();
     break;
   case Qt::Key_Home:
@@ -353,13 +351,11 @@ void PageView::gotoEntryPage(QString s) {
 }
 
 void PageView::gotoEntryPage(int n, int dir) {
-  qDebug() << "gotoEntryPage " << n << ":" << dir;
   if (n<1)
     n=1;
   int N = book->toc()->newPageNumber();
   if (n>N)
     n=N;
-  qDebug() << "newP " << N;
 
   if (n==N) {
     // make a new page?
@@ -395,7 +391,6 @@ void PageView::gotoEntryPage(int n, int dir) {
   } else {
     leavePage();
     entryScene = bank->entryScene(te->startPage());
-    qDebug() << "Loaded entry " << currentPage << ": " << entryScene.obj();
 
     connect(entryScene.obj(), SIGNAL(sheetRequest(int)), SLOT(gotoSheet(int)));
     if (entryScene->data()->isRecent() || entryScene->data()->isUnlocked())
@@ -435,16 +430,13 @@ void PageView::leavePage() {
       fi->clearFocus(); // this should cause abandon to happen
   }
 
-  qDebug() << "leavePage";
   if (currentSection==Entries
       && currentPage>1
       && currentPage==book->toc()->newPageNumber()-1) {
     // Leaving the last page in the notebook, not being the only page.
     // If the page is empty, we'll delete it.
-    qDebug() << "leavePage last";
     if (entryScene->data()->isEmpty()) {
       // Leaving an empty page
-      qDebug() << "leavePage last empty";
       entryScene.clear();
       book->deleteEntry(currentPage);
     }
@@ -702,7 +694,6 @@ void PageView::modeChange() {
 }
 
 void PageView::drop(QDropEvent e) {
-  qDebug() << "PageView::drop";
   dropEvent(&e);
 }
 
