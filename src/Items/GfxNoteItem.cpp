@@ -222,6 +222,11 @@ GfxNoteItem *GfxNoteItem::newNote(QPointF p0, QPointF p1, Item *parent) {
   return i;
 }
 
+void GfxNoteItem::setFocus() {
+  qDebug() << "GfxNoteItem::taking focus";
+  text->setFocus();
+}
+
 void GfxNoteItem::childMousePress(QPointF, Qt::MouseButton b, bool resizeFlag) {
   if (mode()->mode()==Mode::MoveResize && b==Qt::LeftButton) {
     text->setFocus();

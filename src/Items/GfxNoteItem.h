@@ -39,6 +39,7 @@ public:
   class TextItem *textItem() { return text; }
   virtual void setScale(qreal f);
   void translate(QPointF dxy);
+  void setFocus();
 protected:
   virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *);
   virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *);
