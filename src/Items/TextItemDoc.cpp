@@ -173,6 +173,8 @@ void TextItemDoc::relayout(bool preserveWidth) {
   for (int idx=0; idx<bits.size(); ) {
     // let's lay out one line
     double availwidth = d->width - d->leftmargin - d->rightmargin;
+    if (availwidth<=0)
+      availwidth = 1000; // no particular limit
     if (parbefore[idx])
       availwidth -= d->indent;
     linestarts << bitstarts[idx];
@@ -223,9 +225,16 @@ void TextItemDoc::buildLinePos() {
     if (k==0 || text()[d->linestarts[k]-1]==QChar('\n'))
       x += d->indent;
     d->linepos[k] = QPointF(x, y);
-  } 
+  }
 
-  d->br = QRectF(QPointF(0, 0), QSizeF(d->width, K*d->lineheight + 4));
+  double wid = d->width;
+  if (wid<=0) { // no preset width
+    wid = 4; // a little margin
+    foreach (double w, d->charWidths())
+      wid += w;
+  }
+
+  d->br = QRectF(QPointF(0, 0), QSizeF(wid, K*d->lineheight + 4));
 }
 
 void TextItemDoc::partialRelayout(int /* start */, int /* end */) {
