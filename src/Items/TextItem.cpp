@@ -389,10 +389,15 @@ void TextItem::tryMove(TextCursor::MoveOperation op,
   TextCursor::MoveMode mm = mod & Qt::ShiftModifier ? TextCursor::KeepAnchor
     : TextCursor::MoveAnchor;
   c.movePosition(op, mm);
-  if (c==textCursor())
+  if (c==textCursor()) {
     emit futileMovementKey(key, mod);
-  else
-    setTextCursor(c);
+    return;
+  }
+
+  setTextCursor(c);
+  QPointF p = posToPoint(c.position());
+  if (!clipRect().contains(p))
+    emit invisibleFocus(p);
 }
 
 bool TextItem::keyPressWithControl(QKeyEvent *e) {
