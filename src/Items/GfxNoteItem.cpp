@@ -217,6 +217,7 @@ GfxNoteItem *GfxNoteItem::newNote(QPointF p0, QPointF p1, Item *parent) {
 
   GfxNoteItem *i = new GfxNoteItem(d, parent);
   i->makeWritable();
+  qDebug() << "Setting focus on note";
   i->setFocus();
   return i;
 }

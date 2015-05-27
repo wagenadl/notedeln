@@ -28,9 +28,6 @@ TextItemDoc *TextItemDoc::create(TextData *data, QObject *parent) {
 TextItemDoc::TextItemDoc(TextData *data, QObject *parent):
   QObject(parent), d(new TextItemDocData(data)) {
   d->linestarts = d->text->lineStarts();
-  qDebug() <<"TextItemDoc: linestarts" << d->linestarts << d->text->text().left(10);
-  if (!d->linestarts.isEmpty())
-    qDebug() << "  last: " << d->text->text().mid(d->linestarts.last(), 10);
 }
 
 void TextItemDoc::finalizeConstructor() {
@@ -209,8 +206,6 @@ void TextItemDoc::relayout(bool preserveWidth) {
   }
 
   d->linestarts = linestarts;
-
-  qDebug() <<"TextItemDoc::relayout -> linestarts" << d->linestarts;
 
   buildLinePos();
 
@@ -438,7 +433,6 @@ QRectF TextItemDoc::tightBoundingRect() const {
     y = p0.y() + d->descent;
     if (y>yb)
       yb = y;
-    qDebug() << yt << yb;
     QVector<double> const &cw = d->charWidths();
     int k0 = d->linestarts[n];
     int k1 = (n==N-1) ? cw.size() : d->linestarts[n+1]-1;
