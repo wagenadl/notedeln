@@ -890,8 +890,7 @@ bool TextItem::tryToPaste(bool nonewlines) {
     QString txt = md->text();
     if (nonewlines)
       txt.replace("\n", " ");
-    TextCursor c = textCursor();
-    c.insertText(txt);
+    cursor.insertText(txt);
     return true;
   } else {
     return false;
