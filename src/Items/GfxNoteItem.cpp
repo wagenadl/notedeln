@@ -91,33 +91,14 @@ QPointF GfxNoteItem::nearestCorner(QPointF pbase) {
     .translated(text->pos() - pbase);
 
   QPointF p;
-  if (docr.left()<=0 && docr.right()>=0) {
-    if (docr.bottom()<0)
-      p = (docr.bottomLeft() + docr.bottomRight()) / 2;
-    else if (docr.top()>0)
-      p = (docr.topLeft() + docr.topRight()) / 2;
-    else
-      p = QPointF(0, 0);
-  } else if (docr.top()<=0 && docr.bottom()>=0) {
-    if (docr.left()>0)
-      p = (docr.topLeft() + docr.bottomLeft()) / 2;
-    else if (docr.right()<0)
-      p = (docr.topRight() + docr.bottomRight()) / 2;
-    else
-      p = QPointF(0, 0);
-  } else if (docr.top()>0) {
-    if (docr.left()>0)
-      p = docr.topLeft();
-    else
-      p = docr.topRight();
-  } else {
-    if (docr.left()>0)
-      p = docr.bottomLeft();
-    else
-      p = docr.bottomRight();
-  }
-
-  return pbase + retract(p, 3);
+  double dx = style().real("note-x-inset");
+  if (docr.left()>0) 
+    p = (docr.topLeft() + docr.bottomLeft()) / 2 + QPointF(dx, 0);
+  else if (docr.right()<0)
+    p = (docr.topRight() + docr.bottomRight()) / 2 - QPointF(dx, 0);
+  else 
+    p = docr.center();
+  return pbase + retract(p, 1.5*dx);
 }
   
 
