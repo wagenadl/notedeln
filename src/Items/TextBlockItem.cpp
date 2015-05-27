@@ -252,8 +252,10 @@ void TextBlockItem::ensureVisible(QPointF p) {
 }
 
 double TextBlockItem::splittableY(double y) {
-  TextItemDoc *doc = frags[0]->document();
-  return doc->splittableY(y);
+  if (y >= data()->height())
+    return data()->height();
+  else
+    return frags[0]->document()->splittableY(y);
 }
 
 void TextBlockItem::unsplit() {
