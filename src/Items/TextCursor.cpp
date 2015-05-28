@@ -134,6 +134,22 @@ bool TextCursor::movePosition(TextCursor::MoveOperation op,
   case EndOfLine:
     pos = doc->lineEndFor(pos);
     break;
+  case StartOfWord: {
+    QRegExp re("\\W");
+    int off = re.lastIndexIn(doc->text(), pos);
+    if (off<doc->firstPosition())
+      pos = doc->firstPosition();
+    else if (off<pos)
+      pos = off+1;
+  } break;
+  case EndOfWord: {
+    QRegExp re("\\W");
+    int off = re.indexIn(doc->text(), pos);
+    if (off<0 || off>doc->lastPosition())
+      pos = doc->lastPosition();
+    else 
+      pos = off;
+  } break;
   case NextCell:
     qDebug() << "TextCursor: NextCell NYI";
     break;
@@ -251,3 +267,10 @@ TextCursor TextCursor::findBackward(QRegExp re) const {
     return TextCursor();
 }
 
+void TextCursor::selectAround(int pos,
+                              TextCursor::MoveOperation s,
+                              TextCursor::MoveOperation e) {
+  setPosition(pos);
+  movePosition(s);
+  movePosition(e, TextCursor::KeepAnchor);
+}

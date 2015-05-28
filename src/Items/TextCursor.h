@@ -19,6 +19,7 @@ public:
     Up, Down,
     StartOfLine, EndOfLine,
     NextCell, PreviousCell,
+    StartOfWord, EndOfWord,
   };
   class Range {
   public:
@@ -50,6 +51,7 @@ public:
   int selectionEnd() const;
   bool hasSelection() const;
   void clearSelection();
+  void selectAround(int pos, MoveOperation startscope, MoveOperation endscope);
   int position() const;
   int anchor() const;
   bool operator==(TextCursor const &) const;

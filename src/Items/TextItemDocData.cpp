@@ -5,7 +5,7 @@
 
 TextItemDocData::TextItemDocData(TextData *text): text(text) {
   indent = 0;
-  width = 1000; // hmm
+  width = 0;
   leftmargin = rightmargin = 0;
   lineheight = 15; // hmm
   writable = false;

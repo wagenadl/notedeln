@@ -28,9 +28,6 @@ TextItemDoc *TextItemDoc::create(TextData *data, QObject *parent) {
 TextItemDoc::TextItemDoc(TextData *data, QObject *parent):
   QObject(parent), d(new TextItemDocData(data)) {
   d->linestarts = d->text->lineStarts();
-  qDebug() <<"TextItemDoc: linestarts" << d->linestarts << d->text->text().left(10);
-  if (!d->linestarts.isEmpty())
-    qDebug() << "  last: " << d->text->text().mid(d->linestarts.last(), 10);
 }
 
 void TextItemDoc::finalizeConstructor() {
@@ -176,6 +173,8 @@ void TextItemDoc::relayout(bool preserveWidth) {
   for (int idx=0; idx<bits.size(); ) {
     // let's lay out one line
     double availwidth = d->width - d->leftmargin - d->rightmargin;
+    if (availwidth<=0)
+      availwidth = 1000; // no particular limit
     if (parbefore[idx])
       availwidth -= d->indent;
     linestarts << bitstarts[idx];
@@ -210,8 +209,6 @@ void TextItemDoc::relayout(bool preserveWidth) {
 
   d->linestarts = linestarts;
 
-  qDebug() <<"TextItemDoc::relayout -> linestarts" << d->linestarts;
-
   buildLinePos();
 
   if (d->writable)
@@ -228,9 +225,16 @@ void TextItemDoc::buildLinePos() {
     if (k==0 || text()[d->linestarts[k]-1]==QChar('\n'))
       x += d->indent;
     d->linepos[k] = QPointF(x, y);
-  } 
+  }
 
-  d->br = QRectF(QPointF(0, 0), QSizeF(d->width, K*d->lineheight + 4));
+  double wid = d->width;
+  if (wid<=0) { // no preset width
+    wid = 4; // a little margin
+    foreach (double w, d->charWidths())
+      wid += w;
+  }
+
+  d->br = QRectF(QPointF(0, 0), QSizeF(wid, K*d->lineheight + 4));
 }
 
 void TextItemDoc::partialRelayout(int /* start */, int /* end */) {
@@ -438,7 +442,6 @@ QRectF TextItemDoc::tightBoundingRect() const {
     y = p0.y() + d->descent;
     if (y>yb)
       yb = y;
-    qDebug() << yt << yb;
     QVector<double> const &cw = d->charWidths();
     int k0 = d->linestarts[n];
     int k1 = (n==N-1) ? cw.size() : d->linestarts[n+1]-1;

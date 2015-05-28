@@ -82,6 +82,8 @@ private:
   bool keyPressWithControl(QKeyEvent *);
   bool keyPressAsSpecialEvent(QKeyEvent *);
   bool keyPressAsInsertion(QKeyEvent *);
+  void handleLeftClick(QGraphicsSceneMouseEvent *);
+  void selectWordOrLineOrParagraph(int pos);
 protected slots:
   virtual void markupChange(MarkupData *);
   virtual void docChange();
@@ -144,6 +146,8 @@ protected:
   TextCursor cursor;
   class LinkHelper *linkHelper;
   QMap<MarkupData *, QString> reftexts;
+  QTime lastClickTime;
+  QPoint lastClickScreenPos;
 };
 
 #endif

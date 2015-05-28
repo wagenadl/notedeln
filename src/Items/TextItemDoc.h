@@ -67,6 +67,8 @@ public:
   virtual int lastPosition() const;
   virtual QString selectedText(int start, int end) const;
   virtual double splittableY(double ymax) const;
+  /* this will never suggest splitting after the last line, even if
+     ymax is very big. */
   void recalculateCharacterWidths();
   virtual void buildLinePos();
 protected:

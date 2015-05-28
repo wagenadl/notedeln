@@ -1171,8 +1171,11 @@ GfxNoteItem *EntryScene::createNote(QPointF scenePos, int sheet) {
   TitleItem *ti = sheets[sheet]->fancyTitleItem();
   GfxNoteItem *note
     = ti->createNote(ti->mapFromScene(scenePos));
-  if (note)
+  if (note) {
+    data_->book()->mode()->setMode(Mode::Type);
     note->data()->setSheet(sheet);
+    note->setFocus();
+  }
   return note;
   
 }

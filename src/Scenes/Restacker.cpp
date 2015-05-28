@@ -12,7 +12,6 @@
 
 Restacker::Restacker(QList<BlockItem *> const &blocks, int s):
   blocks(blocks), start(s) {
-  qDebug() << "Restacker: start requested is " << start;
   ASSERT(start>=0);
   end = start;
   if (start>=blocks.size())
@@ -51,7 +50,6 @@ Restacker::Restacker(QList<BlockItem *> const &blocks, int s):
     }
     --start;
   }
-  qDebug() << "Start using is " << start;
 }
 
 void Restacker::restackData() {
@@ -85,11 +83,7 @@ void Restacker::restackBlock(int i) {
   foreach (FootnoteData *fnd, bd->children<FootnoteData>()) 
     fnh += fnd->height();
 
-  qDebug() << "RestackBlock " << i << ": h=" << blockh << "+" << fnh;
-  qDebug() << "  y=" << yblock << " ... " << yfn;
-  
   if (blockh+fnh > yfn-yblock) {
-    qDebug() << "  Will not fit";
     // This block will not fit on the current sheet with its footnotes
     double ycut = bi->splittableY(yfn-yblock);
     if (ycut>=MINONSHEET) {
@@ -115,8 +109,6 @@ void Restacker::restackBlockOne(int i) {
   BlockData *bd = bi->data();
   if (bd->setSheetAndY0(isheet, yblock))
     changedSheets.insert(isheet);
-  qDebug() << "RestackBlockOne " << i << ": " << isheet << ":"<<yblock
-	   << " " << (changedSheets.contains(isheet) ? "*" : "");
 
   foreach (FootnoteItem *fni, bi->footnotes()) {
     QPointF p = bi->findRefText(fni->data()->tag());

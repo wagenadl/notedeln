@@ -152,50 +152,111 @@ void TextItem::focusOutEvent(QFocusEvent *e) {
 }
 
 void TextItem::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *e) {
-  if (e->button()!=Qt::LeftButton)
-    ;
-  else if (mode()->mode()==Mode::Type)
-    ;
-  else if (hasFocus())
-    clearFocus();
+  if (e->button()==Qt::LeftButton) {
+    if (mode()->mode()==Mode::Type || mode()->mode()==Mode::Browse)
+      // Select word or line or paragraph
+      selectWordOrLineOrParagraph(text->find(e->pos()));
+
+    lastClickTime.start();
+    lastClickScreenPos = e->screenPos();
+    
+    if (mode()->mode()!=Mode::Type)
+      if (hasFocus())
+        clearFocus();
+  }
   e->accept();
+}
+
+void TextItem::handleLeftClick(QGraphicsSceneMouseEvent *e) {
+  switch (mode()->mode()) {
+  case Mode::Type: {
+    int pos = text->find(e->pos());
+    if (pos>=0) {
+      cursor.setPosition(pos,
+                         e->modifiers() & Qt::ShiftModifier
+                         ? TextCursor::KeepAnchor
+                         : TextCursor::MoveAnchor);
+      setFocus();
+      update();
+    }
+  } break;
+  case Mode::MoveResize:
+    if (mayMove) {
+      bool resize = shouldResize(e->pos());
+      GfxNoteItem *gni = dynamic_cast<GfxNoteItem*>(parent());
+      if (gni)
+        gni->childMousePress(e->scenePos(), e->button(), resize);
+    }
+    break;
+  case Mode::Highlight:
+    attemptMarkup(e->pos(), MarkupData::Emphasize);
+    break;
+  case Mode::Strikeout:
+    attemptMarkup(e->pos(), MarkupData::StrikeThrough);
+    break;
+  case Mode::Plain:
+    attemptMarkup(e->pos(), MarkupData::Normal);
+    break;
+  default:
+    break;
+  }
+}
+
+void TextItem::selectWordOrLineOrParagraph(int pos) {
+  if (!cursor.hasSelection()) {
+    // Nothing selected => select word
+    cursor.selectAround(pos, TextCursor::StartOfWord, TextCursor::EndOfWord);
+    update();
+    return;
+  }
+
+  TextCursor::Range r = cursor.selectedRange();
+  if (r.start()==0 && r.end()==text->lastPosition()) {
+    // Currently, everything is selected => select nothing
+    cursor.clearSelection();
+    update();
+    return;
+  }
+
+  TextCursor c(text, pos);
+  c.movePosition(TextCursor::StartOfLine);
+  TextCursor d(text, pos);
+  d.movePosition(TextCursor::EndOfLine);
+  if (r.start()<=c.position() && r.end()>=d.position()) {
+    // Currently, line or more is selected => select all
+    cursor.selectAround(pos, TextCursor::Start, TextCursor::End);
+    update();
+    return;
+  }
+
+  c.setPosition(pos);
+  c.movePosition(TextCursor::StartOfWord);
+  d.setPosition(pos);
+  d.movePosition(TextCursor::EndOfWord);
+  if (r.start()<=c.position() && r.end()>=d.position()) {
+    // Currently, word or more is selected => select line
+    cursor.selectAround(pos, TextCursor::StartOfLine, TextCursor::EndOfLine);
+    update();
+    return;
+  }
+
+  // Less than word is selected => select word
+  cursor.selectAround(pos, TextCursor::StartOfWord, TextCursor::EndOfWord);
+  update();
 }
 
 void TextItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
   switch (e->button()) {
   case Qt::LeftButton:
-    switch (mode()->mode()) {
-    case Mode::Type: {
-      int pos = text->find(e->pos());
-      if (pos>=0) {
-        cursor.setPosition(pos,
-			   e->modifiers() & Qt::ShiftModifier
-			   ? TextCursor::KeepAnchor
-			   : TextCursor::MoveAnchor);
-	setFocus();
-	update();
-      }
-    } break;
-    case Mode::MoveResize:
-      if (mayMove) {
-        bool resize = shouldResize(e->pos());
-        GfxNoteItem *gni = dynamic_cast<GfxNoteItem*>(parent());
-        if (gni)
-          gni->childMousePress(e->scenePos(), e->button(), resize);
-      }
-      break;
-    case Mode::Highlight:
-      attemptMarkup(e->pos(), MarkupData::Emphasize);
-      break;
-    case Mode::Strikeout:
-      attemptMarkup(e->pos(), MarkupData::StrikeThrough);
-      break;
-    case Mode::Plain:
-      attemptMarkup(e->pos(), MarkupData::Normal);
-      break;
-    default:
-      break;
-    }
+    if ((mode()->mode()==Mode::Type || mode()->mode()==Mode::Browse)
+        && lastClickTime.elapsed() < 500
+        && (lastClickScreenPos - e->screenPos()).manhattanLength()<5) 
+      // Select word or line or paragraph
+      selectWordOrLineOrParagraph(text->find(e->pos()));
+    else 
+      handleLeftClick(e);
+    lastClickTime.start();
+    lastClickScreenPos = e->screenPos();
     if (mode()->mode()!=Mode::Type && hasFocus())
       clearFocus();
     break;
@@ -389,10 +450,15 @@ void TextItem::tryMove(TextCursor::MoveOperation op,
   TextCursor::MoveMode mm = mod & Qt::ShiftModifier ? TextCursor::KeepAnchor
     : TextCursor::MoveAnchor;
   c.movePosition(op, mm);
-  if (c==textCursor())
+  if (c==textCursor()) {
     emit futileMovementKey(key, mod);
-  else
-    setTextCursor(c);
+    return;
+  }
+
+  setTextCursor(c);
+  QPointF p = posToPoint(c.position());
+  if (!clipRect().contains(p))
+    emit invisibleFocus(p);
 }
 
 bool TextItem::keyPressWithControl(QKeyEvent *e) {
@@ -550,6 +616,7 @@ bool TextItem::muckWithIndentation(TextBlockItem *p,
   }
   prepareGeometryChange();
   p->initializeFormat();
+  text->relayout();
   update();
   return true;
 }
@@ -884,8 +951,7 @@ bool TextItem::tryToPaste(bool nonewlines) {
     QString txt = md->text();
     if (nonewlines)
       txt.replace("\n", " ");
-    TextCursor c = textCursor();
-    c.insertText(txt);
+    cursor.insertText(txt);
     return true;
   } else {
     return false;
