@@ -31,9 +31,11 @@ BookInfo::BookInfo(Notebook const *nb) {
   address = bd->address();
   created = bd->created();
   modified = bd->modified();
+  dirname = "?";
 }
 
-BookInfo::BookInfo(QString dirname) {
+BookInfo::BookInfo(QString d) {
+  dirname = d;
   BookFile *bf = BookFile::load(dirname + "/book.json");
   if (bf) {
     BookData const *bd = bf->data();
@@ -45,6 +47,17 @@ BookInfo::BookInfo(QString dirname) {
     delete bf;
   }
 }
+
+bool BookInfo::operator<(BookInfo const &o) const {
+  int r = QString::compare(title, o.title, Qt::CaseInsensitive);
+  if (r)
+    return r<0;
+  r = QString::compare(author, o.author, Qt::CaseInsensitive);
+  if (r)
+    return r<0;
+  return created < o.created;
+}
+
 
 //////////////////////////////////////////////////////////////////////
 
@@ -72,6 +85,7 @@ RecentBooks::RecentBooks() {
     data[dirname].created = get(i, "created").toDateTime();
     data[dirname].modified = get(i, "modified").toDateTime();
     data[dirname].accessed = get(i, "accessed").toDateTime();
+    data[dirname].dirname = dirname;
     revmap[dirname] = i;
   }    
 }

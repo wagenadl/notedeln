@@ -89,29 +89,24 @@ void SplashScene::makeBackground() {
 }
 
 void SplashScene::makeItems() {
+  const double MARGIN = 7;
   // add clickable items for recent files, local files, new file, arb. file
   double y = 25;
   double x = 45;
-  double DY = 90;
-  BookSplashItem *bsi = new BookSplashItem("Open existing notebook...");
-  connect(bsi, SIGNAL(leftClick(QString)), SLOT(openExisting()));
-  addItem(bsi);
-  bsi->setPos(x, y);
-  y += DY; ///2;
+  BookSplashItem *bsi;
 
-  bsi = new BookSplashItem("Create new notebook...");
-  connect(bsi, SIGNAL(leftClick(QString)), SLOT(createNew()));
-  addItem(bsi);
-  bsi->setPos(x, y);
-  y += DY; ///2;
+  int NMAX =  (sceneRect().height() - y - 2*BookSplashItem::SMALLBOXHEIGHT
+	       - MARGIN - 80) / (BookSplashItem::BOXHEIGHT + MARGIN);
 
   QStringList dirs = localNotebooks();
+  while (dirs.size()>NMAX)
+    dirs.removeLast();
   QSet<QString> absdirs;
   foreach (QString d, dirs)
     absdirs << QDir::cleanPath(QDir::current().absoluteFilePath(d));
 
   QStringList recent = RecentBooks::instance()->byDate();
-  while (dirs.size()<10 && !recent.isEmpty()) {
+  while (dirs.size()<NMAX && !recent.isEmpty()) {
     QString r = recent.takeFirst();
     QString r0 = QDir::cleanPath(r);
     if (!absdirs.contains(r)) {
@@ -120,18 +115,36 @@ void SplashScene::makeItems() {
     }
   }
 
-  foreach (QString d, dirs) {
+  QList<BookInfo> books;
+  foreach (QString d, dirs)
     if (RecentBooks::instance()->contains(d))
-      bsi = new BookSplashItem(d, (*RecentBooks::instance())[d]);
+      books << (*RecentBooks::instance())[d];
     else
-      bsi = new BookSplashItem(d, BookInfo(d));
+      books << BookInfo(d);
+
+  qSort(books.begin(), books.end());
+  
+  foreach (BookInfo const &b, books) {
+    bsi = new BookSplashItem(b.dirname, b);
     connect(bsi, SIGNAL(leftClick(QString)), SLOT(openNamed(QString)));
     addItem(bsi);
     bsi->setPos(x, y);
-    y += DY;
-    if (y+DY+DY/2 >= sceneRect().height())
-      break;
+    y += BookSplashItem::BOXHEIGHT + MARGIN;
   }  
+
+  bsi = new BookSplashItem(dirs.isEmpty()
+	       ? QString::fromUtf8("Open existing notebook…")
+	       : QString::fromUtf8("Open other existing notebook…"));
+  connect(bsi, SIGNAL(leftClick(QString)), SLOT(openExisting()));
+  addItem(bsi);
+  bsi->setPos(x, y);
+  y += BookSplashItem::SMALLBOXHEIGHT + MARGIN;
+
+  bsi = new BookSplashItem(QString::fromUtf8("Create new notebook…"));
+  connect(bsi, SIGNAL(leftClick(QString)), SLOT(createNew()));
+  addItem(bsi);
+  bsi->setPos(x, y);
+  y += BookSplashItem::SMALLBOXHEIGHT + MARGIN;
 }
 
 QStringList SplashScene::localNotebooks() {

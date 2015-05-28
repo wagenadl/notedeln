@@ -22,13 +22,6 @@
 #include <QGraphicsSceneMouseEvent>
 #include <QPainter>
 
-#define BOXWIDTH 500
-#define BOXHEIGHT 80
-#define BOXRAD 3.0
-#define HOVERDX 1.5
-#define HOVERDX1 0.5
-#define SHRINK 1
-
 BookSplashItem::BookSplashItem(QString dirname, BookInfo const &info,
                                QGraphicsItem *parent):
   QGraphicsObject(parent), dirname(dirname), info(info) {
@@ -113,8 +106,8 @@ void BookSplashItem::paint(QPainter *p,
   f.setPointSizeF(8);
   p->setFont(f);
   if (!hov)
-    p->setPen(QColor("#777777"));
-  p->drawText(QRectF(8, 23, BOXWIDTH-16, 20),
+    p->setPen(QColor("#444444"));
+  p->drawText(QRectF(8, 24, BOXWIDTH-16, 20),
               Qt::AlignLeft | Qt::AlignVCenter | Qt::TextSingleLine,
               dirname);
 
@@ -125,22 +118,22 @@ void BookSplashItem::paint(QPainter *p,
   p->drawText(QRectF(8, 38, BOXWIDTH-16, 24),
               Qt::AlignLeft | Qt::AlignVCenter | Qt::TextSingleLine,
               "Author: " + info.author);
-  p->drawText(QRectF(8, 55, BOXWIDTH-16, 24),
-              Qt::AlignLeft | Qt::AlignVCenter | Qt::TextSingleLine,
-              "Address: " + info.address);
-  p->drawText(QRectF(8, 38, BOXWIDTH-16, 24),
+  //p->drawText(QRectF(8, 55, BOXWIDTH-16, 24),
+  //            Qt::AlignLeft | Qt::AlignVCenter | Qt::TextSingleLine,
+  //            "Address: " + info.address);
+  p->drawText(QRectF(8, 38-17, BOXWIDTH-16, 24),
               Qt::AlignRight | Qt::AlignVCenter | Qt::TextSingleLine,
               "Created: " + info.created.toString(datefmt));
-  p->drawText(QRectF(8, 55, BOXWIDTH-16, 24),
+  p->drawText(QRectF(8, 38, BOXWIDTH-16, 24),
               Qt::AlignRight | Qt::AlignVCenter | Qt::TextSingleLine,
               "Last modified: " + info.modified.toString(datefmt));
   if (info.accessed.isValid())
-    p->drawText(QRectF(8, 21, BOXWIDTH-16, 24),
+    p->drawText(QRectF(8, 38-2*17, BOXWIDTH-16, 24),
                 Qt::AlignRight | Qt::AlignVCenter | Qt::TextSingleLine,
                 "Last access: " + info.accessed.toString(datefmt));
 }
 
 QRectF BookSplashItem::boundingRect() const {
-  double height = /*dirname.isEmpty() ? BOXHEIGHT/2 : */ BOXHEIGHT;
+  double height = dirname.isEmpty() ? SMALLBOXHEIGHT : BOXHEIGHT;
   return QRectF(0, 0, BOXWIDTH, height);
 }

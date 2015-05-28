@@ -33,10 +33,12 @@ public:
   QDateTime created;
   QDateTime modified;
   QDateTime accessed;
+  QString dirname;
 public:
   BookInfo() { }
   BookInfo(QString dirname);
   BookInfo(class Notebook const *nb);
+  bool operator<(BookInfo const &o) const;
 };
 
 class RecentBooks {
