@@ -9,6 +9,7 @@
 #include <QGraphicsSceneHoverEvent>
 
 class OneLink: public QObject {
+  Q_OBJECT;
 public:
   OneLink(class MarkupData *md, class TextItem *item);
 virtual ~OneLink();

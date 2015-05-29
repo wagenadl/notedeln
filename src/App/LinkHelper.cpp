@@ -41,10 +41,8 @@ void LinkHelper::mouseCore(QPointF p) {
   perhapsLeave(md);
   if (md==0)
     return;
-  ASSERT(links.contains(md));
-  if (current!=links[md])
-    qDebug() << "LinkHelper::mouseCore" << p << item->pointToPos(p, true) << md->start() << md->end();
-  current = links[md];
+  if (links.contains(md)) 
+    current = links[md];
 }
 
 bool LinkHelper::mousePress(QGraphicsSceneMouseEvent *e) {
@@ -65,18 +63,20 @@ void LinkHelper::mouseMove(QGraphicsSceneHoverEvent *e) {
 }
 
 void LinkHelper::newMarkup(MarkupData *md) {
-  links[md] = new OneLink(md, item);
+  if (md->style()==MarkupData::Link)
+    links[md] = new OneLink(md, item);
 }
 
 void LinkHelper::removeMarkup(MarkupData *md) {
-  ASSERT(links.contains(md));
-  links[md]->deleteLater();
-  links.remove(md);
+  if (links.contains(md)) {
+    links[md]->deleteLater();
+    links.remove(md);
+  }
 }
 
 void LinkHelper::updateMarkup(MarkupData *md) {
-  ASSERT(links.contains(md));
-  links[md]->update();
+  if (links.contains(md))
+    links[md]->update();
 }
 
 void LinkHelper::updateAll() {
