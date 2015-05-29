@@ -180,11 +180,6 @@ Notebook *Notebook::create(QString path) {
     return 0;
   }
   
-  if (!d.mkpath("res")) {
-    qDebug() << "Notebook: Failed to create 'res' directory at " << path;
-    return 0;
-  }
-
   delete TOCFile::create(d.filePath("toc.json"));
   delete BookFile::create(d.filePath("book.json"));
 
