@@ -114,7 +114,7 @@ bool TOC::contains(int p) const {
 
 bool TOC::deleteEntry(TOCEntry *e) {
   if (!e)
-    return 0;
+    return false;
   int p = e->startPage();
   if (entries_.remove(p)) {
     Data::deleteChild(e);

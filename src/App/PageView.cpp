@@ -439,6 +439,8 @@ void PageView::leavePage() {
       // Leaving an empty page
       entryScene.clear();
       book->deleteEntry(currentPage);
+    } else {
+      book->flush();
     }
   }
 }  

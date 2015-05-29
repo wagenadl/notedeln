@@ -271,8 +271,15 @@ bool Notebook::deleteEntry(int pgno) {
   pgFiles.remove(pgno);
   qDebug() << "pgFiles.removed " << pgno;
 
-  ASSERT(toc()->deleteEntry(toc()->find(pgno))); // this triggers mod() and hence flush of index too
-  ASSERT(::deleteEntryFile(QDir(root.filePath("pages")), pgno, uuid));
+  if (toc()->deleteEntry(toc()->find(pgno))) {
+    // deleteentry triggers mod() and hence flush of index too
+    qDebug() << "Failure to delete entry from TOC";
+    ASSERT(0);
+  }
+  if (!::deleteEntryFile(QDir(root.filePath("pages")), pgno, uuid)) {
+    qDebug() << "Failure to delete entry file";
+    ASSERT(0);
+  }
   return true;
 }
 
