@@ -223,40 +223,40 @@ bool TextCursor::operator==(TextCursor const &a) const {
 
 TextCursor TextCursor::findForward(QString s) const {
   if (!isValid())
-    return TextCursor();
+    return TextCursor(doc, -1);
   QString txt = doc->text();
   int off = txt.indexOf(s, pos);
   if (off>=0)
     return TextCursor(doc, off, s.length());
   else
-    return TextCursor();
+    return TextCursor(doc, -1);
 }
 
 TextCursor TextCursor::findBackward(QString s) const {
   if (!isValid())
-    return TextCursor();
+    return TextCursor(doc, -1);
   QString txt = doc->text();
   int off = txt.lastIndexOf(s, pos-s.length());
   if (off>=0)
     return TextCursor(doc, off, s.length());
   else
-    return TextCursor();
+    return TextCursor(doc, -1);
 }
 
 TextCursor TextCursor::findForward(QRegExp re) const {
   if (!isValid())
-    return TextCursor();
+    return TextCursor(doc, -1);
   QString txt = doc->text();
   int off = re.indexIn(txt, pos);
   if (off>=0)
     return TextCursor(doc, off, off+re.cap().size());
   else
-    return TextCursor();
+    return TextCursor(doc, -1);
 }
 
 TextCursor TextCursor::findBackward(QRegExp re) const {
   if (!isValid())
-    return TextCursor();
+    return TextCursor(doc, -1);
   QString txt = doc->text().left(pos);
   // This makes sure that we won't capture beyond POS, 
   int off = re.lastIndexIn(txt);
@@ -264,7 +264,7 @@ TextCursor TextCursor::findBackward(QRegExp re) const {
   if (off>=0)
     return TextCursor(doc, off, off+re.cap().length());
   else
-    return TextCursor();
+    return TextCursor(doc, -1);
 }
 
 void TextCursor::selectAround(int pos,
