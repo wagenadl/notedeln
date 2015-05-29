@@ -138,6 +138,16 @@ void ResLoader::qnrDataAv() {
   }
 }
 
+static bool hostMatch(QString a, QString b) {
+  if (a==b)
+    return true;
+  if (a.startsWith("www.") && a.mid(4)==b)
+    return true;
+  if (b.startsWith("www.") && b.mid(4)==a)
+    return true;
+  return false;
+}
+
 void ResLoader::qnrFinished() {
   if (ok || err) // already finished
     return;
@@ -166,7 +176,7 @@ void ResLoader::qnrFinished() {
       qnr->deleteLater();
       qnr = 0;
       QUrl newUrl(attr.toString());
-      if (newUrl.host() == src.host() && parentAlive()) {
+      if (hostMatch(newUrl.host(), src.host()) && parentAlive()) {
 	qDebug() << "Accepting redirect of " << src.toString()
 		 << "to" << newUrl.toString();
 	src = newUrl;
