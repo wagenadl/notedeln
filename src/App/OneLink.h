@@ -12,7 +12,7 @@ class OneLink: public QObject {
   Q_OBJECT;
 public:
   OneLink(class MarkupData *md, class TextItem *item);
-virtual ~OneLink();
+  virtual ~OneLink();
   bool mousePress(QGraphicsSceneMouseEvent *);
   bool mouseDoubleClick(QGraphicsSceneMouseEvent *);
   void enter(QGraphicsSceneHoverEvent *);
