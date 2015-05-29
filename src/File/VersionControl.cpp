@@ -217,7 +217,7 @@ bool commit(QString path, QString program) {
                        "Committing locally using git...", 0, &se);
     if (need && success)
       success = runGit("push", QStringList(),
-                       "Pusing changes using git...", 0, &se);
+                       "Pushing changes using git...", 0, &se);
   }
   QDir::setCurrent(cwd);
   if (se.isEmpty())

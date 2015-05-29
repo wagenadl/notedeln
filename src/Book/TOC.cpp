@@ -153,7 +153,7 @@ static TOC *errorReturn(QString s) {
 		 + "not reconstruct it:\n\n"
 		 + s + "\n\n"
 		 + "Manual recovery will be needed.",
-		 QMessageBox::Abort);
+		 0);
   mb.addButton("Quit", QMessageBox::RejectRole);
   mb.exec();
   QApplication::quit();
