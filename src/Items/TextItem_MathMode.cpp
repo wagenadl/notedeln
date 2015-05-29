@@ -21,7 +21,7 @@ bool TextItem::keyPressAsMath(QKeyEvent *e) {
     // we may italicize or deitalice
     QChar prevChar = document()->characterAt(cursor.position()-1);
     QChar antePrevChar = document()->characterAt(cursor.position()-2);
-    int dpos = 1;
+     int dpos = 1;
     if (prevChar == 0x200a) {
       // thin space
       prevChar = antePrevChar;
@@ -83,7 +83,7 @@ bool TextItem::keyPressAsMath(QKeyEvent *e) {
     // we may apply finished TeX Code
     if (cursor.hasSelection()) 
       return false; // we're overwriting, let some other piece of code deal.
-    tryTeXCode(true);
+    tryTeXCode(true, true);
     if (txt=="^") {
       // de-italicize "e^"
       if (document()->characterAt(cursor.position()-1)=='e') {

@@ -548,23 +548,29 @@ bool TextItem::keyPressAsSimpleStyle(int key, TextCursor const &cursor) {
   }
 }
 
-bool TextItem::tryTeXCode(bool noX) {
-  if (!cursor.hasSelection()) {
+bool TextItem::tryTeXCode(bool noX, bool onlyAtEndOfWord) {
+  TextCursor c = cursor;
+  if (!c.hasSelection()) {
     TextCursor m = cursor.findBackward(QRegExp("([^A-Za-z])"));
     int start = m.hasSelection() ? m.selectionEnd() : 0;
-    m.setPosition(start);
-    m = m.findForward(QRegExp("([^A-Za-z])"));
-    int end = m.hasSelection() ? m.selectionStart() : data()->text().size();
-    cursor.setPosition(start);
-    cursor.setPosition(end, TextCursor::KeepAnchor);
+    if (onlyAtEndOfWord) {
+      c.setPosition(start, TextCursor::KeepAnchor);
+    } else {
+      m.setPosition(start);
+      m = m.findForward(QRegExp("([^A-Za-z])"));
+      int end = m.hasSelection() ? m.selectionStart() : data()->text().size();
+      c.setPosition(start);
+      c.setPosition(end, TextCursor::KeepAnchor);
+    }
   }
   // got a word
-  QString key = cursor.selectedText();
+  QString key = c.selectedText();
   if (!TeXCodes::contains(key))
     return false;
   if (noX && key.size()==1)
     return false;
   QString val = TeXCodes::map(key);
+  cursor = c;
   cursor.deleteChar(); // delete the word
   if (document()->characterAt(cursor.position()-1)=='\\')
     cursor.deletePreviousChar(); // delete any preceding backslash

@@ -103,7 +103,7 @@ protected:
   virtual bool tryToPaste(bool noparagraphs=false);
   virtual bool tryToCopy() const;
   bool tryScriptStyles(bool onlyIfBalanced=false);
-  bool tryTeXCode(bool noX=false);
+  bool tryTeXCode(bool noX=false, bool onlyAtEndOfWord=false);
   void toggleSimpleStyle(MarkupData::Style type, class TextCursor const &c);
   bool charBeforeIsLetter(int pos) const;
   bool charAfterIsLetter(int pos) const;
