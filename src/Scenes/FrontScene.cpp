@@ -55,7 +55,7 @@ void FrontScene::makeWritable() {
     ti->setCursor(QCursor(Qt::IBeamCursor));
     ti->setFlag(QGraphicsTextItem::ItemIsFocusable);
     connect(ti->document(),
-            SIGNAL(contentsChanged(int, int, int)),
+            SIGNAL(contentsChange(int, int, int)),
 	    this, SLOT(textChange()));
   }
 }
