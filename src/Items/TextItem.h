@@ -131,7 +131,8 @@ protected:
   bool keyPressAsSimpleStyle(int key, TextCursor const &cursor);
   void tryMove(TextCursor::MoveOperation op, int key,
                Qt::KeyboardModifiers mod);
-  virtual QList<TransientMarkup> representCursor() const;
+  virtual void representCursor(QList<TransientMarkup> &) const;
+  virtual void representSearchPhrase(QList<TransientMarkup> &) const;
 protected:
   bool mayMark;
   bool mayNote;

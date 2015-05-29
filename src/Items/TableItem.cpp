@@ -498,8 +498,7 @@ void TableItem::paint(QPainter *p,
   p->drawLine(r.bottomLeft()+QPointF(1, -1), r.bottomRight()+QPointF(-1, -1));
 }
 
-QList<TransientMarkup> TableItem::representCursor() const {
-  QList<TransientMarkup> tmm;
+void TableItem::representCursor(QList<TransientMarkup> &tmm) const {
   if (cursor.hasSelection()) {
     if (selectionSpansCells()) {
       TableCellRange rng = selectedCells();
@@ -513,6 +512,5 @@ QList<TransientMarkup> TableItem::representCursor() const {
                              MarkupData::Selected);
     }
   }
-  return tmm;
 }
 

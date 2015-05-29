@@ -47,33 +47,36 @@ void SearchDialog::newSearch() {
     QMessageBox::information(pgView, "Search - eln",
                              QString::fromUtf8("Search phrase “%1” not found")
                              .arg(phrase));
-  } else {
-    SearchResultScene *scene
-      = new SearchResultScene(phrase,
-			      QString::fromUtf8("Search results for “%1”")
-                              .arg(phrase),
-                              res,
-                              pgView->notebook()->bookData());
-    scene->populate();
-    connect(scene,
-	    SIGNAL(pageNumberClicked(int, Qt::KeyboardModifiers,
-                                     QString, QString)),
-            this,
-	    SLOT(gotoPage(int, Qt::KeyboardModifiers, QString, QString)));
-    SearchView *view = new SearchView(scene);
-    view->setAttribute(Qt::WA_DeleteOnClose, true);
-    connect(parent(), SIGNAL(destroyed()), view, SLOT(close()));
-    delete progress;
-    
-    view->resize(pgView->size()*.9);
-    QString ttl = pgView->notebook()->bookData()->title();
-    view->setWindowTitle("Search in: " + ttl.replace(QRegExp("\\s\\s*"), " ") + " - eln");
-    view->show();
+    return;
   }
+  
+  SearchResultScene *scene
+    = new SearchResultScene(phrase,
+			    QString::fromUtf8("Search results for “%1”")
+			    .arg(phrase),
+			    res,
+			    pgView->notebook()->bookData());
+  scene->populate();
+  connect(scene,
+	  SIGNAL(pageNumberClicked(int, Qt::KeyboardModifiers,
+				   QString, QString)),
+	  this,
+	  SLOT(gotoPage(int, Qt::KeyboardModifiers, QString, QString)));
+  SearchView *view = new SearchView(scene);
+  view->setAttribute(Qt::WA_DeleteOnClose, true);
+  connect(parent(), SIGNAL(destroyed()), view, SLOT(close()));
+  delete progress;
+  
+  view->resize(pgView->size()*.9);
+  QString ttl = pgView->notebook()->bookData()->title();
+  view->setWindowTitle("Search in: "
+		       + ttl.replace(QRegExp("\\s\\s*"), " ") + " - eln");
+  view->show();
 }
 
 void SearchDialog::gotoPage(int n, Qt::KeyboardModifiers m,
                             QString uuid, QString phrase) {
+  setLatestPhrase(phrase);
   if (!pgView) {
     qDebug() << "SearchDialog: Pageview disappeared on me.";
     return;
@@ -85,11 +88,18 @@ void SearchDialog::gotoPage(int n, Qt::KeyboardModifiers m,
     pgView->gotoEntryPage(n);
 
   view->ensureSearchVisible(uuid, phrase);
-  
   view->window()->raise();
-  qDebug() << "gotoPage" << n << phrase;
-  SheetScene *bs = dynamic_cast<SheetScene *>(view->scene());
-  ASSERT(bs);
-  //  bs->setOverlay(new FindOverlay(bs, phrase));
-  ASSERT(0);
+}
+
+void SearchDialog::setLatestPhrase(QString s) {
+  storedPhrase() = s;
+}
+
+QString SearchDialog::latestPhrase() {
+  return storedPhrase();
+}
+
+QString &SearchDialog::storedPhrase() {
+  static QString s;
+  return s;
 }

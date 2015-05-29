@@ -57,7 +57,7 @@ protected:
   void keyPressEvent(QKeyEvent *);
   void focusInEvent(QFocusEvent *);
   virtual bool tryToPaste(bool nonewlines=true);
-  virtual QList<TransientMarkup> representCursor() const;
+  virtual void representCursor(QList<TransientMarkup> &) const;
 private:
   bool keyPressAsMotion(QKeyEvent *e);
   bool keyPressWithControl(QKeyEvent *e);

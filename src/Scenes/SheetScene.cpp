@@ -303,3 +303,4 @@ void SheetScene::futileTitleMovement(int key, Qt::KeyboardModifiers) {
     break;
   }
 }
+

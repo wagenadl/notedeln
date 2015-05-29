@@ -600,7 +600,7 @@ QChar TextItemDoc::characterAt(int pos) const {
 }
 
 int TextItemDoc::find(QString s) const {
-  return text().indexOf(s);
+  return text().indexOf(s, 0, Qt::CaseInsensitive);
 }
 
 void TextItemDoc::makeWritable() {

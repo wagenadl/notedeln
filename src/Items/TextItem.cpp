@@ -20,6 +20,7 @@
 #include "TextData.h"
 #include "Mode.h"
 #include "EntryScene.h"
+#include "SearchDialog.h"
 #include "Style.h"
 #include "ResManager.h"
 //#include "HoverRegion.h"
@@ -297,12 +298,22 @@ void TextItem::attemptMarkup(QPointF p, MarkupData::Style m) {
   grabMouse();
 }
 
-QList<TransientMarkup> TextItem::representCursor() const {
-  QList<TransientMarkup> tmm;
+void TextItem::representCursor(QList<TransientMarkup> &tmm) const {
   if (cursor.hasSelection())
     tmm << TransientMarkup(cursor.selectionStart(), cursor.selectionEnd(),
                            MarkupData::Selected);
-  return tmm;
+}
+
+void TextItem::representSearchPhrase(QList<TransientMarkup> &tmm) const {
+  QString phr = SearchDialog::latestPhrase();
+  if (phr.isEmpty())
+    return;
+  QString txt = text->text();
+  int N = phr.length();
+  qDebug() << "rSP" << txt << phr;
+  for (int off=txt.indexOf(phr, 0, Qt::CaseInsensitive); off>=0;
+       off=txt.indexOf(phr, off+N, Qt::CaseInsensitive)) 
+    tmm << TransientMarkup(off, off+N, MarkupData::SearchResult);
 }
 
 void TextItem::mouseMoveEvent(QGraphicsSceneMouseEvent *evt) {
@@ -1050,7 +1061,9 @@ void TextItem::paint(QPainter *p, const QStyleOptionGraphicsItem*, QWidget*) {
   else
     p->setClipRect(boundingRect());
 
-  QList<TransientMarkup> tmm = representCursor();
+  QList<TransientMarkup> tmm;
+  representCursor(tmm);
+  representSearchPhrase(tmm);
   text->render(p, tmm);
 
   if (hasFocus()) {

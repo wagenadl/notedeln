@@ -700,6 +700,7 @@ void PageView::drop(QDropEvent e) {
 }
 
 void PageView::ensureSearchVisible(QString uuid, QString phrase) {
+  scene()->update();  
   if (!currentSection==Entries)
     return;
   BlockItem const *blki = entryScene->findBlockByUUID(uuid);
