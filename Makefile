@@ -4,16 +4,19 @@ all: SRC WEBGRAB
 
 SRC:
 	scripts/updatesources.sh
-	( cd src; qmake )
+	( cd src; qmake-qt4 )
 	make -C src release
 
 WEBGRAB:
-	( cd webgrab; qmake )
+	( cd webgrab; qmake-qt4 )
 	make -C webgrab release
 
 inst: all
 	install src/eln $(INSTALLPATH)/eln
 	install webgrab/webgrab $(INSTALLPATH)/webgrab
+
+tar: all
+	git archive -o ../eln-`cat version`.tar.gz --prefix=eln-`cat version`/ HEAD
 
 deb:	all
 	scripts/updatechangelog
