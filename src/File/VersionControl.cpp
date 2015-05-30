@@ -153,8 +153,7 @@ bool update(QString path, QString program) {
       = mb.addButton("Edit anyway", QMessageBox::DestructiveRole);
     QAbstractButton *rob
       = mb.addButton("Open read-only", QMessageBox::AcceptRole);
-    QAbstractButton *quitb
-      = mb.addButton("Quit", QMessageBox::RejectRole);
+    mb.addButton("Quit", QMessageBox::RejectRole);
     mb.setDetailedText(se);
     mb.exec();
     QAbstractButton *r = mb.clickedButton();
