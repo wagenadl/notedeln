@@ -1,3 +1,9 @@
+eln (0.6.1) vivid; urgency=medium
+
+  * Up-to-date with commit cb001d3a59ca20104ad6e54bd53d381bb0bb5f57
+
+ -- Daniel Wagenaar <daniel.wagenaar@uc.edu>  Fri, 29 May 2015 15:31:10 -0400
+
 eln (0.5.1) trusty; urgency=medium
 
   * Up-to-date with commit e4ca2ffcced0db3a25efa62ec1c2c1e24486b6b4
