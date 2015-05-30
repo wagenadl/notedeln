@@ -2,14 +2,18 @@ INSTALLPATH=/usr/local/bin
 
 all: SRC WEBGRAB
 
+clean:
+	+make -C src clean
+	+make -C webgrab clean
+
 SRC:
 	scripts/updatesources.sh
 	( cd src; qmake-qt4 )
-	make -C src release
+	+make -C src release
 
 WEBGRAB:
 	( cd webgrab; qmake-qt4 )
-	make -C webgrab release
+	+make -C webgrab release
 
 inst: all
 	install src/eln $(INSTALLPATH)/eln

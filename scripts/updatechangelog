@@ -10,7 +10,6 @@ VERSION=`cat version`
 PATCHLEVEL=`cat patchlevel`
 (( PATCHLEVEL=$PATCHLEVEL+1 ))
 
-
 LASTCOMMIT=`git log -n 1 | head -1| cut -f2 -d' '`
 
 debchange --newversion $VERSION.$PATCHLEVEL --package $PACKAGE \
@@ -20,3 +19,5 @@ debchange --newversion $VERSION.$PATCHLEVEL --package $PACKAGE \
 debchange --release \
     "Up-to-date with commit $LASTCOMMIT" \
     || fail "Cannot update changelog"
+
+echo $PATCHLEVEL > patchlevel
