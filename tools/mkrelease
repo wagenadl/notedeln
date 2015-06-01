@@ -114,15 +114,20 @@ print OUT "\n";
 print OUT join("", @changelog);
 close OUT;
 
+open OUT, ">src/version";
+print OUT "$newvsn\n";
+close OUT;
+
 system("git add CHANGELOG") and die "Could not add CHANGELOG\n";
+system("git add src/version") and die "Could not add src/version\n";
 system("git commit -m'Created new version $newvsn'") and
     die "Could not commit\n";
 system("git tag -a v$newvsn -m 'Bumped version number'") and
     die "Could not tag for version\n";
 
-my $tar = "$package-$newvsn.tar.bz2";
+my $tar = "$package-$newvsn.tar.gz";
 system("git archive -o ../$tar --prefix=$package-$newvsn/ HEAD") and
-    die "Could not create archive\n";
+  die "Could not create archive\n";
 
 chdir("..");
 $here = `pwd`; 

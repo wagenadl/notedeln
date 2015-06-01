@@ -86,8 +86,8 @@ $here = `pwd`;
 chomp $here;
 chdir("/tmp");
 system("rm -r $package-$vsn") if -d "$package-$vsn";
-system("cp $here/$package-$vsn.tar.bz2 ${package}_$vsn.orig.tar.bz2");
-system("tar xf $here/$package-$vsn.tar.bz2");
+system("cp $here/$package-$vsn.tar.gz ${package}_$vsn.orig.tar.gz");
+system("tar xf $here/$package-$vsn.tar.gz");
 chdir("$package-$vsn");
 system("cp -a $here/$package/tools/debian .");
 
