@@ -6,3 +6,5 @@ userguide.pdf: userguide.tex
 
 %.1: %.1.txt
 	a2x --doctype manpage --format manpage $<
+
+clean:; rm -f userguide.log userguide.aux userguide.pdf

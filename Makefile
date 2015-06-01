@@ -13,6 +13,7 @@ all: SRC WEBGRAB DOC
 clean:
 	+make -C src clean
 	+make -C webgrab clean
+	+make -C doc clean
 
 SRC:
 	tools/updatesources.sh
@@ -31,15 +32,15 @@ install: all
 	install -d $(DOCPATH)
 	install src/eln $(INSTALLPATH)/bin/eln
 	install webgrab/webgrab $(INSTALLPATH)/bin/webgrab
-	install doc/eln.1 $(SHAREPATH)/man/man1/eln.1
-	install doc/webgrab.1 $(SHAREPATH)/man/man1/webgrab.1
-	install src/App/eln.png $(SHAREPATH)/pixmaps/eln.png
+	cp doc/eln.1 $(SHAREPATH)/man/man1/eln.1
+	cp doc/webgrab.1 $(SHAREPATH)/man/man1/webgrab.1
+	cp src/App/eln.png $(SHAREPATH)/pixmaps/eln.png
 	cp src/eln.xpm $(SHAREPATH)/pixmaps/eln.xpm
 	install src/eln.desktop $(SHAREPATH)/applications/eln.desktop
 	cp doc/userguide.pdf $(DOCPATH)/userguide.pdf
-	install README $(DOCPATH)/readme
+	cp README $(DOCPATH)/readme
 	gzip -9 $(DOCPATH)/readme
-	install CHANGELOG $(DOCPATH)/changelog
+	cp CHANGELOG $(DOCPATH)/changelog
 	gzip -9 $(DOCPATH)/changelog
 	install src/App/fonts/ubuntu-font-licence-1.0.txt.gz $(DOCPATH)/ubuntu-font-licence-1.0.txt.gz
 
