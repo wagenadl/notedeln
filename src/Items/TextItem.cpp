@@ -207,7 +207,7 @@ void TextItem::selectWordOrLineOrParagraph(int pos) {
   if (!cursor.hasSelection()) {
     // Nothing selected => select word
     cursor.selectAround(pos, TextCursor::StartOfWord, TextCursor::EndOfWord);
-    update();
+    setTextCursor(cursor);
     return;
   }
 
@@ -215,7 +215,7 @@ void TextItem::selectWordOrLineOrParagraph(int pos) {
   if (r.start()==0 && r.end()==text->lastPosition()) {
     // Currently, everything is selected => select nothing
     cursor.clearSelection();
-    update();
+    setTextCursor(cursor);
     return;
   }
 
@@ -226,7 +226,7 @@ void TextItem::selectWordOrLineOrParagraph(int pos) {
   if (r.start()<=c.position() && r.end()>=d.position()) {
     // Currently, line or more is selected => select all
     cursor.selectAround(pos, TextCursor::Start, TextCursor::End);
-    update();
+    setTextCursor(cursor);
     return;
   }
 
@@ -237,7 +237,7 @@ void TextItem::selectWordOrLineOrParagraph(int pos) {
   if (r.start()<=c.position() && r.end()>=d.position()) {
     // Currently, word or more is selected => select line
     cursor.selectAround(pos, TextCursor::StartOfLine, TextCursor::EndOfLine);
-    update();
+    setTextCursor(cursor);
     return;
   }
 
