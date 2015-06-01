@@ -348,6 +348,8 @@ void Resource::magicWebUrlFinished() {
       emit finished();
     }
   } else {
+    loader->deleteLater();
+    loader = 0;
     doMagic(); // try next magician
   }
 }
@@ -362,6 +364,8 @@ void Resource::magicObjectUrlFinished() {
     markModified();
     emit finished();
   } else {
+    loader->deleteLater();
+    loader = 0;
     doMagic(); // try next magician
   }
 }

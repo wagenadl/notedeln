@@ -157,7 +157,6 @@ void ResLoader::qnrFinished() {
 
   if (qnr->error()) {
     qDebug() << "ResLoader " << src.toString() << ": qnr error" << qnr->error();
-    dst->copy("/tmp/resloader.error");
     err = true;
   }
 
