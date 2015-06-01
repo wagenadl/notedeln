@@ -1,3 +1,16 @@
+eln 0.6.1
+
+  
+  
+  * Now uses custom TextItem for all text rendering except on front page.
+    This makes us more immune to font changes.
+  
+  * Release tools for debian now complete.
+  
+  
+
+  -- Daniel Wagenaar <wagenadl@uc.edu>  Mon, 01 Jun 2015 15:42:35 -0400
+
 eln 0.5.109
 
   
