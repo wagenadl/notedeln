@@ -11,6 +11,17 @@ if (@ARGV) {
     chdir shift @ARGV;
 }
 
+my $name = `git config user.name`; 
+chomp $name;
+die "No user name configured\n" if $name eq "";
+my $email = `git config user.email`; 
+chomp $email;
+die "No user email configured\n" if $email eq "";
+
+my $status = `git status --porcelain`;
+chomp $status;
+die "You have uncommitted changes\n" unless $status eq "";
+
 my $here = `pwd`;
 chomp $here;
 my @bits = split("/", $here);
@@ -24,11 +35,98 @@ if (-f "changelog") {
     my ($pkg, $vsn, @junk) = split(" ", $headline);
     die "Junk in changelog headline\n" if @junk || !defined($pkg) || 
 	!defined($vsn);
+    die "Package name mismatch\n" if $pkg ne $package;
     $oldvsn = $vsn;
     $vsn =~ /^(\d+)\.(\d+)\.(\d+)(-.+)?/ or die "Junk in changelog headline\n";
     $newvsn = "$1.$2." . ($3+1);
 } else {
     $newvsn = "0.1.0";
+    system("touch changelog");
 }
 
+my $commits = "";
+my $range = (defined $oldvsn) ? "v$oldvsn.." : "";
+my @commits = split("\n", `git log $range`);
+for (@commits) {
+    chomp;
+    /^\s+$/ and next;
+    /^\s+/ or next;
+    $commits .= "#$_\n";
+}
 
+my $tmpfn = "/tmp/mkrelease-$$.txt";
+open OUT, ">$tmpfn" or die "Cannot create $tmpfn";
+print OUT "# Creating new release for project $package\n";
+print OUT "# Previous version: $oldvsn\n" if defined $oldvsn;
+print OUT "# New version: (edit at will)\n";
+print OUT "\n";
+print OUT "$newvsn\n";
+print OUT "\n";
+print OUT "# Release message: (you must type at least a short message, else\n";
+print OUT "# the release will be aborted)\n";
+print OUT "\n";
+print OUT "\n";
+print OUT "# Commit messages since previous release: (FYI)\n";
+print OUT "\n";
+print OUT $commits;
+close OUT;
+
+system("vi $tmpfn") and die "vi crashed";
+
+open IN, "<$tmpfn";
+$newvsn = undef;
+my $message = "";
+while (<IN>) {
+    chomp;
+    /^\s*#/ and next;
+    if (!defined $newvsn) {
+	$newvsn = $_;
+    } else {
+	$message .= "$_\n";
+    }
+}
+close IN;
+
+unlink($tmpfn);
+
+$message =~ s/^\n+//;
+$message =~ s/\n+$//;
+die "No release message given\n" if $message eq "";
+die "Incorrectly formatted version\n" unless $newvsn =~ /^\d+\.\d+\.\d+(-.+)?/;
+
+open IN, "<changelog";
+my @changelog = <IN>;
+close IN;
+
+system("mv changelog changelog~");
+
+open OUT, ">changelog";
+print OUT "$package $newvsn\n";
+print OUT "\n";
+print OUT "$message\n";
+print OUT "\n";
+my $date = `date -R`; 
+chomp $date;
+print OUT "-- $name <$email>  $date\n";
+print OUT "\n";
+print OUT join("", @changelog);
+close OUT;
+
+system("git add changelog") and die "Could not add changelog\n";
+system("git commit -m'Created new version $newvsn'") and 
+    die "Could not commit\n";
+system("git tag -a v$newvsn -m 'Bumped version number'") and 
+    die "Could not tag for version\n";
+
+my $tar = "$package-$newvsn.tar.gz";
+system("git archive -o ../$tar --prefix=$package-$newvsn/ HEAD") and
+    die "Could not create archive\n";
+
+chdir("..");
+$here = `pwd`; 
+chomp $here;
+print STDERR "Release created; archive stored as $here/$tar.\n\n";
+
+print STDERR "Do not forget to do:\n\n";
+print STDERR "  git push\n";
+print STDERR "  git push --tags\n\n";
