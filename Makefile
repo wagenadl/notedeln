@@ -33,15 +33,13 @@ install: all
 	install webgrab/webgrab $(INSTALLPATH)/bin/webgrab
 	install doc/eln.1 $(SHAREPATH)/man/man1/eln.1
 	install doc/webgrab.1 $(SHAREPATH)/man/man1/webgrab.1
-	install src/eln.png $(SHAREPATH)/pixmaps/eln.png
+	install src/eln.xpm $(SHAREPATH)/pixmaps/eln.xpm
 	install src/eln.desktop $(SHAREPATH)/applications/eln.desktop
 	install doc/userguide.pdf $(DOCPATH)/userguide.pdf
-	install LICENSE $(DOCPATH)/license
-	gzip $(DOCPATH)/license
 	install README $(DOCPATH)/readme
-	gzip $(DOCPATH)/readme
+	gzip -9 $(DOCPATH)/readme
 	install CHANGELOG $(DOCPATH)/changelog
-	gzip $(DOCPATH)/changelog
+	gzip -9 $(DOCPATH)/changelog
 	install src/App/fonts/ubuntu-font-licence-1.0.txt.gz $(DOCPATH)/ubuntu-font-licence-1.0.txt.gz
 
 DOC:;	+make -C doc
