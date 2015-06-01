@@ -49,8 +49,8 @@ while (<IN>) {
   }
 }
 close IN;
-$message =~ s/^\n+//;
-$message =~ s/\s+$//;
+$message =~ s/^\n+//s;
+$message =~ s/\s+$//s;
 
 my $first = `head -n 1 tools/debian/changelog`;
 chomp $first;

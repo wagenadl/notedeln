@@ -1,4 +1,7 @@
-?package(eln):needs=X11 \
-		  Section=Applications/Editors\
-		  title=ELN command=/usr/bin/eln
+?package(eln):\
+	needs="X11" \
+	section="Applications/Editors" \
+	title="ELN" \
+	command="eln" \
+	icon="/usr/share/pixmaps/eln.png"
 		  
