@@ -90,7 +90,8 @@ system("cp $here/$package-$vsn.tar.gz ${package}_$vsn.orig.tar.gz");
 system("tar xf $here/$package-$vsn.tar.gz");
 chdir("$package-$vsn");
 system("cp -a $here/$package/tools/debian .");
-
+system("dpkg-buildpackage -j8");
+system("lintian");
 
 
 #system("debuild -us -uc -Idebug -Irelease -I.git -Ieln -Ieln_debug -Iwebgrab/webgrab -Ifrontimage.xcf -Ibuild -Itools -IMakefile.Debug -IMakefile.Release");

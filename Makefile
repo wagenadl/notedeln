@@ -33,9 +33,10 @@ install: all
 	install webgrab/webgrab $(INSTALLPATH)/bin/webgrab
 	install doc/eln.1 $(SHAREPATH)/man/man1/eln.1
 	install doc/webgrab.1 $(SHAREPATH)/man/man1/webgrab.1
-	install src/eln.xpm $(SHAREPATH)/pixmaps/eln.xpm
+	install src/App/eln.png $(SHAREPATH)/pixmaps/eln.png
+	cp src/eln.xpm $(SHAREPATH)/pixmaps/eln.xpm
 	install src/eln.desktop $(SHAREPATH)/applications/eln.desktop
-	install doc/userguide.pdf $(DOCPATH)/userguide.pdf
+	cp doc/userguide.pdf $(DOCPATH)/userguide.pdf
 	install README $(DOCPATH)/readme
 	gzip -9 $(DOCPATH)/readme
 	install CHANGELOG $(DOCPATH)/changelog
