@@ -78,13 +78,14 @@ open IN, "<$tmpfn";
 $newvsn = undef;
 my $message = "";
 while (<IN>) {
-    chomp;
-    /^\s*#/ and next;
-    if (!defined $newvsn) {
-	$newvsn = $_;
-    } else {
-	$message .= "  $_\n";
-    }
+  chomp;
+  /^\s*#/ and next;
+  if (!defined $newvsn) {
+    /^\s*$/ and next;
+    $newvsn = $_;
+  } else {
+    $message .= "  $_\n";
+  }
 }
 close IN;
 
