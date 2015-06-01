@@ -24,6 +24,11 @@ WEBGRAB:
 	+make -C webgrab release
 
 install: all
+	install -d $(INSTALLPATH)/bin
+	install -d $(INSTALLPATH)/man/man1
+	install -d $(SHAREPATH)/pixmaps
+	install -d $(SHAREPATH)/applications
+	install -d $(DOCPATH)
 	install src/eln $(INSTALLPATH)/bin/eln
 	install webgrab/webgrab $(INSTALLPATH)/bin/webgrab
 	install doc/eln.1 $(INSTALLPATH)/man/man1/eln.1
