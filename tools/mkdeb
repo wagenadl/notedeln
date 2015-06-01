@@ -86,13 +86,15 @@ $here = `pwd`;
 chomp $here;
 chdir("/tmp");
 system("rm -r $package-$vsn") if -d "$package-$vsn";
-system("cp $here/$package-$vsn.tar.gz ${package}_$vsn.orig.tar.gz");
-system("tar xf $here/$package-$vsn.tar.gz");
+system("cp $here/releases/$package-$vsn.tar.gz ${package}_$vsn.orig.tar.gz") and
+  die "copy failed\n";
+system("tar xf ${package}_$vsn.orig.tar.gz") and die "tar failed\n";
 chdir("$package-$vsn");
-system("cp -a $here/$package/tools/debian .");
-system("dpkg-buildpackage -j8 -uc -us");
-system("lintian");
+system("cp -a $here/$package/tools/debian .") and die "copy failed\n";
+system("dpkg-buildpackage -j8 -uc -us") and die "dpkg-buildpackage failed\n";
+system("lintian") and die "lintian failed\n";
+chmod($here);
 
-
-#system("debuild -us -uc -Idebug -Irelease -I.git -Ieln -Ieln_debug -Iwebgrab/webgrab -Ifrontimage.xcf -Ibuild -Itools -IMakefile.Debug -IMakefile.Release");
-
+system("cp /tmp/${package}_$vsn-1*deb releases");
+print STDERR "Your binary debian package is:\n";
+system("ls releases/${package}_$vsn-1*deb");
