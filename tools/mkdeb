@@ -67,13 +67,13 @@ if ($debvsn eq $vsn) {
     die "Cannot move debian/changelog\n";
   open IN, "<tools/debian/changelog~" or die "Cannot read debian/changelog\n";
   open OUT, ">tools/debian/changelog" or die "Cannot write debian/changelog\n";
-  print OUT "$package ($vsn) $debinfo\n";
+  print OUT "$package ($vsn-1) $debinfo\n";
   print OUT "\n";
   print OUT "$message\n";
   print OUT "\n";
   my $date = `date -R`;
   chomp $date;
-  print OUT "  -- $name <$email>  $date\n\n";
+  print OUT " -- $name <$email>  $date\n\n";
   while (<IN>) {
     print OUT $_;
   }
@@ -82,15 +82,16 @@ if ($debvsn eq $vsn) {
 }
 
 chdir("..");
-my $here = `pwd`;
+$here = `pwd`;
 chomp $here;
 chdir("/tmp");
-system("rm -r $package-$vsn");
-system("tar xf $here/$package-$vsn.tar.gz");
+system("rm -r $package-$vsn") if -d "$package-$vsn";
+system("cp $here/$package-$vsn.tar.bz2 ${package}_$vsn.orig.tar.bz2");
+system("tar xf $here/$package-$vsn.tar.bz2");
 chdir("$package-$vsn");
-system("cp -a tools/debian debian");
+system("cp -a $here/$package/tools/debian .");
 
 
 
-system("debuild -us -uc -Idebug -Irelease -I.git -Ieln -Ieln_debug -Iwebgrab/webgrab -Ifrontimage.xcf -Ibuild -Itools -IMakefile.Debug -IMakefile.Release");
+#system("debuild -us -uc -Idebug -Irelease -I.git -Ieln -Ieln_debug -Iwebgrab/webgrab -Ifrontimage.xcf -Ibuild -Itools -IMakefile.Debug -IMakefile.Release");
 

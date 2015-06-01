@@ -1,5 +1,0 @@
-src/eln usr/bin
-repairtoc/eln-repairtoc usr/bin
-webgrab/webgrab usr/bin
-debian/eln.desktop usr/share/applications
-debian/eln.png usr/share/pixmaps

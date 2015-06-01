@@ -1,10 +1,12 @@
 ifdef DESTDIR
 INSTALLPATH = $(DESTDIR)/usr
-DOCPATH = $(DESTDIR)/usr/share/doc/eln
+SHAREPATH = $(DESTDIR)/usr/share
 else
 INSTALLPATH = /usr/local
-DOCPATH = /usr/local/share/doc/eln
+SHAREPATH = /usr/local/share
 endif
+
+DOCPATH = $(SHAREPATH)/doc/eln
 
 all: SRC WEBGRAB
 
@@ -26,6 +28,8 @@ install: all
 	install webgrab/webgrab $(INSTALLPATH)/bin/webgrab
 	install doc/eln.1 $(INSTALLPATH)/man/man1/eln.1
 	install doc/webgrab.1 $(INSTALLPATH)/man/man1/webgrab.1
+	install src/eln.png $(SHAREPATH)/pixmaps/eln.png
+	install src/eln.desktop $(SHAREPATH)/applications/eln.desktop
 	install doc/userguide.pdf $(DOCPATH)/userguide.pdf
 	install LICENSE $(DOCPATH)/LICENSE
 	install README $(DOCPATH)/README

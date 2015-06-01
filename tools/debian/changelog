@@ -1,3 +1,9 @@
+eln (0.5.101-1) trusty; urgency=medium
+
+  This is cleaner for debian
+
+ -- Daniel Wagenaar <wagenadl@uc.edu>  Mon, 01 Jun 2015 13:45:20 -0400
+
 eln (0.5.100) trusty; urgency=medium
 
   Testing the new release system

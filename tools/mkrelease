@@ -120,7 +120,7 @@ system("git commit -m'Created new version $newvsn'") and
 system("git tag -a v$newvsn -m 'Bumped version number'") and
     die "Could not tag for version\n";
 
-my $tar = "$package-$newvsn.tar.gz";
+my $tar = "$package-$newvsn.tar.bz2";
 system("git archive -o ../$tar --prefix=$package-$newvsn/ HEAD") and
     die "Could not create archive\n";
 
