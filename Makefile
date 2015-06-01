@@ -8,7 +8,7 @@ endif
 
 DOCPATH = $(SHAREPATH)/doc/eln
 
-all: SRC WEBGRAB
+all: SRC WEBGRAB DOC
 
 clean:
 	+make -C src clean
@@ -42,6 +42,8 @@ install: all
 	install GPL-3.0.gz $(DOCPATH)/GPL-3.0.gz
 	install src/App/fonts/ubuntu-font-licence-1.0.txt.gz $(DOCPATH)/ubuntu-font-licence-1.0.txt.gz
 
+DOC:;	+make -C doc
+
 tar: all
 	git archive -o ../eln.tar.gz --prefix=eln/ HEAD
 
@@ -56,5 +58,5 @@ macapp: all
 macdmg: macapp
 	/Users/wagenaar/Qt5.2.1/5.2.1/clang_64/bin/macdeployqt eln.app -dmg -executable=eln.app/Contents/MacOS/webgrab 
 
-.PHONY: SRC WEBGRAB
+.PHONY: SRC WEBGRAB DOC all clean tar macclean macapp macdmg
 
