@@ -7,7 +7,7 @@ clean:
 	+make -C webgrab clean
 
 SRC:
-	scripts/updatesources.sh
+	tools/updatesources.sh
 	( cd src; qmake-qt4 )
 	+make -C src release
 
