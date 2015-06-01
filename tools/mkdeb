@@ -49,7 +49,7 @@ while (<IN>) {
   }
 }
 close IN;
-$message =~ s/^\n+//s;
+$message =~ s/^\s*\n+//s;
 $message =~ s/\s+$//s;
 
 my $first = `head -n 1 tools/debian/changelog`;
@@ -90,7 +90,7 @@ system("cp $here/$package-$vsn.tar.gz ${package}_$vsn.orig.tar.gz");
 system("tar xf $here/$package-$vsn.tar.gz");
 chdir("$package-$vsn");
 system("cp -a $here/$package/tools/debian .");
-system("dpkg-buildpackage -j8");
+system("dpkg-buildpackage -j8 -uc -us");
 system("lintian");
 
 
