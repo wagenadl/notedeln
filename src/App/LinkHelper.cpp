@@ -46,6 +46,7 @@ void LinkHelper::mouseCore(QPointF p) {
 }
 
 bool LinkHelper::mousePress(QGraphicsSceneMouseEvent *e) {
+  qDebug() << "LinkHelper::mousePress";
   mouseCore(e->pos());
   return current ? current->mousePress(e) : false;
 }

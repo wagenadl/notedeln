@@ -101,6 +101,7 @@ void OneLink::enter(QGraphicsSceneHoverEvent *e) {
 }
 
 void OneLink::leave() {
+  qDebug() << "OneLink::leave" << refText();
   if (popper) 
     popper->deleteLater();
   popper = 0;
