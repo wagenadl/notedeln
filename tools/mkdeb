@@ -93,7 +93,7 @@ chdir("$package-$vsn");
 system("cp -a $here/$package/tools/debian .") and die "copy failed\n";
 system("dpkg-buildpackage -j8 -uc -us") and die "dpkg-buildpackage failed\n";
 system("lintian") and die "lintian failed\n";
-chmod($here);
+chdir($here);
 
 system("cp /tmp/${package}_$vsn-1*deb releases");
 print STDERR "Your binary debian package is:\n";

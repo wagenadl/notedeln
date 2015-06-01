@@ -1,0 +1,11 @@
+#!/bin/sh
+
+MOCBIN=`grep bin/moc src/Makefile.Release|head -n 1 |cut -f1 -d ' '`
+MOCDIR=`dirname $MOCBIN`
+# Typically: /Users/wagenaar/Qt5.2.1/5.2.1/clang_64/bin
+
+tools/mkapp
+
+[ -f eln.dmg ] && rm -f eln.dmg
+
+$MOCDIR/macdeployqt eln.app -dmg -executable=eln.app/Contents/MacOS/webgrab
