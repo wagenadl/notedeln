@@ -1,4 +1,10 @@
-INSTALLPATH=/usr/local/bin
+ifdef DESTDIR
+INSTALLPATH = $(DESTDIR)/usr
+DOCPATH = $(DESTDIR)/usr/share/doc/eln
+else
+INSTALLPATH = /usr/local
+DOCPATH = /usr/local/share/doc/eln
+endif
 
 all: SRC WEBGRAB
 
@@ -15,16 +21,20 @@ WEBGRAB:
 	( cd webgrab; qmake-qt4 )
 	+make -C webgrab release
 
-inst: all
-	install src/eln $(INSTALLPATH)/eln
-	install webgrab/webgrab $(INSTALLPATH)/webgrab
+install: all
+	install src/eln $(INSTALLPATH)/bin/eln
+	install webgrab/webgrab $(INSTALLPATH)/bin/webgrab
+	install doc/eln.1 $(INSTALLPATH)/man/man1/eln.1
+	install doc/webgrab.1 $(INSTALLPATH)/man/man1/webgrab.1
+	install doc/userguide.pdf $(DOCPATH)/userguide.pdf
+	install LICENSE $(DOCPATH)/LICENSE
+	install README $(DOCPATH)/README
+	install CHANGELOG $(DOCPATH)/CHANGELOG
+	install GPL-3.0.gz $(DOCPATH)/GPL-3.0.gz
+	install src/App/fonts/ubuntu-font-licence-1.0.txt.gz $(DOCPATH)/ubuntu-font-licence-1.0.txt.gz
 
 tar: all
 	git archive -o ../eln.tar.gz --prefix=eln/ HEAD
-
-deb:	all
-	scripts/updatechangelog
-	debuild -us -uc -Idebug -Irelease -I.git -Ieln -Ieln_debug -Iwebgrab/webgrab -Ifrontimage.xcf -IMakefile.Debug -IMakefile.Release
 
 macclean:; rm -rf eln.app eln.dmg
 

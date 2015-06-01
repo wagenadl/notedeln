@@ -1,0 +1,4 @@
+?package(eln):needs=X11 \
+		  Section=Applications/Editors\
+		  title=ELN command=/usr/bin/eln
+		  

@@ -23,7 +23,7 @@ die "No user email configured\n" if $email eq "";
 
 my $status = `git status --porcelain`;
 chomp $status;
-die "You have uncommitted changes\n" unless $status eq "";
+#die "You have uncommitted changes\n" unless $status eq "";
 
 my $here = `pwd`;
 chomp $here;
@@ -40,13 +40,16 @@ die "Bad version\n" unless $vsn =~ /^\d+\.\d+\.\d+(-.+)?$/;
 my $message = "";
 while (<IN>) {
   chomp;
-  if (/^$/ || /^\s+/) {
+  if (/^\s+--/) {
+    last;
+  } elsif (/^$/ || /^\s+/) {
     $message .= "$_\n";
   } else {
     last;
   }
 }
 close IN;
+$message =~ s/^\n+//;
 $message =~ s/\s+$//;
 
 my $first = `head -n 1 tools/debian/changelog`;
@@ -68,10 +71,26 @@ if ($debvsn eq $vsn) {
   print OUT "\n";
   print OUT "$message\n";
   print OUT "\n";
+  my $date = `date -R`;
+  chomp $date;
+  print OUT "  -- $name <$email>  $date\n\n";
   while (<IN>) {
     print OUT $_;
   }
   close IN;
   close OUT;
 }
+
+chdir("..");
+my $here = `pwd`;
+chomp $here;
+chdir("/tmp");
+system("rm -r $package-$vsn");
+system("tar xf $here/$package-$vsn.tar.gz");
+chdir("$package-$vsn");
+system("cp -a tools/debian debian");
+
+
+
+system("debuild -us -uc -Idebug -Irelease -I.git -Ieln -Ieln_debug -Iwebgrab/webgrab -Ifrontimage.xcf -Ibuild -Itools -IMakefile.Debug -IMakefile.Release");
 
