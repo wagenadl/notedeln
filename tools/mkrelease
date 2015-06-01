@@ -14,6 +14,7 @@ if (@ARGV) {
 my $name = `git config user.name`; 
 chomp $name;
 die "No user name configured\n" if $name eq "";
+
 my $email = `git config user.email`; 
 chomp $email;
 die "No user email configured\n" if $email eq "";
@@ -29,19 +30,19 @@ my $package = pop @bits;
 
 my $oldvsn;
 my $newvsn;
-if (-f "changelog") {
-    my $headline = `head -n 1 changelog`;
+if (-f "CHANGELOG") {
+    my $headline = `head -n 1 CHANGELOG`;
     chomp $headline;
     my ($pkg, $vsn, @junk) = split(" ", $headline);
-    die "Junk in changelog headline\n" if @junk || !defined($pkg) || 
+    die "Junk in CHANGELOG headline\n" if @junk || !defined($pkg) || 
 	!defined($vsn);
     die "Package name mismatch\n" if $pkg ne $package;
     $oldvsn = $vsn;
-    $vsn =~ /^(\d+)\.(\d+)\.(\d+)(-.+)?/ or die "Junk in changelog headline\n";
+    $vsn =~ /^(\d+)\.(\d+)\.(\d+)(-.+)?/ or die "Junk in CHANGELOG headline\n";
     $newvsn = "$1.$2." . ($3+1);
 } else {
     $newvsn = "0.1.0";
-    system("touch changelog");
+    system("touch CHANGELOG");
 }
 
 my $commits = "";
@@ -82,7 +83,7 @@ while (<IN>) {
     if (!defined $newvsn) {
 	$newvsn = $_;
     } else {
-	$message .= "$_\n";
+	$message .= "  $_\n";
     }
 }
 close IN;
@@ -94,28 +95,28 @@ $message =~ s/\n+$//;
 die "No release message given\n" if $message eq "";
 die "Incorrectly formatted version\n" unless $newvsn =~ /^\d+\.\d+\.\d+(-.+)?/;
 
-open IN, "<changelog";
+open IN, "<CHANGELOG";
 my @changelog = <IN>;
 close IN;
 
-system("mv changelog changelog~");
+system("mv CHANGELOG CHANGELOG~");
 
-open OUT, ">changelog";
+open OUT, ">CHANGELOG";
 print OUT "$package $newvsn\n";
 print OUT "\n";
 print OUT "$message\n";
 print OUT "\n";
 my $date = `date -R`; 
 chomp $date;
-print OUT "-- $name <$email>  $date\n";
+print OUT "  -- $name <$email>  $date\n";
 print OUT "\n";
 print OUT join("", @changelog);
 close OUT;
 
-system("git add changelog") and die "Could not add changelog\n";
-system("git commit -m'Created new version $newvsn'") and 
+system("git add CHANGELOG") and die "Could not add CHANGELOG\n";
+system("git commit -m'Created new version $newvsn'") and
     die "Could not commit\n";
-system("git tag -a v$newvsn -m 'Bumped version number'") and 
+system("git tag -a v$newvsn -m 'Bumped version number'") and
     die "Could not tag for version\n";
 
 my $tar = "$package-$newvsn.tar.gz";
