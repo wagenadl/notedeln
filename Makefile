@@ -20,7 +20,7 @@ inst: all
 	install webgrab/webgrab $(INSTALLPATH)/webgrab
 
 tar: all
-	git archive -o ../eln-`cat version`.tar.gz --prefix=eln-`cat version`/ HEAD
+	git archive -o ../eln.tar.gz --prefix=eln/ HEAD
 
 deb:	all
 	scripts/updatechangelog
