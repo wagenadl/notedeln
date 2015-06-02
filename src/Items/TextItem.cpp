@@ -153,11 +153,14 @@ void TextItem::focusOutEvent(QFocusEvent *e) {
 }
 
 void TextItem::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *e) {
+  bool typeOrBrowse = mode()->mode()==Mode::Type
+    || mode()->mode()==Mode::Browse;
   if (e->button()==Qt::LeftButton) {
-    if (mode()->mode()==Mode::Type || mode()->mode()==Mode::Browse)
-      // Select word or line or paragraph
-      selectWordOrLineOrParagraph(text->find(e->pos()));
-
+    if (typeOrBrowse) {
+      if (!linkHelper->mouseDoubleClick(e))
+        // Select word or line or paragraph
+        selectWordOrLineOrParagraph(text->find(e->pos()));
+    }
     lastClickTime.start();
     lastClickScreenPos = e->screenPos();
     
@@ -170,7 +173,12 @@ void TextItem::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *e) {
 
 void TextItem::handleLeftClick(QGraphicsSceneMouseEvent *e) {
   switch (mode()->mode()) {
+  case Mode::Browse:
+    linkHelper->mousePress(e);
+    break;
   case Mode::Type: {
+    if (linkHelper->mousePress(e))
+      break;
     int pos = text->find(e->pos());
     if (pos>=0) {
       cursor.setPosition(pos,
@@ -1022,6 +1030,13 @@ void TextItem::modeChange(Mode::M m) {
 }
 
 void TextItem::hoverMoveEvent(QGraphicsSceneHoverEvent *e) {
+  cursorPos = e->pos(); // cache for the use of modifierChanged
+  modeChange(mode()->mode());
+  linkHelper->mouseMove(e);
+  e->accept();
+}
+
+void TextItem::hoverLeaveEvent(QGraphicsSceneHoverEvent *e) {
   cursorPos = e->pos(); // cache for the use of modifierChanged
   modeChange(mode()->mode());
   linkHelper->mouseMove(e);

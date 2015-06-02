@@ -75,6 +75,7 @@ public:
   virtual void focusInEvent(QFocusEvent *);
   virtual void focusOutEvent(QFocusEvent *);
   virtual void hoverMoveEvent(QGraphicsSceneHoverEvent *);
+  virtual void hoverLeaveEvent(QGraphicsSceneHoverEvent *);
 private:
   bool keyPressAsMath(QKeyEvent *);
   bool keyPressAsMotion(QKeyEvent *);
