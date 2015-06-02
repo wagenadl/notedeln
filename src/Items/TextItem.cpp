@@ -972,6 +972,15 @@ bool TextItem::tryToPaste(bool nonewlines) {
     return false;
   } else if (md->hasUrls()) {
     return false; // perhaps we should allow URLs, but format specially?
+  } else if (md->hasHtml()) {
+    QString txt = md->html();
+    if (nonewlines)
+      txt.replace("\n", " ");
+    if (cursor.hasSelection())
+      cursor.deleteChar();
+    cursor = insertBasicHtml(txt, cursor.position());
+    cursor.clearSelection();
+    return true;   
   } else if (md->hasText()) {
     QString txt = md->text();
     if (nonewlines)
@@ -1096,12 +1105,14 @@ void TextItem::setTextWidth(double d, bool relayout) {
   }
 }
 
-void TextItem::insertBasicHtml(QString html, int pos) {
+TextCursor TextItem::insertBasicHtml(QString html, int pos) {
   TextCursor c(document(), pos);
-  QRegExp tag("<(.*)>");
+  QRegExp tag("<([^>]*)>");
   tag.setMinimal(true);
   QList<int> italicStarts;
   QList<int> boldStarts;
+  QList<int> superStarts;
+  QList<int> subStarts;
   while (!html.isEmpty()) {
     int idx = tag.indexIn(html);
     if (idx>=0) {
@@ -1112,10 +1123,19 @@ void TextItem::insertBasicHtml(QString html, int pos) {
 	italicStarts.append(c.position());
       else if (cap=="b")
 	boldStarts.append(c.position());
+      else if (cap=="sub")
+	subStarts.append(c.position());
+      else if (cap=="sup")
+	superStarts.append(c.position());
       else if (cap=="/i" && !italicStarts.isEmpty()) 
 	addMarkup(MarkupData::Italic, italicStarts.takeLast(), c.position());
       else if (cap=="/b" && !boldStarts.isEmpty()) 
 	addMarkup(MarkupData::Bold, boldStarts.takeLast(), c.position());
+      else if (cap=="/sub" && !subStarts.isEmpty()) 
+	addMarkup(MarkupData::Subscript, subStarts.takeLast(), c.position());
+      else if (cap=="/sup" && !superStarts.isEmpty()) 
+	addMarkup(MarkupData::Superscript, superStarts.takeLast(),
+		  c.position());
     } else {
       c.insertText(html);
       break;
@@ -1125,6 +1145,12 @@ void TextItem::insertBasicHtml(QString html, int pos) {
     addMarkup(MarkupData::Italic, italicStarts.takeLast(), c.position());
   while (!boldStarts.isEmpty())
     addMarkup(MarkupData::Bold, boldStarts.takeLast(), c.position());
+  while (!subStarts.isEmpty())
+    addMarkup(MarkupData::Subscript, subStarts.takeLast(), c.position());
+  while (!superStarts.isEmpty())
+    addMarkup(MarkupData::Superscript, superStarts.takeLast(), c.position());
+  c.setPosition(pos, TextCursor::KeepAnchor);
+  return c;
 }
 
 QRectF TextItem::netBounds() const {
