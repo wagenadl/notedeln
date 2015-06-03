@@ -812,7 +812,17 @@ void TextItem::deleteMarkup(MarkupData *d) {
 }
   
 void TextItem::addMarkup(MarkupData::Style t, int start, int end) {
-  addMarkup(new MarkupData(start, end, t));
+  MarkupData *md0 = markupAt(start, end, t);
+  if (md0) {
+    if (start<md0->start())
+      md0->setStart(start);
+    if (end>md0->end())
+      md0->setEnd(end);
+    text->partialRelayout(md0->start(), md0->end());
+    update();
+  } else {
+    addMarkup(new MarkupData(start, end, t));
+  }
 }
 
 void TextItem::addMarkup(MarkupData *d) {
