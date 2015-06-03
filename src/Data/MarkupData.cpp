@@ -182,3 +182,7 @@ QString MarkupData::styleName(Style s) {
     return "?";
   }
 }
+
+bool MarkupData::isEmpty() const {
+  return end_ <= start_;
+}

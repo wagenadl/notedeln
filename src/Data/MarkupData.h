@@ -70,6 +70,7 @@ public:
      Returns true if a change was made. */
   QString text() const; // only works if our parent is TextData
   static QString styleName(Style);
+  bool isEmpty() const;
 private:
   bool cut(int pos, int len);
   bool insert(int pos, int len);

@@ -1070,6 +1070,8 @@ void TextItem::markupChange(MarkupData *md) {
   default:
     break;
   }
+  if (md->isEmpty())
+    deleteMarkup(md);
 }
 
 QRectF TextItem::boundingRect() const {
@@ -1196,4 +1198,13 @@ void TextItem::setLineHeight(double h) {
 void TextItem::setFont(QFont f) {
  text->setFont(f);
  text->recalculateCharacterWidths();
+}
+
+QString TextItem::toHtml(int start, int end) const {
+  QString txt = text->text();
+  if (end<0)
+    end = txt.size();
+  QString html = "";
+  // ...
+  return html;
 }
