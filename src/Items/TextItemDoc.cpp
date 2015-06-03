@@ -14,7 +14,6 @@
 #include "TableItemDoc.h"
 #include "TableData.h"
 
-
 TextItemDoc *TextItemDoc::create(TextData *data, QObject *parent) {
   TableData *tabledata = dynamic_cast<TableData *>(data);
   TextItemDoc *doc =  tabledata ?

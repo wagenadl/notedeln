@@ -33,6 +33,7 @@
 #include "Cursors.h"
 #include "TextItemDoc.h"
 #include "LinkHelper.h"
+#include "HtmlBuilder.h"
 
 #include <math.h>
 #include <QPainter>
@@ -1117,6 +1118,14 @@ void TextItem::setTextWidth(double d, bool relayout) {
   }
 }
 
+#include <QTextDocument>
+static QString taglessHtmlToPlainText(QString html) {
+  /* This converts things like "&gt;" to ">". */
+  QTextDocument doc;
+  doc.setHtml(html);
+  return doc.toPlainText();
+}
+
 TextCursor TextItem::insertBasicHtml(QString html, int pos) {
   TextCursor c(document(), pos);
   QRegExp tag("<([^>]*)>");
@@ -1129,7 +1138,7 @@ TextCursor TextItem::insertBasicHtml(QString html, int pos) {
     int idx = tag.indexIn(html);
     if (idx>=0) {
       QString cap = tag.cap(1);
-      c.insertText(html.left(idx));
+      c.insertText(taglessHtmlToPlainText(html.left(idx)));
       html = html.mid(idx + tag.matchedLength());
       if (cap=="i") 
 	italicStarts.append(c.position());
@@ -1211,10 +1220,7 @@ void TextItem::setFont(QFont f) {
 }
 
 QString TextItem::toHtml(int start, int end) const {
-  QString txt = text->text();
-  if (end<0)
-    end = txt.size();
-  QString html = "";
-  // ...
-  return html;
-}
+  HtmlBuilder builder(data(), start, end);
+  return builder.toHtml();
+}  
+
