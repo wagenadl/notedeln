@@ -50,7 +50,7 @@ public:
   int selectionStart() const;
   int selectionEnd() const;
   bool hasSelection() const;
-  void clearSelection();
+  void clearSelection(MoveOperation reason=NoMove);
   void selectAround(int pos, MoveOperation startscope, MoveOperation endscope);
   int position() const;
   int anchor() const;
