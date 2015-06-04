@@ -953,8 +953,10 @@ bool TextItem::tryToCopy() const {
     return false;
   TextCursor::Range r = cursor.selectedRange();
   QString html = toHtml(r.start(), r.end());
+  qDebug() << html;
   QClipboard *cb = QApplication::clipboard();
   QMimeData *md = new QMimeData();
+  md->setText(cursor.selectedText());
   md->setHtml(html);
   cb->setMimeData(md);
   return true;

@@ -69,6 +69,7 @@ HtmlBuilder::HtmlBuilder(TextData const *src, int start, int end) {
 	stack << s;
       }
     }
+    html += bit;
   }
 
   // peel off rest
