@@ -970,7 +970,8 @@ bool TextItem::tryToPaste(bool nonewlines) {
       txt.replace("\n", " ");
     if (cursor.hasSelection())
       cursor.deleteChar();
-    cursor = insertBasicHtml(txt, cursor.position());
+    cursor = insertBasicHtml(txt, cursor.position(),
+			     md->hasText() ? md->text() : QString());
     cursor.clearSelection();
     return true;   
   } else if (md->hasText()) {
@@ -1099,12 +1100,17 @@ void TextItem::setTextWidth(double d, bool relayout) {
   }
 }
 
-TextCursor TextItem::insertBasicHtml(QString html, int pos) {
+TextCursor TextItem::insertBasicHtml(QString html, int pos, QString ref) {
   HtmlParser p(html);
-  cursor.insertText(p.text());
-  foreach (MarkupData *md, p.markups()) 
-    addMarkup(md->style(), md->start()+pos, md->end()+pos);
-  TextCursor c = cursor;
+  TextCursor c(cursor);
+  c.setPosition(pos);
+  if (ref.isNull() || p.text()==ref) {
+    c.insertText(p.text());
+    foreach (MarkupData *md, p.markups()) 
+      addMarkup(md->style(), md->start()+pos, md->end()+pos);
+  } else {
+    c.insertText(ref);
+  }
   c.setPosition(pos, TextCursor::KeepAnchor);
   return c;
 }

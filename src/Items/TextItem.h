@@ -46,7 +46,7 @@ public:
   void deleteMarkup(MarkupData *);
   bool allowNotes() const;
   void setAllowNotes(bool y=true);
-  TextCursor insertBasicHtml(QString html, int pos);
+  TextCursor insertBasicHtml(QString html, int pos, QString ref=QString());
   // Only <b>, <i>, <sub>, and <sup> tags are supported at present.
   // Returns a text cursor that spans the inserted text.
   int pointToPos(QPointF, bool strict=false) const;
