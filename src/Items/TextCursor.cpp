@@ -34,20 +34,7 @@ bool TextCursor::atEnd() const {
   return doc ? pos>=doc->lastPosition() : false;
 }
 
-void TextCursor::clearSelection(TextCursor::MoveOperation reason) {
-  switch (reason) {
-  case Left:
-  case Start:
-  case Up:
-  case StartOfLine:
-  case PreviousCell:
-  case StartOfWord:
-    if (anc>=0 && anc<pos)
-      pos = anc;
-    break;
-  default:
-    break;
-  }  
+void TextCursor::clearSelection(TextCursor::MoveOperation) {
   anc = -1;
 }
 
