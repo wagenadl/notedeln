@@ -44,8 +44,19 @@ public:
   bool isEmpty() const;
   QList<MarkupData *> markups() const;
   MarkupData *addMarkup(int start, int end, MarkupData::Style style);
-  void addMarkup(MarkupData *);
+  void addMarkup(MarkupData *); // we become owner
   void deleteMarkup(MarkupData *);
+  MarkupData *mergeMarkup(int start, int end, MarkupData::Style style,
+			  bool *new_return=0);
+  MarkupData *mergeMarkup(MarkupData *, bool *new_return=0);
+  /* merge is like add, except that it searches for overlapping
+     markups and merges if appropriate. Both forms return a pointer to
+     a new markup or to the merge target if a merge was made.
+     Optionally, they can indicate whether a new markup was
+     created. In either case, ownership of the MarkupData transfers to
+     the TextData. */
+  MarkupData *markupAt(int pos, MarkupData::Style type) const;
+  MarkupData *markupAt(int start, int end, MarkupData::Style type) const;
   int offsetOfFootnoteTag(QString) const;
 protected:
   virtual void loadMore(QVariantMap const &);

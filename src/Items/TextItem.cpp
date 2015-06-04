@@ -34,6 +34,7 @@
 #include "TextItemDoc.h"
 #include "LinkHelper.h"
 #include "HtmlBuilder.h"
+#include "HtmlParser.h"
 
 #include <math.h>
 #include <QPainter>
@@ -368,13 +369,13 @@ void TextItem::updateMarkup(int pos) {
 	  deleteMarkup(md);
 	  if (mde>e) {
 	    addMarkup(mdst, e, mde);
-	    MarkupData *md1 = markupAt(e, mdst);
+	    MarkupData *md1 = data()->markupAt(e, mdst);
 	    if (md1)
 	      md1->setCreated(cre);
 	  }
 	  if (mds<s) {
 	    addMarkup(mdst, mds, s);
-	    MarkupData *md1 = markupAt(s, mdst);
+	    MarkupData *md1 = data()->markupAt(s, mdst);
 	    if (md1)
 	      md1->setCreated(cre);
 	  }
@@ -793,7 +794,7 @@ void TextItem::toggleSimpleStyle(MarkupData::Style type,
     end = refineEnd(end, base);
   }
 
-  MarkupData *oldmd = markupAt(start, type);
+  MarkupData *oldmd = data()->markupAt(start, type);
   
   if (oldmd && oldmd->start()==start && oldmd->end()==end) {
     deleteMarkup(oldmd);
@@ -813,39 +814,19 @@ void TextItem::deleteMarkup(MarkupData *d) {
 }
   
 void TextItem::addMarkup(MarkupData::Style t, int start, int end) {
-  MarkupData *md0 = markupAt(start, end, t);
-  if (md0) {
-    if (start<md0->start())
-      md0->setStart(start);
-    if (end>md0->end())
-      md0->setEnd(end);
-    text->partialRelayout(md0->start(), md0->end());
-    update();
-  } else {
-    addMarkup(new MarkupData(start, end, t));
-  }
+  addMarkup(new MarkupData(start, end, t));
 }
 
 void TextItem::addMarkup(MarkupData *d) {
-  data()->addMarkup(d);
+  bool isnew;
+  d = data()->mergeMarkup(d, &isnew);
   if (d->style()==MarkupData::FootnoteRef)
     reftexts[d] = d->text();
-  linkHelper->newMarkup(d);
+  if (isnew)
+    linkHelper->newMarkup(d);
   text->partialRelayout(d->start(), d->end());
   update();
 }
-
-MarkupData *TextItem::markupAt(int pos, MarkupData::Style typ) const {
-  return markupAt(pos, pos, typ);
-}
-
-MarkupData *TextItem::markupAt(int start, int end, MarkupData::Style typ) const {
-  foreach (MarkupData *md, data()->children<MarkupData>()) 
-    if (md->style()==typ && md->end()>=start && md->start()<=end)
-      return md;
-  return 0;
-}
-
 
 int TextItem::refineStart(int start, int base) {
   /* Shrinks a region for applysimplestyle to not cross any other style edges
@@ -896,7 +877,7 @@ bool TextItem::tryExplicitLink() {
     return false;
   int start = m.selectionStart();
   int end = m.selectionEnd();
-  MarkupData *oldmd = markupAt(start, end, MarkupData::Link);
+  MarkupData *oldmd = data()->markupAt(start, end, MarkupData::Link);
   if (oldmd) {
     // undo link mark
     deleteMarkup(oldmd);
@@ -926,7 +907,7 @@ bool TextItem::tryFootnote() {
   ASSERT(i>=0);
   
   TextCursor c = textCursor();
-  MarkupData *oldmd = markupAt(c.position(), MarkupData::FootnoteRef);
+  MarkupData *oldmd = data()->markupAt(c.position(), MarkupData::FootnoteRef);
   int start=-1;
   int end=-1;
   bool mayDelete = false;
@@ -958,7 +939,7 @@ bool TextItem::tryFootnote() {
     return false;
   } else if (start<end) {
     addMarkup(MarkupData::FootnoteRef, start, end);
-    MarkupData *md = markupAt(start, end, MarkupData::FootnoteRef);
+    MarkupData *md = data()->markupAt(start, end, MarkupData::FootnoteRef);
     ASSERT(md);
     bs->newFootnote(i, markedText(md));
     return true;
@@ -1118,58 +1099,12 @@ void TextItem::setTextWidth(double d, bool relayout) {
   }
 }
 
-#include <QTextDocument>
-static QString taglessHtmlToPlainText(QString html) {
-  /* This converts things like "&gt;" to ">". */
-  QTextDocument doc;
-  doc.setHtml(html);
-  return doc.toPlainText();
-}
-
 TextCursor TextItem::insertBasicHtml(QString html, int pos) {
-  TextCursor c(document(), pos);
-  QRegExp tag("<([^>]*)>");
-  tag.setMinimal(true);
-  QList<int> italicStarts;
-  QList<int> boldStarts;
-  QList<int> superStarts;
-  QList<int> subStarts;
-  while (!html.isEmpty()) {
-    int idx = tag.indexIn(html);
-    if (idx>=0) {
-      QString cap = tag.cap(1);
-      c.insertText(taglessHtmlToPlainText(html.left(idx)));
-      html = html.mid(idx + tag.matchedLength());
-      if (cap=="i") 
-	italicStarts.append(c.position());
-      else if (cap=="b")
-	boldStarts.append(c.position());
-      else if (cap=="sub")
-	subStarts.append(c.position());
-      else if (cap=="sup")
-	superStarts.append(c.position());
-      else if (cap=="/i" && !italicStarts.isEmpty()) 
-	addMarkup(MarkupData::Italic, italicStarts.takeLast(), c.position());
-      else if (cap=="/b" && !boldStarts.isEmpty()) 
-	addMarkup(MarkupData::Bold, boldStarts.takeLast(), c.position());
-      else if (cap=="/sub" && !subStarts.isEmpty()) 
-	addMarkup(MarkupData::Subscript, subStarts.takeLast(), c.position());
-      else if (cap=="/sup" && !superStarts.isEmpty()) 
-	addMarkup(MarkupData::Superscript, superStarts.takeLast(),
-		  c.position());
-    } else {
-      c.insertText(html);
-      break;
-    }
-  }
-  while (!italicStarts.isEmpty())
-    addMarkup(MarkupData::Italic, italicStarts.takeLast(), c.position());
-  while (!boldStarts.isEmpty())
-    addMarkup(MarkupData::Bold, boldStarts.takeLast(), c.position());
-  while (!subStarts.isEmpty())
-    addMarkup(MarkupData::Subscript, subStarts.takeLast(), c.position());
-  while (!superStarts.isEmpty())
-    addMarkup(MarkupData::Superscript, superStarts.takeLast(), c.position());
+  HtmlParser p(html);
+  cursor.insertText(p.text());
+  foreach (MarkupData *md, p.markups()) 
+    addMarkup(md->style(), md->start()+pos, md->end()+pos);
+  TextCursor c = cursor;
   c.setPosition(pos, TextCursor::KeepAnchor);
   return c;
 }

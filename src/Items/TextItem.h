@@ -93,8 +93,6 @@ protected slots:
 public:
   QString markedText(MarkupData *);
   bool tryExplicitLink();
-  MarkupData *markupAt(int pos, MarkupData::Style type) const;
-  MarkupData *markupAt(int start, int end, MarkupData::Style type) const;
   QString toHtml(int start=0, int end=-1) const;
 private:
   void initializeFormat();

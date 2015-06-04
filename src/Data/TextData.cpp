@@ -65,6 +65,43 @@ void TextData::deleteMarkup(MarkupData *md) {
   deleteChild(md, InternalMod);
 }
 
+MarkupData *TextData::markupAt(int pos, MarkupData::Style typ) const {
+  return markupAt(pos, pos, typ);
+}
+
+MarkupData *TextData::markupAt(int start, int end,
+			       MarkupData::Style typ) const {
+  foreach (MarkupData *md, children<MarkupData>()) 
+    if (md->style()==typ && md->end()>=start && md->start()<=end)
+      return md;
+  return 0;
+}
+
+MarkupData *TextData::mergeMarkup(int start, int end, MarkupData::Style style,
+				  bool *new_return) {
+  MarkupData *md = new MarkupData(start, end, style);
+  return mergeMarkup(md, new_return);
+}
+
+MarkupData *TextData::mergeMarkup(MarkupData *md, bool *new_return) {
+  MarkupData *md0 = markupAt(md->start(), md->end(), md->style());
+  if (md0 && mergeable(md, md0)) {
+    if (md->start()<md0->start())
+      md0->setStart(md->start());
+    if (md->end()>md0->end())
+      md0->setEnd(md->end());
+    md->deleteLater();
+    if (new_return)
+      *new_return = false;
+    return md0;
+  } else {
+    addMarkup(md);
+    if (new_return)
+      *new_return = true;
+    return md;
+  }
+}
+
 int TextData::offsetOfFootnoteTag(QString s) const {
   int l = s.length();
   foreach (MarkupData *md, markups()) 

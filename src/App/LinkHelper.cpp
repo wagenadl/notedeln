@@ -22,7 +22,7 @@ MarkupData *LinkHelper::findMarkup(QPointF p) const {
   int pos = item->pointToPos(p, true);
   if (pos<0)
     return 0;
-  return item->markupAt(pos, MarkupData::Link);
+  return item->data()->markupAt(pos, MarkupData::Link);
 }
 
 void LinkHelper::perhapsLeave(MarkupData *md) {

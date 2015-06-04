@@ -30,8 +30,8 @@ bool TextItem::keyPressAsMath(QKeyEvent *e) {
     }
     if (isLatinLetter(prevChar)) {
       // previous was also a letter; potential deitalicize or bold face
-      MarkupData *mdi = markupAt(cursor.position(), MarkupData::Italic);
-      MarkupData *mdb = markupAt(cursor.position(), MarkupData::Bold);
+      MarkupData *mdi = data()->markupAt(cursor.position(), MarkupData::Italic);
+      MarkupData *mdb = data()->markupAt(cursor.position(), MarkupData::Bold);
       if (prevChar==txt[0] && !isLatinLetter(antePrevChar)) {
 	// we had the same letter before -> cycle faces
 	// order is italic -> bold italic -> bold -> plain -> italic
@@ -87,7 +87,8 @@ bool TextItem::keyPressAsMath(QKeyEvent *e) {
     if (txt=="^") {
       // de-italicize "e^"
       if (document()->characterAt(cursor.position()-1)=='e') {
-	MarkupData *md = markupAt(cursor.position(), MarkupData::Italic);
+	MarkupData *md
+	  = data()->markupAt(cursor.position(), MarkupData::Italic);
 	if (md)
           deleteMarkup(md);
       }
