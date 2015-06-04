@@ -951,9 +951,12 @@ bool TextItem::tryFootnote() {
 bool TextItem::tryToCopy() const {
   if (!cursor.hasSelection())
     return false;
-  QString txt = cursor.selectedText();
+  TextCursor::Range r = cursor.selectedRange();
+  QString html = toHtml(r.start(), r.end());
   QClipboard *cb = QApplication::clipboard();
-  cb->setText(txt);
+  QMimeData *md = new QMimeData();
+  md->setHtml(html);
+  cb->setMimeData(md);
   return true;
 }
 
