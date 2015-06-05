@@ -1090,14 +1090,30 @@ void TextItem::paint(QPainter *p, const QStyleOptionGraphicsItem*, QWidget*) {
   representSearchPhrase(tmm);
   text->render(p, tmm);
 
-  if (hasFocus()) {
-    QPointF xy = text->locate(cursor.position());
-    p->setFont(style().font("text-font"));
-    /* This really ought to match style (e.g., italic and x-script) */
-    p->setPen(QPen(QColor("red")));
-    p->drawText(xy - QPointF(2, 0), "|");
-  }
+  if (hasFocus())
+    renderCursor(p, cursor.position());
 }
+
+void TextItem::renderCursor(QPainter *p, int pos) {
+  QPointF xy = text->locate(pos);
+  MarkupStyles sty;
+  QList<MarkupData::Style> relevantStyles;
+  relevantStyles
+    << MarkupData::Bold
+    << MarkupData::Italic
+    << MarkupData::Subscript
+    << MarkupData::Superscript;
+  foreach (MarkupData::Style s, relevantStyles) {
+    MarkupData *md = data()->markupAt(pos, s);
+    if (md && md->start()<pos && md->end()>pos)
+      sty.add(s);
+  }
+  p->setFont(text->font(sty));
+
+  p->setPen(QPen(QColor("red")));
+  p->drawText(xy - QPointF(2, 0), "|");
+}
+
 
 void TextItem::setTextWidth(double d, bool relayout) {
   text->setWidth(d);

@@ -48,6 +48,17 @@ QFont TextItemDoc::font() const {
   return d->baseFont;
 }
 
+QFont TextItemDoc::font(MarkupData::Style s) const {
+  MarkupStyles sty;
+  sty.add(s);
+  return font(sty);
+}
+
+QFont TextItemDoc::font(MarkupStyles const &s) const {
+  QFont const *f = d->fonts().font(s);
+  return f ? *f : font();
+}
+
 void TextItemDoc::setIndent(double pix) {
   d->indent = pix;
 }

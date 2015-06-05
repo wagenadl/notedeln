@@ -25,6 +25,8 @@ public:
   ~TextItemDoc();
   void setFont(QFont const &f);
   QFont font() const;
+  QFont font(MarkupData::Style s) const;
+  QFont font(MarkupStyles const &s) const;
   void setIndent(double pix);
   double indent() const;
   void setLeftMargin(double pix);
