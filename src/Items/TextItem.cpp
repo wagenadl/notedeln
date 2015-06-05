@@ -1092,6 +1092,8 @@ void TextItem::paint(QPainter *p, const QStyleOptionGraphicsItem*, QWidget*) {
 
   if (hasFocus()) {
     QPointF xy = text->locate(cursor.position());
+    p->setFont(style().font("text-font"));
+    /* This really ought to match style (e.g., italic and x-script) */
     p->setPen(QPen(QColor("red")));
     p->drawText(xy - QPointF(2, 0), "|");
   }
