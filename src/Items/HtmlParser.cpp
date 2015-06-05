@@ -11,7 +11,10 @@ static QString taglessHtmlToPlainText(QString html) {
   return doc.toPlainText();
 }
 
-HtmlParser::HtmlParser(QString html) {
+HtmlParser::HtmlParser(QString html, bool nonewlines) {
+  html.replace("\n", " ");
+  html.replace("\t", " ");
+  html.replace(QRegExp(" *<(p|br)(\\s+[^>]*)?> *"), nonewlines ? " " : "\n");
   QRegExp tag("<([^>]*)>");
   tag.setMinimal(true);
   QList<int> italicStarts;
