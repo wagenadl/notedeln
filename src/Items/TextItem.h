@@ -58,6 +58,7 @@ public:
   bool clips() const;
   void setClip(QRectF);
   void unclip();
+  void renderCursor(int pos);
 signals:
   void invisibleFocus(QPointF);
   void textChanged();
