@@ -148,6 +148,7 @@ bool TableItem::nothingAfterCursor() const {
 }
 
 bool TableItem::tryToPaste(bool /*noparagraphs*/) {
+  qDebug() << "TableItem::tryToPaste";
   return TextItem::tryToPaste(true);
 }
 

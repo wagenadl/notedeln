@@ -963,6 +963,7 @@ bool TextItem::tryToCopy() const {
 }
 
 bool TextItem::tryToPaste(bool nonewlines) {
+  qDebug() << "TextItem::trytopaste";
   QClipboard *cb = QApplication::clipboard();
   QMimeData const *md = cb->mimeData(QClipboard::Clipboard);
   if (md->hasImage()) {
@@ -971,8 +972,8 @@ bool TextItem::tryToPaste(bool nonewlines) {
     return false; // perhaps we should allow URLs, but format specially?
   } else if (md->hasHtml()) {
     QString txt = md->html();
-    if (nonewlines)
-      txt.replace("\n", " ");
+    qDebug() << "trytopaste html" << txt;
+    qDebug() << "  text" << md->text();
     if (cursor.hasSelection())
       cursor.deleteChar();
     cursor = insertBasicHtml(txt, cursor.position(), nonewlines,
@@ -981,6 +982,7 @@ bool TextItem::tryToPaste(bool nonewlines) {
     return true;   
   } else if (md->hasText()) {
     QString txt = md->text();
+    txt.replace("\t", " ");
     if (nonewlines)
       txt.replace("\n", " ");
     cursor.insertText(txt);
@@ -1109,9 +1111,8 @@ void TextItem::renderCursor(QPainter *p, int pos) {
       sty.add(s);
   }
   p->setFont(text->font(sty));
-
   p->setPen(QPen(QColor("red")));
-  p->drawText(xy - QPointF(2, 0), "|");
+  p->drawText(xy + QPointF(-2, text->baselineShift(sty)), "|");
 }
 
 
@@ -1126,6 +1127,7 @@ void TextItem::setTextWidth(double d, bool relayout) {
 TextCursor TextItem::insertBasicHtml(QString html, int pos, bool nonewlines,
 				     QString ref) {
   HtmlParser p(html, nonewlines);
+  qDebug() << "Parsed" << html << "as" << p.text();
   TextCursor c(cursor);
   c.setPosition(pos);
   if (ref.isNull() || p.text()==ref) {

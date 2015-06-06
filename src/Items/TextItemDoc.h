@@ -73,6 +73,7 @@ public:
      ymax is very big. */
   void recalculateCharacterWidths();
   virtual void buildLinePos();
+  double baselineShift(MarkupStyles const &) const;
 protected:
   virtual void finalizeConstructor();
 signals:

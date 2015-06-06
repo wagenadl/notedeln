@@ -520,9 +520,7 @@ void TextItemDoc::render(QPainter *p, QList<TransientMarkup> tmm) const {
       while (bit.endsWith("\n"))
         bit = bit.left(bit.size()-1);
       MarkupStyles const &s = nowstyles[q];
-      double y0 = s.contains(MarkupData::Superscript) ? ybase - d->xheight*.6
-        : s.contains(MarkupData::Subscript) ? ybase + d->xheight *.5
-        : ybase;
+      double y0 = ybase + baselineShift(nowstyles[q]);
 
       double x0 = x;
       for (int k=nowedges[q]; k<nowedges[q+1]; k++)
@@ -639,4 +637,8 @@ double TextItemDoc::splittableY(double ymax) const {
   return ybest>0 ? ybest : ymax;
 }
 
-  
+double TextItemDoc::baselineShift(MarkupStyles const &s) const {
+  return s.contains(MarkupData::Superscript) ? - d->xheight*.6
+    : s.contains(MarkupData::Subscript) ? d->xheight *.5
+    : 0;
+}

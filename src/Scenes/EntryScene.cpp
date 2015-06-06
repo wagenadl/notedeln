@@ -947,7 +947,7 @@ bool EntryScene::tryToPaste(SheetScene *s) {
   
   QClipboard *cb = QApplication::clipboard();
   QMimeData const *md = cb->mimeData(QClipboard::Clipboard);
-  qDebug() << "EntryScene::trytopaste" << md;
+  qDebug() << "EntryScene::trytopaste" << md << fi;
   if (md->hasImage())
     return importDroppedImage(scenePos, sheet,
 			      qvariant_cast<QImage>(md->imageData()),
