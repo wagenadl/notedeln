@@ -982,6 +982,7 @@ bool TextItem::tryToPaste(bool nonewlines) {
     return true;   
   } else if (md->hasText()) {
     QString txt = md->text();
+    txt.replace(QRegExp("[\\x0000-\\xx0008\\x000b-\\x001f]"), "");
     txt.replace("\t", " ");
     if (nonewlines)
       txt.replace("\n", " ");
@@ -1132,6 +1133,7 @@ TextCursor TextItem::insertBasicHtml(QString html, int pos, bool nonewlines,
   c.setPosition(pos);
   if (ref.isNull() || p.text()==ref) {
     QString txt = p.text();
+    txt.replace(QRegExp("[\\x0000-\\xx0008\\x000b-\\x001f]"), "");
     txt.replace("\t", " ");
     if (nonewlines)
       txt.replace("\n", " ");
@@ -1139,6 +1141,7 @@ TextCursor TextItem::insertBasicHtml(QString html, int pos, bool nonewlines,
     foreach (MarkupData *md, p.markups()) 
       addMarkup(md->style(), md->start()+pos, md->end()+pos);
   } else {
+    ref.replace(QRegExp("[\\x0000-\\xx0008\\x000b-\\x001f]"), "");
     ref.replace("\t", " ");
     if (nonewlines)
       ref.replace("\n", " ");
