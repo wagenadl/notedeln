@@ -8,7 +8,7 @@
 
 class HtmlParser {
 public:
-  HtmlParser(QString html, bool nonewlines=false);
+  HtmlParser(QString html);
   ~HtmlParser();
 
   /* HtmlParser attempts to parse a bit of html, extracting tags such as
@@ -19,8 +19,8 @@ public:
      <div style="badchoice&gt; etcetera">   but isn't necessarily).
      It is therefore recommended that the resulting text is checked against
      a plain text version of the html, if available.
-     If nonewlines is given, <p> and <br> tags are removed or replaced with
-     spaces.
+     Additionally, <p>, <br>, and </tr> tags are replaced with newlines.
+     The combination </td><td> is replaced with TAB.
   */
   QList<MarkupData *> const &markups() { return marks; }
   /* The MarkupData are all owned by the HtmlParser and will be destroyed

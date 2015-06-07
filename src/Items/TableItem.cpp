@@ -21,6 +21,9 @@
 #include <QTextTable>
 #include <QKeyEvent>
 #include <QDebug>
+#include <QApplication>
+#include <QClipboard>
+#include <QMimeData>
 
 TableItem::TableItem(TableData *data, Item *parent):
   TextItem(data, parent) {
@@ -46,7 +49,7 @@ bool TableItem::keyPressAsMotion(QKeyEvent *e) {
   switch (e->key()) {
   case Qt::Key_Backspace:
     if (cursor.hasSelection()) {
-      qDebug() << "TableItem: delete selection";
+      deleteSelection();
     } else if (col==0 && data()->isRowEmpty(row) && data()->rows()>1) {
       deleteRows(row, 1);
       if (row>0)
@@ -72,7 +75,7 @@ bool TableItem::keyPressAsMotion(QKeyEvent *e) {
     return true;
   case Qt::Key_Delete:
     if (cursor.hasSelection()) {
-      qDebug() << "TableItem: delete selection";
+      deleteSelection();
     } else if (col==0 && data()->isRowEmpty(row) && data()->rows()>1) {
       deleteRows(row, 1);
       gotoCell(row, col);
@@ -152,33 +155,91 @@ bool TableItem::tryToPaste(bool /*noparagraphs*/) {
   return TextItem::tryToPaste(true);
 }
 
+void TableItem::tryToCopyCells(class TableCellRange const &rng) const {
+  QString html = "<table>";
+  QString txt = "";
+  for (int r=rng.firstRow(); r<=rng.lastRow(); r++) {
+    html += "<tr>";
+    for (int c=rng.firstColumn(); c<=rng.lastColumn(); c++) {
+      html += "<td>";
+      html += toHtml(data()->cellStart(r,c), data()->cellEnd(r,c));
+      html += "</td>";
+      txt += data()->text().mid(data()->cellStart(r,c),
+				data()->cellLength(r,c));
+      txt += "\t";
+    }
+    html += "</tr>";
+    txt = txt.left(txt.size()-1) + "\n";
+  }
+  html += "</table>";
+  qDebug() << "html: " << html;
+  qDebug() << " txt: " << txt;
+  QClipboard *cb = QApplication::clipboard();
+  QMimeData *md = new QMimeData();
+  md->setText(txt);
+  md->setHtml(html);
+  cb->setMimeData(md);
+}
+
+void TableItem::deleteSelection() {
+  if (!cursor.hasSelection())
+    return;
+  if (isWholeCellSelected()) {
+    TableCellRange rng = selectedCells();
+    int r0 = rng.firstRow();
+    int c0 = rng.firstColumn();
+    int nr = rng.rows();
+    int nc = rng.columns();
+    if (nr==int(data()->rows()) && data()->columns()>1) {
+      deleteColumns(c0, nc);
+      cursor.clearSelection();
+    } else if (nc==int(data()->columns()) && data()->rows()>1) {
+      deleteRows(r0, nr);
+      cursor.clearSelection();
+    } else {
+      for (int r=r0; r<r0+nr; r++) {
+	for (int c=c0; c<c0+nc; c++) {
+	  cursor.setPosition(data()->cellStart(r, c));
+	  cursor.setPosition(data()->cellEnd(r,c), TextCursor::KeepAnchor);
+	  cursor.deleteChar();
+	}
+      }
+    }
+    normalizeCursorPosition();
+  } else {
+    cursor.deleteChar();
+  }
+}
+
 bool TableItem::keyPressWithControl(QKeyEvent *e) {
   if (!(e->modifiers() & Qt::ControlModifier))
     return false;
+
   TableCellRange rng = selectedCells();
-  bool selcel = isWholeCellSelected();
   int r0 = rng.firstRow();
   int c0 = rng.firstColumn();
   int nr = rng.rows();
   int nc = rng.columns();
-
+  
   switch (e->key()) {
-  case Qt::Key_Delete: case Qt::Key_Backspace: 
-    if (selcel) {
-      if (nr==int(data()->rows()) && data()->columns()>1) {
-        deleteColumns(c0, nc);
-	normalizeCursorPosition();
-        return true;
-      } else if (nc==int(data()->columns()) && data()->rows()>1) {
-        deleteRows(r0, nr);
-	normalizeCursorPosition();
-        return true;
-      }
-    }
+  case Qt::Key_C:
+    if (isWholeCellSelected())
+      tryToCopyCells(selectedCells());
+    else
+      tryToCopy();
+    return true;
+  case Qt::Key_X:
+    if (isWholeCellSelected())
+      tryToCopyCells(selectedCells());
+    else 
+      tryToCopy();
+    // fall through
+  case Qt::Key_Delete: case Qt::Key_Backspace:
+    deleteSelection();
     break;
   case Qt::Key_A: 
-    if (selcel) {
-      if (nr==int(data()->rows()) && nc==int(data()->columns())) {
+    if (isWholeCellSelected()) {
+      if (rng.rows()==int(data()->rows()) && nc==int(data()->columns())) {
 	// everything selected; cycle back to just one cell
 	selectCell(ctrla_r0, ctrla_c0);
       } else if (nr==int(data()->rows())) {

@@ -1126,15 +1126,22 @@ void TextItem::setTextWidth(double d, bool relayout) {
 
 TextCursor TextItem::insertBasicHtml(QString html, int pos, bool nonewlines,
 				     QString ref) {
-  HtmlParser p(html, nonewlines);
+  HtmlParser p(html);
   qDebug() << "Parsed" << html << "as" << p.text();
   TextCursor c(cursor);
   c.setPosition(pos);
   if (ref.isNull() || p.text()==ref) {
-    c.insertText(p.text());
+    QString txt = p.text();
+    txt.replace("\t", " ");
+    if (nonewlines)
+      txt.replace("\n", " ");
+    c.insertText(txt);
     foreach (MarkupData *md, p.markups()) 
       addMarkup(md->style(), md->start()+pos, md->end()+pos);
   } else {
+    ref.replace("\t", " ");
+    if (nonewlines)
+      ref.replace("\n", " ");
     c.insertText(ref);
   }
   c.setPosition(pos, TextCursor::KeepAnchor);
