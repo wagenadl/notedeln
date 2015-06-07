@@ -81,6 +81,7 @@ public:
   virtual void hoverLeaveEvent(QGraphicsSceneHoverEvent *);
 private:
   bool keyPressAsMath(QKeyEvent *);
+  void letterAsMath(QString);
   bool keyPressAsMotion(QKeyEvent *);
   bool keyPressAsSpecialChar(QKeyEvent *);
   bool keyPressWithControl(QKeyEvent *);

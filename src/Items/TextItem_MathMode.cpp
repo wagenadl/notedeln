@@ -9,71 +9,76 @@ static bool isLatinLetter(QChar x) {
   return (x>='A' && x<='Z') || (x>='a' && x<='z');
 }
 
+void TextItem::letterAsMath(QString txt) {
+  if (cursor.hasSelection()) {
+    // we are going to overwrite this selection, I guess
+    cursor.deleteChar();
+  }
+  // we may italicize or deitalice
+  QChar prevChar = document()->characterAt(cursor.position()-1);
+  QChar antePrevChar = document()->characterAt(cursor.position()-2);
+  int dpos = 1;
+  if (prevChar == 0x200a) {
+    // thin space
+    prevChar = antePrevChar;
+    antePrevChar = document()->characterAt(cursor.position()-3);
+    dpos = 2;
+  }
+  if (isLatinLetter(prevChar)) {
+    // previous was also a letter; potential deitalicize or bold face
+    MarkupData *mdi = data()->markupAt(cursor.position(), MarkupData::Italic);
+    MarkupData *mdb = data()->markupAt(cursor.position(), MarkupData::Bold);
+    if (prevChar==txt[0] && !isLatinLetter(antePrevChar)) {
+      // we had the same letter before -> cycle faces
+      // order is italic -> bold italic -> bold -> plain -> italic
+      if (mdb) {
+	if (mdi) 
+	  deleteMarkup(mdi);
+	else
+	  deleteMarkup(mdb);
+      } else {
+	if (mdi) 
+	  addMarkup(MarkupData::Bold, cursor.position()-dpos,
+		    cursor.position());
+	else
+	  addMarkup(MarkupData::Italic, cursor.position()-dpos,
+		    cursor.position());
+      }
+    } else {
+      // previous was _different_ letter; we'll deitalicize / debold; redup
+      if (mdi)
+	deleteMarkup(mdi);
+      if (mdb) 
+	deleteMarkup(mdb);
+      if (dpos>1)
+	cursor.deletePreviousChar();
+      if (mdb)
+	cursor.insertText(QString(prevChar));
+      cursor.insertText(txt);
+      if (prevChar=='d') { // magic for "dx"
+	if (!(antePrevChar>='A' && antePrevChar<='Z')
+	    && !(antePrevChar>='a' && antePrevChar<='z')) {
+	  cursor.insertText(QString::fromUtf8(" "));
+	  addMarkup(MarkupData::Italic,
+		    cursor.position()-txt.length()-1, cursor.position());
+	}
+      }
+    }
+  } else {
+    // previous was not a letter, let's italicize
+    cursor.insertText(txt + QString::fromUtf8(" "));
+    addMarkup(MarkupData::Italic,
+	      cursor.position()-txt.length() - 1, cursor.position());
+  }
+}  
+
 bool TextItem::keyPressAsMath(QKeyEvent *e) {
   //  int key = e->key();
   //  Qt::KeyboardModifiers mod = e->modifiers();
   QString txt = e->text();
   if ((txt>="A" && txt<="Z") || (txt>="a" && txt<="z")) {
-    if (cursor.hasSelection()) {
-      // we are going to overwrite this selection, I guess
-      cursor.deleteChar();
-    }
-    // we may italicize or deitalice
-    QChar prevChar = document()->characterAt(cursor.position()-1);
-    QChar antePrevChar = document()->characterAt(cursor.position()-2);
-     int dpos = 1;
-    if (prevChar == 0x200a) {
-      // thin space
-      prevChar = antePrevChar;
-      antePrevChar = document()->characterAt(cursor.position()-3);
-      dpos = 2;
-    }
-    if (isLatinLetter(prevChar)) {
-      // previous was also a letter; potential deitalicize or bold face
-      MarkupData *mdi = data()->markupAt(cursor.position(), MarkupData::Italic);
-      MarkupData *mdb = data()->markupAt(cursor.position(), MarkupData::Bold);
-      if (prevChar==txt[0] && !isLatinLetter(antePrevChar)) {
-	// we had the same letter before -> cycle faces
-	// order is italic -> bold italic -> bold -> plain -> italic
-	if (mdb) {
-	  if (mdi) 
-	    deleteMarkup(mdi);
-	  else
-	    deleteMarkup(mdb);
-	} else {
-	  if (mdi) 
-	    addMarkup(MarkupData::Bold, cursor.position()-dpos, cursor.position());
-	  else
-	    addMarkup(MarkupData::Italic, cursor.position()-dpos, cursor.position());
-	}
-      } else {
-	// previous was _different_ letter; we'll deitalicize / debold; redup
-	if (mdi)
-          deleteMarkup(mdi);
-	if (mdb) 
-	  deleteMarkup(mdb);
-        if (dpos>1)
-          cursor.deletePreviousChar();
-        if (mdb)
-	  cursor.insertText(QString(prevChar));
-	cursor.insertText(txt);
-	if (prevChar=='d') { // magic for "dx"
-	  if (!(antePrevChar>='A' && antePrevChar<='Z')
-	      && !(antePrevChar>='a' && antePrevChar<='z')) {
-            cursor.insertText(QString::fromUtf8(" "));
-	    addMarkup(MarkupData::Italic,
-		      cursor.position()-txt.length()-1, cursor.position());
-          }
-	}
-      }
-      return true; // got it
-    } else {
-      // previous was not a letter, let's italicize
-      cursor.insertText(txt + QString::fromUtf8(" "));
-      addMarkup(MarkupData::Italic,
-		cursor.position()-txt.length() - 1, cursor.position());
-      return true; // got it
-    }
+    letterAsMath(txt);
+    return true;
   } else if (txt=="-") {
     if (cursor.hasSelection()) 
       cursor.deleteChar();
@@ -96,10 +101,13 @@ bool TextItem::keyPressAsMath(QKeyEvent *e) {
     } else if (txt=="_") {
       tryScriptStyles();
     } else if (txt==" ") {
-      if (QString(",;.:")
-	  .contains(document()->characterAt(cursor.position()-1)))
+      bool afterPunct = QString(",;.:")
+	.contains(document()->characterAt(cursor.position()-1));
+      if (afterPunct)
 	cursor.movePosition(TextCursor::Left);
       tryScriptStyles(true);
+      if (afterPunct)
+	cursor.movePosition(TextCursor::Right);
     }
     return false; // still insert the character
   } else {
