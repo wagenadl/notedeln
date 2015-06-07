@@ -319,7 +319,7 @@ void TableItem::keyPressEvent(QKeyEvent *e) {
     ;
   } else if (keyPressWithControl(e)) {
     ;
-  } else if (!selectionSpansCells()) {
+  } else { // why did I have:   if (!selectionSpansCells())   here?
     TextItem::keyPressEvent(e);
   }
 }
