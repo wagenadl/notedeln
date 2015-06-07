@@ -970,7 +970,9 @@ bool TextItem::tryToPaste(bool nonewlines) {
     return false;
   } else if (md->hasUrls()) {
     return false; // perhaps we should allow URLs, but format specially?
-  } else if (md->hasHtml()) {
+  }
+
+  if (md->hasHtml()) {
     QString txt = md->html();
     qDebug() << "trytopaste html" << txt;
     qDebug() << "  text" << md->text();

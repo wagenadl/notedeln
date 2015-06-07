@@ -152,6 +152,24 @@ bool TableItem::nothingAfterCursor() const {
 
 bool TableItem::tryToPaste(bool /*noparagraphs*/) {
   qDebug() << "TableItem::tryToPaste";
+  // following copied from TextItem's trytopaste
+  QClipboard *cb = QApplication::clipboard();
+  QMimeData const *md = cb->mimeData(QClipboard::Clipboard);
+  if (md->hasImage()) {
+    return false;
+  } else if (md->hasUrls()) {
+    return false; // perhaps we should allow URLs, but format specially?
+  }
+
+  // let's not try to parse html tables right now, although we could
+  if (md->hasText()) {
+    QString txt = md->text();
+    QString mid = txt.mid(1, txt.size()-2);
+    if (mid.contains("\t") || mid.contains("\n")) {
+      pasteMultiCell(txt);
+      return true;
+    }
+  }
   return TextItem::tryToPaste(true);
 }
 
@@ -576,3 +594,148 @@ void TableItem::representCursor(QList<TransientMarkup> &tmm) const {
   }
 }
 
+bool TableItem::pasteMultiCell(QString txt) {
+  if (cursor.hasSelection())
+    cursor.deleteChar();
+
+  QStringList rows = txt.split("\n");
+  while (!rows.isEmpty() && rows.last().isEmpty())
+    rows.takeLast();
+  if (rows.isEmpty())
+    return false;
+  int nr = rows.size();
+
+  QList<QStringList> cels;
+  foreach (QString const &r, rows)
+    cels << r.split("\t");
+  int nc = 0;
+  foreach (QStringList const &r, cels)
+    if (r.size()>nc)
+      nc = r.size();
+
+  /* Now we'll insert.
+     (1) If there is a large enough empty rectangle in the table, (possibly
+         after making the table wider and/or taller), great, we'll fill it.
+     (2) If there is a large enough empty space for one row, (possibly
+         after making the table wider), we'll use it for our first row
+	 and insert empty rows for the rest.
+     (3) If there is a large enough empty space for one column, (possibly
+         after making the table taller), we'll use it for our first column
+	 and insert empty columns for the rest.
+     (4) ?
+     Is this a good algorithm that would not be surprising in general?
+     Remember that we don't have an undo mechanism (yet). So if we screw
+     up a table, the user cannot do much to undo the damage.
+  */
+
+  /* Let's try that again.
+     (1) If nothing is in the way at all, just plonk the new stuff in.
+     (2) If nothing is in the way to the right, move rows down that present
+         obstacles.
+     (3) If nothing is in the way downward, move columns over that present
+         obstacles.
+     (4) If obstructions occur in both directions, it is really not obvious
+         what is the best thing to do. I could simply refuse.
+  */
+  /* Wait. That's not properly defined. (1) is good, but (2) and (3) are not.
+     If a cell presents an obstacle, it presents an obstacle in both directions.
+     So a well-defined question is: after how many rows is the left column
+     blocked, or after how many columns is the top row blocked.
+     I can declare that if blocking occurs first in the top row or left column,
+     I'll make space, but if blocking occurs first in any other row or column,
+     I'll refuse.
+  */
+
+  int firstBlockedColumnTop = nc;
+  int firstBlockedColumnOther = nc;
+  int firstBlockedRowLeft = nr;
+  int firstBlockedRowOther = nr;
+  TableCell topLeft = data()->cellAt(cursor.position());
+  int NR = data()->rows();
+  int NC = data()->columns();
+  int r0 = topLeft.row();
+  int c0 = topLeft.column();
+
+  // find blocking column on top
+  for (int c=0; c<nc; c++) {
+    if (c0+c >= NC)
+      break;
+    if (!data()->isCellEmpty(r0, c0+c)) {
+      firstBlockedColumnTop = c;
+      break;
+    }
+  }
+
+  // find blocking column in rest
+  for (int r=1; r<nr; r++) {
+    if (r0+r >= NR)
+      break;
+    for (int c=0; c<nc; c++) {
+      if (c0+c >= NC)
+	break;
+      if (firstBlockedColumnOther>c && !data()->isCellEmpty(r0+r, c0+c)) {
+	firstBlockedColumnOther = c;
+	break;
+      }
+    }
+  }
+
+  // find blocking row on top
+  for (int r=0; r<nr; r++) {
+    if (r0+r >= NR)
+      break;
+    if (!data()->isCellEmpty(r0+r, c0)) {
+      firstBlockedRowLeft = r;
+      break;
+    }
+  }
+
+  // find blocking row in rest
+  for (int c=1; c<nc; c++) {
+    if (c0+c >= NC)
+      break;
+    for (int r=0; r<nr; r++) {
+      if (r0+r >= NR)
+	break;
+      if (firstBlockedRowOther>r && !data()->isCellEmpty(r0+r, c0+c)) {
+	firstBlockedRowOther = r;
+	break;
+      }
+    }
+  }
+
+  if (firstBlockedRowLeft>=nr && firstBlockedRowOther>=nr
+      && firstBlockedColumnTop>=nc && firstBlockedColumnOther>=nc) {
+    ; // easy
+  } else if (firstBlockedColumnTop>=nc
+	     && firstBlockedRowLeft<=firstBlockedRowOther) {
+    // shift rows down
+    for (int k=0; k<nr-firstBlockedRowLeft; k++)
+      insertRow(r0+firstBlockedRowLeft);
+  } else if (firstBlockedRowLeft>=nr
+	     && firstBlockedColumnTop<=firstBlockedColumnOther) {
+    // shift columns over
+    for (int k=0; k<nc-firstBlockedColumnTop; k++)
+      insertColumn(c0+firstBlockedColumnTop); 
+  } else {
+    // refuse
+    return false;
+  }
+
+  // expand table
+  while (data()->columns() < c0+nc)
+    insertColumn(data()->columns());
+  while (data()->rows() < r0+nr)
+    insertRow(data()->rows());
+
+  // Finally. All target cells are empty. Let's do it.
+  for (int r=0; r<nr; r++) {
+    for (int c=0; c<nc; c++) {
+      cursor.setPosition(data()->cellStart(r0+r, c0+c));
+      if (cels[r].size()>c)
+	cursor.insertText(cels[r][c]);
+    }
+  }
+  update();
+  return true;
+}
