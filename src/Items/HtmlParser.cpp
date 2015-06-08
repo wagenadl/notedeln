@@ -3,11 +3,15 @@
 #include "HtmlParser.h"
 
 #include <QTextDocument>
+#include <QDebug>
 
 static QString taglessHtmlToPlainText(QString html) {
   /* This converts things like "&gt;" to ">". */
+  if (!html.contains("&"))
+    return html;
   QTextDocument doc;
   doc.setHtml(html);
+  qDebug() << "tagless" << html << doc.toPlainText();
   return doc.toPlainText();
 }
 
@@ -17,6 +21,7 @@ HtmlParser::HtmlParser(QString html) {
   html.replace(QRegExp(" *<(p|br)(\\s+[^>]*)?> *"), "\n");
   html.replace("</td><td>", "\t");
   html.replace("</tr>", "\n");
+  qDebug() << "html now: " << html;
   QRegExp tag("<([^>]*)>");
   tag.setMinimal(true);
   QList<int> italicStarts;

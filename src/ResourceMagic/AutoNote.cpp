@@ -23,23 +23,21 @@
 #include "ResManager.h"
 #include "TextData.h"
 #include "MagicBiblio.h"
+#include "MagicPubmed.h"
 
 #include <QDebug>
-
-static QString autoNote(QString funcName, QString tag, Style const &st) {
-  qDebug() << "AutoNote" << funcName << tag;
-  if (funcName=="bib")
-    return MagicBiblio(tag, st).ref();
-  else
-    return "";
-}
 
 bool AutoNote::autoNote(QString tag, TextItem *dest, Style const &st) {
   QVariantMap autos = st["auto-notes"].toMap();
   foreach (QString k, autos.keys()) {
-    QRegExp re(k);
-    if (re.exactMatch(tag)) {
-      QString txt = ::autoNote(autos[k].toString(), tag, st);
+    if (QRegExp(k).exactMatch(tag)) {
+      QString func = autos[k].toString();
+      QString txt = "";
+      if (func=="bib") {
+	txt = MagicBiblio(tag, st).ref();
+      } else if (func=="pubmed") {
+	txt = MagicPubmed(tag, st).ref();
+      }
       if (txt.isEmpty())
 	return false;
       qDebug() << "autonote -> " << txt;
