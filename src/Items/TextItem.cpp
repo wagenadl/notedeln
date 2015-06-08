@@ -984,7 +984,7 @@ bool TextItem::tryToPaste(bool nonewlines) {
     return true;   
   } else if (md->hasText()) {
     QString txt = md->text();
-    txt.replace(QRegExp("[\\x0000-\\xx0008\\x000b-\\x001f]"), "");
+    txt.replace(QRegExp("[\\x0000-\\x0008\\x000b-\\x001f]"), "");
     txt.replace("\t", " ");
     if (nonewlines)
       txt.replace("\n", " ");
