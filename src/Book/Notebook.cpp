@@ -183,8 +183,13 @@ Notebook *Notebook::create(QString path) {
   delete TOCFile::create(d.filePath("toc.json"));
   delete BookFile::create(d.filePath("book.json"));
 
-  QFile styleIn(":/style.json");
-  styleIn.copy(d.filePath("style.json"));
+  { // This is better than copy because it creates reasonable permissions
+    QFile styleIn(":/style.json");
+    QFile styleOut(d.filePath("style.json"));
+    styleIn.open(QFile::ReadOnly);
+    styleOut.open(QFile::WriteOnly);
+    styleOut.write(styleIn.readAll());
+  }
 
   Notebook *nb = new Notebook(d.absolutePath());
   return nb;
