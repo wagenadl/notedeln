@@ -118,6 +118,20 @@ open OUT, ">src/version";
 print OUT "$newvsn\n";
 close OUT;
 
+system("cp tools/eln-win-qt5.aip tools/eln-win-qt5.aip~") and
+  die "Could not backup windows deployment script\n";
+open IN, "<tools/eln-win-qt5.aip~" or
+  die "Could not read windows deployment script\n";
+open OUT, "<tools/eln-win-qt5.aip" or
+  die "Could not read windows deployment script\n";
+while (<IN>) {
+  s/Property="ProductVersion" Value="[^"]*?"/Property="ProductVersion" Value="$newvsn"/;
+  s/PackageFileName="eln-[^"]*?-win-qt5"/PackageFileName="eln-$newvsn-win-qt5"/;
+  print OUT $_;
+}
+close IN;
+close OUT;
+
 system("git add CHANGELOG") and die "Could not add CHANGELOG\n";
 system("git add src/version") and die "Could not add src/version\n";
 system("git commit -m'Created new version $newvsn'") and

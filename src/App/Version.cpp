@@ -13,7 +13,7 @@ namespace Version {
       if (fv.open(QFile::ReadOnly)) 
 	ver = QString(fv.readAll()).simplified();
       else
-	ver = "?.?";
+	ver = "?.?.?";
     }
     return ver;
   }
@@ -25,13 +25,15 @@ namespace Version {
       if (fv.open(QFile::ReadOnly)) 
 	ver = QString(fv.readAll()).simplified();
       else
-	ver = "?";
+	ver = "";
     }
     return ver;
   }
     
   QString toString() {
-    return verbit() + "." + patchbit();
+    QString p = patchbit();
+    QString v = verbit();
+    return p.isEmpty() ? v : v + "+" + p;
   }
 
   QDateTime buildDate() {
