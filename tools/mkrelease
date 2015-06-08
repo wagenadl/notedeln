@@ -122,7 +122,7 @@ system("cp tools/eln-win-qt5.aip tools/eln-win-qt5.aip~") and
   die "Could not backup windows deployment script\n";
 open IN, "<tools/eln-win-qt5.aip~" or
   die "Could not read windows deployment script\n";
-open OUT, "<tools/eln-win-qt5.aip" or
+open OUT, ">tools/eln-win-qt5.aip" or
   die "Could not read windows deployment script\n";
 while (<IN>) {
   s/Property="ProductVersion" Value="[^"]*?"/Property="ProductVersion" Value="$newvsn"/;
