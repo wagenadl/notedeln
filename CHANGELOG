@@ -1,3 +1,18 @@
+eln 0.9.1
+
+  
+  
+  Windows only bugfix release
+  
+  * Windows font rendering was always rather ugly due to to horizontal
+    hinting which caused very irregular letter spacing.
+    By switching to Qt 5.4.2 and forcing freetype font rendering, this
+    problem has been solved.
+  
+  
+
+  -- Daniel Wagenaar <wagenadl@uc.edu>  Tue, 09 Jun 2015 09:11:25 -0400
+
 eln 0.9.0
 
   
