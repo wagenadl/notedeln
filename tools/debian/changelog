@@ -1,3 +1,67 @@
+eln (0.9.0-1) trusty; urgency=medium
+
+  New in this version:
+  
+  * Improved support for tables
+    - Multicellular cut-and-paste
+    - Cleaned up user interface for creating/deleting tables/rows/columns
+  
+  * Improved cut and paste support
+    - Cut-and-paste within eln now copies basic styles along.
+      - Currently, that applies to bold, italic, and super- and subscript.
+      - Other markups like strikethrough are not yet supported.
+      - Footnotes are not yet copied.
+    - Copying between eln and other applications now tries to maintain
+      basic styles (bold, italic, super- and subscript) by importing and
+      exporting corresponding html tags.
+  
+  * Completely overhauled the rendering engine for text
+    - Fewer surprises of line spacing changes
+    - Immunity against subtle differences between font metrics on different
+      machines
+    - Regrettably, there is not currently an Undo mechanism. (But this used
+      to be somewhat buggy, so it may not be a great loss.)
+  
+  * New support for automatic footnotes for Pubmed IDs
+    - Just type the numeric Pubmed ID, hit Ctrl-N to create a footnote, and
+      ELN will reach out to Pubmed to retrieve the citation information.
+  
+  * Many bugfixes
+
+ -- Daniel Wagenaar <wagenadl@uc.edu>  Mon, 08 Jun 2015 10:33:08 -0400
+
+eln (0.9.0-1) trusty; urgency=medium
+
+  New in this version:
+  
+  * Improved support for tables
+    - Multicellular cut-and-paste
+    - Cleaned up user interface for creating/deleting tables/rows/columns
+  
+  * Improved cut and paste support
+    - Cut-and-paste within eln now copies basic styles along.
+      - Currently, that applies to bold, italic, and super- and subscript.
+      - Other markups like strikethrough are not yet supported.
+      - Footnotes are not yet copied.
+    - Copying between eln and other applications now tries to maintain
+      basic styles (bold, italic, super- and subscript) by importing and
+      exporting corresponding html tags.
+  
+  * Completely overhauled the rendering engine for text
+    - Fewer surprises of line spacing changes
+    - Immunity against subtle differences between font metrics on different
+      machines
+    - Regrettably, there is not currently an Undo mechanism. (But this used
+      to be somewhat buggy, so it may not be a great loss.)
+  
+  * New support for automatic footnotes for Pubmed IDs
+    - Just type the numeric Pubmed ID, hit Ctrl-N to create a footnote, and
+      ELN will reach out to Pubmed to retrieve the citation information.
+  
+  * Many bugfixes
+
+ -- Daniel Wagenaar <wagenadl@uc.edu>  Mon, 08 Jun 2015 10:31:20 -0400
+
 eln (0.6.1-1) trusty; urgency=medium
 
   * Now uses custom TextItem for all text rendering except on front page.
