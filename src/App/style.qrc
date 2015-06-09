@@ -1,5 +1,5 @@
-<RCC>
-    <qresource prefix="/">
+<!DOCTYPE RCC><RCC version="1.0">
+    <qresource>
         <file>style.json</file>
         <file>front.jpg</file>
         <file>eln.css</file>
@@ -7,8 +7,5 @@
         <file>fonts/Ubuntu-B.ttf</file>
         <file>fonts/Ubuntu-RI.ttf</file>
         <file>fonts/Ubuntu-R.ttf</file>
-    </qresource>
-    <qresource prefix="/qt/etc">
-        <file>qt.conf</file>
     </qresource>
 </RCC>

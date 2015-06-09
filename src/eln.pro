@@ -25,6 +25,8 @@ MOC_DIR = $${OBJECTS_DIR}
 RCC_DIR = $${OBJECTS_DIR}
 UI_DIR = $${OBJECTS_DIR}
 
+win: RESOURCES += App/conf.qrc.win
+
 win: RC_FILE = App/winicon.rc
 
 mac {
