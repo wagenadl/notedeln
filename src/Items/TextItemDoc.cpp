@@ -551,13 +551,26 @@ void TextItemDoc::render(QPainter *p, QList<TransientMarkup> tmm) const {
         p->setPen(QPen(color()));
       
       if (s.contains(MarkupData::StrikeThrough)) {
-        QFont f(*fonts.font(s));
-        f.setStrikeOut(true);
-        p->setFont(f);
-      } else {
-        p->setFont(*fonts.font(s));
+	double y1 = y0 
+	  - ((s.contains(MarkupData::Superscript)
+	      || s.contains(MarkupData::Subscript)) ? 0.7 : 1.0)
+	  * 0.6 * d->xheight;
+	QPen pn = p->pen();
+	QPen p1 = pn;
+	qreal h, s, l, a;
+	QColor c = pn.color();
+	c.getHslF(&h, &s, &l, &a);
+	qDebug() << h << s << l << a;
+	l *= 1.7; if (l>1) l = 1;
+	c.setHslF(h, s, l, a);
+	pn.setColor(c);
+	pn.setWidthF(1.2);
+	p->setPen(pn);
+	p->drawLine(QPointF(x0, y1), QPointF(x, y1));
+	p->setPen(p1);
       }
-       
+
+      p->setFont(*fonts.font(s));
       p->drawText(QPointF(x0, y0), bit);
     }
   }
