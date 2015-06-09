@@ -25,7 +25,7 @@ MOC_DIR = $${OBJECTS_DIR}
 RCC_DIR = $${OBJECTS_DIR}
 UI_DIR = $${OBJECTS_DIR}
 
-win: RC_FILE = App/winicon.rc
+win32: RC_FILE = App/winicon.rc
 
 mac {
     ICON = App/eln.icns
@@ -38,6 +38,11 @@ mac {
 # hdiutil create -format UDBZ -quiet -srcfolder myapplication.app myapplication.dmg 
 
 for(sd, sourcedirs): include($${sd}/$${sd}.pri)
+
+win32 {
+} else {
+  RESOURCES -= App/conf.qrc
+}
 
 CONFIG(debug, debug|release) { TARGET=$${TARGET}_debug }
 

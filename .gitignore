@@ -7,6 +7,9 @@ Makefile.*
 
 debug
 release
+build-*
+*-SetupFiles
+*pro.user*
 
 eln
 eln-savelinestarts
