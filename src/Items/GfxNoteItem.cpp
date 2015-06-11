@@ -53,17 +53,18 @@ GfxNoteItem::GfxNoteItem(GfxNoteData *data, Item *parent):
   connect(text->document(), SIGNAL(contentsChanged(int, int, int)),
 	  SLOT(updateTextPos()));
   updateTextPos();
+  if (data->text()->lineStarts().isEmpty()) 
+    text->document()->relayout();
+  else
+    text->document()->recalculateCharacterWidths();
 }
 
 GfxNoteItem::~GfxNoteItem() {
 }
 
 void GfxNoteItem::abandon() {
-  qDebug() << "GfxNoteItem::abandon";
   BlockItem *ancestor = ancestralBlock();
   Item *p = parent();
-  qDebug() << "  I am " << this << ". My parent is " << p
-	   << ". My ancestor is " << ancestor;
   if (p && p->beingDeleted()) {
     qDebug() << "I have a parent but it is being deleted. No toces!";
     return; 
@@ -73,7 +74,6 @@ void GfxNoteItem::abandon() {
   deleteLater();
   if (ancestor)
     ancestor->sizeToFit();
-  qDebug() << "  Abandon complete";
 }
 
 static double euclideanLength2(QPointF p) {
@@ -217,13 +217,11 @@ GfxNoteItem *GfxNoteItem::newNote(QPointF p0, QPointF p1, Item *parent) {
 
   GfxNoteItem *i = new GfxNoteItem(d, parent);
   i->makeWritable();
-  qDebug() << "Setting focus on note";
   i->setFocus();
   return i;
 }
 
 void GfxNoteItem::setFocus() {
-  qDebug() << "GfxNoteItem::taking focus";
   text->setFocus();
 }
 

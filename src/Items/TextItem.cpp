@@ -59,7 +59,6 @@ TextItem::TextItem(TextData *data, Item *parent, bool noFinalize,
     text = altdoc;
   else
     text = TextItemDoc::create(data, this);
-
   linkHelper = new LinkHelper(this);
   
   mayMark = true;
@@ -320,7 +319,6 @@ void TextItem::representSearchPhrase(QList<TransientMarkup> &tmm) const {
     return;
   QString txt = text->text();
   int N = phr.length();
-  qDebug() << "rSP" << txt << phr;
   for (int off=txt.indexOf(phr, 0, Qt::CaseInsensitive); off>=0;
        off=txt.indexOf(phr, off+N, Qt::CaseInsensitive)) 
     tmm << TransientMarkup(off, off+N, MarkupData::SearchResult);
@@ -447,19 +445,6 @@ bool TextItem::keyPressAsMotion(QKeyEvent *e) {
   case Qt::Key_End:
     tryMove(TextCursor::EndOfLine, e->key(), e->modifiers());
     return true;
-    /*
-  case Qt::Key_PageUp: case Qt::Key_PageDown: {
-    TextCursor pre = textCursor();
-    text->internalKeyPressEvent(e);
-    TextCursor post = textCursor();
-    if (e->key()==Qt::Key_PageDown) {
-      qDebug() << "TextItem::pagedown " << pre.position() << ";" << post.position();
-    }
-    if (pre.position() == post.position())
-      emit futileMovementKey(e->key(), e->modifiers());
-    return true;
-  } break;
-    */
   }
   return false;
 }
@@ -953,7 +938,6 @@ bool TextItem::tryToCopy() const {
     return false;
   TextCursor::Range r = cursor.selectedRange();
   QString html = toHtml(r.start(), r.end());
-  qDebug() << html;
   QClipboard *cb = QApplication::clipboard();
   QMimeData *md = new QMimeData();
   md->setText(cursor.selectedText());
@@ -963,7 +947,6 @@ bool TextItem::tryToCopy() const {
 }
 
 bool TextItem::tryToPaste(bool nonewlines) {
-  qDebug() << "TextItem::trytopaste";
   QClipboard *cb = QApplication::clipboard();
   QMimeData const *md = cb->mimeData(QClipboard::Clipboard);
   if (md->hasImage()) {
@@ -974,8 +957,6 @@ bool TextItem::tryToPaste(bool nonewlines) {
 
   if (md->hasHtml()) {
     QString txt = md->html();
-    qDebug() << "trytopaste html" << txt;
-    qDebug() << "  text" << md->text();
     if (cursor.hasSelection())
       cursor.deleteChar();
     cursor = insertBasicHtml(txt, cursor.position(), nonewlines,
@@ -1130,7 +1111,6 @@ void TextItem::setTextWidth(double d, bool relayout) {
 TextCursor TextItem::insertBasicHtml(QString html, int pos, bool nonewlines,
 				     QString ref) {
   HtmlParser p(html);
-  qDebug() << "Parsed" << html << "as" << p.text();
   TextCursor c(cursor);
   c.setPosition(pos);
   if (ref.isNull() || p.text()==ref) {

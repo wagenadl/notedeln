@@ -560,7 +560,6 @@ void TextItemDoc::render(QPainter *p, QList<TransientMarkup> tmm) const {
 	qreal h, s, l, a;
 	QColor c = pn.color();
 	c.getHslF(&h, &s, &l, &a);
-	qDebug() << h << s << l << a;
 	l *= 1.7; if (l>1) l = 1;
 	c.setHslF(h, s, l, a);
 	pn.setColor(c);
