@@ -67,7 +67,7 @@ DataFile0::DataFile0(Data *data, QString fn, QObject *parent):
   if (!ok_)
     return;
   data_->setParent(this);
-  ok_ = saveNow();
+  ok_ = saveNow(true);
   connect(data_, SIGNAL(mod()), this, SLOT(saveSoon()));
 }
 

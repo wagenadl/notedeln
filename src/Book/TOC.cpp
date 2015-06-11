@@ -276,8 +276,16 @@ TOC *TOC::rebuild(QDir pages) {
 
     QString fn = pg2file[n];
     EntryFile *f = EntryFile::load(pages.absoluteFilePath(fn), 0);
-    if (!f) 
-      return errorReturn("Failed to load " + fn + ".");
+    if (!f) {
+      QFile fd(pages.absoluteFilePath(fn));
+      QFileInfo fi(fd);
+      if (fi.exists() && fi.size()>0) {
+	return errorReturn("Failed to load " + fn + ".");
+      } else {
+	fd.remove();
+	continue;
+      }
+    }
     bool mustsave = false;
     int m = f->data()->startPage();
     if (m!=n) {
