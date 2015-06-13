@@ -69,6 +69,6 @@ QFont *FontVariants::italicVersion(QFont const *f) {
 
 QFont *FontVariants::scriptVersion(QFont const *f) {
   QFont *f1 = new QFont(*f);
-  f1->setPixelSize(0.7*f->pixelSize());
+  f1->setPixelSize(0.8*f->pixelSize());
   return f1;
 }
