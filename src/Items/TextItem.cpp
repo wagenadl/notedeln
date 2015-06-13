@@ -1059,7 +1059,7 @@ void TextItem::markupChange(MarkupData *md) {
 }
 
 QRectF TextItem::boundingRect() const {
-  return text->boundingRect();
+  return text->boundingRect().adjusted(-10, 0, 10, 0);
 }
 
 void TextItem::paint(QPainter *p, const QStyleOptionGraphicsItem*, QWidget*) {
@@ -1067,9 +1067,9 @@ void TextItem::paint(QPainter *p, const QStyleOptionGraphicsItem*, QWidget*) {
     return;
   
   if (clips())
-    p->setClipRect(clip_.adjusted(0, 0, 10, 0));
+    p->setClipRect(clip_);
   else
-    p->setClipRect(boundingRect().adjusted(0, 0, 10, 0));
+    p->setClipRect(boundingRect());
 
   QList<TransientMarkup> tmm;
   representCursor(tmm);
