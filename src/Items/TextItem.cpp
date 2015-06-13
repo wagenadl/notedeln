@@ -1067,9 +1067,9 @@ void TextItem::paint(QPainter *p, const QStyleOptionGraphicsItem*, QWidget*) {
     return;
   
   if (clips())
-    p->setClipRect(clip_);
+    p->setClipRect(clip_.adjusted(0, 0, 10, 0));
   else
-    p->setClipRect(boundingRect());
+    p->setClipRect(boundingRect().adjusted(0, 0, 10, 0));
 
   QList<TransientMarkup> tmm;
   representCursor(tmm);
