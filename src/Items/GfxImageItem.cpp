@@ -27,6 +27,7 @@
 #include "BlockItem.h"
 #include "Cursors.h"
 #include "OpenCmd.h"
+#include "Notebook.h"
 
 #include <QProcess>
 #include <QDebug>
@@ -241,6 +242,7 @@ void GfxImageItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
   } else { // not writable (i.e., not recent)
     if (mode()->mode()==Mode::Annotate) {
       GfxNoteItem *gni = createNote(e->pos(), true);
+      data()->book()->mode()->setMode(Mode::Type);
       gni->setScale(1./data()->scale());
       take = true;
     }

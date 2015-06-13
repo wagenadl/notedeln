@@ -38,6 +38,7 @@
 #include "GfxSketchItem.h"
 #include "Assert.h"
 #include "Cursors.h"
+#include "Notebook.h"
 
 GfxBlockItem::GfxBlockItem(GfxBlockData *data, Item *parent):
   BlockItem(data, parent) {
@@ -203,6 +204,7 @@ void GfxBlockItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
   } else {
     if (mod==Mode::Annotate) {
       createNote(e->pos(), true);
+      data()->book()->mode()->setMode(Mode::Type);
       take = true;
     }
   }    

@@ -789,6 +789,7 @@ bool EntryScene::mousePressEvent(QGraphicsSceneMouseEvent *e, SheetScene *s) {
       it->createNote(it->mapFromScene(sp));
     else
       createNote(sp, sh);
+    data_->book()->mode()->setMode(Mode::Type);
     take = true;
     break;
   default:
@@ -1167,12 +1168,10 @@ EntryData *EntryScene::data() const {
 }
 
 GfxNoteItem *EntryScene::createNote(QPointF scenePos, int sheet) {
-  qDebug() << "EntryScene::createNote Not properly?";
   TitleItem *ti = sheets[sheet]->fancyTitleItem();
   GfxNoteItem *note
     = ti->createNote(ti->mapFromScene(scenePos));
   if (note) {
-    data_->book()->mode()->setMode(Mode::Type);
     note->data()->setSheet(sheet);
     note->setFocus();
   }
