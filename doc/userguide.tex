@@ -19,13 +19,13 @@
   {\large By Daniel A. Wagenaar}
   \vfill
   
-  {Copyright (c) 2013--2014}
+  {Copyright (c) 2013--2015}
   
 \end{centering}
 \pagebreak
 ~
 \vfill
-\noindent Copyright (C) 2013--2014 Daniel A. Wagenaar\medskip
+\noindent Copyright (C) 2013--2015 Daniel A. Wagenaar\medskip
 
 ``eln'' is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -178,9 +178,11 @@ from you. I realize that this guide is extremely terse, and I
 really do welcome questions, particularly if they help me to improve
 eln or its documentation.\bigskip
 
-\noindent Caltech, May 2013;
+\noindent Pasadena, May 2013;
 
-\noindent University of Cincinnati, February 2014.
+\noindent Cincinnati, February 2014;
+
+\noindent Woods Hole, June 2015.
 
 \chapter{Installation}
 
@@ -221,17 +223,17 @@ site\footnote{https://developer.apple.com/xcode.}. (I used ``xcode462\_clitools\
 
 Open a terminal and ``cd'' to the root of the unpacked source
 archive. Then type ``make'' and fetch a cup of tea. Then, either
-manually copy the files ``src/eln'', ``repairtoc/eln-repairtoc'',
+manually copy the files ``src/eln'' and
 ``webgrab/webgrab'' to some location on your PATH, or type ``sudo make
-inst'' (not ``install'') to install into ``/usr/local/bin''.
+install'' to install into ``/usr/local/bin''.
 
 \subsection{Compiling on Windows}
 You will need a C++ compiler. I have successfully used both MinGW and
 Microsoft Visual Studio.
 
-First double click ``updatesources.bat'' in the
-``scripts'' subfolder. Then open, one by one, ``src/eln.pro'',
-``repairtoc/repairtoc.pro'', and ``webgrab/webgrab.pro'' in Qt
+First, run ``updatesources.sh'' in the
+``tools'' subfolder in a Cygwin shell. Then open, one by one, ``src/eln.pro''
+and ``webgrab/webgrab.pro'' in Qt
 Creator and follow the standard build steps.
 
 \chapter{Using eln}
@@ -390,32 +392,34 @@ $\backprime\backprime$ & `` \\
 $\backprime$ & ` \\
 -{}- & -- \\
 -{}-{}- & --- \\
-$>=$ & $\geq$ \\
-$<=$ & $\leq$ \\
-$!=$ & $\neq$ 
+$+-$ & $\pm$ \\
+$|~|$ & $ \parallel $ \\
+$|-$ & $\vdash$ \\
+$-|$ & $\dashv$ \\
 \end{tabular}
 &
 \begin{tabular}[t]{cc}
 $<$$-$ & $\leftarrow$ \\
 $-$$>$ & $\rightarrow$ \\
+$|$$^\wedge$ & $\uparrow$ \\
+$||$$^\wedge$ & $\Uparrow$ \\
 $<==$ & $\Leftarrow$ \\
 $=>$ & $\Rightarrow$ \\
 $<$$-$$>$ & $\leftrightarrow$ \\
 $<==>$ & $\Leftrightarrow$ \\
-$|-$ & $\vdash$ \\
-$-|$ & $\dashv$ \\
 $|-$$>$ & $\mapsto$ \\
 \end{tabular}
 &
 \begin{tabular}[t]{cc}
+$>=$ & $\geq$ \\
+$<=$ & $\leq$ \\
+$!=$ & $\neq$ \\
 $^\wedge{}=$ & $\hat=$ \\
 $==$ & $\equiv$ \\
 $\sim=$ & $\cong$ \\
 $>>$ & $\gg$ \\
 $<<$ & $\ll$ \\
 $\sim\sim$ & $\approx$ \\
-$+-$ & $\pm$ \\
-$|~|$ & $ \parallel $ \\
 \end{tabular}
 \end{tabular}
 
@@ -442,26 +446,34 @@ dots & $\ldots$ \\
 deg & $^\circ$ \\
 prime & $'$ \\
 dprime & $''$ \\
+half & $1\over2$ \\
+third & $1\over3$ \\
+quarter & $1\over4$ \\
 \end{tabular}
 &
 \begin{tabular}[t]{cc}
 times \emph{or} x & $\times$ \\
 div & $\div$ \\
-inf & $\infty$ \\
 int & $\int$ \\
 sum & $\sum$ \\
 sqrt & $\sqrt{}$ \\
 flat & $\flat$ \\
 sharp & $\sharp$ \\
 natural & $\natural$ \\
+dagger & $\dagger$ \\
+ddagger & $\ddagger$ \\
+pilcrow & $\P$ \\
+section & $\S$ \\
 \end{tabular}
 &
 \begin{tabular}[t]{cc}
+inf & $\infty$ \\
+  v & $\downarrow$ \\
+  V & $\Downarrow$ \\
 diam & $\diameter$ \\
-Ohm\footnote{Also kOhm and MOhm for k$\Omega$ and M$\Omega$.} &
+Ohm\footnote{Also kOhm, MOhm, GOhm, and mOhm.} &
 $\Omega$ \\
-uA\footnote{Also ug, uL, um, uM, us, and uV for $\mu$g, $\mu$L,
-  $\mu$m, $\mu$M, $\mu$s, and $\mu$V.} & $\mu$A \\
+uA\footnote{Also uC, ug, uJ, ul, uL, um, uM, us, uS, and uV.} & $\mu$A \\
 &\\
 $x$ vec & $\vec x$ \\
 $x$ hat & $\hat x$ \\
@@ -473,7 +485,7 @@ $x$ ddot & $\ddot x$ \\
 
 \end{centering}\bigskip
 
-\noindent (Note how the last few place accents over the preceding character.)
+\noindent Note how the last few place accents over the preceding character.
 
 Extending this list is easy, so let me know if you have suggestions.
 
@@ -481,7 +493,13 @@ Extending this list is easy, so let me know if you have suggestions.
 
 Press ``Control''+``N'' to create a footnote. Footnotes are connected
 to the main text by arbitrary tags: the word at the cursor
-becomes the tag. Footnotes are deleted by deleting the tag in the main text.
+becomes the tag. Footnotes are deleted by deleting the tag in the main
+text.
+
+If your tag is a big integer, it is interpreted as a PubMed ID. In
+that case, eln will insert the corresponding citation in the note for
+you automatically. (If you have suggestions for other kinds of
+automatically created note contents, I want to hear from you.)
 
 \section{Hyperlinks}
 
@@ -517,7 +535,7 @@ to put in your requests!
 
 Occasionally it is useful to typeset ``imported'' materials such as
 quotations differently from the rest of your notes. In a small
-concession to typographic nicety, eln now allows you to do this: Place
+concession to typographic nicety, eln allows you to do this: Place
 the cursor at
 the beginning of a paragraph and press ``Control''+``Tab.'' The
 paragraph will be typeset in a slightly different color, a slightly
@@ -546,17 +564,11 @@ by typing ``int\_$\!$\_1$^\wedge$inf 1/x$^\wedge$2 dx = 1''.
 
 Eln can export your entire notebook or portions of it to pdf or print
 them directly. Simply press ``Control''+``P'' to open the print dialog
-and select either ``Print to pdf'' or an actual printer. The print
-dialog is in early development, and the options are currently labeled
-somewhat confusingly. Here is the key: ``Print all'' and ``Current
-page'' do what you would expect. ``Pages from $\ldots$ to $\ldots$''
-prints the requested numbered pages of the entries part of the
-notebook, \emph{or} from the table of contents if that is currently
-displayed. ``Selection'' prints all pages of the current entry.
+and select either ``Print to pdf'' or an actual printer.
 
 \section{Searching your notebook}
 
-Eln now incorporates a simple but very useful full-text search
+Eln incorporates a simple but very useful full-text search
 facility. Press ``Control''+``F'' to open the search dialog, type any
 word or phrase, and press ``Enter'' or click ``OK.'' A list with
 search results from the entire notebook will open; click on a result
