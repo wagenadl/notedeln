@@ -76,6 +76,8 @@
   "dagger": "†",
   "ddagger": "‡",
   "pilcrow": "¶",
+  "par": "¶",
+  "sec": "§",
   "section": "§",
   "half": "½",
   "quarter": "¼",
@@ -94,7 +96,7 @@
   "uS": "μS",
   "Ohm": "Ω",
   "kOhm": "kΩ",
-  "MOhm": "MΩ"
-  "GOhm": "GΩ"
+  "MOhm": "MΩ",
+  "GOhm": "GΩ",
   "mOhm": "mΩ"
 }
