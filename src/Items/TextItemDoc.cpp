@@ -335,7 +335,7 @@ int TextItemDoc::find(QPointF xy, bool strict) const {
       // rather than at start of next line if possible
     }
   }
-  return strict ? -1 : d->text->text().size();
+  return strict ? -1 : lastPosition();
 }
 
 void TextItemDoc::insert(int offset, QString text) {
@@ -347,7 +347,7 @@ void TextItemDoc::insert(int offset, QString text) {
     return;
 
   QString t0 = d->text->text();
-  Q_ASSERT(offset<=t0.size());
+  Q_ASSERT(offset>=firstPosition() && offset<=lastPosition());
   
   QVector<double> cw0 = d->charWidths();
   int N0 = cw0.size();
@@ -378,15 +378,15 @@ void TextItemDoc::remove(int offset, int length) {
      character width table, and line starts.
   */
 
-  if (offset<0) {
-    length += offset;
-    offset = 0;
+  if (offset<firstPosition()) {
+    length += offset - firstPosition();
+    offset = firstPosition();
   }
   
   QString t0 = d->text->text();
 
-  if (length+offset > t0.size())
-    length = t0.size() - offset;
+  if (length+offset > lastPosition())
+    length = lastPosition() - offset;
   
   if (length<=0)
     return;
@@ -601,7 +601,7 @@ int TextItemDoc::lineEndFor(int pos) const {
   QVector<int> starts = lineStarts();
   int line = findFirstGT(starts, pos);
   if (line<0)
-    return text().size();
+    return lastPosition();
   else
     return starts[line]-1;
 }
@@ -611,16 +611,16 @@ bool TextItemDoc::isEmpty() const {
 }
 
 QChar TextItemDoc::characterAt(int pos) const {
-  if (pos<0)
+  if (pos<firstPosition())
     return QChar(0);
   QString const &t = d->text->text();
-  if (pos>=t.size())
+  if (pos>=lastPosition())
     return QChar(0);
   return t[pos];
 }
 
 int TextItemDoc::find(QString s) const {
-  return text().indexOf(s, 0, Qt::CaseInsensitive);
+  return text().indexOf(s, firstPosition(), Qt::CaseInsensitive);
 }
 
 void TextItemDoc::makeWritable() {

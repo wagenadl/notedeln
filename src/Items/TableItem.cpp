@@ -36,7 +36,6 @@ TableItem::~TableItem() {
 }
 
 void TableItem::docChange() {
-  qDebug () << "TableItem::docChange";
   TextItem::docChange();
 }
 
@@ -63,8 +62,6 @@ bool TableItem::keyPressAsMotion(QKeyEvent *e) {
       else
 	normalizeCursorPosition();
     } else {
-      qDebug() << "table backspace" << cursor.position() << cel.firstPosition()
-	       << col << row << "C" << data()->columns();
       if (cursor.position() > cel.firstPosition()) 
 	cursor.deletePreviousChar();
       else if (col>0)
@@ -151,7 +148,6 @@ bool TableItem::nothingAfterCursor() const {
 }
 
 bool TableItem::tryToPaste(bool /*noparagraphs*/) {
-  qDebug() << "TableItem::tryToPaste";
   // following copied from TextItem's trytopaste
   QClipboard *cb = QApplication::clipboard();
   QMimeData const *md = cb->mimeData(QClipboard::Clipboard);
@@ -190,8 +186,6 @@ void TableItem::tryToCopyCells(class TableCellRange const &rng) const {
     txt = txt.left(txt.size()-1) + "\n";
   }
   html += "</table>";
-  qDebug() << "html: " << html;
-  qDebug() << " txt: " << txt;
   QClipboard *cb = QApplication::clipboard();
   QMimeData *md = new QMimeData();
   md->setText(txt);

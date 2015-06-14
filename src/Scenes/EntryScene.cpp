@@ -208,7 +208,6 @@ void EntryScene::restackBlocks(int start) {
 
   redateBlocks();
   resetSheetCount();
-  qDebug() << "EntryScene::restacked";
   emit restacked();
 }
 
@@ -292,7 +291,6 @@ void EntryScene::redateBlocks() {
       dateItem->setFont(style().font("timestamp-font"));
       dateItem->setDefaultTextColor(style().color("timestamp-color"));
     }
-    qDebug() << "Add date " << txt[i];
     dateItem->setPlainText(txt[i]);
     QRectF br = i->sceneBoundingRect();
     QPointF bs0 = i->scenePos();
@@ -310,17 +308,15 @@ void EntryScene::notifyChildless(BlockItem *gbi) {
     return;
   if (!writable)
     return;
-  //  qDebug() << "childless" << this << gbi;
   int iblock = -1;
   for (int i=0; i<blockItems.size(); ++i) {
     if (blockItems[i] == gbi) {
-      //      qDebug() << "deleting block " << i;
       deleteBlock(i);
       iblock = i;
       break;
     }
   }
-  //  qDebug() << "restacking";
+
   if (iblock>=0)
     restackBlocks(iblock);
 }
@@ -551,7 +547,6 @@ TextBlockItem *EntryScene::newTextBlock(int iAbove, bool evenIfLastEmpty) {
 }
 
 void EntryScene::futileMovement(int block) {
-  qDebug() << "futilemovement" << block;
   ASSERT(block>=0 && block<blockItems.size());
   // futile movement in a text block
   TextBlockItem *tbi = dynamic_cast<TextBlockItem *>(blockItems[block]);
@@ -641,28 +636,27 @@ void EntryScene::futileMovement(int block) {
     c.movePosition(TextCursor::End);
     break;
   case Qt::Key_Up: {
-    int N = doc->text().size();
+    int N = doc->lastPosition();
     QPointF endp = doc->locate(N);
     QPointF tgtp(p.x(), endp.y());
     int idx = doc->find(tgtp);
-    c.setPosition(idx>=0 ? idx : N);
+    c.setPosition(idx>=doc->firstPosition() ? idx : N);
     break; }
   case Qt::Key_Right:
     c.movePosition(TextCursor::Start);
     break;
   case Qt::Key_Down: {
-    QPointF startp = doc->locate(0);
+    int n = doc->firstPosition();
+    QPointF startp = doc->locate(n);
     QPointF tgtp(p.x(), startp.y());
     int idx = doc->find(tgtp);
-    c.setPosition(idx>=0 ? idx : 0);
+    c.setPosition(idx>=n ? idx : n);
     break; }
   }
-  qDebug() << "EntryScene::futilemovement setcursor " << c.position();
   tgt->setTextCursor(c);
 }
 
 void EntryScene::focusFirst(int isheet) {
-  qDebug() << "EntryScene::focusFirst" << writable;
   if (!writable)
     return;
 
@@ -704,7 +698,6 @@ void EntryScene::focusFirst(int isheet) {
 
 
 void EntryScene::focusEnd(int isheet) {
-  qDebug() << "EntryScene::focusEnd" << writable;
   if (!writable)
     return;
 
@@ -767,8 +760,6 @@ bool EntryScene::mousePressEvent(QGraphicsSceneMouseEvent *e, SheetScene *s) {
     if (it)
       break;
   }
-  qDebug() << "EntryScene::mp" << sp << sh;
-  qDebug() << "  item " << it;
   switch (data_->book()->mode()->mode()) {
   case Mode::Mark: case Mode::Freehand:
     if (!it && isWritable() && !inMargin(sp)) {
@@ -897,7 +888,6 @@ int EntryScene::findBlock(QPointF scenepos, int sheet) const {
 }
 
 bool EntryScene::dropEvent(QGraphicsSceneDragDropEvent *e, SheetScene *s) {
-  qDebug() << "dropEvent";
   QMimeData const *md = e->mimeData();
   QPointF scenePos = e->scenePos();
   int sheet = findSheet(s);
@@ -948,7 +938,6 @@ bool EntryScene::tryToPaste(SheetScene *s) {
   
   QClipboard *cb = QApplication::clipboard();
   QMimeData const *md = cb->mimeData(QClipboard::Clipboard);
-  qDebug() << "EntryScene::trytopaste" << md << fi;
   if (md->hasImage())
     return importDroppedImage(scenePos, sheet,
 			      qvariant_cast<QImage>(md->imageData()),
@@ -1039,7 +1028,6 @@ bool EntryScene::importDroppedUrl(QPointF scenePos, int sheet,
      (4) A web-page
      (5) Anything else
   */
-  qDebug() << "importdroppedurl" << url.toString();
   if (url.isLocalFile()) {
     QString path = url.toLocalFile();
     if (path.endsWith(".svg")) 
@@ -1111,7 +1099,6 @@ bool EntryScene::importDroppedText(QPointF scenePos, int sheet,
 
 bool EntryScene::importDroppedFile(QPointF scenePos, int sheet,
 				   QString const &fn) {
-  //  qDebug() << "EntryScene: import dropped file: " << scenePos << fn;
   if (!fn.startsWith("/"))
     return false;
   int start, end;
@@ -1261,7 +1248,6 @@ void EntryScene::modeChange(Mode::M m) {
     
 void EntryScene::makeUnicellular(TableData *td) {
   int iblock = findBlock(td);
-  qDebug() << "makeuni" << td << iblock;
   if (iblock<0)
     return;
 
@@ -1282,13 +1268,11 @@ void EntryScene::makeUnicellular(TableData *td) {
   
 void EntryScene::makeMulticellular(int pos, TextData *td) {
   int iblock = findBlock(td);
-  qDebug() << "makemulti " << pos << td << iblock;
   if (iblock<0)
     return;
 
   TextBlockItem *tbi0 = dynamic_cast<TextBlockItem *>(blockItems[iblock]);
   ASSERT(tbi0);
-  qDebug() << tbi0 << tbi0->text();
 
   TableBlockData *tbd1 = TableBlockData::deepCopyFromTextBlock(tbi0->data(),
 							       pos);
