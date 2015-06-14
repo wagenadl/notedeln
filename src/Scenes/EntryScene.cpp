@@ -391,8 +391,10 @@ void EntryScene::splitTextBlock(int iblock, int pos) {
   TextBlockData *block1 = Data::deepCopy(orig);
   deleteBlock(iblock);
   TextBlockData *block2 = block1->split(pos);
-  injectTextBlock(block1, iblock);
+  TextBlockItem *tbi_pre = injectTextBlock(block1, iblock);
   TextBlockItem *tbi_post = injectTextBlock(block2, iblock+1);
+  tbi_pre->text()->document()->relayout();
+  tbi_post->text()->document()->relayout();
   restackBlocks(iblock);
   gotoSheetOfBlock(iblock+1);
   tbi_post->setFocus();
@@ -419,6 +421,7 @@ void EntryScene::joinTextBlocks(int iblock_pre, int iblock_post) {
   block1->join(block2);
   block1->resetSheetSplits();
   TextBlockItem *tbi = injectTextBlock(block1, iblock_pre);
+  tbi->text()->document()->relayout();
   restackBlocks(iblock_pre);
   gotoSheetOfBlock(iblock_pre);
   tbi->setFocus();

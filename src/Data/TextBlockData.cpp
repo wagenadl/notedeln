@@ -124,6 +124,8 @@ TextBlockData *TextBlockData::split(int pos) {
   TextBlockData *block2 = deepCopy(this);
   TextData *text1 = this->text();
   TextData *text2 = block2->text();
+  text1->setLineStarts(QVector<int>());
+  text2->setLineStarts(QVector<int>());
   
   text1->setText(text1->text().left(pos));
   foreach (MarkupData *md, text1->children<MarkupData>()) {
@@ -172,6 +174,7 @@ void TextBlockData::join(TextBlockData *block2) {
 
   // import text
   text1->setText(text1->text() + text2->text());
+  text1->setLineStarts(QVector<int>());
 
   // import markups and merge as needed
   foreach (MarkupData *md, text2->children<MarkupData>()) {
