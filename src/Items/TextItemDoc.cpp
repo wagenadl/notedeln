@@ -99,6 +99,14 @@ double TextItemDoc::lineHeight() const {
   return d->lineheight;
 }
 
+void TextItemDoc::setY0(double pix) {
+  d->y0 = pix;
+}
+
+double TextItemDoc::y0() const {
+  return d->y0;
+}
+
 void TextItemDoc::setColor(QColor const &c) {
   d->color = c;
 }
@@ -231,7 +239,7 @@ void TextItemDoc::buildLinePos() {
   d->linepos.resize(K);
   for (int k=0; k<K; k++) {
     double x = d->leftmargin;
-    double y = 4 + k*d->lineheight + d->ascent;
+    double y = d->y0 + k*d->lineheight + d->ascent;
     if (k==0 || text()[d->linestarts[k]-1]==QChar('\n'))
       x += d->indent;
     d->linepos[k] = QPointF(x, y);
@@ -244,7 +252,7 @@ void TextItemDoc::buildLinePos() {
       wid += w;
   }
 
-  d->br = QRectF(QPointF(0, 0), QSizeF(wid, K*d->lineheight + 4));
+  d->br = QRectF(QPointF(0, 0), QSizeF(wid, K*d->lineheight + d->y0));
 }
 
 void TextItemDoc::partialRelayout(int /* start */, int /* end */) {
@@ -642,7 +650,7 @@ QString TextItemDoc::selectedText(int start, int end) const {
 double TextItemDoc::splittableY(double ymax) const {
   double ybest = -1;
   foreach (QPointF lp, d->linepos) {
-    double y = lp.y() - d->ascent - 4;
+    double y = lp.y() - d->ascent - d->y0;
     if (y>ybest && y<=ymax)
       ybest = y;
   }

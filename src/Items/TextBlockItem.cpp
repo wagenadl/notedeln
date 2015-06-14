@@ -104,7 +104,6 @@ void TextBlockItem::setTIFormat(TextItem *ti) {
   ti->setTextWidth(style().real("page-width")
 		   - style().real("margin-left")
 		   - style().real("margin-right"), false);
-  ti->setPos(0, style().real("text-block-above"));
 
   ti->setFont(style().font(disp ? "display-text-font" : "text-font"));
   ti->setDefaultTextColor(style().color(disp ? "display-text-color"
@@ -119,10 +118,17 @@ void TextBlockItem::initializeFormat() {
 
   TextItemDoc *doc = frags[0]->document();
   TextCursor tc(doc);
-  doc->setLineHeight(style().lineSpacing(disp ? "display-text-font"
-					 : "text-font",
-                                         disp ? "display-paragraph-line-spacing"
-                                         : "paragraph-line-spacing"));
+
+  QString fontkey = disp ? "display-text-font" : "text-font";
+  QString lskey = disp ? "display-paragraph-line-spacing"
+    : "paragraph-line-spacing";
+  double lh = style().lineSpacing(fontkey, lskey);
+  double y0 = style().real("text-block-above");
+  if (disp)
+    y0 += .5*(lh - style().lineSpacing("text-font", "paragraph-line-spacing"));
+  doc->setY0(y0);
+  doc->setLineHeight(lh);
+  
   double indent =
     data()->indented() ? style().real("paragraph-indent")
     : data()->dedented() ? -style().real("paragraph-indent")

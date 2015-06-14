@@ -31,6 +31,7 @@ public:
   double ascent;
   double xheight;
   double descent;
+  double y0;
 public:
   TextItemDocData(TextData *text);
   QVector<double> const &charWidths() const;

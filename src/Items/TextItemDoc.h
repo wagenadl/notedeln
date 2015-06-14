@@ -37,6 +37,8 @@ public:
   double width() const;
   void setLineHeight(double pix);
   double lineHeight() const;
+  void setY0(double pix);
+  double y0() const;
   void setColor(QColor const &c);
   QColor color() const;
   bool isEmpty() const;
