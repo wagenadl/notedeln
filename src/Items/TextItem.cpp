@@ -629,6 +629,7 @@ bool TextItem::muckWithIndentation(TextBlockItem *p,
   prepareGeometryChange();
   p->initializeFormat();
   text->relayout();
+  p->sizeToFit();
   update();
   return true;
 }
