@@ -117,6 +117,8 @@ void GfxNoteItem::updateTextPos() {
       double tw = style().real("page-width")
 	- style().real("margin-right-over")
 	- sr.left();
+      if (tw<36)
+	tw = 36;
       data()->setTextWidth(tw);
       text->setTextWidth(tw);
     }
