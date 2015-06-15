@@ -84,6 +84,7 @@ private slots:
 private:
   class SceneBank *bank; // we do not own!
   class Notebook *book; // we do not own!
+  class Mode *mode_; // we own
   CachedPointer<class EntryScene> entryScene;
   int currentPage;
   int currentSheet;

@@ -46,6 +46,7 @@ PageView::PageView(SceneBank *bank, QWidget *parent):
   QGraphicsView(parent), bank(bank) {
   book = bank->book(); // for convenience only
   ASSERT(book);
+  mode_ = new Mode(this);
   searchDialog = new SearchDialog(this);
   deletedStack = new DeletedStack(this);
 
@@ -567,8 +568,7 @@ void PageView::lastPage() {
 }
 
 Mode *PageView::mode() const {
-  ASSERT(book);
-  return book->mode();
+  return mode_;
 }
 
 Notebook *PageView::notebook() const {

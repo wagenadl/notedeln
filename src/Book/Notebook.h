@@ -49,7 +49,6 @@ public:
   class Index *index() const;
   class BookData *bookData() const;
   class Style const &style() const;
-  class Mode *mode() const;
   QString filePath(QString) const; // path of file in root
   QString dirPath() const; // path of root
 signals:
@@ -90,7 +89,6 @@ private:
   BookFile *bookFile_;
   Index *index_;
   Style const *style_;
-  Mode *mode_;
   class QTimer *updateTimer;
   class QTimer *commitTimer;
   QDateTime mostRecentChange;

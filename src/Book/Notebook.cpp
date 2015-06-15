@@ -23,7 +23,6 @@
 #include "TitleData.h"
 #include "Style.h"
 #include "Assert.h"
-#include "Mode.h"
 #include "RecentBooks.h"
 #include "VersionControl.h"
 #include "BackgroundVC.h"
@@ -42,8 +41,6 @@ Notebook::Notebook(QString path) {
   commitTimer = 0;
   root = QDir(path);
 
-  mode_ = new Mode(this);
-  
   backgroundVC = 0;
   updateTimer = 0;
   commitTimer = 0;
@@ -384,10 +381,6 @@ void Notebook::committed(bool ok) {
     // we'll have to try again
     commitSoonish();
   }
-}
-
-Mode *Notebook::mode() const {
-  return mode_;
 }
 
 Index *Notebook::index() const {
