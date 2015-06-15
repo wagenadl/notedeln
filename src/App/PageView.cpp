@@ -27,6 +27,7 @@
 #include "FrontScene.h"
 #include "TitleData.h"
 #include "DeletedStack.h"
+#include "Cursors.h"
 #include "Assert.h"
 #include "Mode.h"
 #include "BlockItem.h"
@@ -127,6 +128,7 @@ void PageView::dragEnterEvent(QDragEnterEvent *e) {
 
 void PageView::enterEvent(QEvent *e) {
   markEventView();
+  modeChange();
   QGraphicsView::enterEvent(e);
 }
 
@@ -707,8 +709,16 @@ int PageView::pageNumber() const {
 }
 
 void PageView::modeChange() {
-  if (currentSection==Entries)
-    entryScene->modeChange(mode()->mode());
+  if (!scene())
+    return;
+  SheetScene *ss = dynamic_cast<SheetScene *>(scene());
+  if (ss)
+    ss->setCursors();
+  QPoint p0 = mapFromGlobal(QCursor::pos());
+  QPointF p = mapToScene(p0);
+  Item *item = dynamic_cast<Item*>(scene()->itemAt(p));
+  if (item)
+    item->setCursor(Cursors::refined(item->cursorShape()));
 }
 
 void PageView::drop(QDropEvent e) {

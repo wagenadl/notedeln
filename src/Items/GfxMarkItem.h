@@ -46,8 +46,8 @@ protected:
   virtual void mousePressEvent(QGraphicsSceneMouseEvent *);
   virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *);
   virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *);
-private slots:
-  void modeChange(Mode::M);
+  virtual bool changesCursorShape() const;
+  virtual Qt::CursorShape cursorShape() const;
 };
 
 #endif

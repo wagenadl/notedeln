@@ -40,7 +40,6 @@ public:
   bool makesOwnNotes() const { return isWritable(); }
 public slots:
   void sizeToFit();
-  void modeChange();
 public: // should be protected, but EntryScene calls it
   virtual void mousePressEvent(QGraphicsSceneMouseEvent *);
 protected:
@@ -50,7 +49,8 @@ protected:
   void importDroppedText(QString txt, QPointF p);
   void importDroppedUrl(QUrl const &url, QPointF p);
   void importDroppedSvg(QUrl const &url, QPointF p);
-
+  virtual bool changesCursorShape() const;
+  virtual Qt::CursorShape cursorShape() const;
 private:
   double availableWidth() const;
   QRectF generousChildrenBounds() const;

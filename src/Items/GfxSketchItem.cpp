@@ -203,15 +203,17 @@ void GfxSketchItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *e) {
 }
 
 
-void GfxSketchItem::modeChange(Mode::M m) {
-  if (m==Mode::MoveResize)
-    setCursor(Qt::SizeAllCursor);
+Qt::CursorShape GfxSketchItem::cursorShape() const {
+  if (mode()->mode()==Mode::MoveResize)
+    return Qt::SizeAllCursor;
   else 
-    setCursor(Cursors::crossCursor());
+    return Qt::CrossCursor;
+}
+
+bool GfxSketchItem::changesCursorShape() const {
+  return true;
 }
 
 void GfxSketchItem::makeWritable() {
-  connect(mode(), SIGNAL(modeChanged(Mode::M)),
-	  SLOT(modeChange(Mode::M)));
   Item::makeWritable();
 }

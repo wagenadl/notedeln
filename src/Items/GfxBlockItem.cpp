@@ -47,7 +47,6 @@ GfxBlockItem::GfxBlockItem(GfxBlockData *data, Item *parent):
 
   foreach (GfxData *g, data->gfx()) 
     create(g, this);
-  setCursor(defaultCursor());
 }
 
 GfxBlockItem::~GfxBlockItem() {
@@ -204,7 +203,7 @@ void GfxBlockItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
   } else {
     if (mod==Mode::Annotate) {
       createNote(e->pos(), true);
-      data()->book()->mode()->setMode(Mode::Type);
+      mode()->setMode(Mode::Type);
       take = true;
     }
   }    
@@ -217,10 +216,7 @@ void GfxBlockItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
 
 void GfxBlockItem::makeWritable() {
   BlockItem::makeWritable();
-  connect(mode(), SIGNAL(modeChanged(Mode::M)),
-	  SLOT(modeChange()));
   setAcceptDrops(true);
-  modeChange(); // so that cursor gets set
 }
 
 void GfxBlockItem::dragEnterEvent(QGraphicsSceneDragDropEvent *e) {
@@ -232,12 +228,16 @@ void GfxBlockItem::dragEnterEvent(QGraphicsSceneDragDropEvent *e) {
 }
 
 void GfxBlockItem::dragLeaveEvent(QGraphicsSceneDragDropEvent *e) {
-  modeChange();
   BlockItem::dragLeaveEvent(e);
+  setCursor(cursorShape());
 }
 
-void GfxBlockItem::modeChange() {
-  Qt::CursorShape cs = Qt::ArrowCursor;
+bool GfxBlockItem::changesCursorShape() const {
+  return true;
+}
+
+Qt::CursorShape GfxBlockItem::cursorShape() const {
+  Qt::CursorShape cs = defaultCursorShape();
   switch (mode()->mode()) {
   case Mode::Annotate:
     cs = Qt::CrossCursor;
@@ -249,7 +249,7 @@ void GfxBlockItem::modeChange() {
   default:
     break;
   }
-  setCursor(Cursors::refined(cs));
+  return cs;
 }
 
 void GfxBlockItem::dropEvent(QGraphicsSceneDragDropEvent *e) {

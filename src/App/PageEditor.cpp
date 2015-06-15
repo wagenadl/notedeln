@@ -40,7 +40,7 @@ PageEditor::PageEditor(SceneBank *bank): bank(bank) {
   setWindowTitle(ttl.replace(QRegExp("\\s\\s*"), " ") + " - " + appname);
 
   view = new PageView(bank, this);
-  toolview = new ToolView(nb->mode(), view);
+  toolview = new ToolView(view->mode(), view);
 
   connect(toolview->toolbars()->navbar(), SIGNAL(goTOC()),
 	  view, SLOT(gotoTOC()));

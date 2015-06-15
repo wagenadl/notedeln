@@ -6,6 +6,7 @@
 #include "TextData.h"
 #include "TitleItem.h"
 #include "PageView.h"
+#include "Cursors.h"
 
 #include <QGraphicsTextItem>
 #include <QGraphicsRectItem>
@@ -288,6 +289,11 @@ PageView *SheetScene::pageView() const {
   return dynamic_cast<PageView*>(eventView());
 }
 
+Mode *SheetScene::mode() const {
+  PageView *pv = pageView();
+  return pv ? pv->mode() : 0;
+}
+
 QGraphicsView *SheetScene::eventView() const {
   QGraphicsView *ev = eventView_;
   if (ev)
@@ -309,3 +315,25 @@ void SheetScene::futileTitleMovement(int key, Qt::KeyboardModifiers) {
   }
 }
 
+void SheetScene::setCursors() {
+  Qt::CursorShape marginShape = Item::defaultCursorShape();
+  Qt::CursorShape backgroundShape = Item::defaultCursorShape();
+  switch (mode()->mode()) {
+  case Mode::Type:
+    backgroundShape = Qt::IBeamCursor;
+    break;
+  case Mode::Mark: case Mode::Freehand:
+    backgroundShape = Qt::CrossCursor;
+    break;
+  case Mode::Annotate:    
+    marginShape = backgroundShape = Qt::CrossCursor;
+    break;
+  case Mode::Highlight: case Mode::Strikeout: case Mode::Plain:
+    break;
+  default:
+    break;
+  }  
+
+  marginItem()->setCursor(Cursors::refined(marginShape));
+  backgroundItem()->setCursor(Cursors::refined(backgroundShape));
+}  

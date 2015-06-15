@@ -18,19 +18,18 @@
 
 #include "TextItem.h"
 #include "TextData.h"
+#include "Cursors.h"
 #include "Mode.h"
 #include "EntryScene.h"
 #include "SearchDialog.h"
 #include "Style.h"
 #include "ResManager.h"
-//#include "HoverRegion.h"
 #include "BlockItem.h"
 #include "ResourceMagic.h"
 #include "Assert.h"
 #include "TeXCodes.h"
 #include "Digraphs.h"
 #include "TextBlockItem.h"
-#include "Cursors.h"
 #include "TextItemDoc.h"
 #include "LinkHelper.h"
 #include "HtmlBuilder.h"
@@ -117,7 +116,6 @@ void TextItem::setAllowMoves() {
   mayMove = true;
   setAcceptHoverEvents(true);
   setAcceptHoverEvents(true);
-  connect(mode(), SIGNAL(modeChanged(Mode::M)), SLOT(modeChange(Mode::M)));
 }
 
 TextItem::~TextItem() {
@@ -1005,9 +1003,9 @@ bool TextItem::shouldResize(QPointF p) const {
   return should;
 }
  
-void TextItem::modeChange(Mode::M m) {
-  Qt::CursorShape cs = defaultCursor();
-  switch (m) {
+Qt::CursorShape TextItem::cursorShape() const {
+  Qt::CursorShape cs = defaultCursorShape();
+  switch (mode()->mode()) {
   case Mode::Type:
     if (isWritable())
       cs = Qt::IBeamCursor;
@@ -1029,19 +1027,23 @@ void TextItem::modeChange(Mode::M m) {
   default:
     break;
   }
-  setCursor(Cursors::refined(cs));
+  return cs;
+}
+
+bool TextItem::changesCursorShape() const {
+  return true;
 }
 
 void TextItem::hoverMoveEvent(QGraphicsSceneHoverEvent *e) {
   cursorPos = e->pos(); // cache for the use of modifierChanged
-  modeChange(mode()->mode());
+  setCursor(Cursors::refined(cursorShape()));
   linkHelper->mouseMove(e);
   e->accept();
 }
 
 void TextItem::hoverLeaveEvent(QGraphicsSceneHoverEvent *e) {
   cursorPos = e->pos(); // cache for the use of modifierChanged
-  modeChange(mode()->mode());
+  setCursor(Cursors::refined(cursorShape()));
   linkHelper->mouseMove(e);
   e->accept();
 }

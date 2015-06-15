@@ -58,13 +58,13 @@ private:
     CropTop,
     CropBottom,
   };
-private slots:
-  void modeChange(Mode::M);
+protected:
+  virtual Qt::CursorShape cursorShape() const;
+  virtual bool changesCursorShape() const;
 private:
   QPointF moveDelta(QGraphicsSceneMouseEvent *);
-  DragType dragTypeForPoint(QPointF);
-  Qt::CursorShape cursorForDragType(DragType);
-  void setCursor(Qt::CursorShape);
+  DragType dragTypeForPoint(QPointF) const;
+  static Qt::CursorShape cursorForDragType(DragType);
 private:
   QImage image; // not cropped
   DragType dragType;

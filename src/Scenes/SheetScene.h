@@ -32,10 +32,13 @@ public:
   class PageView *pageView() const;
   // As above, but dynamic_casted to PageView. Can be null!
   void setEventView(QGraphicsView *);
+  class Mode *mode() const;
   QGraphicsRectItem *backgroundItem() { return bgItem; }
   QGraphicsRectItem *marginItem() { return margItem; }
 signals:
   void leaveTitle();
+public:
+  void setCursors();
 protected:
   virtual void mousePressEvent(QGraphicsSceneMouseEvent *);
   virtual void keyPressEvent(QKeyEvent *);

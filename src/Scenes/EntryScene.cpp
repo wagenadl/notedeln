@@ -763,7 +763,8 @@ bool EntryScene::mousePressEvent(QGraphicsSceneMouseEvent *e, SheetScene *s) {
     if (it)
       break;
   }
-  switch (data_->book()->mode()->mode()) {
+  Mode *mo = sheets[sh]->mode();
+  switch (mo->mode()) {
   case Mode::Mark: case Mode::Freehand:
     if (!it && isWritable() && !inMargin(sp)) {
       GfxBlockItem *blk = newGfxBlockAt(sp, sh);
@@ -783,7 +784,7 @@ bool EntryScene::mousePressEvent(QGraphicsSceneMouseEvent *e, SheetScene *s) {
       it->createNote(it->mapFromScene(sp));
     else
       createNote(sp, sh);
-    data_->book()->mode()->setMode(Mode::Type);
+    mo->setMode(Mode::Type);
     take = true;
     break;
   default:
@@ -1225,30 +1226,6 @@ void EntryScene::gotoSheetOfBlock(int n) {
   }
 }
 
-void EntryScene::modeChange(Mode::M m) {
-  Qt::CursorShape marginShape = Qt::ArrowCursor;
-  Qt::CursorShape backgroundShape = Qt::ArrowCursor;
-  switch (m) {
-  case Mode::Type:
-    backgroundShape = Qt::IBeamCursor;
-    break;
-  case Mode::Mark: case Mode::Freehand:
-    backgroundShape = Qt::CrossCursor;
-    break;
-  case Mode::Annotate:    
-    marginShape = backgroundShape = Qt::CrossCursor;
-    break;
-  case Mode::Highlight: case Mode::Strikeout: case Mode::Plain:
-    break;
-  default:
-    break;
-  }
-  foreach (SheetScene *sh, sheets) {
-    sh->marginItem()->setCursor(Cursors::refined(marginShape));
-    sh->backgroundItem()->setCursor(Cursors::refined(backgroundShape));
-  }
-}
-    
 void EntryScene::makeUnicellular(TableData *td) {
   int iblock = findBlock(td);
   if (iblock<0)

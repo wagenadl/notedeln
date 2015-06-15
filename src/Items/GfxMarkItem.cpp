@@ -154,15 +154,17 @@ void GfxMarkItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *e) {
 }
 
 
-void GfxMarkItem::modeChange(Mode::M m) {
-  if (m==Mode::MoveResize)
-    setCursor(Qt::SizeAllCursor);
+Qt::CursorShape GfxMarkItem::cursorShape() const {
+  if (mode()->mode()==Mode::MoveResize)
+    return Qt::SizeAllCursor;
   else 
-    setCursor(Cursors::crossCursor());
+    return Qt::CrossCursor;
+}
+
+bool GfxMarkItem::changesCursorShape() const {
+  return true;
 }
 
 void GfxMarkItem::makeWritable() {
-  connect(mode(), SIGNAL(modeChanged(Mode::M)),
-	  SLOT(modeChange(Mode::M)));
   Item::makeWritable();
 }

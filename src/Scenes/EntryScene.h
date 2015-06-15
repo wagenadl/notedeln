@@ -56,7 +56,6 @@ public:
   QList<class FootnoteItem const *> footnotes() const;
 public slots:
   void notifyChildless(class BlockItem *);
-  void modeChange(Mode::M);
   void redateBlocks();
 signals:
   void restacked();

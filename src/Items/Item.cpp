@@ -20,6 +20,7 @@
 #include "EntryScene.h"
 #include <QDebug>
 #include "Notebook.h"
+#include "Cursors.h"
 #include "LateNoteItem.h"
 #include "FootnoteItem.h" // for debug
 #include "EntryScene.h"
@@ -32,11 +33,13 @@
 #include <QGraphicsDropShadowEffect>
 #include "Mode.h"
 #include "BlockItem.h"
+#include "SheetScene.h"
 
 Item::Item(Data *d, Item *parent): QGraphicsObject(parent), d(d) {
   ASSERT(d);
   writable = false;
   setAcceptHoverEvents(true);
+  //  setCursor(defaultCursorShape());
 }
 
 Item::~Item() {
@@ -81,11 +84,12 @@ void Item::makeWritable() {
     i->makeWritable();
 }
 
-Mode const *Item::mode() const {
-  ASSERT(d);
-  Notebook *nb = d->book();
-  ASSERT(nb);
-  return nb->mode();
+Mode *Item::mode() const {
+  SheetScene *ss = dynamic_cast<SheetScene*>(scene());
+  ASSERT(ss);
+  Mode *m = ss->mode();
+  ASSERT(m);
+  return m;
 }
 
 Item *Item::create(Data *d, Item *parent) {
@@ -122,8 +126,16 @@ QList<Item*> Item::allChildren() const {
   return children<Item>();
 }
 
-Qt::CursorShape Item::defaultCursor() {
+Qt::CursorShape Item::defaultCursorShape() {
   return Qt::ArrowCursor;
+}
+
+Qt::CursorShape Item::cursorShape() const {
+  return defaultCursorShape();
+}
+
+bool Item::changesCursorShape() const {
+  return false;
 }
 
 GfxNoteItem *Item::newNote(QPointF p0, QPointF p1, bool late) {
@@ -157,6 +169,8 @@ void Item::hoverEnterEvent(QGraphicsSceneHoverEvent *) {
     eff->setBlurRadius(4);
     setGraphicsEffect(eff);
   }
+  if (changesCursorShape())
+    setCursor(Cursors::refined(cursorShape()));
 }
 
 void Item::hoverLeaveEvent(QGraphicsSceneHoverEvent *) {

@@ -39,7 +39,7 @@ public:
   bool beingDeleted() const { return d==0; }
   DATAACCESS(Data);
   Item *parent() const;
-  class Mode const *mode() const;
+  class Mode *mode() const;
   virtual QRectF netBounds() const;
   virtual bool excludeFromNet() const;
   bool isWritable() const;
@@ -83,8 +83,11 @@ public: // but only for use in derived class source files
       return new IT(dynamic_cast<DT*>(d), parent);
     }
   };
+public:
+  static Qt::CursorShape defaultCursorShape();
+  virtual bool changesCursorShape() const;
+  virtual Qt::CursorShape cursorShape() const;
 protected:
-  static Qt::CursorShape defaultCursor();
   virtual void hoverEnterEvent(QGraphicsSceneHoverEvent *);
   virtual void hoverLeaveEvent(QGraphicsSceneHoverEvent *);
   template<class T> T *castData() {

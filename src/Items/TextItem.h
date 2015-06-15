@@ -93,7 +93,9 @@ private:
 protected slots:
   virtual void markupChange(MarkupData *);
   virtual void docChange();
-  virtual void modeChange(Mode::M);
+protected:
+  Qt::CursorShape cursorShape() const;
+  bool changesCursorShape() const;
 public:
   QString markedText(MarkupData *);
   bool tryExplicitLink();

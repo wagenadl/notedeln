@@ -73,9 +73,6 @@ GfxImageItem::GfxImageItem(GfxImageData *data, Item *parent):
     Item *i = create(gd, this);
     i->setScale(1./data->scale());
   }
-
-  oldCursor = Qt::ArrowCursor;
-  setCursor(defaultCursor());
 }
 
 GfxImageItem::~GfxImageItem() {
@@ -242,7 +239,7 @@ void GfxImageItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
   } else { // not writable (i.e., not recent)
     if (mode()->mode()==Mode::Annotate) {
       GfxNoteItem *gni = createNote(e->pos(), true);
-      data()->book()->mode()->setMode(Mode::Type);
+      mode()->setMode(Mode::Type);
       gni->setScale(1./data()->scale());
       take = true;
     }
@@ -278,7 +275,7 @@ void GfxImageItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *e) {
   e->accept();
 }
 
-GfxImageItem::DragType GfxImageItem::dragTypeForPoint(QPointF p) {
+GfxImageItem::DragType GfxImageItem::dragTypeForPoint(QPointF p) const {
   p -= data()->cropRect().topLeft();
   double x = p.x();
   double y = p.y();
@@ -320,22 +317,18 @@ Qt::CursorShape GfxImageItem::cursorForDragType(GfxImageItem::DragType dt) {
   case CropTop: case CropBottom:
     return Qt::SplitVCursor;
   }
-  return defaultCursor(); // this statement will not be reached
+  return defaultCursorShape(); // this statement will not be reached
 }
 
-void GfxImageItem::setCursor(Qt::CursorShape newCursor) {
-  if (newCursor==oldCursor)
-    return;
-  
-  QGraphicsObject::setCursor(Cursors::refined(newCursor));
-  oldCursor = newCursor;
+bool GfxImageItem::changesCursorShape() const {
+  return true;
 }
 
-void GfxImageItem::modeChange(Mode::M m) {
-  if (m==Mode::MoveResize)
-    setCursor(cursorForDragType(dragTypeForPoint(cursorPos)));
+Qt::CursorShape GfxImageItem::cursorShape() const {
+  if (mode()->mode()==Mode::MoveResize)
+    return cursorForDragType(dragTypeForPoint(cursorPos));
   else 
-    setCursor(Qt::CrossCursor);
+    return Qt::CrossCursor;
 }
 
 void GfxImageItem::hoverMoveEvent(QGraphicsSceneHoverEvent *e) {
@@ -356,9 +349,6 @@ QRectF GfxImageItem::boundingRect() const {
 }
 
 void GfxImageItem::makeWritable() {
-  connect(mode(), SIGNAL(modeChanged(Mode::M)),
-	  SLOT(modeChange(Mode::M)));
-  //  qDebug() << "GII:MakeWritable";
   Item::makeWritable();
   setAcceptHoverEvents(true);
 }
