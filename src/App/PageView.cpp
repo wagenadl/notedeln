@@ -119,6 +119,21 @@ void PageView::mousePressEvent(QMouseEvent *e) {
   QGraphicsView::mousePressEvent(e);
 }
 
+void PageView::dragEnterEvent(QDragEnterEvent *e) {
+  markEventView();
+  QGraphicsView::dragEnterEvent(e);
+}
+
+void PageView::enterEvent(QEvent *e) {
+  markEventView();
+  QGraphicsView::enterEvent(e);
+}
+
+void PageView::inputMethodEvent(QInputMethodEvent *e) {
+  markEventView();
+  QGraphicsView::inputMethodEvent(e);
+}
+
 void PageView::markEventView() {
   switch (currentSection) {
   case Front:
@@ -561,6 +576,7 @@ Notebook *PageView::notebook() const {
 }
 
 void PageView::wheelEvent(QWheelEvent *e) {
+  markEventView();
   wheelDeltaAccum += e->delta();
   int step = (e->modifiers() & Qt::ShiftModifier) ? 10 : 1;
   while (wheelDeltaAccum>=wheelDeltaStepSize) {

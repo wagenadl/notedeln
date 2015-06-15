@@ -67,7 +67,9 @@ protected:
   void keyReleaseEvent(QKeyEvent *);
   void mousePressEvent(QMouseEvent *);
   void wheelEvent(QWheelEvent *);
-  //  void dragEnterEvent(QDragEnterEvent *);
+  void dragEnterEvent(QDragEnterEvent *);
+  void enterEvent(QEvent *);
+  void inputMethodEvent(QInputMethodEvent *);
   //  void dragMoveEvent(QDragMoveEvent *);
 private:
   void leavePage();

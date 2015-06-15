@@ -5,6 +5,7 @@
 #include "Style.h"
 #include "TextData.h"
 #include "TitleItem.h"
+#include "PageView.h"
 
 #include <QGraphicsTextItem>
 #include <QGraphicsRectItem>
@@ -281,6 +282,10 @@ void SheetScene::drawBackground(QPainter *p, const QRectF &r) {
 
 void SheetScene::setEventView(QGraphicsView *pv) {
   eventView_ = pv;
+}
+
+PageView *SheetScene::pageView() const {
+  return dynamic_cast<PageView*>(eventView());
 }
 
 QGraphicsView *SheetScene::eventView() const {
