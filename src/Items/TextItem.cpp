@@ -108,6 +108,7 @@ void TextItem::makeWritableNoRecurse() {
   // this ugliness is for the sake of title items that have notes attached
   Item::makeWritableNoRecurse();
   setFlag(ItemIsFocusable);
+  setFlag(ItemAcceptsInputMethod);
   text->makeWritable();
   linkHelper->updateAll();
 }
@@ -687,17 +688,25 @@ bool TextItem::keyPressAsSpecialChar(QKeyEvent *e) {
   }
 }
 
+void TextItem::inputMethodEvent(QInputMethodEvent *e) {
+  if (mode()->mode()==Mode::Type) 
+    cursor.insertText(e->commitString());
+  e->accept();
+}
   
 void TextItem::keyPressEvent(QKeyEvent *e) {
-  if (keyPressWithControl(e)
+  qDebug() << "TextItem:keyPress" << e->key();
+  if (keyPressWithControl(e) 
       || keyPressAsSpecialChar(e)
       || (mode()->mathMode() && keyPressAsMath(e))
       || keyPressAsMotion(e)
       || keyPressAsSpecialEvent(e)
-      || keyPressAsInsertion(e))
+      || keyPressAsInsertion(e)) {
     e->accept();
-  else
-    e->ignore();
+  } else {
+    qDebug() << "Passing on";
+    Item::keyPressEvent(e);
+  }
 }
 
 bool TextItem::charBeforeIsLetter(int pos) const {

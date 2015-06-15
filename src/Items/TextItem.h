@@ -74,6 +74,7 @@ public:
   virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *);
   virtual void mousePressEvent(QGraphicsSceneMouseEvent *);
   virtual void mouseDoubleClickEvent(QGraphicsSceneMouseEvent *);
+  virtual void inputMethodEvent(QInputMethodEvent *);
   virtual void keyPressEvent(QKeyEvent *);
   virtual void focusInEvent(QFocusEvent *);
   virtual void focusOutEvent(QFocusEvent *);
