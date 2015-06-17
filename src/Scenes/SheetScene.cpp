@@ -281,26 +281,23 @@ void SheetScene::drawBackground(QPainter *p, const QRectF &r) {
 }
 
 
-void SheetScene::setEventView(QGraphicsView *pv) {
+void SheetScene::setEventView(PageView *pv) {
   eventView_ = pv;
 }
 
-PageView *SheetScene::pageView() const {
-  return dynamic_cast<PageView*>(eventView());
-}
-
 Mode *SheetScene::mode() const {
-  PageView *pv = pageView();
+  PageView *pv = eventView();
   return pv ? pv->mode() : 0;
 }
 
-QGraphicsView *SheetScene::eventView() const {
+PageView *SheetScene::eventView() const {
   QGraphicsView *ev = eventView_;
-  if (ev)
-    return ev;
-
-  QList<QGraphicsView *> vv = views();
-  return vv.isEmpty() ? 0 : vv[0];
+  if (!ev) {
+    QList<QGraphicsView *> vv = views();
+    if (!vv.isEmpty())
+      ev = vv[0];
+  }
+  return dynamic_cast<PageView*>(ev);
 }
 
 void SheetScene::futileTitleMovement(int key, Qt::KeyboardModifiers) {

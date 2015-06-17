@@ -27,11 +27,9 @@ public:
   void setOverlay(QGraphicsObject *);
   void repositionTitle();
   class TextItemDoc *fancyTitleDocument();
-  QGraphicsView *eventView() const;
+  class PageView *eventView() const;
   // This is the view from which the current mouse, key, enter, etc event came
-  class PageView *pageView() const;
-  // As above, but dynamic_casted to PageView. Can be null!
-  void setEventView(QGraphicsView *);
+  void setEventView(class PageView *);
   class Mode *mode() const;
   QGraphicsRectItem *backgroundItem() { return bgItem; }
   QGraphicsRectItem *marginItem() { return margItem; }

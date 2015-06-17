@@ -232,3 +232,14 @@ bool BaseScene::keyPressEvent(QKeyEvent *, SheetScene *) {
 bool BaseScene::dropEvent(QGraphicsSceneDragDropEvent *, SheetScene *) {
   return false;
 }
+
+  
+
+void BaseScene::setEventView(PageView *pv) {
+  eventview = pv;
+}
+
+PageView *BaseScene::eventView() const {
+  QGraphicsView *ev = eventview;
+  return dynamic_cast<PageView*>(ev);
+}

@@ -44,9 +44,11 @@ public:
   virtual void populate();
   void addItem(QGraphicsItem *it, int sheet);
   class SheetScene *sheet(int n, bool autoextend=false);
+  class PageView *eventView() const;
 public slots:
   virtual void focusTitle(int sheet);
   virtual void focusFirst(int /*sheet*/) {}
+  void setEventView(class PageView *);
 protected slots:
   virtual void titleEdited() {}
 protected:
@@ -70,6 +72,7 @@ protected:
   QList<class SheetScene *> sheets;
   bool contInMargin;
   class QSignalMapper *focusFirstMapper;
+  QPointer<QGraphicsView> eventview;
 };
 
 #endif

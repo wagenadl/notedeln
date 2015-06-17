@@ -79,6 +79,7 @@ private:
   void markEventView();
 private slots:
   bool gotoSheet(int n);
+  void handleSheetRequest(int n);
   void notebookReloaded(QMap<int,int>);
   void modeChange();
 private:

@@ -85,6 +85,28 @@ void PageView::resizeEvent(QResizeEvent *e) {
   emit scaled(matrix().m11());
 }
 
+void PageView::handleSheetRequest(int n) {
+  BaseScene *sc = 0;
+  switch (currentSection) {
+  case Front:
+    break;
+  case TOC:
+    sc = bank->tocScene();
+    break;
+  case Entries:
+    sc = entryScene.obj();
+    break;
+  }
+  if (sc && currentSheet<sc->sheetCount()) {
+    PageView *ev = sc->eventView();
+    if (ev && ev!=this) {
+      qDebug() << "PageView" << (void*)this << "ignoring request" << n;
+      return;
+    }
+  }
+  gotoSheet(n);
+}
+
 bool PageView::gotoSheet(int n) {
   if (n<0)
     return false;
@@ -142,9 +164,11 @@ void PageView::markEventView() {
   case Front:
     break;
   case TOC:
+    bank->tocScene()->setEventView(this);
     bank->tocScene()->sheet(currentSheet)->setEventView(this);
     break;
   case Entries:
+    entryScene->setEventView(this);
     entryScene->sheet(currentSheet)->setEventView(this);
     break;
   }
@@ -410,7 +434,8 @@ void PageView::gotoEntryPage(int n, int dir) {
     leavePage();
     entryScene = bank->entryScene(te->startPage());
 
-    connect(entryScene.obj(), SIGNAL(sheetRequest(int)), SLOT(gotoSheet(int)));
+    connect(entryScene.obj(), SIGNAL(sheetRequest(int)),
+	    SLOT(handleSheetRequest(int)));
     if (entryScene->data()->isRecent() || entryScene->data()->isUnlocked())
       entryScene->makeWritable(); // this should be even more sophisticated
     currentSection = Entries;
