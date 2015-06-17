@@ -53,7 +53,7 @@ void MarkShapeBar::setMarkSize(double s) {
   }
 }
  
-void MarkShapeBar::doLeftClick(QString id) {
+void MarkShapeBar::doLeftClick(QString id, Qt::KeyboardModifiers) {
   mode->setShape(idToShape(id));
 }
 

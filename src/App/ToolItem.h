@@ -36,8 +36,8 @@ public:
   virtual void paint(QPainter *, const QStyleOptionGraphicsItem *, QWidget *);
   virtual QRectF boundingRect() const;
 signals:
-  void leftClick();
-  void rightClick();
+  void leftClick(Qt::KeyboardModifiers);
+  void rightClick(Qt::KeyboardModifiers);
   void release();
 protected:
   void hoverEnterEvent(QGraphicsSceneHoverEvent *);

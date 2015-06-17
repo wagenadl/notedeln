@@ -30,7 +30,7 @@ public:
 public slots:
   void setColor(QColor);
 protected:
-  virtual void doLeftClick(QString id);
+  virtual void doLeftClick(QString id, Qt::KeyboardModifiers);
 private:
   static double idToWidth(QString);
   static QString widthToId(double);

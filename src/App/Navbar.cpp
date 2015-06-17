@@ -70,19 +70,19 @@ Navbar::Navbar(QGraphicsItem *parent): Toolbar(parent) {
 Navbar::~Navbar() {
 }
 
-void Navbar::doLeftClick(QString s) {
+void Navbar::doLeftClick(QString s, Qt::KeyboardModifiers m) {
   if (s==NAV_TOC)
-    emit goTOC();
+    emit goTOC(m);
   else if (s==NAV_FIND)
     emit goFind();
   else if (s==NAV_P10)
-    emit goRelative(-10);
+    emit goRelative(-10, m);
   else if (s==NAV_PREV)
-    emit goRelative(-1);
+    emit goRelative(-1, m);
   else if (s==NAV_NEXT)
-    emit goRelative(1);
+    emit goRelative(1, m);
   else if (s==NAV_N10)
-    emit goRelative(10);
+    emit goRelative(10, m);
   else if (s==NAV_END)
-    emit goEnd();
+    emit goEnd(m);
 }

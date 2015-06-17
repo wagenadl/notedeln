@@ -32,7 +32,7 @@ public slots:
   void updateMode();
   void updateMath();
 protected:
-  virtual void doLeftClick(QString id);
+  virtual void doLeftClick(QString id, Qt::KeyboardModifiers);
 private:
   static Mode::M idToMode(QString);
   static QString modeToId(Mode::M);

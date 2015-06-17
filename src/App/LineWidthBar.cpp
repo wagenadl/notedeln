@@ -52,7 +52,7 @@ void LineWidthBar::setColor(QColor c) {
   }
 }
 
-void LineWidthBar::doLeftClick(QString id) {
+void LineWidthBar::doLeftClick(QString id, Qt::KeyboardModifiers) {
   mode->setLineWidth(idToWidth(id));
 }
 

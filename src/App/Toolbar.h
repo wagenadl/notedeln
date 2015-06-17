@@ -49,12 +49,12 @@ signals:
 public slots:
   void select(QString);
 protected:
-  virtual void doLeftClick(QString id);
-  virtual void doRightClick(QString id);
+  virtual void doLeftClick(QString id, Qt::KeyboardModifiers);
+  virtual void doRightClick(QString id, Qt::KeyboardModifiers);
   void timerEvent(QTimerEvent *);
 private slots:
-  void leftClicked();
-  void rightClicked();
+  void leftClicked(Qt::KeyboardModifiers);
+  void rightClicked(Qt::KeyboardModifiers);
   void released();
   void childGone();
 private:

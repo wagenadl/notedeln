@@ -42,14 +42,16 @@ public:
 public slots:
   void pageNumberClick(int, Qt::KeyboardModifiers);
   PageView *newView(QString); // opens new view on a named entry page
+  PageView *newViewHere();
   void gotoEntryPage(QString);
   void gotoEntryPage(int pgno, int dir=0);
   void gotoTOC(int pgno=1);
+  void goTOC(Qt::KeyboardModifiers=0);
   void gotoFront();
   void nextPage();
-  void goRelative(int n);
+  void goRelative(int n, Qt::KeyboardModifiers=0);
   void previousPage();
-  void lastPage();
+  void lastPage(Qt::KeyboardModifiers m=0);
   void openFindDialog();
   void htmlDialog();
   void drop(QDropEvent);

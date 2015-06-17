@@ -368,6 +368,13 @@ void PageView::pageNumberClick(int n, Qt::KeyboardModifiers m) {
     gotoEntryPage(n);
 }
 
+void PageView::goTOC(Qt::KeyboardModifiers m) {
+  if (m & Qt::ShiftModifier)
+    newView(QString::number(1))->gotoTOC();
+  else
+    gotoTOC();
+}
+
 PageView *PageView::newView(QString s) {
   PageEditor *editor = new PageEditor(bank);
   if (parentWidget())
@@ -513,7 +520,29 @@ void PageView::previousPage() {
   focusEntry();
 }
 
-void PageView::goRelative(int n) {
+PageView *PageView::newViewHere() {
+  PageView *pv = 0;
+  switch (currentSection) {
+  case Front:
+    pv = newView(QString("1"));
+    pv->gotoFront();
+    break;
+  case TOC:
+    pv = newView(QString("1"));
+    pv->gotoTOC(currentSheet);
+    break;
+  case Entries:
+    pv = newView(entryScene->pgNoToString(currentPage));
+    break;
+  }
+  return pv;
+}  
+
+void PageView::goRelative(int n, Qt::KeyboardModifiers m) {
+  if (m & Qt::ShiftModifier) {
+    newViewHere()->goRelative(n);
+    return;
+  }
   int dir = n;
   if (n==1) {
     /* This magic is to deal with continuation pages ("93a"). */
@@ -588,10 +617,14 @@ void PageView::focusEntry() {
   }
 }
 
-void PageView::lastPage() {
-  gotoEntryPage(book->toc()->newPageNumber()-1);
-  gotoSheet(entryScene->sheetCount()-1);
-  focusEntry();
+void PageView::lastPage(Qt::KeyboardModifiers m) {
+  if (m & Qt::ShiftModifier) {
+    newViewHere()->lastPage();
+  } else {
+    gotoEntryPage(book->toc()->newPageNumber()-1);
+    gotoSheet(entryScene->sheetCount()-1);
+    focusEntry();
+  }
 }
 
 Mode *PageView::mode() const {

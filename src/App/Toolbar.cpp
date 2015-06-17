@@ -65,8 +65,10 @@ void Toolbar::addTool(QString id, ToolItem *item) {
   revmap[item] = id;
   ids.append(id);
   connect(item, SIGNAL(destroyed(QObject*)), SLOT(childGone()));
-  connect(item, SIGNAL(leftClick()), SLOT(leftClicked()));
-  connect(item, SIGNAL(rightClick()), SLOT(rightClicked()));
+  connect(item, SIGNAL(leftClick(Qt::KeyboardModifiers)),
+	  SLOT(leftClicked(Qt::KeyboardModifiers)));
+  connect(item, SIGNAL(rightClick(Qt::KeyboardModifiers)),
+	  SLOT(rightClicked(Qt::KeyboardModifiers)));
   connect(item, SIGNAL(release()), SLOT(released()));
   arrangeTools();
 }
@@ -97,11 +99,11 @@ void Toolbar::released() {
     select("");
 }
 
-void Toolbar::leftClicked() {
+void Toolbar::leftClicked(Qt::KeyboardModifiers m) {
   ToolItem *t = dynamic_cast<ToolItem*>(sender());
   if (t && revmap.contains(t)) {
     QString id = revmap[t];
-    doLeftClick(id);
+    doLeftClick(id, m);
     select(id);
     if (!selEna)
       startTimer(100); // will deslect after 100 ms
@@ -115,11 +117,11 @@ void Toolbar::timerEvent(QTimerEvent *e) {
   select("");
 }
 
-void Toolbar::rightClicked() {
+void Toolbar::rightClicked(Qt::KeyboardModifiers m) {
   ToolItem *t = dynamic_cast<ToolItem*>(sender());
   if (t && revmap.contains(t)) {
     QString id = revmap[t];
-    doRightClick(id);
+    doRightClick(id, m);
     emit rightClick(id);
   } else {
     qDebug() << "Toolbar: right click on unknown tool";
@@ -157,9 +159,9 @@ QRectF Toolbar::boundingRect() const {
 void Toolbar::paint(QPainter *, const QStyleOptionGraphicsItem *, QWidget *) {
 }
 
-void Toolbar::doLeftClick(QString) {
+void Toolbar::doLeftClick(QString, Qt::KeyboardModifiers) {
 }
 
-void Toolbar::doRightClick(QString) {
+void Toolbar::doRightClick(QString, Qt::KeyboardModifiers) {
 }
 

@@ -42,14 +42,15 @@ PageEditor::PageEditor(SceneBank *bank): bank(bank) {
   view = new PageView(bank, this);
   toolview = new ToolView(view->mode(), view);
 
-  connect(toolview->toolbars()->navbar(), SIGNAL(goTOC()),
-	  view, SLOT(gotoTOC()));
+  connect(toolview->toolbars()->navbar(), SIGNAL(goTOC(Qt::KeyboardModifiers)),
+	  view, SLOT(goTOC(Qt::KeyboardModifiers)));
   connect(toolview->toolbars()->navbar(), SIGNAL(goFind()),
 	  view, SLOT(openFindDialog()));
-  connect(toolview->toolbars()->navbar(), SIGNAL(goEnd()),
-	  view, SLOT(lastPage()));
-  connect(toolview->toolbars()->navbar(), SIGNAL(goRelative(int)),
-	  view, SLOT(goRelative(int)));
+  connect(toolview->toolbars()->navbar(), SIGNAL(goEnd(Qt::KeyboardModifiers)),
+	  view, SLOT(lastPage(Qt::KeyboardModifiers)));
+  connect(toolview->toolbars()->navbar(),
+	  SIGNAL(goRelative(int, Qt::KeyboardModifiers)),
+	  view, SLOT(goRelative(int, Qt::KeyboardModifiers)));
 
   connect(view, SIGNAL(onEntryPage(int, int)),
 	  toolview->toolbars(), SLOT(showTools()));

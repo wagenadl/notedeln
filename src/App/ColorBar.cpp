@@ -91,7 +91,7 @@ void ColorBar::setColor(QColor c) {
   select(colorToId(c));
 }
 
-void ColorBar::doLeftClick(QString id) {
+void ColorBar::doLeftClick(QString id, Qt::KeyboardModifiers) {
   mode->setColor(idToColor(id));
 }
 

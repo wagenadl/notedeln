@@ -28,12 +28,13 @@ public:
   Navbar(QGraphicsItem *parent);
   virtual ~Navbar();
 signals:
-  void goTOC();
+  void goTOC(Qt::KeyboardModifiers);
   void goFind();
-  void goEnd();
-  void goRelative(int); // forward by n pages (n may be negative)
+  void goEnd(Qt::KeyboardModifiers);
+  void goRelative(int, Qt::KeyboardModifiers);
+  // forward by n pages (n may be negative)
 protected:
-  virtual void doLeftClick(QString);
+  virtual void doLeftClick(QString, Qt::KeyboardModifiers);
 };
 
 #endif

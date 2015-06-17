@@ -32,7 +32,7 @@ public slots:
   void setColor(QColor);
   void setShape(GfxMarkData::Shape);
 protected:
-  virtual void doLeftClick(QString id);
+  virtual void doLeftClick(QString id, Qt::KeyboardModifiers);
 private:
   static double idToSize(QString);
   static QString sizeToId(double);

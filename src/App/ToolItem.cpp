@@ -170,11 +170,11 @@ void ToolItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *e) {
 void ToolItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
   switch (e->button()) {
   case Qt::LeftButton:
-    emit leftClick();
+    emit leftClick(e->modifiers());
     e->accept();
     break;
   case Qt::RightButton:
-    emit rightClick();
+    emit rightClick(e->modifiers());
     e->accept();
     break;
   default:
