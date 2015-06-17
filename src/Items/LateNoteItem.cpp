@@ -93,13 +93,15 @@ LateNoteItem *LateNoteItem::newNote(QPointF p0, QPointF p1, Item *parent) {
   QPointF sp1 = parent->mapToScene(p1);
   d->setPos(p0);
   d->setDelta(sp1-sp0);
-  if (p1.x()<p0.x()) 
+  /*
+  int w = (p1.x()<p0.x()) 
     // item text will stick to the left
-    d->setTextWidth(sp1.x() - 5);
-  else
+    ? sp1.x() - parent->style().real("margin-right-over")
     // item text will stick to the right
-    d->setTextWidth(parent->style().real("page-width") - sp1.x() - 5);
-  
+    : parent->style().real("page-width") - sp1.x()
+    - parent->style().real("margin-right-over");
+  d->setTextWidth(w>0 ? w : 0);
+  */
   LateNoteItem *i = new LateNoteItem(d, parent);
   i->makeWritable();
   i->setFocus();
