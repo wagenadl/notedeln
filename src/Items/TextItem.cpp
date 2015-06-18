@@ -708,7 +708,6 @@ void TextItem::keyPressEvent(QKeyEvent *e) {
       || keyPressAsInsertion(e)) {
     e->accept();
   } else {
-    qDebug() << "Passing on";
     Item::keyPressEvent(e);
   }
 }

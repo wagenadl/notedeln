@@ -216,8 +216,6 @@ void PageView::keyPressEvent(QKeyEvent *e) {
     if (currentSection==Entries)
       mode()->setMode(Mode::Plain);
     break;
-  case Qt::Key_F10:
-    goTOC(e->modifiers());
   case Qt::Key_QuoteLeft: case Qt::Key_AsciiTilde: case Qt::Key_4:
     if (e->modifiers() & Qt::ControlModifier)
       mode()->setMathMode(!mode()->mathMode());
@@ -231,26 +229,28 @@ void PageView::keyPressEvent(QKeyEvent *e) {
       take = false;
     break;
   case Qt::Key_Backspace: case Qt::Key_Up: case Qt::Key_Left:
-    if (mode()->mode()==Mode::Browse  && !scene()->focusItem())
+    if (mode()->mode()==Mode::Browse  && !scene()->focusItem()) 
       previousPage();
     else
       take = false;
     break;
   case Qt::Key_PageUp:
-    previousPage();
+    goRelative((e->modifiers() & Qt::ControlModifier) ? -10 : -1,
+	       e->modifiers());
     break;
   case Qt::Key_PageDown:
-    nextPage();
+    goRelative((e->modifiers() & Qt::ControlModifier) ? 10 : 1,
+	       e->modifiers());
     break;
   case Qt::Key_Home:
     if ((e->modifiers() & Qt::ControlModifier) || mode()->mode()==Mode::Browse)
-      gotoTOC();
+      goTOC(e->modifiers());
     else
       take = false;
     break;
   case Qt::Key_End:
     if ((e->modifiers() & Qt::ControlModifier) || mode()->mode()==Mode::Browse)
-      lastPage();
+      lastPage(e->modifiers());
     else
       take = false;
     break;
