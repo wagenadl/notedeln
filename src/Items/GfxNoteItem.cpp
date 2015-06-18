@@ -278,3 +278,7 @@ void GfxNoteItem::futileMovementKey(int k, Qt::KeyboardModifiers) {
 }
 
 
+void GfxNoteItem::hoverEnterEvent(QGraphicsSceneHoverEvent *e) {
+  Item::hoverEnterEvent(e);
+  text->setGraphicsEffect(0); // prevent double green
+}

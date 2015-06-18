@@ -41,6 +41,7 @@ public:
   void translate(QPointF dxy);
   void setFocus();
 protected:
+  virtual void hoverEnterEvent(QGraphicsSceneHoverEvent *);
   virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *);
   virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *);
 private slots:

@@ -1044,6 +1044,7 @@ void TextItem::hoverMoveEvent(QGraphicsSceneHoverEvent *e) {
   cursorPos = e->pos(); // cache for the use of modifierChanged
   setCursor(Cursors::refined(cursorShape()));
   linkHelper->mouseMove(e);
+  Item::hoverMoveEvent(e);
   e->accept();
 }
 
@@ -1051,6 +1052,7 @@ void TextItem::hoverLeaveEvent(QGraphicsSceneHoverEvent *e) {
   cursorPos = e->pos(); // cache for the use of modifierChanged
   setCursor(Cursors::refined(cursorShape()));
   linkHelper->mouseMove(e);
+  Item::hoverLeaveEvent(e);
   e->accept();
 }
 

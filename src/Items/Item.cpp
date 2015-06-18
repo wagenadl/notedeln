@@ -160,10 +160,10 @@ static bool shouldGlow(Data *d) {
         dynamic_cast<GfxData*>(d->parent()));
 }
 
-void Item::hoverEnterEvent(QGraphicsSceneHoverEvent *) {
+void Item::hoverEnterEvent(QGraphicsSceneHoverEvent *e) {
   ASSERT(d);
   if (writable && shouldGlow(d) && mode()->mode()==Mode::MoveResize) {
-    QGraphicsDropShadowEffect *eff = new QGraphicsDropShadowEffect(this);
+    QGraphicsDropShadowEffect *eff = new QGraphicsDropShadowEffect;
     eff->setColor(QColor("#00ff33"));
     eff->setOffset(QPointF(0, 0));
     eff->setBlurRadius(4);
@@ -171,11 +171,13 @@ void Item::hoverEnterEvent(QGraphicsSceneHoverEvent *) {
   }
   if (changesCursorShape())
     setCursor(Cursors::refined(cursorShape()));
+  e->accept();
 }
 
-void Item::hoverLeaveEvent(QGraphicsSceneHoverEvent *) {
+void Item::hoverLeaveEvent(QGraphicsSceneHoverEvent *e) {
   ASSERT(d);
   setGraphicsEffect(0);
+  e->accept();
 }
 
 
