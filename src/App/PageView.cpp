@@ -216,6 +216,8 @@ void PageView::keyPressEvent(QKeyEvent *e) {
     if (currentSection==Entries)
       mode()->setMode(Mode::Plain);
     break;
+  case Qt::Key_F10:
+    goTOC(e->modifiers());
   case Qt::Key_QuoteLeft: case Qt::Key_AsciiTilde: case Qt::Key_4:
     if (e->modifiers() & Qt::ControlModifier)
       mode()->setMathMode(!mode()->mathMode());
@@ -321,7 +323,7 @@ void PageView::keyPressEvent(QKeyEvent *e) {
     break;
   case Qt::Key_P:
     if (e->modifiers() & Qt::ControlModifier) 
-      printDialog();
+      openPrintDialog();
     else
       take = false;
     break;
@@ -813,13 +815,11 @@ void PageView::ensureSearchVisible(QString uuid, QString phrase) {
 
 void PageView::focusInEvent(QFocusEvent *e) {
   markEventView();
-  qDebug() << "focusin";
   QGraphicsView::focusInEvent(e);
   update(); // ensure text cursor looks ok
 }
 
 void PageView::focusOutEvent(QFocusEvent *e) {
-  qDebug() << "focusout";
   QGraphicsView::focusOutEvent(e);
   update(); // ensure text cursor looks ok
 }

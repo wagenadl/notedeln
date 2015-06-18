@@ -14,7 +14,7 @@
    id="svg2"
    version="1.1"
    inkscape:version="0.48.4 r9939"
-   sodipodi:docname="nav-n10.svg">
+   sodipodi:docname="move.svg">
   <defs
      id="defs4" />
   <sodipodi:namedview
@@ -25,7 +25,7 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="17.6875"
-     inkscape:cx="16"
+     inkscape:cx="6.1060071"
      inkscape:cy="16"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
@@ -46,9 +46,9 @@
      inkscape:window-x="0"
      inkscape:window-y="0"
      inkscape:window-maximized="0"
-     inkscape:snap-grids="true"
+     inkscape:snap-grids="false"
      inkscape:snap-to-guides="false"
-     inkscape:snap-global="true">
+     inkscape:snap-global="false">
     <inkscape:grid
        type="xygrid"
        id="grid3968"
@@ -74,25 +74,11 @@
      inkscape:groupmode="layer"
      id="layer1"
      transform="translate(0,-1020.3622)">
-    <g
-       id="g3913"
-       transform="matrix(0.6,0,0,-0.6,6.4,1657.8795)"
-       style="fill:#000000;fill-opacity:1">
-      <g
-         id="text3003"
-         style="font-size:14px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Albertus Medium;-inkscape-font-specification:'Albertus Medium,'" />
-      <path
-         sodipodi:nodetypes="ccccccc"
-         inkscape:connector-curvature="0"
-         id="path3035"
-         d="m 4,1038.3622 0,-4 12,-11 12,11 0,4 -12,-11 z"
-         style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:1.33333337px;stroke-linecap:butt;stroke-linejoin:round;stroke-opacity:1" />
-      <path
-         sodipodi:nodetypes="ccccccc"
-         inkscape:connector-curvature="0"
-         id="path3035-9"
-         d="m 4,1048.3622 0,-4 12,-11 12,11 0,4 -12,-11 z"
-         style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:1.33333337px;stroke-linecap:butt;stroke-linejoin:round;stroke-opacity:1" />
-    </g>
+    <path
+       style="fill:none;stroke:#000000;stroke-width:1.3;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:none"
+       d="m 12.068325,1038.2349 c 0.320125,-0.6816 -0.300059,-3.2539 -0.459376,-5.7309 -0.159316,-2.477 -0.382368,-5.1157 1.020708,-4.839 1.403078,0.2767 0.973414,1.6098 1.228955,3.6118 0.255542,2.002 0.23245,4.5662 0.842271,4.3156 0.609821,-0.2505 -1.425336,-9.4835 0.74613,-9.8327 2.171464,-0.3492 0.993436,9.6564 2.190681,9.6363 1.197245,-0.02 -0.781771,-8.5146 1.519476,-8.3059 2.301248,0.2088 0.327497,8.7981 0.911115,8.9743 0.583617,0.1762 1.039208,-1.1798 1.131219,-2.5892 0.09201,-1.4092 -0.293635,-2.5696 0.663225,-2.908 0.956859,-0.3385 1.245003,0.8391 1.54469,2.0747 0.299685,1.2357 0.07545,2.8495 0.114625,4.3445 0.03919,1.4949 -0.868048,9.9962 -4.07234,9.9602 -1.589675,-0.017 -3.908602,-0.055 -5.107744,0.024 -1.368002,0.09 -3.548968,-1.8044 -4.7573242,-5.2423 -0.487777,-1.3879 -1.0835047,-3.6576 -1.1482983,-5.5245 -0.056093,-1.6163 0.8645213,-2.3283 1.7133375,-2.2344 0.848816,0.094 1.401913,4.4295 1.918649,4.266 z"
+       id="path3960"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cszszzzzzszszsssszc" />
   </g>
 </svg>

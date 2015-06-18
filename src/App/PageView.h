@@ -56,6 +56,7 @@ public slots:
   void htmlDialog();
   void drop(QDropEvent);
   void ensureSearchVisible(QString uuid, QString phrase);
+  void openPrintDialog();
 signals:
   void onEntryPage(int, int); // start-page-of-entry, sheet-no
   void onFrontMatter(int);
@@ -80,7 +81,6 @@ protected:
   virtual void drawForeground(QPainter *, QRectF const &);
 private:
   void leavePage();
-  void printDialog();
   void createContinuationEntry();
   void focusEntry();
   void markEventView();

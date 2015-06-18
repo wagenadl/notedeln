@@ -13,7 +13,7 @@
    height="32"
    id="svg2"
    version="1.1"
-   inkscape:version="0.48.3.1 r9886"
+   inkscape:version="0.48.4 r9939"
    sodipodi:docname="nav-end.svg">
   <defs
      id="defs4" />
@@ -24,11 +24,11 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="11.765625"
-     inkscape:cx="15.915007"
+     inkscape:zoom="17.6875"
+     inkscape:cx="15.943463"
      inkscape:cy="16"
      inkscape:document-units="px"
-     inkscape:current-layer="layer1"
+     inkscape:current-layer="g3899"
      showgrid="true"
      width="0px"
      height="0px"
@@ -42,9 +42,9 @@
      inkscape:object-nodes="true"
      inkscape:snap-smooth-nodes="true"
      inkscape:window-width="1198"
-     inkscape:window-height="1031"
+     inkscape:window-height="744"
      inkscape:window-x="0"
-     inkscape:window-y="24"
+     inkscape:window-y="0"
      inkscape:window-maximized="0"
      inkscape:snap-grids="true"
      inkscape:snap-to-guides="false"
@@ -65,7 +65,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -79,19 +79,20 @@
        transform="matrix(0.75,0,0,0.75,4,258.96555)">
       <g
          id="text3003"
-         style="font-size:14px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Albertus Medium;-inkscape-font-specification:'Albertus Medium,'" />
+         style="font-size:14px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Albertus Medium;-inkscape-font-specification:'Albertus Medium,'"
+         transform="matrix(0.8,0,0,0.8,0.66666666,207.83914)" />
       <path
          sodipodi:nodetypes="ccccccc"
          inkscape:connector-curvature="0"
          id="path3035"
-         d="m 4,1025.3622 0,4 12,11 12,-11 0,-4 -12,11 z"
-         style="fill:none;stroke:#000000;stroke-width:1.33333337px;stroke-linecap:butt;stroke-linejoin:round;stroke-opacity:1" />
+         d="m 6.3999999,1028.1289 0,3.2 9.6000001,8.8 9.6,-8.8 0,-3.2 -9.6,8.8 z"
+         style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:1.06666672px;stroke-linecap:butt;stroke-linejoin:round;stroke-opacity:1" />
       <path
          sodipodi:nodetypes="ccccc"
          inkscape:connector-curvature="0"
          id="path3035-9"
-         d="m 4,1043.3622 0,3 24,0 0,-3 z"
-         style="fill:none;stroke:#000000;stroke-width:1.33333337px;stroke-linecap:butt;stroke-linejoin:round;stroke-opacity:1" />
+         d="m 6.3999999,1042.5289 0,2.4 19.2000001,0 0,-2.4 z"
+         style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:1.06666672px;stroke-linecap:butt;stroke-linejoin:round;stroke-opacity:1" />
     </g>
   </g>
 </svg>

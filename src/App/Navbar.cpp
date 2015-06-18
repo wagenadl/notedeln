@@ -26,6 +26,7 @@
 #define NAV_P10 "p10"
 #define NAV_N10 "n10"
 #define NAV_END "end"
+#define NAV_PRINT "print"
 
 Navbar::Navbar(QGraphicsItem *parent): Toolbar(parent) {
   disableSelect();
@@ -39,7 +40,12 @@ Navbar::Navbar(QGraphicsItem *parent): Toolbar(parent) {
   t->setSvg(":icons/nav-find.svg");
   t->setBalloonHelpText(":nav-find");
   addTool(NAV_FIND, t);
-  
+
+  t = new ToolItem();
+  t->setSvg(":icons/nav-print.svg");
+  t->setBalloonHelpText(":nav-print");
+  addTool(NAV_PRINT, t);
+    
   t = new ToolItem();
   t->setSvg(":icons/nav-p10.svg");
   t->setBalloonHelpText(":nav-p10");
@@ -85,4 +91,6 @@ void Navbar::doLeftClick(QString s, Qt::KeyboardModifiers m) {
     emit goRelative(10, m);
   else if (s==NAV_END)
     emit goEnd(m);
+  else if (s==NAV_PRINT)
+    emit goPrint();
 }

@@ -46,6 +46,8 @@ PageEditor::PageEditor(SceneBank *bank): bank(bank) {
 	  view, SLOT(goTOC(Qt::KeyboardModifiers)));
   connect(toolview->toolbars()->navbar(), SIGNAL(goFind()),
 	  view, SLOT(openFindDialog()));
+  connect(toolview->toolbars()->navbar(), SIGNAL(goPrint()),
+	  view, SLOT(openPrintDialog()));
   connect(toolview->toolbars()->navbar(), SIGNAL(goEnd(Qt::KeyboardModifiers)),
 	  view, SLOT(lastPage(Qt::KeyboardModifiers)));
   connect(toolview->toolbars()->navbar(),

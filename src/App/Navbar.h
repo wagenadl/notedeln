@@ -33,6 +33,7 @@ signals:
   void goEnd(Qt::KeyboardModifiers);
   void goRelative(int, Qt::KeyboardModifiers);
   // forward by n pages (n may be negative)
+  void goPrint();
 protected:
   virtual void doLeftClick(QString, Qt::KeyboardModifiers);
 };

@@ -111,6 +111,8 @@ QString Modebar::modeToId(Mode::M m) {
   return QString::number(m);
 }
 
-void Modebar::doLeftClick(QString id, Qt::KeyboardModifiers) {
+void Modebar::doLeftClick(QString id, Qt::KeyboardModifiers m) {
   mode->setMode(idToMode(id));
+  if (idToMode(id)==Mode::Type && (m & Qt::ShiftModifier)) 
+    mode->setMathMode(!mode->mathMode());
 }

@@ -32,7 +32,7 @@
 #include <QPainter>
 #include <QDebug>
 
-void PageView::printDialog() {
+void PageView::openPrintDialog() {
   /* Nonstandard interpretation of range options:
      - Current page: only current sheet of current entry
      - Selection: all sheets of current entry
