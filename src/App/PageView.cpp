@@ -831,11 +831,8 @@ void PageView::drawBackground(QPainter *p, QRectF const &r) {
 
 void PageView::drawForeground(QPainter *p, QRectF const &r) {
   QGraphicsView::drawForeground(p, r);
-  if (!cursorDrawer.pos.isNull()) {
-    if (hasFocus())
-      p->setPen(QColor("green")); // cursorDrawer.color);
-    else
-      p->setPen(QColor("blue")); // temporary
+  if (hasFocus() && !cursorDrawer.pos.isNull()) {
+    p->setPen(cursorDrawer.color);
     p->setFont(cursorDrawer.font);
     p->drawText(cursorDrawer.pos, "|");
   }
