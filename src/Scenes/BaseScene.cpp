@@ -243,3 +243,11 @@ PageView *BaseScene::eventView() const {
   QGraphicsView *ev = eventview;
   return dynamic_cast<PageView*>(ev);
 }
+
+QList<QGraphicsView *> BaseScene::allViews() const {
+  QSet<QGraphicsView *> set;
+  foreach (SheetScene *s, sheets)
+    foreach (QGraphicsView *v, s->views())
+      set.insert(v);
+  return set.toList();
+}

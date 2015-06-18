@@ -63,16 +63,21 @@ signals:
 public:
   class Mode *mode() const;
   class Notebook *notebook() const;
+  void markCursor(QPointF, QFont, QColor);
 protected:
-  void resizeEvent(QResizeEvent *);
-  void keyPressEvent(QKeyEvent *);
-  void keyReleaseEvent(QKeyEvent *);
-  void mousePressEvent(QMouseEvent *);
-  void wheelEvent(QWheelEvent *);
-  void dragEnterEvent(QDragEnterEvent *);
-  void enterEvent(QEvent *);
-  void inputMethodEvent(QInputMethodEvent *);
+  virtual void resizeEvent(QResizeEvent *);
+  virtual void keyPressEvent(QKeyEvent *);
+  virtual void keyReleaseEvent(QKeyEvent *);
+  virtual void mousePressEvent(QMouseEvent *);
+  virtual void wheelEvent(QWheelEvent *);
+  virtual void dragEnterEvent(QDragEnterEvent *);
+  virtual void enterEvent(QEvent *);
+  virtual void inputMethodEvent(QInputMethodEvent *);
+  virtual void focusInEvent(QFocusEvent *);
+  virtual void focusOutEvent(QFocusEvent *);
   //  void dragMoveEvent(QDragMoveEvent *);
+  virtual void drawBackground(QPainter *, QRectF const &);
+  virtual void drawForeground(QPainter *, QRectF const &);
 private:
   void leavePage();
   void printDialog();
@@ -96,6 +101,11 @@ private:
   int wheelDeltaAccum;
   int wheelDeltaStepSize;
   class SearchDialog *searchDialog;
+  struct {
+    QFont font;
+    QColor color;
+    QPointF pos; // null for invalid
+  } cursorDrawer;
 };
 
 #endif

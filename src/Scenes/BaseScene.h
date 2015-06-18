@@ -45,6 +45,7 @@ public:
   void addItem(QGraphicsItem *it, int sheet);
   class SheetScene *sheet(int n, bool autoextend=false);
   class PageView *eventView() const;
+  QList<class QGraphicsView *> allViews() const; // all views on this scene
 public slots:
   virtual void focusTitle(int sheet);
   virtual void focusFirst(int /*sheet*/) {}

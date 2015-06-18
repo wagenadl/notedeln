@@ -100,7 +100,7 @@ void PageView::handleSheetRequest(int n) {
   if (sc && currentSheet<sc->sheetCount()) {
     PageView *ev = sc->eventView();
     if (ev && ev!=this) {
-      qDebug() << "PageView" << (void*)this << "ignoring request" << n;
+      // qDebug() << "PageView: ignoring request for sheet " << n;
       return;
     }
   }
@@ -487,11 +487,14 @@ void PageView::leavePage() {
     // If the page is empty, we'll delete it.
     if (entryScene->data()->isEmpty()) {
       // Leaving an empty page
-      entryScene.clear();
-      book->deleteEntry(currentPage);
-    } else {
-      book->flush();
-    }
+      QList<QGraphicsView *> allv = entryScene->allViews();
+      if (allv.size()==1 && allv.first() == this) {
+	entryScene.clear();
+	book->deleteEntry(currentPage);
+	return;
+      }
+    } 
+    book->flush();
   }
 }  
 
@@ -806,4 +809,40 @@ void PageView::ensureSearchVisible(QString uuid, QString phrase) {
     nextPage();
     --ifr;
   }
+}
+
+void PageView::focusInEvent(QFocusEvent *e) {
+  markEventView();
+  qDebug() << "focusin";
+  QGraphicsView::focusInEvent(e);
+  update(); // ensure text cursor looks ok
+}
+
+void PageView::focusOutEvent(QFocusEvent *e) {
+  qDebug() << "focusout";
+  QGraphicsView::focusOutEvent(e);
+  update(); // ensure text cursor looks ok
+}
+
+void PageView::drawBackground(QPainter *p, QRectF const &r) {
+  cursorDrawer.pos = QPointF(); // invalidate
+  QGraphicsView::drawBackground(p, r);
+}
+
+void PageView::drawForeground(QPainter *p, QRectF const &r) {
+  QGraphicsView::drawForeground(p, r);
+  if (!cursorDrawer.pos.isNull()) {
+    if (hasFocus())
+      p->setPen(QColor("green")); // cursorDrawer.color);
+    else
+      p->setPen(QColor("blue")); // temporary
+    p->setFont(cursorDrawer.font);
+    p->drawText(cursorDrawer.pos, "|");
+  }
+}
+
+void PageView::markCursor(QPointF p, QFont f, QColor c) {
+  cursorDrawer.font = f;
+  cursorDrawer.color = c;
+  cursorDrawer.pos = p;
 }

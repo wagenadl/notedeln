@@ -34,6 +34,8 @@
 #include "LinkHelper.h"
 #include "HtmlBuilder.h"
 #include "HtmlParser.h"
+#include "SheetScene.h"
+#include "PageView.h"
 
 #include <math.h>
 #include <QPainter>
@@ -693,7 +695,11 @@ void TextItem::inputMethodEvent(QInputMethodEvent *e) {
 }
   
 void TextItem::keyPressEvent(QKeyEvent *e) {
-  qDebug() << "TextItem:keyPress" << e->key();
+  if (clips() && !clip_.contains(posToPoint(cursor.position()))) {
+    qDebug() << "Relinquishing focus on key press: out of rectangle";
+    clearFocus();
+    return;
+  }    
   if (keyPressWithControl(e) 
       || keyPressAsSpecialChar(e)
       || (mode()->mathMode() && keyPressAsMath(e))
@@ -1106,11 +1112,23 @@ void TextItem::renderCursor(QPainter *p, int pos) {
     if (md && md->start()<pos && md->end()>pos)
       sty.add(s);
   }
-  p->setFont(text->font(sty));
-  p->setPen(QPen(QColor("red")));
-  p->drawText(xy + QPointF(-2, text->baselineShift(sty)), "|");
+  xy += QPointF(-2, text->baselineShift(sty));
+  if (clips() && !clip_.contains(xy)) {
+    qDebug() << "Relinquishing focus on redraw: out of rectangle";
+    clearFocus();
+    return;
+  }
+  
+  SheetScene *ss = dynamic_cast<SheetScene *>(scene());
+  PageView *pv = ss ? ss->eventView() : 0;
+  if (pv) {
+    pv->markCursor(mapToScene(xy), text->font(sty), QColor("red"));
+  } else {
+    p->setFont(text->font(sty));
+    p->setPen(QPen(QColor("red")));
+    p->drawText(xy, "|");
+  }
 }
-
 
 void TextItem::setTextWidth(double d, bool relayout) {
   text->setWidth(d);
