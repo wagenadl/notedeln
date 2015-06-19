@@ -37,10 +37,11 @@
 #define UPDATE_IVAL_S 3600 // If vc, check for updates once in a while
 #define UPDATE_AVOID_S 900 // ... but not if anything has recently changed
 
-Notebook::Notebook(QString path) {
-  commitTimer = 0;
+Notebook::Notebook(QString path, bool ro) {
   root = QDir(path);
+  readonly = ro;
 
+  commitTimer = 0;
   backgroundVC = 0;
   updateTimer = 0;
   commitTimer = 0;
@@ -149,10 +150,10 @@ Style const &Notebook::style() const {
   return *style_;
 }
 
-Notebook *Notebook::load(QString path) {
+Notebook *Notebook::load(QString path, bool readonly) {
   QDir d(path);
   if (d.exists())
-    return new Notebook(d.absolutePath());
+    return new Notebook(d.absolutePath(), readonly);
   else
     return 0;
 }

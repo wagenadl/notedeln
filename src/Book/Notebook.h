@@ -31,11 +31,12 @@
 class Notebook: public QObject {
   Q_OBJECT;
 public:
-  static Notebook *load(QString path);
+  static Notebook *load(QString path, bool readonly=false);
   static Notebook *create(QString path);
   /* Returns null if couldn't create, e.g., if already exists */
 public:
   ~Notebook();
+  bool isReadOnly() const { return ro; }
   /* For hasEntry, entry, createEntry, and deleteEntry, pgno must be
      the first sheet of an Entry. */
   bool hasEntry(int pgno) const;
@@ -70,7 +71,7 @@ public slots:
        middle of a background commit.
    */
 private:
-  Notebook(QString path);
+  Notebook(QString path, bool readonly);
 private slots:
   void titleMod();
   void sheetCountMod();
@@ -84,6 +85,7 @@ private:
   EntryFile *recoverFromMissingEntry(int pgno);  
 private:
   QDir root;
+  bool ro;
   QMap<int, CachedEntry> pgFiles;
   TOCFile *tocFile_;
   BookFile *bookFile_;
