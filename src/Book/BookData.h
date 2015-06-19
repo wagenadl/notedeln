@@ -46,12 +46,18 @@ public:
   void setEndDate(QDate);
   void setBook(class Notebook *nb);
   virtual Notebook *book() const;
+protected:
+  virtual void loadMore(QVariantMap const &);
+  virtual void saveMore(QVariantMap &) const;
 private:
   QString title_;
   QString author_;
   QString address_;
   QDate startDate_;
   QDate endDate_;
+  QString otitle_;
+  QString oauthor_;
+  QString oaddress_;
   Notebook *nb;
 };
 

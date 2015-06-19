@@ -17,6 +17,7 @@
 // BookData.C
 
 #include "BookData.h"
+#include "Notebook.h"
 
 static Data::Creator<BookData> c("book");
 
@@ -55,16 +56,22 @@ QDate BookData::endDate() const {
 }
 
 void BookData::setTitle(QString t) {
+  if (isRecent() && !(book() && book()->isReadOnly()))
+    otitle_ = title_;
   title_ = t;
   markModified();
 }
 
 void BookData::setAuthor(QString t) {
+  if (isRecent() && !(book() && book()->isReadOnly()))
+    oauthor_ = author_;
   author_ = t;
   markModified();
 }
 
 void BookData::setAddress(QString t) {
+  if (isRecent() && !(book() && book()->isReadOnly()))
+    oaddress_ = address_;
   address_ = t;
   markModified();
 }
@@ -88,3 +95,22 @@ void BookData::setBook(Notebook *n) {
 Notebook *BookData::book() const {
   return nb;
 }
+
+void BookData::loadMore(QVariantMap const &src) {
+  Data::loadMore(src);
+  oauthor_ = src.contains("oauthor") ? src["oauthor"].toString() : "";
+  otitle_ = src.contains("otitle") ? src["otitle"].toString() : "";
+  oaddress_ = src.contains("oaddress") ? src["oaddress"].toString() : "";
+}
+
+void BookData::saveMore(QVariantMap  &dst) const {
+  Data::saveMore(dst);
+  if (!oauthor_.isEmpty())
+    dst["oauthor"] = oauthor_;
+  if (!otitle_.isEmpty())
+    dst["otitle"] = otitle_;
+  if (!oaddress_.isEmpty())
+    dst["oaddress"] = oaddress_;
+
+}
+
