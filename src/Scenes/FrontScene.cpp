@@ -22,6 +22,7 @@
 #include "Notebook.h"
 #include "Style.h"
 #include "RoundedRect.h"
+#include "Version.h"
 
 #include <math.h>
 #include <QTextBlockFormat>
@@ -90,6 +91,14 @@ void FrontScene::rebuild() {
   positionItems();
 }
 
+
+static void centerAt(QGraphicsItem *item, double x, double y) {
+  QRectF bb = item->boundingRect();
+  double x0 = (bb.left() + bb.right()) / 2;
+  double y0 = (bb.top() + bb.bottom()) / 2;
+  item->setPos(QPointF(x-x0, y-y0));
+}
+
 void FrontScene::makeBackground() {
   bg = 0;
   
@@ -155,6 +164,14 @@ void FrontScene::makeBackground() {
     bottomrect = new RoundedRect();
     addItem(bottomrect);
   }
+
+  QGraphicsTextItem *dw
+    = addText(QString("ELN v. ")
+	      + Version::toString() + QString::fromUtf8(" — ")
+	      + QString::fromUtf8("(C) Daniel Wagenaar 2013–")
+	      + QString::number(Version::buildDate().date().year()),
+	      style.font("splash-small-font"));
+  centerAt(dw, style.real("page-width")/2, style.real("page-height") - 20);
 }
 
 void FrontScene::makeItems() {
@@ -171,13 +188,6 @@ void FrontScene::makeItems() {
   dates->setDefaultTextColor(style.color("front-dates-color"));
 }
 
-static void centerAt(QGraphicsItem *item, double x, double y) {
-  QRectF bb = item->boundingRect();
-  double x0 = (bb.left() + bb.right()) / 2;
-  double y0 = (bb.top() + bb.bottom()) / 2;
-  item->setPos(QPointF(x-x0, y-y0));
-}
-  
 void FrontScene::positionItems() {
   double xc = style.real("page-width") / 2;
 
