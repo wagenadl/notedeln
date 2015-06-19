@@ -41,7 +41,7 @@ FrontScene::FrontScene(Notebook *book, QObject *parent):
   makeBackground();
   makeItems();
   rebuild();
-  if (book->bookData()->isRecent())
+  if (!book->isReadOnly())
     makeWritable();
 }
 
