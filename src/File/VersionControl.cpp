@@ -131,7 +131,7 @@ bool runGit(QString cmd, QStringList args, QString label,
   
 bool update(QString path, QString program) {
   if (program == "")
-    return false;
+    return true;
 
   QString cwd = QDir::currentPath();
   QString se;
@@ -179,7 +179,7 @@ bool commit(QString path, QString program) {
   QString se;
   QDir::setCurrent(path);
   if (program == "") {
-    return false;
+    return true;
   } else if (program == "bzr") {
     /* The logic is:
        (1) we run bzr status
