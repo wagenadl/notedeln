@@ -255,6 +255,25 @@ void TextItemDoc::buildLinePos() {
   d->br = QRectF(QPointF(0, 0), QSizeF(wid, K*d->lineheight + d->y0));
 }
 
+double TextItemDoc::visibleHeight() const {
+  if (d->linepos.isEmpty()) {
+    qDebug() << "Caution: TextItemDoc returning zero height";
+    return 0; // is that acceptable?
+  }
+  return d->linepos.last().y() + d->lineheight - d->ascent - d->y0;
+  // this number is what splittableY would return if there was one more line
+}
+
+double TextItemDoc::splittableY(double ymax) const {
+  double ybest = -1;
+  foreach (QPointF lp, d->linepos) {
+    double y = lp.y() - d->ascent - d->y0;
+    if (y>ybest && y<=ymax)
+      ybest = y;
+  }
+  return ybest>0 ? ybest : ymax;
+}
+
 void TextItemDoc::partialRelayout(int /* start */, int /* end */) {
   relayout();
 }
@@ -645,16 +664,6 @@ int TextItemDoc::lastPosition() const {
 
 QString TextItemDoc::selectedText(int start, int end) const {
   return d->text->text().mid(start, end-start);
-}
-
-double TextItemDoc::splittableY(double ymax) const {
-  double ybest = -1;
-  foreach (QPointF lp, d->linepos) {
-    double y = lp.y() - d->ascent - d->y0;
-    if (y>ybest && y<=ymax)
-      ybest = y;
-  }
-  return ybest>0 ? ybest : ymax;
 }
 
 double TextItemDoc::baselineShift(MarkupStyles const &s) const {

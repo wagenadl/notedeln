@@ -260,7 +260,11 @@ void TextBlockItem::ensureVisible(QPointF p) {
   }
 }
 
-double TextBlockItem::splittableY(double y) {
+double TextBlockItem::visibleHeight() const {
+  return frags[0]->document()->visibleHeight();
+}
+
+double TextBlockItem::splittableY(double y) const {
   if (y >= data()->height())
     return data()->height();
   else

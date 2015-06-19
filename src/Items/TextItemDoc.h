@@ -73,6 +73,7 @@ public:
   virtual double splittableY(double ymax) const;
   /* this will never suggest splitting after the last line, even if
      ymax is very big. */
+  virtual double visibleHeight() const;
   void recalculateCharacterWidths();
   virtual void buildLinePos();
   double baselineShift(MarkupStyles const &) const;

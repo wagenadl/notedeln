@@ -56,7 +56,8 @@ public:
   void setTextCursor(TextCursor c);
   int findFragmentForPhrase(QString phrase) const; // -1 if not found
 public: // splitpar stuff:
-  virtual double splittableY(double hmax);
+  virtual double visibleHeight() const;
+  virtual double splittableY(double hmax) const;
   virtual TextItem *fragment(int fragno);
   virtual int nFragments() const;
   QList<TextItem *> fragments();
