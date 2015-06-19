@@ -132,6 +132,20 @@ bool EntryData::isUnlocked() const {
   return unlocked_;
 }
 
+bool EntryData::isWritable() const {
+  Notebook *b = book();
+  
+  if (!b || b->isReadOnly())
+    return false;
+  else if (isUnlocked())
+    return true;
+  else return isRecent();
+}
+
+bool EntryData::lateNotesAllowed() const {
+  return !book()->isReadOnly();
+}
+
 int EntryData::stampTime() const {
   return stampTime_;
 }

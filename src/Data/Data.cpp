@@ -59,10 +59,31 @@ Style const &Data::style() const {
   return b->style();
 }
 
-bool Data::isRecent() const {
+bool Data::isWritable() const {
   Notebook *b = book();
-  double thr_h = b ? b->style().real("recency-threshold") : 24;
-  return created().secsTo(QDateTime::currentDateTime()) < thr_h*60*60;
+  if (!b || b->isReadOnly())
+    return false;
+  Data *p = parent();
+  return p ? p->isWritable() : false;
+}
+
+bool Data::lateNotesAllowed() const {
+  Notebook *b = book();
+  if (!b || b->isReadOnly())
+    return false;
+  Data *p = parent();
+  return p ? p->lateNotesAllowed() : false;
+}
+
+bool Data::isRecent() const {
+  QDateTime now = QDateTime::currentDateTime();
+  QDate d0 = created().date();
+  if (now.date() == d0) // same day
+    return true;
+
+  QDateTime nextMorning(d0.addDays(1), QTime(0, 0, 0));
+  double allow_h = book() ? book()->style().real("midnight-allowance") : 4;
+  return nextMorning.secsTo(now) < allow_h*60*60;
 }
 
 void Data::setCreated(QDateTime const &dt) {

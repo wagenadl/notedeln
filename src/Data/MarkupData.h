@@ -61,6 +61,7 @@ public:
   void setEnd(int);
   void setStyle(Style);
   // other
+  bool isWritable() const;
   bool operator<(MarkupData const &other) const;
   void merge(MarkupData const *other);
   /* only call merge() if mergeable() returns true! */

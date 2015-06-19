@@ -445,7 +445,7 @@ void PageView::gotoEntryPage(int n, int dir) {
 
     connect(entryScene.obj(), SIGNAL(sheetRequest(int)),
 	    SLOT(handleSheetRequest(int)));
-    if (entryScene->data()->isRecent() || entryScene->data()->isUnlocked())
+    if (entryScene->data()->isWritable())
       entryScene->makeWritable(); // this should be even more sophisticated
     currentSection = Entries;
   }

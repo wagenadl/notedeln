@@ -43,6 +43,8 @@ public:
   void setUnlocked(bool);
   void setStampTime(int);
   // other
+  virtual bool isWritable() const;
+  virtual bool lateNotesAllowed() const;
   class TitleData *title() const;
   QString titleText() const;
   QList<class BlockData *> blocks() const;

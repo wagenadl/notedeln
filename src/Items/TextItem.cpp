@@ -358,8 +358,7 @@ void TextItem::updateMarkup(int pos) {
   if (lateMarkType==MarkupData::Normal) {
     // unmark
     foreach (MarkupData *md, data()->children<MarkupData>()) {
-      if (md->isRecent() && (md->style()==MarkupData::Emphasize
-			     || md->style()==MarkupData::StrikeThrough)) {
+      if (md->isWritable()) {
 	int mds = md->start();
 	int mde = md->end();
 	if (mds<e && mde>s) {

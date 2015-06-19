@@ -37,10 +37,7 @@
 #define UPDATE_IVAL_S 3600 // If vc, check for updates once in a while
 #define UPDATE_AVOID_S 900 // ... but not if anything has recently changed
 
-Notebook::Notebook(QString path, bool ro) {
-  root = QDir(path);
-  readonly = ro;
-
+Notebook::Notebook(QString path, bool ro): root(QDir(path)), ro(ro) {
   commitTimer = 0;
   backgroundVC = 0;
   updateTimer = 0;
@@ -189,7 +186,7 @@ Notebook *Notebook::create(QString path) {
     styleOut.write(styleIn.readAll());
   }
 
-  Notebook *nb = new Notebook(d.absolutePath());
+  Notebook *nb = new Notebook(d.absolutePath(), false);
   return nb;
 }
 

@@ -18,6 +18,7 @@
 
 #include "MarkupData.h"
 #include "TextData.h"
+#include "Notebook.h"
 #include "Assert.h"
 #include <QDebug>
 
@@ -185,4 +186,13 @@ QString MarkupData::styleName(Style s) {
 
 bool MarkupData::isEmpty() const {
   return end_ <= start_;
+}
+
+bool MarkupData::isWritable() const {
+  if (style_==MarkupData::Emphasize || style_==MarkupData::StrikeThrough) {
+    Notebook *b = book();
+    return b && !b->isReadOnly() && isRecent();
+  } else {
+    return Data::isWritable();
+  }
 }

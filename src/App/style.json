@@ -46,6 +46,7 @@
 "paragraph-allow-empty": 1,
 "title-revision-threshold": 12,
 "recency-threshold": 12,
+"midnight-allowance": 4,
 "canvas-grid-line-width": 0.5,
 "canvas-grid-color": "#8888ff",
 "canvas-grid-alpha": 0.25,
