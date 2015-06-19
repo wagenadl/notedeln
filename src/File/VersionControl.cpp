@@ -144,35 +144,35 @@ bool update(QString path, QString program) {
     success = runGit("pull", QStringList(), "Updating with git...", 0, &se);
   QDir::setCurrent(cwd);
 
+  if (success)
+    return true;
+  
   if (se.isEmpty())
     se = "(no message)";
-  if (!success) {
-    QMessageBox mb(QMessageBox::Warning, "eln version control",
-		   "Update of '" + path + "' failed.", 0);
-    QAbstractButton *editb
-      = mb.addButton("Edit anyway", QMessageBox::DestructiveRole);
-    QAbstractButton *rob
-      = mb.addButton("Open read-only", QMessageBox::AcceptRole);
-    mb.addButton("Quit", QMessageBox::RejectRole);
-    mb.setDetailedText(se);
-    mb.exec();
-    QAbstractButton *r = mb.clickedButton();
-    if (r==editb) {
-      // edit anyway
-    } else if (r==rob) {
-      // open read only
-      QMessageBox::warning(0, "eln missing feature",
-                           "Read-only access is not yet implemented."
-                           " Opening in the normal way."
-                           " Please be careful not to change anything!");
-    } else {
-      // QApplication::quit();  // should we do this?
-      exit(1); // immediate and total abort
-    }
+
+  QMessageBox mb(QMessageBox::Warning, "eln version control",
+		 "Update of '" + path + "' failed.", 0);
+  QPushButton *editb
+    = mb.addButton("Edit anyway", QMessageBox::DestructiveRole);
+  QPushButton *rob
+    = mb.addButton("Open read-only", QMessageBox::AcceptRole);
+  QPushButton *qb = mb.addButton("Quit", QMessageBox::RejectRole);
+  mb.setDefaultButton(rob);
+  mb.setEscapeButton(qb);
+  mb.setDetailedText(se);
+  mb.exec();
+  QAbstractButton *r = mb.clickedButton();
+  if (r==editb) {
+    // edit anyway
+    return true;
+  } else if (r==rob) {
+    // open read only
+    return false;
+  } else {
+    exit(1); // immediate and total abort
   }
-  return success;
 }
-  
+
 bool commit(QString path, QString program) {
   bool success = false;
   QString cwd = QDir::currentPath();

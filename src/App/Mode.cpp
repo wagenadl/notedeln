@@ -17,8 +17,9 @@
 // Mode.C
 
 #include "Mode.h"
+#include <QDebug>
 
-Mode::Mode(QObject *parent): QObject(parent) {
+Mode::Mode(bool ro, QObject *parent): QObject(parent), ro(ro) {
   m = Browse;
   math = false;
   overridden = Browse;
@@ -54,31 +55,53 @@ double Mode::markSize() const {
 }
 
 void Mode::setMode(Mode::M m1) {
+  if (ro && m1!=Browse) {
+    qDebug() << "Caution: setMode ignored on RO";
+    m1 = Browse;
+  }
   m = m1;
   emit modeChanged(m);
 }
 
 void Mode::setMathMode(bool m1) {
-  math = m1;
+  if (ro) {
+    qDebug() << "Caution: setMathMode ignored on RO";
+    return;
+  }  math = m1;
   emit mathModeChanged(math);
 }
 
 void Mode::setLineWidth(double lw1) {
+  if (ro) {
+    qDebug() << "Caution: setLineWidth ignored on RO";
+    return;
+  }
   lw = lw1;
   emit lineWidthChanged(lw);
 }
 
 void Mode::setColor(QColor c1) {
-  c = c1;
+  if (ro) {
+    qDebug() << "Caution: setColor ignored on RO";
+    return;
+  }  c = c1;
   emit colorChanged(c);
 }
 
 void Mode::setShape(GfxMarkData::Shape s1) {
+  if (ro) {
+    qDebug() << "Caution: setShape ignored on RO";
+    return;
+  }
   shp = s1;
   emit shapeChanged(shp);
 }
 
 void Mode::setMarkSize(double ms1) {
+  if (ro) {
+    qDebug() << "Caution: setMarkSize ignored on RO";
+    return;
+  }
   ms = ms1;
   emit markSizeChanged(ms);
 }

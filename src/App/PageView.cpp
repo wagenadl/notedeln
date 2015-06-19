@@ -47,7 +47,8 @@ PageView::PageView(SceneBank *bank, QWidget *parent):
   QGraphicsView(parent), bank(bank) {
   book = bank->book(); // for convenience only
   ASSERT(book);
-  mode_ = new Mode(this);
+  qDebug() << "PageView: "<<book->isReadOnly();
+  mode_ = new Mode(book->isReadOnly(), this);
   searchDialog = new SearchDialog(this);
   deletedStack = new DeletedStack(this);
 

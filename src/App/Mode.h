@@ -38,7 +38,7 @@ public:
     Plain,
   };
 public:
-  Mode(QObject *parent=0);
+  Mode(bool readonly, QObject *parent=0);
   virtual ~Mode();
   M mode() const;
   double lineWidth() const;
@@ -46,6 +46,7 @@ public:
   GfxMarkData::Shape shape() const;
   double markSize() const;
   bool mathMode() const;
+  bool isReadOnly() const { return ro; }
 public slots:
   void setMode(Mode::M);
   void setLineWidth(double);
@@ -63,6 +64,7 @@ signals:
   void markSizeChanged(double);
   void mathModeChanged(bool);
 private:
+  bool ro;
   M m;
   bool math;
   double lw;

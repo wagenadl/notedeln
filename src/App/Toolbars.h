@@ -30,8 +30,6 @@ class Toolbars: public QGraphicsObject {
 public:
   Toolbars(class Mode *mode, QGraphicsItem *parent=0);
   virtual ~Toolbars();
-  void setOrientation(Qt::Orientation);
-  Qt::Orientation orientation() const;
   QRectF boundingRect() const { return QRectF(); }
   void paint(QPainter *, const QStyleOptionGraphicsItem *, QWidget *) { }
   class Navbar *navbar() const; // use this to connect to its signals
@@ -42,7 +40,7 @@ public slots:
 private:
   void placeChildren();
 private:
-  Qt::Orientation orient;
+  bool ro;
   class Toolbar *modes;
   class Toolbar *mcolors, *lcolors;
   class Toolbar *shapes;

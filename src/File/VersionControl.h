@@ -23,7 +23,14 @@
 #include <QString>
 
 namespace VersionControl {
-  bool update(QString path, QString program); // returns true on success
+  bool update(QString path, QString program);
+  /* If update fails, queries the user. User can quit the program, decide
+     to edit anyway, or open the notebook read-only.
+     Return value is true if update is OK or if user chooses to edit anyway,
+     false if user chooses to open read-only.
+     Does not return if user chooses to quit.
+  */
+
   bool commit(QString path, QString program); // returns true on success
 };
 

@@ -37,7 +37,7 @@
 #define UPDATE_IVAL_S 3600 // If vc, check for updates once in a while
 #define UPDATE_AVOID_S 900 // ... but not if anything has recently changed
 
-Notebook::Notebook(QString path, bool ro): root(QDir(path)), ro(ro) {
+Notebook::Notebook(QString path, bool ro0): root(QDir(path)), ro(ro0) {
   commitTimer = 0;
   backgroundVC = 0;
   updateTimer = 0;
@@ -49,7 +49,10 @@ Notebook::Notebook(QString path, bool ro): root(QDir(path)), ro(ro) {
 
   Style s0(root.filePath("style.json"));
   if (s0.contains("vc")) 
-    VersionControl::update(root.path(), s0.string("vc"));
+    if (!VersionControl::update(root.path(), s0.string("vc")))
+      ro = true;
+
+  qDebug() << "Notebook: read only " << ro;
 
   loadme();
 }

@@ -29,8 +29,8 @@
 #define CORRESPONDING 1
 
 Toolbars::Toolbars(Mode *mode, QGraphicsItem *parent): QGraphicsObject(parent) {
-  orient = Qt::Vertical;
   m = Mode::Browse;
+  qDebug() << "Toolbars:" << mode->isReadOnly();
 
   modes = new Modebar(mode, this);
 
@@ -55,9 +55,9 @@ Toolbars::Toolbars(Mode *mode, QGraphicsItem *parent): QGraphicsObject(parent) {
   shapes = new MarkShapeBar(mode, this);
 #if CORRESPONDING
   connect(mode, SIGNAL(colorChanged(QColor)),
-		   shapes, SLOT(setColor(QColor)));
+	  shapes, SLOT(setColor(QColor)));
   connect(mode, SIGNAL(markSizeChanged(double)),
-		   shapes, SLOT(setMarkSize(double)));
+	  shapes, SLOT(setMarkSize(double)));
 #endif
 
   sizes = new MarkSizeBar(mode, this);
@@ -76,35 +76,23 @@ Toolbars::Toolbars(Mode *mode, QGraphicsItem *parent): QGraphicsObject(parent) {
 
   nav = new Navbar(this);
 
+
+  ro = mode->isReadOnly();
+  if (ro)
+    hideTools();
+  else
+    setMode(mode->mode());
+
   placeChildren();
   
   connect(mode, SIGNAL(modeChanged(Mode::M)),
 	  SLOT(setMode(Mode::M)));
-  setMode(mode->mode());
 }
 
 Toolbars::~Toolbars() {
 }
 
-void Toolbars::setOrientation(Qt::Orientation o) {
-  orient = o;
-  modes->setOrientation(o);
-  lcolors->setOrientation(o);
-  mcolors->setOrientation(o);
-  shapes->setOrientation(o);
-  sizes->setOrientation(o);
-  widths->setOrientation(o);
-  placeChildren();
-}
-
-Qt::Orientation Toolbars::orientation() const {
-  return orient;
-}
-
 void Toolbars::placeChildren() {
-  if (orient==Qt::Horizontal)
-    qDebug() << "Toolbars: Horizontal not yet supported";
-  
   modes->setPos(0, 40);
 
   lcolors->setPos(modes->pos()
@@ -140,6 +128,9 @@ void Toolbars::hideTools() {
 }
 
 void Toolbars::showTools() {
+  if (ro)
+    return;
+  
   modes->show();
   setMode(m);
 }
