@@ -1,4 +1,5 @@
 \documentclass[11pt]{report}
+\usepackage[utf8]{inputenc}
 \usepackage{mathptm}
 \usepackage{newcent}
 \usepackage[letterpaper]{geometry}
@@ -384,42 +385,49 @@ supported by Qt to enter text. In addition, the following
 substitutions are made unconditionally as you type:\medskip
 
 \begin{centering}
-\begin{tabular}{c@{\kern.5in}c@{\kern.5in}c}
+\begin{tabular}{c@{\kern.5in}c@{\kern.5in}c@{\kern.5in}c}
 \begin{tabular}[t]{cc}
-$''$ & '' \\
-$'$ & ' \\
-$\backprime\backprime$ & `` \\
-$\backprime$ & ` \\
--{}- & -- \\
--{}-{}- & --- \\
-$+-$ & $\pm$ \\
-$|~|$ & $ \parallel $ \\
+\verb+''+ & '' \\
+\verb+'+ & ' \\
+\verb+``+ & `` \\
+\verb+`+ & ` \\
+\verb+--+ & -- \\
+\verb+---+ & --- \\
+\verb.+-. & $\pm$ \\
 $|-$ & $\vdash$ \\
 $-|$ & $\dashv$ \\
 \end{tabular}
 &
 \begin{tabular}[t]{cc}
-$<$$-$ & $\leftarrow$ \\
-$-$$>$ & $\rightarrow$ \\
-$|$$^\wedge$ & $\uparrow$ \\
-$||$$^\wedge$ & $\Uparrow$ \\
-$<==$ & $\Leftarrow$ \\
-$=>$ & $\Rightarrow$ \\
-$<$$-$$>$ & $\leftrightarrow$ \\
-$<==>$ & $\Leftrightarrow$ \\
-$|-$$>$ & $\mapsto$ \\
+\verb+<-+ & $\leftarrow$ \\
+\verb+->+ & $\rightarrow$ \\
+$|\,^\wedge$ & $\uparrow$ \\
+$|\,|\,^\wedge$ & $\Uparrow$ \\
+\verb+<==+ & $\Leftarrow$ \\
+\verb+=>+ & $\Rightarrow$ \\
+\verb+<-+ & $\leftrightarrow$ \\
+\verb+<==>+ & $\Leftrightarrow$ \\
+\verb+|->+ & $\mapsto$ \\
 \end{tabular}
 &
 \begin{tabular}[t]{cc}
-$>=$ & $\geq$ \\
-$<=$ & $\leq$ \\
-$!=$ & $\neq$ \\
-$^\wedge{}=$ & $\hat=$ \\
-$==$ & $\equiv$ \\
-$\sim=$ & $\cong$ \\
-$>>$ & $\gg$ \\
-$<<$ & $\ll$ \\
+\verb+>=+ & $\geq$ \\
+\verb+<=+ & $\leq$ \\
+\verb+!=+ & $\neq$ \\
+$^\wedge$\verb+=+ & $\hat=$ \\
+\verb+==+ & $\equiv$ \\
+$\sim$\verb+=+ & $\cong$ \\
+\verb+>>+ & $\gg$ \\
+\verb+<<+ & $\ll$ \\
 $\sim\sim$ & $\approx$ \\
+\end{tabular}
+&
+\begin{tabular}[t]{cc}
+$|\,|$ & $ \parallel $ \\
+$|$\verb+=+ & $\models$ \\
+\verb+!+$|$\verb+=+ & $\kern.3em/\kern-1em\models$ \\
+  \verb+/>+ & $\nearrow$ \\
+  \verb+\>+ & $\searrow$ \\
 \end{tabular}
 \end{tabular}
 
@@ -435,7 +443,7 @@ that can be obtained by typing their name and pressing
 lower case and capitals, and the following:
 
 \begin{centering}
-\begin{tabular}{c@{\kern.5in}c@{\kern.5in}c}
+\begin{tabular}{c@{\kern.25in}c@{\kern.25in}c@{\kern.25in}c}
 \begin{tabular}[t]{cc}
 emdash & --- \\
 endash & -- \\
@@ -467,6 +475,18 @@ section & $\S$ \\
 \end{tabular}
 &
 \begin{tabular}[t]{cc}
+star & $\star$ \\
+perp & $\perp$ \\
+all \emph {or} A & $\forall$ \\
+exists \emph{or} E & $\exists$ \\
+in & $\in$ \\
+notin & $\notin$ \\
+prop & $\propto$ \\
+N\footnote{Also Z, Q, R, and C.}  & $\mathbb{N}$\\
+d & $\partial$ \\
+\end{tabular}
+&
+\begin{tabular}[t]{cc}
 inf & $\infty$ \\
   v & $\downarrow$ \\
   V & $\Downarrow$ \\
@@ -485,7 +505,7 @@ $x$ ddot & $\ddot x$ \\
 
 \end{centering}\bigskip
 
-\noindent Note how the last few place accents over the preceding character.
+\noindent Note: The last several place accents over the preceding character.
 
 Extending this list is easy, so let me know if you have suggestions.
 
