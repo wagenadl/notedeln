@@ -134,3 +134,7 @@ QPointF BlockItem::findRefTextIn(QString s, Item *i) {
   }
   return QPointF();
 }
+
+double BlockItem::visibleHeight() const {
+  return data()->height();
+}

@@ -42,6 +42,8 @@ public:
   virtual void makeWritable();
   class FootnoteItem *newFootnote(class FootnoteData *fnd);
   QPointF findRefText(QString);
+  virtual double visibleHeight() const;
+  /* Can be the same as the block height, but could exclude bottom padding. */
 public:
   // splitpar stuff
   virtual double splittableY(double /*hmax*/) { return 0; }

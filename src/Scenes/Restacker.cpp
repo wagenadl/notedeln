@@ -78,12 +78,12 @@ void Restacker::restackBlock(int i) {
   // Create a sorting by yref?
   BlockItem *bi = blocks[i];
   BlockData *bd = bi->data();
-  double blockh = bd->height();
+  double vish = bi->visibleHeight();
   double fnh = 0;
   foreach (FootnoteData *fnd, bd->children<FootnoteData>()) 
     fnh += fnd->height();
 
-  if (blockh+fnh > yfn-yblock) {
+  if (vish+fnh > yfn-yblock) {
     // This block will not fit on the current sheet with its footnotes
     double ycut = bi->splittableY(yfn-yblock);
     if (ycut>=MINONSHEET) {
