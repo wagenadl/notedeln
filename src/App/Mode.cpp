@@ -23,7 +23,7 @@ Mode::Mode(bool ro, QObject *parent): QObject(parent), ro(ro) {
   m = Browse;
   math = false;
   overridden = Browse;
-  lw = 2;
+  lw = 1.5;
   ms = 10;
   shp = GfxMarkData::SolidCircle;
 }

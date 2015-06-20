@@ -18,6 +18,7 @@
 
 #include "LineWidthItem.h"
 #include <QPainter>
+#include <math.h>
 
 LineWidthItem::LineWidthItem(double lw): lw(lw), c("black") {
 }
@@ -26,9 +27,14 @@ LineWidthItem::~LineWidthItem() {
 }
 
 void LineWidthItem::paintContents(QPainter *p) {
+  static QPolygonF pp;
+  if (pp.isEmpty()) 
+    for (double x=10; x<22.1; x+=0.5) 
+      pp << QPointF(x, 16-(x-16)-sin(.7*(x-12)));
   p->setPen(QPen(c, lw));
   p->setBrush(Qt::NoBrush);
-  p->drawLine(12, 24, 20, 8); // or something like that
+  p->drawPolyline(pp);
+  //Line(12, 24, 20, 8); // or something like that
 }
 
 void LineWidthItem::setColor(QColor c1) {

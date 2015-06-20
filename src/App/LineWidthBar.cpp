@@ -19,6 +19,7 @@
 #include "LineWidthBar.h"
 #include "LineWidthItem.h"
 #include "Mode.h"
+#include "math.h"
 
 static double lineWidths[] = {
   0.5,
@@ -36,8 +37,9 @@ LineWidthBar::LineWidthBar(Mode *mode, QGraphicsItem *parent):
   for (int i=0; i<nLineWidths; i++) 
     addTool(widthToId(lineWidths[i]), new LineWidthItem(lineWidths[i]));
 
-  mode->setLineWidth(lineWidths[1]);
-  select(widthToId(mode->lineWidth()));
+  QString id = widthToId(mode->lineWidth());
+  mode->setLineWidth(idToWidth(id));
+  select(id);
   setColor(mode->color());
 }
 
@@ -61,7 +63,12 @@ double LineWidthBar::idToWidth(QString s) {
 }
 
 QString LineWidthBar::widthToId(double w) {
-  return QString::number(w, 'f', 2);
+  double bw = 0.0001;
+  for (int k=0; k<nLineWidths; k++) 
+    if (fabs(w-lineWidths[k])/lineWidths[k] <
+	fabs(w-bw)/bw)
+      bw = lineWidths[k];
+  return QString::number(bw, 'f', 2);
 }
 
 
