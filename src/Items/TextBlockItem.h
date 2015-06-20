@@ -74,7 +74,7 @@ protected:
   void mousePressEvent(QGraphicsSceneMouseEvent*);
 private slots:
   void futileMovementKey(int, Qt::KeyboardModifiers);
-  void ensureVisible(QPointF);
+  void ensureVisible(int, QPointF);
 private:
   QList<QPointer<TextItem> > frags; // we do own
   FutileMovementInfo fmi;

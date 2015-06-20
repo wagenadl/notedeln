@@ -60,8 +60,8 @@ TextBlockItem::TextBlockItem(TextBlockData *data, Item *parent,
     if (frags.size()>1) 
       frags[i]->setClip(QRectF(r0.left(), ysplit[i],
 			       r0.width(), ysplit[i+1]-ysplit[i]));
-    connect(frags[i], SIGNAL(invisibleFocus(QPointF)),
-	    SLOT(ensureVisible(QPointF)));
+    connect(frags[i], SIGNAL(invisibleFocus(int, QPointF)),
+	    SLOT(ensureVisible(int, QPointF)));
     connect(frags[i], SIGNAL(multicellular(int, TextData*)),
 	    this, SIGNAL(multicellular(int, TextData*)));
 
@@ -195,7 +195,7 @@ TextItem *TextBlockItem::text() const {
 void TextBlockItem::sizeToFit() {
   if (beingDeleted())
     return;
-  frags[0]->document()->relayout();
+  frags[0]->document()->relayout(); // is this needed?
   double h0 = data()->height();
   double h1 = frags[0]->mapRectToParent(frags[0]->netBounds()).height();
   if (h1!=h0) {
@@ -246,12 +246,11 @@ void TextBlockItem::setTextCursor(TextCursor c) {
   frags[tgt]->setFocus();
 }
 
-void TextBlockItem::ensureVisible(QPointF p) {
+void TextBlockItem::ensureVisible(int pos, QPointF p) {
   for (int i=0; i<frags.size(); i++) {
     if (frags[i]->clipRect().contains(p)) {
       emit sheetRequest(data()->sheet() + i);
       frags[i]->setFocus();
-      int pos = frags[i]->pointToPos(p);
       TextCursor c(frags[i]->textCursor());
       c.setPosition(pos);
       frags[i]->setTextCursor(c);
@@ -298,8 +297,8 @@ void TextBlockItem::split(QList<double> ysplit) {
 
   while (frags.size()<1+ysplit.size()) {
     TextItem *ti = tic.create(data()->text(), 0, frags[0]->document());
-    connect(ti, SIGNAL(invisibleFocus(QPointF)),
-	    SLOT(ensureVisible(QPointF)));
+    connect(ti, SIGNAL(invisibleFocus(int, QPointF)),
+	    SLOT(ensureVisible(int, QPointF)));
     frags << ti;
 
     if (frags[0]->isWritable())

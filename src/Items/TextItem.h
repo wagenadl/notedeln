@@ -60,7 +60,7 @@ public:
   void unclip();
   void renderCursor(QPainter *, int pos);
 signals:
-  void invisibleFocus(QPointF);
+  void invisibleFocus(int, QPointF);
   void textChanged();
   //  void widthChanged();
   void abandoned(); // escape pressed while empty
@@ -90,6 +90,7 @@ private:
   bool keyPressAsInsertion(QKeyEvent *);
   void handleLeftClick(QGraphicsSceneMouseEvent *);
   void selectWordOrLineOrParagraph(int pos);
+  void ensureCursorVisible();
 protected slots:
   virtual void markupChange(MarkupData *);
   virtual void docChange();

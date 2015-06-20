@@ -403,6 +403,7 @@ bool TextItem::keyPressAsMotion(QKeyEvent *e) {
   case Qt::Key_Return: case Qt::Key_Enter:
     if (allowParagraphs_) {
       cursor.insertText("\n");
+      ensureCursorVisible();      
     } else {
       emit futileMovementKey(e->key(), e->modifiers());
     }
@@ -412,6 +413,7 @@ bool TextItem::keyPressAsMotion(QKeyEvent *e) {
       emit futileMovementKey(e->key(), e->modifiers());
     } else {
       cursor.deletePreviousChar();
+      ensureCursorVisible();      
     }
     return true;
   case Qt::Key_Delete:
@@ -419,6 +421,7 @@ bool TextItem::keyPressAsMotion(QKeyEvent *e) {
       emit futileMovementKey(e->key(), e->modifiers());
     } else {
       cursor.deleteChar();
+      ensureCursorVisible();
     }
     return true;
   case Qt::Key_Left:
@@ -463,8 +466,8 @@ void TextItem::tryMove(TextCursor::MoveOperation op,
 
   setTextCursor(c);
   QPointF p = posToPoint(c.position());
-  if (!clipRect().contains(p))
-    emit invisibleFocus(p);
+  if (clips() && !clipRect().contains(p))
+    emit invisibleFocus(c.position(), p);
 }
 
 bool TextItem::keyPressWithControl(QKeyEvent *e) {
@@ -490,6 +493,7 @@ bool TextItem::keyPressWithControl(QKeyEvent *e) {
   case Qt::Key_A:
     cursor.setPosition(0);
     cursor.movePosition(TextCursor::End, TextCursor::KeepAnchor);
+    update();
     return true;
   case Qt::Key_N:
     tryFootnote();
@@ -640,9 +644,19 @@ bool TextItem::keyPressAsInsertion(QKeyEvent *e) {
   QString now = e->text();
   if (now.isEmpty() || now[0]<32 || now[0]==127)
     return false;
-  cursor.insertText(now);
+  if (!cursor.hasSelection()) {
+    cursor.insertText(now);
+    ensureCursorVisible();
+  }
   return true;
 }
+
+void TextItem::ensureCursorVisible() {
+  int pos = cursor.position();
+  QPointF p = posToPoint(pos);
+  if (clips() && !clipRect().contains(p))
+    emit invisibleFocus(pos, p);
+}  
 
 bool TextItem::keyPressAsSpecialChar(QKeyEvent *e) {
   QChar charBefore = document()->characterAt(cursor.position()-1);
@@ -807,6 +821,7 @@ void TextItem::deleteMarkup(MarkupData *d) {
   data()->deleteMarkup(d);
   reftexts.remove(d);
   text->partialRelayout(s, e);
+  emit textChanged();
   update();
 }
   
@@ -822,6 +837,7 @@ void TextItem::addMarkup(MarkupData *d) {
   if (isnew)
     linkHelper->newMarkup(d);
   text->partialRelayout(d->start(), d->end());
+  emit textChanged(); // so that TBI gets size to fit
   update();
 }
 
