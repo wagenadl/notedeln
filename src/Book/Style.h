@@ -28,6 +28,7 @@ public:
   Style(QString fn);
   QVariant operator[](QString) const;
   double real(QString) const;
+  double real(QString, double dflt) const;
   QString string(QString) const;
   bool flag(QString) const;
   int integer(QString) const;

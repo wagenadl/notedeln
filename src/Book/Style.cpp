@@ -77,6 +77,13 @@ QVariant Style::operator[](QString k) const {
   return QVariant();
 }
 
+double Style::real(QString k, double dflt) const {
+  if (options_.contains(k))
+    return real(k);
+  else
+    return dflt;
+}
+
 double Style::real(QString k) const {
   return (*this)[k].toDouble();
 }
@@ -121,7 +128,7 @@ QColor Style::color(QString k) const {
 
 QColor Style::alphaColor(QString k) const {
   QColor c(color(k + "-color"));
-  c.setAlphaF(real(k + "-alpha"));
+  c.setAlphaF(real(k + "-alpha", 1));
   return c;
 }
 
