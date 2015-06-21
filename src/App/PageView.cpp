@@ -781,8 +781,10 @@ void PageView::modeChange() {
   QPoint p0 = mapFromGlobal(QCursor::pos());
   QPointF p = mapToScene(p0);
   Item *item = dynamic_cast<Item*>(scene()->itemAt(p));
-  if (item)
+  if (item) {
     item->setCursor(Cursors::refined(item->cursorShape()));
+    item->modeChangeUnderCursor();
+  }
 }
 
 void PageView::drop(QDropEvent e) {

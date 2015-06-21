@@ -68,6 +68,7 @@ public:
     return 0;
   }
   virtual void setScale(qreal);
+  virtual void modeChangeUnderCursor(); // only called for item under mouse
 public:
   static Item *create(Data *d, Item *parent=0);
   class GfxNoteItem *createNote(QPointF p0, bool forceLate=false);
@@ -110,6 +111,9 @@ private: // these must never be called
   const QObjectList &children() const; // hide from QObject
   // QObject's parent() has been overridden
   void setParent(QObject *); // hide from QObject
+  void perhapsCreateGlow();
+  void removeGlow();
+  bool shouldGlow() const;
 private:
   Data *d;
   bool writable;

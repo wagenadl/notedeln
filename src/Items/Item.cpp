@@ -154,21 +154,36 @@ GfxNoteItem *Item::createNote(QPointF p0, bool late) {
   return newNote(p0, p1, late);
 }
 
-static bool shouldGlow(Data *d) {
+bool Item::shouldGlow() const {
   return dynamic_cast<GfxData*>(d)
     || (dynamic_cast<TextData*>(d) &&
         dynamic_cast<GfxData*>(d->parent()));
 }
 
-void Item::hoverEnterEvent(QGraphicsSceneHoverEvent *e) {
+void Item::removeGlow() {
+  setGraphicsEffect(0);
+}
+
+void Item::modeChangeUnderCursor() {
+  if (mode()->mode()==Mode::MoveResize)
+    perhapsCreateGlow();
+  else
+    removeGlow();
+}
+
+void Item::perhapsCreateGlow() {
   ASSERT(d);
-  if (writable && shouldGlow(d) && mode()->mode()==Mode::MoveResize) {
+  if (writable && shouldGlow() && mode()->mode()==Mode::MoveResize) {
     QGraphicsDropShadowEffect *eff = new QGraphicsDropShadowEffect;
     eff->setColor(QColor("#00ff33"));
     eff->setOffset(QPointF(0, 0));
     eff->setBlurRadius(4);
     setGraphicsEffect(eff);
   }
+}  
+
+void Item::hoverEnterEvent(QGraphicsSceneHoverEvent *e) {
+  perhapsCreateGlow();
   if (changesCursorShape())
     setCursor(Cursors::refined(cursorShape()));
   e->accept();
@@ -176,7 +191,7 @@ void Item::hoverEnterEvent(QGraphicsSceneHoverEvent *e) {
 
 void Item::hoverLeaveEvent(QGraphicsSceneHoverEvent *e) {
   ASSERT(d);
-  setGraphicsEffect(0);
+  removeGlow();
   e->accept();
 }
 
