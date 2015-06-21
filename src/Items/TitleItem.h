@@ -36,6 +36,7 @@ public:
   virtual void deleteLater();
 protected:
   virtual void paint(QPainter *, const QStyleOptionGraphicsItem *, QWidget *);
+  virtual void keyPressEvent(QKeyEvent *e);
 private:
   TitleData *d;
 };

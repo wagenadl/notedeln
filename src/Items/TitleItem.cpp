@@ -20,6 +20,7 @@
 #include "Style.h"
 #include "Translate.h"
 #include <QDebug>
+#include <QKeyEvent>
 #include <QPainter>
 
 TitleItem::TitleItem(TitleData *data, Item *parent):
@@ -67,4 +68,11 @@ void TitleItem::paint(QPainter *p, QStyleOptionGraphicsItem const *o,
     p->drawText(xy, Translate::_("Untitled"));
   }
   TextItem::paint(p, o, w);
+}
+
+void TitleItem::keyPressEvent(QKeyEvent *e) {
+  if (e->key()==Qt::Key_Tab)
+    emit futileMovementKey(Qt::Key_Enter, 0);
+  else
+    TextItem::keyPressEvent(e);
 }
