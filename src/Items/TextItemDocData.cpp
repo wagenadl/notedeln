@@ -79,5 +79,5 @@ void TextItemDocData::recalcSomeWidths(int start, int end) const {
 
 double TextItemDocData::italicCorrection(MarkupStyles const &sty) const {
   QFontMetricsF const *fm = fv.metrics(sty);
-  return fm->width(" ")/2.0;
+  return fm->width(" ")*0.4;
 }
