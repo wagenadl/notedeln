@@ -40,6 +40,7 @@ public:
   void recalcSomeWidths(int start=0, int end=-1) const;
   void setCharWidths(QVector<double> const &);
   FontVariants &fonts() const { return fv; }
+  double italicCorrection(class MarkupStyles const &) const;
 private:
   mutable QMap<MarkupStyles, QFontMetricsF> mtr;
   mutable QVector<double> charwidths;

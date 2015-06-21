@@ -67,6 +67,9 @@ void TextItemDocData::recalcSomeWidths(int start, int end) const {
     if (edges.contains(n+1) || n+1>=N) {
       // simple, no kerning across edges
       charwidths[n] = fm->width(c);
+      if (edges.contains(n+1) && current.contains(MarkupData::Italic)
+	  && !edges[n+1].contains(MarkupData::Italic))
+	charwidths[n] += italicCorrection(current);
     } else {
       QChar d = txt[n+1];
       charwidths[n] = fm->width(QString(c) + QString(d)) - fm->width(d);
@@ -74,3 +77,7 @@ void TextItemDocData::recalcSomeWidths(int start, int end) const {
   }
 }
 
+double TextItemDocData::italicCorrection(MarkupStyles const &sty) const {
+  QFontMetricsF const *fm = fv.metrics(sty);
+  return fm->width(" ")/2.0;
+}
