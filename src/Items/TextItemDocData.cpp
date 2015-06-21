@@ -39,6 +39,8 @@ void TextItemDocData::recalcSomeWidths(int start, int end) const {
     start = 0;
     end = -1;
   }
+  if (start>0)
+    --start;
 
   MarkupStyles current;
   MarkupEdges edges(text->markups());
@@ -55,15 +57,20 @@ void TextItemDocData::recalcSomeWidths(int start, int end) const {
   charwidths.resize(N);
   if (end<0)
     end = N;
-  
+
   for (int n=start; n<end; n++) {
     QChar c = txt[n];
     if (edges.contains(n)) {
       current = edges[n];
       fm = fv.metrics(current);
     }
-
-    charwidths[n] = fm->width(c);
+    if (edges.contains(n+1) || n+1>=N) {
+      // simple, no kerning across edges
+      charwidths[n] = fm->width(c);
+    } else {
+      QChar d = txt[n+1];
+      charwidths[n] = fm->width(QString(c) + QString(d)) - fm->width(d);
+    }
   }
 }
 
