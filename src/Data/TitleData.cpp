@@ -39,7 +39,7 @@ void TitleData::loadMore(QVariantMap const &vm) {
 }
   
 QString TitleData::defaultTitle() {
-  return "Untitled";
+  return "";
 }
 
 bool TitleData::isDefault() const {

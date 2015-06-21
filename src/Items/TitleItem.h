@@ -35,7 +35,7 @@ public:
   TitleData *data() { ASSERT(d); return d; }
   virtual void deleteLater();
 protected:
-  void focusInEvent(QFocusEvent *);
+  virtual void paint(QPainter *, const QStyleOptionGraphicsItem *, QWidget *);
 private:
   TitleData *d;
 };

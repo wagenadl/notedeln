@@ -18,8 +18,9 @@
 
 #include "TitleItem.h"
 #include "Style.h"
+#include "Translate.h"
 #include <QDebug>
-#include <QTextDocument>
+#include <QPainter>
 
 TitleItem::TitleItem(TitleData *data, Item *parent):
   TextItem(data->text(), parent), d(data) {
@@ -55,14 +56,15 @@ void TitleItem::deleteLater() {
   TextItem::deleteLater();
 }
 
-void TitleItem::focusInEvent(QFocusEvent *e) {
-  if (text->text()==TitleData::defaultTitle()) {
-    // select the title
-    TextCursor c = textCursor();
-    c.setPosition(0);
-    c.movePosition(TextCursor::End, TextCursor::KeepAnchor);
-    setTextCursor(c);
+void TitleItem::paint(QPainter *p, QStyleOptionGraphicsItem const *o,
+		      QWidget *w) {
+  if (text->text()=="") {
+    QPointF xy = text->locate(0);
+    MarkupStyles sty;
+    sty.add(MarkupData::Italic);
+    p->setFont(text->font(sty));
+    p->setPen(style().color("title-untitled"));
+    p->drawText(xy, Translate::_("Untitled"));
   }
-  TextItem::focusInEvent(e);
+  TextItem::paint(p, o, w);
 }
-
