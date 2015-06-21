@@ -597,10 +597,14 @@ void EntryScene::futileMovement(int block) {
     // no target, go to start/end of current
     TextCursor c = tbi->textCursor();
     if (fmi.key()==Qt::Key_Down) {
-      c.movePosition(TextCursor::End);
+      c.movePosition(TextCursor::End,
+		     fmi.modifiers() & Qt::ShiftModifier
+		     ? TextCursor::KeepAnchor : TextCursor::MoveAnchor);
       tbi->setTextCursor(c);
     } else if (fmi.key()==Qt::Key_Up) {
-      c.movePosition(TextCursor::Start);
+      c.movePosition(TextCursor::Start,
+		     fmi.modifiers() & Qt::ShiftModifier
+		     ? TextCursor::KeepAnchor : TextCursor::MoveAnchor);
       tbi->setTextCursor(c);
     }
     return;
