@@ -259,10 +259,7 @@ new notebook. When you click ``Create new notebook,'' it will
 immediately ask you where you want to store that notebook. It will
 then open the front page of your notebook, where you can change its
 title and add your name as the author as well as your affiliation or
-other relevant information. These choices are more or less permanent:
-after 24 hours, you cannot edit them from within eln.\footnote{If you
-  really must, you can manually edit the ``book.json'' file inside the
-  ``.nb'' notebook folder, but this is not generally recommended.} To
+other relevant information. To
 leave the front page and go to the table of contents, press ``Page
 Down'' on your keyboard.
 
@@ -271,11 +268,11 @@ Down'' on your keyboard.
 To create a new entry, simply navigate to the last entry (by
 repeatedly pressing ``Page Down,'' or more conveniently by pressing
 ``Control''+``End'') and then press ``Page Down'' once more. A new
-entry with title ``Untitled'' is created. To encourage you to give
-your entries meaningful titles, the title is highlighted so you can
-start typing right away. (The title you give to your entry here is
+untitled entry is created. To encourage you to give your entries
+meaningful titles, the cursor is positioned in the title field so you
+can start typing right away. (The title you give to your entry here is
 automatically copied to the table of contents.) To move from the title
-to the first paragraph of your entry, simple press ``Enter.''
+to the first paragraph of your entry, simple press ``Enter'' or ``Tab.''
 
 \section{Adding text}
 
@@ -370,18 +367,25 @@ Eln doesn't offer advanced formatting, but it does offer some basic
 options: Press ``Control''+``Slash'' to italicize the word under the
 cursor or the current selection (or to unitalicize). Press
 ``Control''+``Star'' (actually ``Control''+``8'') for bold face. Press
-``Control''+``Underscore'' (on my keyboard: ``Control''+``Shift''+``Minus'') for
-underline. Type ``Control''+``Hat'' (actually ``Control''+``6'') to create a superscript
-and ``Control''+``Minus'' to create a subscript.
+``Control''+``Underscore'' (on my keyboard:
+``Control''+``Shift''+``Minus'') for underline. Type
+``Control''+``Hat'' (actually ``Control''+``6'') to create a
+superscript and ``Control''+``Minus'' to create a subscript.
 
 In addition, any text, old or new, can be highlighted using the
 ``yellow box'' icon (``F7'') or crossed out (``F8'') and these
-annotations (only) can be removed using the ``clean'' icon (``F9'').
+annotations (only) can be removed using the ``clean'' icon
+(``F9''). Highlighting of the selection or word under the cursor can
+also be toggled using ``Control''+``Exclamation point'' (that is,
+``Control''+``1''). Likewise, ``Control''+``Equals'' toggles
+cross-out.
 
 \section{Special characters}
 
-Eln supports most of unicode and you can use any input method
-supported by Qt to enter text. In addition, the following
+Eln supports most of unicode and---presumably---you can use any input method
+supported by Qt to enter text.\footnote{I have only
+  tested this with the ``compose'' key method in ``Gnome''; I am
+  interested in your test results.} In addition, the following
 substitutions are made unconditionally as you type:\medskip
 
 \begin{centering}
