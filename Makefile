@@ -17,11 +17,11 @@ clean:
 
 SRC:
 	tools/updatesources.sh
-	( cd src; qmake-qt4 )
+	( cd src; qmake-qt4 || qmake )
 	+make -C src release
 
 WEBGRAB:
-	( cd webgrab; qmake-qt4 )
+	( cd webgrab; qmake-qt4 || qmake )
 	+make -C webgrab release
 
 install: all
