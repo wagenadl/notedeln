@@ -1,3 +1,22 @@
+eln 0.10.0
+
+  
+  
+  
+  * Corrected character width calculation
+  * More digraphs, TeX codes
+  * Improved documentation
+  * Improved front scene
+  * Now opens "read only" if version control fails
+  * Cleaner logic for multiple views
+  * Added print icon; redrawn most other icons
+  * Gnome "Compose" key works again
+  * Many bugfixes
+  
+  
+
+  -- Daniel Wagenaar <wagenadl@uc.edu>  Mon, 22 Jun 2015 14:07:00 -0400
+
 eln 0.9.1
 
   
