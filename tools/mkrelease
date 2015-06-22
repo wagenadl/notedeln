@@ -134,6 +134,8 @@ close OUT;
 
 system("git add CHANGELOG") and die "Could not add CHANGELOG\n";
 system("git add src/version") and die "Could not add src/version\n";
+system("git add tools/eln-win-qt5.aip") and
+  die "Could not add tools/eln-win-qt5.aip\n";
 system("git commit -m'Created new version $newvsn'") and
     die "Could not commit\n";
 system("git tag -a v$newvsn -m 'Bumped version number'") and
