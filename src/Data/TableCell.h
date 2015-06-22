@@ -35,6 +35,7 @@ public:
   int lastColumn() const { return c0+nc-1; }
   int rows() const { return nr; }
   int columns() const { return nc; }
+  TableData const *data() const { return tbl; }
 private:
   TableData const *tbl;
   int r0, c0, nr, nc;

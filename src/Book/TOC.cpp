@@ -47,7 +47,7 @@ QMap<int, TOCEntry *> const &TOC::entries() const {
   return entries_;
 }
 
-TOCEntry *TOC::entry(int startPage) const {
+TOCEntry *TOC::tocEntry(int startPage) const {
   ASSERT(entries_.contains(startPage));
   return entries_[startPage];
 }

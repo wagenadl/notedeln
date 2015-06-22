@@ -602,7 +602,7 @@ void PageView::nextPage() {
     break;
   case Entries:
     if (!gotoSheet(currentSheet+1)) {
-      TOCEntry *te = book->toc()->entry(entryScene->data()->startPage());
+      TOCEntry *te = book->toc()->tocEntry(entryScene->data()->startPage());
       te = book->toc()->entryAfter(te);
       if (te)
 	gotoEntryPage(te->startPage(), 1);

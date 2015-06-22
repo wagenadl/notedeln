@@ -175,7 +175,7 @@ void PageView::openPrintDialog() {
           if (progress.wasCanceled())
             throw 0;
           if (to>=startPage &&
-              from<startPage+book->toc()->entry(startPage)->sheetCount()) {
+              from<startPage+book->toc()->tocEntry(startPage)->sheetCount()) {
             gotoEntryPage(startPage);
             ASSERT(entryScene);
             if (any)

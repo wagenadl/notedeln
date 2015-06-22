@@ -75,7 +75,7 @@ bool WordIndex::build(class TOC *toc, QString pagesDir) {
     mb.setValue(pg);
     if (mb.wasCanceled())
       return false;
-    QString uuid = toc->entry(pg)->uuid();
+    QString uuid = toc->tocEntry(pg)->uuid();
     EntryFile *f = ::loadEntry(pagesDir, pg, uuid, 0);
     if (f) {
       WordSet ws;

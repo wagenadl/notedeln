@@ -50,7 +50,7 @@ void SearchResultScene::populate() {
       lastLine = new QGraphicsLineItem(0, 0, style().real("page-width"), 0);
       lastLine->setPen(QPen(QBrush(style().color("toc-line-color")),
 			    style().real("toc-line-width")));
-      headers << new SearchResItem(book->toc()->entry(r.startPageOfEntry),
+      headers << new SearchResItem(book->toc()->tocEntry(r.startPageOfEntry),
                                    this);
       lastLine->setParentItem(headers.last());
       oldPage = r.startPageOfEntry;

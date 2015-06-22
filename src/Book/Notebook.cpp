@@ -211,7 +211,7 @@ CachedEntry Notebook::entry(int n)  {
 
   EntryFile *f = 0;
   if (toc()->contains(n)) {
-    QString uuid = toc()->entry(n)->uuid();
+    QString uuid = toc()->tocEntry(n)->uuid();
     f = ::loadEntry(QDir(root.filePath("pages")), n, uuid, this);
     if (!f) 
       f = recoverFromMissingEntry(n);
@@ -290,7 +290,7 @@ bool Notebook::deleteEntry(int pgno) {
 void Notebook::titleMod() {
   EntryData *pg = dynamic_cast<EntryData *>(sender());
   ASSERT(pg);
-  TOCEntry *e = toc()->entry(pg->startPage());
+  TOCEntry *e = toc()->tocEntry(pg->startPage());
   ASSERT(e);
   e->setTitle(pg->title()->text()->text());
 }
@@ -298,7 +298,7 @@ void Notebook::titleMod() {
 void Notebook::sheetCountMod() {
   EntryData *pg = dynamic_cast<EntryData *>(sender());
   ASSERT(pg);
-  TOCEntry *e = toc()->entry(pg->startPage());
+  TOCEntry *e = toc()->tocEntry(pg->startPage());
   ASSERT(e);
   e->setSheetCount(pg->sheetCount());
 }

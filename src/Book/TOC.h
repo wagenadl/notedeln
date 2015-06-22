@@ -34,7 +34,7 @@ public:
   TOC(Data *parent=0);
   virtual ~TOC();
   QMap<int, TOCEntry *> const &entries() const;
-  TOCEntry *entry(int startPage) const; // assertion if not found
+  TOCEntry *tocEntry(int startPage) const; // assertion if not found
   TOCEntry *find(int page) const;
   /* Returns entry containing the page page or 0 if none does. */
   TOCEntry *findForward(int page) const;
