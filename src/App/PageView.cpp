@@ -773,14 +773,13 @@ int PageView::pageNumber() const {
 }
 
 void PageView::modeChange() {
-  if (!scene())
+  if (currentSection!=Entries)
     return;
-  SheetScene *ss = dynamic_cast<SheetScene *>(scene());
+  SheetScene *ss = entryScene->sheet(currentSheet);
   if (ss)
     ss->setCursors();
-  QPoint p0 = mapFromGlobal(QCursor::pos());
-  QPointF p = mapToScene(p0);
-  Item *item = dynamic_cast<Item*>(scene()->itemAt(p));
+  QPointF p = mapToScene(mapFromGlobal(QCursor::pos()));
+  Item *item = dynamic_cast<Item*>(entryScene->itemAt(p, currentSheet));
   if (item) {
     item->setCursor(Cursors::refined(item->cursorShape()));
     item->modeChangeUnderCursor();
@@ -793,7 +792,7 @@ void PageView::drop(QDropEvent e) {
 
 void PageView::ensureSearchVisible(QString uuid, QString phrase) {
   scene()->update();  
-  if (!currentSection==Entries)
+  if (currentSection!=Entries)
     return;
   BlockItem const *blki = entryScene->findBlockByUUID(uuid);
   if (!blki) {
