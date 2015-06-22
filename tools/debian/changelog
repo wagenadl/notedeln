@@ -1,3 +1,9 @@
+eln (0.10.1-1) trusty; urgency=medium
+
+  Lots of minor bugfixes to compile the latest version on MacOS
+
+ -- Daniel Wagenaar <wagenadl@uc.edu>  Mon, 22 Jun 2015 16:39:49 -0400
+
 eln (0.9.0-1) trusty; urgency=medium
 
   New in this version:
