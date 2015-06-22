@@ -16,10 +16,6 @@ public: // read only please
   QList<double> height; // N entries, one per note
   QList<FootnoteItem *> notes; // N entries, one per note
   QList<double> cumulHBefore; // N+1 entries, first is zero
-private:
-  BlockItem *bi;
-  BlockData *bd;
-  
 };
 
 #endif

@@ -3,8 +3,7 @@
 #include "Footstacker.h"
 #include <QMultiMap>
 
-Footstacker::Footstacker(BlockItem *bi): bi(bi) {
-  bd = bi->data();
+Footstacker::Footstacker(BlockItem *bi) {
   QMultiMap<double, FootnoteItem *> foots;
   foreach (FootnoteItem *fni, bi->footnotes()) {
     FootnoteData *fnd = fni->data();
