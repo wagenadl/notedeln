@@ -35,6 +35,7 @@ private:
   void makeItems();
   void positionItems();
   void makeWritable();
+  void rebuildOItems();
 private slots:
   void textChange();
 private:
@@ -46,6 +47,9 @@ private:
   QGraphicsTextItem *author;
   QGraphicsTextItem *address;
   QGraphicsTextItem *dates;
+  QGraphicsTextItem *otitle;
+  QGraphicsTextItem *oauthor;
+  QGraphicsTextItem *oaddress;
   class QGraphicsPixmapItem *bg;
 };
 

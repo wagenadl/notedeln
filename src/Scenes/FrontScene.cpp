@@ -23,6 +23,7 @@
 #include "Style.h"
 #include "RoundedRect.h"
 #include "Version.h"
+#include "Translate.h"
 
 #include <math.h>
 #include <QTextBlockFormat>
@@ -41,8 +42,16 @@ FrontScene::FrontScene(Notebook *book, QObject *parent):
   makeBackground();
   makeItems();
   rebuild();
-  if (!book->isReadOnly())
+  if (!book->isReadOnly()) {
     makeWritable();
+    if (book->bookData()->title()==Translate::_("New book")) {
+      QTextCursor t(title->document());
+      t.movePosition(QTextCursor::Start);
+      t.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
+      title->setTextCursor(t);
+      title->setFocus();
+    }
+  }
 }
 
 FrontScene::~FrontScene() {
@@ -62,11 +71,12 @@ void FrontScene::makeWritable() {
 }
 
 void FrontScene::textChange() {
-  positionItems();
   BookData *data = book->bookData();
   data->setTitle(title->toPlainText());
   data->setAuthor(author->toPlainText());
   data->setAddress(address->toPlainText());
+  rebuildOItems();
+  positionItems();
   foreach (QGraphicsView *view, views()) {
     QWidget *toplevel = view->window();
     if (toplevel)
@@ -87,8 +97,22 @@ void FrontScene::rebuild() {
     dates->setHtml(data->startDate().toString(dateFmt)
 		   + QString::fromUtf8("‒") +
 		   data->endDate().toString(dateFmt));
-
+  rebuildOItems();
   positionItems();
+}
+
+static QString otext(QString lbl, QString txt) {
+  if (txt.isEmpty())
+    return "";
+  return "(" + Translate::_(lbl) + QString::fromUtf8(": “")
+    + txt + QString::fromUtf8("”)");
+}
+
+void FrontScene::rebuildOItems() {
+  BookData *data = book->bookData();
+  otitle->setPlainText(otext("otitle", data->otitle()));
+  oauthor->setPlainText(otext("oauthor", data->oauthor()));
+  oaddress->setPlainText(otext("oaddress", data->oaddress()));
 }
 
 
@@ -186,6 +210,16 @@ void FrontScene::makeItems() {
 
   dates = addText("dates", style.font("front-dates-font"));
   dates->setDefaultTextColor(style.color("front-dates-color"));
+
+  otitle = addText("", style.font("front-aka-font"));
+  otitle->setDefaultTextColor(style.color("front-aka-color"));
+  
+  oauthor = addText("", style.font("front-aka-font"));
+  oauthor->setDefaultTextColor(style.color("front-aka-color"));
+
+  oaddress = addText("", style.font("front-aka-font"));
+  oaddress->setDefaultTextColor(style.color("front-aka-color"));
+
 }
 
 void FrontScene::positionItems() {
@@ -206,6 +240,13 @@ void FrontScene::positionItems() {
   centerAt(author, xc, style.real("front-author-y"));
   centerAt(address, xc, style.real("front-address-y"));
   centerAt(dates, xc, style.real("front-dates-y"));
+
+  centerAt(otitle, xc,
+	   title->mapRectToScene(title->boundingRect()).bottom() + 5);
+  centerAt(oaddress, xc,
+	   address->mapRectToScene(address->boundingRect()).bottom() + 5);
+  centerAt(oauthor, xc,
+	   author->mapRectToScene(author->boundingRect()).bottom() + 5);
 
   if (toprect) {
     QRectF tr = title->sceneBoundingRect();

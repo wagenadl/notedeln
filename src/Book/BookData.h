@@ -39,6 +39,9 @@ public:
   QString address() const;
   QDate startDate() const;
   QDate endDate() const;
+  QString otitle() const;
+  QString oauthor() const;
+  QString oaddress() const;
   void setTitle(QString);
   void setAuthor(QString);
   void setAddress(QString);

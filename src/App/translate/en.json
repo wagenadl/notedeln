@@ -17,5 +17,11 @@
 "balloon-nav-next": "Go to next page (Page Down). Shift click to open new window.",
 "balloon-nav-n10": "Flip forward 10 pages (Ctrl+Page Down). Shift click to open new window.",
 "balloon-nav-end": "Go to last page (Ctrl+End). Shift click to open new window.",
-    "Untitled": "Untitled"
+    "Untitled": "Untitled",
+    "otitle": "Originally",
+    "oauthor": "Originally",
+    "oaddress": "Originally",
+    "New book": "Notebook title",
+    "Me": "Your name",
+    "Here": "Your affiliation or address"
 }

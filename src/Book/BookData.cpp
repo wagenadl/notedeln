@@ -18,13 +18,14 @@
 
 #include "BookData.h"
 #include "Notebook.h"
+#include "Translate.h"
 
 static Data::Creator<BookData> c("book");
 
 BookData::BookData(Data *parent): Data(parent) {
-  title_ = "New book";
-  author_ = "Me";
-  address_ = "Here";
+  title_ = Translate::_("New book");
+  author_ = Translate::_("Me");
+  address_ = Translate::_("Here");
   startDate_ = QDate::currentDate();
   endDate_ = QDate::currentDate();
   setType("book");
@@ -47,6 +48,18 @@ QString BookData::address() const {
   return address_;
 }
 
+QString BookData::otitle() const {
+  return otitle_==title_ ? "" : otitle_;
+}
+
+QString BookData::oauthor() const {
+  return oauthor_==author_ ? "" : oauthor_;
+}
+
+QString BookData::oaddress() const {
+  return oaddress_==address_ ? "" : oaddress_;
+}
+
 QDate BookData::startDate() const {
   return startDate_;
 }
@@ -56,21 +69,27 @@ QDate BookData::endDate() const {
 }
 
 void BookData::setTitle(QString t) {
-  if (isRecent() && !(book() && book()->isReadOnly()))
+  if (title_==t)
+    return;
+  if (!isRecent() && otitle_.isEmpty() && !(book() && book()->isReadOnly()))
     otitle_ = title_;
   title_ = t;
   markModified();
 }
 
 void BookData::setAuthor(QString t) {
-  if (isRecent() && !(book() && book()->isReadOnly()))
+  if (author_==t)
+    return;
+  if (!isRecent() && oauthor_.isEmpty() && !(book() && book()->isReadOnly()))
     oauthor_ = author_;
   author_ = t;
   markModified();
 }
 
 void BookData::setAddress(QString t) {
-  if (isRecent() && !(book() && book()->isReadOnly()))
+  if (address_==t)
+    return;
+  if (!isRecent() && oaddress_.isEmpty() && !(book() && book()->isReadOnly()))
     oaddress_ = address_;
   address_ = t;
   markModified();
