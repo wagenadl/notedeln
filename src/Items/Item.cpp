@@ -88,6 +88,8 @@ Mode *Item::mode() const {
   SheetScene *ss = dynamic_cast<SheetScene*>(scene());
   ASSERT(ss);
   Mode *m = ss->mode();
+  //  if (!m)
+  //    return new Mode(true); // ouch; just for now
   ASSERT(m);
   return m;
 }

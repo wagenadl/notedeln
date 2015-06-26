@@ -124,6 +124,7 @@ bool PageView::gotoSheet(int n) {
       return false;
     currentPage = 1+n;
     currentSheet = n;
+    bank->tocScene()->sheet(n)->setEventView(this);
     setScene(bank->tocScene()->sheet(n));
     emit onFrontMatter(currentPage);
     return true;
@@ -132,6 +133,7 @@ bool PageView::gotoSheet(int n) {
       return false;
     currentSheet = n;
     currentPage = entryScene->startPage() + n;
+    entryScene->sheet(n)->setEventView(this);
     setScene(entryScene->sheet(n));
     emit onEntryPage(currentPage-n, n);
     return true;

@@ -748,9 +748,17 @@ void EntryScene::vChanged(int block) {
   ASSERT(block>=0 && block<blockItems.size());
   TextBlockItem *tbi = dynamic_cast<TextBlockItem*>(blockItems[block]);
   if (tbi) {
+    Item *f = 0;
+    if (eventview)
+      f = dynamic_cast<Item*>(eventview->scene()->focusItem());
+    // that's a really ugly way to find out who has focus
     TextCursor c = tbi->textCursor();
     restackBlocks(block);
-    tbi->setTextCursor(c);
+    if (f && f->ancestralBlock()!=tbi)
+      f->setFocus(); // restore focus to correct footnote. hope this works.
+    /* It work more or less, but not in the context of cross-sheet notes. */
+    else
+      tbi->setTextCursor(c); // this ensures the correct fragment gets focus
   } else {
     restackBlocks(block);
     gotoSheetOfBlock(block);
