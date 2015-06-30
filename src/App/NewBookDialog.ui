@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>413</width>
-    <height>318</height>
+    <width>391</width>
+    <height>285</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -34,9 +34,9 @@
     </widget>
    </item>
    <item>
-    <widget class="QGroupBox" name="groupBox_2">
+    <widget class="QGroupBox" name="archive">
      <property name="title">
-      <string>Version control (backup)</string>
+      <string>Archiving (backup)</string>
      </property>
      <property name="checkable">
       <bool>true</bool>
@@ -44,138 +44,117 @@
      <property name="checked">
       <bool>true</bool>
      </property>
-     <layout class="QHBoxLayout" name="horizontalLayout">
+     <layout class="QVBoxLayout" name="verticalLayout_2">
       <item>
-       <widget class="QWidget" name="widget_3" native="true">
-        <layout class="QFormLayout" name="formLayout">
+       <widget class="QWidget" name="widget_5" native="true">
+        <layout class="QGridLayout" name="gridLayout">
+         <property name="margin">
+          <number>0</number>
+         </property>
          <item row="0" column="0">
-          <widget class="QLabel" name="label">
+          <widget class="QRadioButton" name="local">
            <property name="text">
-            <string>System:</string>
+            <string>Local</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
            </property>
           </widget>
          </item>
-         <item row="0" column="1">
-          <widget class="QComboBox" name="bSystem">
-           <item>
-            <property name="text">
-             <string>Git</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Bazaar (bzr)</string>
-            </property>
-           </item>
-          </widget>
-         </item>
          <item row="1" column="0">
-          <widget class="QLabel" name="label_2">
+          <widget class="QRadioButton" name="remote">
            <property name="text">
-            <string>Host:</string>
+            <string>Remote</string>
            </property>
           </widget>
          </item>
          <item row="1" column="1">
-          <widget class="QComboBox" name="bHost">
-           <property name="editable">
-            <bool>true</bool>
+          <widget class="QWidget" name="widget_4" native="true">
+           <property name="enabled">
+            <bool>false</bool>
            </property>
-           <property name="maxCount">
-            <number>10</number>
-           </property>
-           <item>
-            <property name="text">
-             <string>Local host</string>
+           <layout class="QHBoxLayout" name="horizontalLayout_5">
+            <property name="leftMargin">
+             <number>0</number>
             </property>
-           </item>
-          </widget>
-         </item>
-         <item row="2" column="0">
-          <widget class="QLabel" name="label_3">
-           <property name="text">
-            <string>Location:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="1">
-          <widget class="QComboBox" name="bLocation">
-           <property name="editable">
-            <bool>true</bool>
-           </property>
-           <property name="maxCount">
-            <number>10</number>
-           </property>
-           <item>
-            <property name="text">
-             <string>Home</string>
+            <property name="topMargin">
+             <number>0</number>
             </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Desktop</string>
+            <property name="rightMargin">
+             <number>0</number>
             </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Documents</string>
+            <property name="bottomMargin">
+             <number>2</number>
             </property>
-           </item>
+            <item>
+             <widget class="QLabel" name="label_4">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text">
+               <string>Host:</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QComboBox" name="host">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="editable">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+           </layout>
           </widget>
          </item>
         </layout>
        </widget>
       </item>
       <item>
-       <widget class="QWidget" name="widget_2" native="true">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
+       <widget class="QLabel" name="label_3">
+        <property name="font">
+         <font>
+          <italic>true</italic>
+         </font>
         </property>
-        <layout class="QVBoxLayout" name="verticalLayout_2">
-         <property name="leftMargin">
+        <property name="text">
+         <string>Archive location:</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QWidget" name="widget" native="true">
+        <layout class="QHBoxLayout" name="horizontalLayout_3">
+         <property name="margin">
           <number>0</number>
          </property>
-         <property name="rightMargin">
-          <number>9</number>
-         </property>
          <item>
-          <spacer name="verticalSpacer_2">
-           <property name="orientation">
-            <enum>Qt::Vertical</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>20</width>
-             <height>40</height>
-            </size>
-           </property>
-          </spacer>
+          <widget class="QLineEdit" name="alocation"/>
          </item>
          <item>
-          <widget class="QToolButton" name="test">
+          <widget class="QLabel" name="leaf">
            <property name="text">
-            <string>Test</string>
+            <string>/leaf</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QToolButton" name="abrowse">
+           <property name="text">
+            <string>...</string>
            </property>
           </widget>
          </item>
         </layout>
        </widget>
-      </item>
-      <item>
-       <spacer name="horizontalSpacer">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>40</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
       </item>
      </layout>
     </widget>
@@ -205,6 +184,17 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>location</tabstop>
+  <tabstop>browse</tabstop>
+  <tabstop>archive</tabstop>
+  <tabstop>local</tabstop>
+  <tabstop>remote</tabstop>
+  <tabstop>host</tabstop>
+  <tabstop>alocation</tabstop>
+  <tabstop>abrowse</tabstop>
+  <tabstop>buttonBox</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>
@@ -214,8 +204,8 @@
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>257</x>
-     <y>290</y>
+     <x>266</x>
+     <y>267</y>
     </hint>
     <hint type="destinationlabel">
      <x>157</x>
@@ -230,8 +220,8 @@
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>316</x>
-     <y>260</y>
+     <x>325</x>
+     <y>267</y>
     </hint>
     <hint type="destinationlabel">
      <x>286</x>
@@ -239,5 +229,89 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>remote</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>widget_4</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>63</x>
+     <y>138</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>141</x>
+     <y>130</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>archive</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>widget_5</receiver>
+   <slot>setShown(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>43</x>
+     <y>84</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>135</x>
+     <y>106</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>archive</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>widget</receiver>
+   <slot>setShown(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>77</x>
+     <y>87</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>82</x>
+     <y>183</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>browse</sender>
+   <signal>clicked()</signal>
+   <receiver>NewBook</receiver>
+   <slot>browse()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>357</x>
+     <y>54</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>387</x>
+     <y>8</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>abrowse</sender>
+   <signal>clicked()</signal>
+   <receiver>NewBook</receiver>
+   <slot>abrowse()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>356</x>
+     <y>199</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>389</x>
+     <y>173</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
+ <slots>
+  <slot>browse()</slot>
+  <slot>abrowse()</slot>
+ </slots>
 </ui>
