@@ -45,6 +45,7 @@ public:
   void insertText(QString);
   bool movePosition(MoveOperation op, MoveMode m=MoveAnchor);
   void setPosition(int pos, MoveMode m=MoveAnchor);
+  void exchangePositionAndAnchor();
   QString selectedText() const;
   Range selectedRange() const;
   int selectionStart() const;

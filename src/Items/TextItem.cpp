@@ -1176,6 +1176,7 @@ TextCursor TextItem::insertBasicHtml(QString html, int pos, bool nonewlines,
     c.insertText(ref);
   }
   c.setPosition(pos, TextCursor::KeepAnchor);
+  c.exchangePositionAndAnchor();
   return c;
 }
 

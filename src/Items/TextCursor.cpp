@@ -274,3 +274,11 @@ void TextCursor::selectAround(int pos,
   movePosition(s);
   movePosition(e, TextCursor::KeepAnchor);
 }
+
+void TextCursor::exchangePositionAndAnchor() {
+  if (!hasSelection())
+    return;
+  int p = pos;
+  pos = anc;
+  anc = p;
+}
