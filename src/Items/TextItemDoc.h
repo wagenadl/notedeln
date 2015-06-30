@@ -65,6 +65,8 @@ public:
   // offset. The location will be on the baseline of the line of text.
   void insert(int offset, QString text);
   void remove(int offset, int length);
+  void swapCase(int offset);
+  void transposeCharacters(int offset);
   int find(QString) const; // offset or -1
   void makeWritable();
   virtual int firstPosition() const;

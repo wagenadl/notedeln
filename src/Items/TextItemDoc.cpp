@@ -401,6 +401,29 @@ void TextItemDoc::insert(int offset, QString text) {
   emit contentsChanged(offset, 0, dN);
 }
 
+void TextItemDoc::swapCase(int offset) {
+  if (offset<lastPosition()) {
+    QChar c = characterAt(offset);
+    QChar c1 = c.toLower();
+    if (c1==c)
+      c1 = c.toUpper();
+    if (c1!=c) {
+      remove(offset, 1);
+      insert(offset, QString(c1));
+    }
+  }
+}
+
+void TextItemDoc::transposeCharacters(int offset) {
+  if (offset>firstPosition() && offset<lastPosition()) {
+    QChar c1 = characterAt(offset-1);
+    QChar c2 = characterAt(offset);
+    remove(offset-1, 2);
+    insert(offset-1, QString(c2) + QString(c1));
+  }
+}
+      
+
 void TextItemDoc::remove(int offset, int length) {
   /* Removes text from the document, updating the MarkupData,
      character width table, and line starts.

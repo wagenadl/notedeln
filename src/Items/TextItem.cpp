@@ -522,6 +522,31 @@ bool TextItem::keyPressWithControl(QKeyEvent *e) {
   case Qt::Key_Enter: case Qt::Key_Return:
     cursor.insertText(QString("\n"));
     return true;
+  case Qt::Key_S:
+    cursor.clearSelection();
+    text->swapCase(cursor.position());
+    cursor.movePosition(TextCursor::Right);
+    return true;
+  case Qt::Key_T:
+    cursor.clearSelection();
+    text->transposeCharacters(cursor.position());
+    cursor.movePosition(TextCursor::Right);
+    return true;
+  case Qt::Key_K:
+    cursor.clearSelection();
+    if (e->modifiers() & Qt::ShiftModifier) 
+      cursor.movePosition(TextCursor::StartOfLine, TextCursor::KeepAnchor);
+    else
+      cursor.movePosition(TextCursor::EndOfLine, TextCursor::KeepAnchor);
+    if (cursor.hasSelection())
+      cursor.deleteChar();
+    return true;
+  case Qt::Key_D:
+    cursor.clearSelection();
+    if (e->modifiers() & Qt::ShiftModifier) 
+      cursor.movePosition(TextCursor::EndOfWord, TextCursor::KeepAnchor);
+    cursor.deleteChar();
+    return true;
   default:
     return false;
   }

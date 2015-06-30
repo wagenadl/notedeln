@@ -66,7 +66,7 @@ public:
 private:
   TextItemDoc *doc;
   int pos;
-  int anc;
+  mutable int anc;
 };
 
 #endif

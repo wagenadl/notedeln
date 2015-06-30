@@ -206,7 +206,12 @@ int TextCursor::selectionEnd() const {
 }
 
 bool TextCursor::hasSelection() const {
-  return anc>=0;
+  if (anc<0)
+    return false;
+  if (anc!=pos)
+    return true;
+  anc = -1;
+  return false;
 }
 
 int TextCursor::position() const {
