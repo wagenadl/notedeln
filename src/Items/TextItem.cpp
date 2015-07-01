@@ -1282,12 +1282,14 @@ void TextItem::setTextCursor(TextCursor const &tc) {
 
 void TextItem::setLineHeight(double h) {
   text->setLineHeight(h);
-  text->recalculateCharacterWidths();
+  //text->recalculateCharacterWidths();
+  update();
 }
 
 void TextItem::setFont(QFont f) {
  text->setFont(f);
- text->recalculateCharacterWidths();
+ //text->recalculateCharacterWidths();
+ update();
 }
 
 QString TextItem::toHtml(int start, int end) const {

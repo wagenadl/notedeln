@@ -2,10 +2,11 @@
 
 #include "TextItemDocData.h"
 #include "MarkupEdges.h"
+#include <QDebug>
 
 TextItemDocData::TextItemDocData(TextData *text): text(text) {
   indent = 0;
-  width = 0;
+  width = 1000; // hmm
   leftmargin = rightmargin = 0;
   lineheight = 15; // hmm
   y0 = 4;
@@ -13,6 +14,7 @@ TextItemDocData::TextItemDocData(TextData *text): text(text) {
 }
 
 void TextItemDocData::setBaseFont(QFont const &f) {
+  forgetWidths();
   baseFont = f;
   fv.setBase(f);
   ascent = fv.metrics(MarkupStyles())->ascent();
@@ -41,6 +43,8 @@ void TextItemDocData::recalcSomeWidths(int start, int end) const {
   }
   if (start>0)
     --start;
+
+  qDebug() << "recalcsome" << text->text().left(20) << start << end;
 
   MarkupStyles current;
   MarkupEdges edges(text->markups());

@@ -140,9 +140,10 @@ void TextBlockItem::initializeFormat() {
   doc->setLeftMargin(leftmargin);
   doc->setRightMargin(disp ? style().real("display-paragraph-right-margin")
                       : 0);
-  doc->recalculateCharacterWidths();
   if (data()->text()->lineStarts().isEmpty())
     doc->relayout();
+  else
+    doc->buildLinePos();
 }  
 
 TextItemDoc *TextBlockItem::document() const {
