@@ -249,7 +249,7 @@
    <sender>archive</sender>
    <signal>toggled(bool)</signal>
    <receiver>widget_5</receiver>
-   <slot>setShown(bool)</slot>
+   <slot>setVisible(bool)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>43</x>
@@ -265,7 +265,7 @@
    <sender>archive</sender>
    <signal>toggled(bool)</signal>
    <receiver>widget</receiver>
-   <slot>setShown(bool)</slot>
+   <slot>setVisible(bool)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>77</x>
@@ -306,6 +306,22 @@
     <hint type="destinationlabel">
      <x>389</x>
      <y>173</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>local</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>abrowse</receiver>
+   <slot>setVisible(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>59</x>
+     <y>108</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>355</x>
+     <y>193</y>
     </hint>
    </hints>
   </connection>
