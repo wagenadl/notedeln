@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>391</width>
-    <height>285</height>
+    <width>425</width>
+    <height>276</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -20,6 +20,9 @@
       <string>Location</string>
      </property>
      <layout class="QHBoxLayout" name="horizontalLayout_2">
+      <property name="rightMargin">
+       <number>0</number>
+      </property>
       <item>
        <widget class="QLineEdit" name="location"/>
       </item>
@@ -38,6 +41,9 @@
      <property name="title">
       <string>Archiving (backup)</string>
      </property>
+     <property name="flat">
+      <bool>false</bool>
+     </property>
      <property name="checkable">
       <bool>true</bool>
      </property>
@@ -51,27 +57,20 @@
          <property name="margin">
           <number>0</number>
          </property>
-         <item row="0" column="0">
-          <widget class="QRadioButton" name="local">
+         <item row="1" column="0">
+          <widget class="QRadioButton" name="remote">
            <property name="text">
-            <string>Local</string>
+            <string>Remote</string>
            </property>
            <property name="checked">
             <bool>true</bool>
            </property>
           </widget>
          </item>
-         <item row="1" column="0">
-          <widget class="QRadioButton" name="remote">
-           <property name="text">
-            <string>Remote</string>
-           </property>
-          </widget>
-         </item>
          <item row="1" column="1">
           <widget class="QWidget" name="widget_4" native="true">
            <property name="enabled">
-            <bool>false</bool>
+            <bool>true</bool>
            </property>
            <layout class="QHBoxLayout" name="horizontalLayout_5">
             <property name="leftMargin">
@@ -115,6 +114,16 @@
            </layout>
           </widget>
          </item>
+         <item row="2" column="0">
+          <widget class="QRadioButton" name="local">
+           <property name="text">
+            <string>Local</string>
+           </property>
+           <property name="checked">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
         </layout>
        </widget>
       </item>
@@ -148,6 +157,9 @@
          </item>
          <item>
           <widget class="QToolButton" name="abrowse">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
            <property name="text">
             <string>...</string>
            </property>
@@ -188,7 +200,6 @@
   <tabstop>location</tabstop>
   <tabstop>browse</tabstop>
   <tabstop>archive</tabstop>
-  <tabstop>local</tabstop>
   <tabstop>remote</tabstop>
   <tabstop>host</tabstop>
   <tabstop>alocation</tabstop>

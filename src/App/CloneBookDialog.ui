@@ -1,0 +1,301 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>CloneBookDialog</class>
+ <widget class="QDialog" name="CloneBookDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>426</width>
+    <height>254</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Clone hosted notebook</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QGroupBox" name="groupBox">
+     <property name="title">
+      <string>Archive location</string>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout_2">
+      <property name="rightMargin">
+       <number>0</number>
+      </property>
+      <item>
+       <widget class="QLineEdit" name="alocation"/>
+      </item>
+      <item>
+       <widget class="QToolButton" name="abrowse">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string>...</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QWidget" name="widget_5" native="true">
+     <layout class="QGridLayout" name="gridLayout">
+      <property name="margin">
+       <number>0</number>
+      </property>
+      <item row="1" column="0">
+       <widget class="QRadioButton" name="remote">
+        <property name="text">
+         <string>Remote</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QWidget" name="widget_4" native="true">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+        <layout class="QHBoxLayout" name="horizontalLayout_5">
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
+          <number>2</number>
+         </property>
+         <item>
+          <widget class="QLabel" name="label_4">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="text">
+            <string>Host:</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QComboBox" name="host">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="editable">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QRadioButton" name="local">
+     <property name="text">
+      <string>Local</string>
+     </property>
+     <property name="checked">
+      <bool>false</bool>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="groupBox_2">
+     <property name="title">
+      <string>Clone location</string>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout_4">
+      <property name="leftMargin">
+       <number>9</number>
+      </property>
+      <property name="topMargin">
+       <number>9</number>
+      </property>
+      <property name="rightMargin">
+       <number>0</number>
+      </property>
+      <property name="bottomMargin">
+       <number>9</number>
+      </property>
+      <item>
+       <widget class="QLineEdit" name="alocation_2"/>
+      </item>
+      <item>
+       <widget class="QLabel" name="leaf">
+        <property name="text">
+         <string>/leaf</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QToolButton" name="abrowse_2">
+        <property name="text">
+         <string>...</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>21</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item>
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>CloneBookDialog</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>227</x>
+     <y>351</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>157</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>CloneBookDialog</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>295</x>
+     <y>357</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>286</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>remote</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>widget_4</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>47</x>
+     <y>115</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>240</x>
+     <y>116</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>local</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>abrowse</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>61</x>
+     <y>88</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>368</x>
+     <y>58</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>alocation</sender>
+   <signal>textChanged(QString)</signal>
+   <receiver>CloneBookDialog</receiver>
+   <slot>updateLocation(QString)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>135</x>
+     <y>51</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>150</x>
+     <y>207</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>abrowse</sender>
+   <signal>clicked()</signal>
+   <receiver>CloneBookDialog</receiver>
+   <slot>abrowse()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>386</x>
+     <y>44</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>382</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>abrowse_2</sender>
+   <signal>clicked()</signal>
+   <receiver>CloneBookDialog</receiver>
+   <slot>browse()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>372</x>
+     <y>175</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>359</x>
+     <y>230</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+ <slots>
+  <slot>updateLocation(QString)</slot>
+  <slot>abrowse()</slot>
+  <slot>browse()</slot>
+ </slots>
+</ui>
