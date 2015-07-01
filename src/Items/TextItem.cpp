@@ -75,6 +75,7 @@ TextItem::TextItem(TextData *data, Item *parent, bool noFinalize,
   
   if (!noFinalize) 
     finalizeConstructor();
+  setFlag(ItemIsFocusable);
 }
 
 void TextItem::finalizeConstructor(int sheet) {
@@ -165,10 +166,6 @@ void TextItem::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *e) {
     }
     lastClickTime.start();
     lastClickScreenPos = e->screenPos();
-    
-    if (mode()->mode()!=Mode::Type)
-      if (hasFocus())
-        clearFocus();
   }
   e->accept();
 }
@@ -176,8 +173,6 @@ void TextItem::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *e) {
 void TextItem::handleLeftClick(QGraphicsSceneMouseEvent *e) {
   switch (mode()->mode()) {
   case Mode::Browse:
-    linkHelper->mousePress(e);
-    break;
   case Mode::Type: {
     if (linkHelper->mousePress(e))
       break;
@@ -268,8 +263,6 @@ void TextItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
       handleLeftClick(e);
     lastClickTime.start();
     lastClickScreenPos = e->screenPos();
-    if (mode()->mode()!=Mode::Type && hasFocus())
-      clearFocus();
     break;
   case Qt::MiddleButton:
     if (mode()->mode() == Mode::Type) {
@@ -737,17 +730,64 @@ void TextItem::keyPressEvent(QKeyEvent *e) {
     qDebug() << "Relinquishing focus on key press: out of rectangle";
     clearFocus();
     return;
-  }    
-  if (keyPressWithControl(e) 
-      || keyPressAsSpecialChar(e)
-      || (mode()->mathMode() && keyPressAsMath(e))
-      || keyPressAsMotion(e)
-      || keyPressAsSpecialEvent(e)
-      || keyPressAsInsertion(e)) {
-    e->accept();
-  } else {
-    Item::keyPressEvent(e);
   }
+  switch (mode()->mode()) {
+  case Mode::Browse:
+    if (keyPressInBrowseMode(e))
+      e->accept();
+    else
+      Item::keyPressEvent(e);
+    break;
+  case Mode::Type:
+    if (isWritable()) {
+      if (keyPressWithControl(e) 
+	  || keyPressAsSpecialChar(e)
+	  || (mode()->mathMode() && keyPressAsMath(e))
+	  || keyPressAsMotion(e)
+	  || keyPressAsSpecialEvent(e)
+	  || keyPressAsInsertion(e)) {
+	e->accept();
+      } else {
+	Item::keyPressEvent(e);
+      }
+    } else {
+      if (keyPressInBrowseMode(e))
+	e->accept();
+      else
+	Item::keyPressEvent(e);
+    }      
+    break;
+  default:
+    Item::keyPressEvent(e);
+    break;
+  }
+}
+
+bool TextItem::keyPressInBrowseMode(QKeyEvent *e) {
+  bool ctrl = e->modifiers() & Qt::ControlModifier;
+  switch (e->key()) {
+  case Qt::Key_C:
+    if (ctrl) {
+      tryToCopy();
+      return true;
+    }
+    break;
+  case Qt::Key_A:
+    if (ctrl) {
+      cursor.movePosition(TextCursor::Start);
+      cursor.movePosition(TextCursor::End, TextCursor::KeepAnchor);
+      update();
+      return true;
+    }
+    break;
+  case Qt::Key_Escape:
+    cursor.clearSelection();
+    update();
+    return true;
+  default:
+    break;
+  }
+  return false;
 }
 
 bool TextItem::charBeforeIsLetter(int pos) const {
@@ -1135,7 +1175,7 @@ void TextItem::paint(QPainter *p, const QStyleOptionGraphicsItem*, QWidget*) {
   representSearchPhrase(tmm);
   text->render(p, tmm);
 
-  if (hasFocus())
+  if (hasFocus() && mode()->mode()==Mode::Type && isWritable())
     renderCursor(p, cursor.position());
 }
 
@@ -1229,7 +1269,7 @@ void TextItem::unclip() {
 
 void TextItem::setTextCursor(TextCursor const &tc) {
   cursor = tc;
-  if (mode()->mode()==Mode::Type)
+  if (mode()->mode()==Mode::Type || mode()->mode()==Mode::Browse)
     setFocus();
   else
     clearFocus();

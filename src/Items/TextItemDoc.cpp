@@ -374,6 +374,11 @@ void TextItemDoc::insert(int offset, QString text) {
   if (text.isEmpty())
     return;
 
+  if (!d->writable) {
+    cautionNoWrite();
+    return;
+  }
+
   QString t0 = d->text->text();
   Q_ASSERT(offset>=firstPosition() && offset<=lastPosition());
   
@@ -442,6 +447,11 @@ void TextItemDoc::remove(int offset, int length) {
   if (length<=0)
     return;
 
+  if (!d->writable) {
+    cautionNoWrite();
+    return;
+  }
+  
   QVector<double> cw0 = d->charWidths();
   int N0 = cw0.size();
   Q_ASSERT(N0==t0.size());
@@ -694,4 +704,8 @@ double TextItemDoc::baselineShift(MarkupStyles const &s) const {
   return s.contains(MarkupData::Superscript) ? - d->xheight*.6
     : s.contains(MarkupData::Subscript) ? d->xheight *.5
     : 0;
+}
+
+void TextItemDoc::cautionNoWrite() const {
+  qDebug() << "CAUTION: ATTEMPT TO WRITE TO NONWRITABLE TEXTITEMDOC";
 }

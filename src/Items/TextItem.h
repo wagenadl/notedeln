@@ -81,6 +81,7 @@ public:
   virtual void hoverMoveEvent(QGraphicsSceneHoverEvent *);
   virtual void hoverLeaveEvent(QGraphicsSceneHoverEvent *);
 private:
+  bool keyPressInBrowseMode(QKeyEvent *);
   bool keyPressAsMath(QKeyEvent *);
   void letterAsMath(QString);
   bool keyPressAsMotion(QKeyEvent *);

@@ -79,6 +79,7 @@ public:
   void recalculateCharacterWidths();
   virtual void buildLinePos();
   double baselineShift(MarkupStyles const &) const;
+  void cautionNoWrite() const;
 protected:
   virtual void finalizeConstructor();
 signals:
