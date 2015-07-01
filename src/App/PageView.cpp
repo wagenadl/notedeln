@@ -37,6 +37,7 @@
 #include "SearchDialog.h"
 #include "HtmlOutput.h"
 #include "SheetScene.h"
+#include "TitleItem.h"
 
 #include <QWheelEvent>
 #include <QKeyEvent>
@@ -692,6 +693,9 @@ void PageView::createContinuationEntry() {
   ASSERT(entryScene);
   // (So now entryScene refers to the new page.)
   entryScene->data()->title()->text()->setText(newTtl);
+  TextItem *ti = entryScene->sheet(0)->fancyTitleItem();
+  if (ti)
+    ti->document()->relayout();
   
   // Create reverse note
   QPointF revNotePos(style.real("margin-left"),
