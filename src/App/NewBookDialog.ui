@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>425</width>
-    <height>276</height>
+    <height>358</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -52,21 +52,21 @@
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_2">
       <item>
+       <widget class="QRadioButton" name="local">
+        <property name="text">
+         <string>Local</string>
+        </property>
+        <property name="checked">
+         <bool>false</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QWidget" name="widget_5" native="true">
         <layout class="QGridLayout" name="gridLayout">
          <property name="margin">
           <number>0</number>
          </property>
-         <item row="1" column="0">
-          <widget class="QRadioButton" name="remote">
-           <property name="text">
-            <string>Remote</string>
-           </property>
-           <property name="checked">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
          <item row="1" column="1">
           <widget class="QWidget" name="widget_4" native="true">
            <property name="enabled">
@@ -114,13 +114,13 @@
            </layout>
           </widget>
          </item>
-         <item row="2" column="0">
-          <widget class="QRadioButton" name="local">
+         <item row="1" column="0">
+          <widget class="QRadioButton" name="remote">
            <property name="text">
-            <string>Local</string>
+            <string>Remote</string>
            </property>
            <property name="checked">
-            <bool>false</bool>
+            <bool>true</bool>
            </property>
           </widget>
          </item>
@@ -247,8 +247,8 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>63</x>
-     <y>138</y>
+     <x>89</x>
+     <y>130</y>
     </hint>
     <hint type="destinationlabel">
      <x>141</x>
@@ -283,8 +283,8 @@
      <y>87</y>
     </hint>
     <hint type="destinationlabel">
-     <x>82</x>
-     <y>183</y>
+     <x>108</x>
+     <y>222</y>
     </hint>
    </hints>
   </connection>
@@ -295,8 +295,8 @@
    <slot>browse()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>357</x>
-     <y>54</y>
+     <x>415</x>
+     <y>61</y>
     </hint>
     <hint type="destinationlabel">
      <x>387</x>
@@ -311,8 +311,8 @@
    <slot>abrowse()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>356</x>
-     <y>199</y>
+     <x>406</x>
+     <y>220</y>
     </hint>
     <hint type="destinationlabel">
      <x>389</x>
@@ -327,12 +327,28 @@
    <slot>setVisible(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>59</x>
-     <y>108</y>
+     <x>85</x>
+     <y>162</y>
     </hint>
     <hint type="destinationlabel">
-     <x>355</x>
-     <y>193</y>
+     <x>406</x>
+     <y>220</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>archive</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>label_3</receiver>
+   <slot>setVisible(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>79</x>
+     <y>90</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>162</x>
+     <y>180</y>
     </hint>
    </hints>
   </connection>
