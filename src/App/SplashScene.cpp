@@ -24,6 +24,8 @@
 #include "Style.h"
 #include "AlreadyOpen.h"
 #include "Version.h"
+#include "Translate.h"
+#include "CloneBookDialog.h"
 
 #include <QFileDialog>
 #include <QMessageBox>
@@ -89,7 +91,7 @@ void SplashScene::makeBackground() {
 }
 
 void SplashScene::makeItems() {
-  const double MARGIN = 7;
+  const double MARGIN = 6;
   // add clickable items for recent files, local files, new file, arb. file
   double y = 25;
   double x = 45;
@@ -133,15 +135,21 @@ void SplashScene::makeItems() {
   }  
 
   bsi = new BookSplashItem(dirs.isEmpty()
-	       ? QString::fromUtf8("Open existing notebook…")
-	       : QString::fromUtf8("Open other existing notebook…"));
+			   ? Translate::_("open-existing")
+			   : Translate::_("open-other"));
   connect(bsi, SIGNAL(leftClick(QString)), SLOT(openExisting()));
   addItem(bsi);
   bsi->setPos(x, y);
   y += BookSplashItem::SMALLBOXHEIGHT + MARGIN;
 
-  bsi = new BookSplashItem(QString::fromUtf8("Create new notebook…"));
+  bsi = new BookSplashItem(Translate::_("create-new"));
   connect(bsi, SIGNAL(leftClick(QString)), SLOT(createNew()));
+  addItem(bsi);
+  bsi->setPos(x, y);
+  y += BookSplashItem::SMALLBOXHEIGHT + MARGIN;
+
+  bsi = new BookSplashItem(Translate::_("clone-remote"));
+  connect(bsi, SIGNAL(leftClick(QString)), SLOT(cloneRemote()));
   addItem(bsi);
   bsi->setPos(x, y);
   y += BookSplashItem::SMALLBOXHEIGHT + MARGIN;
@@ -151,6 +159,17 @@ QStringList SplashScene::localNotebooks() {
   QDir d(QDir::current());
   QStringList flt; flt << "*.nb";
   return d.entryList(flt, QDir::Dirs, QDir::Name);
+}
+
+void SplashScene::cloneRemote() {
+  CloneBookDialog *cbd = CloneBookDialog::getInfo();
+  if (cbd) {
+    archloc = cbd->archiveLocation();
+    archhost = cbd->isLocal() ? "" : cbd->archiveHost();
+    named = cbd->cloneLocation();
+    delete cbd;
+    emit done();
+  }
 }
 
 void SplashScene::createNew() {
@@ -175,7 +194,7 @@ void SplashScene::createNew() {
 
 void SplashScene::openExisting() {
   QFileDialog qfd(widget);
-  qfd.setWindowTitle("Open existing notebook...");
+  qfd.setWindowTitle(Translate::_("title-open-existing"));
   qfd.setFileMode(QFileDialog::Directory);
   qfd.setOptions(QFileDialog::ShowDirsOnly);
   if (!qfd.exec()) 
@@ -240,12 +259,19 @@ Notebook *SplashScene::openNotebook() {
     if (ss->named.isEmpty())
       break;
     if (ss->newRequested) {
+      // Create new notebook
       nb = Notebook::create(ss->named);
       if (!nb) 
         QMessageBox::critical(gv, "eln",
                              "'" + ss->named + "' could not be created.",
                              QMessageBox::Cancel);
     } else {
+      // load existing notebook
+
+      if (!ss->archloc.isEmpty()) {
+	// clone remote notebook
+      }
+      
       if (AlreadyOpen::check(ss->named))
 	break;
       nb = Notebook::load(ss->named);

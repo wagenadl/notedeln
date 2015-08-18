@@ -23,5 +23,11 @@
     "oaddress": "Originally",
     "New book": "Notebook title",
     "Me": "Your name",
-    "Here": "Your affiliation or address"
+    "Here": "Your affiliation or address",
+    "open-existing": "Open existing notebook…",
+    "title-open-existing": "Please select notebook to open",
+    "open-other": "Open other existing notebook…",
+    "create-new": "Create new notebook…",
+    "clone-remote": "Clone hosted notebook for local use…",
+    "title-clone-archive-location": "Please select archive to be cloned"
 }
