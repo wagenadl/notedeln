@@ -1,3 +1,15 @@
+eln (0.10.2-1) trusty; urgency=medium
+
+  * Bugfix release: Icon for "Move" stroked to path
+
+ -- Daniel Wagenaar <wagenadl@uc.edu>  Fri, 14 Aug 2015 14:47:13 -0400
+
+eln (0.10.2-1) trusty; urgency=medium
+
+  * Bugfix release: Icon for "Move" stroked to path
+
+ -- Daniel Wagenaar <wagenadl@uc.edu>  Tue, 23 Jun 2015 09:20:19 -0400
+
 eln (0.10.1-1) trusty; urgency=medium
 
   Lots of minor bugfixes to compile the latest version on MacOS
