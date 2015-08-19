@@ -167,7 +167,7 @@ QString Notebook::dirPath() const {
   return root.path();
 }
 
-bool Notebook::create(QString path) {
+bool Notebook::create(QString path, QString vc) {
   QDir d(path);
   if (d.exists()) {
     qDebug() << "Notebook: Cannot create new notebook at existing path" << path;
@@ -187,7 +187,14 @@ bool Notebook::create(QString path) {
     QFile styleOut(d.filePath("style.json"));
     styleIn.open(QFile::ReadOnly);
     styleOut.open(QFile::WriteOnly);
-    styleOut.write(styleIn.readAll());
+    QTextStream in(&styleIn);
+    QTextStream out(&styleOut);
+    while (!in.atEnd()) {
+      QString l = in.readLine();
+      if (l.indexOf("\"vc\"")>=0)
+        l.replace("\"\"", "\"" + vc + "\"");
+      out << l;
+    }
   }
 
   return true;

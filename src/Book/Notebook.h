@@ -32,7 +32,7 @@ class Notebook: public QObject {
   Q_OBJECT;
 public:
   static Notebook *load(QString path, bool readonly=false);
-  static bool create(QString path);
+  static bool create(QString path, QString vc="");
   /* Returns false if couldn't create, e.g., if already exists */
 public:
   ~Notebook();
