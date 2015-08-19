@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>615</width>
-    <height>329</height>
+    <width>688</width>
+    <height>662</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -177,6 +177,124 @@
        </widget>
       </item>
       <item>
+       <widget class="QWidget" name="caution" native="true">
+        <layout class="QHBoxLayout" name="horizontalLayout_4">
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <item>
+          <widget class="QWidget" name="widget_5" native="true">
+           <layout class="QVBoxLayout" name="verticalLayout_6">
+            <property name="leftMargin">
+             <number>0</number>
+            </property>
+            <property name="topMargin">
+             <number>0</number>
+            </property>
+            <property name="bottomMargin">
+             <number>0</number>
+            </property>
+            <item>
+             <widget class="QLabel" name="cautionIcon">
+              <property name="text">
+               <string>T</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="verticalSpacer_4">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+              <property name="sizeType">
+               <enum>QSizePolicy::MinimumExpanding</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>0</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <widget class="QTextEdit" name="textEdit">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="MinimumExpanding">
+             <horstretch>0</horstretch>
+             <verstretch>200</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="readOnly">
+            <bool>true</bool>
+           </property>
+           <property name="html">
+            <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Sans'; font-size:16pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Archiving to a remote host is only supported if you have passwordless ssh access to that host.  To arrange that, you first need to have (or create) a public/private key pair, e.g., using ssh-keygen [1]. Then you need to copy the public key from the pair to the host’s “.ssh/authorized_keys” file. On modern Linux systems, that’s basically all it takes. It is even OK to protect your key with a passphrase. I think the same goes for Mac OS. On Windows, you will also need Pageant [2] (see [3] for more info) or something similar to make sure the key gets used.&lt;/p&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;[1] https://help.ubuntu.com/community/SSH/OpenSSH/Keys&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;[2] http://www.chiark.greenend.org.uk/~sgtatham/putty/download.html&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;[3] http://the.earth.li/~sgtatham/putty/0.58/htmldoc/Chapter9.html&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QWidget" name="widget_7" native="true">
+           <layout class="QVBoxLayout" name="verticalLayout_5">
+            <property name="spacing">
+             <number>0</number>
+            </property>
+            <property name="topMargin">
+             <number>0</number>
+            </property>
+            <property name="rightMargin">
+             <number>0</number>
+            </property>
+            <property name="bottomMargin">
+             <number>0</number>
+            </property>
+            <item>
+             <spacer name="verticalSpacer_3">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>0</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <widget class="QPushButton" name="test">
+              <property name="text">
+               <string>Test</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item>
        <widget class="QLabel" name="label_3">
         <property name="font">
          <font>
@@ -263,8 +381,8 @@
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>275</x>
-     <y>319</y>
+     <x>284</x>
+     <y>648</y>
     </hint>
     <hint type="destinationlabel">
      <x>157</x>
@@ -279,8 +397,8 @@
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>334</x>
-     <y>319</y>
+     <x>343</x>
+     <y>648</y>
     </hint>
     <hint type="destinationlabel">
      <x>286</x>
@@ -311,8 +429,8 @@
    <slot>setVisible(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>43</x>
-     <y>84</y>
+     <x>52</x>
+     <y>171</y>
     </hint>
     <hint type="destinationlabel">
      <x>311</x>
@@ -331,8 +449,8 @@
      <y>87</y>
     </hint>
     <hint type="destinationlabel">
-     <x>108</x>
-     <y>222</y>
+     <x>134</x>
+     <y>490</y>
     </hint>
    </hints>
   </connection>
@@ -343,7 +461,7 @@
    <slot>browse()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>605</x>
+     <x>678</x>
      <y>61</y>
     </hint>
     <hint type="destinationlabel">
@@ -359,8 +477,8 @@
    <slot>abrowse()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>596</x>
-     <y>242</y>
+     <x>669</x>
+     <y>489</y>
     </hint>
     <hint type="destinationlabel">
      <x>389</x>
@@ -379,8 +497,8 @@
      <y>137</y>
     </hint>
     <hint type="destinationlabel">
-     <x>596</x>
-     <y>242</y>
+     <x>669</x>
+     <y>489</y>
     </hint>
    </hints>
   </connection>
@@ -395,8 +513,24 @@
      <y>90</y>
     </hint>
     <hint type="destinationlabel">
-     <x>188</x>
-     <y>208</y>
+     <x>214</x>
+     <y>448</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>remote</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>caution</receiver>
+   <slot>setVisible(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>124</x>
+     <y>188</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>33</x>
+     <y>312</y>
     </hint>
    </hints>
   </connection>

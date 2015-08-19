@@ -7,11 +7,20 @@
 #include <QDebug>
 #include "ui_CloneBookDialog.h"
 #include "Process.h"
+#include <QStyle>
+#include <QIcon>
 
 CloneBookDialog::CloneBookDialog(QWidget *parent): QDialog(parent) {
   ui = new Ui_cloneBookDialog;
   ui->setupUi(this);
   ui->leaf->setText("");
+
+  QStyle *s = style();
+  if (s) {
+    QIcon caution = s->standardIcon(QStyle::SP_MessageBoxInformation, 0, this);
+    QPixmap pm = caution.pixmap(48); // what _is_ the appropriate size?
+    ui->cautionIcon->setPixmap(pm);
+  }
 }
 
 CloneBookDialog::~CloneBookDialog() {

@@ -10,6 +10,8 @@
 #include "Notebook.h"
 #include "RmDir.h"
 #include <QDebug>
+#include <QStyle>
+#include <QIcon>
 
 NewBookDialog::NewBookDialog(QWidget *parent): QDialog(parent) {
   ui = new Ui_newBookDialog();
@@ -20,6 +22,13 @@ NewBookDialog::NewBookDialog(QWidget *parent): QDialog(parent) {
   
   ui->local->setChecked(true);
   ui->archive->setChecked(false);
+
+  QStyle *s = style();
+  if (s) {
+    QIcon caution = s->standardIcon(QStyle::SP_MessageBoxInformation, 0, this);
+    QPixmap pm = caution.pixmap(48); // what _is_ the appropriate size?
+    ui->cautionIcon->setPixmap(pm);
+  }
 }
 
 NewBookDialog::~NewBookDialog() {
