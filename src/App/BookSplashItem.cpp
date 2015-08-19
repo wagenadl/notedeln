@@ -88,6 +88,8 @@ void BookSplashItem::paint(QPainter *p,
 
   /* Draw contents */
   QFont f(Style::defaultStyle().font("splash-font"));
+  if (dirname.isEmpty())
+    f.setItalic(true);
 
   // title
   double y = dirname.isEmpty() ? 4 /*8*/ : 4;
