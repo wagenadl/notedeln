@@ -38,5 +38,5 @@
     "no-alocation": "Please specify an archive location",
     "no-git": "Could not run git",
     "clone-failed": "Failed to clone hosted archive",
-    "create-path", "Create new notebook...",    
+    "create-path": "Create new notebook..."
 }
