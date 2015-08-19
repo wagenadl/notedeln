@@ -18,6 +18,10 @@ Process::Process() {
 Process::~Process() {
 }
 
+void Process::setWorkingDirectory(QString s) {
+  wd = s;
+}
+
 void Process::setNoStartMessage(QString s) {
   msgNoStart = s;
 }
@@ -47,6 +51,8 @@ bool Process::exec() {
                    &box, SLOT(close()));
   QEventLoop el;
   QProcess process;
+  if (!wd.isEmpty())
+    process.setWorkingDirectory(wd);
   process.start(cmd, args);
   process.closeWriteChannel();
   if (!process.waitForStarted()) {

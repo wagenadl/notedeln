@@ -31,6 +31,7 @@
 #include <QMessageBox>
 #include <QTimer>
 #include <QDebug>
+#include <QProcess>
 
 #define COMMIT_IVAL_S 600 // If vc, commit every once in a while
 #define COMMIT_AVOID_S 60 // ... but not too soon after activity
@@ -197,6 +198,20 @@ bool Notebook::create(QString path, QString vc) {
     }
   }
 
+  if (vc == "git") {
+    QProcess proc;
+    proc.setWorkingDirectory(path);
+    proc.start("git", QStringList() << "init");
+    if (!proc.waitForFinished())
+      qDebug() << "New notebook: failed to initialize git archive";
+    proc.start("git", QStringList() << "add" << ".");
+    if (!proc.waitForFinished())
+      qDebug() << "New notebook: failed to add to git archive";
+    proc.start("git", QStringList() << "commit"
+               << "-m" << "New notebook");
+    if (!proc.waitForFinished())
+      qDebug() << "New notebook: failed to commit git archive";
+  }
   return true;
 }
 

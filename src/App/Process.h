@@ -10,6 +10,7 @@ class Process {
 public:
   Process();
   ~Process();
+  void setWorkingDirectory(QString);
   void setNoStartMessage(QString);
   void setCommandAndArgs(QString, QStringList);
   void setWindowCaption(QString);
@@ -23,6 +24,7 @@ private:
   QString winCap;
   QString so;
   QString se;
+  QString wd;
 };
 
 #endif

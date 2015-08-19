@@ -26,6 +26,7 @@
 #include "Version.h"
 #include "Translate.h"
 #include "CloneBookDialog.h"
+#include "NewBookDialog.h"
 
 #include <QFileDialog>
 #include <QMessageBox>
@@ -169,27 +170,10 @@ void SplashScene::cloneRemote() {
 }
 
 void SplashScene::createNew() {
-  QString fn = QFileDialog::getSaveFileName(0, "Create new notebook...",
-                                            "",
-                                            "Notebooks (*.nb)");
-  if (fn.isEmpty())
-    return; // aborted by user, we'll go back to splash screen
-  if (!fn.endsWith(".nb"))
-    fn += ".nb";
-  if (QDir::current().exists(fn)) {
-    QMessageBox::warning(widget, "eln",
-                         "Will not create a new notebook '" + fn
-                         + "': file exists.",
-                         QMessageBox::Cancel);
-    return; // go back to splash screen
-  }
-  if (Notebook::create(fn)) {
+  QString fn = NewBookDialog::getNew();
+  if (!fn.isEmpty()) {
     named = fn;
     emit done();
-  } else {
-    QMessageBox::critical(widget, "eln",
-                          "'" + fn + "' could not be created.",
-                          QMessageBox::Cancel);
   }
 }
 

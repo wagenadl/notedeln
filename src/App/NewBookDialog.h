@@ -7,9 +7,12 @@
 #include <QDialog>
 
 class NewBookDialog: public QDialog {
+  Q_OBJECT;
 public:
   NewBookDialog(QWidget *parent=0);
   virtual ~NewBookDialog();
+public:
+  static QString getNew();
 public:
   QString location() const;
   bool hasArchive() const;
