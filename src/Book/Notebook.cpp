@@ -32,6 +32,7 @@
 #include <QTimer>
 #include <QDebug>
 #include <QProcess>
+#include "RmDir.h"
 
 #define COMMIT_IVAL_S 600 // If vc, commit every once in a while
 #define COMMIT_AVOID_S 60 // ... but not too soon after activity
@@ -201,16 +202,34 @@ bool Notebook::create(QString path, QString vc) {
   if (vc == "git") {
     QProcess proc;
     proc.setWorkingDirectory(path);
+
     proc.start("git", QStringList() << "init");
-    if (!proc.waitForFinished())
+    if (!proc.waitForFinished()
+        || proc.exitStatus()!=QProcess::NormalExit
+        || proc.exitCode()!=0) {
       qDebug() << "New notebook: failed to initialize git archive";
+      RmDir::recurse(path);
+      return false;
+    }
+
     proc.start("git", QStringList() << "add" << ".");
-    if (!proc.waitForFinished())
+    if (!proc.waitForFinished()
+        || proc.exitStatus()!=QProcess::NormalExit
+        || proc.exitCode()!=0) {
       qDebug() << "New notebook: failed to add to git archive";
+      RmDir::recurse(path);
+      return false;
+    }
+      
     proc.start("git", QStringList() << "commit"
                << "-m" << "New notebook");
-    if (!proc.waitForFinished())
+    if (!proc.waitForFinished()
+        || proc.exitStatus()!=QProcess::NormalExit
+        || proc.exitCode()!=0) {
       qDebug() << "New notebook: failed to commit git archive";
+      RmDir::recurse(path);
+      return false;
+    }
   }
   return true;
 }

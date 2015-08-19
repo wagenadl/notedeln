@@ -36,6 +36,7 @@ void Process::setWindowCaption(QString c) {
 }
 
 bool Process::exec() {
+  qDebug() << "process" << cmd << args;
   se = so = "";
   
   QMessageBox box;

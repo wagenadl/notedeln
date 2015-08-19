@@ -8,6 +8,8 @@
 #include "Process.h"
 #include <QMessageBox>
 #include "Notebook.h"
+#include "RmDir.h"
+#include <QDebug>
 
 NewBookDialog::NewBookDialog(QWidget *parent): QDialog(parent) {
   ui = new Ui_newBookDialog();
@@ -24,7 +26,10 @@ NewBookDialog::~NewBookDialog() {
 }
 
 QString NewBookDialog::location() const {
-  return ui->location->text();
+  QString fn = ui->location->text();
+  if (!fn.endsWith(".nb"))
+    fn += ".nb";
+  return fn;
 }
 
 bool NewBookDialog::hasArchive() const {
@@ -44,7 +49,7 @@ QString NewBookDialog::archiveRoot() const {
 }
 
 QString NewBookDialog::leaf() const {
-  QFileInfo fi(ui->location->text());
+  QFileInfo fi(location());
   return fi.fileName();
 }
 
@@ -80,9 +85,6 @@ QString NewBookDialog::getNew() {
       continue;
     }
 
-    if (!fn.endsWith(".nb"))
-      fn += ".nb";
-
     if (QDir::current().exists(fn)) {
       QMessageBox::warning(&nbd, "eln",
                            "Will not create a new notebook '" + fn
@@ -101,32 +103,41 @@ QString NewBookDialog::getNew() {
     
     if (nbd.hasArchive()) {
       QString dst = nbd.archiveRoot() + "/" + nbd.leaf() + ".git";
-      if (nbd.isRemote())
-        dst = nbd.remoteHost() + ":" + dst;
       Process proc;
       proc.setWorkingDirectory(fn);
       proc.setWindowCaption("Creating archive");
-      proc.setNoStartMessage("Could not run git");
-      proc.setCommandAndArgs("git", QStringList()
-                             << "init" << "--bare" << dst);
+      if (nbd.isRemote()) {
+        QString host = nbd.remoteHost();
+        proc.setNoStartMessage("Could not run ssh");
+        proc.setCommandAndArgs("ssh", QStringList()
+                               << nbd.remoteHost()
+                               << "git" << "init" << "--bare" << dst);
+        dst = host + ":" + dst;
+      } else {
+        proc.setNoStartMessage("Could not run git");
+        proc.setCommandAndArgs("git", QStringList()
+                               << "init" << "--bare" << dst);
+      }
       if (!proc.exec()) {
-        QMessageBox::critical(&nbd, "eln",
-                              "Failed to create archive: " + proc.stderr()
-                              + " - Notebook created without archive",
-                              QMessageBox::Cancel);
-        // I should, instead, remove the just created notebook
-        return fn;
+        bool disaster = !RmDir::recurse(fn);
+        QString msg = "Failed to create archive: " + proc.stderr();
+        if (disaster)
+          msg += " - And I failed to clean up. You will have to manually remove " + QString::fromUtf8("“") + fn + QString::fromUtf8("”");
+
+        QMessageBox::critical(&nbd, "eln", msg, QMessageBox::Cancel);
+        continue;
       }
       
+      proc.setNoStartMessage("Could not run git");
       proc.setCommandAndArgs("git", QStringList() 
                              << "push" << "--set-upstream" << dst << "master");
       if (!proc.exec()) {
-        QMessageBox::critical(&nbd, "eln",
-                              "Failed to push to archive: " + proc.stderr()
-                              + " - Notebook created without archive",
-                              QMessageBox::Cancel);
-        // I should, instead, remove the just created notebook
-        return fn;
+        bool disaster = !RmDir::recurse(fn);
+        QString msg = "Failed to push to archive: " + proc.stderr();
+        if (disaster)
+          msg += " - And I failed to clean up. You will have to manually remove " + QString::fromUtf8("“") + fn + QString::fromUtf8("”");
+        QMessageBox::critical(&nbd, "eln", msg, QMessageBox::Cancel);
+        continue;
       }
     }
 
