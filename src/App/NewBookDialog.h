@@ -15,12 +15,11 @@ public:
   bool hasArchive() const;
   bool isRemote() const;
   QString remoteHost() const;
-  QString archiveLocation() const;
+  QString archiveRoot() const;
+  QString leaf() const;
 private slots:
   void browse();
   void abrowse();
-  void localToggled(bool);
-  void remoteToggled(bool);
   void locationChanged(QString);
 private:
   class Ui_newBookDialog *ui;

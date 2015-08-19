@@ -30,11 +30,13 @@
     "create-new": "Create new notebook…",
     "clone-remote": "Clone hosted notebook for local use…",
     "title-clone-archive-location": "Please select archive to be cloned",
+    "title-clone-dest-path": "Please specify a location for your cloned notebook",
     "retrieving-clone": "Retrieving hosted notebook…",
     "exists-clone": "A notebook already exists in that location. Please specify another location for your cloned notebook.",
     "no-clone": "Please specify a location for your cloned notebook",
     "no-host": "Please specify an archive host",
     "no-alocation": "Please specify an archive location",
     "no-git": "Could not run git",
-    "clone-failed": "Failed to clone hosted archive"
+    "clone-failed": "Failed to clone hosted archive",
+    "create-path", "Create new notebook...",    
 }

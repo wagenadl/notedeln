@@ -2,13 +2,14 @@
 
 #include "NewBookDialog.h"
 #include "ui_NewBookDialog.h"
+#include <QFileInfo>
+#include <QFileDialog>
+#include "Translate.h"
 
 NewBookDialog::NewBookDialog(QWidget *parent): QDialog(parent) {
   ui = new Ui_newBookDialog();
   ui->setupUi(this);
 
-  connect(ui->local, SIGNAL(toggled(bool)), SLOT(localToggled(bool)));
-  connect(ui->remote, SIGNAL(toggled(bool)), SLOT(remoteToggled(bool)));
   connect(ui->location, SIGNAL(textChanged(QString)),
           SLOT(locationChanged(QString)));
   
@@ -35,20 +36,31 @@ QString NewBookDialog::remoteHost() const {
   return ui->host->currentText();
 }
 
-QString NewBookDialog::archiveLocation() const {
+QString NewBookDialog::archiveRoot() const {
   return ui->alocation->text();
 }
 
+QString NewBookDialog::leaf() const {
+  QFileInfo fi(ui->location->text());
+  return fi.fileName();
+}
+
 void NewBookDialog::browse() {
+  QString fn = QFileDialog::getSaveFileName(this, Translate::_("create-path"),
+                                            "", "Notebooks (*.nb)");
+  if (fn.isEmpty())
+    return;
+  
+  if (!fn.endsWith(".nb"))
+    fn += ".nb";
+  ui->location->setText(fn);
 }
 
 void NewBookDialog::abrowse() {
-}
-
-void NewBookDialog::localToggled(bool) {
-}
-
-void NewBookDialog::remoteToggled(bool) {
+  QString fn = QFileDialog::getExistingDirectory(this,
+                                              Translate::_("create-archive"));
+  if (!fn.isEmpty())
+    ui->alocation->setText(fn);
 }
 
 void NewBookDialog::locationChanged(QString) {

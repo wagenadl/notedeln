@@ -53,21 +53,11 @@ void CloneBookDialog::abrowse() {
                          QMessageBox::Cancel);
     return;
   }
-  
-  QFileDialog qfd(this);
-  qfd.setWindowTitle(Translate::_("title-clone-archive-location"));
-  qfd.setFileMode(QFileDialog::Directory);
-  qfd.setOptions(QFileDialog::ShowDirsOnly);
-  if (!qfd.exec()) 
-    return;
 
-  QStringList fns = qfd.selectedFiles();
-  if (fns.isEmpty())
+  QString fn = QFileDialog::getExistingDirectory(this,
+                                Translate::_("title-clone-archive-location"));
+  if (fn.isEmpty())
     return;
-  if (fns.size()>1)
-    qDebug() << "Multiple files selected; using only the first.";
-
-  QString fn = fns[0];
   QDir d(fn);
   if (!d.exists()) {
     QMessageBox::warning(this, "eln",
@@ -86,20 +76,10 @@ void CloneBookDialog::abrowse() {
 }
 
 void CloneBookDialog::browse() {
-  QFileDialog qfd(this);
-  qfd.setWindowTitle(Translate::_("title-clone-archive-location"));
-  qfd.setFileMode(QFileDialog::Directory);
-  qfd.setOptions(QFileDialog::ShowDirsOnly);
-  if (!qfd.exec()) 
+  QString fn = QFileDialog::getExistingDirectory(this,
+                             Translate::_("title-clone-dest-path"));
+  if (fn.isEmpty())
     return;
-
-  QStringList fns = qfd.selectedFiles();
-  if (fns.isEmpty())
-    return;
-  if (fns.size()>1)
-    qDebug() << "Multiple files selected; using only the first.";
-
-  QString fn = fns[0];
   QDir d(fn);
   if (!d.exists()) {
     QMessageBox::warning(this, "eln",
