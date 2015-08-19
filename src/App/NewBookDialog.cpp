@@ -13,7 +13,7 @@ NewBookDialog::NewBookDialog(QWidget *parent): QDialog(parent) {
           SLOT(locationChanged(QString)));
   
   ui->local->setChecked(true);
-  ui->archiving->setChecked(false);
+  ui->archive->setChecked(false);
 }
 
 NewBookDialog::~NewBookDialog() {
@@ -24,8 +24,9 @@ QString NewBookDialog::location() const {
 }
 
 bool NewBookDialog::hasArchive() const {
-  return ui->archiving->isChecked();
+  return ui->archive->isChecked();
 }
+
 bool NewBookDialog::isRemote() const {
   return ui->remote->isChecked();
 }
@@ -35,7 +36,7 @@ QString NewBookDialog::remoteHost() const {
 }
 
 QString NewBookDialog::archiveLocation() const {
-  return ui->archiveLocation->text();
+  return ui->alocation->text();
 }
 
 void NewBookDialog::browse() {

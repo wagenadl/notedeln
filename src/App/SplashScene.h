@@ -43,24 +43,7 @@ private:
   void makeItems();
   void setWidget(QWidget *); // mark our view, lazy method
 private:
-  bool newRequested;
   QString named;
-  QString archloc;
-  QString archhost;
-  /* Semantics:
-     - newRequested is true iff a completely new notebook is to be made.
-     - In that case, nonempty archloc means that a git archive is to be made.
-     - If a git archive is to be made, archhost may still be empty, in which
-       case the archive is made locally.
-     - If newRequested is false, nonempty archloc means that the notebook
-       is to be cloned from that location.
-     - Even then, archhost may be empty, in which case the archive is assumed
-       to be local.
-     Notes:
-     - This does not allow for bzr archives, which I consider deprecated.
-     - It also does not allow for a truly local git archive (without push
-       location) to be created.
-   */
   QPointer<QWidget> widget;
 };
 

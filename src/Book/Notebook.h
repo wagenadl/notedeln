@@ -32,8 +32,8 @@ class Notebook: public QObject {
   Q_OBJECT;
 public:
   static Notebook *load(QString path, bool readonly=false);
-  static Notebook *create(QString path);
-  /* Returns null if couldn't create, e.g., if already exists */
+  static bool create(QString path);
+  /* Returns false if couldn't create, e.g., if already exists */
 public:
   ~Notebook();
   bool isReadOnly() const { return ro; }

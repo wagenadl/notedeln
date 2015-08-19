@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>NewBook</class>
- <widget class="QDialog" name="NewBook">
+ <class>newBookDialog</class>
+ <widget class="QDialog" name="newBookDialog">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -211,7 +211,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>accepted()</signal>
-   <receiver>NewBook</receiver>
+   <receiver>newBookDialog</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -227,7 +227,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>rejected()</signal>
-   <receiver>NewBook</receiver>
+   <receiver>newBookDialog</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -291,7 +291,7 @@
   <connection>
    <sender>browse</sender>
    <signal>clicked()</signal>
-   <receiver>NewBook</receiver>
+   <receiver>newBookDialog</receiver>
    <slot>browse()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -307,7 +307,7 @@
   <connection>
    <sender>abrowse</sender>
    <signal>clicked()</signal>
-   <receiver>NewBook</receiver>
+   <receiver>newBookDialog</receiver>
    <slot>abrowse()</slot>
    <hints>
     <hint type="sourcelabel">

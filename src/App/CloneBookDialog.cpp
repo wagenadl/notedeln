@@ -6,6 +6,7 @@
 #include <QMessageBox>
 #include <QDebug>
 #include "ui_CloneBookDialog.h"
+#include "Process.h"
 
 CloneBookDialog::CloneBookDialog(QWidget *parent): QDialog(parent) {
   ui = new Ui_cloneBookDialog;
@@ -29,7 +30,20 @@ bool CloneBookDialog::isLocal() const {
 }
 
 QString CloneBookDialog::cloneLocation() const {
-  return ui->location->text() + ui->leaf->text();
+  QDir d(cloneDestination());
+  return d.absoluteFilePath(leaf());
+}
+
+QString CloneBookDialog::cloneDestination() const {
+  return ui->location->text();
+}
+
+QString CloneBookDialog::leaf() const {
+  QString s = archiveLocation();
+  if (s.endsWith(".git"))
+    s = s.left(s.size()-4);
+  int idx = s.lastIndexOf("/");
+  return idx<0 ? s : s.mid(idx+1);
 }
 
 void CloneBookDialog::abrowse() {
@@ -94,82 +108,71 @@ void CloneBookDialog::browse() {
     return;
   }
 
-  QString leaf = ui->leaf->text();
-  if (!leaf.isEmpty() && d.exists(ui->leaf->text().mid(1))) {
+  QString l = leaf();
+  if (!l.isEmpty() && d.exists(l)) {
     QMessageBox::warning(this, "eln",
-                         "'" + fn + leaf + "' already exists.",
+                         "'" + d.absoluteFilePath(l) + "' already exists.",
                          QMessageBox::Cancel);
     return;
   }
 } 
 
-void CloneBookDialog::updateLocation(QString aloc) {
-  if (aloc.endsWith(".git"))
-    aloc = aloc.left(aloc.size()-4);
-  int idx = aloc.lastIndexOf("/");
-  if (idx>=0)
-    aloc = aloc.mid(idx);
-  else
-    aloc = "/" + aloc;
-  ui->leaf->setText(aloc);
+void CloneBookDialog::updateLocation(QString) {
+  ui->leaf->setText(leaf());
 }
 
-CloneBookDialog *CloneBookDialog::getInfo() {
-  CloneBookDialog *cbd = new CloneBookDialog();
-  while (cbd->exec()) {
+QString CloneBookDialog::getClone() {
+  CloneBookDialog cbd;
+  while (cbd.exec()) {
     // OK pressed
-    if (cbd->archiveLocation().isEmpty()) {
-      if (QMessageBox::warning(cbd, "eln",
-			       "Please specify an archive location",
-			       QMessageBox::Cancel | QMessageBox::Ok)
-	  == QMessageBox::Cancel)
-	break;
-      else
-	continue;
+    if (cbd.archiveLocation().isEmpty()) {
+      QMessageBox::warning(&cbd, "eln", Translate::_("no-alocation"));
+      continue;
     }
 
-    if (!cbd->isLocal()) {
-      if (cbd->archiveHost().isEmpty()) {
-	if (QMessageBox::warning(cbd, "eln",
-				 "Please specify an archive host",
-				 QMessageBox::Cancel | QMessageBox::Ok)
-	    == QMessageBox::Cancel)
-	  break;
-	else
-	  continue;
+    if (!cbd.isLocal()) {
+      if (cbd.archiveHost().isEmpty()) {
+	QMessageBox::warning(&cbd, "eln", Translate::_("no-host"));
+        continue;
       }
     }
 
-    QString path = cbd->cloneLocation();
-    int idx = path.lastIndexOf("/");
-    if (path.isEmpty() || idx<0) {
-      if (QMessageBox::warning(cbd, "eln",
-			  "Please specify a location for your cloned notebook",
-			       QMessageBox::Cancel | QMessageBox::Ok)
-	  == QMessageBox::Cancel)
-	break;
-      else
-	continue;
+    QString path = cbd.cloneDestination();
+    if (path.isEmpty()) {
+      QMessageBox::warning(&cbd, "eln", Translate::_("no-clone"));
+      continue;
     }
     
-    QDir d(path.left(idx));
-    QString leaf(path.mid(idx+1));
-    if (d.exists(leaf)) {
-      if (QMessageBox::warning(cbd, "eln",
-			       "A notebook already exists in that location. Please specify another location for your cloned notebook.",
-			       QMessageBox::Cancel | QMessageBox::Ok)
-	  == QMessageBox::Cancel)
-	break;
-      else
-	continue;
+    QDir d(path);
+    QString l(cbd.leaf());
+    if (d.exists(l)) {
+      QMessageBox::warning(&cbd, "eln", Translate::_("exists-clone"));
+      continue;
     }
      
     // Basic checks passed
-    cbd->close();
-    return cbd;
+    d.mkpath(l);
+
+    // Run git clone
+    Process proc;
+    proc.setWindowCaption(Translate::_("retrieving-clone"));
+    proc.setNoStartMessage(Translate::_("no-git"));
+    proc.setCommandAndArgs("git",
+                           QStringList() << "clone"
+                           << (cbd.isLocal() ? cbd.archiveLocation()
+                               : (cbd.archiveHost() + ":"
+                                  + cbd.archiveLocation()))
+                           << cbd.cloneLocation());
+    bool ok = proc.exec();
+    if (ok)
+      return cbd.archiveLocation();
+    
+    QMessageBox::warning(&cbd, "eln", Translate::_("clone-failed")
+                         + ": " + proc.stderr());
+    // we should remove any partial download
+    return "";
   }
   // Cancel pressed
-  delete cbd;
-  return 0;
+  return "";
 }
 

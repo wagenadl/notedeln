@@ -167,16 +167,16 @@ QString Notebook::dirPath() const {
   return root.path();
 }
 
-Notebook *Notebook::create(QString path) {
+bool Notebook::create(QString path) {
   QDir d(path);
   if (d.exists()) {
     qDebug() << "Notebook: Cannot create new notebook at existing path" << path;
-    return 0;
+    return false;
   }
 
   if (!d.mkpath("pages")) {
     qDebug() << "Notebook: Failed to create 'pages' directory at " << path;
-    return 0;
+    return false;
   }
   
   delete TOCFile::create(d.filePath("toc.json"));
@@ -190,8 +190,7 @@ Notebook *Notebook::create(QString path) {
     styleOut.write(styleIn.readAll());
   }
 
-  Notebook *nb = new Notebook(d.absolutePath(), false);
-  return nb;
+  return true;
 }
 
 TOC *Notebook::toc() const {

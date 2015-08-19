@@ -25,6 +25,7 @@
 #include <QDebug>
 #include <QDir>
 #include <QPushButton>
+#include "Process.h"
 
 #ifdef Q_OS_LINUX
 #include <sys/types.h>
@@ -36,86 +37,17 @@
 namespace VersionControl {
 bool runVC(QString vccmd, QString subcmd, QStringList args, QString label,
              QString *stdo=0, QString *stde=0) {
-  QMessageBox box;
-  // We're not using a progressdialog, because we have no clue
-  // how long things will take.
-  QString allout;
-  box.setWindowTitle("eln");
-  box.setText(label);
-  box.setWindowModality(Qt::ApplicationModal);
-  box.setStandardButtons(QMessageBox::Cancel);
-  box.show();
-  QObject::connect(&box, SIGNAL(buttonClicked(QAbstractButton*)),
-                   &box, SLOT(close()));
-  QEventLoop el;
-  QProcess process;
+  Process proc;
+  proc.setWindowCaption(label);
   args.push_front(subcmd);
-  process.start(vccmd, args);
-  process.closeWriteChannel();
-  if (!process.waitForStarted()) {
-    if (stde)
-      *stde += vccmd + ": could not start command: " + args.join(" ") + "\n";
-    qDebug() << "runVC: could not start command" << vccmd << args.join(" ");
-    return false;
-  }
-  for (int ntimeouts=0; ntimeouts<10*VC_TIMEOUT; ntimeouts++) {
-    el.processEvents(); // this makes the messagebox show up
-    if (process.waitForFinished(100)) {
-      qDebug() << "process finished";
-      break; // success or failure
-    }
-    if (box.isHidden()) {
-      qDebug() << "killing process";
-#ifdef Q_OS_LINUX
-      ::kill(process.pid(), SIGINT);
-      // Killing bzr with INT produces cleaner exit than with TERM...
-#else
-      process.kill();
-      // ... but if we don't have POSIX, we have no choice.
-#endif
-      bool x = process.waitForFinished(500); // allow it some time to respond to signal
-      qDebug() << "process finished" << x;
-      break; // not good, but oh well
-    }
-    QString se = process.readAllStandardError();
-    allout += se;
-    if (stde)
-      *stde += se;
-    if (!se.isEmpty())
-      qDebug() << "(" << vccmd << subcmd << ") " << se;
-
-    QString so = process.readAllStandardOutput();
-    allout += so;
-    if (stdo)
-      *stdo += so;
-    if (!so.isEmpty())
-      qDebug() << "(" << vccmd << subcmd << ") " << so;
-
-    if (!se.isEmpty() || !so.isEmpty())
-      box.setText(label + "\n" + allout);
-  }
-
-  QString se = process.readAllStandardError();
-  if (stde)
-    *stde += se;
-  if (!se.isEmpty())
-    qDebug() << "(" << vccmd << subcmd << ") " << se;
-  
-  QString so = process.readAllStandardOutput();
+  proc.setCommandAndArgs(vccmd, args);
+  bool ok = proc.exec();
   if (stdo)
-    *stdo += so;
-  if (!so.isEmpty())
-    qDebug() << "(" << vccmd << subcmd << ") " << so;
-
+    *stdo = proc.stdout();
   if (stde)
-    stde->replace(QRegExp("\\s*Traceback.*"), "");
-  
-  if (process.state()!=QProcess::NotRunning) {
-    qDebug() << vccmd << subcmd << " failed\n";
-    return false;
-  }
-  qDebug() << "process exit" << process.exitStatus() << process.exitCode();
-  return process.exitStatus()==QProcess::NormalExit && process.exitCode()==0;
+    *stde = proc.stderr();
+
+  return ok;
 }
 
 

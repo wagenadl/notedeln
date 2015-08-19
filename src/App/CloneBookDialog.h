@@ -12,12 +12,14 @@ public:
   CloneBookDialog(QWidget *parent=0);
   virtual ~CloneBookDialog();
 public:
-  static CloneBookDialog *getInfo();
-public:
+  static QString getClone();
+
   QString archiveLocation() const;
   QString archiveHost() const;
   bool isLocal() const;
-  QString cloneLocation() const;
+  QString cloneLocation() const; // = dest + leaf
+  QString cloneDestination() const;
+  QString leaf() const;
 private slots:
   void abrowse();
   void browse();

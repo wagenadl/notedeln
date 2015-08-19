@@ -65,7 +65,7 @@ int main(int argc, char **argv) {
                             QMessageBox::Abort);
       return 1;
     }
-    nb = Notebook::create(fn);
+    nb = Notebook::create(fn) ? Notebook::load(fn) : 0;
     if (!nb) {
       QMessageBox::critical(0, "eln",
                             "Could not create new notebook at '" + fn + "'",

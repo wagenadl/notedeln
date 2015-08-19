@@ -38,7 +38,6 @@
 
 SplashScene::SplashScene(QObject *parent):
   QGraphicsScene(parent) {
-  newRequested = false;
   makeBackground();
   makeItems();
 }
@@ -162,12 +161,9 @@ QStringList SplashScene::localNotebooks() {
 }
 
 void SplashScene::cloneRemote() {
-  CloneBookDialog *cbd = CloneBookDialog::getInfo();
-  if (cbd) {
-    archloc = cbd->archiveLocation();
-    archhost = cbd->isLocal() ? "" : cbd->archiveHost();
-    named = cbd->cloneLocation();
-    delete cbd;
+  QString loc = CloneBookDialog::getClone();
+  if (!loc.isEmpty()) {
+    named = loc;
     emit done();
   }
 }
@@ -187,9 +183,14 @@ void SplashScene::createNew() {
                          QMessageBox::Cancel);
     return; // go back to splash screen
   }
-  newRequested = true;
-  named = fn;
-  emit done();
+  if (Notebook::create(fn)) {
+    named = fn;
+    emit done();
+  } else {
+    QMessageBox::critical(widget, "eln",
+                          "'" + fn + "' could not be created.",
+                          QMessageBox::Cancel);
+  }
 }
 
 void SplashScene::openExisting() {
@@ -258,28 +259,14 @@ Notebook *SplashScene::openNotebook() {
     gv->hide();
     if (ss->named.isEmpty())
       break;
-    if (ss->newRequested) {
-      // Create new notebook
-      nb = Notebook::create(ss->named);
-      if (!nb) 
-        QMessageBox::critical(gv, "eln",
-                             "'" + ss->named + "' could not be created.",
-                             QMessageBox::Cancel);
-    } else {
-      // load existing notebook
 
-      if (!ss->archloc.isEmpty()) {
-	// clone remote notebook
-      }
-      
-      if (AlreadyOpen::check(ss->named))
-	break;
-      nb = Notebook::load(ss->named);
-      if (!nb) 
-        QMessageBox::critical(gv, "eln",
-                             "'" + ss->named + "' could not be loaded.",
-                             QMessageBox::Cancel);
-    }
+    if (AlreadyOpen::check(ss->named))
+      break;
+    nb = Notebook::load(ss->named);
+    if (!nb) 
+      QMessageBox::critical(gv, "eln",
+                            "'" + ss->named + "' could not be loaded.",
+                            QMessageBox::Cancel);
   }
 
   delete gv;
