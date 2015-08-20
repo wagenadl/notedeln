@@ -12,6 +12,7 @@
 #include <QDebug>
 #include <QStyle>
 #include <QIcon>
+#include "VersionControl.h"
 
 NewBookDialog::NewBookDialog(QWidget *parent): QDialog(parent) {
   ui = new Ui_newBookDialog();
@@ -22,6 +23,8 @@ NewBookDialog::NewBookDialog(QWidget *parent): QDialog(parent) {
   
   ui->local->setChecked(true);
   ui->archive->setChecked(false);
+  if (!VersionControl::isGitAvailable())
+    ui->archive->hide();
 
   QStyle *s = style();
   if (s) {
@@ -29,6 +32,7 @@ NewBookDialog::NewBookDialog(QWidget *parent): QDialog(parent) {
     QPixmap pm = caution.pixmap(48); // what _is_ the appropriate size?
     ui->cautionIcon->setPixmap(pm);
   }
+  ui->test->hide();
 }
 
 NewBookDialog::~NewBookDialog() {
@@ -85,6 +89,23 @@ void NewBookDialog::locationChanged(QString) {
 }
 
 QString NewBookDialog::getNew() {
+  if (VersionControl::isGitAvailable())
+    return getNewArchive();
+  else
+    return getNewSimple();
+}
+
+QString NewBookDialog::getNewSimple() {
+  QString fn = QFileDialog::getSaveFileName(0, Translate::_("create-path"),
+                                            "", "Notebooks (*.nb)");
+  if (fn.isEmpty())
+    return "";
+  if (!fn.endsWith(".nb"))
+    fn += ".nb";
+  return fn;
+}
+
+QString NewBookDialog::getNewArchive() {
   NewBookDialog nbd;
   while (nbd.exec()) {
     QString fn = nbd.location();

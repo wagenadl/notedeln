@@ -13,6 +13,8 @@ public:
   virtual ~NewBookDialog();
 public:
   static QString getNew();
+  static QString getNewSimple();
+  static QString getNewArchive();
 public:
   QString location() const;
   bool hasArchive() const;

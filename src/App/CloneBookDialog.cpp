@@ -21,6 +21,7 @@ CloneBookDialog::CloneBookDialog(QWidget *parent): QDialog(parent) {
     QPixmap pm = caution.pixmap(48); // what _is_ the appropriate size?
     ui->cautionIcon->setPixmap(pm);
   }
+  ui->test->hide();
 }
 
 CloneBookDialog::~CloneBookDialog() {

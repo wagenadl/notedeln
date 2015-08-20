@@ -27,6 +27,7 @@
 #include "Translate.h"
 #include "CloneBookDialog.h"
 #include "NewBookDialog.h"
+#include "VersionControl.h"
 
 #include <QFileDialog>
 #include <QMessageBox>
@@ -148,11 +149,13 @@ void SplashScene::makeItems() {
   bsi->setPos(x, y);
   y += BookSplashItem::SMALLBOXHEIGHT + MARGIN;
 
-  bsi = new BookSplashItem(Translate::_("clone-remote"));
-  connect(bsi, SIGNAL(leftClick(QString)), SLOT(cloneRemote()));
-  addItem(bsi);
-  bsi->setPos(x, y);
-  y += BookSplashItem::SMALLBOXHEIGHT + MARGIN;
+  if (VersionControl::isGitAvailable()) {
+    bsi = new BookSplashItem(Translate::_("clone-remote"));
+    connect(bsi, SIGNAL(leftClick(QString)), SLOT(cloneRemote()));
+    addItem(bsi);
+    bsi->setPos(x, y);
+    y += BookSplashItem::SMALLBOXHEIGHT + MARGIN;
+  }
 }
 
 QStringList SplashScene::localNotebooks() {
