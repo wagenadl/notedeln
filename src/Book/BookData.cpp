@@ -19,12 +19,14 @@
 #include "BookData.h"
 #include "Notebook.h"
 #include "Translate.h"
+#include "UserInfo.h"
 
 static Data::Creator<BookData> c("book");
 
 BookData::BookData(Data *parent): Data(parent) {
   title_ = Translate::_("New book");
-  author_ = Translate::_("Me");
+  QString user = UserInfo::fullName();
+  author_ = user.isEmpty() ? Translate::_("Me") : user;
   address_ = Translate::_("Here");
   startDate_ = QDate::currentDate();
   endDate_ = QDate::currentDate();
