@@ -36,6 +36,7 @@ private:
   void positionItems();
   void makeWritable();
   void rebuildOItems();
+  void recolorItems();
 private slots:
   void textChange();
 private:

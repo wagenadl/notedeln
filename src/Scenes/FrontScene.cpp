@@ -45,16 +45,33 @@ FrontScene::FrontScene(Notebook *book, QObject *parent):
   if (!book->isReadOnly()) {
     makeWritable();
     if (book->bookData()->title()==Translate::_("New book")) {
-      QTextCursor t(title->document());
-      t.movePosition(QTextCursor::Start);
-      t.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
-      title->setTextCursor(t);
+      // QTextCursor t(title->document());
+      // t.movePosition(QTextCursor::Start);
+      // t.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
+      // title->setTextCursor(t);
       title->setFocus();
     }
   }
 }
 
 FrontScene::~FrontScene() {
+}
+
+void FrontScene::recolorItems() {
+  if (book->bookData()->title()==Translate::_("New book")) 
+    title->setDefaultTextColor(style.color("front-default-color"));
+  else 
+    title->setDefaultTextColor(style.color("front-title-color"));
+
+  if (book->bookData()->author()==Translate::_("Me"))
+    author->setDefaultTextColor(style.color("front-default-color"));
+  else 
+    author->setDefaultTextColor(style.color("front-author-color"));
+
+  if (book->bookData()->address()==Translate::_("Here"))
+    address->setDefaultTextColor(style.color("front-default-color"));
+  else 
+    address->setDefaultTextColor(style.color("front-address-color"));
 }
 
 void FrontScene::makeWritable() {
@@ -77,6 +94,7 @@ void FrontScene::textChange() {
   data->setAddress(address->toPlainText());
   rebuildOItems();
   positionItems();
+  recolorItems();
   foreach (QGraphicsView *view, views()) {
     QWidget *toplevel = view->window();
     if (toplevel)
@@ -99,6 +117,7 @@ void FrontScene::rebuild() {
 		   data->endDate().toString(dateFmt));
   rebuildOItems();
   positionItems();
+  recolorItems();
 }
 
 static QString otext(QString lbl, QString txt) {
@@ -114,7 +133,6 @@ void FrontScene::rebuildOItems() {
   oauthor->setPlainText(otext("oauthor", data->oauthor()));
   oaddress->setPlainText(otext("oaddress", data->oaddress()));
 }
-
 
 static void centerAt(QGraphicsItem *item, double x, double y) {
   QRectF bb = item->boundingRect();
@@ -219,7 +237,6 @@ void FrontScene::makeItems() {
 
   oaddress = addText("", style.font("front-aka-font"));
   oaddress->setDefaultTextColor(style.color("front-aka-color"));
-
 }
 
 void FrontScene::positionItems() {
@@ -268,3 +285,4 @@ void FrontScene::positionItems() {
 void FrontScene::print(QPrinter *, QPainter *p) {
   render(p);
 }
+
