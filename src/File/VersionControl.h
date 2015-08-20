@@ -32,6 +32,8 @@ namespace VersionControl {
   */
 
   bool commit(QString path, QString program); // returns true on success
+
+  bool isGitAvailable();
 };
 
 #endif

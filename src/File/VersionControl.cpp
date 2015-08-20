@@ -162,4 +162,14 @@ bool commit(QString path, QString program) {
   }
   return success;
 }
+
+bool isGitAvailable() {
+  static bool av = false;
+  static bool inited = false;
+  if (!inited) {
+    av = QProcess::execute("git --version")==0;
+    inited = true;
+  }
+  return av;
+}
 };
