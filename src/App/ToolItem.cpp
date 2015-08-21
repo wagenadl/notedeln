@@ -40,6 +40,7 @@ ToolItem::ToolItem(): QGraphicsObject() {
   svg = 0;
   sel = false;
   hov = false;
+  ena = true;
   setAcceptHoverEvents(true);
 }
 
