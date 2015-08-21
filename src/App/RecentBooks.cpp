@@ -36,7 +36,9 @@ BookInfo::BookInfo(Notebook const *nb) {
 
 BookInfo::BookInfo(QString d) {
   dirname = d;
-  BookFile *bf = BookFile::load(dirname + "/book.json");
+  QDir root(dirname);
+  QString bookfile = root.exists("book.eln") ? "book.eln" : "book.json";    
+  BookFile *bf = BookFile::load(root.filePath(bookfile));
   if (bf) {
     BookData const *bd = bf->data();
     title = bd->title();

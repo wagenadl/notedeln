@@ -61,7 +61,8 @@ Notebook::Notebook(QString path, bool ro0): root(QDir(path)), ro(ro0) {
 }
 
 void Notebook::loadme() {
-  bookFile_ = BookFile::load(root.filePath("book.json"), this);
+  QString bookfile = root.exists("book.eln") ? "book.eln" : "book.json";    
+  bookFile_ = BookFile::load(root.filePath(bookfile), this);
   ASSERT(bookFile_);
   bookFile_->data()->setBook(this);
 
@@ -182,7 +183,7 @@ bool Notebook::create(QString path, QString vc) {
   }
   
   delete TOCFile::create(d.filePath("toc.json"));
-  delete BookFile::create(d.filePath("book.json"));
+  delete BookFile::create(d.filePath("book.eln"));
 
   { // This is better than copy because it creates reasonable permissions
     QFile styleIn(":/style.json");
