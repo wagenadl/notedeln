@@ -62,11 +62,29 @@ void ToolItem::setSelected(bool s) {
   update();
 }
 
+void ToolItem::setDisabled(bool d) {
+  ena = !d;
+  update();
+}
+
+void ToolItem::setEnabled(bool e) {
+  ena = e;
+  update();
+}
+
+bool ToolItem::isEnabled() const {
+  return ena;
+}
+
+
+
 QRectF ToolItem::boundingRect() const {
   return QRectF(0, 0, TOOLSIZE, TOOLSIZE);
 }
 
 void ToolItem::paintContents(QPainter *p) {
+  if (!isEnabled())
+    p->setOpacity(0.5);
   if (svg) 
     svg->render(p, boundingRect());
 }
@@ -125,6 +143,8 @@ void ToolItem::paint(QPainter *p, const QStyleOptionGraphicsItem *, QWidget *) {
 }
 
 void ToolItem::hoverEnterEvent(QGraphicsSceneHoverEvent *e) {
+  if (!isEnabled())
+    return;
   hov = true;
   update();
   if (!helpText.isEmpty()) {
@@ -163,11 +183,17 @@ void ToolItem::hoverMoveEvent(QGraphicsSceneHoverEvent *e) {
 }   
 
 void ToolItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *e) {
+  if (!isEnabled())
+    return;
+  
   emit release();
   e->accept();
 }
 
 void ToolItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
+  if (!isEnabled())
+    return;
+
   switch (e->button()) {
   case Qt::LeftButton:
     emit leftClick(e->modifiers());

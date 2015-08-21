@@ -136,10 +136,8 @@ system("git add CHANGELOG") and die "Could not add CHANGELOG\n";
 system("git add src/version") and die "Could not add src/version\n";
 system("git add tools/eln-win-qt5.aip") and
   die "Could not add tools/eln-win-qt5.aip\n";
-system("git commit -m'Created new version $newvsn'") and
+system("git commit -m'Prepared for new version $newvsn'") and
     die "Could not commit\n";
-system("git tag -a v$newvsn -m 'Bumped version number'") and
-    die "Could not tag for version\n";
 
 my $tar = "releases/$package-$newvsn.tar.gz";
 system("mkdir -p ../releases");
@@ -152,5 +150,6 @@ chomp $here;
 print STDERR "Release created; archive stored as $here/$tar.\n\n";
 
 print STDERR "Do not forget to do:\n\n";
+print STDERR "  git tag -a v$newvsn -m 'Bumped version number'\n";
 print STDERR "  git push\n";
 print STDERR "  git push --tags\n\n";

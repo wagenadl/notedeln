@@ -13,7 +13,7 @@
 "margin-bottom": 48,
 "title-sep": 8,
 "title-indent": 0,
-"title-untitled-color": "#aaaaaa",
+"default-item-color": "#aaaaaa",
 "pgno-sep": 0,
 "text-block-above": 4,
 "gfx-block-vmargins": 9,

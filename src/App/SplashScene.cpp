@@ -92,9 +92,9 @@ void SplashScene::makeBackground() {
 }
 
 void SplashScene::makeItems() {
-  const double MARGIN = 6;
-  // add clickable items for recent files, local files, new file, arb. file
-  double y = 25;
+  const double MARGIN = 5;
+
+  double y = 22;
   double x = 45;
   BookSplashItem *bsi;
 
@@ -133,7 +133,9 @@ void SplashScene::makeItems() {
     addItem(bsi);
     bsi->setPos(x, y);
     y += BookSplashItem::BOXHEIGHT + MARGIN;
-  }  
+  }
+
+  y += 2*MARGIN;
 
   bsi = new BookSplashItem(dirs.isEmpty()
 			   ? Translate::_("open-existing")
@@ -200,7 +202,7 @@ void SplashScene::openExisting() {
                          QMessageBox::Cancel);
     return;
   }
-  if (!d.exists("book.json") || !d.exists("toc.json")
+  if ((!d.exists("book.json") && !d.exists("book.eln"))
       || !d.exists("pages")) {
     QMessageBox::warning(widget, "eln",
                          "'" + fn + "' is not a notebook.",

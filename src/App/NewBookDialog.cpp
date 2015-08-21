@@ -97,7 +97,8 @@ QString NewBookDialog::getNew() {
 
 QString NewBookDialog::getNewSimple() {
   QString fn = QFileDialog::getSaveFileName(0, Translate::_("create-path"),
-                                            "", "Notebooks (*.nb)");
+                                            "", Translate::_("Notebooks")
+					    + " (*.nb)");
   if (fn.isEmpty())
     return "";
   if (!fn.endsWith(".nb"))
@@ -110,15 +111,14 @@ QString NewBookDialog::getNewArchive() {
   while (nbd.exec()) {
     QString fn = nbd.location();
     if (fn.isEmpty()) {
-      QMessageBox::warning(&nbd, "eln",
-                           "Please specify a location for your new notebook");
+      QMessageBox::warning(&nbd, "eln", Translate::_("specify-location"));
       continue;
     }
 
     if (QDir::current().exists(fn)) {
       QMessageBox::warning(&nbd, "eln",
-                           "Will not create a new notebook '" + fn
-                           + "': file exists.",
+			   Translate::_("could-not-create-notebook-exists").
+			   arg(fn),
                            QMessageBox::Cancel);
       continue;
     }
@@ -126,7 +126,7 @@ QString NewBookDialog::getNewArchive() {
     bool ok = Notebook::create(fn, nbd.hasArchive() ? "git" : "");
     if (!ok) {
       QMessageBox::critical(&nbd, "eln",
-                          "'" + fn + "' could not be created.",
+			    Translate::_("could-not-create-notebook").arg(fn),
                           QMessageBox::Cancel);
       continue;
     }
@@ -150,22 +150,23 @@ QString NewBookDialog::getNewArchive() {
       }
       if (!proc.exec()) {
         bool disaster = !RmDir::recurse(fn);
-        QString msg = "Failed to create archive: " + proc.stderr();
+        QString msg = Translate::_("failed-to-create-archive")
+	  .arg(proc.stderr());
         if (disaster)
-          msg += " - And I failed to clean up. You will have to manually remove " + QString::fromUtf8("“") + fn + QString::fromUtf8("”");
+          msg += Translate::_("failed-to-clean-up").arg(fn);
 
         QMessageBox::critical(&nbd, "eln", msg, QMessageBox::Cancel);
         continue;
       }
       
-      proc.setNoStartMessage("Could not run git");
+      proc.setNoStartMessage(Translate::_("no-git"));
       proc.setCommandAndArgs("git", QStringList() 
                              << "push" << "--set-upstream" << dst << "master");
       if (!proc.exec()) {
         bool disaster = !RmDir::recurse(fn);
-        QString msg = "Failed to push to archive: " + proc.stderr();
+        QString msg = Translate::_("failed-to-push-archive").arg(proc.stderr());
         if (disaster)
-          msg += " - And I failed to clean up. You will have to manually remove " + QString::fromUtf8("“") + fn + QString::fromUtf8("”");
+          msg += Translate::_("failed-to-clean-up").arg(fn);
         QMessageBox::critical(&nbd, "eln", msg, QMessageBox::Cancel);
         continue;
       }

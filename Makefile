@@ -36,6 +36,12 @@ install: all
 	cp doc/webgrab.1 $(SHAREPATH)/man/man1/webgrab.1
 	cp src/App/eln.png $(SHAREPATH)/pixmaps/eln.png
 	cp src/eln.xpm $(SHAREPATH)/pixmaps/eln.xpm
+	cp src/App/eln.png $(SHAREPATH)/icons/gnome/48x48/mimetypes/application-eln-book.png
+	gtk-update-icon-cache $(SHAREPATH)/icons/gnome
+
+	cp src/eln.xml $(SHAREPATH)/mime/packages/eln.xml
+	sudo update-mime-database $(SHAREPATH)/mime/
+
 	install src/eln.desktop $(SHAREPATH)/applications/eln.desktop
 	cp doc/userguide.pdf $(DOCPATH)/userguide.pdf
 	cp README $(DOCPATH)/readme

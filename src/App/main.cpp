@@ -16,6 +16,7 @@
 
 // main.C
 
+#include "Translate.h"
 #include "PageEditor.h"
 #include "SceneBank.h"
 #include <QApplication>
@@ -45,14 +46,16 @@ int main(int argc, char **argv) {
     nb = SplashScene::openNotebook();
     if (!nb)
       return 0;
-  } else if (argc==2) {
+  } else if (argc==2 && argv[1][0]!='-') {
     QString fn = argv[1];
+    if (fn.endsWith("/book.eln"))
+      fn = fn.left(fn.length() - 9);
     if (AlreadyOpen::check(fn))
       return 0;
     nb = Notebook::load(fn);
     if (!nb) {
       QMessageBox::critical(0, "eln",
-                            "Could not open notebook at '" + fn + "'",
+			    Translate::_("could-not-open-notebook").arg(fn),
                             QMessageBox::Close);
       return 1;
     }
@@ -60,23 +63,22 @@ int main(int argc, char **argv) {
     QString fn = argv[2];
     if (QDir(fn).exists()) {
       QMessageBox::critical(0, "eln",
-                            "Could not create new notebook '" + fn
-                            + "': found existing notebook",
+			    Translate::_("could-not-create-notebook-exists")
+			    .arg(fn),
                             QMessageBox::Abort);
       return 1;
     }
     nb = Notebook::create(fn) ? Notebook::load(fn) : 0;
     if (!nb) {
       QMessageBox::critical(0, "eln",
-                            "Could not create new notebook at '" + fn + "'",
+                            Translate::_("could-not-create-notebook")
+			    .arg(fn),
                             QMessageBox::Abort);
       return 1;
     }
       
   } else {
-    qDebug() << "Usage: eln";
-    qDebug() << "Usage: eln notebook";
-    qDebug() << "Usage: eln -new notebook";
+    qDebug() << Translate::_("usage");
     return 1;
   }
   ASSERT(nb);
