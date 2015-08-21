@@ -1089,30 +1089,28 @@ bool TextItem::shouldResize(QPointF p) const {
 }
  
 Qt::CursorShape TextItem::cursorShape() const {
-  Qt::CursorShape cs = defaultCursorShape();
+  if (!hasMode())
+    return defaultCursorShape();
   switch (mode()->mode()) {
   case Mode::Type:
     if (isWritable())
-      cs = Qt::IBeamCursor;
-    break;
+      return Qt::IBeamCursor;
   case Mode::Annotate:
-    cs = Qt::CrossCursor;
-    break;
+    return Qt::CrossCursor;
   case Mode::MoveResize:
     if (mayMove) {
       if (shouldResize(cursorPos))
-	cs = Qt::SplitHCursor;
+	return Qt::SplitHCursor;
       else
-	cs = Qt::SizeAllCursor;
+	return Qt::SizeAllCursor;
     }
     break;
   case Mode::Highlight: case Mode::Strikeout: case Mode::Plain:
-    cs = Qt::UpArrowCursor;
-    break;
+    return Qt::UpArrowCursor;
   default:
     break;
   }
-  return cs;
+  return defaultCursorShape();
 }
 
 bool TextItem::changesCursorShape() const {
@@ -1175,7 +1173,7 @@ void TextItem::paint(QPainter *p, const QStyleOptionGraphicsItem*, QWidget*) {
   representSearchPhrase(tmm);
   text->render(p, tmm);
 
-  if (hasFocus() && mode()->mode()==Mode::Type && isWritable())
+  if (hasFocus() && (!hasMode() || mode()->mode()==Mode::Type) && isWritable())
     renderCursor(p, cursor.position());
 }
 
