@@ -202,7 +202,7 @@ void SplashScene::openExisting() {
                          QMessageBox::Cancel);
     return;
   }
-  if (!d.exists("book.json") || !d.exists("toc.json")
+  if ((!d.exists("book.json") && !d.exists("book.eln"))
       || !d.exists("pages")) {
     QMessageBox::warning(widget, "eln",
                          "'" + fn + "' is not a notebook.",

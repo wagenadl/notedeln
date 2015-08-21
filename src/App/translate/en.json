@@ -38,5 +38,18 @@
     "no-alocation": "Please specify an archive location",
     "no-git": "Could not run git",
     "clone-failed": "Failed to clone hosted archive",
-    "create-path": "Create new notebook..."
+    "create-path": "Create new notebook...",
+    "could-not-open-notebook": "Could not open notebook at “%1”'",
+    "could-not-create-notebook-exists": "Could not create new notebook “%1”: found existing notebook",
+    "could-not-create-notebook": "Could not create new notebook “%1”",
+    "usage": "Usage: eln\nUsage: eln notebook\nUsage: eln -new notebook",
+    "specify-location": "Please specify a location for your new notebook",
+    "Notebooks": "Notebooks",
+    "failed-to-create-archive": "Failed to create archive: %1",
+    "failed-to-clean-up": " — And I failed to clean up. You will have to manually remove “%1”.",
+    "failed-to-push-archive": "Failed to push to archive: %1",
+    "no-browse-remote": "Browsing is only supported for local archives.",
+    "fn-does-not-exist": "“%1” does not exist.",
+    "fn-is-not-git": "“%1” is not a git archive.",
+    "fn-exists": "“%1” already exists."
 }

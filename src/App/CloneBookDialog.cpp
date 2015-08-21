@@ -59,7 +59,7 @@ QString CloneBookDialog::leaf() const {
 void CloneBookDialog::abrowse() {
   if (!isLocal()) {
     QMessageBox::warning(this, "eln",
-                         "Browsing is only supported for local archives.",
+                         Translate::_("no-browse-remote"),
                          QMessageBox::Cancel);
     return;
   }
@@ -71,13 +71,13 @@ void CloneBookDialog::abrowse() {
   QDir d(fn);
   if (!d.exists()) {
     QMessageBox::warning(this, "eln",
-                         "'" + fn + "' does not exist.",
+                         Translate::_("fn-does-not-exist").arg(fn),
                          QMessageBox::Cancel);
     return;
   }
   if (!d.exists("branches") || !d.exists("objects")) {
     QMessageBox::warning(this, "eln",
-                         "'" + fn + "' is not a git archive.",
+                         Translate::_("fn-is-not-git").arg(fn),
                          QMessageBox::Cancel);
     return;
   }
@@ -93,7 +93,7 @@ void CloneBookDialog::browse() {
   QDir d(fn);
   if (!d.exists()) {
     QMessageBox::warning(this, "eln",
-                         "'" + fn + "' does not exist.",
+                         Translate::_("fn-does-not-exist").arg(fn),
                          QMessageBox::Cancel);
     return;
   }
@@ -101,7 +101,7 @@ void CloneBookDialog::browse() {
   QString l = leaf();
   if (!l.isEmpty() && d.exists(l)) {
     QMessageBox::warning(this, "eln",
-                         "'" + d.absoluteFilePath(l) + "' already exists.",
+                         Translate::_("fn-exists").arg(d.absoluteFilePath(l)),
                          QMessageBox::Cancel);
     return;
   }
