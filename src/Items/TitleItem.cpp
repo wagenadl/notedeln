@@ -24,29 +24,26 @@
 #include <QPainter>
 
 TitleItem::TitleItem(TitleData *data, Item *parent):
-  TextItem(data->text(), parent), d(data) {
+  DefaultingTextItem(data->text(), parent), d(data) {
+  setStyles();
+}
 
+void TitleItem::setStyles() {
   setFont(style().font("title-font"));
   setLineHeight(style().lineSpacing("title-font", 1));
   setDefaultTextColor(style().color("title-color"));
   setAllowParagraphs(false);
-  //  document()->recalculatebuildLinePos();
   setZValue(10); // stack before other stuff so that late notes go in front
+  setDefaultText(Translate::_("Untitled"));
 }
 
 TitleItem::TitleItem(TitleData *data, int sheetno,
 		     TextItemDoc *altdoc, Item *parent):
-  TextItem(data->text(), parent, true, altdoc), d(data) {
-
-  setFont(style().font("title-font"));
-  setLineHeight(style().lineSpacing("title-font", 1));
-  setDefaultTextColor(style().color("title-color"));
-  setAllowParagraphs(false);
+  DefaultingTextItem(data->text(), parent, true, altdoc), d(data) {
+  setStyles();
   document()->buildLinePos();
-  setZValue(10); // stack before other stuff so that late notes go in front
   finalizeConstructor(sheetno);
 }
-
 
 TitleItem::~TitleItem() {
 }
@@ -55,19 +52,6 @@ void TitleItem::deleteLater() {
   ASSERT(d);
   d = 0;
   TextItem::deleteLater();
-}
-
-void TitleItem::paint(QPainter *p, QStyleOptionGraphicsItem const *o,
-		      QWidget *w) {
-  if (text->text()=="") {
-    QPointF xy = text->locate(0);
-    MarkupStyles sty;
-    sty.add(MarkupData::Italic);
-    p->setFont(text->font(sty));
-    p->setPen(style().color("title-untitled"));
-    p->drawText(xy, Translate::_("Untitled"));
-  }
-  TextItem::paint(p, o, w);
 }
 
 void TitleItem::keyPressEvent(QKeyEvent *e) {

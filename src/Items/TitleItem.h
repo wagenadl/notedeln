@@ -21,10 +21,10 @@
 #define TITLEITEM_H
 
 #include <QGraphicsObject>
-#include "TextItem.h"
+#include "DefaultingTextItem.h"
 #include "TitleData.h"
 
-class TitleItem: public TextItem {
+class TitleItem: public DefaultingTextItem {
   Q_OBJECT;
 public:
   TitleItem(TitleData *data, Item *parent=0);
@@ -35,8 +35,9 @@ public:
   TitleData *data() { ASSERT(d); return d; }
   virtual void deleteLater();
 protected:
-  virtual void paint(QPainter *, const QStyleOptionGraphicsItem *, QWidget *);
   virtual void keyPressEvent(QKeyEvent *e);
+private:
+  void setStyles();
 private:
   TitleData *d;
 };
