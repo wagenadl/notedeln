@@ -84,13 +84,6 @@ void Item::makeWritable() {
     i->makeWritable();
 }
 
-bool Item::hasMode() const {
-  SheetScene *ss = dynamic_cast<SheetScene*>(scene());
-  if (!ss)
-    return false;
-  return ss->mode() ? true : false;
-}
-
 Mode *Item::mode() const {
   SheetScene *ss = dynamic_cast<SheetScene*>(scene());
   ASSERT(ss);

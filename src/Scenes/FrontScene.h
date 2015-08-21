@@ -43,10 +43,9 @@ private:
   class Style const &style;
   class RoundedRect *toprect;
   class RoundedRect *bottomrect;
-  class DefaultingTextItem *title;
-  class DefaultingTextItem *author;
-  class DefaultingTextItem *address;
-  class TextData *tidata, *audata, *addata;
+  QGraphicsTextItem *title;
+  QGraphicsTextItem *author;
+  QGraphicsTextItem *address;
   QGraphicsTextItem *dates;
   QGraphicsTextItem *otitle;
   QGraphicsTextItem *oauthor;

@@ -23,9 +23,9 @@
 static Data::Creator<BookData> c("book");
 
 BookData::BookData(Data *parent): Data(parent) {
-  title_ = ""; // Translate::_("New book");
-  author_ = ""; //Translate::_("Me");
-  address_ = ""; // Translate::_("Here");
+  title_ = Translate::_("New book");
+  author_ = Translate::_("Me");
+  address_ = Translate::_("Here");
   startDate_ = QDate::currentDate();
   endDate_ = QDate::currentDate();
   setType("book");

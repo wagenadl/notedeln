@@ -24,8 +24,6 @@
 #include "RoundedRect.h"
 #include "Version.h"
 #include "Translate.h"
-#include "TextData.h"
-#include "DefaultingTextItem.h"
 
 #include <math.h>
 #include <QTextBlockFormat>
@@ -46,7 +44,11 @@ FrontScene::FrontScene(Notebook *book, QObject *parent):
   rebuild();
   if (!book->isReadOnly()) {
     makeWritable();
-    if (book->bookData()->title().isEmpty()) {
+    if (book->bookData()->title()==Translate::_("New book")) {
+      QTextCursor t(title->document());
+      t.movePosition(QTextCursor::Start);
+      t.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
+      title->setTextCursor(t);
       title->setFocus();
     }
   }
@@ -56,34 +58,38 @@ FrontScene::~FrontScene() {
 }
 
 void FrontScene::makeWritable() {
-  QList<DefaultingTextItem *> ll;
+  QList<QGraphicsTextItem *> ll;
   ll << title << author << address;
-  foreach (DefaultingTextItem *ti, ll) {
-    ti->makeWritable();
-    connect(ti, SIGNAL(textChanged()), SLOT(textChange()));
+  foreach (QGraphicsTextItem *ti, ll) {
+    ti->setTextInteractionFlags(Qt::TextEditorInteraction);
+    ti->setCursor(QCursor(Qt::IBeamCursor));
+    ti->setFlag(QGraphicsTextItem::ItemIsFocusable);
+    connect(ti->document(),
+            SIGNAL(contentsChange(int, int, int)),
+	    this, SLOT(textChange()));
   }
 }
 
 void FrontScene::textChange() {
   BookData *data = book->bookData();
-  data->setTitle(tidata->text());
-  data->setAuthor(audata->text());
-  data->setAddress(addata->text());
+  data->setTitle(title->toPlainText());
+  data->setAuthor(author->toPlainText());
+  data->setAddress(address->toPlainText());
   rebuildOItems();
   positionItems();
   foreach (QGraphicsView *view, views()) {
     QWidget *toplevel = view->window();
     if (toplevel)
-      toplevel->setWindowTitle(tidata->text()
+      toplevel->setWindowTitle(title->toPlainText()
 			       .replace(QRegExp("\\s\\s*"), " ") + " - eln");
   }
 }
 
 void FrontScene::rebuild() {
   BookData *data = book->bookData();
-  tidata->setText(data->title());
-  audata->setText(data->author());
-  addata->setText(data->address());
+  title->setPlainText(data->title());
+  author->setPlainText(data->author());
+  address->setPlainText(data->address());
   QString dateFmt = style.string("front-date-format");
   if (data->startDate() == data->endDate())
     dates->setHtml(data->startDate().toString(dateFmt));
@@ -193,35 +199,15 @@ void FrontScene::makeBackground() {
 }
 
 void FrontScene::makeItems() {
-  BookData *data = book->bookData();
-  tidata = new TextData(data);
-  audata = new TextData(data);
-  addata = new TextData(data);
-  tidata->setText(data->title());
-  audata->setText(data->author());
-  addata->setText(data->address());
-
-  title = new DefaultingTextItem(tidata);
-  title->setDefaultText(Translate::_("New book"));
-  title->setFont(style.font("front-title-font"));
-  title->setLineHeight(style.lineSpacing("front-title-font", 1));
+  title = addText("title", style.font("front-title-font"));
   title->setDefaultTextColor(style.color("front-title-color"));
-  addItem(title);
   
-  author = new DefaultingTextItem(audata);
-  author->setDefaultText(Translate::_("Me"));
-  author->setFont(style.font("front-author-font"));
-  author->setLineHeight(style.lineSpacing("front-author-font", 1));
+  author = addText("author", style.font("front-author-font"));
   author->setDefaultTextColor(style.color("front-author-color"));
-  addItem(author);
-  
-  address = new DefaultingTextItem(addata);
-  address->setDefaultText(Translate::_("Here"));
-  address->setFont(style.font("front-address-font"));
-  address->setLineHeight(style.lineSpacing("front-address-font", 1));
+
+  address = addText("address", style.font("front-address-font"));
   address->setDefaultTextColor(style.color("front-address-color"));
-  addItem(address);
-  
+
   dates = addText("dates", style.font("front-dates-font"));
   dates->setDefaultTextColor(style.color("front-dates-color"));
 
@@ -239,7 +225,6 @@ void FrontScene::makeItems() {
 void FrontScene::positionItems() {
   double xc = style.real("page-width") / 2;
 
-  /*
   title->setTextWidth(-1);
   title->setTextWidth(title->boundingRect().width());
   QTextBlockFormat format;
@@ -250,7 +235,6 @@ void FrontScene::positionItems() {
   cursor.mergeBlockFormat(format);
   title->setTextCursor(cursor);
   title->setTextCursor(c0);
-  */
   
   centerAt(title, xc, style.real("front-title-y"));
   centerAt(author, xc, style.real("front-author-y"));

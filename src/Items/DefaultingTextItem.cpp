@@ -1,7 +1,6 @@
 // DefaultingTextItem.cpp
 
 #include "DefaultingTextItem.h"
-#include <QDebug>
 
 DefaultingTextItem::DefaultingTextItem(TextData *data, Item *parent,
 				       bool noFinalize, TextItemDoc *altdoc):
@@ -20,7 +19,6 @@ void DefaultingTextItem::setDefaultText(QString s) {
 
 void DefaultingTextItem::paint(QPainter *p, const QStyleOptionGraphicsItem *o,
 			       QWidget *w) {
-  qDebug() << "dfltti" << text->text() << " / " << dflt_text;
   if (text->text().isEmpty()) {
     QPointF xy = text->locate(0);
     MarkupStyles sty;

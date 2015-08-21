@@ -40,7 +40,6 @@ public:
   DATAACCESS(Data);
   Item *parent() const;
   class Mode *mode() const;
-  bool hasMode() const;
   virtual QRectF netBounds() const;
   virtual bool excludeFromNet() const;
   bool isWritable() const;
