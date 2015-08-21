@@ -315,20 +315,23 @@ void SheetScene::futileTitleMovement(int key, Qt::KeyboardModifiers) {
 void SheetScene::setCursors() {
   Qt::CursorShape marginShape = Item::defaultCursorShape();
   Qt::CursorShape backgroundShape = Item::defaultCursorShape();
-  switch (mode()->mode()) {
-  case Mode::Type:
-    backgroundShape = Qt::IBeamCursor;
-    break;
-  case Mode::Mark: case Mode::Freehand:
-    backgroundShape = Qt::CrossCursor;
-    break;
-  case Mode::Annotate:    
-    marginShape = backgroundShape = Qt::CrossCursor;
-    break;
-  case Mode::Highlight: case Mode::Strikeout: case Mode::Plain:
-    break;
-  default:
-    break;
+  Mode *m = mode();
+  if (m) {
+    switch (m->mode()) {
+    case Mode::Type:
+      backgroundShape = Qt::IBeamCursor;
+      break;
+    case Mode::Mark: case Mode::Freehand:
+      backgroundShape = Qt::CrossCursor;
+      break;
+    case Mode::Annotate:    
+      marginShape = backgroundShape = Qt::CrossCursor;
+      break;
+    case Mode::Highlight: case Mode::Strikeout: case Mode::Plain:
+      break;
+    default:
+      break;
+    }
   }  
 
   marginItem()->setCursor(Cursors::refined(marginShape));

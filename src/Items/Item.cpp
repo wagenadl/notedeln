@@ -94,6 +94,15 @@ Mode *Item::mode() const {
   return m;
 }
 
+bool Item::hasMode() const {
+  SheetScene *ss = dynamic_cast<SheetScene*>(scene());
+  if (!ss)
+    return false;
+  Mode *m = ss->mode();
+  return m ? true : false;
+}
+  
+
 Item *Item::create(Data *d, Item *parent) {
   ASSERT(d);
   if (creators().contains(d->type()))
@@ -167,10 +176,12 @@ void Item::removeGlow() {
 }
 
 void Item::modeChangeUnderCursor() {
-  if (mode()->mode()==Mode::MoveResize)
-    perhapsCreateGlow();
-  else
-    removeGlow();
+  if (hasMode()) {
+    if (mode()->mode()==Mode::MoveResize)
+      perhapsCreateGlow();
+    else
+      removeGlow();
+  }
 }
 
 void Item::perhapsCreateGlow() {

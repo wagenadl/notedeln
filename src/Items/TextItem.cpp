@@ -1090,27 +1090,29 @@ bool TextItem::shouldResize(QPointF p) const {
  
 Qt::CursorShape TextItem::cursorShape() const {
   Qt::CursorShape cs = defaultCursorShape();
-  switch (mode()->mode()) {
-  case Mode::Type:
-    if (isWritable())
-      cs = Qt::IBeamCursor;
-    break;
-  case Mode::Annotate:
-    cs = Qt::CrossCursor;
-    break;
-  case Mode::MoveResize:
-    if (mayMove) {
-      if (shouldResize(cursorPos))
-	cs = Qt::SplitHCursor;
-      else
-	cs = Qt::SizeAllCursor;
+  if (hasMode()) {
+    switch (mode()->mode()) {
+    case Mode::Type:
+      if (isWritable())
+        cs = Qt::IBeamCursor;
+      break;
+    case Mode::Annotate:
+      cs = Qt::CrossCursor;
+      break;
+    case Mode::MoveResize:
+      if (mayMove) {
+        if (shouldResize(cursorPos))
+          cs = Qt::SplitHCursor;
+        else
+          cs = Qt::SizeAllCursor;
+      }
+      break;
+    case Mode::Highlight: case Mode::Strikeout: case Mode::Plain:
+      cs = Qt::UpArrowCursor;
+      break;
+    default:
+      break;
     }
-    break;
-  case Mode::Highlight: case Mode::Strikeout: case Mode::Plain:
-    cs = Qt::UpArrowCursor;
-    break;
-  default:
-    break;
   }
   return cs;
 }
