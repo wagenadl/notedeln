@@ -9,7 +9,7 @@
 "balloon-mode-highlight": "Drag the mouse over existing text to highlight it (F7).",
 "balloon-mode-strikeout": "Drag the mouse over existing text to strike it out (F8).",
 "balloon-mode-plain": "Drag the mouse over existing text to remove highlighting and strike outs (F9).",
-"balloon-nav-toc": "Go to table of contents (Ctrl+Home). Shift click to open ToC in new window.",
+"balloon-nav-toc": "Go to table of contents (Ctrl+Home). Shift click to open new window.",
 "balloon-nav-find": "Search for phrase anywhere in notebook (Ctrl+F).",
 "balloon-nav-print": "Print (part of) notebook (Ctrl+P).",
 "balloon-nav-p10": "Flip back 10 pages (Ctrl+Page Up). Shift click to open new window.",

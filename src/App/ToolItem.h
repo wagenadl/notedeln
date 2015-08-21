@@ -31,6 +31,9 @@ public:
   virtual ~ToolItem();
   bool isSelected() const;
   void setSelected(bool);
+  void setEnabled(bool=true);
+  void setDisabled(bool=true);
+  bool isEnabled() const;
   void setSvg(QString filename);
   virtual void paintContents(QPainter *);
   virtual void paint(QPainter *, const QStyleOptionGraphicsItem *, QWidget *);
@@ -50,6 +53,7 @@ private slots:
 private:
   bool sel;
   bool hov;
+  bool ena;
   class QSvgRenderer *svg;
   class QTimer *popupDelay;
   QString helpText;
