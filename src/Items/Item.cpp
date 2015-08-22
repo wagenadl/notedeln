@@ -86,22 +86,8 @@ void Item::makeWritable() {
 
 Mode *Item::mode() const {
   SheetScene *ss = dynamic_cast<SheetScene*>(scene());
-  ASSERT(ss);
-  Mode *m = ss->mode();
-  //  if (!m)
-  //    return new Mode(true); // ouch; just for now
-  ASSERT(m);
-  return m;
+  return Mode::ensure(ss ? ss->mode() : 0);
 }
-
-bool Item::hasMode() const {
-  SheetScene *ss = dynamic_cast<SheetScene*>(scene());
-  if (!ss)
-    return false;
-  Mode *m = ss->mode();
-  return m ? true : false;
-}
-  
 
 Item *Item::create(Data *d, Item *parent) {
   ASSERT(d);
@@ -176,12 +162,10 @@ void Item::removeGlow() {
 }
 
 void Item::modeChangeUnderCursor() {
-  if (hasMode()) {
-    if (mode()->mode()==Mode::MoveResize)
-      perhapsCreateGlow();
-    else
-      removeGlow();
-  }
+  if (mode()->mode()==Mode::MoveResize)
+    perhapsCreateGlow();
+  else
+    removeGlow();
 }
 
 void Item::perhapsCreateGlow() {

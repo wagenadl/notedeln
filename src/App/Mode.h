@@ -47,6 +47,8 @@ public:
   double markSize() const;
   bool mathMode() const;
   bool isReadOnly() const { return ro; }
+public:
+  static Mode *ensure(Mode *);
 public slots:
   void setMode(Mode::M);
   void setLineWidth(double);

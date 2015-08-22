@@ -31,6 +31,15 @@ Mode::Mode(bool ro, QObject *parent): QObject(parent), ro(ro) {
 Mode::~Mode() {
 }
 
+Mode *Mode::ensure(Mode *m) {
+  static Mode *m0 = 0;
+  if (m)
+    return m;
+  if (!m0)
+    m0 = new Mode(true);
+  return m0;
+}
+
 Mode::M Mode::mode() const {
   return m;
 }
