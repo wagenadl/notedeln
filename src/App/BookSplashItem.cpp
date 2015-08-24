@@ -18,6 +18,7 @@
 
 #include "BookSplashItem.h"
 #include "Style.h"
+#include "Translate.h"
 
 #include <QGraphicsSceneMouseEvent>
 #include <QPainter>
@@ -97,9 +98,21 @@ void BookSplashItem::paint(QPainter *p,
   p->setFont(f);
   p->setBrush(QBrush(Qt::NoBrush));
   p->setPen(QColor("black"));
+  QString ttl = info.title;
+  if (ttl.isEmpty()) {
+    QFont f1 = f;
+    f1.setItalic(true);
+    p->setFont(f1);
+    p->setPen(QColor("#666666"));
+    ttl = Translate::_("Untitled notebook");
+  }
   p->drawText(QRectF(8, y, BOXWIDTH-16, 20),
               Qt::AlignLeft | Qt::AlignVCenter | Qt::TextSingleLine,
-              info.title);
+              ttl);
+  if (ttl.isEmpty()) {
+    p->setFont(f);
+    p->setPen(QColor("black"));
+  }    
 
   if (dirname.isEmpty())
     return;
