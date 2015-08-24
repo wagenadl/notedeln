@@ -24,10 +24,10 @@
 static Data::Creator<BookData> c("book");
 
 BookData::BookData(Data *parent): Data(parent) {
-  title_ = Translate::_("New book");
+  title_ = "";
   QString user = UserInfo::fullName();
-  author_ = user.isEmpty() ? Translate::_("Me") : user;
-  address_ = Translate::_("Here");
+  author_ = user.isEmpty() ? "" : user;
+  address_ = "";
   startDate_ = QDate::currentDate();
   endDate_ = QDate::currentDate();
   setType("book");

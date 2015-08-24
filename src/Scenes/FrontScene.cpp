@@ -24,6 +24,7 @@
 #include "RoundedRect.h"
 #include "Version.h"
 #include "Translate.h"
+#include "DefaultingQTI.h"
 
 #include <math.h>
 #include <QTextBlockFormat>
@@ -49,7 +50,7 @@ FrontScene::FrontScene(Notebook *book, QObject *parent):
       // t.movePosition(QTextCursor::Start);
       // t.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
       // title->setTextCursor(t);
-      title->setFocus();
+      // title->setFocus();
     }
   }
 }
@@ -217,14 +218,17 @@ void FrontScene::makeBackground() {
 }
 
 void FrontScene::makeItems() {
-  title = addText("title", style.font("front-title-font"));
-  title->setDefaultTextColor(style.color("front-title-color"));
+  title = addDefaultingText(Translate::_("New book"),
+			    style.font("front-title-font"),
+			    style.color("front-title-color"));
   
-  author = addText("author", style.font("front-author-font"));
-  author->setDefaultTextColor(style.color("front-author-color"));
+  author = addDefaultingText(Translate::_("Me"),
+			     style.font("front-author-font"),
+			     style.color("front-author-color"));
 
-  address = addText("address", style.font("front-address-font"));
-  address->setDefaultTextColor(style.color("front-address-color"));
+  address = addDefaultingText(Translate::_("Here"),
+			      style.font("front-address-font"),
+			      style.color("front-address-color"));
 
   dates = addText("dates", style.font("front-dates-font"));
   dates->setDefaultTextColor(style.color("front-dates-color"));
@@ -266,7 +270,7 @@ void FrontScene::positionItems() {
 	   author->mapRectToScene(author->boundingRect()).bottom() + 5);
 
   if (toprect) {
-    QRectF tr = title->sceneBoundingRect();
+    QRectF tr = title->inclusiveSceneBoundingRect();
     tr |= dates->sceneBoundingRect();
     tr.adjust(-36, -18, 36, 18); // to be improved
     toprect->setPos(tr.topLeft());
@@ -274,8 +278,8 @@ void FrontScene::positionItems() {
   }
 
   if (bottomrect) {
-    QRectF br = author->sceneBoundingRect();
-    br |= address->sceneBoundingRect();
+    QRectF br = author->inclusiveSceneBoundingRect();
+    br |= address->inclusiveSceneBoundingRect();
     br.adjust(-36, -18, 36, 18); // to be improved
     bottomrect->setPos(br.topLeft());
     bottomrect->resize(br.size());
@@ -286,3 +290,10 @@ void FrontScene::print(QPrinter *, QPainter *p) {
   render(p);
 }
 
+DefaultingQTI *FrontScene::addDefaultingText(QString dflt, QFont f, QColor c) {
+  DefaultingQTI *ti = new DefaultingQTI(dflt, 0);
+  ti->setFont(f);
+  ti->setDefaultTextColor(c);
+  addItem(ti);
+  return ti;
+}

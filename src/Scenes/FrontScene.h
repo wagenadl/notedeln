@@ -28,6 +28,7 @@ public:
   FrontScene(class Notebook *book, QObject *parent=0);
   virtual ~FrontScene();
   void print(class QPrinter *, class QPainter *);
+  class DefaultingQTI *addDefaultingText(QString dflt, QFont f, QColor c);
 public slots:
   void rebuild();
 private:
@@ -44,9 +45,9 @@ private:
   class Style const &style;
   class RoundedRect *toprect;
   class RoundedRect *bottomrect;
-  QGraphicsTextItem *title;
-  QGraphicsTextItem *author;
-  QGraphicsTextItem *address;
+  class DefaultingQTI *title;
+  class DefaultingQTI *author;
+  class DefaultingQTI *address;
   QGraphicsTextItem *dates;
   QGraphicsTextItem *otitle;
   QGraphicsTextItem *oauthor;
