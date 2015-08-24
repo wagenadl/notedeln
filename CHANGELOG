@@ -1,3 +1,21 @@
+eln 1.0.0
+
+  
+  Finally ready for a 1.0 release. Relatively minor changes since 0.10.2:
+  
+  - Improved splash screen with better dialogs that allow setting up git
+    archives.
+  
+  - Improved front scene that makes it clearer what the editable items are.
+  
+  - Many bug fixes
+  
+  
+  
+  
+
+  -- Daniel Wagenaar <wagenadl@uc.edu>  Mon, 24 Aug 2015 15:58:59 -0400
+
 eln 0.10.2
 
   * Bugfix release: Icon for "Move" stroked to path
