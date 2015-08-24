@@ -11,22 +11,16 @@ class DefaultingQTI: public QGraphicsTextItem {
 public:
   DefaultingQTI(QString dflttxt, QGraphicsItem *parent=0);
   virtual ~DefaultingQTI();
-  QRectF inclusiveSceneBoundingRect() const;
+  virtual QRectF boundingRect() const;
   void setFont(QFont);
+  void setDefaultText(QString);
   void paint(QPainter *painter,
 	     const QStyleOptionGraphicsItem *option,
 	     QWidget *widget);
-public slots:
-  void setDefaultText(QString);
 protected:
   virtual void focusInEvent(QFocusEvent *);
   virtual void focusOutEvent(QFocusEvent *);
-private slots:
-  void showOrHide();
 private:
-  void reposition();
-private:
-  class MyQTI *dtext;
   QString dt;
 };
 

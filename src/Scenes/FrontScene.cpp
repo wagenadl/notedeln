@@ -59,20 +59,9 @@ FrontScene::~FrontScene() {
 }
 
 void FrontScene::recolorItems() {
-  if (book->bookData()->title()==Translate::_("New book")) 
-    title->setDefaultTextColor(style.color("front-default-color"));
-  else 
-    title->setDefaultTextColor(style.color("front-title-color"));
-
-  if (book->bookData()->author()==Translate::_("Me"))
-    author->setDefaultTextColor(style.color("front-default-color"));
-  else 
-    author->setDefaultTextColor(style.color("front-author-color"));
-
-  if (book->bookData()->address()==Translate::_("Here"))
-    address->setDefaultTextColor(style.color("front-default-color"));
-  else 
-    address->setDefaultTextColor(style.color("front-address-color"));
+  title->setDefaultTextColor(style.color("front-title-color"));
+  author->setDefaultTextColor(style.color("front-author-color"));
+  address->setDefaultTextColor(style.color("front-address-color"));
 }
 
 void FrontScene::makeWritable() {
@@ -246,16 +235,19 @@ void FrontScene::makeItems() {
 void FrontScene::positionItems() {
   double xc = style.real("page-width") / 2;
 
-  title->setTextWidth(-1);
-  title->setTextWidth(title->boundingRect().width());
-  QTextBlockFormat format;
-  format.setAlignment(Qt::AlignHCenter);
-  QTextCursor c0 = title->textCursor();
-  QTextCursor cursor = title->textCursor();
-  cursor.select(QTextCursor::Document);
-  cursor.mergeBlockFormat(format);
-  title->setTextCursor(cursor);
-  title->setTextCursor(c0);
+  QList<DefaultingQTI *> lst; lst << title << author << address;
+  foreach (DefaultingQTI *it, lst) {
+    it->setTextWidth(-1);
+    it->setTextWidth(it->boundingRect().width());
+    QTextBlockFormat format;
+    format.setAlignment(Qt::AlignHCenter);
+    QTextCursor c0 = it->textCursor();
+    QTextCursor cursor = it->textCursor();
+    cursor.select(QTextCursor::Document);
+    cursor.mergeBlockFormat(format);
+    it->setTextCursor(cursor);
+    it->setTextCursor(c0);
+  }
   
   centerAt(title, xc, style.real("front-title-y"));
   centerAt(author, xc, style.real("front-author-y"));
@@ -270,7 +262,7 @@ void FrontScene::positionItems() {
 	   author->mapRectToScene(author->boundingRect()).bottom() + 5);
 
   if (toprect) {
-    QRectF tr = title->inclusiveSceneBoundingRect();
+    QRectF tr = title->sceneBoundingRect();
     tr |= dates->sceneBoundingRect();
     tr.adjust(-36, -18, 36, 18); // to be improved
     toprect->setPos(tr.topLeft());
@@ -278,8 +270,8 @@ void FrontScene::positionItems() {
   }
 
   if (bottomrect) {
-    QRectF br = author->inclusiveSceneBoundingRect();
-    br |= address->inclusiveSceneBoundingRect();
+    QRectF br = author->sceneBoundingRect();
+    br |= address->sceneBoundingRect();
     br.adjust(-36, -18, 36, 18); // to be improved
     bottomrect->setPos(br.topLeft());
     bottomrect->resize(br.size());
