@@ -5,7 +5,7 @@
 #include <QFileInfo>
 #include <QFileDialog>
 #include "Translate.h"
-#include "Process.h"
+#include "EProcess.h"
 #include <QMessageBox>
 #include "Notebook.h"
 #include "RmDir.h"
@@ -133,7 +133,7 @@ QString NewBookDialog::getNewArchive() {
     
     if (nbd.hasArchive()) {
       QString dst = nbd.archiveRoot() + "/" + nbd.leaf() + ".git";
-      Process proc;
+      EProcess proc;
       proc.setWorkingDirectory(fn);
       proc.setWindowCaption("Creating archive");
       if (nbd.isRemote()) {

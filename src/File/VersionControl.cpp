@@ -25,7 +25,7 @@
 #include <QDebug>
 #include <QDir>
 #include <QPushButton>
-#include "Process.h"
+#include "EProcess.h"
 
 #ifdef Q_OS_LINUX
 #include <sys/types.h>
@@ -37,7 +37,7 @@
 namespace VersionControl {
 bool runVC(QString vccmd, QString subcmd, QStringList args, QString label,
              QString *stdo=0, QString *stde=0) {
-  Process proc;
+  EProcess proc;
   proc.setWindowCaption(label);
   args.push_front(subcmd);
   proc.setCommandAndArgs(vccmd, args);

@@ -1,15 +1,15 @@
-// Process.h
+// EProcess.h
 
-#ifndef PROCESS_H
+#ifndef EPROCESS_H
 
-#define PROCESS_H
+#define EPROCESS_H
 
 #include <QStringList>
 
-class Process {
+class EProcess {
 public:
-  Process();
-  ~Process();
+  EProcess();
+  ~EProcess();
   void setWorkingDirectory(QString);
   void setNoStartMessage(QString);
   void setCommandAndArgs(QString, QStringList);

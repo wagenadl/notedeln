@@ -6,7 +6,7 @@
 #include <QMessageBox>
 #include <QDebug>
 #include "ui_CloneBookDialog.h"
-#include "Process.h"
+#include "EProcess.h"
 #include <QStyle>
 #include <QIcon>
 
@@ -144,7 +144,7 @@ QString CloneBookDialog::getClone() {
     d.mkpath(l);
 
     // Run git clone
-    Process proc;
+    EProcess proc;
     proc.setWindowCaption(Translate::_("retrieving-clone"));
     proc.setNoStartMessage(Translate::_("no-git"));
     proc.setCommandAndArgs("git",

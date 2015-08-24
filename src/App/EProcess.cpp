@@ -1,6 +1,6 @@
-// Process.cpp
+// EProcess.cpp
 
-#include "Process.h"
+#include "EProcess.h"
 
 #include <QMessageBox>
 #include <QEventLoop>
@@ -12,30 +12,30 @@
 #include <signal.h>
 #endif
 
-Process::Process() {
+EProcess::EProcess() {
 }
 
-Process::~Process() {
+EProcess::~EProcess() {
 }
 
-void Process::setWorkingDirectory(QString s) {
+void EProcess::setWorkingDirectory(QString s) {
   wd = s;
 }
 
-void Process::setNoStartMessage(QString s) {
+void EProcess::setNoStartMessage(QString s) {
   msgNoStart = s;
 }
 
-void Process::setCommandAndArgs(QString c, QStringList a) {
+void EProcess::setCommandAndArgs(QString c, QStringList a) {
   cmd = c;
   args = a;
 }
 
-void Process::setWindowCaption(QString c) {
+void EProcess::setWindowCaption(QString c) {
   winCap = c;
 }
 
-bool Process::exec() {
+bool EProcess::exec() {
   qDebug() << "process" << cmd << args;
   se = so = "";
   
