@@ -158,7 +158,7 @@ QString CloneBookDialog::getClone() {
       return cbd.archiveLocation();
     
     QMessageBox::warning(&cbd, "eln", Translate::_("clone-failed")
-                         + ": " + proc.stderr());
+                         + ": " + proc.stdErr());
     // we should remove any partial download
     return "";
   }

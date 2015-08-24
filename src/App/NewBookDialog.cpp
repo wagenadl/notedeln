@@ -151,7 +151,7 @@ QString NewBookDialog::getNewArchive() {
       if (!proc.exec()) {
         bool disaster = !RmDir::recurse(fn);
         QString msg = Translate::_("failed-to-create-archive")
-	  .arg(proc.stderr());
+      .arg(proc.stdErr());
         if (disaster)
           msg += Translate::_("failed-to-clean-up").arg(fn);
 
@@ -164,7 +164,7 @@ QString NewBookDialog::getNewArchive() {
                              << "push" << "--set-upstream" << dst << "master");
       if (!proc.exec()) {
         bool disaster = !RmDir::recurse(fn);
-        QString msg = Translate::_("failed-to-push-archive").arg(proc.stderr());
+        QString msg = Translate::_("failed-to-push-archive").arg(proc.stdErr());
         if (disaster)
           msg += Translate::_("failed-to-clean-up").arg(fn);
         QMessageBox::critical(&nbd, "eln", msg, QMessageBox::Cancel);

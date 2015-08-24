@@ -15,8 +15,8 @@ public:
   void setCommandAndArgs(QString, QStringList);
   void setWindowCaption(QString);
   bool exec();
-  QString stdout() const { return so; }
-  QString stderr() const { return se; }
+  QString stdOut() const { return so; }
+  QString stdErr() const { return se; }
 private:
   QString msgNoStart;
   QString cmd;
