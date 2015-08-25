@@ -32,8 +32,11 @@ class Notebook: public QObject {
   Q_OBJECT;
 public:
   static Notebook *load(QString path, bool readonly=false);
+  /* Returns 0 if couldn't load. */
   static bool create(QString path, QString vc="");
-  /* Returns false if couldn't create, e.g., if already exists */
+  /* Returns false if couldn't create, e.g., if already exists. */
+  static QString errorMessage();
+  /* Returns error message from load() or create(). */
 public:
   ~Notebook();
   bool isReadOnly() const { return ro; }
@@ -71,7 +74,7 @@ public slots:
        middle of a background commit.
    */
 private:
-  Notebook(QString path, bool readonly);
+  Notebook(QString path, bool readonly); // throws QString exception on fail
 private slots:
   void titleMod();
   void sheetCountMod();
@@ -82,7 +85,8 @@ private:
   void loadme();
   void unloadme();
   CachedEntry recoverFromExistingEntry(int pgno);
-  EntryFile *recoverFromMissingEntry(int pgno);  
+  EntryFile *recoverFromMissingEntry(int pgno);
+  static QString &errMsg();
 private:
   QDir root;
   bool ro;

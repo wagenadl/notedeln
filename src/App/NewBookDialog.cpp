@@ -110,7 +110,8 @@ QString NewBookDialog::getNewSimple() {
     if (ok)
       return fn;
     QMessageBox::critical(0, "eln",
-                Translate::_("could-not-create-notebook").arg(fn),
+                Translate::_("could-not-create-notebook").arg(fn)
+			  + "\n" + Notebook::errorMessage(),
                           QMessageBox::Cancel);
  }
  return ""; // not executed
@@ -136,7 +137,8 @@ QString NewBookDialog::getNewArchive() {
     bool ok = Notebook::create(fn, nbd.hasArchive() ? "git" : "");
     if (!ok) {
       QMessageBox::critical(&nbd, "eln",
-			    Translate::_("could-not-create-notebook").arg(fn),
+			    Translate::_("could-not-create-notebook").arg(fn)
+			    + "\n" + Notebook::errorMessage(),
                           QMessageBox::Cancel);
       continue;
     }

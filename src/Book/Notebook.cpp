@@ -63,7 +63,8 @@ Notebook::Notebook(QString path, bool ro0): root(QDir(path)), ro(ro0) {
 void Notebook::loadme() {
   QString bookfile = root.exists("book.eln") ? "book.eln" : "book.json";    
   bookFile_ = BookFile::load(root.filePath(bookfile), this);
-  ASSERT(bookFile_);
+  if (!bookFile_)
+    throw QString("Could not load book file");
   bookFile_->data()->setBook(this);
 
   tocFile_ = TOCFile::load(root.filePath("toc.json"), this);
@@ -77,11 +78,13 @@ void Notebook::loadme() {
   if (!tocFile_) {
     qDebug() << "No TOC file found, trying to rebuild";
     TOC *t = TOC::rebuild(root.filePath("pages"));
-    ASSERT(t);
+    if (!t)
+      throw QString("Could not rebuild TOC");
     tocFile_ = TOCFile::createFromData(t, root.filePath("toc.json"));
     tocFile_->saveNow(true);
   }
-  ASSERT(tocFile_);
+  if (!tocFile_)
+    throw QString("Could not load TOC");
   tocFile_->data()->setBook(this);
 
   index_ = new Index(dirPath(), toc(), this);
@@ -154,12 +157,31 @@ Style const &Notebook::style() const {
   return *style_;
 }
 
+
+QString &Notebook::errMsg() {
+  static QString e;
+  return e;
+}
+
+QString Notebook::errorMessage() {
+  return errMsg();
+}
+
 Notebook *Notebook::load(QString path, bool readonly) {
+  errMsg() = "";
   QDir d(path);
-  if (d.exists())
-    return new Notebook(d.absolutePath(), readonly);
-  else
+  if (!d.exists()) {
+    errMsg() = "Path does not exist: '" + path + "'";
+    qDebug() << "Notebook::load " << errMsg();
     return 0;
+  }
+  try {
+    return new Notebook(d.absolutePath(), readonly);
+  } catch (QString s) {
+    errMsg() = s;
+    qDebug() << "Notebook::load" << s;
+    return 0;
+  }
 }
 
 QString Notebook::filePath(QString f) const {
@@ -171,14 +193,17 @@ QString Notebook::dirPath() const {
 }
 
 bool Notebook::create(QString path, QString vc) {
+  errMsg() = "";
   QDir d(path);
   if (d.exists()) {
-    qDebug() << "Notebook: Cannot create new notebook at existing path" << path;
+    errMsg() = "Cannot create new notebook at existing path: '" + path + "'";
+    qDebug() << "Notebook:" << errMsg();
     return false;
   }
 
   if (!d.mkpath("pages")) {
-    qDebug() << "Notebook: Failed to create 'pages' directory at " << path;
+    errMsg() = "Failed to create 'pages' directory at '" + path + "'";
+    qDebug() << "Notebook:" << errMsg(); 
     return false;
   }
   
@@ -208,7 +233,8 @@ bool Notebook::create(QString path, QString vc) {
     if (!proc.waitForFinished()
         || proc.exitStatus()!=QProcess::NormalExit
         || proc.exitCode()!=0) {
-      qDebug() << "New notebook: failed to initialize git archive";
+      errMsg() =  "Failed to initialize git archive";
+      qDebug() << "Notebook: " << errMsg();
       RmDir::recurse(path);
       return false;
     }
@@ -217,7 +243,8 @@ bool Notebook::create(QString path, QString vc) {
     if (!proc.waitForFinished()
         || proc.exitStatus()!=QProcess::NormalExit
         || proc.exitCode()!=0) {
-      qDebug() << "New notebook: failed to add to git archive";
+      errMsg() = "Failed to add to git archive";
+      qDebug() << "Notebook:" << errMsg();
       RmDir::recurse(path);
       return false;
     }
@@ -227,7 +254,8 @@ bool Notebook::create(QString path, QString vc) {
     if (!proc.waitForFinished()
         || proc.exitStatus()!=QProcess::NormalExit
         || proc.exitCode()!=0) {
-      qDebug() << "New notebook: failed to commit git archive";
+      errMsg() = "Failed to commit git archive";
+      qDebug() << "Notebook:" << errMsg();
       RmDir::recurse(path);
       return false;
     }
