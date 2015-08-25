@@ -43,9 +43,9 @@ bool runVC(QString vccmd, QString subcmd, QStringList args, QString label,
   proc.setCommandAndArgs(vccmd, args);
   bool ok = proc.exec();
   if (stdo)
-    *stdo = proc.stdout();
+    *stdo = proc.stdOut();
   if (stde)
-    *stde = proc.stderr();
+    *stde = proc.stdErr();
 
   return ok;
 }

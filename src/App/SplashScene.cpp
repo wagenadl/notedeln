@@ -242,7 +242,7 @@ Notebook *SplashScene::openNotebook() {
   gv->resize(DefaultSize::onScreenSize(gv->sizeHint()));
 
   Notebook *nb = 0;
-  while (nb==0) {
+  while (true) {
     gv->show();
     el.exec();
     gv->hide();
@@ -252,10 +252,12 @@ Notebook *SplashScene::openNotebook() {
     if (AlreadyOpen::check(ss->named))
       break;
     nb = Notebook::load(ss->named);
-    if (!nb) 
-      QMessageBox::critical(gv, "eln",
-                            "'" + ss->named + "' could not be loaded.",
-                            QMessageBox::Cancel);
+    if (nb)
+      break;
+    QMessageBox::critical(gv, "eln",
+                          "'" + ss->named + "' could not be loaded.",
+                          QMessageBox::Cancel);
+    ss->named = "";
   }
 
   delete gv;

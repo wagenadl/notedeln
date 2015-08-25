@@ -25,7 +25,10 @@ MOC_DIR = $${OBJECTS_DIR}
 RCC_DIR = $${OBJECTS_DIR}
 UI_DIR = $${OBJECTS_DIR}
 
-win32: RC_FILE = App/winicon.rc
+win32 {
+    RC_FILE = App/winicon.rc
+    LIBS += -lSecur32
+}
 
 mac {
     ICON = App/eln.icns

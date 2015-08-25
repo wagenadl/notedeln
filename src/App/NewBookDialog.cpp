@@ -96,14 +96,24 @@ QString NewBookDialog::getNew() {
 }
 
 QString NewBookDialog::getNewSimple() {
-  QString fn = QFileDialog::getSaveFileName(0, Translate::_("create-path"),
-                                            "", Translate::_("Notebooks")
-					    + " (*.nb)");
-  if (fn.isEmpty())
-    return "";
-  if (!fn.endsWith(".nb"))
-    fn += ".nb";
-  return fn;
+  while (true) {
+    QString fn = QFileDialog::getSaveFileName(0,
+                                              Translate::_("create-path"),
+                                              "",
+                                              Translate::_("Notebooks")
+                                              + " (*.nb)");
+    if (fn.isEmpty())
+      return "";
+    if (!fn.endsWith(".nb"))
+      fn += ".nb";
+    bool ok = Notebook::create(fn, "");
+    if (ok)
+      return fn;
+    QMessageBox::critical(0, "eln",
+                Translate::_("could-not-create-notebook").arg(fn),
+                          QMessageBox::Cancel);
+ }
+ return ""; // not executed
 }
 
 QString NewBookDialog::getNewArchive() {

@@ -4,6 +4,7 @@ repairtoc/Makefile
 Makefile.*
 *.pri
 *~
+object_script.*
 
 debug
 release
