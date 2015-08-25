@@ -42,6 +42,7 @@
     <ROW Component="Qt5Sensors.dll" ComponentId="{6C77D23F-EE6C-47B0-8B5B-B1B94358081C}" Directory_="APPDIR" Attributes="0" KeyPath="Qt5Sensors.dll"/>
     <ROW Component="Qt5Sql.dll" ComponentId="{2C7AC8DD-E7B4-4E71-A414-401C4E4C8850}" Directory_="APPDIR" Attributes="0" KeyPath="Qt5Sql.dll"/>
     <ROW Component="Qt5Svg.dll" ComponentId="{E2C664F4-EABF-4109-A972-F4DFBF365BC4}" Directory_="APPDIR" Attributes="0" KeyPath="Qt5Svg.dll"/>
+    <ROW Component="Qt5WebChannel.dll" ComponentId="{ED69DC01-8390-441A-9116-91724B22DCCA}" Directory_="APPDIR" Attributes="0" KeyPath="Qt5WebChannel.dll"/>
     <ROW Component="Qt5WebKit.dll" ComponentId="{65E29A46-E105-4E70-BEEB-D2B1D2151DB7}" Directory_="APPDIR" Attributes="0" KeyPath="Qt5WebKit.dll"/>
     <ROW Component="Qt5WebKitWidgets.dll" ComponentId="{4D5904A5-CEB9-4454-9AE8-0A29E9EB7AF9}" Directory_="APPDIR" Attributes="0" KeyPath="Qt5WebKitWidgets.dll"/>
     <ROW Component="Qt5Widgets.dll" ComponentId="{CB15751C-C128-46AE-912B-E4FAFE4FABD5}" Directory_="APPDIR" Attributes="0" KeyPath="Qt5Widgets.dll"/>
@@ -56,7 +57,7 @@
     <ROW Component="webgrab.exe" ComponentId="{0CF85C29-BAD0-4C02-A130-FD4B1479B9C5}" Directory_="APPDIR" Attributes="0" KeyPath="webgrab.exe"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiFeatsComponent">
-    <ROW Feature="MainFeature" Title="MainFeature" Description="Description" Display="1" Level="1" Directory_="APPDIR" Attributes="0" Components="ProductInformation Qt5Core.dll Qt5Gui.dll Qt5Multimedia.dll Qt5MultimediaWidgets.dll Qt5Network.dll Qt5OpenGL.dll Qt5Positioning.dll Qt5PrintSupport.dll Qt5Qml.dll Qt5Quick.dll Qt5Sensors.dll Qt5Sql.dll Qt5Svg.dll Qt5WebKit.dll Qt5WebKitWidgets.dll Qt5Widgets.dll eln.exe icudt53.dll icuin53.dll icuuc53.dll libgcc_s_dw21.dll libstdc6.dll libwinpthread1.dll qwindows.dll webgrab.exe"/>
+    <ROW Feature="MainFeature" Title="MainFeature" Description="Description" Display="1" Level="1" Directory_="APPDIR" Attributes="0" Components="ProductInformation Qt5Core.dll Qt5Gui.dll Qt5Multimedia.dll Qt5MultimediaWidgets.dll Qt5Network.dll Qt5OpenGL.dll Qt5Positioning.dll Qt5PrintSupport.dll Qt5Qml.dll Qt5Quick.dll Qt5Sensors.dll Qt5Sql.dll Qt5Svg.dll Qt5WebChannel.dll Qt5WebKit.dll Qt5WebKitWidgets.dll Qt5Widgets.dll eln.exe icudt53.dll icuin53.dll icuuc53.dll libgcc_s_dw21.dll libstdc6.dll libwinpthread1.dll qwindows.dll webgrab.exe"/>
     <ATTRIBUTE name="CurrentFeature" value="MainFeature"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiFilesComponent">
@@ -73,6 +74,7 @@
     <ROW File="Qt5Sensors.dll" Component_="Qt5Sensors.dll" FileName="Qt5Sen~1.dll|Qt5Sensors.dll" Attributes="0" SourcePath="..\..\..\..\..\..\Qt\Qt5.4.2\5.4\mingw491_32\bin\Qt5Sensors.dll" SelfReg="false" NextFile="Qt5Sql.dll"/>
     <ROW File="Qt5Sql.dll" Component_="Qt5Sql.dll" FileName="Qt5Sql.dll" Attributes="0" SourcePath="..\..\..\..\..\..\Qt\Qt5.4.2\5.4\mingw491_32\bin\Qt5Sql.dll" SelfReg="false" NextFile="Qt5MultimediaWidgets.dll"/>
     <ROW File="Qt5Svg.dll" Component_="Qt5Svg.dll" FileName="Qt5Svg.dll" Attributes="0" SourcePath="..\..\..\..\..\..\Qt\Qt5.4.2\5.4\mingw491_32\bin\Qt5Svg.dll" SelfReg="false" NextFile="Qt5WebKit.dll"/>
+    <ROW File="Qt5WebChannel.dll" Component_="Qt5WebChannel.dll" FileName="Qt5Web~3.dll|Qt5WebChannel.dll" Attributes="0" SourcePath="..\..\..\..\..\..\Qt\Qt5.4.2\5.4\mingw491_32\bin\Qt5WebChannel.dll" SelfReg="false"/>
     <ROW File="Qt5WebKit.dll" Component_="Qt5WebKit.dll" FileName="Qt5Web~1.dll|Qt5WebKit.dll" Attributes="0" SourcePath="..\..\..\..\..\..\Qt\Qt5.4.2\5.4\mingw491_32\bin\Qt5WebKit.dll" SelfReg="false" NextFile="Qt5WebKitWidgets.dll"/>
     <ROW File="Qt5WebKitWidgets.dll" Component_="Qt5WebKitWidgets.dll" FileName="Qt5Web~2.dll|Qt5WebKitWidgets.dll" Attributes="0" SourcePath="..\..\..\..\..\..\Qt\Qt5.4.2\5.4\mingw491_32\bin\Qt5WebKitWidgets.dll" SelfReg="false" NextFile="Qt5Widgets.dll"/>
     <ROW File="Qt5Widgets.dll" Component_="Qt5Widgets.dll" FileName="Qt5Wid~1.dll|Qt5Widgets.dll" Attributes="0" SourcePath="..\..\..\..\..\..\Qt\Qt5.4.2\5.4\mingw491_32\bin\Qt5Widgets.dll" SelfReg="false" NextFile="libgcc_s_dw21.dll"/>
@@ -83,7 +85,7 @@
     <ROW File="libgcc_s_dw21.dll" Component_="libgcc_s_dw21.dll" FileName="libgcc~1.dll|libgcc_s_dw2-1.dll" Attributes="0" SourcePath="..\..\..\..\..\..\Qt\Qt5.4.2\5.4\mingw491_32\bin\libgcc_s_dw2-1.dll" SelfReg="false" NextFile="libstdc6.dll"/>
     <ROW File="libstdc6.dll" Component_="libstdc6.dll" FileName="libstd~1.dll|libstdc++-6.dll" Attributes="0" SourcePath="..\..\..\..\..\..\Qt\Qt5.4.2\5.4\mingw491_32\bin\libstdc++-6.dll" SelfReg="false" NextFile="libwinpthread1.dll"/>
     <ROW File="libwinpthread1.dll" Component_="libwinpthread1.dll" FileName="libwin~1.dll|libwinpthread-1.dll" Attributes="0" SourcePath="..\..\..\..\..\..\Qt\Qt5.4.2\5.4\mingw491_32\bin\libwinpthread-1.dll" SelfReg="false" NextFile="icuin53.dll"/>
-    <ROW File="qwindows.dll" Component_="qwindows.dll" FileName="qwindows.dll" Attributes="0" SourcePath="..\..\..\..\..\..\Qt\Qt5.4.2\5.4\mingw491_32\plugins\platforms\qwindows.dll" SelfReg="false"/>
+    <ROW File="qwindows.dll" Component_="qwindows.dll" FileName="qwindows.dll" Attributes="0" SourcePath="..\..\..\..\..\..\Qt\Qt5.4.2\5.4\mingw491_32\plugins\platforms\qwindows.dll" SelfReg="false" NextFile="Qt5WebChannel.dll"/>
     <ROW File="webgrab.exe" Component_="webgrab.exe" FileName="webgrab.exe" Attributes="0" SourcePath="..\build-webgrab-Desktop_Qt_5_4_2_MinGW_32bit-Release\release\webgrab.exe" SelfReg="false" NextFile="qwindows.dll" DigSign="true"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.BuildComponent">
