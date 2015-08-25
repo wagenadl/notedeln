@@ -65,7 +65,9 @@ my $debvsn = $2;
 my $debinfo = $3;
 die "Debian package mismatch\n" unless $debpkg eq $package;
 
-if ($debvsn eq $vsn) {
+print STDERR "Version: $debvsn vs $vsn ($debinfo; $debpkg)\n";
+
+if ($debvsn =~ /^$vsn-/) {
   print STDERR "debian/changelog already up-to-date; not touching.\n";
 } else {
   system("mv tools/debian/changelog tools/debian/changelog~") and
@@ -86,18 +88,16 @@ if ($debvsn eq $vsn) {
   close OUT;
 }
 
+my $builddir = "/tmp/mkdeb-$$";
+mkdir($builddir) or die "Could not create $builddir\n";
+System("git archive -o $builddir/${package}_$vsn.orig.tar.gz --prefix=eln/ HEAD") and die "Cannot expert git archive\n";
+
 chdir("..");
 $here = `pwd`;
 chomp $here;
 
-
-my $builddir = "/tmp/mkdeb-$$";
-mkdir($builddir) or die "Could not create $builddir\n";
 chdir($builddir);
 System("pwd");
-System("rm -r $package-$vsn") if -d "$package-$vsn";
-System("cp $here/releases/$package-$vsn.tar.gz ${package}_$vsn.orig.tar.gz") and
-  die "copy failed\n";
 System("tar xf ${package}_$vsn.orig.tar.gz") and die "tar failed\n";
 chdir("$package-$vsn");
 System("cp -a $here/$package/tools/debian eln/") and die "copy failed\n";

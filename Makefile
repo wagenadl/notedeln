@@ -29,6 +29,8 @@ install: all
 	install -d $(SHAREPATH)/man/man1
 	install -d $(SHAREPATH)/pixmaps
 	install -d $(SHAREPATH)/applications
+	install -d $(SHAREPATH)/icons/gnome/48x48/mimetypes
+	install -d $(SHAREPATH)/mime/packages
 	install -d $(DOCPATH)
 	install src/eln $(INSTALLPATH)/bin/eln
 	install webgrab/webgrab $(INSTALLPATH)/bin/webgrab
@@ -37,10 +39,10 @@ install: all
 	cp src/App/eln.png $(SHAREPATH)/pixmaps/eln.png
 	cp src/eln.xpm $(SHAREPATH)/pixmaps/eln.xpm
 	cp src/App/eln.png $(SHAREPATH)/icons/gnome/48x48/mimetypes/application-eln-book.png
-	gtk-update-icon-cache $(SHAREPATH)/icons/gnome
+	# gtk-update-icon-cache $(SHAREPATH)/icons/gnome || true
 
 	cp src/eln.xml $(SHAREPATH)/mime/packages/eln.xml
-	sudo update-mime-database $(SHAREPATH)/mime/
+	# update-mime-database $(SHAREPATH)/mime/ || true
 
 	install src/eln.desktop $(SHAREPATH)/applications/eln.desktop
 	cp doc/userguide.pdf $(DOCPATH)/userguide.pdf
