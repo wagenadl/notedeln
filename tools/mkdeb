@@ -9,6 +9,11 @@ use strict;
 # It is required that mkrelease has been used first so that the
 # toplevel CHANGELOG file is up to date.
 
+sub System {
+  print STDERR "-> ", join(" ", @_), "\n";
+  return system(@_);
+}
+
 if (@ARGV) {
     chdir shift @ARGV;
 }
@@ -84,17 +89,26 @@ if ($debvsn eq $vsn) {
 chdir("..");
 $here = `pwd`;
 chomp $here;
-chdir("/tmp");
-system("rm -r $package-$vsn") if -d "$package-$vsn";
-system("cp $here/releases/$package-$vsn.tar.gz ${package}_$vsn.orig.tar.gz") and
+
+
+my $builddir = "/tmp/mkdeb-$$";
+mkdir($builddir) or die "Could not create $builddir\n";
+chdir($builddir);
+System("pwd");
+System("rm -r $package-$vsn") if -d "$package-$vsn";
+System("cp $here/releases/$package-$vsn.tar.gz ${package}_$vsn.orig.tar.gz") and
   die "copy failed\n";
-system("tar xf ${package}_$vsn.orig.tar.gz") and die "tar failed\n";
+System("tar xf ${package}_$vsn.orig.tar.gz") and die "tar failed\n";
 chdir("$package-$vsn");
-system("cp -a $here/$package/tools/debian .") and die "copy failed\n";
-system("dpkg-buildpackage -j8 -uc -us") and die "dpkg-buildpackage failed\n";
-system("lintian") and die "lintian failed\n";
+System("cp -a $here/$package/tools/debian eln/") and die "copy failed\n";
+chdir("eln") or die "Could not enter $builddir/eln\n";
+System("pwd");
+System("dpkg-buildpackage -j8 -uc -us") and die "dpkg-buildpackage failed\n";
+System("lintian") and die "lintian failed\n";
 chdir($here);
 
-system("cp /tmp/${package}_$vsn-1*deb releases");
+System("cp $builddir/${package}_$vsn-1*deb releases") and die "copy failed\n";
+System("rm -r $builddir");
+
 print STDERR "Your binary debian package is:\n";
 system("ls releases/${package}_$vsn-1*deb");
