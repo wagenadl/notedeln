@@ -70,6 +70,8 @@
   "tilde": "x̃",
   "dot": "ẋ",
   "ddot": "ẍ",
+  "bar": "x̅",
+  "sbar": "x̄",
   "flat": "♭",
   "sharp": "♯",
   "natural": "♮",
