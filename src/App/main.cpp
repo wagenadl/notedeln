@@ -34,10 +34,10 @@
 #include "AlreadyOpen.h"
 #include "DefaultSize.h"
 #include <QMessageBox>
-#include "SignalGrabber.h"
+#include "CrashReport.h"
 
 int main(int argc, char **argv) {
-  SignalGrabber siggrab;
+  CrashReport cr;
   Notebook *nb = 0;
   try {
     App app(argc, argv);
