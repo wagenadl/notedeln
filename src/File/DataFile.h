@@ -49,7 +49,7 @@ private:
   QString fn_;
   mutable bool needToSave_;
   class QTimer *saveTimer_;
-  static double saveDelay_;
+  static double saveDelay_s;
 public:
   static void addBlocker(class DFBlocker *);
   static void removeBlocker(class DFBlocker *);

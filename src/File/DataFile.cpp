@@ -24,10 +24,10 @@
 #include "DFBlocker.h"
 #include "PointerSet.h"
 
-double DataFile0::saveDelay_ = 10; // save every 10 s
+double DataFile0::saveDelay_s = 5; // save every 5 s
 
 void DataFile0::setSaveDelay(double t_s) {
-  saveDelay_ = t_s;
+  saveDelay_s = t_s;
 }
 
 DataFile0::DataFile0(QString fn, QObject *parent):
@@ -115,7 +115,7 @@ void DataFile0::saveSoon() {
   if (!saveTimer_->isActive()) {
     // saveTimer not active: activate it
     saveTimer_->setSingleShot(true);
-    saveTimer_->start(int(saveDelay_ * 1e3));
+    saveTimer_->start(int(saveDelay_s * 1e3));
   }
 }
 

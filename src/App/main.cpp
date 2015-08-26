@@ -39,8 +39,8 @@
 int main(int argc, char **argv) {
   CrashReport cr;
   Notebook *nb = 0;
+  App app(argc, argv);
   try {
-    App app(argc, argv);
     app.setWindowIcon(QIcon(":/eln.png"));
     Fonts fonts;
 
@@ -106,25 +106,43 @@ int main(int argc, char **argv) {
       if (a.shouldSave() && nb)
         nb->flush();
     } catch (Assertion b) {
-      QString msg = a.message();
+      QMessageBox mb(QMessageBox::Critical, "eln",
+                "eln suffered a fatal internal error and will have to close:",
+                   QMessageBox::Close);
+    
+      QString msg = a.message().trimmed();
       if (!msg.endsWith("."))
         msg += ".";
       msg += "\nWhile trying to save your most recent changes,"
         " another problem occured:";
-      msg += "\n" + b.message();
+      msg += "\n" + b.message().trimmed();
       if (!msg.endsWith("."))
         msg += ".";
-      msg += "\nThe application has to quit now. Please file a bug report.";
-      QMessageBox::critical(0, "eln", msg);
+      msg += "\n\nPlease send a bug report to the author.";
+      mb.setInformativeText(msg);
+      if (!a.backtrace().isEmpty())
+        mb.setInformativeText("Stack backtrace:\n" + a.backtrace());
+      mb.exec();
       return 1;
     }
-    QString msg = a.message();
+
+    QMessageBox mb(QMessageBox::Critical, "eln",
+                 "eln suffered a fatal internal error and will have to close:",
+                   QMessageBox::Close);
+    
+    QString msg = a.message().trimmed();
     if (!msg.endsWith("."))
       msg += ".";
     if (a.shouldSave() && nb)
       msg += "\nYour notebook has been saved.";
-    msg += "\nThe application has to quit now. Please file a bug report.";
-    QMessageBox::critical(0, "eln", msg);
+    else if (nb)
+      msg += "\nRegrettably, your work of the last few seconds"
+        " may have been lost.";
+    msg += "\n\nPlease send a bug report to the author.";
+    mb.setInformativeText(msg);
+    if (!a.backtrace().isEmpty())
+      mb.setInformativeText("Stack backtrace:\n" + a.backtrace());
+    mb.exec();
     return 1;
   }
 }

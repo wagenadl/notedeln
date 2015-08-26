@@ -38,7 +38,8 @@ Data::Data(Data *parent0): QObject(parent0) {
 
 Data::~Data() {
   if (parent())
-    qDebug() << "Warning! Data " << this << " being deleted while still a child of " << parent();
+    qDebug() << "Warning! Data " << this
+             << " being deleted while still a child of " << parent();
 }
 
 QDateTime const &Data::created() const {
