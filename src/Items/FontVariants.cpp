@@ -1,7 +1,7 @@
 // FontVariants.cpp
 
 #include "FontVariants.h"
-
+#include "Assert.h"
 
 
 FontVariants::FontVariants() {
@@ -43,7 +43,7 @@ QFont const *FontVariants::font(MarkupStyles s) {
     fmap[s] = scriptVersion(font(s.without(MarkupData::Superscript)));
     return fmap[s];
   }
-  Q_ASSERT(0); // this shouldn't happen
+  ASSERT(0); // this shouldn't happen
   static QFont foo;
   return &foo;
 }

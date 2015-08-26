@@ -337,7 +337,7 @@ void HtmlOutput::add(TextData const *source, ResManager const *resmgr,
     case MarkupData::Selected:
     case MarkupData::DeadLink:
     case MarkupData::SearchResult:
-      Q_ASSERT(0); // this should not happen
+      ASSERT(0); // this should not happen
       break;
     }
     startTags[md->start()].insert(tag);

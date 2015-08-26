@@ -4,6 +4,7 @@
 #include "TableData.h"
 #include "TextItemDocData.h"
 #include <QDebug>
+#include "Assert.h"
 
 TableItemDoc::TableItemDoc(class TableData *data, QObject *parent):
   TextItemDoc(data, parent) {
@@ -93,7 +94,7 @@ QRectF TableItemDoc::cellBoundingRect(int r, int c) const {
 }
 
 int TableItemDoc::find(QPointF xy, bool /*strict*/) const {
-  Q_ASSERT(!d->linepos.isEmpty());
+  ASSERT(!d->linepos.isEmpty());
   int R = table()->rows();
   int C = table()->columns();
   for (int r=0; r<R; r++) {
