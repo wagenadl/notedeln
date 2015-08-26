@@ -150,7 +150,6 @@ void SearchResItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
     }
   }
   if (pg>=0) {
-    qDebug() << "SearchResItem: clicked " << pg << id;
     emit clicked(pg, e->modifiers(), id);
   } else {
     TOCItem::mousePressEvent(e);

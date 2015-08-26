@@ -40,7 +40,6 @@ bool AutoNote::autoNote(QString tag, TextItem *dest, Style const &st) {
       }
       if (txt.isEmpty())
 	return false;
-      qDebug() << "autonote -> " << txt;
       dest->insertBasicHtml(txt, dest->textCursor().position());
       return true;
     }

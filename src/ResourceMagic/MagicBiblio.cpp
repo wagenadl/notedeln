@@ -38,14 +38,12 @@ QVariantMap const &MagicBiblio::biblio(Style const &st) {
 }
 
 MagicBiblio::MagicBiblio(QString tag, Style const &st) {
-  //  qDebug() << "MagicBiblio" << tag;
   if (tag.indexOf(QRegExp("[A-Z]"))==0)
     tag_ = tag.mid(1);
   else
     tag_ = tag;
   
   QVariantMap const &bbl(biblio(st));
-  //  qDebug() << "got" << bbl.size() << "entries";
   if (bbl.contains(tag_))
     ref_ = bbl[tag_].toString();
   

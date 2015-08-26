@@ -39,10 +39,8 @@ namespace Version {
   QDateTime buildDate() {
     QString date = QString(__DATE__);
     QString time = QString(__TIME__);
-    qDebug() << date << time;
     QDate d(QDate::fromString(date.simplified(), "MMM d yyyy"));
     QTime t(QTime::fromString(time));
-    qDebug() << d << t;
     return QDateTime(d, t);
   }
 

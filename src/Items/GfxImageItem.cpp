@@ -281,7 +281,6 @@ GfxImageItem::DragType GfxImageItem::dragTypeForPoint(QPointF p) const {
   double y = p.y();
   double w = imageBoundingRect().width();
   double h = imageBoundingRect().height();
-  //  qDebug() << "GII: DragTypeForPoint" << x << y << w << h;
   if (x/w < .25 && y/h < .25)
     return ResizeTopLeft;
   else if (x/w < .25 && y/h > .75)

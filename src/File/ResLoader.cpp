@@ -120,12 +120,10 @@ void ResLoader::qnrDataAv() {
   while (true) {
     qint64 n = qnr->read(buf.data(), 65536);
     if (n>0) {
-      qDebug() << "ResLoader: read: " << n;
       dst->write(buf.data(), n);
       if (n<65536)
 	break;
     } else if (n==0) {
-      qDebug() << "ResLoader: read=0";
       break;
     } else {
       qDebug() << "ResLoader: read<0 !?";
@@ -167,9 +165,8 @@ void ResLoader::qnrFinished() {
   
   QVariant attr = qnr->attribute(QNetworkRequest::RedirectionTargetAttribute);
   if (!attr.toString().isEmpty()) {
-    qDebug() << "ResLoader: Got redirect";
     if (++redirectCount >= 10) {
-      qDebug() << "Too many redirects";
+      qDebug() << "ResLoader: Too many redirects";
       err = true;
     } else {
       qnr->deleteLater();
@@ -275,30 +272,23 @@ void ResLoader::processError() {
 }  
 
 void ResLoader::processFinished() {
-  qDebug() << "ResLoader: process finished for " << src;
-  qDebug() << proc->readAllStandardOutput();
-  qDebug() << proc->readAllStandardError();
   if (ok || err) // that means that processError took care of it already.
     return; 
   if (proc->exitStatus()!=QProcess::NormalExit || proc->exitCode()!=0) {
     // that didn't work
-    qDebug() << "  failed";
-    err = true;
+    processError();
   } else {
-    qDebug() << "  success";
     ok = true;
+    emit finished();
   }
-  emit finished();
 }
 
 void ResLoader::startProcess(QString prog, QStringList args) {
   proc = new QProcess(this);
-  qDebug() << "startProcess" << prog << args;
   connect(proc, SIGNAL(finished(int, QProcess::ExitStatus)),
 	  this, SLOT(processFinished()));
   connect(proc, SIGNAL(error(QProcess::ProcessError)),
 	  this, SLOT(processError()));
-  qDebug() << "starting" << prog;
   proc->start(prog, args);
   proc->closeWriteChannel();
 }
@@ -313,7 +303,6 @@ bool ResLoader::makePreview(QString mimetype) {
   if (parentRes->previewFilename().isEmpty())
     return false;
 
-  qDebug() << "ResLoader::makePreview" << mimetype;
   if (mimetype.isEmpty()) {
     QStringList bits = src.path().split(".");
     if (!bits.isEmpty())

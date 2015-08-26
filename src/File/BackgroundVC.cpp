@@ -71,7 +71,6 @@ bool BackgroundVC::commit(QString path1, QString program1) {
  else
    qDebug() << "BackgroundVC: WHATVC!?!?" << program;
   vc->closeWriteChannel();
-  qDebug() << "BackgroundVC: started vc add";
   return true;
 }
 
@@ -90,8 +89,6 @@ void BackgroundVC::processStdout() {
 void BackgroundVC::timeout() {
   if (!vc)
     return;
-
-  qDebug() << "BackgroundVC: timeout";
 
 #ifdef Q_OS_LINUX
   ::kill(vc->pid(), SIGINT);
@@ -113,7 +110,6 @@ void BackgroundVC::cleanup(bool ok) {
   block = 0;
   vc->deleteLater();
   vc = 0;
-  qDebug() << "BackgroundVC: done " << ok;
   emit(done(ok));
 }
 
@@ -138,12 +134,10 @@ void BackgroundVC::processFinished() {
     step = 1;
     vc->start(program, QStringList() << "commit" << "-mautocommit");
     vc->closeWriteChannel();
-    qDebug() << "BackgroundVC: started vc commit";
   } else if (step==1 && program=="git") {
     step = 2;
     vc->start(program, QStringList() << "push");
     vc->closeWriteChannel();
-    qDebug() << "BackgroundVC: started vc push";
   } else {
     // final step completed. hurray!
     cleanup(true);

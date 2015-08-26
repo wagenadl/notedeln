@@ -85,7 +85,6 @@ bool DataFile0::saveNow(bool force) const {
   }
   
   if (!data_) {
-    qDebug() << "DataFile: Nothing to save";
     return false;
   }
 

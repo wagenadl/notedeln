@@ -58,7 +58,6 @@ BlockItem *BlockItem::ancestralBlock() {
 }
 
 void BlockItem::refTextChange(QString olds, QString news) {
-  qDebug() << "BlockItem" << this<< "refTextChange";
   QSet<FootnoteItem *> dropset;
   foreach (FootnoteItem *fni, foots) {
     if (fni==0)
@@ -115,7 +114,6 @@ QList<FootnoteItem *> BlockItem::footnotes() {
 
 QPointF BlockItem::findRefText(QString s) {
   QPointF p = findRefTextIn(s, this);
-  qDebug() << "frt" << p;
   return p;
 }
 
@@ -127,7 +125,6 @@ QPointF BlockItem::findRefTextIn(QString s, Item *i) {
     foreach (Item *c, i->allChildren()) {
       QPointF p = findRefTextIn(s, c);
       if (!p.isNull()) {
-	qDebug() << "frti" << p;
 	return c->mapToParent(p);
       }
     }

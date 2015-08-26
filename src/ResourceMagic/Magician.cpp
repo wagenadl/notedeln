@@ -71,8 +71,6 @@ SimpleMagician::~SimpleMagician() {
 
 bool SimpleMagician::matches(QString ref) const {
   bool ok = re.exactMatch(ref);
-  if (ok)
-    qDebug() << "SimpleMagician" << re.pattern() << "matches" << ref;
   return ok;
 }
 

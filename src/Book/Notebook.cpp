@@ -154,14 +154,12 @@ Notebook *Notebook::load(QString path, bool readonly) {
   QDir d(path);
   if (!d.exists()) {
     errMsg() = "Path does not exist: '" + path + "'";
-    qDebug() << "Notebook::load " << errMsg();
     return 0;
   }
   try {
     return new Notebook(d.absolutePath(), readonly);
   } catch (QString s) {
     errMsg() = s;
-    qDebug() << "Notebook::load" << s;
     return 0;
   }
 }
@@ -322,9 +320,7 @@ bool Notebook::deleteEntry(int pgno) {
   index_->deleteEntry(pf); // this doesn't save, but see below
 
   pf.file()->cancelSave();
-  qDebug() << "pgFiles.removing " << pgno;
   pgFiles.remove(pgno);
-  qDebug() << "pgFiles.removed " << pgno;
 
   if (!toc()->deleteEntry(toc()->find(pgno))) {
     // deleteentry triggers mod() and hence flush of index too
@@ -376,9 +372,7 @@ void Notebook::flush() {
 
   index_->flush();
 
-  if (ok)
-    qDebug() << "Notebook flushed OK";
-  else
+  if (!ok)
     qDebug() << "Notebook flushed, with errors";
 }
 
@@ -419,7 +413,6 @@ void Notebook::commitNowUnless() {
 }
   
 void Notebook::commitNow() {
-  qDebug() << "Notebook::commitNow";
   flush();
   if (hasVC && !mostRecentChange.isNull()) {
     VersionControl::commit(root.path(), style_->string("vc"));

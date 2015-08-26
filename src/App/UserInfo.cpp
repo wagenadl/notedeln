@@ -41,9 +41,6 @@ namespace UserInfo {
     DWORD username_len = 1023;
     if (GetUserNameExW(NameDisplay, username, &username_len))
       return QString::fromWCharArray(username);
-    //qDebug() << QString::fromWCharArray(username);
-    //if (GetUserNameW(username, &username_len)) // try login iname instead
-    //  return QString::fromWCharArray(username);
     return "";
   }
 }

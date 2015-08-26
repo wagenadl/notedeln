@@ -109,7 +109,6 @@ void Data::setType(QString const &t) {
 }
 
 void Data::markModified(Data::ModType mt) {
-  // qDebug() << "Data" << this << ": markmodified" << mt;
   if (loading_)
     return;
 
@@ -361,7 +360,6 @@ bool Data::loading() const {
 }
 
 void Data::attachResource(QString r) {
-  qDebug() << "Data" << this << "Attach resource" << r;
   if (resTags.contains(r)) {
     qDebug() << "Already contained";
     return;
@@ -371,7 +369,6 @@ void Data::attachResource(QString r) {
 }
 
 void Data::detachResource(QString r) {
-  qDebug() << "Data" << this << "Detach resource" << r;
   if (!resTags.contains(r))
     return;
   resTags.removeOne(r);

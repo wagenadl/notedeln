@@ -46,9 +46,7 @@ QUrl WebPageLinkMagician::objectUrlFromWebPage(QString tag,
   QWebElement doc = frm->documentElement();
   doc.appendInside(html);
   QString query = QString("a[%1=\"%2\"]").arg(key).arg(val);
-  qDebug() << "Querying " << query;
   QWebElement elt = doc.findFirst(query);
-  qDebug() << "elt = " << !elt.isNull() << elt.attribute("href");
   if (elt.isNull())
     return webUrl(tag); // cop out
   else

@@ -727,7 +727,6 @@ void TextItem::inputMethodEvent(QInputMethodEvent *e) {
   
 void TextItem::keyPressEvent(QKeyEvent *e) {
   if (clips() && !clip_.contains(posToPoint(cursor.position()))) {
-    qDebug() << "Relinquishing focus on key press: out of rectangle";
     clearFocus();
     return;
   }

@@ -167,8 +167,6 @@ static QString safeBaseName(QString fn) {
       f_n = f_n.left(32);
   }
 
-  qDebug() << "fn=" << fn << " bits = " << bits << " f_0 = " << f_0 << " f_n = " << f_n;
-
   fn = f_0 + "_" + f_n;
   
   fn.replace(QRegExp("[^[a-zA-Z0-9]_]"), "_");
@@ -328,9 +326,7 @@ void Resource::magicWebUrlFinished() {
       QFile a(archivePath());
       if (a.open(QFile::ReadOnly)) {
 	QString html = a.readAll();
-	qDebug() << "magicurlfromwebpage" << html;
 	src = magic->objectUrlFromWebPage(html);
-	qDebug() << "  src = " << src.toString();
 	a.close();
 	loader = new ResLoader(this);
 	connect(loader, SIGNAL(finished()), SLOT(magicObjectUrlFinished()));

@@ -271,7 +271,6 @@ double TextItemDoc::splittableY(double ymax) const {
     if (y>ybest && y<=ymax)
       ybest = y;
   }
-  qDebug() << "TID:split" << ybest << ymax;
   return ybest>0 ? ybest : 0; // ymax;
 }
 

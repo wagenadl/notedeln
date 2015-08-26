@@ -30,8 +30,6 @@
 
 Toolbars::Toolbars(Mode *mode, QGraphicsItem *parent): QGraphicsObject(parent) {
   m = Mode::Browse;
-  qDebug() << "Toolbars:" << mode->isReadOnly();
-
   modes = new Modebar(mode, this);
 
   mcolors = new ColorBar(mode, false, this);

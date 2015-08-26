@@ -42,7 +42,6 @@ QList<MarkupData *> TextData::markups() const {
 }
 
 void TextData::setText(QString const &t, bool hushhush) {
-  //  qDebug() << "TextData::setText" << t << hushhush;
   if (text_==t)
     return;
   text_ = t;
