@@ -55,24 +55,10 @@ public:
   class Style const &style() const;
   QString filePath(QString) const; // path of file in root
   QString dirPath() const; // path of root
-signals:
-  void reloaded(QMap<int,int>);
-  /*:S reloaded
-   *:D Emitted after the reload() function completes.
-   *:A A map of changed start pages. (Currently empty.)
-   */
 public slots:
   void flush();
   void commitSoonish();
   void commitNow();
-  bool reload();
-  /*:F reload
-   *:D Reloads a notebook from disk. (Useful after bzr update.)
-   *:N This summarily removes all pagefiles from memory, invalidating
-       all pointers.
-   *:R Returns false if reloading was impossible because we are in the
-       middle of a background commit.
-   */
 private:
   Notebook(QString path, bool readonly); // throws QString exception on failure
 private slots:

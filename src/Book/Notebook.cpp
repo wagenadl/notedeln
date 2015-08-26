@@ -135,21 +135,6 @@ void Notebook::unloadme() {
   pgFiles.clear();
 }
 
-bool Notebook::reload() {
-  /* This is untested code */
-  
-  if (backgroundVC && backgroundVC->isBusy())
-    return false;
-
-  QMap<int, int> renumberedPages; // obviously, this should be filled
-
-  unloadme();
-  loadme();
-
-  emit reloaded(renumberedPages);
-  return true;
-}
-
 Style const &Notebook::style() const {
   return *style_;
 }
