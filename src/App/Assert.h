@@ -20,23 +20,29 @@
 
 #define ASSERT_H
 
-#include <QObject>
-#include <QStringList>
+#include <QString>
 
-void eln_backtrace(int skip=0);
+class Assertion {
+public:
+  Assertion(QString msg, bool trytosave);
+  QString message() const { return msg; }
+  QString backtrace() const { return trc; }
+  bool shouldSave() const { return trytosave; }
+public:
+  static void crash(QString msg, char const *file=0, int line=0);
+  static void saveThenCrash(QString msg, char const *file=0, int line=0);
+  inline static void noOp() { }
+private:
+  static int &priorFailures();
+private:
+  QString msg;
+  QString trc;
+  bool trytosave;
+};
 
-QStringList eln_calltrace();
-QString eln_quickcalltrace();
+#define ASSERT(cond) ((!(cond)) ? Assertion::crash(#cond, __FILE__, __LINE__) : Assertion::noOp())
 
-void eln_grabsignals();
-void eln_ungrabsignals();
+#define ASSERTSAVE(cond) ((!(cond)) ? Assertion::saveThenCrash(#cond, __FILE__, __LINE__) : Assertion::noOp())
 
-void eln_assert(char const *assertion, char const *file, int line);
-
-inline void eln_noop() { }
-
-#define ASSERT(cond) ((!(cond)) ? eln_assert(#cond, __FILE__, __LINE__) : eln_noop())
-
-#define ASSERTX(cond, str) ((!(cond)) ? eln_assert(str, __FILE__, __LINE__) : eln_noop())
 
 #endif
