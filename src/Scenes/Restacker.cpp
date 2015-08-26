@@ -86,7 +86,6 @@ void Restacker::restackBlock(int i) {
   if (vish+fnh > yfn-yblock) {
     // This block will not fit on the current sheet with its footnotes
     double ycut = bi->splittableY(yfn-yblock);
-    qDebug() << "No fit with notes" << ycut << yfn << yblock << vish << fnh;
     if (ycut>=MINONSHEET) {
       restackBlockSplit(i, ycut);
       return;
@@ -177,7 +176,7 @@ void Restacker::restackBlockSplit(int i, double ycut) {
       if (ycut>hreal-MINONSHEET && ycut<hreal)
 	ycut = bi->splittableY(hreal-MINONSHEET);
     }
-    qDebug() << "fitting ycut" << ycut << "last" << lastycut << "yblock" << yblock << "y0" << y0 << "real" << hreal;
+
     if (ycut<=lastycut) {
       // nothing fits at all
       if (yblock>y0) {

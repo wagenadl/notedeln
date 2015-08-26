@@ -49,13 +49,10 @@ Notebook::Notebook(QString path, bool ro0): root(QDir(path)), ro(ro0) {
   tocFile_ = 0;
   bookFile_ = 0;
 
-  qDebug() << "Notebook: ro" << ro;
   Style s0(root.filePath("style.json"));
   if (s0.contains("vc")) 
     if (!VersionControl::update(root.path(), s0.string("vc")))
       ro = true;
-
-  qDebug() << "Notebook: read only " << ro;
 
   loadme();
 }

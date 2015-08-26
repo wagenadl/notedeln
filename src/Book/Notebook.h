@@ -74,7 +74,7 @@ public slots:
        middle of a background commit.
    */
 private:
-  Notebook(QString path, bool readonly); // throws QString exception on fail
+  Notebook(QString path, bool readonly); // throws QString exception on failure
 private slots:
   void titleMod();
   void sheetCountMod();
@@ -82,7 +82,7 @@ private slots:
   void commitNowUnless();
   void committed(bool ok);
 private:
-  void loadme();
+  void loadme(); // throws QString exception on failure
   void unloadme();
   CachedEntry recoverFromExistingEntry(int pgno);
   EntryFile *recoverFromMissingEntry(int pgno);

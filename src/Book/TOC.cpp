@@ -162,9 +162,6 @@ static TOC *errorReturn(QString s) {
 }  
 
 bool TOC::verify(QDir pages) const {
-  /* Will verify that there is a 1:1 relationship between the TOC and the
-     actual contents of the pages directory.
-   */
   QMap<int, QString> pg2file;
   QMap<int, QString> pg2uuid;
   readPageDir(pages, pg2file, pg2uuid);

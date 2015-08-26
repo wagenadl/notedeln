@@ -55,6 +55,13 @@ public:
   void setBook(class Notebook *);
   virtual class Notebook *book() const; // pointer to parent book, if any.
   bool verify(QDir pages) const;
+  /* Verifies that there is a 1:1 relationship between the TOC and the
+     actual contents of the pages directory. Returns true if OK.
+     If not OK, reports a message to the GUI and offers the user to quit
+     the application. If the user chooses to quit, this method does not
+     return. Otherwise, it returns false.
+   */
+
 public:
   static void readPageDir(QDir pages,
                           QMap<int, QString> &pg2file_out,

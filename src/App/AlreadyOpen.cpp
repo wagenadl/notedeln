@@ -22,12 +22,11 @@
 #include <QMessageBox>
 #include <QDebug>
 #include <QDir>
+
 static QString servername(QString fn) {
-  qDebug() << "servername " << fn;
   QDir d(QDir::current());
   fn = d.absoluteFilePath(fn);
   fn = QDir::cleanPath(fn);
-  qDebug() << "-> " << fn;
   return QString("eln-%1").arg(qHash(fn));
 }
 
@@ -39,7 +38,7 @@ AlreadyOpen::AlreadyOpen(QString name, QWidget *w): QObject(w), toBeRaised(w) {
     QLocalServer::removeServer(sn);
     if (!server->listen(sn)) {
       // couldn't remove. this is bad.
-      qDebug() << "AlreadyOpen: Could not construct server. Oh well.";
+      qDebug() << "AlreadyOpen: Could not construct server. Sorry.";
     }
   }
   connect(server, SIGNAL(newConnection()),
@@ -53,7 +52,6 @@ void AlreadyOpen::raise() {
   delete server->nextPendingConnection(); // open and close immediately
   QWidget *w = toBeRaised;
   if (w) {
-    qDebug() << "AlreadyOpen: Raising";
     w->raise();
   } else {
     qDebug() << "AlreadyOpen: Window disappeared. Cannot raise";
@@ -64,10 +62,5 @@ bool AlreadyOpen::check(QString fn) {
   QLocalSocket s;
   s.connectToServer(servername(fn));
   bool r = s.waitForConnected(100);
-  // graphical confirmation would be nice too
-  if (r)
-    qDebug() << "AlreadyOpen: found a running instance";
-  else
-    qDebug() << "AlreadyOpen: no running instance found";
   return r;
 }

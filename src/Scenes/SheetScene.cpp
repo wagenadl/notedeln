@@ -253,12 +253,10 @@ void SheetScene::mousePressEvent(QGraphicsSceneMouseEvent *e) {
 }
 
 void SheetScene::dragEnterEvent(QGraphicsSceneDragDropEvent *e) {
-  qDebug() << "sheetscene: dragenter";
   e->acceptProposedAction(); // we pretend we can accept anything
 }
 
 void SheetScene::dropEvent(QGraphicsSceneDragDropEvent *e) {
-  qDebug() << "sheetscene: drop";
   if (base && base->dropEvent(e, this))
     return;
   QGraphicsScene::dropEvent(e);

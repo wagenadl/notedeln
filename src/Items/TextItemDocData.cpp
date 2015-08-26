@@ -44,8 +44,6 @@ void TextItemDocData::recalcSomeWidths(int start, int end) const {
   if (start>0)
     --start;
 
-  qDebug() << "recalcsome" << text->text().left(20) << start << end;
-
   MarkupStyles current;
   MarkupEdges edges(text->markups());
   foreach (int k, edges.keys()) 

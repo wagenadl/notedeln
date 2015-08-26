@@ -14,7 +14,6 @@ SearchResultScene::SearchResultScene(QString phrase, QString title,
 				     QList<SearchResult> results,
                                      Data *data, QObject *parent):
   BaseScene(data, parent), phrase(phrase), ttl(title), results(results) {
-  qDebug() << "SearchResultScene" << phrase;
   book = data->book();
   setContInMargin();
 }
@@ -80,9 +79,6 @@ void SearchResultScene::populate() {
     }
   }
   nSheets = sheet+1;
-
-  qDebug() << "SearchResultScene: gotoSheet(0)";
-  
 }
 
 QString SearchResultScene::title() const { 
@@ -95,7 +91,6 @@ QString SearchResultScene::pgNoToString(int n) const {
   
 void SearchResultScene::pageNumberClick(int pg, Qt::KeyboardModifiers m,
                                         QString id) {
-  qDebug() << "pagenumberclick" << pg << phrase << id;
   emit pageNumberClicked(pg, m, id, phrase);
 }
 
