@@ -65,6 +65,9 @@ public:
   // offset. The location will be on the baseline of the line of text.
   void insert(int offset, QString text);
   void remove(int offset, int length);
+  int removeWithCombining(int offset, int length);
+  // removes combining diacritical marks that are in range as well, returns
+  // offset of start of removed area
   void swapCase(int offset);
   void transposeCharacters(int offset);
   int find(QString) const; // offset or -1

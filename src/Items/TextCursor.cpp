@@ -2,6 +2,7 @@
 
 #include "TextCursor.h"
 #include <QDebug>
+#include "Assert.h"
 
 TextCursor::Range::Range(int a, int b) {
   if (a<b) {
@@ -39,27 +40,24 @@ void TextCursor::clearSelection(TextCursor::MoveOperation) {
 }
 
 void TextCursor::deleteChar() {
-  Q_ASSERT(doc);
+  ASSERT(doc);
   if (hasSelection()) {
     Range r = selectedRange();
-    doc->remove(r.start(), r.size());
-    pos = r.start();
+    pos = doc->removeWithCombining(r.start(), r.size());
     clearSelection();
   } else {
-    doc->remove(pos, 1);
+    pos = doc->removeWithCombining(pos, 1);
   }
 }
 
 void TextCursor::deletePreviousChar() {
-  Q_ASSERT(doc);
+  ASSERT(doc);
   if (hasSelection()) {
     Range r = selectedRange();
-    doc->remove(r.start(), r.size());
-    pos = r.start();
+    pos = doc->removeWithCombining(r.start(), r.size());
     clearSelection();
   } else {
-    if (!atStart()) 
-      doc->remove(--pos, 1);
+    pos = doc->removeWithCombining(pos - 1, 1);
   }
 }
 
@@ -68,16 +66,21 @@ TextItemDoc *TextCursor::document() const {
 }
 
 void TextCursor::insertText(QString s) {
-  Q_ASSERT(doc);
+  ASSERT(doc);
   if (hasSelection())
     deleteChar();
   s.replace("\t", "    ");
+
+  // move cursor forward to respect diacriticals
+  QString t0 = doc->text();
+  while (pos<doc->lastPosition() && t0[pos]>=0x0300 && t0[pos]<=0x036f)
+    pos++;
   doc->insert(pos, s);
   pos += s.size();
 }
 
 QString TextCursor::selectedText() const {
-  Q_ASSERT(doc);
+  ASSERT(doc);
   if (!hasSelection())
     return "";
   Range r = selectedRange();
@@ -88,7 +91,7 @@ bool TextCursor::movePosition(TextCursor::MoveOperation op,
                               TextCursor::MoveMode m) {
   bool p0 = pos;
   
-  Q_ASSERT(doc);
+  ASSERT(doc);
   
   if (m==KeepAnchor) {
     if (!hasSelection())
@@ -103,10 +106,18 @@ bool TextCursor::movePosition(TextCursor::MoveOperation op,
   case Left:
     if (!atStart())
       --pos;
+    { QString t = doc->text();
+      while (!atStart() && t[pos]>=0x0300 && t[pos]<=0x036f)
+        pos--;
+    }
     break;
   case Right:
     if (!atEnd())
       ++pos;
+    { QString t = doc->text();
+      while (!atEnd() && t[pos]>=0x0300 && t[pos]<=0x036f)
+        pos++;
+    }
     break;
   case Start:
     pos = doc->firstPosition();
@@ -119,14 +130,22 @@ bool TextCursor::movePosition(TextCursor::MoveOperation op,
     QPointF above = here - QPointF(0, doc->lineHeight());
     pos = doc->find(above);
     if (pos<0)
-      pos = 0;
+      pos = doc->firstPosition();
+    { QString t = doc->text();
+      while (!atEnd() && t[pos]>=0x0300 && t[pos]<=0x036f)
+        pos++;
+    }
   } break;
   case Down: {
     QPointF here = doc->locate(pos);
     QPointF below = here + QPointF(0, doc->lineHeight());
     pos = doc->find(below);
     if (pos<0)
-      pos = doc->text().size();
+      pos = doc->lastPosition();
+    { QString t = doc->text();
+      while (!atEnd() && t[pos]>=0x0300 && t[pos]<=0x036f)
+        pos++;
+    }
   } break;
   case StartOfLine:
     pos = doc->lineStartFor(pos);
@@ -162,7 +181,7 @@ bool TextCursor::movePosition(TextCursor::MoveOperation op,
 }
 
 void TextCursor::setPosition(int p, TextCursor::MoveMode m) {
-  Q_ASSERT(doc);
+  ASSERT(doc);
   
   if (m==KeepAnchor) {
     if (!hasSelection())
@@ -175,7 +194,7 @@ void TextCursor::setPosition(int p, TextCursor::MoveMode m) {
 }
 
 void TextCursor::clampPosition() {
-  Q_ASSERT(doc);
+  ASSERT(doc);
   int n0 = doc->firstPosition();
   int n1 = doc->lastPosition();
   if (pos<n0)

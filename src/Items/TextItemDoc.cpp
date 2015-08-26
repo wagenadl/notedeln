@@ -13,6 +13,7 @@
 #include "TextCursor.h"
 #include "TableItemDoc.h"
 #include "TableData.h"
+#include "Assert.h"
 
 TextItemDoc *TextItemDoc::create(TextData *data, QObject *parent) {
   TableData *tabledata = dynamic_cast<TableData *>(data);
@@ -314,12 +315,12 @@ template <typename T> int findFirstGT(QVector<T> const &vec, T key) {
 }
 
 QPointF TextItemDoc::locate(int offset) const {
-  Q_ASSERT(!d->linestarts.isEmpty());
+  ASSERT(!d->linestarts.isEmpty());
   
   QVector<double> const &charw = d->charWidths();
   QVector<int> const &starts = d->linestarts;
   int line = findLastLE(starts, offset);
-  Q_ASSERT(line>=0);
+  ASSERT(line>=0);
   QPointF xy = d->linepos[line];
   int pos = starts[line];
 
@@ -330,7 +331,7 @@ QPointF TextItemDoc::locate(int offset) const {
 }
 
 int TextItemDoc::find(QPointF xy, bool strict) const {
-  Q_ASSERT(!d->linepos.isEmpty());
+  ASSERT(!d->linepos.isEmpty());
 
   double ascent = d->fonts().metrics(MarkupStyles())->ascent();
   int K = d->linepos.size();
@@ -379,11 +380,11 @@ void TextItemDoc::insert(int offset, QString text) {
   }
 
   QString t0 = d->text->text();
-  Q_ASSERT(offset>=firstPosition() && offset<=lastPosition());
+  ASSERT(offset>=firstPosition() && offset<=lastPosition());
   
   QVector<double> cw0 = d->charWidths();
   int N0 = cw0.size();
-  Q_ASSERT(N0==t0.size());
+  ASSERT(N0==t0.size());
   int dN = text.size();
   
   QVector<double> cw1(N0 + dN);
@@ -426,23 +427,45 @@ void TextItemDoc::transposeCharacters(int offset) {
     insert(offset-1, QString(c2) + QString(c1));
   }
 }
-      
 
-void TextItemDoc::remove(int offset, int length) {
-  /* Removes text from the document, updating the MarkupData,
-     character width table, and line starts.
-  */
-
+int TextItemDoc::removeWithCombining(int offset, int length) {
   if (offset<firstPosition()) {
     length += offset - firstPosition();
     offset = firstPosition();
   }
-  
-  QString t0 = d->text->text();
-
   if (length+offset > lastPosition())
     length = lastPosition() - offset;
+  if (length<=0)
+    return offset;
+
+  QString t = d->text->text();
   
+  // extend beginning
+  while (offset>firstPosition() && t[offset]>=0x0300 && t[offset]<=0x036f) {
+    offset--;
+    length++;
+  }
+  // extend end
+  while (offset+length<lastPosition() && t[offset+length]>=0x0300
+         && t[offset+length]<=0x036f) {
+    length++;
+  }
+
+  remove(offset, length);
+
+  return offset;
+}
+  
+void TextItemDoc::remove(int offset, int length) {
+  /* Removes text from the document, updating the MarkupData,
+     character width table, and line starts.
+  */
+  if (offset<firstPosition()) {
+    length += offset - firstPosition();
+    offset = firstPosition();
+  }
+  if (length+offset > lastPosition())
+    length = lastPosition() - offset;
   if (length<=0)
     return;
 
@@ -450,10 +473,12 @@ void TextItemDoc::remove(int offset, int length) {
     cautionNoWrite();
     return;
   }
+
+  QString t0 = d->text->text();
   
   QVector<double> cw0 = d->charWidths();
   int N0 = cw0.size();
-  Q_ASSERT(N0==t0.size());
+  ASSERT(N0==t0.size());
   int dN = length;
   
   d->text->setText(t0.left(offset) + t0.mid(offset+length));
@@ -640,7 +665,7 @@ QString TextItemDoc::text() const {
 }
 
 QVector<int> TextItemDoc::lineStarts() const {
-  Q_ASSERT(!d->linestarts.isEmpty());
+  ASSERT(!d->linestarts.isEmpty());
   return d->linestarts;
 }
 
@@ -653,7 +678,7 @@ int TextItemDoc::lineFor(int pos) const {
 int TextItemDoc::lineStartFor(int pos) const {
   QVector<int> starts = lineStarts();
   int line = findLastLE(starts, pos);
-  Q_ASSERT(line>=0);
+  ASSERT(line>=0);
   return starts[line];
 }
 
