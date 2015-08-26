@@ -34,7 +34,8 @@ void BackgroundVC::setTimeout(int s) {
 
 bool BackgroundVC::commit(QString path1, QString program1) {
   if (program1!="bzr" && program1!="git") {
-    qDebug() << "BackgroundVC can only do bzr and git";
+    if (!program1.isEmpty())
+      qDebug() << "BackgroundVC can only do bzr and git";
     return false;
   }
   if (vc) {
