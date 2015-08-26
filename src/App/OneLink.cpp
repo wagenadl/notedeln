@@ -44,8 +44,6 @@ OneLink::~OneLink() {
 }
 
 void OneLink::update() {
-  qDebug() << "OneLink::update" << refText();
-  
   if (!hasArchive() || !hasPreview()) {
     if (ti->isWritable()) {
       getArchiveAndPreview();
@@ -61,8 +59,6 @@ void OneLink::update() {
 }
   
 bool OneLink::mousePress(QGraphicsSceneMouseEvent *e) {
-  qDebug() << "OneLink::mousePress" << refText();
-
   if (ti->mode()->mode()==Mode::Browse
       || (e->modifiers() & Qt::ControlModifier)) {
     activate(e);
@@ -73,7 +69,6 @@ bool OneLink::mousePress(QGraphicsSceneMouseEvent *e) {
 }
 
 void OneLink::activate(QGraphicsSceneMouseEvent *e) {
-  qDebug() << "OneLink::activate event from " << e->widget();
   if (e->modifiers() & Qt::ShiftModifier)
     openLink();
   else 
@@ -86,8 +81,6 @@ bool OneLink::mouseDoubleClick(QGraphicsSceneMouseEvent *e) {
 }
 
 void OneLink::enter(QGraphicsSceneHoverEvent *e) {
-  qDebug() << "OneLink::enter" << refText();
-  
   if (popper) {
     popper->popup();
     return;
@@ -101,7 +94,6 @@ void OneLink::enter(QGraphicsSceneHoverEvent *e) {
 }
 
 void OneLink::leave() {
-  qDebug() << "OneLink::leave" << refText();
   if (popper) 
     popper->deleteLater();
   popper = 0;
@@ -137,7 +129,6 @@ void OneLink::openLink() {
     qDebug() << "OneLink: openURL" << refText() <<  "(no url)";
     return;
   }
-  qDebug() << "OneLink: openURL" << r->sourceURL();
   if (r->sourceURL().scheme() == "page") {
     openPage(true);
   } else {
@@ -177,7 +168,6 @@ void OneLink::openArchive() {
     return;
   }
 
-  qDebug() << "OneLink: openArchive" << r->archivePath();
   if (r->sourceURL().scheme() == "page") {
     openPage();
   } else {
@@ -190,8 +180,6 @@ void OneLink::openArchive() {
 }  
 
 void OneLink::getArchiveAndPreview() {
-  qDebug() << "OneLink::getArchiveAndPreview" << refText() << lastRef;
-
   if (refText()==lastRef || busy)
     return; // we know we can't do it
 
@@ -227,7 +215,6 @@ void OneLink::getArchiveAndPreview() {
 }
 
 void OneLink::downloadFinished() {
-  qDebug() << "OneLink::downloadFinished" << refText();
   if (!busy) {
     qDebug() << "not busy";
     return;
@@ -243,7 +230,6 @@ void OneLink::downloadFinished() {
   } else if (r->hasArchive() || r->hasPreview()
              || !r->title().isEmpty() || !r->description().isEmpty()) {
     // at least somewhat successful
-    qDebug() << "Attaching new resource" << lastRef;
     md->attachResource(lastRef);
   } else {
     // utter failure

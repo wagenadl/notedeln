@@ -48,7 +48,6 @@ PageView::PageView(SceneBank *bank, QWidget *parent):
   QGraphicsView(parent), bank(bank) {
   book = bank->book(); // for convenience only
   ASSERT(book);
-  qDebug() << "PageView: "<<book->isReadOnly();
   mode_ = new Mode(book->isReadOnly(), this);
   searchDialog = new SearchDialog(this);
   deletedStack = new DeletedStack(this);
@@ -102,7 +101,6 @@ void PageView::handleSheetRequest(int n) {
   if (sc && currentSheet<sc->sheetCount()) {
     PageView *ev = sc->eventView();
     if (ev && ev!=this) {
-      // qDebug() << "PageView: ignoring request for sheet " << n;
       return;
     }
   }
@@ -268,16 +266,12 @@ void PageView::keyPressEvent(QKeyEvent *e) {
 	if (item)
 	  break;
       }
-      //      qDebug() << "PageView::Key_Delete. item=" << item;
       if (item && item->isWritable()) {
 	BlockItem *block = item->ancestralBlock();
-	//	qDebug() << "  block=" << block
-	//		 << " empty?" << block->allChildren().isEmpty();
 	if (block && block->allChildren().isEmpty())
 	  entryScene->notifyChildless(block);
 	else
 	  deletedStack->grabIfRestorable(item);
-	//	qDebug() << "  Item grabbed or notification sent";
       }
     } else {
       take = false;
@@ -436,7 +430,6 @@ void PageView::gotoEntryPage(int n, int dir) {
     else if (dir>0)
       te = book->toc()->findForward(n);
     if (!te) {
-      qDebug() << "PageEditor: gotoEntryPage("<<n<<"): no such page";
       return;
     }
   }
@@ -665,11 +658,6 @@ void PageView::createContinuationEntry() {
     newTtl += QString::fromUtf8(" (cont’d)");
   int oldPage = entryScene->startPage() + currentSheet;
   int newPage = book->toc()->newPageNumber();
-  qDebug() << "createContinuationEntry. startPage=" << oldPage
-	   << " sheet=" << currentSheet
-	   << " newpage=" << newPage
-	   << " (start=" << entryScene->data()->startPage()
-	   << " n=" << entryScene->data()->sheetCount() << ")";
   Style const &style = book->style();
 
   // Create forward note

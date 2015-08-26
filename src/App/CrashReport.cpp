@@ -56,7 +56,6 @@ static void eln_grabsignals() {
 }
 
 static void eln_crashreporter(int fd) {
-  qDebug() << "eln_crashreporter";
   QString in;
   char buf[1024];
   int n;

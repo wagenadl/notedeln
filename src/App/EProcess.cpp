@@ -36,7 +36,6 @@ void EProcess::setWindowCaption(QString c) {
 }
 
 bool EProcess::exec() {
-  qDebug() << "process" << cmd << args;
   se = so = "";
   
   QMessageBox box;
@@ -70,7 +69,6 @@ bool EProcess::exec() {
       break; // success or failure
     }
     if (box.isHidden()) {
-      qDebug() << "killing process";
 #ifdef Q_OS_LINUX
       ::kill(process.pid(), SIGINT);
       // Killing bzr with INT produces cleaner exit than with TERM...

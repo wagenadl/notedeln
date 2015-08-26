@@ -63,7 +63,6 @@ void MarkSizeBar::setShape(GfxMarkData::Shape s) {
 
 
 void MarkSizeBar::doLeftClick(QString id, Qt::KeyboardModifiers) {
-  qDebug() << "MarkSizeBar" << idToSize(id);
   mode->setMarkSize(idToSize(id));
 }
 
