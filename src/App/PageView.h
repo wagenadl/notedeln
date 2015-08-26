@@ -87,7 +87,6 @@ private:
 private slots:
   bool gotoSheet(int n);
   void handleSheetRequest(int n);
-  void notebookReloaded(QMap<int,int>);
   void modeChange();
 private:
   class SceneBank *bank; // we do not own!

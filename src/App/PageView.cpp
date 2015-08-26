@@ -706,28 +706,6 @@ void PageView::createContinuationEntry() {
   entryScene->focusTitle(0);
 }
 
-void PageView::notebookReloaded(QMap<int, int>) {
-  qDebug() << "notebookReloaded - does this work?";
-  setScene(0); // hopefully that avoids crazy UI crashes
-  entryScene.clear();
-  
-  connect(bank->tocScene(),
-	  SIGNAL(pageNumberClicked(int, Qt::KeyboardModifiers)),
-          SLOT(pageNumberClick(int, Qt::KeyboardModifiers)));
-
-  switch (currentSection) {
-  case Front:
-    gotoFront();
-    break;
-  case TOC:
-    gotoTOC(currentPage);
-    break;
-  case Entries:
-    gotoEntryPage(currentPage, -1);
-    break;
-  }
-}
-
 void PageView::openFindDialog() {
   searchDialog->newSearch();
 }
