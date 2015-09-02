@@ -70,10 +70,8 @@ public:
     return moreThanOne() ? pointer() : 0;
   }
   CachedPointer<T> &operator=(CachedPointer<T> const &p) {
-    if (p.objp == objp) {
-      qDebug() << "CachedPointer " << this << ": identity copy";
+    if (p.objp == objp) 
       return *this;
-    }
     p.cntr->ref();
     deref();
     objp = p.objp;
