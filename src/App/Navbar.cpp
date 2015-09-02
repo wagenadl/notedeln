@@ -31,10 +31,7 @@
 Navbar::Navbar(QGraphicsItem *parent): Toolbar(parent) {
   disableSelect();
   
-  ToolItem *t = new ToolItem();
-  t->setSvg(":icons/nav-toc.svg");
-  t->setBalloonHelpText(":nav-toc");
-  addTool(NAV_TOC, t);
+  ToolItem *t = 0;
 
   t = new ToolItem();
   t->setSvg(":icons/nav-find.svg");
@@ -46,6 +43,11 @@ Navbar::Navbar(QGraphicsItem *parent): Toolbar(parent) {
   t->setBalloonHelpText(":nav-print");
   addTool(NAV_PRINT, t);
     
+  t = new ToolItem();
+  t->setSvg(":icons/nav-toc.svg");
+  t->setBalloonHelpText(":nav-toc");
+  addTool(NAV_TOC, t);
+
   t = new ToolItem();
   t->setSvg(":icons/nav-p10.svg");
   t->setBalloonHelpText(":nav-p10");
