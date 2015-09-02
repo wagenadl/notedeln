@@ -2,7 +2,7 @@ Source: eln
 Section: editors
 Priority: optional
 Maintainer: Daniel Wagenaar <daniel.wagenaar@uc.edu>
-Build-Depends: debhelper (>= 9.0.0), libqt4-dev (>= 4.8.0), qt4-qmake (>= 4.8.0),libqtwebkit-dev (>= 2.2.1), texlive-latex-base (>= 2014.20141024), texlive-fonts-recommended (>= 2014.20141024) 
+Build-Depends: debhelper (>= 9.0.0), libqt4-dev (>= 4.8.0), qt4-qmake (>= 4.8.0),libqtwebkit-dev (>= 2.2.1), texlive-latex-base (>= 2013.0), texlive-fonts-recommended (>= 2013.0), texlive-latex-extra (>= 2013.0)
 Standards-Version: 3.9.6
 Homepage: http://www.danielwagenaar.net/eln
 
