@@ -12,6 +12,7 @@
 "balloon-nav-toc": "Go to table of contents (Ctrl+Home). Shift click to open new window.",
 "balloon-nav-find": "Search for phrase anywhere in notebook (Ctrl+F).",
 "balloon-nav-print": "Print (part of) notebook (Ctrl+P).",
+"balloon-nav-help": "Show information about eln.",
 "balloon-nav-p10": "Flip back 10 pages (Ctrl+Page Up). Shift click to open new window.",
 "balloon-nav-prev": "Go to previous page (Page Up). Shift click to open new window.",
 "balloon-nav-next": "Go to next page (Page Down). Shift click to open new window.",

@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   version="1.1"
+   width="32"
+   height="32"
+   id="svg2"
+   inkscape:version="0.91 r"
+   sodipodi:docname="nav-help.svg">
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="1920"
+     inkscape:window-height="1057"
+     id="namedview12"
+     showgrid="false"
+     inkscape:zoom="17.71875"
+     inkscape:cx="7.0828924"
+     inkscape:cy="18.784986"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="text3014" />
+  <defs
+     id="defs4" />
+  <metadata
+     id="metadata7">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     transform="translate(0,-1020.3622)"
+     id="layer1">
+    <g
+       id="text3003"
+       style="font-size:14px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Albertus Medium;-inkscape-font-specification:'Albertus Medium,'">
+      <g
+         id="text3006"
+         style="line-height:125%;fill:#000000;font-family:Albertus Medium;-inkscape-font-specification:Albertus Medium;stroke-width:1;stroke-miterlimit:4;stroke-dasharray:none">
+        <g
+           style="font-size:28.12788773px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:FontAwesome;-inkscape-font-specification:FontAwesome"
+           id="text3014">
+          <g
+             style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:17.5px;line-height:125%;font-family:Goodfish;-inkscape-font-specification:'Goodfish, Normal';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+             id="text4156">
+            <path
+               d="m 15.468166,1029.0246 q -1.65,0 -3.225,0.85 l -0.65,-1.8 q 0.85,-0.45 1.9,-0.725 1.075,-0.275 2.275,-0.275 1.425,0 2.325,0.4 0.925,0.375 1.475,0.975 0.55,0.6 0.75,1.35 0.225,0.725 0.225,1.4 0,0.85 -0.325,1.525 -0.325,0.65 -0.8,1.225 -0.475,0.575 -1.05,1.1 -0.575,0.525 -1.05,1.1 -0.475,0.55 -0.8,1.225 -0.325,0.65 -0.325,1.475 0,0.125 0,0.275 0,0.15 0.025,0.275 l -1.95,0 q -0.1,-0.5 -0.1,-1.05 0,-0.8 0.275,-1.45 0.3,-0.65 0.75,-1.2 0.45,-0.575 0.95,-1.05 0.5,-0.5 0.95,-1 0.45,-0.5 0.725,-1.05 0.3,-0.55 0.3,-1.2 0,-1.05 -0.675,-1.7 -0.675,-0.675 -1.975,-0.675 z m 1.575,14.425 q 0,0.675 -0.45,1.175 -0.45,0.5 -1.225,0.5 -0.775,0 -1.225,-0.5 -0.45,-0.5 -0.45,-1.175 0,-0.675 0.45,-1.175 0.45,-0.5 1.225,-0.5 0.775,0 1.225,0.5 0.45,0.5 0.45,1.175 z"
+               style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:25px;font-family:Ubuntu;-inkscape-font-specification:Ubuntu"
+               id="path4161" />
+          </g>
+        </g>
+      </g>
+    </g>
+  </g>
+</svg>

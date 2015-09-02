@@ -27,6 +27,7 @@ class Navbar: public Toolbar {
 public:
   Navbar(QGraphicsItem *parent);
   virtual ~Navbar();
+  void showHelp();
 signals:
   void goTOC(Qt::KeyboardModifiers);
   void goFind();
