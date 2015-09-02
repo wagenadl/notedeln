@@ -17,13 +17,6 @@ void TextItem::letterAsMath(QString txt) {
   // we may italicize or deitalice
   QChar prevChar = document()->characterAt(cursor.position()-1);
   QChar antePrevChar = document()->characterAt(cursor.position()-2);
-  int dpos = 1;
-  if (prevChar == 0x200a) {
-    // thin space
-    prevChar = antePrevChar;
-    antePrevChar = document()->characterAt(cursor.position()-3);
-    dpos = 2;
-  }
   if (isLatinLetter(prevChar)) {
     // previous was also a letter; potential deitalicize or bold face
     MarkupData *mdi = data()->markupAt(cursor.position(), MarkupData::Italic);
@@ -38,10 +31,10 @@ void TextItem::letterAsMath(QString txt) {
 	  deleteMarkup(mdb);
       } else {
 	if (mdi) 
-	  addMarkup(MarkupData::Bold, cursor.position()-dpos,
+	  addMarkup(MarkupData::Bold, cursor.position()-1,
 		    cursor.position());
 	else
-	  addMarkup(MarkupData::Italic, cursor.position()-dpos,
+	  addMarkup(MarkupData::Italic, cursor.position()-1,
 		    cursor.position());
       }
     } else {
@@ -50,25 +43,22 @@ void TextItem::letterAsMath(QString txt) {
 	deleteMarkup(mdi);
       if (mdb) 
 	deleteMarkup(mdb);
-      if (dpos>1)
-	cursor.deletePreviousChar();
       if (mdb)
 	cursor.insertText(QString(prevChar));
       cursor.insertText(txt);
       if (prevChar=='d') { // magic for "dx"
 	if (!(antePrevChar>='A' && antePrevChar<='Z')
 	    && !(antePrevChar>='a' && antePrevChar<='z')) {
-	  cursor.insertText(QString::fromUtf8(" "));
 	  addMarkup(MarkupData::Italic,
-		    cursor.position()-txt.length()-1, cursor.position());
+		    cursor.position()-txt.length(), cursor.position());
 	}
       }
     }
   } else {
     // previous was not a letter, let's italicize
-    cursor.insertText(txt + QString::fromUtf8(" "));
+    cursor.insertText(txt);
     addMarkup(MarkupData::Italic,
-	      cursor.position()-txt.length() - 1, cursor.position());
+	      cursor.position()-txt.length(), cursor.position());
   }
 }  
 
