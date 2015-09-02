@@ -511,7 +511,11 @@ void PageView::previousPage() {
   case Entries:
     if (!gotoSheet(currentSheet-1)) {
       if (currentPage<=1) {
-	gotoTOC(bank->tocScene()->sheetCount());
+        if (book->toc()->newPageNumber()<=2
+            && entryScene->data()->isEmpty())
+          gotoFront();
+        else
+          gotoTOC(bank->tocScene()->sheetCount());
       } else {
 	gotoEntryPage(currentPage-1, -1);
 	gotoSheet(entryScene->sheetCount()-1);
