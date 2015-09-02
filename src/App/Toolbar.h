@@ -40,6 +40,7 @@ public:
   Qt::Orientation orientation() const;
   void setOrientation(Qt::Orientation);
   void addTool(QString id, class ToolItem *item);
+  void addSpace(double dy);
   QString selection() const;
   virtual void paint(QPainter *, const QStyleOptionGraphicsItem *, QWidget *);
   virtual QRectF boundingRect() const;
@@ -62,6 +63,7 @@ private:
 private:
   Qt::Orientation orient;
   QStringList ids;
+  QList<double> spaceAfter;
   QMap<QString, ToolItem *> tools;
   QMap<ToolItem *, QString> revmap;
   QString sel;

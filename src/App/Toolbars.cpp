@@ -91,7 +91,7 @@ Toolbars::~Toolbars() {
 }
 
 void Toolbars::placeChildren() {
-  modes->setPos(0, 40);
+  modes->setPos(0, 36);
 
   lcolors->setPos(modes->pos()
 		 + QPointF(0, modes->childrenBoundingRect().height()+10));

@@ -58,12 +58,18 @@ void Toolbar::setOrientation(Qt::Orientation o) {
   arrangeTools();
 }
 
+void Toolbar::addSpace(double dy) {
+  ASSERT(!spaceAfter.isEmpty());
+  spaceAfter.last() += dy;
+}
+
 void Toolbar::addTool(QString id, ToolItem *item) {
   ASSERT(!tools.contains(id));
   item->setParentItem(this);
   tools[id] = item;
   revmap[item] = id;
   ids.append(id);
+  spaceAfter.append(0);
   connect(item, SIGNAL(destroyed(QObject*)), SLOT(childGone()));
   connect(item, SIGNAL(leftClick(Qt::KeyboardModifiers)),
 	  SLOT(leftClicked(Qt::KeyboardModifiers)));
@@ -143,12 +149,14 @@ void Toolbar::childGone() {
 void Toolbar::arrangeTools() {
   double y = TOOLOFFSET;
   double x = TOOLOFFSET;
-  foreach (QString id, ids) {
+  for (int n=0; n<ids.size(); n++) {
+    QString id = ids[n];
     tools[id]->setPos(x, y);
+    double dy = spaceAfter[n] + TOOLGRID;
     if (orient==Qt::Horizontal)
-      x += TOOLGRID;
+      x += dy;
     else
-      y += TOOLGRID;
+      y += dy;
   }
 }
 

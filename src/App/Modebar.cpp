@@ -24,17 +24,20 @@
 
 Modebar::Modebar(Mode *mode, QGraphicsItem *parent):
   Toolbar(parent), mode(mode) {
-  ToolItem *t0 = new ToolItem();
-  t0->setBalloonHelpText(":mode-browse");
-  t0->setSvg(":icons/browse.svg");
-  addTool(modeToId(Mode::Browse), t0);
+  ToolItem *t = 0;
+
+  t = new ToolItem();
+  t->setBalloonHelpText(":mode-browse");
+  t->setSvg(":icons/browse.svg");
+  addTool(modeToId(Mode::Browse), t);
+  addSpace(4);
 
   typeModeItem = new ToolItem();
   addTool(modeToId(Mode::Type), typeModeItem);
   updateMath();
   connect(mode, SIGNAL(mathModeChanged(bool)), SLOT(updateMath()));
 
-  ToolItem *t = new ToolItem();
+  t = new ToolItem();
   t->setBalloonHelpText(":mode-move");
   t->setSvg(":icons/move.svg");
   addTool(modeToId(Mode::MoveResize), t);
@@ -82,7 +85,7 @@ Modebar::Modebar(Mode *mode, QGraphicsItem *parent):
   select(modeToId(mode->mode()));
   connect(mode, SIGNAL(modeChanged(Mode::M)), SLOT(updateMode()));
 
-  t0->setPos(t0->pos().x(), t0->pos().y()-4);
+  //  t0->setPos(t0->pos().x(), t0->pos().y()-4);
 }
 
 Modebar::~Modebar() {

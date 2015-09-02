@@ -42,6 +42,8 @@ Navbar::Navbar(QGraphicsItem *parent): Toolbar(parent) {
   t->setSvg(":icons/nav-print.svg");
   t->setBalloonHelpText(":nav-print");
   addTool(NAV_PRINT, t);
+
+  addSpace(16);
     
   t = new ToolItem();
   t->setSvg(":icons/nav-toc.svg");
