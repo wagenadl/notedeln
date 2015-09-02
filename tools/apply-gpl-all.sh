@@ -3,4 +3,4 @@
 cd `dirname $0`
 cd ../src
 
-for a in */*.cpp */*.H; ../scripts/apply-gpl.sh $a
+for a in */*.cpp */*.h; ../tools/apply-gpl.sh $a
