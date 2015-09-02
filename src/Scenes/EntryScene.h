@@ -74,6 +74,7 @@ protected slots:
   void makeUnicellular(class TableData *);
   void makeMulticellular(int pos, class TextData *);
 private:
+  void resetCreation();
   void splitTextBlock(int iblock, int pos);
   class TableBlockItem *injectTableBlock(class TableBlockData *, int iblock);
   class TextBlockItem *injectTextBlock(class TextBlockData *, int iblock);

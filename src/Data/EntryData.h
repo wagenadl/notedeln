@@ -44,6 +44,7 @@ public:
   void setStampTime(int);
   // other
   virtual bool isWritable() const;
+  void resetCreation(); // only works if isempty.
   virtual bool lateNotesAllowed() const;
   class TitleData *title() const;
   QString titleText() const;

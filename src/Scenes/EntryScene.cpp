@@ -1125,8 +1125,18 @@ bool EntryScene::importDroppedFile(QPointF scenePos, int sheet,
   ti->addMarkup(MarkupData::Link, start, end);
   return true;
 }
-    
+
+void EntryScene::resetCreation() {
+  data()->resetCreation();
+  redateBlocks();
+  foreach (SheetScene *s, sheets)
+    s->setDate(date());
+}
+
 void EntryScene::makeWritable() {
+  if (data()->isEmpty())
+    resetCreation();
+
   writable = true;
   //belowItem->setCursor(Qt::IBeamCursor);
   foreach (BlockItem *bi, blockItems)

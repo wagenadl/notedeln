@@ -74,6 +74,7 @@ PageView::PageView(SceneBank *bank, QWidget *parent):
 }
 
 PageView::~PageView() {
+  leavePage();
 }
 
 void PageView::resizeEvent(QResizeEvent *e) {
@@ -481,9 +482,8 @@ void PageView::leavePage() {
   }
 
   if (currentSection==Entries
-      && currentPage>1
       && currentPage==book->toc()->newPageNumber()-1) {
-    // Leaving the last page in the notebook, not being the only page.
+    // Leaving the last page in the notebook.
     // If the page is empty, we'll delete it.
     if (entryScene->data()->isEmpty()) {
       // Leaving an empty page
@@ -591,7 +591,10 @@ void PageView::nextPage() {
     scene()->clearFocus();
   switch (currentSection) {
   case Front:
-    gotoTOC();
+    if (book->toc()->newPageNumber()==1)
+      gotoEntryPage(1, 1);
+    else
+      gotoTOC();
     break;
   case TOC:
     if (!gotoSheet(currentSheet+1))

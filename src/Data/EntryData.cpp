@@ -139,7 +139,7 @@ bool EntryData::isWritable() const {
     return false;
   else if (isUnlocked())
     return true;
-  else return isRecent();
+  else return isEmpty() || isRecent();
 }
 
 bool EntryData::lateNotesAllowed() const {
@@ -197,5 +197,16 @@ EntryData *EntryData::entry() {
   return this;
 }
 
+void EntryData::resetCreation() {
+  if (!isEmpty()) {
+    qDebug() << "EntryData::resetCreation: Refusing because not empty";
+    return;
+  }
 
-
+  setCreated(QDateTime::currentDateTime());
+  setModified(QDateTime::currentDateTime());
+  foreach (BlockData *b, blocks()) {
+    b->setCreated(QDateTime::currentDateTime());
+    b->setModified(QDateTime::currentDateTime());
+  }
+}

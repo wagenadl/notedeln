@@ -38,6 +38,8 @@ public:
     UserVisibleMod, // mark modif. time on this object and ancestors
     InternalMod, // do not mark modif. time at all
     NonPropMod, // mark modif. time on this object but not ancestors
+    /* This has no effect on whether the Data will be saved to disk: that
+       always happens, except while loading. */
   };
 public:
   // constructor and destructor
