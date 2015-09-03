@@ -114,8 +114,8 @@ void Navbar::showHelp() {
     "eln " + Version::toString() + "\n"
     + QString::fromUtf8("(C) 2013–")
     + QString::number(Version::buildDate().date().year())
-    + " Daniel A. Wagenaar\n")
-    + "eln is an Electronic Lab Notebook."
+    + " Daniel A. Wagenaar\n"
+    "eln is an Electronic Lab Notebook."
     " More information, including a user manual, is available at"
     " http://www.danielwagenaar.net/eln.\n\n"
     "This program is free software: you can redistribute it and/or modify"
