@@ -35,23 +35,6 @@ Navbar::Navbar(QGraphicsItem *parent): Toolbar(parent) {
   disableSelect();
   
   ToolItem *t = 0;
-
-  t = new ToolItem();
-  t->setSvg(":icons/nav-find.svg");
-  t->setBalloonHelpText(":nav-find");
-  addTool(NAV_FIND, t);
-
-  t = new ToolItem();
-  t->setSvg(":icons/nav-print.svg");
-  t->setBalloonHelpText(":nav-print");
-  addTool(NAV_PRINT, t);
-
-  t = new ToolItem();
-  t->setSvg(":icons/nav-help.svg");
-  t->setBalloonHelpText(":nav-help");
-  addTool(NAV_HELP, t);
-
-  addSpace(16);
     
   t = new ToolItem();
   t->setSvg(":icons/nav-toc.svg");
@@ -82,6 +65,24 @@ Navbar::Navbar(QGraphicsItem *parent): Toolbar(parent) {
   t->setSvg(":icons/nav-end.svg");
   t->setBalloonHelpText(":nav-end");
   addTool(NAV_END, t);
+
+  addSpace(-1.5);
+  
+  t = new ToolItem();
+  t->setSvg(":icons/nav-find.svg");
+  t->setBalloonHelpText(":nav-find");
+  addTool(NAV_FIND, t);
+
+  t = new ToolItem();
+  t->setSvg(":icons/nav-print.svg");
+  t->setBalloonHelpText(":nav-print");
+  addTool(NAV_PRINT, t);
+
+  t = new ToolItem();
+  t->setSvg(":icons/nav-help.svg");
+  t->setBalloonHelpText(":nav-help");
+  addTool(NAV_HELP, t);
+
 }
 
 
@@ -115,8 +116,8 @@ void Navbar::showHelp() {
     + QString::fromUtf8("(C) 2013–")
     + QString::number(Version::buildDate().date().year())
     + " Daniel A. Wagenaar\n"
-    "eln is an Electronic Lab Notebook."
-    " More information, including a user manual, is available at"
+    "eln is an Electronic Lab Notebook.\n"
+    "More information, including a user manual, is available at"
     " http://www.danielwagenaar.net/eln.\n\n"
     "This program is free software: you can redistribute it and/or modify"
     " it under the terms of the GNU General Public License as published by"

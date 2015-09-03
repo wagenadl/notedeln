@@ -60,6 +60,10 @@ void Toolbar::setOrientation(Qt::Orientation o) {
 
 void Toolbar::addSpace(double dy) {
   ASSERT(!spaceAfter.isEmpty());
+  if (dy<0)
+    dy = -dy*TOOLGRID;
+  else if (dy==0)
+    dy = TOOLGRID;
   spaceAfter.last() += dy;
 }
 
