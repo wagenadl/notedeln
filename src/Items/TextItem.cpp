@@ -36,6 +36,7 @@
 #include "HtmlParser.h"
 #include "SheetScene.h"
 #include "PageView.h"
+#include "Unicode.h"
 
 #include <math.h>
 #include <QPainter>
@@ -846,21 +847,40 @@ void TextItem::toggleSimpleStyle(MarkupData::Style type,
     end = c.selectionEnd();
   } else {
     int base = c.position();
-    if (document()->characterAt(base-1).unicode() == 0x200a) 
-      base--;
     start = end = base;
-    if (document()->characterAt(start-1).isDigit()) {
-      start--;
-      while (document()->characterAt(start-1).isDigit())
-	start--;
-      while (document()->characterAt(end).isDigit())
-	end++;
-    } else if (document()->characterAt(start-1).isLetter()) {
-      start = base-1;
-      while (document()->characterAt(start-1).isLetter())
-	start--;
-      while (document()->characterAt(end).isLetter())
-	end++;
+    int di = 1;
+    while (Unicode::isCombining(document()->characterAt(start-di)))
+      di++;
+    if (document()->characterAt(start-di).isDigit()) {
+      start -= di;
+      while (true) {
+        di = 1;
+        while (Unicode::isCombining(document()->characterAt(start-di)))
+          di++;
+        if (!document()->characterAt(start-di).isDigit())
+          break;
+	start -= di;
+      }
+      while (document()->characterAt(end).isDigit()) {
+        end++;
+        while (Unicode::isCombining(document()->characterAt(end)))
+          end++;
+      }
+    } else if (document()->characterAt(start-di).isLetter()) {
+      start -= di;
+      while (true) {
+        di = 1;
+        while (Unicode::isCombining(document()->characterAt(start-di)))
+          di++;
+        if (!document()->characterAt(start-di).isLetter())
+          break;
+	start -= di;
+      }
+      while (document()->characterAt(end).isLetter()) {
+        end++;
+        while (Unicode::isCombining(document()->characterAt(end)))
+          end++;
+      }
     } else {
       return;
     }

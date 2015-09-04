@@ -19,6 +19,7 @@
 #include "TextCursor.h"
 #include <QDebug>
 #include "Assert.h"
+#include "Unicode.h"
 
 TextCursor::Range::Range(int a, int b) {
   if (a<b) {
@@ -105,7 +106,7 @@ void TextCursor::insertText(QString s) {
 
   // move cursor forward to respect diacriticals
   QString t0 = doc->text();
-  while (pos<doc->lastPosition() && t0[pos]>=0x0300 && t0[pos]<=0x036f)
+  while (pos<doc->lastPosition() && Unicode::isCombining(t0[pos]))
     pos++;
   doc->insert(pos, s);
   pos += s.size();
@@ -139,7 +140,7 @@ bool TextCursor::movePosition(TextCursor::MoveOperation op,
     if (!atStart())
       --pos;
     { QString t = doc->text();
-      while (!atStart() && t[pos]>=0x0300 && t[pos]<=0x036f)
+      while (!atStart() && Unicode::isCombining(t[pos]))
         pos--;
     }
     break;
@@ -147,7 +148,7 @@ bool TextCursor::movePosition(TextCursor::MoveOperation op,
     if (!atEnd())
       ++pos;
     { QString t = doc->text();
-      while (!atEnd() && t[pos]>=0x0300 && t[pos]<=0x036f)
+      while (!atEnd() && Unicode::isCombining(t[pos]))
         pos++;
     }
     break;
@@ -164,7 +165,7 @@ bool TextCursor::movePosition(TextCursor::MoveOperation op,
     if (pos<0)
       pos = doc->firstPosition();
     { QString t = doc->text();
-      while (!atEnd() && t[pos]>=0x0300 && t[pos]<=0x036f)
+      while (!atEnd() && Unicode::isCombining(t[pos]))
         pos++;
     }
   } break;
@@ -175,7 +176,7 @@ bool TextCursor::movePosition(TextCursor::MoveOperation op,
     if (pos<0)
       pos = doc->lastPosition();
     { QString t = doc->text();
-      while (!atEnd() && t[pos]>=0x0300 && t[pos]<=0x036f)
+      while (!atEnd() && Unicode::isCombining(t[pos]))
         pos++;
     }
   } break;
