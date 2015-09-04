@@ -461,7 +461,7 @@ void TextItem::tryMove(TextCursor::MoveOperation op,
   setTextCursor(c);
   QPointF p = posToPoint(c.position());
   if (clips() && !clipRect().contains(p))
-    emit invisibleFocus(c.position(), p);
+    emit invisibleFocus(c, p);
 }
 
 bool TextItem::keyPressWithControl(QKeyEvent *e) {
@@ -671,10 +671,9 @@ bool TextItem::keyPressAsInsertion(QKeyEvent *e) {
 }
 
 void TextItem::ensureCursorVisible() {
-  int pos = cursor.position();
-  QPointF p = posToPoint(pos);
+  QPointF p = posToPoint(cursor.position());
   if (clips() && !clipRect().contains(p))
-    emit invisibleFocus(pos, p);
+    emit invisibleFocus(cursor, p);
 }  
 
 bool TextItem::keyPressAsSpecialChar(QKeyEvent *e) {

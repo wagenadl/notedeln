@@ -24,7 +24,7 @@
 #include "TextItem.h"
 #include "FutileMovementInfo.h"
 #include "TextBlockData.h"
-#include <QTextCursor>
+#include "TextCursor.h"
 #include <QPointer>
 
 class TICreator {
@@ -74,7 +74,7 @@ protected:
   void mousePressEvent(QGraphicsSceneMouseEvent*);
 private slots:
   void futileMovementKey(int, Qt::KeyboardModifiers);
-  void ensureVisible(int, QPointF);
+  void ensureVisible(TextCursor, QPointF);
 private:
   QList<QPointer<TextItem> > frags; // we do own
   FutileMovementInfo fmi;
