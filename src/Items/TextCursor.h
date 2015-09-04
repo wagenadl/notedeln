@@ -55,11 +55,13 @@ public:
   bool isNull() const { return !isValid(); }
   bool atStart() const;
   bool atEnd() const;
-  void deleteChar();
-  void deletePreviousChar();
+  int deleteChar(); // return number of QChars deleted; this can be more ...
+  int deletePreviousChar(); // ... than one if combining marks are involved
   TextItemDoc *document() const;
   void insertText(QString);
   bool movePosition(MoveOperation op, MoveMode m=MoveAnchor);
+  void correctPosition(int n); // shifts by n raw characters w/o regard ...
+  // ... for combining marks
   void setPosition(int pos, MoveMode m=MoveAnchor);
   void exchangePositionAndAnchor();
   QString selectedText() const;

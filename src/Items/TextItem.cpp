@@ -827,8 +827,7 @@ bool TextItem::tryScriptStyles(bool onlyIfBalanced) {
       return false;
   }  
 
-  cursor.movePosition(TextCursor::Left);
-  m.deleteChar();
+  cursor.correctPosition(-m.deleteChar());
 
   addMarkup(mrk=="^"
 	    ? MarkupData::Superscript

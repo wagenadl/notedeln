@@ -444,7 +444,7 @@ void TextItemDoc::transposeCharacters(int offset) {
   }
 }
 
-int TextItemDoc::removeWithCombining(int offset, int length) {
+QPair<int, int> TextItemDoc::removeWithCombining(int offset, int length) {
   if (offset<firstPosition()) {
     length += offset - firstPosition();
     offset = firstPosition();
@@ -452,7 +452,7 @@ int TextItemDoc::removeWithCombining(int offset, int length) {
   if (length+offset > lastPosition())
     length = lastPosition() - offset;
   if (length<=0)
-    return offset;
+    return QPair<int, int>(offset, 0);
 
   QString t = d->text->text();
   
@@ -469,7 +469,7 @@ int TextItemDoc::removeWithCombining(int offset, int length) {
 
   remove(offset, length);
 
-  return offset;
+  return QPair<int, int>(offset, length);
 }
   
 void TextItemDoc::remove(int offset, int length) {

@@ -55,25 +55,41 @@ void TextCursor::clearSelection(TextCursor::MoveOperation) {
   anc = -1;
 }
 
-void TextCursor::deleteChar() {
+int TextCursor::deleteChar() {
   ASSERT(doc);
   if (hasSelection()) {
     Range r = selectedRange();
-    pos = doc->removeWithCombining(r.start(), r.size());
+    QPair<int, int> rm = doc->removeWithCombining(r.start(), r.size());
+    pos = rm.first;
     clearSelection();
+    return rm.second;
   } else {
-    pos = doc->removeWithCombining(pos, 1);
+    QPair<int, int> rm = doc->removeWithCombining(pos, 1);
+    pos = rm.first;
+    return rm.second;
   }
 }
 
-void TextCursor::deletePreviousChar() {
+void TextCursor::correctPosition(int n) {
+  pos += n;
+  if (pos<doc->firstPosition())
+    pos = doc->firstPosition();
+  else if (pos>doc->lastPosition())
+    pos = doc->lastPosition();
+}
+
+int TextCursor::deletePreviousChar() {
   ASSERT(doc);
   if (hasSelection()) {
     Range r = selectedRange();
-    pos = doc->removeWithCombining(r.start(), r.size());
+    QPair<int, int> rm = doc->removeWithCombining(r.start(), r.size());
+    pos = rm.first;
     clearSelection();
+    return rm.second;
   } else {
-    pos = doc->removeWithCombining(pos - 1, 1);
+    QPair<int, int> rm = doc->removeWithCombining(pos - 1, 1);
+    pos = rm.first;
+    return rm.second;
   }
 }
 
