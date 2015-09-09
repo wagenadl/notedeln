@@ -1,3 +1,29 @@
+eln 1.0.2
+
+  
+  
+  * Added GPL text
+  * git test now quiet
+  * Selection across sheets now works
+  * Appling simple styles (e.g., italic) now works with combining diacritics
+  * Fixed bug with script styles and combining marks.
+  * Rearranged toolitems slightly
+  * Added Help button and simple help text.
+  * Better spacing in toolbars
+  * Removed Goodfish font from icons, now using Ubuntu instead, which is the font used in the rest of the notebook. Goodfish looked baroque in the icons.
+  * Mathmode no longer inserts thin space as italic correction nor removes them.
+  * An empty first page is now deleted upon abandonment just like any other empty page. Abandonment of empty pages is also triggered when the PageView is closed. If an empty page somehow survives (e.g., due to crash), it is redated when next loaded. (This is important, because otherwise an old empty page at the end of a notebook makes it impossible to create new pages.) When the TOC is empty, it is skipped by nextPage(). (Not by previousPage(), because abandonment has not been responded to when previousPage() is called.)
+  * BackgroundVC no longer complains when vc=""
+  * Made cursor navigation treat char+combining diacritical as one
+  * Replaced Q_ASSERT by ASSERT
+  * Added TeX code bar for overbar
+  * Improved assertion messages
+  * Better crash reporting on segfault
+  * Cleaned up assertion implementation
+  * Better make install
+
+  -- Daniel Wagenaar <wagenadl@uc.edu>  Wed, 09 Sep 2015 08:05:10 -0400
+
 eln 1.0.0
 
   
