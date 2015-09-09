@@ -167,7 +167,9 @@ bool isGitAvailable() {
   static bool av = false;
   static bool inited = false;
   if (!inited) {
-    av = QProcess::execute("git --version")==0;
+    QProcess p;
+    p.start("git --version");
+    av = p.waitForFinished(3000);
     inited = true;
   }
   return av;
