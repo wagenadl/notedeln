@@ -60,8 +60,8 @@ TextBlockItem::TextBlockItem(TextBlockData *data, Item *parent,
     if (frags.size()>1) 
       frags[i]->setClip(QRectF(r0.left(), ysplit[i],
 			       r0.width(), ysplit[i+1]-ysplit[i]));
-    connect(frags[i], SIGNAL(invisibleFocus(int, QPointF)),
-	    SLOT(ensureVisible(int, QPointF)));
+    connect(frags[i], SIGNAL(invisibleFocus(TextCursor, QPointF)),
+	    SLOT(ensureVisible(TextCursor, QPointF)));
     connect(frags[i], SIGNAL(multicellular(int, TextData*)),
 	    this, SIGNAL(multicellular(int, TextData*)));
 
@@ -247,14 +247,19 @@ void TextBlockItem::setTextCursor(TextCursor c) {
   frags[tgt]->setFocus();
 }
 
-void TextBlockItem::ensureVisible(int pos, QPointF p) {
+void TextBlockItem::ensureVisible(TextCursor c, QPointF p) {
   for (int i=0; i<frags.size(); i++) {
     if (frags[i]->clipRect().contains(p)) {
       emit sheetRequest(data()->sheet() + i);
       frags[i]->setFocus();
-      TextCursor c(frags[i]->textCursor());
-      c.setPosition(pos);
-      frags[i]->setTextCursor(c);
+      TextCursor c1(frags[i]->textCursor());
+      if (c.hasSelection()) {
+        c1.setPosition(c.anchor());
+        c1.setPosition(c.position(), TextCursor::KeepAnchor);
+      } else {
+        c1.setPosition(c.position());
+      }
+      frags[i]->setTextCursor(c1);
       return;
     }
   }

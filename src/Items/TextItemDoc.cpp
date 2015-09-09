@@ -30,6 +30,7 @@
 #include "TableItemDoc.h"
 #include "TableData.h"
 #include "Assert.h"
+#include "Unicode.h"
 
 TextItemDoc *TextItemDoc::create(TextData *data, QObject *parent) {
   TableData *tabledata = dynamic_cast<TableData *>(data);
@@ -444,7 +445,7 @@ void TextItemDoc::transposeCharacters(int offset) {
   }
 }
 
-int TextItemDoc::removeWithCombining(int offset, int length) {
+QPair<int, int> TextItemDoc::removeWithCombining(int offset, int length) {
   if (offset<firstPosition()) {
     length += offset - firstPosition();
     offset = firstPosition();
@@ -452,24 +453,22 @@ int TextItemDoc::removeWithCombining(int offset, int length) {
   if (length+offset > lastPosition())
     length = lastPosition() - offset;
   if (length<=0)
-    return offset;
+    return QPair<int, int>(offset, 0);
 
   QString t = d->text->text();
   
   // extend beginning
-  while (offset>firstPosition() && t[offset]>=0x0300 && t[offset]<=0x036f) {
+  while (offset>firstPosition() && Unicode::isCombining(t[offset])) {
     offset--;
     length++;
   }
   // extend end
-  while (offset+length<lastPosition() && t[offset+length]>=0x0300
-         && t[offset+length]<=0x036f) {
+  while (offset+length<lastPosition() && Unicode::isCombining(t[offset+length]))
     length++;
-  }
 
   remove(offset, length);
 
-  return offset;
+  return QPair<int, int>(offset, length);
 }
   
 void TextItemDoc::remove(int offset, int length) {

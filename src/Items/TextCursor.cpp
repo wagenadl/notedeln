@@ -19,6 +19,7 @@
 #include "TextCursor.h"
 #include <QDebug>
 #include "Assert.h"
+#include "Unicode.h"
 
 TextCursor::Range::Range(int a, int b) {
   if (a<b) {
@@ -55,25 +56,41 @@ void TextCursor::clearSelection(TextCursor::MoveOperation) {
   anc = -1;
 }
 
-void TextCursor::deleteChar() {
+int TextCursor::deleteChar() {
   ASSERT(doc);
   if (hasSelection()) {
     Range r = selectedRange();
-    pos = doc->removeWithCombining(r.start(), r.size());
+    QPair<int, int> rm = doc->removeWithCombining(r.start(), r.size());
+    pos = rm.first;
     clearSelection();
+    return rm.second;
   } else {
-    pos = doc->removeWithCombining(pos, 1);
+    QPair<int, int> rm = doc->removeWithCombining(pos, 1);
+    pos = rm.first;
+    return rm.second;
   }
 }
 
-void TextCursor::deletePreviousChar() {
+void TextCursor::correctPosition(int n) {
+  pos += n;
+  if (pos<doc->firstPosition())
+    pos = doc->firstPosition();
+  else if (pos>doc->lastPosition())
+    pos = doc->lastPosition();
+}
+
+int TextCursor::deletePreviousChar() {
   ASSERT(doc);
   if (hasSelection()) {
     Range r = selectedRange();
-    pos = doc->removeWithCombining(r.start(), r.size());
+    QPair<int, int> rm = doc->removeWithCombining(r.start(), r.size());
+    pos = rm.first;
     clearSelection();
+    return rm.second;
   } else {
-    pos = doc->removeWithCombining(pos - 1, 1);
+    QPair<int, int> rm = doc->removeWithCombining(pos - 1, 1);
+    pos = rm.first;
+    return rm.second;
   }
 }
 
@@ -89,7 +106,7 @@ void TextCursor::insertText(QString s) {
 
   // move cursor forward to respect diacriticals
   QString t0 = doc->text();
-  while (pos<doc->lastPosition() && t0[pos]>=0x0300 && t0[pos]<=0x036f)
+  while (pos<doc->lastPosition() && Unicode::isCombining(t0[pos]))
     pos++;
   doc->insert(pos, s);
   pos += s.size();
@@ -123,7 +140,7 @@ bool TextCursor::movePosition(TextCursor::MoveOperation op,
     if (!atStart())
       --pos;
     { QString t = doc->text();
-      while (!atStart() && t[pos]>=0x0300 && t[pos]<=0x036f)
+      while (!atStart() && Unicode::isCombining(t[pos]))
         pos--;
     }
     break;
@@ -131,7 +148,7 @@ bool TextCursor::movePosition(TextCursor::MoveOperation op,
     if (!atEnd())
       ++pos;
     { QString t = doc->text();
-      while (!atEnd() && t[pos]>=0x0300 && t[pos]<=0x036f)
+      while (!atEnd() && Unicode::isCombining(t[pos]))
         pos++;
     }
     break;
@@ -148,7 +165,7 @@ bool TextCursor::movePosition(TextCursor::MoveOperation op,
     if (pos<0)
       pos = doc->firstPosition();
     { QString t = doc->text();
-      while (!atEnd() && t[pos]>=0x0300 && t[pos]<=0x036f)
+      while (!atEnd() && Unicode::isCombining(t[pos]))
         pos++;
     }
   } break;
@@ -159,7 +176,7 @@ bool TextCursor::movePosition(TextCursor::MoveOperation op,
     if (pos<0)
       pos = doc->lastPosition();
     { QString t = doc->text();
-      while (!atEnd() && t[pos]>=0x0300 && t[pos]<=0x036f)
+      while (!atEnd() && Unicode::isCombining(t[pos]))
         pos++;
     }
   } break;

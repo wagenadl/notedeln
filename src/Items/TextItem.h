@@ -60,7 +60,7 @@ public:
   void unclip();
   void renderCursor(QPainter *, int pos);
 signals:
-  void invisibleFocus(int, QPointF);
+  void invisibleFocus(TextCursor, QPointF);
   void textChanged();
   //  void widthChanged();
   void abandoned(); // escape pressed while empty
