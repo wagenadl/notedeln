@@ -1,0 +1,2 @@
+cp -uav ../releases/eln_*.deb /usr/local/dw/apt/archive/
+/usr/local/dw/apt/update.sh

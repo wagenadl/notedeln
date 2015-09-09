@@ -153,3 +153,4 @@ print STDERR "Do not forget to do:\n\n";
 print STDERR "  git tag -a v$newvsn -m 'Bumped version number'\n";
 print STDERR "  git push\n";
 print STDERR "  git push --tags\n\n";
+print STDERR "But first, run tools/mkdeb and make sure eln builds on Windows and Mac!\n\n";
