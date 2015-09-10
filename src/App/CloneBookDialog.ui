@@ -140,13 +140,26 @@
            <property name="enabled">
             <bool>true</bool>
            </property>
-           <layout class="QHBoxLayout" name="horizontalLayout_5">
+           <layout class="QHBoxLayout" name="horizontalLayout_5" stretch="0,0,0,0,1">
             <property name="sizeConstraint">
              <enum>QLayout::SetDefaultConstraint</enum>
             </property>
             <property name="margin">
              <number>0</number>
             </property>
+            <item>
+             <widget class="QLabel" name="label">
+              <property name="text">
+               <string>User name: </string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLineEdit" name="username"/>
+            </item>
+            <item>
+             <widget class="QWidget" name="widget_8" native="true"/>
+            </item>
             <item>
              <widget class="QLabel" name="label_4">
               <property name="sizePolicy">
