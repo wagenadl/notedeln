@@ -48,7 +48,12 @@ QString CloneBookDialog::archiveLocation() const {
 }
 
 QString CloneBookDialog::archiveHost() const {
-  return ui->host->currentText();
+  QString u = ui->username->text();
+  QString h = ui->host->currentText();
+  if (h.isEmpty())
+    return "";
+  else
+    return u.isEmpty() ? h : (u + "@" + h);
 }
 
 bool CloneBookDialog::isLocal() const {

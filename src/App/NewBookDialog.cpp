@@ -71,7 +71,12 @@ bool NewBookDialog::isRemote() const {
 }
 
 QString NewBookDialog::remoteHost() const {
-  return ui->host->currentText();
+  QString u = ui->username->text();
+  QString h = ui->host->currentText();
+  if (h.isEmpty())
+    return "";
+  else
+    return u.isEmpty() ? h : (u + "@" + h);
 }
 
 QString NewBookDialog::archiveRoot() const {
