@@ -30,7 +30,7 @@ CloneBookDialog::CloneBookDialog(QWidget *parent): QDialog(parent) {
   ui = new Ui_cloneBookDialog;
   ui->setupUi(this);
   ui->leaf->setText("");
-
+  ui->infoText->setPlainText(Translate::_("key-info"));
   QStyle *s = style();
   if (s) {
     QIcon caution = s->standardIcon(QStyle::SP_MessageBoxInformation, 0, this);

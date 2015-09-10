@@ -41,7 +41,8 @@ NewBookDialog::NewBookDialog(QWidget *parent): QDialog(parent) {
   ui->archive->setChecked(false);
   if (!VersionControl::isGitAvailable())
     ui->archive->hide();
-
+  ui->infoText->setPlainText(Translate::_("key-info"));
+  
   QStyle *s = style();
   if (s) {
     QIcon caution = s->standardIcon(QStyle::SP_MessageBoxInformation, 0, this);

@@ -53,5 +53,6 @@
     "no-browse-remote": "Browsing is only supported for local archives.",
     "fn-does-not-exist": "“%1” does not exist.",
     "fn-is-not-git": "“%1” is not a git archive.",
-    "fn-exists": "“%1” already exists."
+    "fn-exists": "“%1” already exists.",
+    "key-info": "Archiving to a remote host is only supported if you have passwordless ssh access to that host.  To arrange that, you first need to have (or create) a public/private key pair, e.g., using ssh-keygen [1]. Then you need to copy the public key from the pair to the host’s “.ssh/authorized_keys” file, e.g., using ssh-copy-id (again, see [1]). On modern Linux systems, that’s basically all it takes. It is even OK to protect your key with a passphrase. I think the same goes for Mac OS. On Windows, you will also need Pageant [2] (see [3] for more info) or something similar to make sure the key gets used.\n\n[1] https://help.ubuntu.com/community/SSH/OpenSSH/Keys\n[2] http://www.chiark.greenend.org.uk/~sgtatham/putty/download.html\n[3] http://the.earth.li/~sgtatham/putty/0.58/htmldoc/Chapter9.html"
 }
