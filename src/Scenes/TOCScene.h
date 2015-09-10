@@ -34,7 +34,7 @@ public slots:
   void tocChanged();
   void itemChanged();
   //  virtual void gotoSheet(int);
-signals:
+private slots:
   void pageNumberClicked(int, Qt::KeyboardModifiers);
 private:
   void rebuild();

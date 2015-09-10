@@ -52,10 +52,6 @@ PageView::PageView(SceneBank *bank, QWidget *parent):
   searchDialog = new SearchDialog(this);
   deletedStack = new DeletedStack(this);
 
-  connect(bank->tocScene(),
-	  SIGNAL(pageNumberClicked(int, Qt::KeyboardModifiers)),
-          SLOT(pageNumberClick(int, Qt::KeyboardModifiers)));
-
   setFrameStyle(Raised | StyledPanel);
   setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
   setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);

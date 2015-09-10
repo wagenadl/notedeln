@@ -23,6 +23,7 @@
 #include <QGraphicsLineItem>
 #include "TOCItem.h"
 #include <QDebug>
+#include "PageView.h"
 
 TOCScene::TOCScene(TOC *data, QObject *parent):
   BaseScene(data, parent),
@@ -66,7 +67,7 @@ void TOCScene::rebuild() {
     items.append(i);
     connect(i, SIGNAL(vboxChanged()), SLOT(itemChanged()));
     connect(i, SIGNAL(clicked(int, Qt::KeyboardModifiers)),
-	    SIGNAL(pageNumberClicked(int, Qt::KeyboardModifiers)));
+	    SLOT(pageNumberClicked(int, Qt::KeyboardModifiers)));
 
     QGraphicsLineItem *l
       = new QGraphicsLineItem(0, 0, style().real("page-width"), 0);
@@ -105,6 +106,12 @@ void TOCScene::relayout() {
     setSheetCount(sheet+1);
 }
 
-  QString TOCScene::pgNoToString(int n) const {
+QString TOCScene::pgNoToString(int n) const {
   return Roman(n).lc();
+}
+
+void TOCScene::pageNumberClicked(int n, Qt::KeyboardModifiers m) {
+  PageView *ev = eventView();
+  if (ev)
+    ev->pageNumberClick(n, m);
 }
