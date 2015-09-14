@@ -27,6 +27,7 @@
 #include "TextCursor.h"
 #include <QList>
 #include "MarkupEdges.h"
+#include "BlockItem.h"
 
 class TextItem: public Item {
   Q_OBJECT;
@@ -59,6 +60,8 @@ public:
   void setClip(QRectF);
   void unclip();
   void renderCursor(QPainter *, int pos);
+  void setParentBlock(BlockItem *bi);
+  BlockItem *parentBlock() const;
 signals:
   void invisibleFocus(TextCursor, QPointF);
   void textChanged();
@@ -157,6 +160,7 @@ protected:
   QMap<MarkupData *, QString> reftexts;
   QTime lastClickTime;
   QPoint lastClickScreenPos;
+  QPointer<BlockItem> pblock;
 };
 
 #endif

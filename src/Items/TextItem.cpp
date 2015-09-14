@@ -56,6 +56,7 @@
 TextItem::TextItem(TextData *data, Item *parent, bool noFinalize,
 		   TextItemDoc *altdoc):
   Item(data, parent) {
+  pblock = QPointer<BlockItem>(dynamic_cast<BlockItem*>(parent));
   hasAltDoc = altdoc!=NULL;
   if (altdoc)
     text = altdoc;
@@ -616,7 +617,7 @@ bool TextItem::tryTeXCode(bool noX, bool onlyAtEndOfWord) {
 
 bool TextItem::keyPressAsSpecialEvent(QKeyEvent *e) {
   if (e->key()==Qt::Key_Tab || e->key()==Qt::Key_Backtab) {
-    TextBlockItem *p = dynamic_cast<TextBlockItem *>(parent());
+    TextBlockItem *p = dynamic_cast<TextBlockItem *>(parentBlock());
     if (p) 
       if (muckWithIndentation(p, e->modifiers()))
 	return true;
@@ -650,9 +651,7 @@ bool TextItem::muckWithIndentation(TextBlockItem *p,
     return true; 
   }
   prepareGeometryChange();
-  p->initializeFormat();
-  text->relayout();
-  p->sizeToFit();
+  p->muckWithIndentation(cursor);
   update();
   return true;
 }
@@ -1314,3 +1313,12 @@ QString TextItem::toHtml(int start, int end) const {
   return builder.toHtml();
 }  
 
+void TextItem::setParentBlock(BlockItem *bi) {
+  pblock = bi;
+}
+
+BlockItem *TextItem::parentBlock() const {
+  return pblock;
+}
+
+    

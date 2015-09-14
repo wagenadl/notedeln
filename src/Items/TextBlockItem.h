@@ -69,6 +69,7 @@ signals:
   void multicellular(int, class TextData *);
 public slots:
   void sizeToFit();
+  void muckWithIndentation(TextCursor);
 protected:
   void focusInEvent(QFocusEvent*);
   void mousePressEvent(QGraphicsSceneMouseEvent*);

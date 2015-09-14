@@ -50,8 +50,11 @@ TextBlockItem::TextBlockItem(TextBlockData *data, Item *parent,
   frags << tic.create(data->text(), this);
   
   QList<double> ysplit = data->sheetSplits();
-  for (int i=0; i<ysplit.size(); i++) 
-    frags << tic.create(data->text(), 0, frags[0]->document());
+  for (int i=0; i<ysplit.size(); i++) {
+    TextItem *ti = tic.create(data->text(), 0, frags[0]->document());
+    ti->setParentBlock(this);
+    frags << ti;
+  }
 
   ysplit.push_front(0);
   ysplit.push_back(data->height());
@@ -249,7 +252,7 @@ void TextBlockItem::setTextCursor(TextCursor c) {
 
 void TextBlockItem::ensureVisible(TextCursor c, QPointF p) {
   for (int i=0; i<frags.size(); i++) {
-    if (frags[i]->clipRect().contains(p)) {
+    if (!frags[i]->clips() || frags[i]->clipRect().contains(p)) {
       emit sheetRequest(data()->sheet() + i);
       frags[i]->setFocus();
       TextCursor c1(frags[i]->textCursor());
@@ -303,8 +306,10 @@ void TextBlockItem::split(QList<double> ysplit) {
 
   while (frags.size()<1+ysplit.size()) {
     TextItem *ti = tic.create(data()->text(), 0, frags[0]->document());
-    connect(ti, SIGNAL(invisibleFocus(int, QPointF)),
-	    SLOT(ensureVisible(int, QPointF)));
+    connect(ti, SIGNAL(invisibleFocus(TextCursor, QPointF)),
+	    SLOT(ensureVisible(TextCursor, QPointF)));
+    ti->setParentBlock(this);
+    
     frags << ti;
 
     if (frags[0]->isWritable())
@@ -352,4 +357,12 @@ int TextBlockItem::findFragmentForPhrase(QString phrase) const {
     i++;
   }
   return i;
+}
+
+void TextBlockItem::muckWithIndentation(TextCursor c) {
+  initializeFormat();
+  document()->relayout();
+  sizeToFit();
+  QPointF p = frags[0]->posToPoint(c.position());
+  ensureVisible(c, p);
 }
