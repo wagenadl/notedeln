@@ -786,7 +786,7 @@ bool EntryScene::mousePressEvent(QGraphicsSceneMouseEvent *e, SheetScene *s) {
     }
     break;
   case Mode::Type:
-    if (!it && isWritable() && !inMargin(sp)) {
+    if (!it && isWritable() && !inSideMargin(sp) && !inTopMargin(sp)) {
       newTextBlockAt(sp, sh);
       take = true;
     }
