@@ -699,6 +699,7 @@ void PageView::createContinuationEntry() {
                      style.real("margin-top"));
   GfxNoteItem *revNote = entryScene->newNote(currentSheet, revNotePos);
   TextItem *revNoteTI = revNote->textItem();
+  revNoteTI->setTextWidth(0);
   cursor = revNoteTI->textCursor();
   QString revNoteText = QString("p. %1 >").arg(oldPage);
   cursor.insertText(revNoteText);
@@ -706,6 +707,8 @@ void PageView::createContinuationEntry() {
   revNoteTI->setTextCursor(cursor);
   revNoteTI->tryExplicitLink();
   pp = revNote->mapToScene(revNote->netBounds().topRight());
+  qDebug() << "revnote: netbounds=" << revNote->netBounds() << "pos=" << revNote->pos();
+  qDebug() << "  topright=" << pp << " desired="<<revNotePos; 
   revNote->translate(revNotePos - pp);
 
   gotoEntryPage(oldPage);
