@@ -1,3 +1,16 @@
+eln (1.0.4-1) trusty; urgency=medium
+
+  Several bugfixes:
+  
+  * Footnotes now get placed in correct order, even from split paragraphs. Footnotes now get placed on correct sheet, even from split paragrahs and when first visiting entry.
+  * Fixed positioning bug for continuation notes
+  * I think I got the bug fixed where handleSheetRequest worked in more than one pageview
+  * Click in bottom margin once again creates new paragraph
+  * TextItem and TextBlockItem now correctly deal with Ctrl-Tab on secondary fragment
+  * Added username field to Clone/New dialogs
+
+ -- Daniel Wagenaar <wagenadl@uc.edu>  Fri, 18 Sep 2015 15:02:52 -0400
+
 eln (1.0.2-1) trusty; urgency=medium
 
   * Added GPL text
