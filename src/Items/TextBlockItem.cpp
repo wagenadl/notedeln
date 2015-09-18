@@ -251,8 +251,10 @@ void TextBlockItem::setTextCursor(TextCursor c) {
 }
 
 void TextBlockItem::ensureVisible(TextCursor c, QPointF p) {
+  qDebug() << "ensureVisible" << data()->text()->text() << c.position() << p;
   for (int i=0; i<frags.size(); i++) {
     if (!frags[i]->clips() || frags[i]->clipRect().contains(p)) {
+      qDebug() << "  emitting sheetRequest" << data()->sheet() + i;
       emit sheetRequest(data()->sheet() + i);
       frags[i]->setFocus();
       TextCursor c1(frags[i]->textCursor());

@@ -84,6 +84,7 @@ void PageView::resizeEvent(QResizeEvent *e) {
 }
 
 void PageView::handleSheetRequest(int n) {
+  qDebug() << "PageView" << this << "handleSheetRequest" << n;
   BaseScene *sc = 0;
   switch (currentSection) {
   case Front:
@@ -93,14 +94,19 @@ void PageView::handleSheetRequest(int n) {
     break;
   case Entries:
     sc = entryScene.obj();
+    qDebug() << "  entryscene startpage=" << entryScene->startPage();
     break;
   }
-  if (sc && currentSheet<sc->sheetCount()) {
+  if (sc && currentSheet < sc->sheetCount()) {
+    qDebug() << "  got scene" << sc << "currentSheet=" << currentSheet << "count==" << sc->sheetCount();
     PageView *ev = sc->eventView();
-    if (ev && ev!=this) {
+    qDebug() << "eventview=" << ev;
+    if (/*ev &&*/ ev!=this) {
+      qDebug() << "  eventview mismatch -> returning";
       return;
     }
   }
+  qDebug() << "  pageview" << this << "going to sheet" << n;
   gotoSheet(n);
 }
 
