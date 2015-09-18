@@ -28,6 +28,7 @@
 
 Restacker::Restacker(QList<BlockItem *> const &blocks, int s):
   blocks(blocks), start(s) {
+  qDebug() << "Restacker: requested start is " << s;
   ASSERT(start>=0);
   end = start;
   if (start>=blocks.size())
@@ -66,6 +67,8 @@ Restacker::Restacker(QList<BlockItem *> const &blocks, int s):
     }
     --start;
   }
+
+  qDebug() << "  ultimate start is " << start;
 }
 
 void Restacker::restackData() {
@@ -99,13 +102,15 @@ void Restacker::restackBlock(int i) {
   foreach (FootnoteData *fnd, bd->children<FootnoteData>()) 
     fnh += fnd->height();
 
-  if (vish+fnh > yfn-yblock) {
+  if (yblock + vish > yfn - fnh) {
     // This block will not fit on the current sheet with its footnotes
     double ycut = bi->splittableY(yfn-yblock);
     if (ycut>=MINONSHEET) {
+      // There is space for at least something, so let's place something
       restackBlockSplit(i, ycut);
       return;
     } else if (yblock>y0) {
+      // No space for anything of substance, so:
       // Move to next sheet, except if we are the first block
       // on the current sheet.
       restackFootnotesOnSheet();
@@ -114,7 +119,15 @@ void Restacker::restackBlock(int i) {
       yfn = y1;
     }
   }
-  restackBlockOne(i);
+
+  // We need to check once more, because it is possible that we don't fit
+  // on the next sheet either. This corner case was previously treated
+  // incorrectly. (It happens when there is not enough space for even one
+  // line on the original sheet.)
+  if (yblock + vish > yfn - fnh) 
+    restackBlockSplit(i, bi->splittableY(yfn-yblock));
+  else
+    restackBlockOne(i);
 }
 
 void Restacker::restackBlockOne(int i) {
@@ -129,6 +142,7 @@ void Restacker::restackBlockOne(int i) {
   foreach (FootnoteItem *fni, bi->footnotes()) {
     QPointF p = bi->findRefText(fni->data()->tag());
     double rp = yblock + p.y() + 0.001*p.x();
+    qDebug() << "  rbo: prep foot place" << p << rp << fni->data()->tag();
     footplace[isheet].insert(rp, fni);
     yfn -= fni->data()->height();
   }
@@ -223,12 +237,12 @@ void Restacker::restackBlockSplit(int i, double ycut) {
       if (bd->setSheetAndY0(isheet, yblock))
 	changedSheets.insert(isheet);
     }
-    yblock += ycut-lastycut;
-    cuts << ycut;
     for (int n=lastn; n<nextn; n++) {
-      footplace[isheet].insert(fs.attach[n], fs.notes[n]);
+      footplace[isheet].insert(yblock + fs.attach[n], fs.notes[n]);
       yfn -= fs.height[n];
     }
+    cuts << ycut;
+    yblock += ycut-lastycut;
     lastycut = ycut;
     lastn = nextn;
     ycut = bd->height(); // let's see what we can do next
@@ -253,9 +267,15 @@ void Restacker::restackBlockSplit(int i, double ycut) {
 void Restacker::restackFootnotesOnSheet() {
   double y = blocks[0]->style().real("page-height")
     - blocks[0]->style().real("margin-bottom");
-  foreach (FootnoteItem *fni, footplace[isheet]) 
+  QMultiMap<double, FootnoteItem *> const &foots = footplace[isheet];
+  for (QMultiMap<double, FootnoteItem *>::const_iterator i
+	 = foots.begin(); i!=foots.end(); ++i) {
+    qDebug() << "restackfootnotes y="<< i.key()
+	     << "txt=" << i.value()->tagText();
+  }
+  foreach (FootnoteItem *fni, foots) 
     y -= fni->data()->height();
-  foreach (FootnoteItem *fni, footplace[isheet]) {
+  foreach (FootnoteItem *fni, foots) {
     if (fni->data()->setSheetAndY0(isheet, y))
       changedSheets.insert(isheet);
     y += fni->data()->height();

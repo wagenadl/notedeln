@@ -188,7 +188,7 @@ void EntryScene::positionBlocks() {
 	jsheet = isheet;
 	refootsheets.insert(isheet);
       } 
-      sheet(isheet, true)->addItem(fni);
+      sheet(jsheet, true)->addItem(fni);
       fni->resetPosition();
     }
   }
