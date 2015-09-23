@@ -11,10 +11,18 @@ include(eln.pri)
 # Nothing below this line is particularly interesting
 
 CONFIG += debug_and_release
-QT += network svg webkit
+QT += network svg
+android {
+} else {
+    QT += webkit
+}
+
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets 
 greaterThan(QT_MAJOR_VERSION, 4): QT += printsupport
-greaterThan(QT_MAJOR_VERSION, 4): QT += webkitwidgets
+android {
+} else {
+    greaterThan(QT_MAJOR_VERSION, 4): QT += webkitwidgets
+}
 
 DEPENDPATH +=  $$sourcedirs
 INCLUDEPATH += $$sourcedirs
@@ -24,6 +32,8 @@ CONFIG(debug, debug|release) { OBJECTS_DIR=../build/debug }
 MOC_DIR = $${OBJECTS_DIR}
 RCC_DIR = $${OBJECTS_DIR}
 UI_DIR = $${OBJECTS_DIR}
+
+QMAKE_CXXFLAGS += -std=c++11
 
 win32 {
     RC_FILE = App/winicon.rc

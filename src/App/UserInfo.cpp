@@ -19,7 +19,7 @@
 #include "UserInfo.h"
 #include <QDebug>
 
-#if defined(Q_OS_UNIX) || defined(Q_OS_MAC)
+#if (defined(Q_OS_LINUX) || defined(Q_OS_MAC)) && !defined(Q_OS_ANDROID)
 
 #include <sys/types.h>
 #include <unistd.h>

@@ -24,6 +24,7 @@
 #include <QString>
 #include <QStringList>
 #include <QDateTime>
+#include <QVariant>
 
 struct BookInfo {
 public:

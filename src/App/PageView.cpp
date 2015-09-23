@@ -67,6 +67,7 @@ PageView::PageView(SceneBank *bank, QWidget *parent):
   connect(mode(), SIGNAL(modeChanged(Mode::M)), SLOT(modeChange()));
 
   setAcceptDrops(true);
+  setAttribute(Qt::WA_InputMethodEnabled);
 }
 
 PageView::~PageView() {

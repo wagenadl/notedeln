@@ -18,7 +18,8 @@
 
 #include "Calltrace.h"
 
-#ifdef Q_OS_LINUX
+#if defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)
+
 #include <signal.h>
 #include <execinfo.h>
 #include <cxxabi.h>

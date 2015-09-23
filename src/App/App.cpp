@@ -20,6 +20,7 @@
 #include <stdio.h>
 
 App::App(int &argc, char **argv): QApplication(argc, argv) {
+  setAutoSipEnabled(true);
 }
 
 App::~App() {

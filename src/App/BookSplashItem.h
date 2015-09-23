@@ -26,13 +26,13 @@
 class BookSplashItem: public QGraphicsObject {
   Q_OBJECT;
 public:
-  static const int BOXWIDTH = 500;
-  static const int BOXHEIGHT = 63;
-  static const int SMALLBOXHEIGHT = 30;
-  static const double BOXRAD = 3.0;
-  static const double HOVERDX = 1.5;
-  static const double HOVERDX1 = 0.5;
-  static const double SHRINK = 1;
+  static constexpr int BOXWIDTH = 500;
+  static constexpr int BOXHEIGHT = 63;
+  static constexpr int SMALLBOXHEIGHT = 30;
+  static constexpr double BOXRAD = 3.0;
+  static constexpr double HOVERDX = 1.5;
+  static constexpr double HOVERDX1 = 0.5;
+  static constexpr double SHRINK = 1;
 public:
   BookSplashItem(QString dirname, BookInfo const &info,
                  QGraphicsItem *parent=0);

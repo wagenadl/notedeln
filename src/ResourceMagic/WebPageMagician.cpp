@@ -18,6 +18,23 @@
 
 #include "WebPageMagician.h"
 #include "Assert.h"
+
+#if defined(Q_OS_ANDROID)
+
+/* On Android, WebKit is not supported, so we cannot do anything. */
+
+WebPageLinkMagician::WebPageLinkMagician(QVariantMap const &) { }
+
+bool WebPageLinkMagician::objectUrlNeedsWebPage(QString) const {
+  return false;
+}
+
+QUrl WebPageLinkMagician::objectUrlFromWebPage(QString, QString) const {
+  return QUrl();
+}
+
+#else
+
 #include <QDebug>
 #include <QWebPage>
 #include <QWebElement>
@@ -52,3 +69,4 @@ QUrl WebPageLinkMagician::objectUrlFromWebPage(QString tag,
   else
     return QUrl(elt.attribute("href"));
 }
+#endif
