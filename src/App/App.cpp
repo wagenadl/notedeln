@@ -20,7 +20,9 @@
 #include <stdio.h>
 
 App::App(int &argc, char **argv): QApplication(argc, argv) {
+#if defined Q_OS_ANDROID
   setAutoSipEnabled(true);
+#endif
 }
 
 App::~App() {
