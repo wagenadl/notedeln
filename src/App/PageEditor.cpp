@@ -77,26 +77,30 @@ void PageEditor::resizeEvent(QResizeEvent *e) {
   toolview->setGeometry(0, 0, width(), height());
 }
 
+PageEditor *PageEditor::newEditor() {
+  PageEditor *editor = new PageEditor(bank);
+  editor->resize(size());
+  switch (view->section()) {
+  case PageView::Front:
+    break;
+  case PageView::TOC:
+    editor->gotoTOC(view->pageNumber());
+    break;
+  case PageView::Entries:
+    editor->gotoEntryPage(view->pageName());
+    break;
+  }
+  editor->show();
+  emit newEditorCreated(editor);
+  return editor;
+}
+
 void PageEditor::keyPressEvent(QKeyEvent *e) {
   bool take = false;
   switch (e->key()) {
   case Qt::Key_F12:
-    {
-      PageEditor *editor = new PageEditor(bank);
-      editor->resize(size());
-      switch (view->section()) {
-      case PageView::Front:
-	break;
-      case PageView::TOC:
-	editor->gotoTOC(view->pageNumber());
-	break;
-      case PageView::Entries:
-	editor->gotoEntryPage(view->pageName());
-	break;
-      }
-      editor->show();
-      take = true;
-    }
+    newEditor();
+    take = true;
     break;
   default:
     break;

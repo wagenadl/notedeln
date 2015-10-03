@@ -152,7 +152,7 @@ void OneLink::openPage(bool newView) {
   ASSERT(pv);
 
   if (newView)
-    pv->newView(tag);
+    pv->newView()->gotoEntryPage(tag);
   else
     pv->gotoEntryPage(tag);
 }

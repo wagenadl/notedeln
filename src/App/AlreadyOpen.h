@@ -20,6 +20,7 @@
 
 #include <QObject>
 #include <QPointer>
+#include <QList>
 
 class AlreadyOpen: public QObject {
   Q_OBJECT;
@@ -30,8 +31,10 @@ public:
   virtual ~AlreadyOpen();
 private slots:
   void raise();
+  void addEditor(QWidget *);
+  void dropEditor(QObject *);
 private:
-  QPointer<QWidget> toBeRaised;
+  QList<QPointer<QWidget> > toBeRaised;
   class QLocalServer *server;
 };
 

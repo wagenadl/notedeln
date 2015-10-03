@@ -30,7 +30,8 @@ static QString servername(QString fn) {
   return QString("eln-%1").arg(qHash(fn));
 }
 
-AlreadyOpen::AlreadyOpen(QString name, QWidget *w): QObject(w), toBeRaised(w) {
+AlreadyOpen::AlreadyOpen(QString name, QWidget *w): QObject(w) {
+  toBeRaised << w;
   server = new QLocalServer(this);
   QString sn = servername(name);
   if (!server->listen(sn)) {
@@ -41,21 +42,54 @@ AlreadyOpen::AlreadyOpen(QString name, QWidget *w): QObject(w), toBeRaised(w) {
       qDebug() << "AlreadyOpen: Could not construct server. Sorry.";
     }
   }
-  connect(server, SIGNAL(newConnection()),
-	  SLOT(raise()));
+  connect(server, SIGNAL(newConnection()), SLOT(raise()));
+  connect(w, SIGNAL(newEditorCreated(QWidget *)), SLOT(addEditor(QWidget *)));
+  connect(w, SIGNAL(destroyed(QObject *)), SLOT(dropEditor(QObject *)));
 }
 
 AlreadyOpen::~AlreadyOpen() {
+  qDebug() << "~AlreadyOpen";
+}
+
+void AlreadyOpen::addEditor(QWidget *w) {
+  qDebug() << "addEditor" << w;
+  toBeRaised << w;
+  connect(w, SIGNAL(newEditorCreated(QWidget *)), SLOT(addEditor(QWidget *)));
+  connect(w, SIGNAL(destroyed(QObject *)), SLOT(dropEditor(QObject *)));
+}
+
+void AlreadyOpen::dropEditor(QObject *o) {
+  QWidget *w = dynamic_cast<QWidget *>(o);
+  qDebug() << "dropEditor" << w;
+  bool cont = true;
+  while (cont) {
+    cont = false;
+    for (auto it=toBeRaised.begin(); it!=toBeRaised.end(); ++it) {
+      if (*it==w) {
+	toBeRaised.erase(it);
+	cont = true;
+	break;
+      }
+    }
+  }
+
+  if (toBeRaised.isEmpty())
+    deleteLater();
 }
 
 void AlreadyOpen::raise() {
   delete server->nextPendingConnection(); // open and close immediately
-  QWidget *w = toBeRaised;
-  if (w) {
-    w->raise();
-  } else {
-    qDebug() << "AlreadyOpen: Window disappeared. Cannot raise";
+  bool ok = false;
+  foreach (QWidget *w, toBeRaised) {
+    if (w) {
+      w->raise();
+      ok = true;
+    }
   }
+  if (ok)
+    return;
+  
+  qDebug() << "AlreadyOpen: All windows disappeared. Cannot raise";
 }
 
 bool AlreadyOpen::check(QString fn) {

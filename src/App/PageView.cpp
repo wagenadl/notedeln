@@ -44,10 +44,11 @@
 #include <QDebug>
 #include <QFileDialog>
 
-PageView::PageView(SceneBank *bank, QWidget *parent):
+PageView::PageView(SceneBank *bank, PageEditor *parent):
   QGraphicsView(parent), bank(bank) {
   book = bank->book(); // for convenience only
   ASSERT(book);
+  ASSERT(parent);
   mode_ = new Mode(book->isReadOnly(), this);
   searchDialog = new SearchDialog(this);
   deletedStack = new DeletedStack(this);
@@ -373,25 +374,24 @@ void PageView::keyReleaseEvent(QKeyEvent *e) {
 
 void PageView::pageNumberClick(int n, Qt::KeyboardModifiers m) {
   if (m & Qt::ShiftModifier)
-    newView(QString::number(n));
+    newView()->gotoEntryPage(n);
   else
     gotoEntryPage(n);
 }
 
 void PageView::goTOC(Qt::KeyboardModifiers m) {
   if (m & Qt::ShiftModifier)
-    newView(QString::number(1))->gotoTOC();
+    newView()->gotoTOC();
   else
     gotoTOC();
 }
 
-PageView *PageView::newView(QString s) {
-  PageEditor *editor = new PageEditor(bank);
-  if (parentWidget())
-    editor->resize(parentWidget()->size());
-  editor->show();
-  editor->gotoEntryPage(s);
-  return editor->pageView();
+PageView *PageView::newView() {
+  PageEditor *myEditor = dynamic_cast<PageEditor *>(parentWidget());
+  ASSERT(myEditor);
+  PageEditor *newEditor = myEditor->newEditor();
+  newEditor->resize(myEditor->size());
+  return myEditor->pageView();
 }  
 
 void PageView::gotoEntryPage(QString s) {
@@ -535,27 +535,10 @@ void PageView::previousPage() {
   focusEntry();
 }
 
-PageView *PageView::newViewHere() {
-  PageView *pv = 0;
-  switch (currentSection) {
-  case Front:
-    pv = newView(QString("1"));
-    pv->gotoFront();
-    break;
-  case TOC:
-    pv = newView(QString("1"));
-    pv->gotoTOC(currentSheet);
-    break;
-  case Entries:
-    pv = newView(entryScene->pgNoToString(currentPage));
-    break;
-  }
-  return pv;
-}  
 
 void PageView::goRelative(int n, Qt::KeyboardModifiers m) {
   if (m & Qt::ShiftModifier) {
-    newViewHere()->goRelative(n);
+    newView()->goRelative(n);
     return;
   }
   int dir = n;
@@ -637,7 +620,7 @@ void PageView::focusEntry() {
 
 void PageView::lastPage(Qt::KeyboardModifiers m) {
   if (m & Qt::ShiftModifier) {
-    newViewHere()->lastPage();
+    newView()->lastPage();
   } else {
     gotoEntryPage(book->toc()->newPageNumber()-1);
     gotoSheet(entryScene->sheetCount()-1);

@@ -28,10 +28,13 @@ public:
   PageEditor(class SceneBank *bank);
   virtual ~PageEditor();
   class PageView *pageView() { return view; }
+  PageEditor *newEditor();
 public slots:
   void gotoEntryPage(QString s);
   void gotoTOC(int n=1); // n>=1
   void gotoFront();
+signals:
+  void newEditorCreated(QWidget *);
 protected:
   void resizeEvent(QResizeEvent *);
   void keyPressEvent(QKeyEvent *);

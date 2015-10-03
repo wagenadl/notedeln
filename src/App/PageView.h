@@ -28,7 +28,7 @@
 class PageView: public QGraphicsView {
   Q_OBJECT;
 public:
-  PageView(class SceneBank *bank, QWidget *parent=0);
+  PageView(class SceneBank *bank, class PageEditor *parent);
   virtual ~PageView();
 public:
   enum Section {
@@ -41,8 +41,7 @@ public:
   int pageNumber() const;
 public slots:
   void pageNumberClick(int, Qt::KeyboardModifiers);
-  PageView *newView(QString); // opens new view on a named entry page
-  PageView *newViewHere();
+  PageView *newView(); // opens new view on a named entry page
   void gotoEntryPage(QString);
   void gotoEntryPage(int pgno, int dir=0);
   void gotoTOC(int pgno=1);

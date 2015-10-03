@@ -98,11 +98,10 @@ void SearchDialog::gotoPage(int n, Qt::KeyboardModifiers m,
     return;
   }
   PageView *view = pgView;
+  ASSERT(view);
   if (m & Qt::ShiftModifier)
-    view = pgView->newView(QString::number(n));
-  else
-    pgView->gotoEntryPage(n);
-
+    view = view->newView();
+  view->gotoEntryPage(n);
   view->ensureSearchVisible(uuid, phrase);
   view->window()->raise();
 }
