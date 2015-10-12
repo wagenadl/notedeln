@@ -21,6 +21,8 @@
 #include "JSONFile.h"
 #include "Style.h"
 
+#include <QFileInfo>
+#include <QDateTime>
 #include <QVariantMap>
 #include <QRegExp>
 #include <QDir>
@@ -29,11 +31,15 @@
 QVariantMap const &MagicBiblio::biblio(Style const &st) {
   static QVariantMap empty;
   static QMap<QString, QVariantMap> bbls;
+  static QMap<QString, QDateTime> lastloaded;
   if (!st.contains("bib-file"))
     return empty;
   QString k = st.string("bib-file");
-  if (!bbls.contains(k))
+  QDateTime lastmod = QFileInfo(k).lastModified();
+  if (!bbls.contains(k) || lastmod>lastloaded[k]) {
     bbls[k] = JSONFile::load(k);
+    lastloaded[k] = lastmod;
+  }
   return bbls[k];
 }
 
