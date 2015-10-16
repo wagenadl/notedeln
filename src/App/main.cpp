@@ -17,22 +17,20 @@
 // main.C
 
 #include "Translate.h"
-#include "PageEditor.h"
-#include "SceneBank.h"
 #include <QApplication>
 #include <QFile>
 #include <QDir>
+#include <QIcon>
 #include "Notebook.h"
 #include "RecentBooks.h"
 #include "App.h"
 #include "Fonts.h"
-#include <QDesktopWidget>
+#include "AppInstance.h"
 #include <QDebug>
 #include <stdlib.h>
 #include "Assert.h"
 #include "SplashScene.h"
 #include "AlreadyOpen.h"
-#include "DefaultSize.h"
 #include <QMessageBox>
 #include "CrashReport.h"
 
@@ -87,18 +85,12 @@ int main(int argc, char **argv) {
     }
     ASSERT(nb);
 
-    QObject::connect(&app, SIGNAL(aboutToQuit()), nb, SLOT(commitNow()));
+    int r = 0;
+    {
+      AppInstance inst(&app, nb);
+      r = app.exec();
+    }
 
-    SceneBank *bank = new SceneBank(nb);
-    PageEditor *editor = new PageEditor(bank);
-
-    editor->resize(DefaultSize::onScreenSize(editor->sizeHint()));
-    new AlreadyOpen(nb->dirPath(), editor);
-    editor->show();
-    int r = app.exec();
-    delete bank;
-    delete nb;
-    nb = 0;
     delete RecentBooks::instance();
     return r;
   } catch (Assertion a) {
