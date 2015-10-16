@@ -38,6 +38,7 @@ signals:
 protected:
   void resizeEvent(QResizeEvent *);
   void keyPressEvent(QKeyEvent *);
+  void changeEvent(QEvent *);
 private:
   class SceneBank *bank;
   class PageView *view;

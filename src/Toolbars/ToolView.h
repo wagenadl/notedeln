@@ -34,8 +34,9 @@ signals:
 public slots:
   void setScale(double);
   void autoMask();
+  void setFullScreen(bool);
 protected:
-  //void resizeEvent(QResizeEvent *);
+  void resizeEvent(QResizeEvent *);
   void mousePressEvent(QMouseEvent *);
   void dragEnterEvent(QDragEnterEvent *);
   void dragMoveEvent(QDragMoveEvent *);

@@ -29,8 +29,13 @@ public:
   virtual ~ToolScene();
 public:
   class Toolbars *toolbars() { return bars; }
+  void showClock(bool);
+  void moveClock(QRectF viewRect);
 private:
   class Toolbars *bars;
+  class ClockFace *clock;
+  QRectF toolbarrect;
+  QRectF adjustedrect;
 };
 
 #endif

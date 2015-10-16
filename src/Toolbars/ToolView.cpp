@@ -81,3 +81,14 @@ void ToolView::dropEvent(QDropEvent *e) {
   emit drop(*e);
   e->acceptProposedAction();
 }  
+
+void ToolView::setFullScreen(bool yes) {
+  tools->showClock(yes);
+  tools->moveClock(QRectF(mapToScene(QPoint(0,0)),
+			  mapToScene(QPoint(width(), height()))));
+}
+
+void ToolView::resizeEvent(QResizeEvent *) {
+  tools->moveClock(QRectF(mapToScene(QPoint(0,0)),
+			  mapToScene(QPoint(width(), height()))));
+}  

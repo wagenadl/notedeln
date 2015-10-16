@@ -123,3 +123,9 @@ void PageEditor::gotoTOC(int n) {
 void PageEditor::gotoFront() {
   view->gotoFront();
 }
+
+void PageEditor::changeEvent(QEvent *e) {
+  QMainWindow::changeEvent(e);
+  if (e->type()==QEvent::WindowStateChange)
+    toolview->setFullScreen(windowState() & Qt::WindowFullScreen);
+}

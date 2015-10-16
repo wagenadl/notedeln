@@ -18,15 +18,41 @@
 
 #include "ToolScene.h"
 #include "Toolbars.h"
+#include "ClockFace.h"
 
 ToolScene::ToolScene(Mode *mode, QObject *parent): QGraphicsScene(parent) {
   bars = new Toolbars(mode, 0);
   addItem(bars);
   bars->setPos(0, 0);
-  setSceneRect(itemsBoundingRect().adjusted(-4, -39, 2, 2));
+  toolbarrect = itemsBoundingRect();
+  adjustedrect = toolbarrect.adjusted(-4, -39, 300, 2);
+
+  clock = 0;
+  setSceneRect(adjustedrect);
   setBackgroundBrush(QBrush(Qt::NoBrush));
 }
 
 ToolScene::~ToolScene() {
   // bars is deleted automatically because it has us as a parent
+}
+
+void ToolScene::showClock(bool yes) {
+  if (yes) {
+    if (!clock) {
+      clock = new ClockFace;
+      addItem(clock);
+    }
+  } else {
+    delete clock;
+    clock = 0;
+  }
+}
+
+void ToolScene::moveClock(QRectF viewrect) {
+  if (!clock)
+    return;
+  clock->setPos(viewrect.right() - 220, 0);
+  clock->setScale(200);
+  
+  setSceneRect(adjustedrect | clock->mapRectToScene(clock->boundingRect()));
 }
