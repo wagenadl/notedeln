@@ -29,6 +29,10 @@ public:
   virtual ~PageEditor();
   class PageView *pageView() { return view; }
   PageEditor *newEditor();
+  void hibernate(); // delete the view, detaching completely from nb.
+  // as a side effect, SearchViews and SearchDialogs are deleted as well.
+  void unhibernate(class SceneBank *bank); // restores the view
+  bool isHibernating() const;
 public slots:
   void gotoEntryPage(QString s);
   void gotoTOC(int n=1); // n>=1
@@ -40,9 +44,12 @@ protected:
   void keyPressEvent(QKeyEvent *);
   void changeEvent(QEvent *);
 private:
-  class SceneBank *bank;
+  void initialize();
+private:
+  class SceneBank *bank; // we do not own
   class PageView *view;
   class ToolView *toolview;
+  class HibernationInfo *hibernation;
 };
 
 #endif

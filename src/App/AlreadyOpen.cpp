@@ -30,7 +30,7 @@ static QString servername(QString fn) {
   return QString("eln-%1").arg(qHash(fn));
 }
 
-AlreadyOpen::AlreadyOpen(QString name, QWidget *w): QObject(w) {
+AlreadyOpen::AlreadyOpen(QString name, QWidget *w) {
   toBeRaised << w;
   server = new QLocalServer(this);
   QString sn = servername(name);
@@ -48,11 +48,9 @@ AlreadyOpen::AlreadyOpen(QString name, QWidget *w): QObject(w) {
 }
 
 AlreadyOpen::~AlreadyOpen() {
-  qDebug() << "~AlreadyOpen";
 }
 
 void AlreadyOpen::addEditor(QWidget *w) {
-  qDebug() << "addEditor" << w;
   toBeRaised << w;
   connect(w, SIGNAL(newEditorCreated(QWidget *)), SLOT(addEditor(QWidget *)));
   connect(w, SIGNAL(destroyed(QObject *)), SLOT(dropEditor(QObject *)));
@@ -60,21 +58,7 @@ void AlreadyOpen::addEditor(QWidget *w) {
 
 void AlreadyOpen::dropEditor(QObject *o) {
   QWidget *w = dynamic_cast<QWidget *>(o);
-  qDebug() << "dropEditor" << w;
-  bool cont = true;
-  while (cont) {
-    cont = false;
-    for (auto it=toBeRaised.begin(); it!=toBeRaised.end(); ++it) {
-      if (*it==w) {
-	toBeRaised.erase(it);
-	cont = true;
-	break;
-      }
-    }
-  }
-
-  if (toBeRaised.isEmpty())
-    deleteLater();
+  toBeRaised.removeAll(w);
 }
 
 void AlreadyOpen::raise() {

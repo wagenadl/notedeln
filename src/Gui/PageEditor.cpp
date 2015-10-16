@@ -23,12 +23,21 @@
 #include "SceneBank.h"
 #include "Notebook.h"
 #include "Navbar.h"
+#include "Assert.h"
 
 #include <QDebug>
 #include <QKeyEvent>
 
+class HibernationInfo {
+public:
+  PageView::SavedState state;
+};
+
 PageEditor::PageEditor(SceneBank *bank): bank(bank) {
   Notebook *nb = bank->book();
+  hibernation = 0;
+  initialize();
+
   setContentsMargins(0, 0, 0, 0);
   setAttribute(Qt::WA_DeleteOnClose, true);
 
@@ -38,7 +47,38 @@ PageEditor::PageEditor(SceneBank *bank): bank(bank) {
   appname += " (debug vsn)";
 #endif
   setWindowTitle(ttl.replace(QRegExp("\\s\\s*"), " ") + " - " + appname);
+}
 
+bool PageEditor::isHibernating() const {
+  return hibernation;
+}
+
+void PageEditor::hibernate() {
+  ASSERT(view);
+  if (!hibernation)
+    hibernation = new HibernationInfo;
+  hibernation->state = view->saveState();
+
+  delete toolview;
+  toolview = 0;
+  delete view;
+  view = 0;
+  bank = 0;
+}
+
+void PageEditor::unhibernate(SceneBank *b) {
+  ASSERT(hibernation);
+  ASSERT(!view);
+
+  bank = b;
+  
+  initialize();
+  view->restoreState(hibernation->state);
+  delete hibernation;
+  hibernation = 0;
+}
+
+void PageEditor::initialize() {
   view = new PageView(bank, this);
   toolview = new ToolView(view->mode(), view);
 
@@ -70,14 +110,18 @@ PageEditor::PageEditor(SceneBank *bank): bank(bank) {
 }
 
 PageEditor::~PageEditor() {
+  if (hibernation)
+    delete hibernation;
 }
 
 void PageEditor::resizeEvent(QResizeEvent *e) {
   QMainWindow::resizeEvent(e);
-  toolview->setGeometry(0, 0, width(), height());
+  if (toolview)
+    toolview->setGeometry(0, 0, width(), height());
 }
 
 PageEditor *PageEditor::newEditor() {
+  ASSERT(view);
   PageEditor *editor = new PageEditor(bank);
   editor->resize(size());
   switch (view->section()) {
@@ -96,6 +140,9 @@ PageEditor *PageEditor::newEditor() {
 }
 
 void PageEditor::keyPressEvent(QKeyEvent *e) {
+  if (isHibernating())
+    return;
+  
   bool take = false;
   switch (e->key()) {
   case Qt::Key_F12:
@@ -113,19 +160,22 @@ void PageEditor::keyPressEvent(QKeyEvent *e) {
 }
 
 void PageEditor::gotoEntryPage(QString s) {
-  view->gotoEntryPage(s);
+  if (view)
+    view->gotoEntryPage(s);
 }
 
 void PageEditor::gotoTOC(int n) {
-  view->gotoTOC(n);
+  if (view)
+    view->gotoTOC(n);
 }
 
 void PageEditor::gotoFront() {
-  view->gotoFront();
+  if (view)
+    view->gotoFront();
 }
 
 void PageEditor::changeEvent(QEvent *e) {
   QMainWindow::changeEvent(e);
-  if (e->type()==QEvent::WindowStateChange)
+  if (toolview && e->type()==QEvent::WindowStateChange)
     toolview->setFullScreen(windowState() & Qt::WindowFullScreen);
 }

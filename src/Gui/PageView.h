@@ -24,6 +24,7 @@
 #include <QMap>
 #include "CachedPointer.h"
 #include <QDropEvent>
+#include "Mode.h"
 
 class PageView: public QGraphicsView {
   Q_OBJECT;
@@ -36,9 +37,25 @@ public:
     TOC,
     Entries,
   };
+  class SavedState {
+    friend class PageView;
+  public:
+    SavedState();
+  private:
+    Section section;
+    int sheet;
+    int entryStart;
+    QString entryID;
+    Mode::M mode;
+    QString textItemID;
+    int cursorPos;
+  };
+public:
   Section section() const;
   QString pageName() const;
   int pageNumber() const;
+  SavedState saveState() const;
+  void restoreState(SavedState const &);
 public slots:
   void pageNumberClick(int, Qt::KeyboardModifiers);
   PageView *newView(); // opens new view on a named entry page

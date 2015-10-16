@@ -31,6 +31,7 @@ SceneBank::SceneBank(Notebook *nb): nb(nb) {
   tocScene_ = new TOCScene(nb->toc(), this);
   tocScene_->populate();
 }
+
 SceneBank::~SceneBank() {
   /* Everything gets deleted by Qt automatically. Good magic. */
 }

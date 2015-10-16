@@ -819,3 +819,78 @@ void PageView::markCursor(QPointF p, QFont f, QColor c) {
   cursorDrawer.color = c;
   cursorDrawer.pos = p;
 }
+
+PageView::SavedState::SavedState() {
+  mode = Mode::Browse;
+  section = PageView::Front;
+  sheet = 0;
+  entryStart = 0;
+  cursorPos = 0;
+}
+
+PageView::SavedState PageView::saveState() const {
+  SavedState s;
+  s.mode = mode_->mode();
+  s.section = currentSection;
+  s.sheet = currentSheet;
+  if (s.section==Entries) {
+    s.entryStart = currentPage - currentSheet;
+    TOCEntry *te = book->toc()->find(s.entryStart);
+    ASSERT(te);
+    s.entryID = te->uuid();
+    if (s.mode==Mode::Type) {
+      // find focused text item and cursor position
+      SheetScene *ss = entryScene->sheet(s.sheet);
+      ASSERT(ss);
+      TextItem *text = dynamic_cast<TextItem *>(ss->focusItem());
+      // I don't think the following is needed, but I am not sure:
+      //TextItem *text = 0;
+      //while (item && !text) {
+      //	text = dynamic_cast<TextItem *>(item);
+      //	item = item->parent();
+      //}
+      if (text) {
+	s.textItemID = text->data()->uuid();
+	s.cursorPos = text->textCursor().position();
+	qDebug() << "Saving textcursor: " << s.textItemID << s.cursorPos;
+      } else {
+	qDebug() << "No textcursor found";
+      }
+    }
+  }
+  return s;
+}
+
+void PageView::restoreState(PageView::SavedState const &s) {
+  switch (s.section) {
+  case Front:
+    gotoFront();
+    break;
+  case TOC:
+    gotoTOC(s.sheet);
+    break;
+  case Entries: {
+    TOCEntry *te = book->toc()->find(s.entryStart);
+    if (te && te->uuid()==s.entryID) {
+      gotoEntryPage(s.entryStart);
+      if (te->sheetCount()>s.sheet) {
+	gotoSheet(s.sheet);
+	// restore cursor to appropriate block
+      } else {
+	// complain mildly?
+      }
+    } else {
+      // ID mismatch. What shall we do?
+      if (s.entryStart+s.sheet<book->toc()->newPageNumber()) {
+	gotoEntryPage(s.entryStart + s.sheet);
+      } else if (book->toc()->newPageNumber()>1) {
+	gotoEntryPage(book->toc()->newPageNumber()-1);
+      } else {
+	// complain?
+      }
+    }
+    // 
+  } break;
+  }
+  mode_->setMode(Mode::Browse); // this is crude, but OK for now.
+}
