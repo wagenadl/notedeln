@@ -67,6 +67,7 @@ void ClockFace::paint(QPainter *p,
 
   // hour hand
   pen.setWidthF(scale/25);
+  pen.setColor(foregroundColor.lighter(101));
   p->setPen(pen);
   double phi = h * 3.141592 * 2 / 12;
   QPointF dxy = QPointF(.35*sin(phi)*radius, -.35*cos(phi)*radius);
@@ -74,6 +75,7 @@ void ClockFace::paint(QPainter *p,
 
   // minute hand
   pen.setWidthF(scale/40);
+  pen.setColor(foregroundColor.lighter(102));
   p->setPen(pen);
   phi = m * 3.141592 * 2 / 60;
    dxy = QPointF(.45*sin(phi)*radius, -.45*cos(phi)*radius);
