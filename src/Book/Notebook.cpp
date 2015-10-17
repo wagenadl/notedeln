@@ -190,58 +190,67 @@ bool Notebook::create(QString path, QString vc) {
   delete TOCFile::create(d.filePath("toc.json"));
   delete BookFile::create(d.filePath("book.eln"));
 
-  { // This is better than copy because it creates reasonable permissions
-    QFile styleIn(":/style.json");
-    QFile styleOut(d.filePath("style.json"));
-    styleIn.open(QFile::ReadOnly);
-    styleOut.open(QFile::WriteOnly);
-    QTextStream in(&styleIn);
-    QTextStream out(&styleOut);
-    while (!in.atEnd()) {
-      QString l = in.readLine();
-      if (l.indexOf("\"vc\"")>=0)
-        l.replace("\"\"", "\"" + vc + "\"");
-      out << l;
-    }
-  }
+  copyStyleFile(d, vc);
 
   if (vc == "git") {
-    QProcess proc;
-    proc.setWorkingDirectory(path);
-
-    proc.start("git", QStringList() << "init");
-    if (!proc.waitForFinished()
-        || proc.exitStatus()!=QProcess::NormalExit
-        || proc.exitCode()!=0) {
-      errMsg() =  "Failed to initialize git archive";
-      qDebug() << "Notebook: " << errMsg();
-      RmDir::recurse(path);
-      return false;
-    }
-
-    proc.start("git", QStringList() << "add" << ".");
-    if (!proc.waitForFinished()
-        || proc.exitStatus()!=QProcess::NormalExit
-        || proc.exitCode()!=0) {
-      errMsg() = "Failed to add to git archive";
-      qDebug() << "Notebook:" << errMsg();
-      RmDir::recurse(path);
-      return false;
-    }
-      
-    proc.start("git", QStringList() << "commit"
-               << "-m" << "New notebook");
-    if (!proc.waitForFinished()
-        || proc.exitStatus()!=QProcess::NormalExit
-        || proc.exitCode()!=0) {
-      errMsg() = "Failed to commit git archive";
-      qDebug() << "Notebook:" << errMsg();
+    if (!createGitArchive(d)) {
       RmDir::recurse(path);
       return false;
     }
   }
   return true;
 }
+
+bool Notebook::createGitArchive(QDir d) {
+  // true if created OK
+  QProcess proc;
+  proc.setWorkingDirectory(d.absolutePath());
+
+  proc.start("git", QStringList() << "init");
+  if (!proc.waitForFinished()
+      || proc.exitStatus()!=QProcess::NormalExit
+      || proc.exitCode()!=0) {
+    errMsg() =  "Failed to initialize git archive";
+    qDebug() << "Notebook: " << errMsg();
+    return false;
+  }
+
+  proc.start("git", QStringList() << "add" << ".");
+  if (!proc.waitForFinished()
+      || proc.exitStatus()!=QProcess::NormalExit
+      || proc.exitCode()!=0) {
+    errMsg() = "Failed to add to git archive";
+    qDebug() << "Notebook:" << errMsg();
+    return false;
+  }
+      
+  proc.start("git", QStringList() << "commit"
+	     << "-m" << "New notebook");
+  if (!proc.waitForFinished()
+      || proc.exitStatus()!=QProcess::NormalExit
+      || proc.exitCode()!=0) {
+    errMsg() = "Failed to commit git archive";
+    qDebug() << "Notebook:" << errMsg();
+    return false;
+  }
+
+  return true;
+}
+
+void Notebook::copyStyleFile(QDir d, QString vc) {
+  QFile styleIn(":/style.json");
+  QFile styleOut(d.filePath("style.json"));
+  styleIn.open(QFile::ReadOnly);
+  styleOut.open(QFile::WriteOnly);
+  QTextStream in(&styleIn);
+  QTextStream out(&styleOut);
+  while (!in.atEnd()) {
+    QString l = in.readLine();
+    if (l.indexOf("\"vc\"")>=0)
+      l.replace("\"\"", "\"" + vc + "\"");
+    out << l;
+  }
+}  
 
 TOC *Notebook::toc() const {
   return tocFile_->data();
@@ -383,10 +392,23 @@ void Notebook::updateNowUnless() {
     updateTimer->start();
   } else {
     // let's see if there is anything to update
-    updateTimer->setInterval(1000 * UPDATE_IVAL_S);
-    updateTimer->start();
+    if (!updateNow()) {
+      updateTimer->setInterval(1000 * UPDATE_IVAL_S);
+      updateTimer->start();
+    }
   }
-}   
+}
+
+bool Notebook::updateNow() {
+  // return TRUE if update happened
+  /* I think the logic must be:
+     (1) Try to update the folder;
+     (2) If something was fetched, emit a signal and let AppInstance do
+         the work of hibernating the editors and closing the notebook;
+     (3) Reopen the notebook and let Notebook deal with merge conflicts.
+   */
+  return false;
+}
 
 
 void Notebook::commitSoonish() {
@@ -441,6 +463,7 @@ CachedEntry Notebook::recoverFromExistingEntry(int pgno) {
                                 " corruption. ELN will exit now and attempt"
                                 " to rebuild the TOC when you restart it.")
                         .arg(pgno), QMessageBox::Ok);
+  flush();
   root.remove("toc.json");
   root.remove("index.json");
   ::exit(1);
@@ -454,6 +477,7 @@ EntryFile *Notebook::recoverFromMissingEntry(int pgno) {
                                 " corruption. ELN will exit now and attempt"
                                 " to rebuild the TOC when you restart it.")
                         .arg(pgno), QMessageBox::Ok);
+  flush();
   root.remove("toc.json");
   root.remove("index.json");
   ::exit(1);

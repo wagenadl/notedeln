@@ -65,6 +65,7 @@ private slots:
   void titleMod();
   void sheetCountMod();
   void updateNowUnless();
+  bool updateNow();
   void commitNowUnless();
   void committed(bool ok);
 private:
@@ -73,6 +74,8 @@ private:
   CachedEntry recoverFromExistingEntry(int pgno);
   EntryFile *recoverFromMissingEntry(int pgno);
   static QString &errMsg();
+  static void copyStyleFile(QDir, QString vc);
+  static bool createGitArchive(QDir);
 private:
   QDir root;
   bool ro;
