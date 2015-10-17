@@ -31,6 +31,7 @@
 class Notebook: public QObject {
   Q_OBJECT;
 public:
+  static QString checkVersionControl(QString path);
   static Notebook *load(QString path, bool readonly=false);
   /* Returns 0 if couldn't load. */
   static bool create(QString path, QString vc="");
@@ -55,6 +56,9 @@ public:
   class Style const &style() const;
   QString filePath(QString) const; // path of file in root
   QString dirPath() const; // path of root
+  bool hasVersionControl() const;
+signals:
+  void mod();
 public slots:
   void flush();
   void commitSoonish();

@@ -39,6 +39,16 @@
 #define UPDATE_IVAL_S 3600 // If vc, check for updates once in a while
 #define UPDATE_AVOID_S 900 // ... but not if anything has recently changed
 
+QString Notebook::checkVersionControl(QString path) {
+  QDir root(path);
+  Style s0(root.filePath("style.json"));
+  if (s0.contains("vc"))
+    return s0.string("vc");
+  else
+    return "";
+}
+  
+
 Notebook::Notebook(QString path, bool ro0): root(QDir(path)), ro(ro0) {
   commitTimer = 0;
   backgroundVC = 0;
@@ -50,6 +60,8 @@ Notebook::Notebook(QString path, bool ro0): root(QDir(path)), ro(ro0) {
   bookFile_ = 0;
 
   Style s0(root.filePath("style.json"));
+  hasVC = s0.contains("vc");
+
   if (s0.contains("vc")) 
     if (!VersionControl::update(root.path(), s0.string("vc")))
       ro = true;
@@ -89,8 +101,10 @@ void Notebook::loadme() {
   style_ = new Style(root.filePath("style.json"));
 
   RecentBooks::instance()->addBook(this);
+  
+  connect(bookFile_->data(), SIGNAL(mod()), this, SIGNAL(mod()));
+  connect(tocFile_->data(), SIGNAL(mod()), this, SIGNAL(mod()));
 
-  hasVC = style_->contains("vc");
   if (hasVC) {
     backgroundVC = new BackgroundVC(this);
     commitTimer = new QTimer(this);
@@ -110,35 +124,13 @@ Notebook::~Notebook() {
   commitNow();
 }
 
-void Notebook::unloadme() {
-  delete backgroundVC;
-  backgroundVC = 0;
-
-  delete updateTimer;
-  updateTimer = 0;
-  
-  delete commitTimer;
-  commitTimer = 0;
-
-  delete index_;
-  index_ = 0;
-
-  delete style_;
-  style_ = 0;
-
-  delete tocFile_;
-  tocFile_ = 0;
-
-  delete bookFile_;
-  bookFile_ = 0;
-  
-  pgFiles.clear();
+bool Notebook::hasVersionControl() const {
+  return hasVC;
 }
 
 Style const &Notebook::style() const {
   return *style_;
 }
-
 
 QString &Notebook::errMsg() {
   static QString e;
