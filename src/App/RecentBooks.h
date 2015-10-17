@@ -50,14 +50,17 @@ public:
   QStringList byDate() const; // list of dirnames, most recently accessed first
   BookInfo const &operator[](QString dirname) const;
   bool contains(QString dirname) const;
+  QString computerUserID() const; // see source code
 private:
   RecentBooks(); // this constructor is private; use instance() instead.
   QVariant get(int idx, QString key) const;
   void set(int idx, QString key, QVariant const &value);
   static QString keyname(int idx, QString key);
+  void createCUI();
 private:
   QMap<QString, BookInfo> data; // map filename to info
   QMap<QString, int> revmap; // map filename to index in settings file
+  QString cui;
   class QSettings *s;
 };
 

@@ -21,6 +21,7 @@
 #include "BookFile.h"
 #include <QSettings>
 #include "Assert.h"
+#include "UUID.h"
 
 #define MAXLISTLENGTH 20
 
@@ -89,11 +90,21 @@ RecentBooks::RecentBooks() {
     data[dirname].accessed = get(i, "accessed").toDateTime();
     data[dirname].dirname = dirname;
     revmap[dirname] = i;
-  }    
+  }
+
+  if (s->contains("system/cui")) 
+    cui = s->value("system/cui").toString();
+  else 
+    createCUI();
 }
 
 RecentBooks::~RecentBooks() {
   delete s;
+}
+
+void RecentBooks::createCUI() {
+  cui = UUID::create(64);
+  s->setValue("system/cui", cui);
 }
 
 RecentBooks *RecentBooks::instance() {
