@@ -24,20 +24,14 @@
 #include "Style.h"
 #include "Assert.h"
 #include "RecentBooks.h"
-#include "VersionControl.h"
-#include "BackgroundVC.h"
 #include "Index.h"
+
 #include <QApplication>
 #include <QMessageBox>
 #include <QTimer>
 #include <QDebug>
 #include <QProcess>
 #include "RmDir.h"
-
-#define COMMIT_IVAL_S 600 // If vc, commit every once in a while
-#define COMMIT_AVOID_S 60 // ... but not too soon after activity
-#define UPDATE_IVAL_S 3600 // If vc, check for updates once in a while
-#define UPDATE_AVOID_S 900 // ... but not if anything has recently changed
 
 QString Notebook::checkVersionControl(QString path) {
   QDir root(path);
@@ -47,29 +41,23 @@ QString Notebook::checkVersionControl(QString path) {
   else
     return "";
 }
-  
+
+QString Notebook::checkVersionControl() {
+  return checkVersionControl(dirPath());
+}
+
 
 Notebook::Notebook(QString path, bool ro0): root(QDir(path)), ro(ro0) {
-  commitTimer = 0;
-  backgroundVC = 0;
-  updateTimer = 0;
-  commitTimer = 0;
   style_ = 0;
   index_ = 0;
   tocFile_ = 0;
   bookFile_ = 0;
-
-  Style s0(root.filePath("style.json"));
-  hasVC = s0.contains("vc");
-
-  if (s0.contains("vc")) 
-    if (!VersionControl::update(root.path(), s0.string("vc")))
-      ro = true;
-
-  loadme();
 }
 
-void Notebook::loadme() {
+void Notebook::load() {
+  if (bookFile_)
+    return;
+  
   QString bookfile = root.exists("book.eln") ? "book.eln" : "book.json";    
   bookFile_ = BookFile::load(root.filePath(bookfile), this);
   if (!bookFile_)
@@ -104,31 +92,13 @@ void Notebook::loadme() {
   
   connect(bookFile_->data(), SIGNAL(mod()), this, SIGNAL(mod()));
   connect(tocFile_->data(), SIGNAL(mod()), this, SIGNAL(mod()));
-
-  if (hasVC) {
-    backgroundVC = new BackgroundVC(this);
-    commitTimer = new QTimer(this);
-    commitTimer->setSingleShot(true);
-    updateTimer = new QTimer(this);
-    updateTimer->setSingleShot(true);
-    updateTimer->start();
-    connect(updateTimer, SIGNAL(timeout()), SLOT(updateNowUnless()));
-    connect(commitTimer, SIGNAL(timeout()), SLOT(commitNowUnless()));
-    connect(bookFile_->data(), SIGNAL(mod()), SLOT(commitSoonish()));
-    connect(tocFile_->data(), SIGNAL(mod()), SLOT(commitSoonish()));
-    connect(backgroundVC, SIGNAL(done(bool)), SLOT(committed(bool)));
-  }
 }
 
 Notebook::~Notebook() {
-  commitNow();
-}
-
-bool Notebook::hasVersionControl() const {
-  return hasVC;
 }
 
 Style const &Notebook::style() const {
+  ASSERT(style_);
   return *style_;
 }
 
@@ -141,7 +111,7 @@ QString Notebook::errorMessage() {
   return errMsg();
 }
 
-Notebook *Notebook::load(QString path, bool readonly) {
+Notebook *Notebook::open(QString path, bool readonly) {
   errMsg() = "";
   QDir d(path);
   if (!d.exists()) {
@@ -245,6 +215,7 @@ void Notebook::copyStyleFile(QDir d, QString vc) {
 }  
 
 TOC *Notebook::toc() const {
+  ASSERT(tocFile_);
   return tocFile_->data();
 }
 
@@ -253,6 +224,8 @@ bool Notebook::hasEntry(int n) const {
 }
 
 CachedEntry Notebook::entry(int n)  {
+  ASSERT(tocFile_);
+
   if (pgFiles.contains(n)) {
     CachedEntry ce = pgFiles[n];
     if (ce)
@@ -276,12 +249,13 @@ CachedEntry Notebook::entry(int n)  {
   connect(f->data(), SIGNAL(titleMod()), SLOT(titleMod()));
   connect(f->data(), SIGNAL(sheetCountMod()), SLOT(sheetCountMod()));
   index_->watchEntry(f->data());
-  if (hasVC)
-    connect(f->data(), SIGNAL(mod()), this, SLOT(commitSoonish()));
+  connect(f->data(), SIGNAL(mod()), this, SIGNAL(mod()));
   return entry;
 }
 
 CachedEntry Notebook::createEntry(int n) {
+  ASSERT(tocFile_);
+
   if (pgFiles.contains(n)) {
     return recoverFromExistingEntry(n);
   }
@@ -298,8 +272,7 @@ CachedEntry Notebook::createEntry(int n) {
   connect(f->data(), SIGNAL(titleMod()), SLOT(titleMod()));
   connect(f->data(), SIGNAL(sheetCountMod()), SLOT(sheetCountMod()));
   index_->watchEntry(f->data());
-  if (hasVC)
-    connect(f->data(), SIGNAL(mod()), this, SLOT(commitSoonish()));
+  connect(f->data(), SIGNAL(mod()), this, SIGNAL(mod()));
   bookData()->setEndDate(QDate::currentDate());
   return entry;
 }
@@ -352,6 +325,7 @@ void Notebook::sheetCountMod() {
 }
 
 BookData *Notebook::bookData() const {
+  ASSERT(bookFile_);
   return bookFile_->data();
 }
 
@@ -377,73 +351,9 @@ void Notebook::flush() {
     qDebug() << "Notebook flushed, with errors";
 }
 
-void Notebook::updateNowUnless() {
-  ASSERT(updateTimer);
-  if (mostRecentChange.secsTo(QDateTime::currentDateTime()) < UPDATE_AVOID_S) {
-    updateTimer->setInterval(500 * UPDATE_AVOID_S); // that's 1/2 x avoid ival
-    updateTimer->start();
-  } else {
-    // let's see if there is anything to update
-    if (!updateNow()) {
-      updateTimer->setInterval(1000 * UPDATE_IVAL_S);
-      updateTimer->start();
-    }
-  }
-}
-
-bool Notebook::updateNow() {
-  // return TRUE if update happened
-  /* I think the logic must be:
-     (1) Try to update the folder;
-     (2) If something was fetched, emit a signal and let AppInstance do
-         the work of hibernating the editors and closing the notebook;
-     (3) Reopen the notebook and let Notebook deal with merge conflicts.
-   */
-  return false;
-}
-
-
-void Notebook::commitSoonish() {
-  mostRecentChange = QDateTime::currentDateTime();
-  if (commitTimer && !commitTimer->isActive()) {
-    commitTimer->setInterval(COMMIT_IVAL_S * 1000);
-    commitTimer->start();
-  }
-}
-
-void Notebook::commitNowUnless() {
-  ASSERT(commitTimer);
-  if (mostRecentChange.secsTo(QDateTime::currentDateTime()) < COMMIT_AVOID_S) {
-    // let's not do it quite yet (test again in a while)
-    commitTimer->setInterval(500 * COMMIT_AVOID_S); // that's 1/2 x avoid ival
-    commitTimer->start();
-  } else {
-    flush();
-    if (backgroundVC && !mostRecentChange.isNull()) {
-      mostRecentChange = QDateTime(); // invalidate
-      backgroundVC->commit(root.path(), style_->string("vc"));
-    }
-  }
-}
-  
-void Notebook::commitNow() {
-  flush();
-  if (hasVC && !mostRecentChange.isNull()) {
-    VersionControl::commit(root.path(), style_->string("vc"));
-    mostRecentChange = QDateTime(); // invalidate
-  }
-}
-
-void Notebook::committed(bool ok) {
-  if (ok) {
-    // all good
-  } else {
-    // we'll have to try again
-    commitSoonish();
-  }
-}
 
 Index *Notebook::index() const {
+  ASSERT(index_);
   return index_;
 }
 
@@ -474,4 +384,8 @@ EntryFile *Notebook::recoverFromMissingEntry(int pgno) {
   root.remove("index.json");
   ::exit(1);
   return 0;
+}
+
+void Notebook::markReadOnly() {
+  ro = true;
 }

@@ -32,13 +32,15 @@ class Notebook: public QObject {
   Q_OBJECT;
 public:
   static QString checkVersionControl(QString path);
-  static Notebook *load(QString path, bool readonly=false);
+  static Notebook *open(QString path, bool readonly=false);
   /* Returns 0 if couldn't load. */
   static bool create(QString path, QString vc="");
   /* Returns false if couldn't create, e.g., if already exists. */
   static QString errorMessage();
-  /* Returns error message from load() or create(). */
+  /* Returns error message from open() or create(). */
 public:
+  void load();
+  QString checkVersionControl();
   ~Notebook();
   bool isReadOnly() const { return ro; }
   /* For hasEntry, entry, createEntry, and deleteEntry, pgno must be
@@ -56,25 +58,17 @@ public:
   class Style const &style() const;
   QString filePath(QString) const; // path of file in root
   QString dirPath() const; // path of root
-  bool hasVersionControl() const;
 signals:
   void mod();
 public slots:
   void flush();
-  void commitSoonish();
-  void commitNow();
+  void markReadOnly();
 private:
   Notebook(QString path, bool readonly); // throws QString exception on failure
 private slots:
   void titleMod();
   void sheetCountMod();
-  void updateNowUnless();
-  bool updateNow();
-  void commitNowUnless();
-  void committed(bool ok);
 private:
-  void loadme(); // throws QString exception on failure
-  void unloadme();
   CachedEntry recoverFromExistingEntry(int pgno);
   EntryFile *recoverFromMissingEntry(int pgno);
   static QString &errMsg();
@@ -88,11 +82,6 @@ private:
   BookFile *bookFile_;
   Index *index_;
   Style const *style_;
-  class QTimer *updateTimer;
-  class QTimer *commitTimer;
-  QDateTime mostRecentChange;
-  bool hasVC;
-  class BackgroundVC *backgroundVC;
 };
 
 #endif

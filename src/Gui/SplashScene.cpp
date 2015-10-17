@@ -250,11 +250,11 @@ Notebook *SplashScene::openNotebook() {
 
     if (AlreadyOpen::check(ss->named))
       break;
-    nb = Notebook::load(ss->named);
+    nb = Notebook::open(ss->named);
     if (nb)
       break;
     QMessageBox::critical(gv, "eln",
-                          "'" + ss->named + "' could not be loaded."
+                          "'" + ss->named + "' could not be opened."
 			  + "\n" + Notebook::errorMessage(),
                           QMessageBox::Cancel);
     ss->named = "";

@@ -52,7 +52,7 @@ int main(int argc, char **argv) {
         fn = fn.left(fn.length() - 9);
       if (AlreadyOpen::check(fn))
         return 0;
-      nb = Notebook::load(fn);
+      nb = Notebook::open(fn);
       if (!nb) {
         QMessageBox::critical(0, "eln",
                               Translate::_("could-not-open-notebook").arg(fn)
@@ -69,7 +69,7 @@ int main(int argc, char **argv) {
                               QMessageBox::Abort);
         return 1;
       }
-      nb = Notebook::create(fn) ? Notebook::load(fn) : 0;
+      nb = Notebook::create(fn) ? Notebook::open(fn) : 0;
       if (!nb) {
         QMessageBox::critical(0, "eln",
                               Translate::_("could-not-create-notebook")
