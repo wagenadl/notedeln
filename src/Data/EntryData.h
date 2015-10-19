@@ -22,6 +22,7 @@
 
 #include "Data.h"
 #include <QList>
+#include <QPointer>
 
 class EntryData: public Data {
   Q_OBJECT;
@@ -55,7 +56,7 @@ public:
   int sheetCount() const;
   void setBook(class Notebook *nb);      // } This is for use by items that 
   Notebook *book() const;                // } wish to use resources. We don't
-  ResManager *resManager() const;          // } use it ourselves.
+  ResManager *resManager() const;        // } use it ourselves.
   EntryData const *entry() const;
   EntryData *entry();
   bool isEmpty() const; // true iff no blocks and title is default

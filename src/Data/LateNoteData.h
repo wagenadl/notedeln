@@ -29,6 +29,10 @@ public:
   virtual ~LateNoteData();
   virtual void markModified(ModType mt=UserVisibleMod);
   /* This version of markModified never propagates, even for UserVisibleMod. */
+  virtual Notebook *book() const { return nb; }
+  void setBook(Notebook *);
+private:
+  class Notebook *nb;
 };
 
 #endif

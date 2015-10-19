@@ -245,11 +245,11 @@ CachedEntry Notebook::entry(int n)  {
   CachedEntry entry(f);
   pgFiles[n] = entry;
 
-  f->data()->setBook(this);
-  connect(f->data(), SIGNAL(titleMod()), SLOT(titleMod()));
-  connect(f->data(), SIGNAL(sheetCountMod()), SLOT(sheetCountMod()));
-  index_->watchEntry(f->data());
-  connect(f->data(), SIGNAL(mod()), this, SIGNAL(mod()));
+  entry.setBook(this);
+  connect(entry.data(), SIGNAL(titleMod()), SLOT(titleMod()));
+  connect(entry.data(), SIGNAL(sheetCountMod()), SLOT(sheetCountMod()));
+  index_->watchEntry(entry.data());
+  connect(entry.data(), SIGNAL(mod()), this, SIGNAL(mod()));
   return entry;
 }
 
@@ -265,14 +265,14 @@ CachedEntry Notebook::createEntry(int n) {
     return CachedEntry();
   CachedEntry entry(f);
   pgFiles[n] = entry;
-  f->data()->setStartPage(n);
-  toc()->addEntry(f->data());
+  entry.data()->setStartPage(n);
+  toc()->addEntry(entry.data());
 
-  f->data()->setBook(this);
-  connect(f->data(), SIGNAL(titleMod()), SLOT(titleMod()));
-  connect(f->data(), SIGNAL(sheetCountMod()), SLOT(sheetCountMod()));
-  index_->watchEntry(f->data());
-  connect(f->data(), SIGNAL(mod()), this, SIGNAL(mod()));
+  entry.setBook(this);
+  connect(entry.data(), SIGNAL(titleMod()), SLOT(titleMod()));
+  connect(entry.data(), SIGNAL(sheetCountMod()), SLOT(sheetCountMod()));
+  index_->watchEntry(entry.data());
+  connect(entry.data(), SIGNAL(mod()), this, SIGNAL(mod()));
   bookData()->setEndDate(QDate::currentDate());
   return entry;
 }

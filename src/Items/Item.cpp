@@ -135,20 +135,18 @@ bool Item::changesCursorShape() const {
   return false;
 }
 
-GfxNoteItem *Item::newNote(QPointF p0, QPointF p1, bool late) {
+GfxNoteItem *Item::newGfxNote(QPointF p0, QPointF p1) {
   ASSERT(d);
-  GfxNoteItem *n = (late || !data()->isRecent())
-    ? LateNoteItem::newNote(p0, p1, this)
-    : GfxNoteItem::newNote(p0, p1, this);
+  GfxNoteItem *n = GfxNoteItem::newNote(p0, p1, this);
   if (ancestralBlock())
     ancestralBlock()->sizeToFit();
   return n;
 }
 
-GfxNoteItem *Item::createNote(QPointF p0, bool late) {
+GfxNoteItem *Item::createGfxNote(QPointF p0) {
   ASSERT(d);
   QPointF p1 = mapFromScene(DragLine::drag(scene(), mapToScene(p0), style()));
-  return newNote(p0, p1, late);
+  return newGfxNote(p0, p1);
 }
 
 bool Item::shouldGlow() const {

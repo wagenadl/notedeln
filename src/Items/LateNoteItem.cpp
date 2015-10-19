@@ -50,14 +50,7 @@ void LateNoteItem::prepDateItem() {
   dateItem->setFont(style().font("latenote-font"));
   dateItem->setDefaultTextColor(QColor(style().string("latenote-text-color")));
   QDateTime myDate = data()->created();
-  QDateTime pgDate = data()->entry()->created();
-  QString lbl;
-  if (myDate.date()==pgDate.date())
-    lbl = "";
-  else if (myDate.date().year() == pgDate.date().year())
-    lbl = myDate.toString(style().string("date-format-yearless"));
-  else
-    lbl = myDate.toString(style().string("date-format"));
+  QString lbl = myDate.toString(style().string("date-format"));
   dateItem->setPlainText(lbl);
   setDateItemPosition();
 }
@@ -84,28 +77,6 @@ void LateNoteItem::setDateItemPosition() {
     dateItem->setPos(QPointF(ml - br.width() - 2 - sp.x(), tp.y()));
   else
     dateItem->setPos(tp.x(), tp.y() - style().real("latenote-yshift"));
-}
-
-LateNoteItem *LateNoteItem::newNote(QPointF p0, QPointF p1, Item *parent) {
-  ASSERT(parent);
-  LateNoteData *d = new LateNoteData(parent->data());
-  QPointF sp0 = parent->mapToScene(p0);
-  QPointF sp1 = parent->mapToScene(p1);
-  d->setPos(p0);
-  d->setDelta(sp1-sp0);
-  /*
-  int w = (p1.x()<p0.x()) 
-    // item text will stick to the left
-    ? sp1.x() - parent->style().real("margin-right-over")
-    // item text will stick to the right
-    : parent->style().real("page-width") - sp1.x()
-    - parent->style().real("margin-right-over");
-  d->setTextWidth(w>0 ? w : 0);
-  */
-  LateNoteItem *i = new LateNoteItem(d, parent);
-  i->makeWritable();
-  i->setFocus();
-  return i;
 }
 
 void LateNoteItem::mouseMoveEvent(QGraphicsSceneMouseEvent *e) {

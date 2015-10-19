@@ -34,6 +34,7 @@
 #include "TextBlockItem.h"
 #include "TextItem.h"
 #include "GfxNoteItem.h"
+#include "LateNoteItem.h"
 #include "SearchDialog.h"
 #include "HtmlOutput.h"
 #include "SheetScene.h"
@@ -663,7 +664,7 @@ void PageView::createContinuationEntry() {
                      style.real("page-height")
                      - style.real("margin-bottom")
                      + style.real("pgno-sep"));
-  GfxNoteItem *fwdNote = entryScene->newNote(currentSheet, fwdNotePos);
+  LateNoteItem *fwdNote = entryScene->newLateNote(currentSheet, fwdNotePos);
   TextItem *fwdNoteTI = fwdNote->textItem();
   TextCursor cursor = fwdNoteTI->textCursor();
   QString fwdNoteText = QString("(see p. %1)").arg(newPage);
@@ -686,7 +687,7 @@ void PageView::createContinuationEntry() {
   // Create reverse note
   QPointF revNotePos(style.real("margin-left"),
                      style.real("margin-top"));
-  GfxNoteItem *revNote = entryScene->newNote(currentSheet, revNotePos);
+  GfxNoteItem *revNote = ti->newGfxNote(ti->mapFromScene(revNotePos));
   TextItem *revNoteTI = revNote->textItem();
   revNoteTI->setTextWidth(0);
   cursor = revNoteTI->textCursor();

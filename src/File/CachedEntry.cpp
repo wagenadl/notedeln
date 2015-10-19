@@ -70,3 +70,11 @@ EntryData *CachedEntry::data() const {
 EntryFile *CachedEntry::file() const {
   return obj()->file();
 }
+
+LateNoteManager *CachedEntry::lateNoteManager() const {
+  return obj()->lateNoteManager();
+}
+
+void CachedEntry::setBook(class Notebook *nb) {
+  obj()->setBook(nb);
+}

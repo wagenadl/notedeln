@@ -43,9 +43,11 @@ public:
   void newFootnote(int block, QString tag);
   bool dropBelow(QPointF scenePos, int sheet, class QMimeData const *md);
   virtual int startPage() const;
-  class GfxNoteItem *createNote(QPointF scenePos, int sheet); // create note by dragging
-  class GfxNoteItem *newNote(int sheet,
-			     QPointF scenePos1, QPointF scenePos2=QPointF());
+  class LateNoteItem *createLateNote(QPointF scenePos,
+				     int sheet); // create note by dragging
+  class LateNoteItem *newLateNote(int sheet,
+				  QPointF scenePos1,
+				  QPointF scenePos2=QPointF());
   virtual QString title() const;
   virtual class TitleData *fancyTitle() const;
   virtual QDate date() const;
@@ -96,6 +98,7 @@ private:
   void makeBlockItems();
   void positionBlocks();
   void restackBlocks(int start);
+  void loadLateNotes();
   void resetSheetCount();
   void positionTitleItem();
   void positionNofNAndDateItems();

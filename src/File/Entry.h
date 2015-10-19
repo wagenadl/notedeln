@@ -32,11 +32,14 @@ public:
   ~Entry();
   EntryData *data() const; // will throw exception rather than return null
   EntryFile *file() const; // will throw exception rather than return null
+  class LateNoteManager *lateNoteManager() const; // ditto
   bool isValid() const { return data_!=0; }
   bool hasFile() const { return file_!=0; }
+  void setBook(class Notebook *);
 private:
   EntryData *data_;
   EntryFile *file_;
+  LateNoteManager *lnm_;
 };
 
 #endif

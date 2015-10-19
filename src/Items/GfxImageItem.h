@@ -38,7 +38,7 @@ public:
   virtual void setScale(double);
   virtual void paint(QPainter*, const QStyleOptionGraphicsItem*, QWidget*);
   bool makesOwnNotes() const { return isWritable(); }
-  virtual GfxNoteItem *newNote(QPointF p0, QPointF p1, bool forceLate=false);   
+  virtual GfxNoteItem *newGfxNote(QPointF p0, QPointF p1);   
 protected:
   virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *);
   virtual void mousePressEvent(QGraphicsSceneMouseEvent *);

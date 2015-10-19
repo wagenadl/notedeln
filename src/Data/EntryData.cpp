@@ -210,3 +210,4 @@ void EntryData::resetCreation() {
     b->setModified(QDateTime::currentDateTime());
   }
 }
+

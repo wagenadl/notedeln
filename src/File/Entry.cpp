@@ -21,11 +21,19 @@
 #include "EntryFile.h"
 #include <QDebug>
 #include "Assert.h"
+#include "LateNoteManager.h"
 
 Entry::Entry(EntryData *data): data_(data), file_(0) {
 }
 
 Entry::Entry(EntryFile *file): data_(file ? file->data(): 0), file_(file) {
+  if (file) {
+    QString path = file->fileName();
+    path.replace(".json", ".notes");
+    lnm_ = new LateNoteManager(path, this);
+  } else {
+    lnm_ = 0;
+  }
 }
 
 Entry::~Entry() {
@@ -35,7 +43,14 @@ Entry::~Entry() {
   } else {
     delete data_;
   }
-}   
+}
+
+void Entry::setBook(class Notebook *nb) {
+  if (data_)
+    data_->setBook(nb);
+  if (lnm_)
+    lnm_->setBook(nb);
+}
 
 EntryData *Entry::data() const {
   ASSERT(isValid());
@@ -45,4 +60,9 @@ EntryData *Entry::data() const {
 EntryFile *Entry::file() const {
   ASSERT(hasFile());
   return file_;
+}
+
+LateNoteManager *Entry::lateNoteManager() const {
+  ASSERT(lnm_);
+  return lnm_;
 }

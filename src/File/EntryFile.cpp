@@ -81,7 +81,7 @@ EntryFile *loadEntry(QDir const &dir, int n, QString uuid, QObject *parent) {
   if (!f)
     return 0;
 
-  ResManager *r = f->data()->firstChild<ResManager>();
+  ResManager *r = f->data()->resManager();
   if (!r)
     r = new ResManager(f->data());
   QString resfn = dir.absoluteFilePath(fn0 + ".res");

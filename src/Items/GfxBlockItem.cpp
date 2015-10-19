@@ -194,17 +194,11 @@ void GfxBlockItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
       take = true;
     } break;
     case Mode::Type:
-      createNote(e->pos());
+      createGfxNote(e->pos());
       take = true;
       break;
     default:
       break;
-    }
-  } else {
-    if (mod==Mode::Annotate) {
-      createNote(e->pos(), true);
-      mode()->setMode(Mode::Type);
-      take = true;
     }
   }    
 
@@ -274,7 +268,7 @@ void GfxBlockItem::dropEvent(QGraphicsSceneDragDropEvent *e) {
 }
 
 void GfxBlockItem::importDroppedText(QString txt, QPointF p) {
-  GfxNoteItem *note = newNote(p, p, false);
+  GfxNoteItem *note = newGfxNote(p, p);
   note->textItem()->textCursor().insertText(txt);
 }
 

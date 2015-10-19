@@ -71,8 +71,9 @@ public:
   virtual void modeChangeUnderCursor(); // only called for item under mouse
 public:
   static Item *create(Data *d, Item *parent=0);
-  class GfxNoteItem *createNote(QPointF p0, bool forceLate=false);
-  virtual GfxNoteItem *newNote(QPointF p0, QPointF p1, bool forceLate=false);
+  class GfxNoteItem *createGfxNote(QPointF p0); // create by dragging
+  GfxNoteItem *newGfxNote(QPointF p0) { return newGfxNote(p0, p0); }
+  virtual GfxNoteItem *newGfxNote(QPointF p0, QPointF p1);
   virtual bool makesOwnNotes() const { return false; }
 public: // but only for use in derived class source files
   template <class DT, class IT> class Creator {

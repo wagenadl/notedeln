@@ -17,6 +17,8 @@
 // EntryScene.C
 
 #include "EntryScene.h"
+
+#include "DragLine.h"
 #include "SheetScene.h"
 #include "Style.h"
 #include "BlockData.h"
@@ -39,6 +41,7 @@
 #include "GfxNoteItem.h"
 #include "GfxNoteData.h"
 #include "TableItem.h"
+#include "LateNoteManager.h"
 
 #include "SvgFile.h"
 #include "Restacker.h"
@@ -82,6 +85,7 @@ void EntryScene::populate() {
   BaseScene::populate();
   makeBlockItems();
   positionBlocks();
+  loadLateNotes();
 
   if (data()->isUnlocked())
     addUnlockedWarning();
@@ -89,6 +93,14 @@ void EntryScene::populate() {
 
 QDate EntryScene::date() const {
   return data_->created().date();
+}
+
+void EntryScene::loadLateNotes() {
+  for (LateNoteData *lnd: data_.lateNoteManager()->notes()) {
+    LateNoteItem *lni = new LateNoteItem(lnd);
+    sheets[lnd->sheet()]->addItem(lni);
+    qDebug() << "Created LNI";
+  }
 }
 
 void EntryScene::makeBlockItems() {
@@ -791,14 +803,18 @@ bool EntryScene::mousePressEvent(QGraphicsSceneMouseEvent *e, SheetScene *s) {
       take = true;
     }
     break;
-  case Mode::Annotate: 
-    if (it && it->makesOwnNotes())
-      it->createNote(it->mapFromScene(sp));
-    else
-      createNote(sp, sh);
+  case Mode::Annotate: {
+    if (isWritable()) {
+      if (!it || !it->makesOwnNotes())
+	it = sheets[sh]->fancyTitleItem();
+      GfxNoteItem *note = it->createGfxNote(it->mapFromScene(sp));
+      note->data()->setSheet(sh);
+    } else {
+      newLateNote(sh, sp);
+    }
     mo->setMode(Mode::Type);
     take = true;
-    break;
+  } break;
   default:
     break;
   }
@@ -1066,7 +1082,9 @@ bool EntryScene::importDroppedText(QPointF scenePos, int sheet,
                                    int *startReturn, int *endReturn) {
   TextItem *ti = 0;
   if (inMargin(scenePos)) {
-    GfxNoteItem *note = createNote(scenePos, sheet);
+    Item *fti = sheets[sheet]->fancyTitleItem();
+    GfxNoteItem *note = fti->createGfxNote(fti->mapFromScene(scenePos));
+    note->data()->setSheet(sheet);
     ti = note->textItem();
   } else {
     int blk = findBlock(scenePos, sheet);
@@ -1077,12 +1095,13 @@ bool EntryScene::importDroppedText(QPointF scenePos, int sheet,
         if (tbi) {
           ti = tbi->text();
         } else if (gbi) {
-          GfxNoteItem *note = gbi->createNote(gbi->mapFromScene(scenePos),
-                                              false);
+          GfxNoteItem *note = gbi->createGfxNote(gbi->mapFromScene(scenePos));
           ti = note->textItem();
         }
       } else { // not writable block
-        GfxNoteItem *note = createNote(scenePos, sheet);
+	Item *fti = sheets[sheet]->fancyTitleItem();
+	GfxNoteItem *note = fti->createGfxNote(fti->mapFromScene(scenePos));
+	note->data()->setSheet(sheet);
         ti = note->textItem();
       }
     }
@@ -1180,28 +1199,24 @@ EntryData *EntryScene::data() const {
   return data_;
 }
 
-GfxNoteItem *EntryScene::createNote(QPointF scenePos, int sheet) {
-  TitleItem *ti = sheets[sheet]->fancyTitleItem();
-  GfxNoteItem *note
-    = ti->createNote(ti->mapFromScene(scenePos));
-  if (note) {
-    note->data()->setSheet(sheet);
-    note->setFocus();
-  }
+LateNoteItem *EntryScene::createLateNote(QPointF scenePos, int sheet) {
+  QPointF sp1 = DragLine::drag(sheets[sheet], scenePos, style());
+  LateNoteItem *note = newLateNote(sheet, scenePos, sp1);
   return note;
-  
 }
 
-GfxNoteItem *EntryScene::newNote(int sheet,
-				 QPointF scenePos1, QPointF scenePos2) {
+LateNoteItem *EntryScene::newLateNote(int sheet,
+				      QPointF scenePos1, QPointF scenePos2) {
   if (scenePos2.isNull())
     scenePos2 = scenePos1;
-  TitleItem *ti = sheets[sheet]->fancyTitleItem();
-  GfxNoteItem *note = ti->newNote(ti->mapFromScene(scenePos1),
-				  ti->mapFromScene(scenePos2));
-  if (note)
-    note->data()->setSheet(sheet);
-  return note;  
+  LateNoteData *data = data_.lateNoteManager()->newNote(scenePos1, scenePos2);
+  ASSERT(data);
+  data->setSheet(sheet);
+  LateNoteItem *item = new LateNoteItem(data);
+  sheets[sheet]->addItem(item); // ?
+  item->makeWritable();
+  item->setFocus();
+  return item;  
 }
 
 void EntryScene::clipPgNoAt(int n) {

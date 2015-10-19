@@ -38,6 +38,8 @@ public:
   EntryData *operator->() const; // will throw exception rather than return null
   EntryData *data() const; // will throw exception rather than return null
   EntryFile *file() const; // will throw exception rather than return null
+  class LateNoteManager *lateNoteManager() const; // ditto
+  void setBook(class Notebook *);
 };
 
 #endif

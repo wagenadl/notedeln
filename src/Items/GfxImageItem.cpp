@@ -196,8 +196,8 @@ void GfxImageItem::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *e) {
   e->accept();
 }
 
-GfxNoteItem *GfxImageItem::newNote(QPointF p0, QPointF p1, bool forceLate) {
-  GfxNoteItem *gni = Item::newNote(p0, p1, forceLate);
+GfxNoteItem *GfxImageItem::newGfxNote(QPointF p0, QPointF p1) {
+  GfxNoteItem *gni = Item::newGfxNote(p0, p1);
   gni->setScale(1./data()->scale());
   return gni;
 }
@@ -217,7 +217,7 @@ void GfxImageItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
       take = true;
       break;
     case Mode::Type: 
-      createNote(e->pos(), !isWritable());
+      createGfxNote(e->pos());
       take = true;
       break;
     case Mode::Mark: {
@@ -233,13 +233,6 @@ void GfxImageItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
     } break;
     default:
       break;
-    }
-  } else { // not writable (i.e., not recent)
-    if (mode()->mode()==Mode::Annotate) {
-      GfxNoteItem *gni = createNote(e->pos(), true);
-      mode()->setMode(Mode::Type);
-      gni->setScale(1./data()->scale());
-      take = true;
     }
   }
   
