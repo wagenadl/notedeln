@@ -44,8 +44,6 @@ bool DeletedStack::grabIfRestorable(Item *item) {
   }
   if (!dynamic_cast<GfxData*>(item->data()))
     return false;
-  if (!item->parent())
-    return false;
   DeletedItem *dd = DeletedItem::takeFromParent(item);
   dd->setParent(this);
   stack.append(dd);

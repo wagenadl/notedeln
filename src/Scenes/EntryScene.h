@@ -138,6 +138,7 @@ private:
   bool writable;
   int firstDisallowedPgNo;
   class QGraphicsTextItem *unlockedItem;
+  Item *lateNoteParent;
 };
 
 #endif

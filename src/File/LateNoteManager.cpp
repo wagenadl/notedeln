@@ -1,12 +1,13 @@
 // LateNoteManager.cpp
 
 #include "LateNoteManager.h"
-
+#include "Assert.h"
 #include <QDebug>
 
 LateNoteManager::LateNoteManager(QString root, QObject *parent):
-  QObject(parent), dir(root) {
-  qDebug() << "LateNoteManager" << root;
+  Data(0), dir(root) {
+  QObject::setParent(parent);
+  qDebug() << "LateNoteManager" << root << this;
   nb = 0;
 }
 
@@ -26,6 +27,7 @@ void LateNoteManager::ensureLoaded() {
     LateNoteFile *f = loadLateNoteFile(dir, fn.left(fn.indexOf(".")), this);
     LateNoteData *d = f->data();
     d->setBook(nb);
+    addChild(d);
     notes_ << d;
   }
 }
@@ -42,11 +44,24 @@ LateNoteData *LateNoteManager::newNote(QPointF p0, QPointF p1) {
     d->setDelta(p1-p0);
   d->setTextWidth(0);
   notes_ << d;
-  d->setParent(this);
+  addChild(d);
   return d;
 }
   
 
 void LateNoteManager::setBook(Notebook *b) {
   nb = b;
+}
+
+void LateNoteManager::addChild(Data *d, ModType mt) {
+  QString u = d->uuid();
+  qDebug() << "LNM: add" << u;
+  // This does _not_ restore if file deleted.
+  Data::addChild(d, mt);
+}
+
+Data *LateNoteManager::takeChild(Data *d, ModType mt) {
+  QString u = d->uuid();
+  deleteLateNoteFile(dir, u);
+  return Data::takeChild(d, mt);
 }

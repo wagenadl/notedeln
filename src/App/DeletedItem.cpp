@@ -25,8 +25,8 @@ DeletedItem::DeletedItem(Item *item) {
   data = item->data();
   ASSERT(data);
   parentItem = item->parent();
-  ASSERT(parentItem);
-  connect(parentItem, SIGNAL(destroyed()), this, SLOT(parentDestroyed()));
+  if (parentItem)
+    connect(parentItem, SIGNAL(destroyed()), this, SLOT(parentDestroyed()));
 }
 
 DeletedItem::~DeletedItem() {
@@ -36,6 +36,7 @@ DeletedItem *DeletedItem::takeFromParent(Item *item) {
   ASSERT(item);
   BlockItem *ancestor = item->ancestralBlock();
   DeletedItem *dd = new DeletedItem(item);
+  ASSERT(item->data()->parent());
   item->data()->parent()->takeChild(item->data());
   item->deleteLater();
   if (ancestor)

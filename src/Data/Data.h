@@ -70,9 +70,9 @@ public:
   Data const*findChildByUUID(QString uuid) const;
   
   void insertChildBefore(Data *newChild, Data *ref, ModType mt=UserVisibleMod);
-  void addChild(Data *, ModType mt=UserVisibleMod);
-  bool deleteChild(Data *, ModType mt=UserVisibleMod);
-  Data *takeChild(Data *, ModType mt=UserVisibleMod); // remove but don't delete
+  virtual void addChild(Data *, ModType mt=UserVisibleMod);
+  virtual bool deleteChild(Data *, ModType mt=UserVisibleMod);
+  virtual Data *takeChild(Data *, ModType mt=UserVisibleMod); // remove but don't delete
   virtual class EntryData const *entry() const; // pointer to ...
   virtual class EntryData *entry(); // ... parent page, if any.
   virtual class Notebook *book() const; // pointer to parent book, if any.

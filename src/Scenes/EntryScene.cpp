@@ -74,6 +74,7 @@ EntryScene::EntryScene(CachedEntry data, QObject *parent):
   firstDisallowedPgNo = 0;
   
   unlockedItem = 0;
+  lateNoteParent = 0;
 
   vChangeMapper = new QSignalMapper(this);
   futileMovementMapper = new QSignalMapper(this);
@@ -97,9 +98,15 @@ QDate EntryScene::date() const {
 
 void EntryScene::loadLateNotes() {
   for (LateNoteData *lnd: data_.lateNoteManager()->notes()) {
-    LateNoteItem *lni = new LateNoteItem(lnd);
-    sheets[lnd->sheet()]->addItem(lni);
-    qDebug() << "Created LNI";
+    if (lnd->text()->text().isEmpty()) {
+      data_.lateNoteManager()->takeChild(lnd);
+      qDebug() << "Dropping empty late note";
+    } else {
+      LateNoteItem *lni = new LateNoteItem(lnd);
+      sheets[lnd->sheet()]->addItem(lni);
+      qDebug() << "Created LNI";
+      qDebug() << lni << lni->data() << lni->data()->parent() << lni->parent();
+    }
   }
 }
 
@@ -1212,7 +1219,7 @@ LateNoteItem *EntryScene::newLateNote(int sheet,
   LateNoteData *data = data_.lateNoteManager()->newNote(scenePos1, scenePos2);
   ASSERT(data);
   data->setSheet(sheet);
-  LateNoteItem *item = new LateNoteItem(data);
+  LateNoteItem *item = new LateNoteItem(data, lateNoteParent);
   sheets[sheet]->addItem(item); // ?
   item->makeWritable();
   item->setFocus();
