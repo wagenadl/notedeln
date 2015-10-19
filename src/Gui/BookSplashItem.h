@@ -42,11 +42,13 @@ public:
   QRectF boundingRect() const;
 signals:
   void leftClick(QString); // dirname or label
-  void rightClick(QString); // dirname or label
+  //  void rightClick(QString); // dirname or label
 protected:
   void hoverEnterEvent(QGraphicsSceneHoverEvent *);
   void hoverLeaveEvent(QGraphicsSceneHoverEvent *);
   void mousePressEvent(QGraphicsSceneMouseEvent *);
+private:
+  void doMenu();
 private:
   QString dirname;
   BookInfo info;

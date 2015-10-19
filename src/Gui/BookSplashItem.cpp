@@ -19,9 +19,13 @@
 #include "BookSplashItem.h"
 #include "Style.h"
 #include "Translate.h"
-
+#include <QMenu>
 #include <QGraphicsSceneMouseEvent>
 #include <QPainter>
+#include <QDesktopServices>
+#include <QDir>
+#include <QUrl>
+#include <QCursor>
 
 BookSplashItem::BookSplashItem(QString dirname, BookInfo const &info,
                                QGraphicsItem *parent):
@@ -56,7 +60,7 @@ void BookSplashItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
     e->accept();
     break;
   case Qt::RightButton:
-    emit rightClick(dirname.isEmpty() ? info.title : dirname);
+    doMenu();
     e->accept();
     break;
   default:
@@ -151,4 +155,25 @@ void BookSplashItem::paint(QPainter *p,
 QRectF BookSplashItem::boundingRect() const {
   double height = dirname.isEmpty() ? SMALLBOXHEIGHT : BOXHEIGHT;
   return QRectF(0, 0, BOXWIDTH, height);
+}
+
+void BookSplashItem::doMenu() {
+  if (dirname.isEmpty())
+    return;
+  
+  QMenu *menu = new QMenu();
+  QAction *open = menu->addAction(Translate::_("open-notebook")
+				  + QString::fromUtf8(" “")
+				  + info.title + QString::fromUtf8("”"));
+  QAction *locate = menu->addAction(Translate::_("open-location"));
+  menu->move(QCursor::pos() - QPoint(64, 32));
+  QAction *act = menu->exec();
+  menu->deleteLater();
+  if (act==open) {
+    emit leftClick(dirname.isEmpty() ? info.title : dirname);
+  } else if (act==locate) {
+    QDir d(dirname);
+    d.cdUp();
+    QDesktopServices::openUrl(QUrl(d.absolutePath()));
+  }
 }
