@@ -78,3 +78,7 @@ LateNoteManager *CachedEntry::lateNoteManager() const {
 void CachedEntry::setBook(class Notebook *nb) {
   obj()->setBook(nb);
 }
+
+bool CachedEntry::saveNow() const {
+  return obj()->saveNow();
+}

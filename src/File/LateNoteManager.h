@@ -8,6 +8,7 @@
 #include "LateNoteData.h"
 #include "LateNoteFile.h"
 #include <QDir>
+#include <QList>
 
 class LateNoteManager: public Data {
 public:
@@ -18,12 +19,14 @@ public:
   void setBook(class Notebook *);
   virtual void addChild(Data *, ModType mt=UserVisibleMod);
   virtual Data *takeChild(Data *, ModType mt=UserVisibleMod);
+  bool saveAll();
 private:
   void ensureLoaded();
 private:
   QDir dir;
   bool loaded;
   class Notebook *nb;
+  QList<QPointer<LateNoteFile> > files;
 };
 
 #endif

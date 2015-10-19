@@ -21,6 +21,7 @@
 #define DATAFILE_H
 
 #include "Data.h"
+#include <QPointer>
 
 class DataFile0: public QObject {
   Q_OBJECT;
@@ -45,7 +46,7 @@ private slots:
   void saveTimerTimeout();
 private:
   mutable bool ok_;
-  Data *data_;
+  QPointer<Data> data_;
   QString fn_;
   mutable bool needToSave_;
   class QTimer *saveTimer_;

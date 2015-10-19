@@ -66,3 +66,12 @@ LateNoteManager *Entry::lateNoteManager() const {
   ASSERT(lnm_);
   return lnm_;
 }
+
+bool Entry::saveNow() const {
+  bool ok = true;
+  if (file_ && file_->needToSave()) 
+    ok &= file_->saveNow();
+  if (lnm_)
+    ok &= lnm_->saveAll();
+  return ok;
+}

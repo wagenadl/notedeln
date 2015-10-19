@@ -35,6 +35,7 @@ public:
   class LateNoteManager *lateNoteManager() const; // ditto
   bool isValid() const { return data_!=0; }
   bool hasFile() const { return file_!=0; }
+  bool saveNow() const;
   void setBook(class Notebook *);
 private:
   EntryData *data_;

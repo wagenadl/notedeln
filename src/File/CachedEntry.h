@@ -34,6 +34,7 @@ public:
 public:
   bool isValid() const;
   bool hasFile() const;
+  bool saveNow() const;
   operator EntryData *() const; // will throw exception rather than return null
   EntryData *operator->() const; // will throw exception rather than return null
   EntryData *data() const; // will throw exception rather than return null

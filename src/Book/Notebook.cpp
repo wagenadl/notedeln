@@ -342,8 +342,7 @@ void Notebook::flush() {
 
   foreach (CachedEntry pf, pgFiles) 
     if (pf)
-      if (pf.file()->needToSave()) 
-	ok = ok && pf.file()->saveNow();
+      ok = ok && pf.saveNow();
 
   index_->flush();
 
