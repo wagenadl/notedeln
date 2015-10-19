@@ -24,8 +24,8 @@
 #include "SheetScene.h"
 #include "PageView.h"
 #include "TextData.h"
-#include "OpenCmd.h"
 
+#include <QDesktopServices>
 #include <QPainter>
 #include <QGraphicsSceneHoverEvent>
 #include <QDebug>
@@ -132,11 +132,9 @@ void OneLink::openLink() {
   if (r->sourceURL().scheme() == "page") {
     openPage(true);
   } else {
-    QStringList args;
-    args << r->sourceURL().toString();
-    bool ok = QProcess::startDetached(OpenCmd::command(), args);
+    bool ok = QDesktopServices::openUrl(r->sourceURL());
     if (!ok)
-      qDebug() << "Failed to start external process " << OpenCmd::command();
+      qDebug() << "Failed to open external url" << r->sourceURL();
   }
 }
 
@@ -171,11 +169,9 @@ void OneLink::openArchive() {
   if (r->sourceURL().scheme() == "page") {
     openPage();
   } else {
-    QStringList args;
-    args << r->archivePath();
-    bool ok = QProcess::startDetached(OpenCmd::command(), args);
+    bool ok = QDesktopServices::openUrl(QUrl(r->archivePath()));
     if (!ok)
-      qDebug() << "Failed to start external process " << OpenCmd::command();
+      qDebug() << "Failed to start external location " << r->archivePath();
   }
 }  
 

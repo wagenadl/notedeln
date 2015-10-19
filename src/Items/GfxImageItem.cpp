@@ -26,7 +26,7 @@
 #include "GfxSketchItem.h"
 #include "BlockItem.h"
 #include "Cursors.h"
-#include "OpenCmd.h"
+#include <QDesktopServices>
 #include "Notebook.h"
 
 #include <QProcess>
@@ -186,14 +186,12 @@ void GfxImageItem::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *e) {
   if (!r) {
     qDebug() << "GfxImageItem: double click: no resource";
   } else {
-    QStringList args;
-    if (e->modifiers() & Qt::ShiftModifier)
-      args << r->sourceURL().toString();
-    else
-      args << r->archivePath();
-    bool ok = QProcess::startDetached(OpenCmd::command(), args);
+    QUrl url = (e->modifiers() & Qt::ShiftModifier)
+      ? r->sourceURL()
+      : QUrl(r->archivePath());
+    bool ok = QDesktopServices::openUrl(url);
     if (!ok)
-      qDebug() << "GfxImageItem: Failed to start external process " << OpenCmd::command();;
+      qDebug() << "GfxImageItem: Failed to open location " << url;
   }
   e->accept();
 }
