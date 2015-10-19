@@ -18,6 +18,7 @@
 // LateNoteData.C
 
 #include "LateNoteData.h"
+#include <QDebug>
 
 static Data::Creator<LateNoteData> c("latenote");
 
@@ -29,6 +30,7 @@ LateNoteData::LateNoteData(Data *parent): GfxNoteData(0) {
 }
 
 LateNoteData::~LateNoteData() {
+  qDebug() << "~LND" << this << parent();
   Data *p = parent();
   if (p)
     p->takeChild(this, NonPropMod);

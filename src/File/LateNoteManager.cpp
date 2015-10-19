@@ -9,15 +9,16 @@ LateNoteManager::LateNoteManager(QString root, QObject *parent):
   QObject::setParent(parent);
   qDebug() << "LateNoteManager" << root << this;
   nb = 0;
+  loaded = false;
 }
 
-QSet<LateNoteData *> const &LateNoteManager::notes() {
+QList<LateNoteData *> LateNoteManager::notes() {
   ensureLoaded();
-  return notes_;
+  return children<LateNoteData>();
 }
 
 void LateNoteManager::ensureLoaded() {
-  if (!notes_.isEmpty())
+  if (loaded)
     return;
   if (!dir.exists())
     return;
@@ -28,8 +29,8 @@ void LateNoteManager::ensureLoaded() {
     LateNoteData *d = f->data();
     d->setBook(nb);
     addChild(d);
-    notes_ << d;
   }
+  loaded = true;
 }
 
 LateNoteData *LateNoteManager::newNote(QPointF p0, QPointF p1) {
@@ -38,12 +39,12 @@ LateNoteData *LateNoteManager::newNote(QPointF p0, QPointF p1) {
     QDir("/").mkpath(dir.absolutePath());
   LateNoteFile *f = createLateNoteFile(dir, this);
   LateNoteData *d = f->data();
+  qDebug() << "  new note" << d << d->uuid();
   d->setBook(nb);
   d->setPos(p0);
   if (!p1.isNull())
     d->setDelta(p1-p0);
   d->setTextWidth(0);
-  notes_ << d;
   addChild(d);
   return d;
 }

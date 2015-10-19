@@ -69,8 +69,9 @@ void GfxNoteItem::abandon() {
     qDebug() << "I have a parent but it is being deleted. No toces!";
     return; 
   }
-  if (p)
-    p->data()->deleteChild(data());
+  qDebug() << "GfxNoteItem::abandon" << this << data() << data()->parent();
+  if (data()->parent())
+    data()->parent()->deleteChild(data());
   deleteLater();
   if (ancestor)
     ancestor->sizeToFit();

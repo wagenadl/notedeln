@@ -817,7 +817,7 @@ bool EntryScene::mousePressEvent(QGraphicsSceneMouseEvent *e, SheetScene *s) {
       GfxNoteItem *note = it->createGfxNote(it->mapFromScene(sp));
       note->data()->setSheet(sh);
     } else {
-      newLateNote(sh, sp);
+      createLateNote(sp, sh);
     }
     mo->setMode(Mode::Type);
     take = true;

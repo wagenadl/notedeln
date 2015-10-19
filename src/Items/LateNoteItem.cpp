@@ -43,6 +43,7 @@ LateNoteItem::LateNoteItem(LateNoteData *data, Item *parent):
 }
 
 LateNoteItem::~LateNoteItem() {
+  qDebug() << "~LNI" << this;
 }
 
 void LateNoteItem::prepDateItem() {
