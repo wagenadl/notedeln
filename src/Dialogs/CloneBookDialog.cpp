@@ -25,10 +25,12 @@
 #include "EProcess.h"
 #include <QStyle>
 #include <QIcon>
+#include "DefaultLocation.h"
 
 CloneBookDialog::CloneBookDialog(QWidget *parent): QDialog(parent) {
   ui = new Ui_cloneBookDialog;
   ui->setupUi(this);
+  ui->location->setText(defaultLocation());
   ui->leaf->setText("");
   ui->infoText->setPlainText(Translate::_("key-info"));
   QStyle *s = style();
@@ -86,7 +88,8 @@ void CloneBookDialog::abrowse() {
   }
 
   QString fn = QFileDialog::getExistingDirectory(this,
-                                Translate::_("title-clone-archive-location"));
+			    Translate::_("title-clone-archive-location"),
+						 ui->alocation->text());
   if (fn.isEmpty())
     return;
   QDir d(fn);
@@ -108,7 +111,8 @@ void CloneBookDialog::abrowse() {
 
 void CloneBookDialog::browse() {
   QString fn = QFileDialog::getExistingDirectory(this,
-                             Translate::_("title-clone-dest-path"));
+						 Translate::_("title-clone-dest-path"),
+						 ui->location->text());
   if (fn.isEmpty())
     return;
   QDir d(fn);

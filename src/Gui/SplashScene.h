@@ -45,6 +45,7 @@ private:
 private:
   QString named;
   QPointer<QWidget> widget;
+  QString openlocation;
 };
 
 #endif

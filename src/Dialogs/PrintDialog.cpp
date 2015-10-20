@@ -22,6 +22,7 @@
 #include <QPrinterInfo>
 #include <QDir>
 #include <QFileDialog>
+#include "DefaultLocation.h"
 
 PrintDialog::PrintDialog(QWidget *parent): QDialog(parent) {
   ui = new Ui_printDialog();
@@ -46,7 +47,7 @@ PrintDialog::PrintDialog(QWidget *parent): QDialog(parent) {
     ui->pPrinter->setChecked(true);
   }
 
-  ui->pFileName->setText(QDir::home().absoluteFilePath("output.pdf"));
+  ui->pFileName->setText(defaultLocation() + "/output.pdf");
 }
 
 PrintDialog::~PrintDialog() {

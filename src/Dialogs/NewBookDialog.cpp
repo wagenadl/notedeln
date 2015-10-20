@@ -29,11 +29,13 @@
 #include <QStyle>
 #include <QIcon>
 #include "VersionControl.h"
+#include "DefaultLocation.h"
 
 NewBookDialog::NewBookDialog(QWidget *parent): QDialog(parent) {
   ui = new Ui_newBookDialog();
   ui->setupUi(this);
 
+  ui->location->setText(defaultLocation() + "/book.nb");
   connect(ui->location, SIGNAL(textChanged(QString)),
           SLOT(locationChanged(QString)));
   
@@ -90,7 +92,8 @@ QString NewBookDialog::leaf() const {
 
 void NewBookDialog::browse() {
   QString fn = QFileDialog::getSaveFileName(this, Translate::_("create-path"),
-                                            "", "Notebooks (*.nb)");
+                                            ui->location->text(),
+					    "Notebooks (*.nb)");
   if (fn.isEmpty())
     return;
   
@@ -101,7 +104,8 @@ void NewBookDialog::browse() {
 
 void NewBookDialog::abrowse() {
   QString fn = QFileDialog::getExistingDirectory(this,
-                                              Translate::_("create-archive"));
+						 Translate::_("create-archive"),
+						 defaultLocation());
   if (!fn.isEmpty())
     ui->alocation->setText(fn);
 }
@@ -121,7 +125,7 @@ QString NewBookDialog::getNewSimple() {
   while (true) {
     QString fn = QFileDialog::getSaveFileName(0,
                                               Translate::_("create-path"),
-                                              "",
+                                              defaultLocation(),
                                               Translate::_("Notebooks")
                                               + " (*.nb)");
     if (fn.isEmpty())

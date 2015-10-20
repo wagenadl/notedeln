@@ -28,6 +28,7 @@
 #include "CloneBookDialog.h"
 #include "NewBookDialog.h"
 #include "VersionControl.h"
+#include "DefaultLocation.h"
 
 #include <QFileDialog>
 #include <QMessageBox>
@@ -40,6 +41,7 @@
 
 SplashScene::SplashScene(QObject *parent):
   QGraphicsScene(parent) {
+  openlocation = defaultLocation();
   makeBackground();
   makeItems();
 }
@@ -183,6 +185,7 @@ void SplashScene::createNew() {
 
 void SplashScene::openExisting() {
   QFileDialog qfd(widget);
+  qfd.setDirectory(openlocation);
   qfd.setWindowTitle(Translate::_("title-open-existing"));
   qfd.setFileMode(QFileDialog::Directory);
   qfd.setOptions(QFileDialog::ShowDirsOnly);
@@ -191,6 +194,7 @@ void SplashScene::openExisting() {
   QStringList fns = qfd.selectedFiles();
   if (fns.isEmpty())
     return;
+  openlocation = qfd.directory().absolutePath();
   if (fns.size()>1)
     qDebug() << "Multiple files selected; using only the first.";
   QString fn = fns[0];

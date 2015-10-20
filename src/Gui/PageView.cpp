@@ -39,6 +39,7 @@
 #include "HtmlOutput.h"
 #include "SheetScene.h"
 #include "TitleItem.h"
+#include "DefaultLocation.h"
 
 #include <QWheelEvent>
 #include <QKeyEvent>
@@ -715,7 +716,8 @@ void PageView::openFindDialog() {
 void PageView::htmlDialog() {
   if (currentSection==Entries) {
     QString fn = QFileDialog::getSaveFileName(this, "Save entry as html",
-                                              QString("%1.html")
+					      defaultLocation()
+					      + QString("/%1.html")
                                               .arg(entryScene->startPage()),
                                               "Web pages (*.html)");
     if (!fn.isEmpty()) {
