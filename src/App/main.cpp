@@ -47,7 +47,7 @@ int main(int argc, char **argv) {
       if (!nb)
         return 0;
     } else if (argc==2 && argv[1][0]!='-') {
-      QString fn = argv[1];
+      QString fn = QDir::fromNativeSeparators(argv[1]);
       if (fn.endsWith("/book.eln"))
         fn = fn.left(fn.length() - 9);
       if (AlreadyOpen::check(fn))
