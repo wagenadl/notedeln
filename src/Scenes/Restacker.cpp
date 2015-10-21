@@ -28,7 +28,6 @@
 
 Restacker::Restacker(QList<BlockItem *> const &blocks, int s):
   blocks(blocks), start(s) {
-  qDebug() << "Restacker: requested start is " << s;
   ASSERT(start>=0);
   end = start;
   if (start>=blocks.size())
@@ -67,8 +66,6 @@ Restacker::Restacker(QList<BlockItem *> const &blocks, int s):
     }
     --start;
   }
-
-  qDebug() << "  ultimate start is " << start;
 }
 
 void Restacker::restackData() {
@@ -142,7 +139,6 @@ void Restacker::restackBlockOne(int i) {
   foreach (FootnoteItem *fni, bi->footnotes()) {
     QPointF p = bi->findRefText(fni->data()->tag());
     double rp = yblock + p.y() + 0.001*p.x();
-    qDebug() << "  rbo: prep foot place" << p << rp << fni->data()->tag();
     footplace[isheet].insert(rp, fni);
     yfn -= fni->data()->height();
   }
@@ -268,11 +264,6 @@ void Restacker::restackFootnotesOnSheet() {
   double y = blocks[0]->style().real("page-height")
     - blocks[0]->style().real("margin-bottom");
   QMultiMap<double, FootnoteItem *> const &foots = footplace[isheet];
-  for (QMultiMap<double, FootnoteItem *>::const_iterator i
-	 = foots.begin(); i!=foots.end(); ++i) {
-    qDebug() << "restackfootnotes y="<< i.key()
-	     << "txt=" << i.value()->tagText();
-  }
   foreach (FootnoteItem *fni, foots) 
     y -= fni->data()->height();
   foreach (FootnoteItem *fni, foots) {

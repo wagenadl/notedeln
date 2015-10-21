@@ -7,7 +7,6 @@
 LateNoteManager::LateNoteManager(QString root, QObject *parent):
   Data(0), dir(root) {
   QObject::setParent(parent);
-  qDebug() << "LateNoteManager" << root << this;
   nb = 0;
   loaded = false;
 }
@@ -35,13 +34,11 @@ void LateNoteManager::ensureLoaded() {
 }
 
 LateNoteData *LateNoteManager::newNote(QPointF p0, QPointF p1) {
-  qDebug() << "LateNoteManager::newNote" << dir.absolutePath() << dir.exists();
   if (!dir.exists()) 
     QDir("/").mkpath(dir.absolutePath());
   LateNoteFile *f = createLateNoteFile(dir, this);
   files << f;
   LateNoteData *d = f->data();
-  qDebug() << "  new note" << d << d->uuid();
   d->setBook(nb);
   d->setPos(p0);
   if (!p1.isNull())
@@ -58,7 +55,6 @@ void LateNoteManager::setBook(Notebook *b) {
 
 void LateNoteManager::addChild(Data *d, ModType mt) {
   QString u = d->uuid();
-  qDebug() << "LNM: add" << u;
   // This does _not_ restore if file deleted.
   Data::addChild(d, mt);
 }
@@ -70,7 +66,6 @@ Data *LateNoteManager::takeChild(Data *d, ModType mt) {
 }
 
 bool LateNoteManager::saveAll() {
-  qDebug() << "LNM: saveAll";
   bool ok = true;
   for (LateNoteFile *f: files) 
     if (f && f->needToSave())

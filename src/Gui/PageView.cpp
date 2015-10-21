@@ -93,7 +93,6 @@ void PageView::resizeEvent(QResizeEvent *e) {
 }
 
 void PageView::handleSheetRequest(int n) {
-  qDebug() << "PageView" << this << "handleSheetRequest" << n;
   BaseScene *sc = 0;
   switch (currentSection) {
   case Front:
@@ -103,7 +102,6 @@ void PageView::handleSheetRequest(int n) {
     break;
   case Entries:
     sc = entryScene.obj();
-    qDebug() << "  entryscene startpage=" << entryScene->startPage();
     break;
   }
   if (sc && currentSheet < sc->sheetCount()) {
@@ -115,7 +113,6 @@ void PageView::handleSheetRequest(int n) {
       return;
     }
   }
-  qDebug() << "  pageview" << this << "going to sheet" << n;
   gotoSheet(n);
 }
 
