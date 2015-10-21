@@ -67,6 +67,14 @@ LateNoteManager *Entry::lateNoteManager() const {
   return lnm_;
 }
 
+bool Entry::needToSave() const {
+  if (file_ && file_->needToSave())
+    return true;
+  if (lnm_ && lnm_->needToSave())
+    return true;
+  return false;
+}
+
 bool Entry::saveNow() const {
   bool ok = true;
   if (file_ && file_->needToSave()) 
