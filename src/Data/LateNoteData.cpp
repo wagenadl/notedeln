@@ -24,9 +24,9 @@ static Data::Creator<LateNoteData> c("latenote");
 
 LateNoteData::LateNoteData(Data *parent): GfxNoteData(0) {
   setType("latenote");
-  nb = 0;
   if (parent)
     parent->addChild(this, InternalMod);
+  nb = 0;
 }
 
 LateNoteData::~LateNoteData() {
@@ -44,4 +44,8 @@ void LateNoteData::markModified(ModType mt) {
 
 void LateNoteData::setBook(Notebook *b) {
   nb = b;
+}
+
+Notebook *LateNoteData::book() const {
+  return nb ? nb : GfxNoteData::book();
 }
