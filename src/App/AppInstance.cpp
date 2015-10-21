@@ -134,15 +134,16 @@ void AppInstance::commitNowUnless() {
 }
   
 void AppInstance::commitNow() {
+  book->flush();
   if (mostRecentChange.isNull())
+    return;
+  if (!backgroundVC)
     return;
   QString vc = book->style().string("vc");
   if (vc.isEmpty())
     return;
-  
-  book->flush();
-  VersionControl::commit(book->dirPath(), vc);
   mostRecentChange = QDateTime(); // invalidate
+  backgroundVC->commit(book->dirPath(), vc);
 }
 
 void AppInstance::committed(bool ok) {
