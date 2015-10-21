@@ -52,11 +52,11 @@ GfxNoteItem::GfxNoteItem(GfxNoteData *data, Item *parent):
   setFlag(ItemIsFocusable);
   connect(text->document(), SIGNAL(contentsChanged(int, int, int)),
 	  SLOT(updateTextPos()));
-  updateTextPos();
   if (data->text()->lineStarts().isEmpty()) 
     text->document()->relayout();
   else
     text->document()->recalculateCharacterWidths();
+  updateTextPos();
 }
 
 GfxNoteItem::~GfxNoteItem() {
