@@ -51,28 +51,27 @@ ResLoader::ResLoader(Resource *parent, bool convertHtmlToPdf):
   redirectCount = 0;
 
   src = parentRes->sourceURL();
+  if (src.scheme()=="page")
+    return;
+  
+  parentRes->ensureDir();
   dst = new QFile(parentRes->archivePath(), this);
-
-  startDownload();
 }
+
+void ResLoader::start() {
+  if (src.scheme()=="page") {
+    ok = true;
+    emit finished();
+    return;
+  }
+  startDownload();
+} 
 
 void ResLoader::startDownload() {
   if (!dst->open(QFile::WriteOnly)) {
     qDebug() << "ResLoader: Cannot open dst";
     err = true;
     return;
-  }
-
-  if (src.scheme() == "page") {
-    dst->close();
-    ok = true;
-    QTimer *t = new QTimer(this);
-    connect(t, SIGNAL(timeout()), SIGNAL(finished()));
-    t->setSingleShot(true);
-    t->start(1);
-    return;
-    // This absurd code ensures that Resource (and others?) have a chance to
-    // connect to our finished() signal before we emit it.
   }
 
   QNetworkRequest rq(src);

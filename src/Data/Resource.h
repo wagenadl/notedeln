@@ -61,6 +61,7 @@ public: // functions to do with actually acquiring a resource
   void getArchiveAndPreview(); // completes in b/g. Requires tag, but uses
   // sourceUrl if present.
   void getPreviewOnly(); // completes in b/g. Requires tag, sourceUrl.
+  void ensureDir();
 signals:
   void finished(); // emitted when one of the getXX functions finishes
 private slots:
@@ -68,7 +69,6 @@ private slots:
   void magicWebUrlFinished();
   void magicObjectUrlFinished();
 private:
-  void ensureDir();
   void ensureArchiveFilename();
   void doMagic();
 private:

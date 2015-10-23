@@ -29,6 +29,7 @@ class ResLoader: public QObject {
 public:
   ResLoader(class Resource *parent, bool convertHtmlToPdf=true);
   virtual ~ResLoader();
+  void start();
   bool getNow(double timeout_s=-1); // true if finished without error
   bool getNowDialog(double delay_s = 0.2);
   bool complete() const; // true if finished without error

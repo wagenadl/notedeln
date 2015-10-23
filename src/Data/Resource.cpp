@@ -176,6 +176,8 @@ static QString safeBaseName(QString fn) {
 void Resource::ensureArchiveFilename() {
   if (!arch.isEmpty())
     return;
+  if (src.scheme()=="page")
+    return;
   QString base = tag_;
   if (src.isLocalFile()) {
     // use extension from local file
@@ -203,7 +205,6 @@ bool Resource::importImage(QImage img) {
 
 bool Resource::import() {
   ensureArchiveFilename();
-  ensureDir();
   ResLoader *l = new ResLoader(this);
   bool ok = l->getNowDialog();
   if (!ok)
@@ -216,9 +217,9 @@ void Resource::getArchive() {
   if (loader)
     return; // can't start another one
   ensureArchiveFilename();
-  ensureDir();
   loader = new ResLoader(this);
   connect(loader, SIGNAL(finished()), SLOT(downloadFinished()));
+  loader->start();
 }
   
 void Resource::getArchiveAndPreview() {
@@ -227,10 +228,10 @@ void Resource::getArchiveAndPreview() {
   ensureArchiveFilename();
   if (prev.isEmpty())
     setPreviewFilename(safeBaseName(tag_) + "-" + uuid() + "p.png");
-  ensureDir();
   if (src.isValid()) {
     loader = new ResLoader(this);
     connect(loader, SIGNAL(finished()), SLOT(downloadFinished()));
+    loader->start();
   } else {
     if (magic)
       delete magic;
@@ -246,9 +247,9 @@ void Resource::getPreviewOnly() {
     setPreviewFilename(safeBaseName(tag_) + "-" + uuid() + "p.png");
   if (!arch.isEmpty())
     setArchiveFilename("");
-  ensureDir();
   loader = new ResLoader(this);
   connect(loader, SIGNAL(finished()), SLOT(downloadFinished()));
+  loader->start();
 }
 
 void Resource::downloadFinished() {
@@ -281,23 +282,24 @@ void Resource::doMagic() {
     desc = magic->desc();
     if (magic->webUrl().isValid()) {
       src = magic->webUrl();
+      if (src.scheme()=="page")
+        return;
       ensureArchiveFilename();
-      ensureDir();
       loader = new ResLoader(this, false);
       connect(loader, SIGNAL(finished()), SLOT(magicWebUrlFinished()));
+      loader->start();
       return;
     } else if (magic->objectUrl().isValid()) {
       src = magic->objectUrl();
+      if (src.scheme()=="page")
+        return;
       ensureArchiveFilename();
       if (prev.isEmpty())
 	setPreviewFilename(safeBaseName(tag_) + "-" + uuid() + "p.png");
-      ensureDir();
       loader = new ResLoader(this);
       connect(loader, SIGNAL(finished()), SLOT(magicObjectUrlFinished()));
+      loader->start();
       return;
-    //} else if (magic->keepAlways()) {
-    //  markModified();
-    //  emit finished();
     } else {
       ttl = "";
       desc = "";
@@ -330,6 +332,7 @@ void Resource::magicWebUrlFinished() {
 	a.close();
 	loader = new ResLoader(this);
 	connect(loader, SIGNAL(finished()), SLOT(magicObjectUrlFinished()));
+        loader->start();
       } else {
 	markModified();
 	emit finished();
@@ -339,6 +342,7 @@ void Resource::magicWebUrlFinished() {
       ensureArchiveFilename();
       loader = new ResLoader(this);
       connect(loader, SIGNAL(finished()), SLOT(magicObjectUrlFinished()));
+      loader->start();
     } else {
       markModified();
       emit finished();

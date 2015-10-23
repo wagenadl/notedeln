@@ -22,6 +22,9 @@
 #include "Magician.h"
 #include "Magicians.h"
 #include "TextItemDoc.h"
+#include "Notebook.h"
+#include "TOC.h"
+#include "TOCEntry.h"
 
 #include <QRegExp>
 #include <QDebug>
@@ -62,8 +65,9 @@ TextCursor ResourceMagic::explicitLinkAt(TextCursor const &c,
 }
 
 ResourceMagic::ResourceMagic(QString refText, Data *parent):
-  QObject(parent), refText(refText),
-  magicians(Magicians::magicians(parent->style())) {
+  QObject(parent), refText(refText), 
+  magicians(Magicians::magicians(parent->style())),
+  book(parent ? parent->book() : 0) {  
   iter = magicians.first(refText);
 }
 
@@ -82,14 +86,14 @@ QUrl ResourceMagic::webUrl() const {
   if (isExhausted())
     return QUrl();
   else
-    return iter->webUrl(refText);
+    return completePageUrl(iter->webUrl(refText));
 }
 
 QUrl ResourceMagic::objectUrl() const {
   if (isExhausted())
     return QUrl();
   else
-    return iter->objectUrl(refText);
+    return completePageUrl(iter->objectUrl(refText));
 }
 
 QUrl ResourceMagic::objectUrlFromWebPage(QString page) const {
@@ -97,6 +101,28 @@ QUrl ResourceMagic::objectUrlFromWebPage(QString page) const {
     return QUrl();
   else
     return iter->objectUrlFromWebPage(refText, page);
+}
+
+QUrl ResourceMagic::completePageUrl(QUrl u) const {
+  if (u.scheme() != "page")
+    return u;
+  if (!book)
+    return u;
+  TOC *toc = book->toc();
+  if (!toc)
+    return u;
+  QString s = u.host();
+  int p0 = s.toInt();
+  int dp = 0;
+  if (s[s.size()-1]>='a') {
+    p0 = s.left(s.size()-1).toInt();
+    dp = 1 + s.at(s.size()-1).unicode() - 'a';
+  } 
+  TOCEntry *te = toc->find(p0);
+  if (!te)
+    return u;
+  u.setPath(QString("%1/%2").arg(te->uuid()).arg(p0 + dp - te->startPage()));
+  return u;
 }
 
 bool ResourceMagic::objectUrlNeedsWebPage() const {
