@@ -94,8 +94,10 @@ void OneLink::enter(QGraphicsSceneHoverEvent *e) {
 }
 
 void OneLink::leave() {
-  if (popper) 
+  if (popper) {
+    popper->setParent(0);
     popper->deleteLater();
+  }
   popper = 0;
 }
 

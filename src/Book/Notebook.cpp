@@ -210,7 +210,7 @@ void Notebook::copyStyleFile(QDir d, QString vc) {
     QString l = in.readLine();
     if (l.indexOf("\"vc\"")>=0)
       l.replace("\"\"", "\"" + vc + "\"");
-    out << l;
+    out << l << "\n";
   }
 }  
 

@@ -35,11 +35,14 @@ QVariantMap const &MagicBiblio::biblio(Style const &st) {
   if (!st.contains("bib-file"))
     return empty;
   QString k = st.string("bib-file");
+  if (k.isEmpty())
+    return empty;
   QDateTime lastmod = QFileInfo(k).lastModified();
   if (!bbls.contains(k) || lastmod>lastloaded[k]) {
     bbls[k] = JSONFile::load(k);
     lastloaded[k] = lastmod;
   }
+  qDebug() << "Got biblio for" << k;
   return bbls[k];
 }
 
@@ -59,8 +62,9 @@ MagicBiblio::MagicBiblio(QString tag, Style const &st) {
       url_ = QUrl("file://" + dir.absoluteFilePath(tag + ".pdf"));
     else if (tag_!=tag && dir.exists(tag_ + ".pdf"))
       url_ = QUrl("file://" + dir.absoluteFilePath(tag_ + ".pdf"));
-  }
-  // otherwise, url_ will be null
+  } // otherwise, url_ will be null
+
+  qDebug() << "MagicBiblio" << tag << ref_ << url_;
 }
 
 bool MagicBiblio::ok() const {
