@@ -29,6 +29,9 @@ public:
   virtual ~App();
 public:
   static App *instance();
+  class CUI *cui();
+private:
+  CUI *cui_;
 };
 
 #endif

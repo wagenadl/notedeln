@@ -29,6 +29,7 @@ class EntryData: public Data {
   Q_PROPERTY(int startPage READ startPage WRITE setStartPage)
   Q_PROPERTY(bool unlocked READ isUnlocked WRITE setUnlocked)
   Q_PROPERTY(int stampTime READ stampTime WRITE setStampTime)
+  Q_PROPERTY(QString cui READ cui WRITE setCui)
 public:
   // constructor and destructor  
   EntryData(Data *parent=0);
@@ -37,12 +38,14 @@ public:
   int startPage() const;
   bool isUnlocked() const;
   int stampTime() const;
+  QString cui() const;
   /* stampTime > 0 means: always stamp; < 0 means: never stamp; = 0 means
      stamp if auto-timestamp-min-dt is exceeded. */
   // write properties
   void setStartPage(int);
   void setUnlocked(bool);
   void setStampTime(int);
+  void setCui(QString);
   // other
   virtual bool isWritable() const;
   void resetCreation(); // only works if isempty.
@@ -71,6 +74,7 @@ protected:
   int startPage_;
   bool unlocked_;
   int stampTime_;
+  QString cui_;
   TitleData *title_;
   int maxSheet;
   Notebook *nb;
