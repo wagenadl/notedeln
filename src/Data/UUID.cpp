@@ -24,7 +24,7 @@ QString UUID::create(int bits) {
   for (int k=0; k<bits; k+=16) {
     int x = Random::random();
     for (int l=0; l<16; l+=4) {
-      if (l>=bits)
+      if (k+l >= bits)
 	break;
       int y = x & 15;
       if (y<10)
