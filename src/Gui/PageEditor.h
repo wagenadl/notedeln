@@ -39,6 +39,8 @@ public slots:
   void gotoFront();
 signals:
   void newEditorCreated(QWidget *);
+private slots:
+  void nowOnEntry(int p0, int dp);
 protected:
   void resizeEvent(QResizeEvent *);
   void keyPressEvent(QKeyEvent *);

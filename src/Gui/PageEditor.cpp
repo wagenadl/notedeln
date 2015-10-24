@@ -95,7 +95,7 @@ void PageEditor::initialize() {
 	  view, SLOT(goRelative(int, Qt::KeyboardModifiers)));
 
   connect(view, SIGNAL(onEntryPage(int, int)),
-	  toolview->toolbars(), SLOT(showTools()));
+	  this, SLOT(nowOnEntry(int, int)));
   connect(view, SIGNAL(onFrontMatter(int)),
 	  toolview->toolbars(), SLOT(hideTools()));
   connect(view, SIGNAL(scaled(double)),
@@ -178,4 +178,10 @@ void PageEditor::changeEvent(QEvent *e) {
   QMainWindow::changeEvent(e);
   if (toolview && e->type()==QEvent::WindowStateChange)
     toolview->setFullScreen(windowState() & Qt::WindowFullScreen);
+}
+
+void PageEditor::nowOnEntry(int p0, int dp) {
+  toolview->toolbars()->showTools();
+  bool onLastPage = p0 + dp == bank->book()->toc()->newPageNumber() - 1;
+  toolview->toolbars()->navbar()->setOnLastPage(onLastPage);
 }

@@ -85,7 +85,7 @@ QRectF ToolItem::boundingRect() const {
 
 void ToolItem::paintContents(QPainter *p) {
   if (!isEnabled())
-    p->setOpacity(0.5);
+    p->setOpacity(0.25);
   if (svg) 
     svg->render(p, boundingRect());
 }
