@@ -477,6 +477,8 @@ void PageView::gotoFront() {
 void PageView::gotoTOC(int n) {
   leavePage();
   currentSection = TOC;
+  if (n<0)
+    n = bank->tocScene()->sheetCount();
   gotoSheet(n-1);
 }
 

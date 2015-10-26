@@ -95,6 +95,8 @@ void Notebook::load() {
 }
 
 Notebook::~Notebook() {
+  if (needToSave())
+    qDebug() << "WARNING: Notebook destructed while needing to save";
 }
 
 Style const &Notebook::style() const {
@@ -329,25 +331,48 @@ BookData *Notebook::bookData() const {
   return bookFile_->data();
 }
 
-void Notebook::flush() {
+bool Notebook::needToSave() const {
+  if (tocFile_->needToSave()) 
+    return true;
+
+  if (bookFile_->needToSave()) 
+    return true;
+
+  foreach (CachedEntry pf, pgFiles) 
+    if (pf && pf.needToSave())
+      return true;
+
+  return false;
+}  
+
+bool Notebook::flush() {
+  bool actv = false;
   bool ok = true;
 
-  if (tocFile_->needToSave()) 
+  if (tocFile_->needToSave()) {
+    actv = true;
     ok = ok && tocFile_->saveNow();
+  }
 
   if (bookFile_->needToSave()) {
+    actv = true;
     ok = ok && bookFile_->saveNow();
     RecentBooks::instance()->addBook(this);
   }
 
-  foreach (CachedEntry pf, pgFiles) 
-    if (pf)
+  foreach (CachedEntry pf, pgFiles) {
+    if (pf && pf.needToSave()) {
+      actv = true;
       ok = ok && pf.saveNow();
+    }
+  }
 
   index_->flush();
 
   if (!ok)
     qDebug() << "Notebook flushed, with errors";
+
+  return actv;
 }
 
 

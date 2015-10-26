@@ -19,7 +19,8 @@ public:
   void setBook(class Notebook *);
   virtual void addChild(Data *, ModType mt=UserVisibleMod);
   virtual Data *takeChild(Data *, ModType mt=UserVisibleMod);
-  bool saveAll();
+  bool needToSave() const;
+  bool saveAll() const;
 private:
   void ensureLoaded();
 private:

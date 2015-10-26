@@ -58,10 +58,11 @@ public:
   class Style const &style() const;
   QString filePath(QString) const; // path of file in root
   QString dirPath() const; // path of root
+  bool needToSave() const;
 signals:
   void mod();
 public slots:
-  void flush();
+  bool flush();
   void markReadOnly();
 private:
   Notebook(QString path, bool readonly); // throws QString exception on failure

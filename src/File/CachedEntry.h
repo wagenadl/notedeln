@@ -34,7 +34,8 @@ public:
 public:
   bool isValid() const;
   bool hasFile() const;
-  bool saveNow() const;
+  bool saveNow() const; // true if OK
+  bool needToSave() const; // true if need
   operator EntryData *() const; // will throw exception rather than return null
   EntryData *operator->() const; // will throw exception rather than return null
   EntryData *data() const; // will throw exception rather than return null

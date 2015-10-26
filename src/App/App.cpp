@@ -17,9 +17,12 @@
 // App.C
 
 #include "App.h"
+#include "CUI.h"
 #include <stdio.h>
 
 App::App(int &argc, char **argv): QApplication(argc, argv) {
+  cui_ = new CUI();
+  
 #if defined Q_OS_ANDROID
   setAutoSipEnabled(true);
 #endif
@@ -30,4 +33,8 @@ App::~App() {
 
 App *App::instance() {
   return dynamic_cast<App*>(QApplication::instance());
+}
+
+CUI *App::cui() {
+  return cui_;
 }

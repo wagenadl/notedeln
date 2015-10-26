@@ -48,9 +48,12 @@ public:
 	   one of the magic regexps.
    */
 private:
+  QUrl completePageUrl(QUrl) const;
+private:
   QString refText;
   class Magicians const &magicians;
   class Magician const *iter;
+  class Notebook *book;
 };
 
 #endif

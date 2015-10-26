@@ -43,6 +43,8 @@ AppInstance::AppInstance(App *app, Notebook *nb): book(nb) {
 }
 
 AppInstance::~AppInstance() {
+  commitNow();
+  
   delete aopen;
   for (auto pe: editors)
     delete pe;
@@ -129,7 +131,14 @@ void AppInstance::commitNowUnless() {
     commitTimer->setInterval(500 * COMMIT_AVOID_S); // that's 1/2 x avoid ival
     commitTimer->start();
   } else {
-    commitNow();
+    book->flush();
+    if (!backgroundVC)
+      return;
+    QString vc = book->style().string("vc");
+    if (vc.isEmpty())
+      return;
+    mostRecentChange = QDateTime(); // invalidate
+    backgroundVC->commit(book->dirPath(), vc);
   }
 }
   
@@ -137,13 +146,11 @@ void AppInstance::commitNow() {
   book->flush();
   if (mostRecentChange.isNull())
     return;
-  if (!backgroundVC)
-    return;
   QString vc = book->style().string("vc");
   if (vc.isEmpty())
     return;
+  VersionControl::commit(book->dirPath(), vc);
   mostRecentChange = QDateTime(); // invalidate
-  backgroundVC->commit(book->dirPath(), vc);
 }
 
 void AppInstance::committed(bool ok) {

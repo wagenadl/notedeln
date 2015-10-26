@@ -65,7 +65,14 @@ Data *LateNoteManager::takeChild(Data *d, ModType mt) {
   return Data::takeChild(d, mt);
 }
 
-bool LateNoteManager::saveAll() {
+bool LateNoteManager::needToSave() const {
+  for (LateNoteFile *f: files) 
+    if (f && f->needToSave())
+      return true;
+  return false;
+}
+
+bool LateNoteManager::saveAll() const {
   bool ok = true;
   for (LateNoteFile *f: files) 
     if (f && f->needToSave())

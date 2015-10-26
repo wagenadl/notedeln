@@ -82,3 +82,7 @@ void CachedEntry::setBook(class Notebook *nb) {
 bool CachedEntry::saveNow() const {
   return obj()->saveNow();
 }
+
+bool CachedEntry::needToSave() const {
+  return obj()->needToSave();
+}

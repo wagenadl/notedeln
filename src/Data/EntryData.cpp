@@ -24,6 +24,9 @@
 #include "ResManager.h"
 #include "Assert.h"
 
+#include "App.h"
+#include "CUI.h"
+
 static Data::Creator<EntryData> c("page");
 // I would *like* to rename the typ:page to typ:entry, but I cannot, because
 // TOCEntry already uses that. So I'll leave that for now.
@@ -35,13 +38,14 @@ EntryData::EntryData(Data *parent): Data(parent) {
   unlocked_ = false;
   stampTime_ = 0;
   title_ = new TitleData(this);
+  cui_ = App::instance()->cui()->current();
+
   connect(title_, SIGNAL(textMod()), SIGNAL(titleMod()));
   maxSheet = 0;
 }
 
 EntryData::~EntryData() {
 }
-
 
 QList<class BlockData *> EntryData::blocks() const {
   return children<BlockData>();
@@ -128,6 +132,15 @@ int EntryData::startPage() const {
   return startPage_;
 }
 
+QString EntryData::cui() const {
+  return cui_;
+}
+
+void EntryData::setCui(QString c) {
+  cui_ = c;
+  markModified(InternalMod);
+}
+
 bool EntryData::isUnlocked() const {
   return unlocked_;
 }
@@ -137,9 +150,11 @@ bool EntryData::isWritable() const {
   
   if (!b || b->isReadOnly())
     return false;
-  else if (isUnlocked())
+  if (isUnlocked())
     return true;
-  else return isEmpty() || isRecent();
+  if (isEmpty())
+    return true;
+  return isRecent() && App::instance()->cui()->match(cui_);
 }
 
 bool EntryData::lateNotesAllowed() const {

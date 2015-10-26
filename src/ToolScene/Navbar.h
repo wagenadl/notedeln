@@ -28,6 +28,7 @@ public:
   Navbar(QGraphicsItem *parent);
   virtual ~Navbar();
   void showHelp();
+  void setOnLastPage(bool);
 signals:
   void goTOC(Qt::KeyboardModifiers);
   void goFind();
@@ -37,6 +38,8 @@ signals:
   void goPrint();
 protected:
   virtual void doLeftClick(QString, Qt::KeyboardModifiers);
+private:
+  ToolItem *ti_n1, *ti_n10, *ti_end, *ti_plus;
 };
 
 #endif

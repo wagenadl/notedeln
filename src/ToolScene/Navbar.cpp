@@ -25,6 +25,7 @@
 #define NAV_FIND "find"
 #define NAV_PREV "prev"
 #define NAV_NEXT "next"
+#define NAV_PLUS "plus"
 #define NAV_P10 "p10"
 #define NAV_N10 "n10"
 #define NAV_END "end"
@@ -55,16 +56,19 @@ Navbar::Navbar(QGraphicsItem *parent): Toolbar(parent) {
   t->setSvg(":icons/nav-next.svg");
   t->setBalloonHelpText(":nav-next");
   addTool(NAV_NEXT, t);
+  ti_n1 = t;
 
   t = new ToolItem();
   t->setSvg(":icons/nav-n10.svg");
   t->setBalloonHelpText(":nav-n10");
   addTool(NAV_N10, t);
+  ti_n10 = t;
 
   t = new ToolItem();
   t->setSvg(":icons/nav-end.svg");
   t->setBalloonHelpText(":nav-end");
   addTool(NAV_END, t);
+  ti_end = t;
 
   addSpace(-1.5);
   
@@ -83,6 +87,13 @@ Navbar::Navbar(QGraphicsItem *parent): Toolbar(parent) {
   t->setBalloonHelpText(":nav-help");
   addTool(NAV_HELP, t);
 
+  t = new ToolItem();
+  t->setSvg(":icons/nav-plus.svg");
+  t->setBalloonHelpText(":nav-plus");
+  addTool(NAV_PLUS, t);
+  ti_plus = t;
+  t->setPos(ti_n1->pos());
+  t->setVisible(false);
 }
 
 
@@ -98,7 +109,7 @@ void Navbar::doLeftClick(QString s, Qt::KeyboardModifiers m) {
     emit goRelative(-10, m);
   else if (s==NAV_PREV)
     emit goRelative(-1, m);
-  else if (s==NAV_NEXT)
+  else if (s==NAV_NEXT || s==NAV_PLUS)
     emit goRelative(1, m);
   else if (s==NAV_N10)
     emit goRelative(10, m);
@@ -132,4 +143,11 @@ void Navbar::showHelp() {
     "You should have received a copy of the GNU General Public License"
     " along with this program.  If not, see "
     " http://www.gnu.org/licenses//gpl-3.0.en.html.");
+}
+
+void Navbar::setOnLastPage(bool y) {
+  ti_n1->setVisible(!y);
+  ti_plus->setVisible(y);
+  ti_n10->setEnabled(!y);
+  ti_end->setEnabled(!y);
 }

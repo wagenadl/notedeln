@@ -61,7 +61,7 @@ public slots:
   PageView *newView(); // opens new view on a named entry page
   void gotoEntryPage(QString);
   void gotoEntryPage(int pgno, int dir=0);
-  void gotoTOC(int pgno=1);
+  void gotoTOC(int pgno=-1);
   void goTOC(Qt::KeyboardModifiers=0);
   void gotoFront();
   void nextPage();
@@ -74,7 +74,7 @@ public slots:
   void ensureSearchVisible(QString uuid, QString phrase);
   void openPrintDialog();
 signals:
-  void onEntryPage(int, int); // start-page-of-entry, sheet-no
+  void onEntryPage(int p0, int dp); // start page of entry, sheet no
   void onFrontMatter(int);
   void scaled(double);
 public:
