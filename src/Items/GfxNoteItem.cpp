@@ -77,29 +77,82 @@ void GfxNoteItem::abandon() {
     ancestor->sizeToFit();
 }
 
-static double euclideanLength2(QPointF p) {
-  return p.x()*p.x() + p.y()*p.y();
-}
-
-static QPointF retract(QPointF p, double d) {
-  double l = sqrt(euclideanLength2(p))+.001;
-  QPointF p0 = (1/l) * p; // normalized
-  return p - d * p0;
+static double sigmoid(double xl, double xr) {
+  double w = xr - xl; // width of box
+  xl += .1*w;
+  w *= .8;
+  double x = -xl; // posn of point relative to left of box
+  if (x<0)
+    return xl;
+  x = x * .6;
+  if (x>w)
+    return xl+w;
+  //double a = x/w;
+  //constexpr double ALPHA = 2;
+  //a = pow(a, ALPHA);
+  return xl + x; //+ w*a;
 }
 
 QPointF GfxNoteItem::nearestCorner(QPointF pbase) {
   QRectF docr = text->document()->tightBoundingRect()
     .translated(text->pos() - pbase);
 
-  QPointF p;
   double dx = style().real("note-x-inset");
-  if (docr.left()>0) 
-    p = (docr.topLeft() + docr.bottomLeft()) / 2 + QPointF(dx, 0);
-  else if (docr.right()<0)
-    p = (docr.topRight() + docr.bottomRight()) / 2 - QPointF(dx, 0);
-  else 
-    p = docr.center();
-  return pbase + retract(p, 1.5*dx);
+  double x0, y0;
+  double ygood = docr.top()>0 ? docr.top()
+    : docr.bottom()<0 ? -docr.bottom()
+    : 0;
+  double xgood = docr.left()>0 ? docr.left()
+    : docr.right()<0 ? - docr.right()
+    : 0;
+  if (ygood>xgood) {
+    // coming mostly from above or below
+    if (docr.top() > dx) {
+      // coming substantially from above
+      y0 = docr.top() - dx/2;
+      x0 = sigmoid(docr.left(), docr.right());
+    } else if (docr.bottom() < -dx) {
+      // coming substantially from below
+      y0 = docr.bottom() + dx/2;
+      x0 = sigmoid(docr.left(), docr.right());
+    } else if (docr.left() > dx) {
+      // coming substantially from the left
+      x0 = docr.left() - dx/2;
+      y0 = sigmoid(docr.top(), docr.bottom());
+    } else if (docr.right() < -dx) {
+      // coming substantially from the right
+      x0 = docr.right() + dx/2;
+      y0 = sigmoid(docr.top(), docr.bottom());
+    } else {
+      // too close by; what can we do that is reasonable?
+      x0 = docr.left();
+      y0 = docr.top();
+    }
+  } else {
+    // coming mostly from left or right
+    if (docr.left() > dx) {
+      // coming substantially from the left
+      x0 = docr.left() - dx/2;
+      y0 = sigmoid(docr.top(), docr.bottom());
+    } else if (docr.right() < -dx) {
+      // coming substantially from the right
+      x0 = docr.right() + dx/2;
+      y0 = sigmoid(docr.top(), docr.bottom());
+    } else if (docr.top() > dx) {
+      // coming substantially from above
+      y0 = docr.top() - dx/2;
+      x0 = sigmoid(docr.left(), docr.right());
+    } else if (docr.bottom() < -dx) {
+      // coming substantially from below
+      y0 = docr.bottom() + dx/2;
+      x0 = sigmoid(docr.left(), docr.right());
+    } else {
+      // too close by; what can we do that is reasonable?
+      x0 = docr.left();
+      y0 = docr.top();
+    }
+  }
+  return pbase + QPointF(x0, y0);
 }
   
 
