@@ -147,6 +147,101 @@ Notebook *TOC::book() const {
   return nb;
 }
 
+QString TOC::extractUUIDFromFilename(QString fn) {
+  QRegExp re("^(\\d\\d*)-(.*).json");
+  return re.exactMatch(fn) ? re.cap(2) : "";
+}
+
+bool TOC::verify(QDir pages) const {
+  QStringList misc_errors;
+  QMultiMap<int, QString> pg2file = readPageDir(pages, misc_errors);
+
+  QStringList missing_from_directory;
+  QStringList missing_from_index;
+  QStringList duplicates_in_directory;
+
+  foreach (int pgno, entries().keys()) {
+    QString uuid = entries()[pgno]->uuid();
+    if (pg2file.contains(pgno)
+        && extractUUIDFromFilename(*pg2file.find(pgno))==uuid) {
+      // good
+    } else {
+      missing_from_directory
+        << QString("%1 (%2)").arg(pgno).arg(entries()[pgno]->uuid());
+    }
+  }
+  foreach (int pgno, pg2file.keys()) {
+    QString uuid = extractUUIDFromFilename(*pg2file.find(pgno));
+    if (pg2file.count(pgno)>1) {
+      duplicates_in_directory << QString("%1").arg(pgno);
+    } else if (entries().contains(pgno) && entries()[pgno]->uuid() == uuid) {
+      // good
+    } else {
+      missing_from_index
+        << QString("%1 (%2)").arg(pgno).arg(uuid);
+    }
+  }
+
+  if (missing_from_directory.isEmpty()
+      && missing_from_index.isEmpty()
+      && duplicates_in_directory.isEmpty()
+      && misc_errors.isEmpty())
+    return true;
+
+  // Mismatch
+  QString msg = "Detected a mismatch between the table of contents"
+    " and the actual contents of the notebook:\n";
+  if (!missing_from_directory.isEmpty())
+    msg += "The TOC contains entries that the notebook does not: "
+      + missing_from_directory.join("; ") + "\n";
+  if (!missing_from_index.isEmpty())
+    msg += "The notebook contains entries that the TOC does not: "
+      + missing_from_index.join("; ") + "\n";
+  if (!duplicates_in_directory.isEmpty())
+    msg += "The notebook contains more than one entry that start "
+      "on each of the following page numbers: "
+      + duplicates_in_directory.join("; ") + "\n";
+  if (!misc_errors.isEmpty()) 
+    msg += misc_errors.join("; ") + "\n";
+  msg += "Click OK to remove the TOC file; it will be rebuilt automatically. "
+    "Alternatively, click Abort to quit.";
+
+  if (QMessageBox::warning(0, "eln", msg,
+                           QMessageBox::Ok | QMessageBox::Abort)
+      == QMessageBox::Ok)
+    return false;
+  
+  QApplication::quit();
+  ::exit(1);
+}
+
+QMultiMap<int, QString> TOC::readPageDir(QDir pages, QStringList &error_out) {
+  QMultiMap<int, QString> pg2file;
+  QRegExp re1("^(\\d\\d*)-([a-z0-9]+).json");
+  QRegExp re0("^(\\d\\d*).json");
+  foreach (QFileInfo const &fi, pages.entryInfoList()) {
+    if (!fi.isFile())
+      continue;
+    QString fn = fi.fileName();
+    if (fn.endsWith(".moved") || fn.endsWith(".THIS")
+        || fn.endsWith(".OTHER") || fn.endsWith(".BASE")) 
+      error_out << "Presence of " + fn + " indicates unsuccessful bzr update.";
+    if (!fn.endsWith(".json"))
+      continue;
+    if (re1.exactMatch(fn)) {
+      int n = re1.cap(1).toInt();
+      pg2file.insert(n, fn);
+    } else if (re0.exactMatch(fn)) {
+      int n = re0.cap(1).toInt();
+      pg2file.insert(n, fn);
+    } else {
+      qDebug() << "unparsed" << fn;
+      error_out << "Cannot parse " + fn + " as a page file name.";
+    }
+  }
+  return pg2file;
+}  
+
 static TOC *errorReturn(QString s) {
   QMessageBox mb(QMessageBox::Critical, "Failure to rebuild TOC",
 		 QString("No TOC file found in notebook folder and I could ")
@@ -159,105 +254,20 @@ static TOC *errorReturn(QString s) {
   QApplication::quit();
   ::exit(1);
   return 0;
-}  
-
-bool TOC::verify(QDir pages) const {
-  QMap<int, QString> pg2file;
-  QMap<int, QString> pg2uuid;
-  readPageDir(pages, pg2file, pg2uuid);
-  QStringList missing_from_directory;
-  QStringList missing_from_index;
-  foreach (int pgno, entries().keys()) {
-    if (pg2file.contains(pgno)
-        && entries()[pgno]->uuid() == pg2uuid[pgno]) {
-      // good
-    } else {
-      missing_from_directory
-        << QString("%1 (%2)").arg(pgno).arg(entries()[pgno]->uuid());
-    }
-  }
-  foreach (int pgno, pg2file.keys()) {
-    if (entries().contains(pgno)
-        && entries()[pgno]->uuid() == pg2uuid[pgno]) {
-      // good
-    } else {
-      missing_from_index
-        << QString("%1 (%2)").arg(pgno).arg(pg2uuid[pgno]);
-    }
-  }
-
-  if (missing_from_directory.isEmpty()
-      && missing_from_index.isEmpty())
-    return true;
-
-  // Mismatch
-  QString msg = "Detected a mismatch between the table of contents"
-    " and the actual contents of the notebook.\n";
-  if (!missing_from_directory.isEmpty())
-    msg += "The TOC contains pages that the notebook does not: "
-      + missing_from_directory.join("; ") + "\n";
-  if (!missing_from_index.isEmpty())
-    msg += "The notebook contains pages that the TOC does not: "
-      + missing_from_index.join("; ") + "\n";
-  msg += "Click OK to remove the TOC file. (It will be rebuilt automatically.)"
-    " Or click Abort to quit.";
-
-  if (QMessageBox::warning(0, "eln", msg,
-                           QMessageBox::Ok | QMessageBox::Abort)
-      == QMessageBox::Ok)
-    return false;
-  
-  QApplication::quit();
-  ::exit(1);
 }
 
-void TOC::readPageDir(QDir pages,
-                      QMap<int, QString> &pg2file,
-                      QMap<int, QString> &pg2uuid) {
-  foreach (QFileInfo const &fi, pages.entryInfoList()) {
-    if (!fi.isFile())
-      continue;
-    QString fn = fi.fileName();
-    if (fn.endsWith(".moved") || fn.endsWith(".THIS")
-        || fn.endsWith(".OTHER") || fn.endsWith(".BASE"))
-       errorReturn("Presence of " + fn
-                   + " indicates unsuccessful bzr update.");
-    if (!fn.endsWith(".json"))
-      continue;
-    QRegExp re("^(\\d\\d*)-(.*).json");
-    if (re.exactMatch(fn)) {
-      int n = re.cap(1).toInt();
-      pg2uuid[n] = re.cap(2);
-      if (pg2file.contains(n))
-        errorReturn("Duplicate page number: "
-                    + QString::number(n) + ".");
-      pg2file[n] = fn;
-    } else {
-      QRegExp re("^(\\d\\d*).json");
-      if (re.exactMatch(fn)) {
-	int n = re.cap(1).toInt();
-	pg2uuid[n] = "";
-	if (pg2file.contains(n))
-	  errorReturn("Duplicate page number: "
-                      + QString::number(n) + ".");
-	pg2file[n] = fn;
-      } else {      
-	 errorReturn("Cannot parse " + fn + " as a page file name.");
-      }
-    }
-  }
-}  
-
 TOC *TOC::rebuild(QDir pages) {
-  QMap<int, QString> pg2file;
-  QMap<int, QString> pg2uuid;
   QProgressDialog mb("Table of contents found missing or corrupted."
                      " Attempting to rebuild...", "Cancel", 0, 1000);
   mb.setWindowModality(Qt::WindowModal);
   mb.setMinimumDuration(0);
   mb.setValue(1);
 
-  readPageDir(pages, pg2file, pg2uuid);
+  QStringList error_accum;
+  QMultiMap<int, QString> pg2file = readPageDir(pages, error_accum);
+
+  if (!error_accum.isEmpty())
+    return errorReturn(error_accum.first());
 
   TOC *toc = new TOC();
   int N = 0;
@@ -271,7 +281,10 @@ TOC *TOC::rebuild(QDir pages) {
     if (mb.wasCanceled()) 
       return 0;
 
-    QString fn = pg2file[n];
+    if (pg2file.count(n)>1)
+      errorReturn("Duplicate page number: " + QString::number(n));
+
+    QString fn = *pg2file.find(n);
     EntryFile *f = EntryFile::load(pages.absoluteFilePath(fn), 0);
     if (!f) {
       QFile fd(pages.absoluteFilePath(fn));
@@ -291,11 +304,15 @@ TOC *TOC::rebuild(QDir pages) {
       f->data()->setStartPage(n);
       mustsave = true;
     }
-    QString id = f->data()->uuid();
-    if (id!=pg2uuid[n]) {
+    QString storedid = f->data()->uuid();
+    QRegExp re("^(\\d\\d*)-(.*).json");
+    QString namedid = re.exactMatch(fn) ? re.cap(2) : "";
+    
+    if (storedid != namedid) {
       qDebug() << "TOC::rebuildTOC " << n << ":" << fn
-               << ": UUID in file is " << id << ". Corrected to " << pg2uuid[n];
-      f->data()->setUuid(pg2uuid[n]);
+               << ": UUID in file is " << storedid
+	       << ". Corrected to " << namedid;
+      f->data()->setUuid(namedid);
       mustsave = true;
     }
     if (mustsave)
