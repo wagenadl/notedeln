@@ -148,7 +148,7 @@ Notebook *TOC::book() const {
 }
 
 QString TOC::extractUUIDFromFilename(QString fn) {
-  QRegExp re("^(\\d\\d*)-(.*).json");
+  QRegExp re("(\\d\\d*)-([a-z0-9]+).json");
   return re.exactMatch(fn) ? re.cap(2) : "";
 }
 
@@ -162,15 +162,20 @@ bool TOC::verify(QDir pages) const {
 
   foreach (int pgno, entries().keys()) {
     QString uuid = entries()[pgno]->uuid();
-    if (pg2file.contains(pgno)
-        && extractUUIDFromFilename(*pg2file.find(pgno))==uuid) {
+    if (pg2file.contains(pgno, uuid.isEmpty() ? QString::number(pgno)
+			 : QString("%1-%2.json").arg(pgno, 4, 10, QChar('0'))
+                                                .arg(uuid))) {
       // good
     } else {
       missing_from_directory
         << QString("%1 (%2)").arg(pgno).arg(entries()[pgno]->uuid());
     }
   }
+  QSet<int> seen;
   foreach (int pgno, pg2file.keys()) {
+    if (seen.contains(pgno))
+      continue;
+    seen.insert(pgno);
     QString uuid = extractUUIDFromFilename(*pg2file.find(pgno));
     if (pg2file.count(pgno)>1) {
       duplicates_in_directory << QString("%1").arg(pgno);
@@ -215,6 +220,21 @@ bool TOC::verify(QDir pages) const {
   ::exit(1);
 }
 
+struct Entry_ {
+  Entry_(QString fn): fn(fn) { }
+  QString fn;
+  QString uuid;
+  QDateTime cre;
+  bool operator<(Entry_ const &other) const {
+    if (uuid.isEmpty())
+      return true;
+    if (other.uuid.isEmpty())
+      return false;
+    return cre<other.cre;
+  }
+};
+
+
 QMultiMap<int, QString> TOC::readPageDir(QDir pages, QStringList &error_out) {
   QMultiMap<int, QString> pg2file;
   QRegExp re1("^(\\d\\d*)-([a-z0-9]+).json");
@@ -235,7 +255,6 @@ QMultiMap<int, QString> TOC::readPageDir(QDir pages, QStringList &error_out) {
       int n = re0.cap(1).toInt();
       pg2file.insert(n, fn);
     } else {
-      qDebug() << "unparsed" << fn;
       error_out << "Cannot parse " + fn + " as a page file name.";
     }
   }
@@ -256,6 +275,81 @@ static TOC *errorReturn(QString s) {
   return 0;
 }
 
+void TOC::resolveDuplicates(QMultiMap<int, QString> &pg2file,
+			    QDir pages) {
+  bool dups = true;
+  while (dups) {
+    dups = false;
+    foreach (int n, pg2file.keys()) {
+      if (pg2file.count(n)>1) {
+	resolveDuplicates(pg2file, n, pages);
+	dups = true;
+      }
+    }
+  }
+}
+
+void TOC::resolveDuplicates(QMultiMap<int, QString> &pg2file, int pgno,
+			    QDir pages) {
+  // Resolves duplicates for pgno, possibly generating further duplicates
+  // at subsequent pages
+  QList<Entry_> entries;
+  for (auto it=pg2file.find(pgno); it!=pg2file.end() && it.key()==pgno;
+       ++it)
+    entries << it.value();
+  QStringList uuids;
+  for (auto &it: entries)
+    it.uuid =  extractUUIDFromFilename(it.fn);
+  for (auto &it: entries) {
+    EntryFile *f = EntryFile::load(pages.absoluteFilePath(it.fn), 0);
+    if (f) {
+      it.cre = f->data()->created();
+      delete f;
+    } else {
+      QFile fd(pages.absoluteFilePath(it.fn));
+      QFileInfo fi(fd);
+      if (fi.exists() && fi.size()>0) {
+	errorReturn("Failed to load " + it.fn + ".");  
+      } else {
+	fd.remove();
+	continue;
+      }
+    }
+  }
+  qSort(entries);
+  int k = 0;
+  for (auto &it: entries) {
+    if (it.cre.isNull())
+      continue;
+    if (k) {
+      QString fn1 = it.fn;
+      fn1.replace(QRegExp("^(\\d\\d+)"), QString("%1")
+		  .arg(pgno + k, 4, 10, QChar('0')));
+      if (!pages.rename(it.fn, fn1))
+	errorReturn("Failed to rename " + it.fn + " to " + fn1 + ".");
+      qDebug() << "Renamed" << it.fn << "to" << fn1;
+      QString res0 = it.fn; res0.replace(".json", ".res");
+      if (pages.exists(res0)) {
+	QString res1 = fn1; res1.replace(".json", ".res");
+	if (!pages.rename(res0, res1))
+	  errorReturn("Failed to rename " + res0 + " to " + res1 + ".");
+	qDebug() << "Renamed" << res0 << "to" << res1;
+      }	  
+      QString notes0 = it.fn; notes0.replace(".json", ".notes");
+      if (pages.exists(notes0)) {
+	QString notes1 = fn1; notes1.replace(".json", ".notes");
+	if (!pages.rename(notes0, notes1))
+	  errorReturn("Failed to rename " + notes0 + " to " + notes1 + ".");
+	qDebug() << "Renamed" << notes0 << "to" << notes1;  
+      }
+      pg2file.remove(pgno, it.fn);
+      pg2file.insert(pgno+k, fn1);
+      it.fn = fn1;
+    }
+    k++;
+  }
+}
+
 TOC *TOC::rebuild(QDir pages) {
   QProgressDialog mb("Table of contents found missing or corrupted."
                      " Attempting to rebuild...", "Cancel", 0, 1000);
@@ -270,6 +364,9 @@ TOC *TOC::rebuild(QDir pages) {
     return errorReturn(error_accum.first());
 
   TOC *toc = new TOC();
+
+  resolveDuplicates(pg2file, pages);
+
   int N = 0;
   foreach (int n, pg2file.keys())
     if (n>N)
@@ -281,9 +378,9 @@ TOC *TOC::rebuild(QDir pages) {
     if (mb.wasCanceled()) 
       return 0;
 
-    if (pg2file.count(n)>1)
+    if (pg2file.count(n)>1) 
       errorReturn("Duplicate page number: " + QString::number(n));
-
+   
     QString fn = *pg2file.find(n);
     EntryFile *f = EntryFile::load(pages.absoluteFilePath(fn), 0);
     if (!f) {

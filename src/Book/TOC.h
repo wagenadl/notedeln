@@ -63,6 +63,9 @@ public:
    */
 
 public:
+  static void resolveDuplicates(QMultiMap<int, QString> &pg2file, QDir pages);
+  static void resolveDuplicates(QMultiMap<int, QString> &pg2file, int pgno,
+				QDir pages);
   static QString extractUUIDFromFilename(QString fn);
   static QMultiMap<int, QString> readPageDir(QDir pages,
 					     QStringList &error_out);
