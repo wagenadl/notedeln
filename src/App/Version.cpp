@@ -34,24 +34,7 @@ namespace Version {
     return ver;
   }
 
-  QString patchbit() {
-    static QString ver = "";
-    if (ver.isEmpty()) {
-      QFile fv(":/patchlevel");
-      if (fv.open(QFile::ReadOnly)) 
-	ver = QString(fv.readAll()).simplified();
-      else
-	ver = "";
-    }
-    return ver;
-  }
     
-  QString toString() {
-    QString p = patchbit();
-    QString v = verbit();
-    return p.isEmpty() ? v : v + "+" + p;
-  }
-
   QDateTime buildDate() {
     QString date = QString(__DATE__);
     QString time = QString(__TIME__);
@@ -60,5 +43,19 @@ namespace Version {
     return QDateTime(d, t);
   }
 
+  QString toString() {
+    static QString ver = "";
+    if (ver.isEmpty()) {
+      ver = verbit();
+      int idx = ver.lastIndexOf(".");
+      QString subv = ver.mid(idx+1);
+      if (subv=="?" || (subv.toInt()&1)==1) {
+        // odd version: development
+        QDateTime dt = buildDate();
+	ver += "." + dt.toString("yyMMdd");
+      }
+    }
+    return ver;
+  }
 };
 
