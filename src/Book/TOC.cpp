@@ -162,29 +162,29 @@ bool TOC::verify(QDir pages) const {
 
   foreach (int pgno, entries().keys()) {
     QString uuid = entries()[pgno]->uuid();
-    if (pg2file.contains(pgno, uuid.isEmpty() ? QString::number(pgno)
-			 : QString("%1-%2.json").arg(pgno, 4, 10, QChar('0'))
-                                                .arg(uuid))) {
-      // good
-    } else {
+    QString fn = uuid.isEmpty()
+      ? QString("%1.json").arg(pgno)
+      : QString("%1-%2.json").arg(pgno, 4, 10, QChar('0')).arg(uuid);
+    if (!pg2file.contains(pgno, fn)) 
       missing_from_directory
-        << QString("%1 (%2)").arg(pgno).arg(entries()[pgno]->uuid());
-    }
+        << (uuid.isEmpty()
+            ? QString("%1").arg(pgno)
+            : QString("%1 (%2)").arg(pgno, 4, 10, QChar('0')).arg(uuid));
   }
   QSet<int> seen;
   foreach (int pgno, pg2file.keys()) {
     if (seen.contains(pgno))
       continue;
     seen.insert(pgno);
-    QString uuid = extractUUIDFromFilename(*pg2file.find(pgno));
-    if (pg2file.count(pgno)>1) {
+    QString fn = *pg2file.find(pgno);
+    QString uuid = extractUUIDFromFilename(fn);
+    if (pg2file.count(pgno)>1) 
       duplicates_in_directory << QString("%1").arg(pgno);
-    } else if (entries().contains(pgno) && entries()[pgno]->uuid() == uuid) {
-      // good
-    } else {
+    else if (!entries().contains(pgno) || entries()[pgno]->uuid()!=uuid) 
       missing_from_index
-        << QString("%1 (%2)").arg(pgno).arg(uuid);
-    }
+        << (uuid.isEmpty()
+            ? QString("%1").arg(pgno)
+            : QString("%1 (%2)").arg(pgno, 4, 10, QChar('0')).arg(uuid));
   }
 
   if (missing_from_directory.isEmpty()
