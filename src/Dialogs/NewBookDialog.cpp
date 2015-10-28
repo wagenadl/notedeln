@@ -135,7 +135,7 @@ QString NewBookDialog::getNewSimple() {
     bool ok = Notebook::create(fn, "");
     if (ok)
       return fn;
-    QMessageBox::critical(0, "eln",
+    QMessageBox::critical(0, Translate::_("eln"),
                 Translate::_("could-not-create-notebook").arg(fn)
 			  + "\n" + Notebook::errorMessage(),
                           QMessageBox::Cancel);
@@ -148,12 +148,13 @@ QString NewBookDialog::getNewArchive() {
   while (nbd.exec()) {
     QString fn = nbd.location();
     if (fn.isEmpty()) {
-      QMessageBox::warning(&nbd, "eln", Translate::_("specify-location"));
+      QMessageBox::warning(&nbd, Translate::_("eln"),
+                           Translate::_("specify-location"));
       continue;
     }
 
     if (QDir::current().exists(fn)) {
-      QMessageBox::warning(&nbd, "eln",
+      QMessageBox::warning(&nbd, Translate::_("eln"),
 			   Translate::_("could-not-create-notebook-exists").
 			   arg(fn),
                            QMessageBox::Cancel);
@@ -162,7 +163,7 @@ QString NewBookDialog::getNewArchive() {
 
     bool ok = Notebook::create(fn, nbd.hasArchive() ? "git" : "");
     if (!ok) {
-      QMessageBox::critical(&nbd, "eln",
+      QMessageBox::critical(&nbd, Translate::_("eln"),
 			    Translate::_("could-not-create-notebook").arg(fn)
 			    + "\n" + Notebook::errorMessage(),
                           QMessageBox::Cancel);
@@ -193,7 +194,8 @@ QString NewBookDialog::getNewArchive() {
         if (disaster)
           msg += Translate::_("failed-to-clean-up").arg(fn);
 
-        QMessageBox::critical(&nbd, "eln", msg, QMessageBox::Cancel);
+        QMessageBox::critical(&nbd, Translate::_("eln"),
+                              msg, QMessageBox::Cancel);
         continue;
       }
       
@@ -205,7 +207,8 @@ QString NewBookDialog::getNewArchive() {
         QString msg = Translate::_("failed-to-push-archive").arg(proc.stdErr());
         if (disaster)
           msg += Translate::_("failed-to-clean-up").arg(fn);
-        QMessageBox::critical(&nbd, "eln", msg, QMessageBox::Cancel);
+        QMessageBox::critical(&nbd, Translate::_("eln"),
+                              msg, QMessageBox::Cancel);
         continue;
       }
     }

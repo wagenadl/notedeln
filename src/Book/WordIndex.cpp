@@ -22,6 +22,7 @@
 #include "JSONFile.h"
 #include "Assert.h"
 #include "WordSet.h"
+#include "Translate.h"
 #include <QDebug>
 #include <QMessageBox>
 #include <QProgressDialog>
@@ -89,7 +90,8 @@ bool WordIndex::build(class TOC *toc, QString pagesDir) {
     }
   }
   if (!warns.isEmpty())
-    QMessageBox::warning(0, "eln", "The following pages could not be loaded"
+    QMessageBox::warning(0, Translate::_("eln"),
+                         "The following pages could not be loaded"
                          " while rebuilding the search index: "
                          + warns.join(", ") + ".", QMessageBox::Close);
   return true;

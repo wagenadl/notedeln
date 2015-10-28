@@ -81,7 +81,8 @@ void SplashScene::makeBackground() {
 	  style.real("page-height")/img.height());
   bg->setTransform(t);
 
-  QGraphicsTextItem *eln = addText("ELN", style.font("splash-font"));
+  QGraphicsTextItem *eln = addText(Translate::_("eln"),
+                                   style.font("splash-font"));
   centerAt(eln, style.real("page-width")/2, style.real("page-height") - 50);
   QGraphicsTextItem *dw
     = addText(QString("v. ") + Version::toString() + QString::fromUtf8(" — ")
@@ -200,14 +201,14 @@ void SplashScene::openExisting() {
   QString fn = fns[0];
   QDir d(fn);
   if (!d.exists()) {
-    QMessageBox::warning(widget, "eln",
+    QMessageBox::warning(widget, Translate::_("eln"),
                          "'" + fn + "' does not exist.",
                          QMessageBox::Cancel);
     return;
   }
   if ((!d.exists("book.json") && !d.exists("book.eln"))
       || !d.exists("pages")) {
-    QMessageBox::warning(widget, "eln",
+    QMessageBox::warning(widget, Translate::_("eln"),
                          "'" + fn + "' is not a notebook.",
                          QMessageBox::Cancel);
     return;
@@ -236,7 +237,7 @@ Notebook *SplashScene::openNotebook() {
   gv->setScene(ss);
   ss->setWidget(gv);
   connect(gv, SIGNAL(closing()), &el, SLOT(quit()));
-  QString appname = "eln";
+  QString appname = Translate::_("eln");
 #ifndef QT_NO_DEBUG
   appname += " (debug vsn)";
 #endif
@@ -257,7 +258,7 @@ Notebook *SplashScene::openNotebook() {
     nb = Notebook::open(ss->named);
     if (nb)
       break;
-    QMessageBox::critical(gv, "eln",
+    QMessageBox::critical(gv, Translate::_("eln"),
                           "'" + ss->named + "' could not be opened."
 			  + "\n" + Notebook::errorMessage(),
                           QMessageBox::Cancel);

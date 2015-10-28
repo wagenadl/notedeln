@@ -18,7 +18,12 @@
 
 #include "Assert.h"
 #include <QDebug>
+#include <QMessageBox>
 #include "Calltrace.h"
+#include "Notebook.h"
+#include "Translate.h"
+#include <QList>
+#include <QPointer>
 
 #ifdef QT_NO_DEBUG
 #define ASSERT_BACKTRACE 0
@@ -26,7 +31,37 @@
 #define ASSERT_BACKTRACE 1
 #endif
 
-Assertion::Assertion(QString msg, bool tts): msg(msg), trytosave(tts) {
+
+#include <QString>
+#include <QObject>
+#include <QPointer>
+#include <QSet>
+#include <QList>
+
+class Assertion {
+public:
+  Assertion(QString msg);
+  QString message() const { return msg; }
+  QString backtrace() const { return trc; }
+public:
+  static void crash(QString msg, char const *file=0, int line=0);
+  static void registerNotebook(class Notebook *);
+private:
+  void reportSaved(int nsaved, int nunsaved);
+  void reportFailedToSave(QString msg2);
+  QString tryToSave(); // catches further assertions, returns msg, or "" if OK
+private:
+  QString msg;
+  QString trc;
+private:
+  static int &priorFailures();
+  static QList<QPointer<QObject> > &registeredBooks();
+  static QSet<class Notebook *> notebooks();
+};
+
+//////////////////////////////////////////////////////////////////////
+
+Assertion::Assertion(QString msg): msg(msg) {
 #if ASSERT_BACKTRACE
   trc = Calltrace::full(1);
 #endif
@@ -42,27 +77,104 @@ int &Assertion::priorFailures() {
 void Assertion::crash(QString msg, char const *file, int line) {
   Assertion a(QString::fromUtf8("Assertion “%1” failed"
                                 " in file “%2” at line %3.")
-              .arg(msg).arg(file).arg(line),
-              false);
+              .arg(msg).arg(file).arg(line));
 
   if (++priorFailures()>2) {
     qDebug() << "Assertion failed while quitting. Terminating hard.\n";
     abort();
   } else {
-    throw a;
+    // QString msg = a.tryToSave();
+    int n = notebooks().size();
+    a.reportSaved(0, n);
+    // a.reportFailedToSave(msg);
+    throw AssertedException();
   }
 }
 
-void Assertion::saveThenCrash(QString msg, char const *file, int line) {
-  Assertion a(QString::fromUtf8("Assertion “%1” failed"
-                                " in file “%2” at line %3.")
-              .arg(msg).arg(file).arg(line),
-              true);
+void Assertion::registerNotebook(Notebook *nb) {
+  registeredBooks() << nb;
+}
 
-  if (++priorFailures()) {
-    qDebug() << "Assertion failed while quitting. Terminating hard.\n";
-    abort();
-  } else {
-    throw a;
+QList<QPointer<QObject> > &Assertion::registeredBooks() {
+  static QList<QPointer<QObject> > nbb;
+  return nbb;
+}
+
+QSet<Notebook *> Assertion::notebooks() {
+  QSet<Notebook *> nbb;
+  for (QObject *b: registeredBooks()) {
+    Notebook *nb = dynamic_cast<Notebook *>(b);
+    if (nb)
+      nbb << nb;
+  }
+  return nbb;
+}
+
+QString Assertion::tryToSave() {
+  if (priorFailures()>1)
+    return ""; // don't save unless this is first failed assertion
+  try {
+    for (Notebook *nb: notebooks())
+      nb->flush();
+    return "";
+  } catch (Assertion a) {
+    return a.message();
   }
 }
+  
+
+void Assertion::reportSaved(int nsaved, int nunsaved) {
+  QMessageBox mb(QMessageBox::Critical, Translate::_("eln"),
+                 Translate::_("eln")
+                 + " suffered a fatal internal error and will have to close:",
+                 QMessageBox::Close);
+    
+  QString msg = message().trimmed();
+  if (!msg.endsWith("."))
+    msg += ".";
+  if (nunsaved>0)
+    msg += "\nRegrettably, your work of the last few seconds"
+      " may have been lost.";
+  else if (nsaved>0)
+    msg += "\nYour notebook has been saved.";
+  msg += "\n\nPlease send a bug report to the author.";
+  mb.setInformativeText(msg);
+  if (!backtrace().isEmpty())
+    mb.setInformativeText("Stack backtrace:\n" + backtrace());
+  mb.exec();
+}
+
+void Assertion::reportFailedToSave(QString msg2) {
+  QMessageBox mb(QMessageBox::Critical, Translate::_("eln"),
+                 Translate::_("eln")
+                 + " suffered a fatal internal error and will have to close:",
+                 QMessageBox::Close);
+    
+  QString msg = message().trimmed();
+  if (!msg.endsWith("."))
+    msg += ".";
+
+  msg += "\nWhile trying to save your most recent changes,"
+    " another problem occured:";
+  msg += "\n" + msg2.trimmed();
+  if (!msg.endsWith("."))
+    msg += ".";
+
+  msg += "\nRegrettably, your work of the last few seconds"
+    " may therefore have been lost.";
+  msg += "\n\nPlease send a bug report to the author.";
+  mb.setInformativeText(msg);
+  if (!backtrace().isEmpty())
+    mb.setInformativeText("Stack backtrace:\n" + backtrace());
+  mb.exec();
+}
+
+//////////////////////////////////////////////////////////////////////
+void assertion_register_notebook(class Notebook *nb) {
+  Assertion::registerNotebook(nb);
+}
+
+void assertion_crash(QString msg, char const *file, int line) {
+  Assertion::crash(msg, file, line);
+}
+

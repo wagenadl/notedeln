@@ -81,7 +81,7 @@ QString CloneBookDialog::leaf() const {
 
 void CloneBookDialog::abrowse() {
   if (!isLocal()) {
-    QMessageBox::warning(this, "eln",
+    QMessageBox::warning(this, Translate::_("eln"),
                          Translate::_("no-browse-remote"),
                          QMessageBox::Cancel);
     return;
@@ -94,13 +94,13 @@ void CloneBookDialog::abrowse() {
     return;
   QDir d(fn);
   if (!d.exists()) {
-    QMessageBox::warning(this, "eln",
+    QMessageBox::warning(this, Translate::_("eln"),
                          Translate::_("fn-does-not-exist").arg(fn),
                          QMessageBox::Cancel);
     return;
   }
   if (!d.exists("branches") || !d.exists("objects")) {
-    QMessageBox::warning(this, "eln",
+    QMessageBox::warning(this, Translate::_("eln"),
                          Translate::_("fn-is-not-git").arg(fn),
                          QMessageBox::Cancel);
     return;
@@ -111,13 +111,13 @@ void CloneBookDialog::abrowse() {
 
 void CloneBookDialog::browse() {
   QString fn = QFileDialog::getExistingDirectory(this,
-						 Translate::_("title-clone-dest-path"),
-						 ui->location->text());
+					 Translate::_("title-clone-dest-path"),
+					 ui->location->text());
   if (fn.isEmpty())
     return;
   QDir d(fn);
   if (!d.exists()) {
-    QMessageBox::warning(this, "eln",
+    QMessageBox::warning(this, Translate::_("eln"),
                          Translate::_("fn-does-not-exist").arg(fn),
                          QMessageBox::Cancel);
     return;
@@ -125,7 +125,7 @@ void CloneBookDialog::browse() {
 
   QString l = leaf();
   if (!l.isEmpty() && d.exists(l)) {
-    QMessageBox::warning(this, "eln",
+    QMessageBox::warning(this, Translate::_("eln"),
                          Translate::_("fn-exists").arg(d.absoluteFilePath(l)),
                          QMessageBox::Cancel);
     return;
@@ -141,27 +141,31 @@ QString CloneBookDialog::getClone() {
   while (cbd.exec()) {
     // OK pressed
     if (cbd.archiveLocation().isEmpty()) {
-      QMessageBox::warning(&cbd, "eln", Translate::_("no-alocation"));
+      QMessageBox::warning(&cbd, Translate::_("eln"),
+                           Translate::_("no-alocation"));
       continue;
     }
 
     if (!cbd.isLocal()) {
       if (cbd.archiveHost().isEmpty()) {
-	QMessageBox::warning(&cbd, "eln", Translate::_("no-host"));
+	QMessageBox::warning(&cbd, Translate::_("eln"),
+                             Translate::_("no-host"));
         continue;
       }
     }
 
     QString path = cbd.cloneDestination();
     if (path.isEmpty()) {
-      QMessageBox::warning(&cbd, "eln", Translate::_("no-clone"));
+      QMessageBox::warning(&cbd, Translate::_("eln"),
+                           Translate::_("no-clone"));
       continue;
     }
     
     QDir d(path);
     QString l(cbd.leaf());
     if (d.exists(l)) {
-      QMessageBox::warning(&cbd, "eln", Translate::_("exists-clone"));
+      QMessageBox::warning(&cbd, Translate::_("eln"),
+                           Translate::_("exists-clone"));
       continue;
     }
      
@@ -182,7 +186,8 @@ QString CloneBookDialog::getClone() {
     if (ok)
       return cbd.archiveLocation();
     
-    QMessageBox::warning(&cbd, "eln", Translate::_("clone-failed")
+    QMessageBox::warning(&cbd, Translate::_("eln"),
+                         Translate::_("clone-failed")
                          + ": " + proc.stdErr());
     // we should remove any partial download
     return "";

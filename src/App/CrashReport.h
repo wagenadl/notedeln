@@ -23,6 +23,7 @@
 class CrashReport {
 public:
   CrashReport();
+  ~CrashReport();
 };
 
 #endif

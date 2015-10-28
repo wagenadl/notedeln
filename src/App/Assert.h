@@ -22,27 +22,14 @@
 
 #include <QString>
 
-class Assertion {
-public:
-  Assertion(QString msg, bool trytosave);
-  QString message() const { return msg; }
-  QString backtrace() const { return trc; }
-  bool shouldSave() const { return trytosave; }
-public:
-  static void crash(QString msg, char const *file=0, int line=0);
-  static void saveThenCrash(QString msg, char const *file=0, int line=0);
-  inline static void noOp() { }
-private:
-  static int &priorFailures();
-private:
-  QString msg;
-  QString trc;
-  bool trytosave;
+class AssertedException {
 };
 
-#define ASSERT(cond) ((!(cond)) ? Assertion::crash(#cond, __FILE__, __LINE__) : Assertion::noOp())
+void assertion_register_notebook(class Notebook *);
 
-#define ASSERTSAVE(cond) ((!(cond)) ? Assertion::saveThenCrash(#cond, __FILE__, __LINE__) : Assertion::noOp())
+void assertion_crash(QString msg, char const *file, int line);
+inline void assertion_noop() { }
 
+#define ASSERT(cond) ((!(cond)) ? assertion_crash(#cond, __FILE__, __LINE__) : assertion_noop())
 
 #endif

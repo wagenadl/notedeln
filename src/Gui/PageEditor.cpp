@@ -22,6 +22,7 @@
 #include "Toolbars.h"
 #include "SceneBank.h"
 #include "Notebook.h"
+#include "Translate.h"
 #include "Navbar.h"
 #include "Assert.h"
 
@@ -42,11 +43,14 @@ PageEditor::PageEditor(SceneBank *bank): bank(bank) {
   setAttribute(Qt::WA_DeleteOnClose, true);
 
   QString ttl = nb->bookData()->title();
-  QString appname = "eln";
+  QString appname = Translate::_("eln");
 #ifndef QT_NO_DEBUG
   appname += " (debug vsn)";
 #endif
-  setWindowTitle(ttl.replace(QRegExp("\\s\\s*"), " ") + " - " + appname);
+  if (ttl.isEmpty())
+    setWindowTitle(appname);
+  else
+    setWindowTitle(ttl.replace(QRegExp("\\s\\s*"), " ") + " - " + appname);
 }
 
 bool PageEditor::isHibernating() const {

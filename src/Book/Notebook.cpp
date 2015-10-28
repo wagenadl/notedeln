@@ -25,6 +25,7 @@
 #include "Assert.h"
 #include "RecentBooks.h"
 #include "Index.h"
+#include "Translate.h"
 
 #include <QApplication>
 #include <QMessageBox>
@@ -383,7 +384,7 @@ Index *Notebook::index() const {
 
 
 CachedEntry Notebook::recoverFromExistingEntry(int pgno) {
-  QMessageBox::critical(0, "eln",
+  QMessageBox::critical(0, Translate::_("eln"),
                         QString("Page %1 already exists while trying to create"
                                 " a new entry. This is a sign of TOC"
                                 " corruption. ELN will exit now and attempt"
@@ -397,7 +398,7 @@ CachedEntry Notebook::recoverFromExistingEntry(int pgno) {
 }
 
 EntryFile *Notebook::recoverFromMissingEntry(int pgno) {
-  QMessageBox::critical(0, "eln",
+  QMessageBox::critical(0, Translate::_("eln"),
                         QString("Page %1 could not be loaded."
                                 " This is a sign of TOC"
                                 " corruption. ELN will exit now and attempt"

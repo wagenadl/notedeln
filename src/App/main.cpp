@@ -54,7 +54,7 @@ int main(int argc, char **argv) {
         return 0;
       nb = Notebook::open(fn);
       if (!nb) {
-        QMessageBox::critical(0, "eln",
+        QMessageBox::critical(0, Translate::_("eln"),
                               Translate::_("could-not-open-notebook").arg(fn)
                               + "\n" + Notebook::errorMessage(),
                               QMessageBox::Close);
@@ -63,7 +63,7 @@ int main(int argc, char **argv) {
     } else if (argc==3 && argv[1]==QString("-new")) {
       QString fn = argv[2];
       if (QDir(fn).exists()) {
-        QMessageBox::critical(0, "eln",
+        QMessageBox::critical(0, Translate::_("eln"),
                               Translate::_("could-not-create-notebook-exists")
                               .arg(fn),
                               QMessageBox::Abort);
@@ -71,7 +71,7 @@ int main(int argc, char **argv) {
       }
       nb = Notebook::create(fn) ? Notebook::open(fn) : 0;
       if (!nb) {
-        QMessageBox::critical(0, "eln",
+        QMessageBox::critical(0, Translate::_("eln"),
                               Translate::_("could-not-create-notebook")
                               .arg(fn)
                               + "\n" + Notebook::errorMessage(),
@@ -85,6 +85,8 @@ int main(int argc, char **argv) {
     }
     ASSERT(nb);
 
+    assertion_register_notebook(nb);
+
     int r = 0;
     {
       AppInstance inst(&app, nb);
@@ -93,48 +95,7 @@ int main(int argc, char **argv) {
 
     delete RecentBooks::instance();
     return r;
-  } catch (Assertion a) {
-    try {
-      if (a.shouldSave() && nb)
-        nb->flush();
-    } catch (Assertion b) {
-      QMessageBox mb(QMessageBox::Critical, "eln",
-                "eln suffered a fatal internal error and will have to close:",
-                   QMessageBox::Close);
-    
-      QString msg = a.message().trimmed();
-      if (!msg.endsWith("."))
-        msg += ".";
-      msg += "\nWhile trying to save your most recent changes,"
-        " another problem occured:";
-      msg += "\n" + b.message().trimmed();
-      if (!msg.endsWith("."))
-        msg += ".";
-      msg += "\n\nPlease send a bug report to the author.";
-      mb.setInformativeText(msg);
-      if (!a.backtrace().isEmpty())
-        mb.setInformativeText("Stack backtrace:\n" + a.backtrace());
-      mb.exec();
-      return 1;
-    }
-
-    QMessageBox mb(QMessageBox::Critical, "eln",
-                 "eln suffered a fatal internal error and will have to close:",
-                   QMessageBox::Close);
-    
-    QString msg = a.message().trimmed();
-    if (!msg.endsWith("."))
-      msg += ".";
-    if (a.shouldSave() && nb)
-      msg += "\nYour notebook has been saved.";
-    else if (nb)
-      msg += "\nRegrettably, your work of the last few seconds"
-        " may have been lost.";
-    msg += "\n\nPlease send a bug report to the author.";
-    mb.setInformativeText(msg);
-    if (!a.backtrace().isEmpty())
-      mb.setInformativeText("Stack backtrace:\n" + a.backtrace());
-    mb.exec();
+  } catch (AssertedException) {
     return 1;
   }
 }
