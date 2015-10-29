@@ -393,6 +393,25 @@ PageView *PageView::newView() {
   return myEditor->pageView();
 }  
 
+void PageView::gotoEntryPage(QString s, QString path) {
+  QRegExp re("/([a-z0-9]+)/\\d+");
+  if (re.exactMatch(path)) {
+    QString uuid = re.cap(1);
+    int sheet = re.cap(2).toInt();
+    TOCEntry *e = book->toc()->findUUID(uuid);
+    if (e) {
+      qDebug() << "Using uuid";
+      gotoEntryPage(e->startPage());
+      gotoSheet(sheet);
+    } else {
+      gotoEntryPage(s);
+    }
+  } else {
+    gotoEntryPage(s);
+  }
+
+}
+
 void PageView::gotoEntryPage(QString s) {
   if (s.isEmpty()) {
     gotoEntryPage(0);

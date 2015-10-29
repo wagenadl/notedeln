@@ -59,7 +59,8 @@ public:
 public slots:
   void pageNumberClick(int, Qt::KeyboardModifiers);
   PageView *newView(); // opens new view on a named entry page
-  void gotoEntryPage(QString);
+  void gotoEntryPage(QString pgno, QString path);
+  void gotoEntryPage(QString pgno);
   void gotoEntryPage(int pgno, int dir=0);
   void gotoTOC(int pgno=-1);
   void goTOC(Qt::KeyboardModifiers=0);

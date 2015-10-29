@@ -37,6 +37,7 @@ public:
   TOCEntry *tocEntry(int startPage) const; // assertion if not found
   TOCEntry *find(int page) const;
   /* Returns entry containing the page page or 0 if none does. */
+  TOCEntry *findUUID(QString uuid) const; // 0 if none
   TOCEntry *findForward(int page) const;
   /* Returns entry containing the given page or the first entry that
      starts after the given page or 0 if none.

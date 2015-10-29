@@ -78,7 +78,6 @@ bool OneLink::mousePress(QGraphicsSceneMouseEvent *e) {
 }
 
 void OneLink::contextMenu(QGraphicsSceneMouseEvent *e) {
-  qDebug() << "OneLink::ContextMenu";
   Resource *r = resource();
   if (!r)
     return;
@@ -181,6 +180,7 @@ void OneLink::openPage(bool newView) {
   Resource *r = resource();
   ASSERT(r);
   QString tag = r->tag();
+  QString path = r->sourceURL().path();
 
   ASSERT(ti);
   SheetScene *s = dynamic_cast<SheetScene *>(ti->scene());
@@ -189,9 +189,9 @@ void OneLink::openPage(bool newView) {
   ASSERT(pv);
 
   if (newView)
-    pv->newView()->gotoEntryPage(tag);
+    pv->newView()->gotoEntryPage(tag, path);
   else
-    pv->gotoEntryPage(tag);
+    pv->gotoEntryPage(tag, path);
 }
 
 void OneLink::openArchive() {

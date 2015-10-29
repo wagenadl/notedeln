@@ -421,3 +421,11 @@ TOC *TOC::rebuild(QDir pages) {
 
   return toc;
 }
+
+TOCEntry *TOC::findUUID(QString uuid) const {
+  for (TOCEntry *e: entries_) 
+    if (e->uuid()==uuid)
+      return e;
+  return 0;
+}
+
