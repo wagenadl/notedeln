@@ -279,6 +279,8 @@ void TextItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
 	}
       }
     }
+  case Qt::RightButton:
+    linkHelper->mousePress(e);
   default:
     break;
   }
