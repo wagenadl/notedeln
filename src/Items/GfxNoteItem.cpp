@@ -79,6 +79,9 @@ void GfxNoteItem::abandon() {
 
 static double sigmoid(double xl, double xr) {
   double w = xr - xl; // width of box
+  double dw = w>20 ? 12 : 3*w/5;
+  xl += dw/2;
+  w -= dw;
   xl += .1*w;
   w *= .8;
   double x = -xl; // posn of point relative to left of box
