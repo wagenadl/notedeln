@@ -73,7 +73,7 @@ QVariant Style::operator[](QString k) const {
   if (options_.contains(k))
     return options_[k];
   qDebug() << "Style: No value for " << k;
-  ASSERT(0);
+  ASSERT(options_.contains(k));
   return QVariant();
 }
 
