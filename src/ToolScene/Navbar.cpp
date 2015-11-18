@@ -145,9 +145,10 @@ void Navbar::showHelp() {
     " http://www.gnu.org/licenses//gpl-3.0.en.html.");
 }
 
-void Navbar::setOnLastPage(bool y) {
-  ti_n1->setVisible(!y);
-  ti_plus->setVisible(y);
-  ti_n10->setEnabled(!y);
-  ti_end->setEnabled(!y);
+void Navbar::setOnLastPage(bool lastPg, bool isEmpty) {
+  ti_n1->setVisible(!lastPg);
+  ti_plus->setVisible(lastPg);
+  ti_plus->setEnabled(!isEmpty);
+  ti_n10->setEnabled(!lastPg);
+  ti_end->setEnabled(!lastPg);
 }

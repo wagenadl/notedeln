@@ -63,9 +63,11 @@ public:
   EntryData const *entry() const;
   EntryData *entry();
   bool isEmpty() const; // true iff no blocks and title is default
+  virtual void markModified(ModType mt=UserVisibleMod);
 signals:
   void titleMod();
   void sheetCountMod();
+  void emptyStatusChanged(bool empty);
 protected:
   virtual void loadMore(QVariantMap const &src);
 private slots:
@@ -78,6 +80,7 @@ protected:
   TitleData *title_;
   int maxSheet;
   Notebook *nb;
+  bool wasEmpty;
 };
 
 #endif

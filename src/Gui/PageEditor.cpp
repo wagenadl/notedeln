@@ -22,6 +22,7 @@
 #include "Toolbars.h"
 #include "SceneBank.h"
 #include "Notebook.h"
+#include "EntryScene.h"
 #include "Navbar.h"
 #include "Assert.h"
 
@@ -183,5 +184,9 @@ void PageEditor::changeEvent(QEvent *e) {
 void PageEditor::nowOnEntry(int p0, int dp) {
   toolview->toolbars()->showTools();
   bool onLastPage = p0 + dp == bank->book()->toc()->newPageNumber() - 1;
-  toolview->toolbars()->navbar()->setOnLastPage(onLastPage);
+  bool isEmpty = onLastPage
+    ? bank->entryScene(p0)->data()->isEmpty()
+    : false;
+  
+  toolview->toolbars()->navbar()->setOnLastPage(onLastPage, isEmpty);
 }

@@ -467,6 +467,8 @@ void PageView::gotoEntryPage(int n, int dir) {
   } else {
     leavePage();
     entryScene = bank->entryScene(te->startPage());
+    connect(entryScene->data(), SIGNAL(emptyStatusChanged(bool)),
+	    SLOT(emptyEntryChange()));
 
     connect(entryScene.obj(), SIGNAL(sheetRequest(int)),
 	    SLOT(handleSheetRequest(int)));
@@ -509,20 +511,23 @@ void PageView::leavePage() {
       fi->clearFocus(); // this should cause abandon to happen
   }
 
-  if (currentSection==Entries
-      && currentPage==book->toc()->newPageNumber()-1) {
-    // Leaving the last page in the notebook.
-    // If the page is empty, we'll delete it.
-    if (entryScene->data()->isEmpty()) {
-      // Leaving an empty page
-      QList<QGraphicsView *> allv = entryScene->allViews();
-      if (allv.size()==1 && allv.first() == this) {
-	entryScene.clear();
-	book->deleteEntry(currentPage);
-	return;
-      }
-    } 
-    book->flush();
+  if (currentSection==Entries) {
+    disconnect(entryScene->data(), SIGNAL(emptyStatusChanged(bool)),
+	       this, SLOT(emptyStatusChange()));
+    if (currentPage==book->toc()->newPageNumber()-1) {
+      // Leaving the last page in the notebook.
+      // If the page is empty, we'll delete it.
+      if (entryScene->data()->isEmpty()) {
+	// Leaving an empty page
+	QList<QGraphicsView *> allv = entryScene->allViews();
+	if (allv.size()==1 && allv.first() == this) {
+	  entryScene.clear();
+	  book->deleteEntry(currentPage);
+	  return;
+	}
+      } 
+      book->flush();
+    }
   }
 }  
 
@@ -914,4 +919,9 @@ void PageView::restoreState(PageView::SavedState const &s) {
   } break;
   }
   mode_->setMode(Mode::Browse); // this is crude, but OK for now.
+}
+
+void PageView::emptyEntryChange() {
+  if (currentSection==Entries)
+    emit onEntryPage(currentPage-currentSheet, currentSheet);
 }

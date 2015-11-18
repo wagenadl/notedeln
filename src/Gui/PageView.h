@@ -105,6 +105,7 @@ private slots:
   bool gotoSheet(int n);
   void handleSheetRequest(int n);
   void modeChange();
+  void emptyEntryChange();
 private:
   class SceneBank *bank; // we do not own!
   class Notebook *book; // we do not own!

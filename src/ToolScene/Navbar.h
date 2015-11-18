@@ -28,7 +28,7 @@ public:
   Navbar(QGraphicsItem *parent);
   virtual ~Navbar();
   void showHelp();
-  void setOnLastPage(bool);
+  void setOnLastPage(bool lastPg, bool isEmpty);
 signals:
   void goTOC(Qt::KeyboardModifiers);
   void goFind();
