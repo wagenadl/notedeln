@@ -390,7 +390,7 @@ PageView *PageView::newView() {
   ASSERT(myEditor);
   PageEditor *newEditor = myEditor->newEditor();
   newEditor->resize(myEditor->size());
-  return myEditor->pageView();
+  return newEditor->pageView();
 }  
 
 void PageView::gotoEntryPage(QString s, QString path) {

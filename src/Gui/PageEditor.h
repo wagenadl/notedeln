@@ -41,6 +41,7 @@ signals:
   void newEditorCreated(QWidget *);
 private slots:
   void nowOnEntry(int p0, int dp);
+  void nowOnFrontMatter(int p0);
 protected:
   void resizeEvent(QResizeEvent *);
   void keyPressEvent(QKeyEvent *);

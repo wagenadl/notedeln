@@ -27,8 +27,9 @@ class Navbar: public Toolbar {
 public:
   Navbar(QGraphicsItem *parent);
   virtual ~Navbar();
+public slots:
   void showHelp();
-  void setOnLastPage(bool lastPg, bool isEmpty);
+  void setOnLastPage(bool lastPg=false, bool isEmpty=false);
 signals:
   void goTOC(Qt::KeyboardModifiers);
   void goFind();

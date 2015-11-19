@@ -98,7 +98,7 @@ void PageEditor::initialize() {
   connect(view, SIGNAL(onEntryPage(int, int)),
 	  this, SLOT(nowOnEntry(int, int)));
   connect(view, SIGNAL(onFrontMatter(int)),
-	  toolview->toolbars(), SLOT(hideTools()));
+	  this, SLOT(nowOnFrontMatter(int)));
   connect(view, SIGNAL(scaled(double)),
 	  toolview, SLOT(setScale(double)));
 
@@ -189,4 +189,9 @@ void PageEditor::nowOnEntry(int p0, int dp) {
     : false;
   
   toolview->toolbars()->navbar()->setOnLastPage(onLastPage, isEmpty);
+}
+
+void PageEditor::nowOnFrontMatter(int p0) {
+  toolview->toolbars()->hideTools();
+  toolview->toolbars()->navbar()->setOnLastPage(false, false);
 }
