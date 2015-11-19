@@ -105,11 +105,11 @@ void PageView::handleSheetRequest(int n) {
     break;
   }
   if (sc && currentSheet < sc->sheetCount()) {
-    qDebug() << "  got scene" << sc << "currentSheet=" << currentSheet << "count==" << sc->sheetCount();
+    // qDebug() << "  got scene" << sc << "currentSheet=" << currentSheet << "count==" << sc->sheetCount();
     PageView *ev = sc->eventView();
-    qDebug() << "eventview=" << ev;
+    // qDebug() << "eventview=" << ev;
     if (/*ev &&*/ ev!=this) {
-      qDebug() << "  eventview mismatch -> returning";
+      // qDebug() << "  eventview mismatch -> returning";
       return;
     }
   }
@@ -513,7 +513,7 @@ void PageView::leavePage() {
 
   if (currentSection==Entries) {
     disconnect(entryScene->data(), SIGNAL(emptyStatusChanged(bool)),
-	       this, SLOT(emptyStatusChange()));
+	       this, SLOT(emptyEntryChange()));
     if (currentPage==book->toc()->newPageNumber()-1) {
       // Leaving the last page in the notebook.
       // If the page is empty, we'll delete it.
