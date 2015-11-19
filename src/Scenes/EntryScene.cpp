@@ -318,7 +318,7 @@ void EntryScene::redateBlocks() {
     double ml = style().real("margin-left");
     dateItem->setPos(QPointF(ml - dr.width() - 2 - bs0.x(),
 			     (br.top() - bs0.y()) - (dr.top() - ds0.y())
-			     + style().real("text-block-above")));
+			     + style().real("text-block-above") - 4));
   }    
 }
 
