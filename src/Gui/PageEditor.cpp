@@ -183,15 +183,15 @@ void PageEditor::changeEvent(QEvent *e) {
 
 void PageEditor::nowOnEntry(int p0, int dp) {
   toolview->toolbars()->showTools();
-  bool onLastPage = p0 + dp == bank->book()->toc()->newPageNumber() - 1;
-  bool isEmpty = onLastPage
-    ? bank->entryScene(p0)->data()->isEmpty()
-    : false;
-  
-  toolview->toolbars()->navbar()->setOnLastPage(onLastPage, isEmpty);
+  Navbar::PageType pt = p0 + dp == bank->book()->toc()->newPageNumber() - 1
+    ? (bank->entryScene(p0)->data()->isEmpty()
+       ? Navbar::EmptyLastEntry : Navbar::LastEntry)
+    : Navbar::Entry;
+  toolview->toolbars()->navbar()->setPageType(pt);
 }
 
 void PageEditor::nowOnFrontMatter(int p0) {
   toolview->toolbars()->hideTools();
-  toolview->toolbars()->navbar()->setOnLastPage(false, false);
+  toolview->toolbars()->navbar()->setPageType(p0==0 ? Navbar::FrontPage
+					      : Navbar::TOC);
 }
