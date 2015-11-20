@@ -619,7 +619,7 @@ bool TextItem::tryTeXCode(bool noX, bool onlyAtEndOfWord) {
 
 bool TextItem::keyPressAsSpecialEvent(QKeyEvent *e) {
   if (e->key()==Qt::Key_Tab || e->key()==Qt::Key_Backtab) {
-    TextBlockItem *p = dynamic_cast<TextBlockItem *>(parentBlock());
+    TextBlockItem *p = dynamic_cast<TextBlockItem *>(ancestralBlock());
     if (p) 
       if (muckWithIndentation(p, e->modifiers()))
 	return true;
@@ -908,8 +908,10 @@ void TextItem::deleteMarkup(MarkupData *d) {
   update();
 }
   
-void TextItem::addMarkup(MarkupData::Style t, int start, int end) {
-  addMarkup(new MarkupData(start, end, t));
+MarkupData *TextItem::addMarkup(MarkupData::Style t, int start, int end) {
+  MarkupData *md = new MarkupData(start, end, t);
+  addMarkup(md);
+  return md;
 }
 
 void TextItem::addMarkup(MarkupData *d) {
@@ -957,14 +959,6 @@ int TextItem::refineEnd(int end, int base) {
 static bool approvedMark(QString s) {
   QString marks = "*@#%$&+"; // add more later
   return marks.contains(s);
-}
-
-QString TextItem::markedText(MarkupData *md) {
-  ASSERT(md);
-  TextCursor c = textCursor();
-  c.setPosition(md->start());
-  c.setPosition(md->end(), TextCursor::KeepAnchor);
-  return c.selectedText();
 }
 
 bool TextItem::tryExplicitLink() {
@@ -1025,19 +1019,29 @@ bool TextItem::tryFootnote() {
   if (oldmd && oldmd->start()==start && oldmd->end()==end) {
     if (mayDelete) {
       // delete old mark
-      BlockItem *bi = ancestralBlock();
-      if (bi) 
-	bi->refTextChange(oldmd->text(), ""); // remove any footnotes
+      QString tag = oldmd->text();
       deleteMarkup(oldmd);
+      BlockItem *bi = ancestralBlock();
+      if (bi) { // consider deleting note
+	bool remainingRefs = false;
+	foreach (MarkupData *md, data()->markups()) {
+	  if (md->text() == tag) {
+	    remainingRefs = true;
+	    break;
+	  }
+	}
+	if (remainingRefs)
+	  bs->restackBlocks();
+	else
+	  bi->refTextChange(tag, ""); // remove footnote
+      }
     } else {
       return false; // should perhaps give focus to the footnote
     }
     return false;
   } else if (start<end) {
-    addMarkup(MarkupData::FootnoteRef, start, end);
-    MarkupData *md = data()->markupAt(start, end, MarkupData::FootnoteRef);
-    ASSERT(md);
-    bs->newFootnote(i, markedText(md));
+    MarkupData *md = addMarkup(MarkupData::FootnoteRef, start, end);
+    bs->newFootnote(i, md->text());
     return true;
   } else {
     return false;
@@ -1319,8 +1323,21 @@ void TextItem::setParentBlock(BlockItem *bi) {
   pblock = bi;
 }
 
-BlockItem *TextItem::parentBlock() const {
-  return pblock;
+BlockItem const *TextItem::ancestralBlock() const {
+  BlockItem const *bi = pblock;
+  if (bi)
+    return bi;
+  else
+    return Item::ancestralBlock();
 }
 
+BlockItem *TextItem::ancestralBlock() {
+  BlockItem *bi = pblock;
+  if (bi)
+    return bi;
+  else
+    return Item::ancestralBlock();
+}
+
+    
     

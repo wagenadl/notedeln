@@ -1187,6 +1187,7 @@ void EntryScene::newFootnote(int block, QString tag) {
   ASSERT(block>=0 && block<blockItems.size());
   foreach (FootnoteItem *fni, blockItems[block]->footnotes()) {
     if (fni->data()->tag()==tag) {
+      emit sheetRequest(fni->data()->sheet());
       fni->setFocus();
       return;
     }
@@ -1197,7 +1198,7 @@ void EntryScene::newFootnote(int block, QString tag) {
   fni->makeWritable();
   fni->sizeToFit();
   restackBlocks(block);
-  gotoSheetOfBlock(block);
+  emit sheetRequest(fni->data()->sheet());
   fni->setAutoContents();
   fni->setFocus();
 }

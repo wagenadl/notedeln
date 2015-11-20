@@ -25,6 +25,7 @@
 static Data::Creator<TextBlockData> c("textblock");
 
 TextBlockData::TextBlockData(Data *parent): BlockData(parent) {
+  text_ = 0;
   setType("textblock");
   ind = 1;
   text_ = new TextData(this);
@@ -117,7 +118,7 @@ void TextBlockData::loadMore(QVariantMap const &src) {
 }
 
 bool TextBlockData::isEmpty() const {
-  return BlockData::isEmpty() && text_->isEmpty();
+  return BlockData::isEmpty() && (!text_ || text_->isEmpty());
 }
 
 TextBlockData *TextBlockData::split(int pos) {
