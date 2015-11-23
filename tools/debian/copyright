@@ -20,6 +20,6 @@ License: GPL-3+
  On Debian systems, the complete text of the GNU General
  Public License version 2 can be found in "/usr/share/common-licenses/GPL-2".
  .
- The one exception to this pertains to the files in "src/App/fonts",
+ The one exception to this pertains to the files in "src/Gui/fonts",
  which are distributed under the terms of the Ubuntu Font license,
  included herein as "ubuntu-font-licence-1.0.txt.gz".
