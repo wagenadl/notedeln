@@ -49,7 +49,6 @@ public:
 public slots:
   virtual void focusTitle(int sheet);
   virtual void focusFirst(int /*sheet*/) {}
-  void setEventView(class PageView *);
 protected slots:
   virtual void titleEdited() {}
 protected:
@@ -73,7 +72,6 @@ protected:
   QList<class SheetScene *> sheets;
   bool contInMargin;
   class QSignalMapper *focusFirstMapper;
-  QPointer<QGraphicsView> eventview;
 };
 
 #endif

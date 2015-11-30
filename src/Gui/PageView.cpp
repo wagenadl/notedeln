@@ -17,6 +17,7 @@
 // PageView.C
 
 #include "PageView.h"
+#include "EventView.h"
 #include "PageEditor.h"
 #include "App.h"
 #include "EntryScene.h"
@@ -93,30 +94,15 @@ void PageView::resizeEvent(QResizeEvent *e) {
 }
 
 void PageView::handleSheetRequest(int n) {
-  BaseScene *sc = 0;
-  switch (currentSection) {
-  case Front:
-    break;
-  case TOC:
-    sc = bank->tocScene();
-    break;
-  case Entries:
-    sc = entryScene.obj();
-    break;
-  }
-  if (sc && currentSheet < sc->sheetCount()) {
-    // qDebug() << "  got scene" << sc << "currentSheet=" << currentSheet << "count==" << sc->sheetCount();
-    PageView *ev = sc->eventView();
-    // qDebug() << "eventview=" << ev;
-    if (/*ev &&*/ ev!=this) {
-      // qDebug() << "  eventview mismatch -> returning";
-      return;
-    }
-  }
+  PageView *ev = EventView::eventView();
+  if (ev!=this) 
+    return;
+
   gotoSheet(n);
 }
 
 bool PageView::gotoSheet(int n) {
+  EventView ev(this);
   if (n<0)
     return false;
   switch (currentSection) {
@@ -132,7 +118,6 @@ bool PageView::gotoSheet(int n) {
       return false;
     currentPage = 1+n;
     currentSheet = n;
-    bank->tocScene()->sheet(n)->setEventView(this);
     setScene(bank->tocScene()->sheet(n));
     emit onFrontMatter(currentPage);
     return true;
@@ -141,7 +126,6 @@ bool PageView::gotoSheet(int n) {
       return false;
     currentSheet = n;
     currentPage = entryScene->startPage() + n;
-    entryScene->sheet(n)->setEventView(this);
     setScene(entryScene->sheet(n));
     emit onEntryPage(currentPage-n, n);
     return true;
@@ -150,43 +134,28 @@ bool PageView::gotoSheet(int n) {
 }
 
 void PageView::mousePressEvent(QMouseEvent *e) {
-  markEventView();
+  EventView ev(this);
   QGraphicsView::mousePressEvent(e);
 }
 
 void PageView::dragEnterEvent(QDragEnterEvent *e) {
-  markEventView();
+  EventView ev(this);
   QGraphicsView::dragEnterEvent(e);
 }
 
 void PageView::enterEvent(QEvent *e) {
-  markEventView();
+  EventView ev(this);
   modeChange();
   QGraphicsView::enterEvent(e);
 }
 
 void PageView::inputMethodEvent(QInputMethodEvent *e) {
-  markEventView();
+  EventView ev(this);
   QGraphicsView::inputMethodEvent(e);
 }
-
-void PageView::markEventView() {
-  switch (currentSection) {
-  case Front:
-    break;
-  case TOC:
-    bank->tocScene()->setEventView(this);
-    bank->tocScene()->sheet(currentSheet)->setEventView(this);
-    break;
-  case Entries:
-    entryScene->setEventView(this);
-    entryScene->sheet(currentSheet)->setEventView(this);
-    break;
-  }
-}  
   
 void PageView::keyPressEvent(QKeyEvent *e) {
-  markEventView();
+  EventView ev(this);
   bool take = true;
   switch (e->key()) {
   case Qt::Key_F1:
@@ -359,7 +328,7 @@ void PageView::keyPressEvent(QKeyEvent *e) {
 }
 
 void PageView::keyReleaseEvent(QKeyEvent *e) {
-  markEventView();
+  EventView ev(this);
   switch (e->key()) {
   case Qt::Key_Alt:
     mode()->temporaryRelease(Mode::MoveResize);
@@ -662,7 +631,7 @@ Notebook *PageView::notebook() const {
 }
 
 void PageView::wheelEvent(QWheelEvent *e) {
-  markEventView();
+  EventView ev(this);
   wheelDeltaAccum += e->delta();
   int step = (e->modifiers() & Qt::ShiftModifier) ? 10 : 1;
   while (wheelDeltaAccum>=wheelDeltaStepSize) {
@@ -816,12 +785,13 @@ void PageView::ensureSearchVisible(QString uuid, QString phrase) {
 }
 
 void PageView::focusInEvent(QFocusEvent *e) {
-  markEventView();
+  EventView ev(this);
   QGraphicsView::focusInEvent(e);
   update(); // ensure text cursor looks ok
 }
 
 void PageView::focusOutEvent(QFocusEvent *e) {
+  EventView ev(this);
   QGraphicsView::focusOutEvent(e);
   update(); // ensure text cursor looks ok
 }

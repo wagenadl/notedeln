@@ -18,6 +18,7 @@
 
 #include "EntryScene.h"
 
+#include "EventView.h"
 #include "DragLine.h"
 #include "SheetScene.h"
 #include "Style.h"
@@ -768,8 +769,9 @@ void EntryScene::vChanged(int block) {
   TextBlockItem *tbi = dynamic_cast<TextBlockItem*>(blockItems[block]);
   if (tbi) {
     Item *f = 0;
-    if (eventview)
-      f = dynamic_cast<Item*>(eventview->scene()->focusItem());
+    PageView *ev = EventView::eventView();
+    if (ev)
+      f = dynamic_cast<Item*>(ev->scene()->focusItem());
     // that's a really ugly way to find out who has focus
     TextCursor c = tbi->textCursor();
     restackBlocks(block);

@@ -24,6 +24,7 @@
 #include "SheetScene.h"
 #include "PageView.h"
 #include "TextData.h"
+#include "EventView.h"
 
 #include <QDesktopServices>
 #include <QPainter>
@@ -185,8 +186,11 @@ void OneLink::openPage(bool newView) {
   ASSERT(ti);
   SheetScene *s = dynamic_cast<SheetScene *>(ti->scene());
   ASSERT(s);
-  PageView *pv = dynamic_cast<PageView *>(s->eventView());
-  ASSERT(pv);
+  PageView *pv = EventView::eventView();
+  if (!pv) {
+    qDebug() << "No event view in OneLink::openPage";
+    return;
+  }
 
   if (newView)
     pv->newView()->gotoEntryPage(tag, path);

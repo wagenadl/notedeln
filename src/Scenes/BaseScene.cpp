@@ -155,8 +155,6 @@ void BaseScene::setSheetCount(int n) {
   while (sheets.size()<n) {
     int k = sheets.size();
     SheetScene *s = new SheetScene(style(), this);
-    if (k>0)
-      s->setEventView(sheets[k-1]->eventView());
     if (fancyTitle()) {
       if (k==0)
 	s->setFancyTitle(fancyTitle(), 0);
@@ -231,17 +229,6 @@ bool BaseScene::keyPressEvent(QKeyEvent *, SheetScene *) {
 
 bool BaseScene::dropEvent(QGraphicsSceneDragDropEvent *, SheetScene *) {
   return false;
-}
-
-  
-
-void BaseScene::setEventView(PageView *pv) {
-  eventview = pv;
-}
-
-PageView *BaseScene::eventView() const {
-  QGraphicsView *ev = eventview;
-  return dynamic_cast<PageView*>(ev);
 }
 
 QList<QGraphicsView *> BaseScene::allViews() const {

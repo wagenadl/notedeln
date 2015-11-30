@@ -100,7 +100,6 @@ private:
   void leavePage();
   void createContinuationEntry();
   void focusEntry();
-  void markEventView();
 private slots:
   bool gotoSheet(int n);
   void handleSheetRequest(int n);

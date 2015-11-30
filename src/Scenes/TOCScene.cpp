@@ -24,6 +24,7 @@
 #include "TOCItem.h"
 #include <QDebug>
 #include "PageView.h"
+#include "EventView.h"
 
 TOCScene::TOCScene(TOC *data, QObject *parent):
   BaseScene(data, parent),
@@ -111,7 +112,7 @@ QString TOCScene::pgNoToString(int n) const {
 }
 
 void TOCScene::pageNumberClicked(int n, Qt::KeyboardModifiers m) {
-  PageView *ev = eventView();
+  PageView *ev = EventView::eventView();
   if (ev)
     ev->pageNumberClick(n, m);
 }

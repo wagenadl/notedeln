@@ -20,6 +20,7 @@
 #include "TextData.h"
 #include "Cursors.h"
 #include "Mode.h"
+#include "EventView.h"
 #include "EntryScene.h"
 #include "SearchDialog.h"
 #include "Style.h"
@@ -1241,8 +1242,7 @@ void TextItem::renderCursor(QPainter *p, int pos) {
     return;
   }
   
-  SheetScene *ss = dynamic_cast<SheetScene *>(scene());
-  PageView *pv = ss ? ss->eventView() : 0;
+  PageView *pv = EventView::eventView();
   if (pv) {
     pv->markCursor(mapToScene(xy), text->font(sty), QColor("red"));
   } else {
