@@ -813,6 +813,25 @@ bool TextItem::tryScriptStyles(bool onlyIfBalanced) {
   /* Returns true if we decide to make a superscript or subscript, that is,
      if there is a preceding "^" or "_".
    */
+  cursor.clearSelection();
+  
+  MarkupData *oldscript = data()->markupAt(cursor.position(),
+					  MarkupData::Superscript);
+  if (!oldscript)
+    oldscript = data()->markupAt(cursor.position(),
+				 MarkupData::Subscript);
+  if (oldscript) {
+    // drop old super/subscript instead of creating a new one
+    MarkupData::Style s = oldscript->style();
+    int start = oldscript->start();
+    deleteMarkup(oldscript);
+    TextCursor c(cursor);
+    c.setPosition(start);
+    c.insertText(s==MarkupData::Superscript ? "^" : "_");
+    cursor.movePosition(TextCursor::Right);
+    return true;
+  }
+  
   TextCursor m = cursor.findBackward(QRegExp("\\^|_"));
   if (!m.hasSelection())
     return false; // no "^" or "_"
