@@ -24,6 +24,7 @@
 #include "DataFile.h"
 #include "DFBlocker.h"
 #include "Assert.h"
+#include "VersionControl.h"
 
 #ifdef Q_OS_LINUX
 #include <sys/types.h>
@@ -49,6 +50,9 @@ void BackgroundVC::setTimeout(int s) {
 }
 
 bool BackgroundVC::commit(QString path1, QString program1) {
+  if (VersionControl::isGloballyDisabled())
+    return false;
+  
   if (program1!="bzr" && program1!="git") {
     if (!program1.isEmpty())
       qDebug() << "BackgroundVC can only do bzr and git";

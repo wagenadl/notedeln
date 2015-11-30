@@ -33,6 +33,7 @@
 #include "AlreadyOpen.h"
 #include <QMessageBox>
 #include "CrashReport.h"
+#include "VersionControl.h"
 
 int main(int argc, char **argv) {
   CrashReport cr;
@@ -41,6 +42,11 @@ int main(int argc, char **argv) {
   try {
     app.setWindowIcon(QIcon(":/eln.png"));
     Fonts fonts;
+    if (argc>1 && QString("-novc")==argv[1]) {
+      VersionControl::globallyDisable();
+      argc--;
+      argv++;
+    }
 
     if (argc==1) {
       nb = SplashScene::openNotebook();

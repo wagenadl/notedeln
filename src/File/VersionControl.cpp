@@ -35,6 +35,16 @@
 #define VC_TIMEOUT 300 // seconds
 
 namespace VersionControl {
+  static bool is_globally_disabled = false;
+
+  bool isGloballyDisabled() {
+    return is_globally_disabled;
+  }
+
+  void globallyDisable() {
+    is_globally_disabled = true;
+  }
+  
 bool runVC(QString vccmd, QString subcmd, QStringList args, QString label,
              QString *stdo=0, QString *stde=0) {
   EProcess proc;
@@ -62,7 +72,7 @@ bool runGit(QString cmd, QStringList args, QString label,
 }
   
 bool update(QString path, QString program) {
-  if (program == "")
+  if (program == "" || isGloballyDisabled())
     return true;
 
   QString cwd = QDir::currentPath();
@@ -106,13 +116,14 @@ bool update(QString path, QString program) {
 }
 
 bool commit(QString path, QString program) {
+  if (program == "" || isGloballyDisabled())
+    return true;
+  
   bool success = false;
   QString cwd = QDir::currentPath();
   QString se;
   QDir::setCurrent(path);
-  if (program == "") {
-    return true;
-  } else if (program == "bzr") {
+  if (program == "bzr") {
     /* The logic is:
        (1) we run bzr status
        (2) if that returns any text at all, we first do "add", then "commit".
