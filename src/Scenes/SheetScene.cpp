@@ -296,8 +296,7 @@ void SheetScene::drawBackground(QPainter *p, const QRectF &r) {
 }
 
 Mode *SheetScene::mode() const {
-  PageView *pv = EventView::eventView();
-  return pv ? pv->mode() : 0;
+  return EventView::mode();
 }
 
 void SheetScene::futileTitleMovement(int key, Qt::KeyboardModifiers) {

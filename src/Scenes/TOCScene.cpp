@@ -113,6 +113,7 @@ QString TOCScene::pgNoToString(int n) const {
 
 void TOCScene::pageNumberClicked(int n, Qt::KeyboardModifiers m) {
   PageView *ev = EventView::eventView();
+  qDebug() << "TOCScene::pagenumberclicked. event view is " << ev;
   if (ev)
     ev->pageNumberClick(n, m);
 }

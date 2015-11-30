@@ -1243,6 +1243,7 @@ void TextItem::renderCursor(QPainter *p, int pos) {
   }
   
   PageView *pv = EventView::eventView();
+  qDebug() << "TextItem: Event view is " << pv;
   if (pv) {
     pv->markCursor(mapToScene(xy), text->font(sty), QColor("red"));
   } else {

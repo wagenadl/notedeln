@@ -770,6 +770,7 @@ void EntryScene::vChanged(int block) {
   if (tbi) {
     Item *f = 0;
     PageView *ev = EventView::eventView();
+    qDebug() << "EntryScene::vChanged. Event view = " << ev;
     if (ev)
       f = dynamic_cast<Item*>(ev->scene()->focusItem());
     // that's a really ugly way to find out who has focus

@@ -95,6 +95,8 @@ void PageView::resizeEvent(QResizeEvent *e) {
 
 void PageView::handleSheetRequest(int n) {
   PageView *ev = EventView::eventView();
+  qDebug() << "PageView(" << this << "): event view is " << ev
+	   << "same?" << (ev==this);
   if (ev!=this) 
     return;
 
@@ -363,7 +365,7 @@ PageView *PageView::newView() {
 }  
 
 void PageView::gotoEntryPage(QString s, QString path) {
-  QRegExp re("/([a-z0-9]+)/\\d+");
+  QRegExp re("/([a-z0-9]+)/(\\d+)");
   if (re.exactMatch(path)) {
     QString uuid = re.cap(1);
     int sheet = re.cap(2).toInt();
