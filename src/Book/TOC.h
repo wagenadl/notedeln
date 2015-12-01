@@ -52,6 +52,7 @@ public:
   TOCEntry *addEntry(class EntryData *data);
   bool deleteEntry(TOCEntry *);
   int newPageNumber() const;
+  QDateTime latestMod() const;
   bool isLast(TOCEntry const *) const;
   void setBook(class Notebook *);
   virtual class Notebook *book() const; // pointer to parent book, if any.

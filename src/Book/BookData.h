@@ -30,7 +30,7 @@ class BookData: public Data {
   Q_PROPERTY(QString address READ address WRITE setAddress)
   Q_PROPERTY(QDate startDate READ startDate WRITE setStartDate)
   Q_PROPERTY(QDate endDate READ endDate WRITE setEndDate)
-  ;
+  /* As of 12/1/15, endDate is no longer updated or used by NoteBook. */
 public:
   BookData(Data *parent=0);
   virtual ~BookData();

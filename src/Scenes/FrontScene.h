@@ -31,6 +31,7 @@ public:
   class DefaultingQTI *addDefaultingText(QString dflt, QFont f, QColor c);
 public slots:
   void rebuild();
+  void redate();
 private:
   void makeBackground();
   void makeItems();

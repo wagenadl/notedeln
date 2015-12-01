@@ -55,6 +55,7 @@ public:
   class TOC *toc() const;
   class Index *index() const;
   class BookData *bookData() const;
+  QDate endDate() const;
   class Style const &style() const;
   QString filePath(QString) const; // path of file in root
   QString dirPath() const; // path of root

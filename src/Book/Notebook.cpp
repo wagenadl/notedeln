@@ -276,8 +276,12 @@ CachedEntry Notebook::createEntry(int n) {
   connect(entry.data(), SIGNAL(sheetCountMod()), SLOT(sheetCountMod()));
   index_->watchEntry(entry.data());
   connect(entry.data(), SIGNAL(mod()), this, SIGNAL(mod()));
-  bookData()->setEndDate(QDate::currentDate());
+  //  bookData()->setEndDate(QDate::currentDate());
   return entry;
+}
+
+QDate Notebook::endDate() const {
+  return toc()->latestMod().date();
 }
 
 bool Notebook::deleteEntry(int pgno) {

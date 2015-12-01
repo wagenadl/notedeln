@@ -429,3 +429,10 @@ TOCEntry *TOC::findUUID(QString uuid) const {
   return 0;
 }
 
+QDateTime TOC::latestMod() const {
+  QDateTime d;
+  for (TOCEntry const *e: entries_) 
+    if (e->modified() > d)
+      d = e->modified();
+  return d;
+}

@@ -93,21 +93,38 @@ void FrontScene::textChange() {
   }
 }
 
+static void centerAt(QGraphicsItem *item, double x, double y) {
+  QRectF bb = item->boundingRect();
+  double x0 = (bb.left() + bb.right()) / 2;
+  double y0 = (bb.top() + bb.bottom()) / 2;
+  item->setPos(QPointF(x-x0, y-y0));
+}
+
+
 void FrontScene::rebuild() {
   BookData *data = book->bookData();
   title->setPlainText(data->title());
   author->setPlainText(data->author());
   address->setPlainText(data->address());
-  QString dateFmt = style.string("front-date-format");
-  if (data->startDate() == data->endDate())
-    dates->setHtml(data->startDate().toString(dateFmt));
-  else
-    dates->setHtml(data->startDate().toString(dateFmt)
-		   + QString::fromUtf8("‒") +
-		   data->endDate().toString(dateFmt));
+  redate();
   rebuildOItems();
   positionItems();
   recolorItems();
+}
+
+void FrontScene::redate() {
+  BookData *data = book->bookData();
+  QString dateFmt = style.string("front-date-format");
+  QDate start = data->startDate();
+  QDate end = book->endDate();
+  if (start == end)
+    dates->setHtml(start.toString(dateFmt));
+  else
+    dates->setHtml(start.toString(dateFmt)
+		   + QString::fromUtf8("‒") +
+		   end.toString(dateFmt));
+
+  centerAt(dates, style.real("page-width") / 2, style.real("front-dates-y"));
 }
 
 static QString otext(QString lbl, QString txt) {
@@ -122,13 +139,6 @@ void FrontScene::rebuildOItems() {
   otitle->setPlainText(otext("otitle", data->otitle()));
   oauthor->setPlainText(otext("oauthor", data->oauthor()));
   oaddress->setPlainText(otext("oaddress", data->oaddress()));
-}
-
-static void centerAt(QGraphicsItem *item, double x, double y) {
-  QRectF bb = item->boundingRect();
-  double x0 = (bb.left() + bb.right()) / 2;
-  double y0 = (bb.top() + bb.bottom()) / 2;
-  item->setPos(QPointF(x-x0, y-y0));
 }
 
 void FrontScene::makeBackground() {

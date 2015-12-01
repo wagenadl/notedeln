@@ -112,6 +112,7 @@ bool PageView::gotoSheet(int n) {
     if (n>0)
       return false;
     currentPage = 0;
+    bank->frontScene()->redate(); // just in case
     setScene(bank->frontScene());
     emit onFrontMatter(currentPage);
     break;
