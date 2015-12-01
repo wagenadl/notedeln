@@ -351,8 +351,8 @@ Notebook *Data::book() const {
 }
 
 ResManager *Data::resManager() const {
-  EntryData const *pg = entry();
-  return pg ? pg->resManager() : 0;
+  Data const *p = parent();
+  return p ? p->resManager() : 0;
 }
 
 bool Data::loading() const {

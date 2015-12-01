@@ -31,6 +31,7 @@ public:
   /* This version of markModified never propagates, even for UserVisibleMod. */
   virtual Notebook *book() const;
   void setBook(Notebook *); // null means use parent's
+  virtual class ResManager *resManager() const;
 private:
   class Notebook *nb;
 };

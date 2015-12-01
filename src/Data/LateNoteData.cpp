@@ -19,6 +19,7 @@
 
 #include "LateNoteData.h"
 #include <QDebug>
+#include "ResManager.h"
 
 static Data::Creator<LateNoteData> c("latenote");
 
@@ -47,4 +48,11 @@ void LateNoteData::setBook(Notebook *b) {
 
 Notebook *LateNoteData::book() const {
   return nb ? nb : GfxNoteData::book();
+}
+
+ResManager *LateNoteData::resManager() const {
+  ResManager *r0 = GfxNoteData::resManager();
+  if (r0)
+    return r0;
+  return firstChild<ResManager>();
 }

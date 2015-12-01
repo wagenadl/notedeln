@@ -5,6 +5,7 @@
 #include <QDebug>
 #include "Assert.h"
 #include "UUID.h"
+#include "ResManager.h"
 
 static QString basicFilename(QString uuid) {
   return QString("%1") . arg(uuid);
@@ -18,6 +19,11 @@ LateNoteFile *createLateNoteFile(QDir const &dir, QObject *parent) {
   if (!f)
     return 0;
   f->data()->setUuid(uuid);
+
+  ResManager *r = new ResManager(f->data());
+  QString resfn = dir.absoluteFilePath(fn0 + ".res");
+  r->setRoot(resfn);
+
   return f;
 }
 
@@ -27,6 +33,12 @@ LateNoteFile *loadLateNoteFile(QDir const &dir, QString uuid, QObject *parent) {
   LateNoteFile *f = LateNoteFile::load(pfn, parent);
   if (!f)
     return 0;
+
+  ResManager *r = f->data()->resManager();
+  if (!r)
+    r = new ResManager(f->data());
+  QString resfn = dir.absoluteFilePath(fn0 + ".res");
+  r->setRoot(resfn);
 
   return f;
 }
