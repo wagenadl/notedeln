@@ -24,7 +24,7 @@
 
 class FootnoteData: public TextBlockData {
   /* We inherit TextBlockData so that a FootnoteItem can be a BlockItem,
-     but we don't actually use the y0 and sheet properties for now.
+     and so that we have y0 and sheet properties.
   */
   Q_OBJECT;
   Q_PROPERTY(QString tag READ tag WRITE setTag)

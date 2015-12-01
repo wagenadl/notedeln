@@ -43,9 +43,6 @@ public:
   void setOverlay(QGraphicsObject *);
   void repositionTitle();
   class TextItemDoc *fancyTitleDocument();
-  class PageView *eventView() const;
-  // This is the view from which the current mouse, key, enter, etc event came
-  void setEventView(class PageView *);
   class Mode *mode() const;
   QGraphicsRectItem *backgroundItem() { return bgItem; }
   QGraphicsRectItem *marginItem() { return margItem; }
@@ -80,7 +77,6 @@ private:
   class QGraphicsRectItem *bgItem, *margItem;
   bool contInMargin;
   QPointer<QGraphicsObject> overlay;
-  QPointer<QGraphicsView> eventView_;
 };
 
 #endif

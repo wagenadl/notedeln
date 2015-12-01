@@ -18,7 +18,6 @@ inline QString defaultLocation() {
   else if (loc.exists("Notebooks"))
     loc.cd("Notebooks");
   QString res = loc.exists() ? loc.absolutePath() : QDir::homePath();
-  qDebug() << "defaultLocation" << res;
   return res;
 }  
 

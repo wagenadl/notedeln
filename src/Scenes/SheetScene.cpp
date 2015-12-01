@@ -23,6 +23,7 @@
 #include "TitleItem.h"
 #include "PageView.h"
 #include "Cursors.h"
+#include "EventView.h"
 
 #include <QGraphicsTextItem>
 #include <QGraphicsRectItem>
@@ -294,24 +295,8 @@ void SheetScene::drawBackground(QPainter *p, const QRectF &r) {
   p->drawRect(sceneRect());
 }
 
-
-void SheetScene::setEventView(PageView *pv) {
-  eventView_ = pv;
-}
-
 Mode *SheetScene::mode() const {
-  PageView *pv = eventView();
-  return pv ? pv->mode() : 0;
-}
-
-PageView *SheetScene::eventView() const {
-  QGraphicsView *ev = eventView_;
-  if (!ev) {
-    QList<QGraphicsView *> vv = views();
-    if (!vv.isEmpty())
-      ev = vv[0];
-  }
-  return dynamic_cast<PageView*>(ev);
+  return EventView::mode();
 }
 
 void SheetScene::futileTitleMovement(int key, Qt::KeyboardModifiers) {

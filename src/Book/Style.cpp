@@ -73,7 +73,7 @@ QVariant Style::operator[](QString k) const {
   if (options_.contains(k))
     return options_[k];
   qDebug() << "Style: No value for " << k;
-  ASSERT(0);
+  ASSERT(options_.contains(k));
   return QVariant();
 }
 
@@ -102,7 +102,7 @@ int Style::integer(QString k) const {
 
 QFont Style::font(QString k) const {
   QFont f(string(k + "-family"));
-  f.setPixelSize(100./72*real(k + "-size"));
+  f.setPixelSize(int((100./72)*real(k + "-size")));
   f.setHintingPreference(QFont::PreferVerticalHinting);
   return f;
 }

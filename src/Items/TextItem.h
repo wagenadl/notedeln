@@ -42,7 +42,7 @@ public:
   bool allowParagraphs() const;
   void setAllowParagraphs(bool yes);
   void setAllowMoves();
-  void addMarkup(MarkupData::Style t, int start, int end);
+  MarkupData *addMarkup(MarkupData::Style t, int start, int end);
   void addMarkup(MarkupData *); // we appropriate the data!
   void deleteMarkup(MarkupData *);
   bool allowNotes() const;
@@ -61,7 +61,12 @@ public:
   void unclip();
   void renderCursor(QPainter *, int pos);
   void setParentBlock(BlockItem *bi);
-  BlockItem *parentBlock() const;
+  /* - Overrides the normal ancestral block.
+     This is needed for TextItems that are the secondary ones of a paragraph
+     that is fragmented across sheets: Only the first is a direct child of
+     the block item in the normal sense. */
+  virtual BlockItem const *ancestralBlock() const;
+  virtual BlockItem *ancestralBlock();
 signals:
   void invisibleFocus(TextCursor, QPointF);
   void textChanged();
@@ -102,7 +107,6 @@ protected:
   Qt::CursorShape cursorShape() const;
   bool changesCursorShape() const;
 public:
-  QString markedText(MarkupData *);
   bool tryExplicitLink();
   QString toHtml(int start=0, int end=-1) const;
 private:

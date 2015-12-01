@@ -92,37 +92,33 @@ void BookSplashItem::paint(QPainter *p,
                      BOXRAD, BOXRAD);
 
   /* Draw contents */
-  QFont f(Style::defaultStyle().font("splash-font"));
-  if (dirname.isEmpty())
+  QString ttl = info.title;
+  QFont f(Style::defaultStyle().font("splash-item-font"));
+  if (dirname.isEmpty() || ttl.isEmpty())
     f.setItalic(true);
 
   // title
   double y = dirname.isEmpty() ? 4 /*8*/ : 4;
-  f.setPointSizeF(14);
   p->setFont(f);
   p->setBrush(QBrush(Qt::NoBrush));
-  p->setPen(QColor("black"));
-  QString ttl = info.title;
+
   if (ttl.isEmpty()) {
-    QFont f1 = f;
-    f1.setItalic(true);
-    p->setFont(f1);
     p->setPen(QColor("#666666"));
     ttl = Translate::_("Untitled notebook");
+  } else {
+    p->setPen(QColor("black"));
   }
   p->drawText(QRectF(8, y, BOXWIDTH-16, 20),
               Qt::AlignLeft | Qt::AlignVCenter | Qt::TextSingleLine,
               ttl);
-  if (ttl.isEmpty()) {
-    p->setFont(f);
-    p->setPen(QColor("black"));
-  }    
+  
+  p->setPen(QColor("black"));
 
   if (dirname.isEmpty())
     return;
   
   // filename
-  f.setPointSizeF(8);
+  f = Style::defaultStyle().font("splash-item-tiny-font");
   p->setFont(f);
   if (!hov)
     p->setPen(QColor("#444444"));
@@ -132,7 +128,7 @@ void BookSplashItem::paint(QPainter *p,
 
   // other items
   QString datefmt = Style::defaultStyle().string("splash-date-format");
-  f.setPointSizeF(10);
+  f = Style::defaultStyle().font("splash-item-small-font");
   p->setFont(f);
   p->drawText(QRectF(8, 38, BOXWIDTH-16, 24),
               Qt::AlignLeft | Qt::AlignVCenter | Qt::TextSingleLine,

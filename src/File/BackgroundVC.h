@@ -28,7 +28,7 @@ public:
   BackgroundVC(QObject *parent);
   virtual ~BackgroundVC();
   bool commit(QString path, QString program); // returns true if started,
-  // false if could not start
+  // false if could not start or globally disabled
   void setTimeout(int secs);
   bool isBusy() const;
 signals:

@@ -45,6 +45,7 @@ protected:
   bool hasPreview() const;
   class Resource *resource() const;
   void activate(QGraphicsSceneMouseEvent *);
+  void contextMenu(QGraphicsSceneMouseEvent *);
   void openPage(bool newView=false);
 private:
   MarkupData *md; // we do not own

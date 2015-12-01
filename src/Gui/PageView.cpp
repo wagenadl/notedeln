@@ -17,6 +17,7 @@
 // PageView.C
 
 #include "PageView.h"
+#include "EventView.h"
 #include "PageEditor.h"
 #include "App.h"
 #include "EntryScene.h"
@@ -93,30 +94,17 @@ void PageView::resizeEvent(QResizeEvent *e) {
 }
 
 void PageView::handleSheetRequest(int n) {
-  BaseScene *sc = 0;
-  switch (currentSection) {
-  case Front:
-    break;
-  case TOC:
-    sc = bank->tocScene();
-    break;
-  case Entries:
-    sc = entryScene.obj();
-    break;
-  }
-  if (sc && currentSheet < sc->sheetCount()) {
-    qDebug() << "  got scene" << sc << "currentSheet=" << currentSheet << "count==" << sc->sheetCount();
-    PageView *ev = sc->eventView();
-    qDebug() << "eventview=" << ev;
-    if (/*ev &&*/ ev!=this) {
-      qDebug() << "  eventview mismatch -> returning";
-      return;
-    }
-  }
+  PageView *ev = EventView::eventView();
+  qDebug() << "PageView(" << this << "): event view is " << ev
+	   << "same?" << (ev==this);
+  if (ev!=this) 
+    return;
+
   gotoSheet(n);
 }
 
 bool PageView::gotoSheet(int n) {
+  EventView ev(this);
   if (n<0)
     return false;
   switch (currentSection) {
@@ -132,7 +120,6 @@ bool PageView::gotoSheet(int n) {
       return false;
     currentPage = 1+n;
     currentSheet = n;
-    bank->tocScene()->sheet(n)->setEventView(this);
     setScene(bank->tocScene()->sheet(n));
     emit onFrontMatter(currentPage);
     return true;
@@ -141,7 +128,6 @@ bool PageView::gotoSheet(int n) {
       return false;
     currentSheet = n;
     currentPage = entryScene->startPage() + n;
-    entryScene->sheet(n)->setEventView(this);
     setScene(entryScene->sheet(n));
     emit onEntryPage(currentPage-n, n);
     return true;
@@ -150,43 +136,28 @@ bool PageView::gotoSheet(int n) {
 }
 
 void PageView::mousePressEvent(QMouseEvent *e) {
-  markEventView();
+  EventView ev(this);
   QGraphicsView::mousePressEvent(e);
 }
 
 void PageView::dragEnterEvent(QDragEnterEvent *e) {
-  markEventView();
+  EventView ev(this);
   QGraphicsView::dragEnterEvent(e);
 }
 
 void PageView::enterEvent(QEvent *e) {
-  markEventView();
+  EventView ev(this);
   modeChange();
   QGraphicsView::enterEvent(e);
 }
 
 void PageView::inputMethodEvent(QInputMethodEvent *e) {
-  markEventView();
+  EventView ev(this);
   QGraphicsView::inputMethodEvent(e);
 }
-
-void PageView::markEventView() {
-  switch (currentSection) {
-  case Front:
-    break;
-  case TOC:
-    bank->tocScene()->setEventView(this);
-    bank->tocScene()->sheet(currentSheet)->setEventView(this);
-    break;
-  case Entries:
-    entryScene->setEventView(this);
-    entryScene->sheet(currentSheet)->setEventView(this);
-    break;
-  }
-}  
   
 void PageView::keyPressEvent(QKeyEvent *e) {
-  markEventView();
+  EventView ev(this);
   bool take = true;
   switch (e->key()) {
   case Qt::Key_F1:
@@ -359,7 +330,7 @@ void PageView::keyPressEvent(QKeyEvent *e) {
 }
 
 void PageView::keyReleaseEvent(QKeyEvent *e) {
-  markEventView();
+  EventView ev(this);
   switch (e->key()) {
   case Qt::Key_Alt:
     mode()->temporaryRelease(Mode::MoveResize);
@@ -390,8 +361,27 @@ PageView *PageView::newView() {
   ASSERT(myEditor);
   PageEditor *newEditor = myEditor->newEditor();
   newEditor->resize(myEditor->size());
-  return myEditor->pageView();
+  return newEditor->pageView();
 }  
+
+void PageView::gotoEntryPage(QString s, QString path) {
+  QRegExp re("/([a-z0-9]+)/(\\d+)");
+  if (re.exactMatch(path)) {
+    QString uuid = re.cap(1);
+    int sheet = re.cap(2).toInt();
+    TOCEntry *e = book->toc()->findUUID(uuid);
+    if (e) {
+      qDebug() << "Using uuid";
+      gotoEntryPage(e->startPage());
+      gotoSheet(sheet);
+    } else {
+      gotoEntryPage(s);
+    }
+  } else {
+    gotoEntryPage(s);
+  }
+
+}
 
 void PageView::gotoEntryPage(QString s) {
   if (s.isEmpty()) {
@@ -448,6 +438,8 @@ void PageView::gotoEntryPage(int n, int dir) {
   } else {
     leavePage();
     entryScene = bank->entryScene(te->startPage());
+    connect(entryScene->data(), SIGNAL(emptyStatusChanged(bool)),
+	    SLOT(emptyEntryChange()));
 
     connect(entryScene.obj(), SIGNAL(sheetRequest(int)),
 	    SLOT(handleSheetRequest(int)));
@@ -490,20 +482,23 @@ void PageView::leavePage() {
       fi->clearFocus(); // this should cause abandon to happen
   }
 
-  if (currentSection==Entries
-      && currentPage==book->toc()->newPageNumber()-1) {
-    // Leaving the last page in the notebook.
-    // If the page is empty, we'll delete it.
-    if (entryScene->data()->isEmpty()) {
-      // Leaving an empty page
-      QList<QGraphicsView *> allv = entryScene->allViews();
-      if (allv.size()==1 && allv.first() == this) {
-	entryScene.clear();
-	book->deleteEntry(currentPage);
-	return;
-      }
-    } 
-    book->flush();
+  if (currentSection==Entries) {
+    disconnect(entryScene->data(), SIGNAL(emptyStatusChanged(bool)),
+	       this, SLOT(emptyEntryChange()));
+    if (currentPage==book->toc()->newPageNumber()-1) {
+      // Leaving the last page in the notebook.
+      // If the page is empty, we'll delete it.
+      if (entryScene->data()->isEmpty()) {
+	// Leaving an empty page
+	QList<QGraphicsView *> allv = entryScene->allViews();
+	if (allv.size()==1 && allv.first() == this) {
+	  entryScene.clear();
+	  book->deleteEntry(currentPage);
+	  return;
+	}
+      } 
+      book->flush();
+    }
   }
 }  
 
@@ -638,7 +633,7 @@ Notebook *PageView::notebook() const {
 }
 
 void PageView::wheelEvent(QWheelEvent *e) {
-  markEventView();
+  EventView ev(this);
   wheelDeltaAccum += e->delta();
   int step = (e->modifiers() & Qt::ShiftModifier) ? 10 : 1;
   while (wheelDeltaAccum>=wheelDeltaStepSize) {
@@ -792,12 +787,13 @@ void PageView::ensureSearchVisible(QString uuid, QString phrase) {
 }
 
 void PageView::focusInEvent(QFocusEvent *e) {
-  markEventView();
+  EventView ev(this);
   QGraphicsView::focusInEvent(e);
   update(); // ensure text cursor looks ok
 }
 
 void PageView::focusOutEvent(QFocusEvent *e) {
+  EventView ev(this);
   QGraphicsView::focusOutEvent(e);
   update(); // ensure text cursor looks ok
 }
@@ -895,4 +891,9 @@ void PageView::restoreState(PageView::SavedState const &s) {
   } break;
   }
   mode_->setMode(Mode::Browse); // this is crude, but OK for now.
+}
+
+void PageView::emptyEntryChange() {
+  if (currentSection==Entries)
+    emit onEntryPage(currentPage-currentSheet, currentSheet);
 }

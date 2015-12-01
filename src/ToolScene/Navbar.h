@@ -25,10 +25,19 @@
 class Navbar: public Toolbar {
   Q_OBJECT;
 public:
+  enum PageType {
+    FrontPage,
+    TOC,
+    Entry,
+    LastEntry,
+    EmptyLastEntry
+  };
+public:
   Navbar(QGraphicsItem *parent);
   virtual ~Navbar();
+public slots:
   void showHelp();
-  void setOnLastPage(bool);
+  void setPageType(PageType);
 signals:
   void goTOC(Qt::KeyboardModifiers);
   void goFind();
@@ -39,7 +48,7 @@ signals:
 protected:
   virtual void doLeftClick(QString, Qt::KeyboardModifiers);
 private:
-  ToolItem *ti_n1, *ti_n10, *ti_end, *ti_plus;
+  ToolItem *ti_n1, *ti_n10, *ti_end, *ti_plus, *ti_p1, *ti_p10;
 };
 
 #endif

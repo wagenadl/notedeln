@@ -59,6 +59,7 @@ public:
 public slots:
   void notifyChildless(class BlockItem *);
   void redateBlocks();
+  void restackBlocks(int start=0);
 signals:
   void restacked();
   void sheetRequest(int);
@@ -97,7 +98,6 @@ private:
   void makeDateItem();
   void makeBlockItems();
   void positionBlocks();
-  void restackBlocks(int start);
   void loadLateNotes();
   void resetSheetCount();
   void positionTitleItem();

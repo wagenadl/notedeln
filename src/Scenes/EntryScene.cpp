@@ -18,6 +18,7 @@
 
 #include "EntryScene.h"
 
+#include "EventView.h"
 #include "DragLine.h"
 #include "SheetScene.h"
 #include "Style.h"
@@ -318,7 +319,7 @@ void EntryScene::redateBlocks() {
     double ml = style().real("margin-left");
     dateItem->setPos(QPointF(ml - dr.width() - 2 - bs0.x(),
 			     (br.top() - bs0.y()) - (dr.top() - ds0.y())
-			     + style().real("text-block-above")));
+			     + style().real("text-block-above") - 4));
   }    
 }
 
@@ -768,8 +769,10 @@ void EntryScene::vChanged(int block) {
   TextBlockItem *tbi = dynamic_cast<TextBlockItem*>(blockItems[block]);
   if (tbi) {
     Item *f = 0;
-    if (eventview)
-      f = dynamic_cast<Item*>(eventview->scene()->focusItem());
+    PageView *ev = EventView::eventView();
+    qDebug() << "EntryScene::vChanged. Event view = " << ev;
+    if (ev)
+      f = dynamic_cast<Item*>(ev->scene()->focusItem());
     // that's a really ugly way to find out who has focus
     TextCursor c = tbi->textCursor();
     restackBlocks(block);
@@ -1187,6 +1190,7 @@ void EntryScene::newFootnote(int block, QString tag) {
   ASSERT(block>=0 && block<blockItems.size());
   foreach (FootnoteItem *fni, blockItems[block]->footnotes()) {
     if (fni->data()->tag()==tag) {
+      emit sheetRequest(fni->data()->sheet());
       fni->setFocus();
       return;
     }
@@ -1197,7 +1201,7 @@ void EntryScene::newFootnote(int block, QString tag) {
   fni->makeWritable();
   fni->sizeToFit();
   restackBlocks(block);
-  gotoSheetOfBlock(block);
+  emit sheetRequest(fni->data()->sheet());
   fni->setAutoContents();
   fni->setFocus();
 }

@@ -46,11 +46,13 @@ Navbar::Navbar(QGraphicsItem *parent): Toolbar(parent) {
   t->setSvg(":icons/nav-p10.svg");
   t->setBalloonHelpText(":nav-p10");
   addTool(NAV_P10, t);
+  ti_p10 = t;
 
   t = new ToolItem();
   t->setSvg(":icons/nav-prev.svg");
   t->setBalloonHelpText(":nav-prev");
   addTool(NAV_PREV, t);
+  ti_p1 = t;
 
   t = new ToolItem();
   t->setSvg(":icons/nav-next.svg");
@@ -125,9 +127,14 @@ void Navbar::showHelp() {
   AboutBox::about();
 }
 
-void Navbar::setOnLastPage(bool y) {
-  ti_n1->setVisible(!y);
-  ti_plus->setVisible(y);
-  ti_n10->setEnabled(!y);
-  ti_end->setEnabled(!y);
+void Navbar::setPageType(Navbar::PageType pt) {
+  bool isfirst = pt==FrontPage;
+  bool islast = pt==LastEntry || pt==EmptyLastEntry;
+  ti_p1->setEnabled(!isfirst);
+  ti_p10->setEnabled(!isfirst);
+  ti_n1->setVisible(!islast);
+  ti_n10->setEnabled(!islast);
+  ti_end->setEnabled(!islast);
+  ti_plus->setVisible(islast);
+  ti_plus->setEnabled(pt!=EmptyLastEntry);
 }

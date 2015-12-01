@@ -24,12 +24,14 @@
 #include "SheetScene.h"
 #include "PageView.h"
 #include "TextData.h"
+#include "EventView.h"
 
 #include <QDesktopServices>
 #include <QPainter>
 #include <QGraphicsSceneHoverEvent>
 #include <QDebug>
 #include <QProcess>
+#include <QMenu>
 
 OneLink::OneLink(class MarkupData *md, class TextItem *item):
   QObject(item), md(md), ti(item) {
@@ -59,12 +61,47 @@ void OneLink::update() {
 }
   
 bool OneLink::mousePress(QGraphicsSceneMouseEvent *e) {
-  if (ti->mode()->mode()==Mode::Browse
-      || (e->modifiers() & Qt::ControlModifier)) {
-    activate(e);
+  switch (e->button()) {
+  case Qt::LeftButton:
+    if (ti->mode()->mode()==Mode::Browse
+	|| (e->modifiers() & Qt::ControlModifier)) {
+      activate(e);
+      return true;
+    } else {
+      return false;
+    }
+  case Qt::RightButton:
+    contextMenu(e);
     return true;
-  } else {
+  default:
     return false;
+  }
+}
+
+void OneLink::contextMenu(QGraphicsSceneMouseEvent *e) {
+  Resource *r = resource();
+  if (!r)
+    return;
+  if (r->sourceURL().scheme() == "page") {
+    QMenu menu;
+    QAction *go = menu.addAction("Go to page");
+    QAction *nw = menu.addAction("Open page in new window");
+    menu.move(e->screenPos() - QPoint(32, 32));
+    QAction *res = menu.exec();
+    if (res==go) 
+      openPage(false);
+    else if (res==nw)
+      openPage(true);
+  } else {
+    QMenu menu;
+    QAction *arch = menu.addAction("Open archived copy of resource");
+    QAction *orig = menu.addAction("Open original location of resource");
+    menu.move(e->screenPos() - QPoint(32, 32));
+    QAction *res = menu.exec();
+    if (res==arch)
+      openArchive();
+    else if (res==orig)
+      openLink();
   }
 }
 
@@ -144,17 +181,21 @@ void OneLink::openPage(bool newView) {
   Resource *r = resource();
   ASSERT(r);
   QString tag = r->tag();
+  QString path = r->sourceURL().path();
 
   ASSERT(ti);
   SheetScene *s = dynamic_cast<SheetScene *>(ti->scene());
   ASSERT(s);
-  PageView *pv = dynamic_cast<PageView *>(s->eventView());
-  ASSERT(pv);
+  PageView *pv = EventView::eventView();
+  if (!pv) {
+    qDebug() << "No event view in OneLink::openPage";
+    return;
+  }
 
   if (newView)
-    pv->newView()->gotoEntryPage(tag);
+    pv->newView()->gotoEntryPage(tag, path);
   else
-    pv->gotoEntryPage(tag);
+    pv->gotoEntryPage(tag, path);
 }
 
 void OneLink::openArchive() {

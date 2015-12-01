@@ -34,6 +34,8 @@ namespace VersionControl {
   bool commit(QString path, QString program); // returns true on success
 
   bool isGitAvailable();
+  void globallyDisable(); // causes update and commit to quietly return success
+  bool isGloballyDisabled();
 };
 
 #endif

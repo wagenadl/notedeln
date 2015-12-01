@@ -33,10 +33,12 @@ static Data::Creator<EntryData> c("page");
 
 EntryData::EntryData(Data *parent): Data(parent) {
   nb = 0;
+  title_ = 0;
   setType("page");
   startPage_ = 1;
   unlocked_ = false;
   stampTime_ = 0;
+  wasEmpty = true;
   title_ = new TitleData(this);
   cui_ = App::instance()->cui()->current();
 
@@ -52,7 +54,7 @@ QList<class BlockData *> EntryData::blocks() const {
 }
 
 bool EntryData::isEmpty() const {
-  if (!title_->isDefault())
+  if (title_ && !title_->isDefault())
     return false;
   foreach (BlockData *b, blocks())
     if (!b->isEmpty())
@@ -226,3 +228,13 @@ void EntryData::resetCreation() {
   }
 }
 
+void EntryData::markModified(ModType mt) {
+  Data::markModified(mt);
+  bool empty = isEmpty();
+  if (empty != wasEmpty) {
+    wasEmpty = empty;
+    emit emptyStatusChanged(empty);
+  }
+}
+
+      
