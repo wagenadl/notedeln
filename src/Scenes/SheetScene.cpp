@@ -24,6 +24,7 @@
 #include "PageView.h"
 #include "Cursors.h"
 #include "EventView.h"
+#include "Notebook.h"
 
 #include <QGraphicsTextItem>
 #include <QGraphicsRectItem>
@@ -296,7 +297,8 @@ void SheetScene::drawBackground(QPainter *p, const QRectF &r) {
 }
 
 Mode *SheetScene::mode() const {
-  return EventView::mode();
+  ASSERT(base);
+  return base->book()->mode();
 }
 
 void SheetScene::futileTitleMovement(int key, Qt::KeyboardModifiers) {

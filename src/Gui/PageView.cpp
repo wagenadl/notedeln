@@ -52,7 +52,6 @@ PageView::PageView(SceneBank *bank, PageEditor *parent):
   book = bank->book(); // for convenience only
   ASSERT(book);
   ASSERT(parent);
-  mode_ = new Mode(book->isReadOnly(), this);
   searchDialog = new SearchDialog(this);
   deletedStack = new DeletedStack(this);
 
@@ -626,7 +625,7 @@ void PageView::lastPage(Qt::KeyboardModifiers m) {
 }
 
 Mode *PageView::mode() const {
-  return mode_;
+  return notebook()->mode();
 }
 
 Notebook *PageView::notebook() const {

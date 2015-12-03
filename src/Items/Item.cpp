@@ -85,8 +85,8 @@ void Item::makeWritable() {
 }
 
 Mode *Item::mode() const {
-  SheetScene *ss = dynamic_cast<SheetScene*>(scene());
-  return Mode::ensure(ss ? ss->mode() : 0);
+  ASSERT(d);
+  return d->book()->mode();
 }
 
 Item *Item::create(Data *d, Item *parent) {

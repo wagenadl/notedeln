@@ -31,6 +31,7 @@ public:
   virtual ~BaseScene();
   int sheetCount() const;
   class Style const &style() const;
+  class Notebook *book() const;
   virtual bool print(class QPrinter *, class QPainter *,
 		     int firstSheet=0, int lastSheet=100000000);
   // returns true if anything printed
@@ -67,8 +68,7 @@ public: // for SheetScene only
   virtual bool dropEvent(QGraphicsSceneDragDropEvent *, SheetScene *);
 protected:
   int nSheets; // number of sheets
-  Data *data;
-  Style const *style_;
+  class Notebook *book_;
   QList<class SheetScene *> sheets;
   bool contInMargin;
   class QSignalMapper *focusFirstMapper;

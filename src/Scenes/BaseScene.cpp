@@ -38,12 +38,9 @@
 #include "Notebook.h"
 
 BaseScene::BaseScene(Data *data, QObject *parent):
-  QObject(parent),
-  data(data) {
-  ASSERT(data);
-  Notebook *book = data->book();
-  ASSERT(book);
-  style_ = &book->style();
+  QObject(parent) {
+  book_ = data->book();
+  ASSERT(book_);
   nSheets = 0;
   contInMargin = false;
   focusFirstMapper = new QSignalMapper(this);
@@ -61,19 +58,19 @@ QString BaseScene::pgNoToString(int n) const {
 }
 
 bool BaseScene::inLeftMargin(QPointF sp) const {
-  return sp.x() < style_->real("margin-left");
+  return sp.x() < style().real("margin-left");
 }
 
 bool BaseScene::inRightMargin(QPointF sp) const {
-  return sp.x() >= style_->real("page-width") - style_->real("margin-right");
+  return sp.x() >= style().real("page-width") - style().real("margin-right");
 }
 
 bool BaseScene::inTopMargin(QPointF sp) const {
-  return sp.y() < style_->real("margin-top");
+  return sp.y() < style().real("margin-top");
 }
 
 bool BaseScene::inBottomMargin(QPointF sp) const {
-  return sp.y() >= style_->real("page-height") - style_->real("margin-bottom");
+  return sp.y() >= style().real("page-height") - style().real("margin-bottom");
 }
 
 bool BaseScene::inSideMargin(QPointF sp) const {
@@ -93,7 +90,7 @@ int BaseScene::startPage() const {
 }
 
 Style const &BaseScene::style() const {
-  return *style_;
+  return book()->style();
 }
 
 int BaseScene::sheetCount() const {
@@ -237,4 +234,8 @@ QList<QGraphicsView *> BaseScene::allViews() const {
     foreach (QGraphicsView *v, s->views())
       set.insert(v);
   return set.toList();
+}
+
+Notebook *BaseScene::book() const {
+  return book_;
 }

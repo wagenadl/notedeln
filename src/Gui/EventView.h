@@ -14,10 +14,8 @@ public:
   EventView(PageView *view);
   ~EventView();
   static PageView *eventView();
-  static Mode *mode();
 private:
   static QList<QPointer<PageView> > &view_list();
-  static QPointer<Mode> &mode_();
   static QPointer<PageView> &view_();
 };
 
