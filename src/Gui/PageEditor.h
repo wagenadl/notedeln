@@ -46,6 +46,8 @@ protected:
   void resizeEvent(QResizeEvent *);
   void keyPressEvent(QKeyEvent *);
   void changeEvent(QEvent *);
+  void enterEvent(QEvent *);
+  void leaveEvent(QEvent *);
 private:
   void initialize();
 private:

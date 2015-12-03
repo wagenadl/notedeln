@@ -199,3 +199,13 @@ void PageEditor::nowOnFrontMatter(int p0) {
   toolview->toolbars()->navbar()->setPageType(p0==0 ? Navbar::FrontPage
 					      : Navbar::TOC);
 }
+
+void PageEditor::enterEvent(QEvent *e) {
+  QMainWindow::enterEvent(e);
+  toolview->show();
+}
+
+void PageEditor::leaveEvent(QEvent *e) {
+  QMainWindow::leaveEvent(e);
+  toolview->hide();
+}
