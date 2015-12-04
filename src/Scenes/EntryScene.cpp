@@ -146,6 +146,7 @@ BlockItem *EntryScene::tryMakeTableBlock(BlockData *bd) {
   if (tbd->height()==0)
     tbi->sizeToFit();
   connect(tbi, SIGNAL(futileMovement()), futileMovementMapper, SLOT(map()));
+  connect(tbi, SIGNAL(sheetRequest(int)), this, SIGNAL(sheetRequest(int)));
   connect(tbi, SIGNAL(unicellular(class TableData *)),
 	  SLOT(makeUnicellular(class TableData *)),
 	  Qt::QueuedConnection);
@@ -464,6 +465,7 @@ TableBlockItem *EntryScene::injectTableBlock(TableBlockData *tbd, int iblock) {
   blockItems.insert(iblock, tbi);
   connect(tbi, SIGNAL(heightChanged()), vChangeMapper, SLOT(map()));
   connect(tbi, SIGNAL(futileMovement()), futileMovementMapper, SLOT(map()));
+  connect(tbi, SIGNAL(sheetRequest(int)), this, SIGNAL(sheetRequest(int)));
   connect(tbi, SIGNAL(unicellular(class TableData *)),
 	  SLOT(makeUnicellular(class TableData *)),
 	  Qt::QueuedConnection);
@@ -770,7 +772,6 @@ void EntryScene::vChanged(int block) {
   if (tbi) {
     Item *f = 0;
     PageView *ev = EventView::eventView();
-    qDebug() << "EntryScene::vChanged. Event view = " << ev;
     if (ev)
       f = dynamic_cast<Item*>(ev->scene()->focusItem());
     // that's a really ugly way to find out who has focus

@@ -94,11 +94,13 @@ void PageView::resizeEvent(QResizeEvent *e) {
 
 void PageView::handleSheetRequest(int n) {
   PageView *ev = EventView::eventView();
-  qDebug() << "PageView(" << this << "): event view is " << ev
+  qDebug() << "PageView(" << this << ")::handleSheetRequest " << n << " "
+           << "Event view is " << ev
 	   << "same?" << (ev==this);
   if (ev!=this) 
     return;
-
+  if (n==currentSheet)
+    return; // ok?
   gotoSheet(n);
 }
 

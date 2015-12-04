@@ -99,10 +99,11 @@ private:
   bool keyPressAsInsertion(QKeyEvent *);
   void handleLeftClick(QGraphicsSceneMouseEvent *);
   void selectWordOrLineOrParagraph(int pos);
-  void ensureCursorVisible();
 protected slots:
   virtual void markupChange(MarkupData *);
   virtual void docChange();
+protected:
+  void ensureCursorVisible();
 protected:
   Qt::CursorShape cursorShape() const;
   bool changesCursorShape() const;
