@@ -164,6 +164,9 @@ static void eln_crashreporter(int fd, QString email) {
 }  
 
 CrashReport::CrashReport() {
+#ifndef QT_NO_DEBUG
+  return;
+#endif
   if (pipe(eln_pipe)) {
     qDebug() << "pipe failed";
     return;

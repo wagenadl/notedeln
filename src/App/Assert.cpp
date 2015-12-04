@@ -17,6 +17,7 @@
 // Assert.C
 
 #include "Assert.h"
+#include <QApplication>
 #include <QDebug>
 #include <QMessageBox>
 #include "Calltrace.h"
@@ -86,8 +87,8 @@ void Assertion::crash(QString msg, char const *file, int line) {
     // QString msg = a.tryToSave();
     int n = notebooks().size();
     a.reportSaved(0, n);
-    // a.reportFailedToSave(msg);
-    throw AssertedException();
+    ::exit(1);
+    // throw AssertedException();
   }
 }
 
@@ -132,6 +133,8 @@ void Assertion::reportSaved(int nsaved, int nunsaved) {
   QString msg = message().trimmed();
   if (!msg.endsWith("."))
     msg += ".";
+  if (!backtrace().isEmpty())
+    msg += "\n\nStack backtrace:\n" + backtrace();
   if (nunsaved>0)
     msg += "\nRegrettably, your work of the last few seconds"
       " may have been lost.";
@@ -139,8 +142,6 @@ void Assertion::reportSaved(int nsaved, int nunsaved) {
     msg += "\nYour notebook has been saved.";
   msg += "\n\nPlease send a bug report to the author.";
   mb.setInformativeText(msg);
-  if (!backtrace().isEmpty())
-    mb.setInformativeText("Stack backtrace:\n" + backtrace());
   mb.exec();
 }
 
@@ -160,12 +161,13 @@ void Assertion::reportFailedToSave(QString msg2) {
   if (!msg.endsWith("."))
     msg += ".";
 
+  if (!backtrace().isEmpty())
+    msg += "\n\nStack backtrace:\n" + backtrace();
+
   msg += "\nRegrettably, your work of the last few seconds"
     " may therefore have been lost.";
   msg += "\n\nPlease send a bug report to the author.";
   mb.setInformativeText(msg);
-  if (!backtrace().isEmpty())
-    mb.setInformativeText("Stack backtrace:\n" + backtrace());
   mb.exec();
 }
 
