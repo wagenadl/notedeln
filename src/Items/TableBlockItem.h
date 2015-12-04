@@ -37,7 +37,7 @@ public:
   virtual ~TableBlockItem();
   DATAACCESS(TableBlockData);
   class TableItem *table();
-  virtual double splittableY(double /*hmax*/) const { return 0; }
+  virtual double splittableY(double hmax) const;
 signals:
   void unicellular(TableData *); // emitted when we are left as just one cell
 private:

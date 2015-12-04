@@ -57,3 +57,7 @@ TableBlockItem::~TableBlockItem() {
 TableItem *TableBlockItem::table() {
   return item_;
 }
+
+double TableBlockItem::splittableY(double y) const {
+  return TextBlockItem::splittableY(y);
+}
