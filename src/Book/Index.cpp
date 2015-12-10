@@ -23,7 +23,7 @@
 #include <QFile>
 #include <QTimer>
 #include <QSignalMapper>
-#include "EntryData.h"
+#include "EntryFile.h"
 
 #define INDEX_SAVEIVAL_S 5
 
@@ -47,27 +47,33 @@ Index::~Index() {
   flush();
 }
 
-void Index::watchEntry(EntryData *e) {
+void Index::watchEntry(EntryFile *e) {
   ASSERT(e);
-  int pgno = e->startPage();
+  EntryData *d = e->data();
+  ASSERT(d);
+  int pgno = d->startPage();
   qDebug() << "Index: watchEntry" << pgno;
-  connect(e, SIGNAL(mod()), mp, SLOT(map()), Qt::UniqueConnection);
-  oldsets[pgno] = e->wordSet();
+  connect(e, SIGNAL(saved()), mp, SLOT(map()), Qt::UniqueConnection);
+  oldsets[pgno] = d->wordSet();
   mp->setMapping(e, e);
 }
 
-void Index::unwatchEntry(EntryData *e) {
+void Index::unwatchEntry(EntryFile *e) {
   ASSERT(e);
-  int pgno = e->startPage();
+  EntryData *d = e->data();
+  ASSERT(d);
+  int pgno = d->startPage();
   qDebug() << "Index: unwatchEntry" << pgno;
-  disconnect(e, SIGNAL(mod()), mp, SLOT(map()));
+  disconnect(e, SIGNAL(saved()), mp, SLOT(map()));
   mp->removeMappings(e);
   oldsets.remove(pgno);
 }
 
-void Index::deleteEntry(EntryData *e) {
+void Index::deleteEntry(EntryFile *e) {
   ASSERT(e);
-  int pgno = e->startPage();
+  EntryData *d = e->data();
+  ASSERT(d);
+  int pgno = d->startPage();
   qDebug() << "Index: deleteEntry" << pgno;
   words()->dropEntry(pgno);
   unwatchEntry(e);
@@ -85,10 +91,12 @@ WordIndex *Index::words() const {
 }
 
 void Index::updateEntry(QObject *obj) {
-  EntryData *e = dynamic_cast<EntryData*>(obj);
+  EntryFile *e = dynamic_cast<EntryFile *>(obj);
   ASSERT(e);
-  QSet<QString> words = e->wordSet();
-  int pgno = e->startPage();
+  EntryData *d = e->data();
+  ASSERT(d);
+  QSet<QString> words = d->wordSet();
+  int pgno = d->startPage();
 
   if (words!=oldsets[pgno]) {
     widx->rebuildEntry(pgno, words, &oldsets[pgno]);

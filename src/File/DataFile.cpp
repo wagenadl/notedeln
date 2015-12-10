@@ -75,7 +75,7 @@ bool DataFile0::ok() const {
   return ok_;
 }
 
-bool DataFile0::saveNow(bool force) const {
+bool DataFile0::saveNow(bool force) {
   if (force)
     needToSave_ = true;
     
@@ -89,8 +89,10 @@ bool DataFile0::saveNow(bool force) const {
   }
 
   ok_ = JSONFile::save(data_->save(), fn_);  
-  if (ok_)
+  if (ok_) {
     needToSave_ = false;
+    emit saved();
+  }
   return ok_;
 }
 

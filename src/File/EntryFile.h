@@ -25,6 +25,7 @@
 #include <QDir>
 
 typedef DataFile<EntryData> EntryFile;
+
 EntryFile *createEntry(QDir const &dir, int n, QObject *parent=0);
 /* createEntry returns NULL if the file cannot be created */
 EntryFile *loadEntry(QDir const &dir, int n, QString uuid, QObject *parent=0);

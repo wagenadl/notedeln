@@ -253,7 +253,7 @@ CachedEntry Notebook::entry(int n)  {
   entry.setBook(this);
   connect(entry.data(), SIGNAL(titleMod()), SLOT(titleMod()));
   connect(entry.data(), SIGNAL(sheetCountMod()), SLOT(sheetCountMod()));
-  index_->watchEntry(entry.data());
+  index_->watchEntry(entry.file());
   connect(entry.data(), SIGNAL(mod()), this, SIGNAL(mod()));
   return entry;
 }
@@ -276,7 +276,7 @@ CachedEntry Notebook::createEntry(int n) {
   entry.setBook(this);
   connect(entry.data(), SIGNAL(titleMod()), SLOT(titleMod()));
   connect(entry.data(), SIGNAL(sheetCountMod()), SLOT(sheetCountMod()));
-  index_->watchEntry(entry.data());
+  index_->watchEntry(entry.file());
   connect(entry.data(), SIGNAL(mod()), this, SIGNAL(mod()));
   //  bookData()->setEndDate(QDate::currentDate());
   return entry;
@@ -300,7 +300,7 @@ bool Notebook::deleteEntry(int pgno) {
 
   QString uuid = pf->uuid();
   
-  index_->deleteEntry(pf); // this doesn't save, but see below
+  index_->deleteEntry(pf.file()); // this doesn't save, but see below
 
   pf.file()->cancelSave();
   pgFiles.remove(pgno);

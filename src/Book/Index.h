@@ -22,15 +22,16 @@
 
 #include <QObject>
 #include <QMap>
+#include "EntryFile.h"
 
 class Index: public QObject {
   Q_OBJECT;
 public:
   Index(QString rootDir, class TOC *toc, QObject *parent);
   virtual ~Index();
-  void watchEntry(class EntryData *);
-  void unwatchEntry(class EntryData *);
-  void deleteEntry(class EntryData *);
+  void watchEntry(EntryFile *);
+  void unwatchEntry(EntryFile *);
+  void deleteEntry(EntryFile *);
   class WordIndex *words() const;
 public slots:
   void updateEntry(QObject *);

@@ -28,7 +28,7 @@ class DataFile0: public QObject {
 public:  virtual ~DataFile0();
   bool ok() const; // true if last save or creation worked
   Data *data() const;
-  bool saveNow(bool force=false) const;
+  bool saveNow(bool force=false);
   // Won't do anything if needToSave() is false, unless FORCE is set.
   // Returns true if ok, even if nothing was saved.
   QString fileName() const;
@@ -38,6 +38,8 @@ public slots:
   void saveSoon();
 public:
   static void setSaveDelay(double t_s);
+signals:
+  void saved();
 protected:
 public:
   DataFile0(Data *data, QString fn, QObject *parent=0); // creates
@@ -45,10 +47,10 @@ public:
 private slots:
   void saveTimerTimeout();
 private:
-  mutable bool ok_;
+  bool ok_;
   QPointer<Data> data_;
   QString fn_;
-  mutable bool needToSave_;
+  bool needToSave_;
   class QTimer *saveTimer_;
   static double saveDelay_s;
 public:
