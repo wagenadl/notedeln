@@ -31,17 +31,15 @@ public:
   bool save(QString filename);
   bool build(class TOC *toc, QString pagesDir);
   /* Returns true unless canceled by user. */
-  void rebuildEntry(int startPage, class WordSet *ws);
+  void rebuildEntry(int startPage, QSet<QString> newset,
+                    QSet<QString> *oldset=0);
   void dropEntry(int startPage);
   QSet<int> findWord(QString word);
   QSet<int> findPartialWord(QString wordbit); // must match at beginning of word
   QSet<int> findWords(QStringList words, bool lastPartial=false);
   /* Returned integers are start pages of entries */
 private:
-  typedef QSet<int> IntSet;
-  typedef QSet<QString> StringSet;
-  typedef QMap<QString, IntSet> MapType;
-  MapType index;
+  QMap< QString, QSet<int> > index;
   /* Maps words to sets of start pages */
 };
 

@@ -58,12 +58,14 @@ public:
   MarkupData *markupAt(int pos, MarkupData::Style type) const;
   MarkupData *markupAt(int start, int end, MarkupData::Style type) const;
   int offsetOfFootnoteTag(QString) const;
+  virtual QSet<QString> wordSet() const override;
 protected:
   virtual void loadMore(QVariantMap const &);
   virtual void saveMore(QVariantMap &) const;
 protected:
   QString text_;
   QVector<int> linestarts;
+  mutable QSet<QString> wordset_;
 };
 
 #endif

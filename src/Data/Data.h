@@ -26,6 +26,7 @@
 #include <QStringList>
 #include <QVariant>
 #include <QMap>
+#include <QSet>
 
 class Data: public QObject {
   Q_OBJECT;
@@ -83,6 +84,7 @@ public:
   void detachAllResources();
   QStringList const &resourceTags() const;
   void setResourceTags(QStringList const &);
+  virtual QSet<QString> wordSet() const;
 signals:
   void mod();
 protected:

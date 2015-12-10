@@ -414,3 +414,10 @@ Data const *Data::findChildByUUID(QString id) const {
   }
   return 0;
 }
+
+QSet<QString> Data::wordSet() const {
+  QSet<QString> ws;
+  for (Data *d: allChildren())
+    ws |= d->wordSet();
+  return ws;
+}

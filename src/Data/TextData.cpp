@@ -45,6 +45,7 @@ void TextData::setText(QString const &t, bool hushhush) {
   if (text_==t)
     return;
   text_ = t;
+  wordset_.clear();
   if (!hushhush)
     markModified();
 }
@@ -148,4 +149,13 @@ QList<int> TextData::paragraphStarts() const {
       off++;
   }
   return res;
+}
+
+QSet<QString> TextData::wordSet() const {
+  if (wordset_.isEmpty() && !text_.isEmpty()) {
+    for (QString w: text_.split(QRegExp("\\W+")))
+      if (!w.isEmpty())
+        wordset_ << w.toLower();
+  }
+  return wordset_;
 }

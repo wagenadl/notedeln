@@ -19,13 +19,21 @@
 #include "Index.h"
 #include "WordIndex.h"
 #include "Assert.h"
+#include <QDebug>
 #include <QFile>
+#include <QTimer>
+#include <QSignalMapper>
 #include "EntryData.h"
-#include "WordSet.h"
+
+#define INDEX_SAVEIVAL_S 5
 
 Index::Index(QString rootDir, class TOC *toc, QObject *parent):
   QObject(parent), rootdir(rootDir) {
   widx = new WordIndex(this);
+  mp = new QSignalMapper(this);
+  saveTimer = new QTimer(this);
+  connect(saveTimer, SIGNAL(timeout()), SLOT(flush()));
+  connect(mp, SIGNAL(mapped(QObject*)), SLOT(updateEntry(QObject*)));
   QString fn = rootdir + "/index.json";
   if (QFile(fn).exists()) {
     widx->load(fn);
@@ -36,58 +44,56 @@ Index::Index(QString rootDir, class TOC *toc, QObject *parent):
 }
 
 Index::~Index() {
+  flush();
 }
 
 void Index::watchEntry(EntryData *e) {
   ASSERT(e);
   int pgno = e->startPage();
-  if (pgs.contains(pgno))
-    pgs[pgno]->detach();
-  else
-    pgs[pgno] = new WordSet(this);
-  pgs[pgno]->attach(e);  
+  qDebug() << "Index: watchEntry" << pgno;
+  connect(e, SIGNAL(mod()), mp, SLOT(map()), Qt::UniqueConnection);
+  oldsets[pgno] = e->wordSet();
+  mp->setMapping(e, e);
 }
 
 void Index::unwatchEntry(EntryData *e) {
   ASSERT(e);
   int pgno = e->startPage();
-  if (pgs.contains(pgno)) {
-    flush(pgno);
-    delete pgs[pgno];
-    pgs.remove(pgno);
-  }  
+  qDebug() << "Index: unwatchEntry" << pgno;
+  disconnect(e, SIGNAL(mod()), mp, SLOT(map()));
+  mp->removeMappings(e);
+  oldsets.remove(pgno);
 }
 
 void Index::deleteEntry(EntryData *e) {
- ASSERT(e);
+  ASSERT(e);
   int pgno = e->startPage();
-  if (pgs.contains(pgno)) {
-    delete pgs[pgno];
-    pgs.remove(pgno);
-  }
+  qDebug() << "Index: deleteEntry" << pgno;
   words()->dropEntry(pgno);
+  unwatchEntry(e);
 }
 
 void Index::flush() {
-  bool needToSave = false;
-  foreach (int pgno, pgs.keys())
-    needToSave |= flush(pgno);
+  saveTimer->stop();
+  qDebug() << "Index::flush";
   if (needToSave)
     words()->save(rootdir + "/index.json");
 }
 
-bool Index::flush(int pgno) {
-  ASSERT(pgs.contains(pgno));
-  WordSet *s = pgs[pgno];
-  if (s->outOfDate()) {
-    words()->rebuildEntry(pgno, s);
-    return true;
-  } else {
-    return false;
-  }
-}
-  
-
 WordIndex *Index::words() const {
   return widx;
+}
+
+void Index::updateEntry(QObject *obj) {
+  EntryData *e = dynamic_cast<EntryData*>(obj);
+  ASSERT(e);
+  QSet<QString> words = e->wordSet();
+  int pgno = e->startPage();
+
+  if (words!=oldsets[pgno]) {
+    widx->rebuildEntry(pgno, words, &oldsets[pgno]);
+    oldsets[pgno] = words;
+    needToSave = true;
+    saveTimer->start(INDEX_SAVEIVAL_S * 1000);
+  }
 }

@@ -25,6 +25,7 @@
 #include "EntryFile.h"
 
 class Entry: public QObject {
+  Q_OBJECT;
 public:
   /* It is allowable for data and/or file to be null. */
   explicit Entry(EntryData *data);

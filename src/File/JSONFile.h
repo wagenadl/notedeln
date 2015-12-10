@@ -25,8 +25,8 @@
 namespace JSONFile {
   QVariantMap load(QString fn, bool *ok=0);
   QVariantMap read(QString json, bool *ok=0);
-  bool save(QVariantMap const &src, QString fn);
-  QString write(QVariantMap const &src);
+  bool save(QVariantMap const &src, QString fn, bool compact=false);
+  QString write(QVariantMap const &src, bool compact=false);
 };
 
 #endif

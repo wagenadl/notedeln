@@ -48,19 +48,31 @@ namespace JSONFile {
   * the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
   * Boston, MA 02110-1301, USA.
   */
-  QString serializeMap(QVariantMap const &v, int indent, bool parentIsArray);  
-  QString serializeList(QVariantList const &v, int indent, bool parentIsArray);
-  QString serializeString(QString s);
-  QString serializeDouble(double v);
-  QString serialize(QVariant v, int indent=0, bool parentIsArray=false);
-  
-  QString serializeMap(QVariantMap const &v, int indent, bool parentIsArray) {
+  class Serializer {
+  public:
+    Serializer(bool compact=false): compact(compact) { }
+    QString serializeMap(QVariantMap const &v,
+                         int indent, bool parentIsArray);  
+    QString serializeList(QVariantList const &v,
+                          int indent, bool parentIsArray);
+    QString serializeString(QString s);
+    QString serializeDouble(double v);
+    QString serialize(QVariant v,
+                      int indent=0, bool parentIsArray=false);
+  private:
+    bool compact;
+  };
+
+  QString Serializer::serializeMap(QVariantMap const &v,
+                                   int indent, bool parentIsArray) {
     if (v.isEmpty())
-      return "{ }";
+      return compact ? "{}" : "{ }";
     QString ind = "";
-    for (int k=0; k<indent; k++)
-      ind += "  ";
-    QString s = parentIsArray ? "{ " : "{\n" + ind + "  ";
+    if (!compact) 
+      for (int k=0; k<indent; k++)
+        ind += "  ";
+    QString s = compact ? "{"
+      : (parentIsArray ? "{ " : "{\n" + ind + "  ");
     bool first = true;
     QList<QString> kk = v.keys();
     // do a little reordering
@@ -72,47 +84,44 @@ namespace JSONFile {
       kk.insert(0, "typ");
     if (kk.removeOne("cc"))
       kk.append("cc");
-    // bool lastML = 0;
     foreach (QString k, kk) {
       if (first)
 	first = false;
       else
-	s += ",\n" + ind + "  ";
+	s += compact ? ",\n" : (",\n" + ind + "  ");
       s += serializeString(k);
-      s += ": ";
+      s += compact ? ":" : ": ";
       QString s1 = serialize(v[k], indent+1, false);
       // lastML = s1.contains("\n");
       s += s1;
     }
-    s += "\n" + ind + "}";
-    // s += (parentIsArray && !lastML) ? " }" : "\n" + ind + "}";
+    s += compact ? "}" : ("\n" + ind + "}");
     return s;
   }
 
-  QString serializeList(QVariantList const &v, int indent, bool parentIsArray) {
+  QString Serializer::serializeList(QVariantList const &v,
+                                    int indent, bool parentIsArray) {
     if (v.isEmpty())
-      return "[ ]";
+      return compact ? "[]" : "[ ]";
     QString ind = "";
-    for (int k=0; k<indent; k++)
-      ind += "  ";
-    QString s = parentIsArray ? "[ " : "[\n" + ind + "  ";
+    if (!compact)
+      for (int k=0; k<indent; k++)
+        ind += "  ";
+    QString s = compact ? "[" : (parentIsArray ? "[ " : "[\n" + ind + "  ");
     bool first = true;
-    //    bool lastML = false;
     foreach (QVariant k, v) {
       if (first)
 	first = false;
       else
-	s += ",\n" + ind + "  ";
+	s += compact ? "," : (",\n" + ind + "  ");
       QString s1 = serialize(k, indent+1, true);
-      //      lastML = s1.contains("\n");
       s += s1;
     }
-    s += "\n" + ind + "]";
-    //    s += (parentIsArray && ! lastML) ? " ]" : "\n" + ind + "]";
+    s += compact ? "]" : ("\n" + ind + "]");
     return s;
   }
 
-  QString serializeString(QString s) {
+  QString Serializer::serializeString(QString s) {
     s.replace("\\", "\\\\");
     s.replace("\"", "\\\"");
     s.replace("\b", "\\b");
@@ -123,14 +132,14 @@ namespace JSONFile {
     return "\"" + s + "\"";
   }
 
-  QString serializeDouble(double d) {
+  QString Serializer::serializeDouble(double d) {
     QString s = QString::number(d);
     if (!s.contains(".") && !s.contains("e"))
       s += ".0";
     return s;
   }
   
-  QString serialize(QVariant v, int indent, bool parentIsArray) {
+  QString Serializer::serialize(QVariant v, int indent, bool parentIsArray) {
     if (!v.isValid())
       return QString(); // invalid
     if (v.type()==QVariant::List) 
@@ -192,14 +201,16 @@ namespace JSONFile {
     }
   }
 
-  QString write(QVariantMap const &src) {
-    return serialize(src, 0, true);
+  QString write(QVariantMap const &src, bool compact) {
+    Serializer s(compact);
+    return s.serialize(src, 0, true);
   }
   
-  bool save(QVariantMap const &src, QString fn) {
+  bool save(QVariantMap const &src, QString fn, bool compact) {
     //    QJson::Serializer s;
     //    QByteArray ba = s.serialize(QVariant(src));
-    QByteArray ba = serialize(src, 0, true).toUtf8();
+    Serializer s(compact);
+    QByteArray ba = s.serialize(src, 0, true).toUtf8();
     if (ba.isEmpty()) {  
       qDebug() << "DataFile0: Serialization failed";
       return false;

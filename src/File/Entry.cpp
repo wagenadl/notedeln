@@ -83,3 +83,4 @@ bool Entry::saveNow() const {
     ok &= lnm_->saveAll();
   return ok;
 }
+

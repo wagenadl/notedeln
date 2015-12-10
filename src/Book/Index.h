@@ -31,14 +31,17 @@ public:
   void watchEntry(class EntryData *);
   void unwatchEntry(class EntryData *);
   void deleteEntry(class EntryData *);
-  void flush();
   class WordIndex *words() const;
-private:
-  bool flush(int pgno);
+public slots:
+  void updateEntry(QObject *);
+  void flush();
 private:
   class WordIndex *widx;
-  QMap<int, class WordSet *> pgs;
+  QMap<int, QSet<QString> > oldsets;
   QString rootdir;
+  class QSignalMapper *mp;
+  bool needToSave;
+  class QTimer *saveTimer;
 };
 
 #endif
