@@ -18,11 +18,11 @@
 #define VERSION_H
 
 #include <QString>
-#include <QDateTime>
+#include <QDate>
 
 namespace Version {
   QString toString();
-  QDateTime buildDate();
+  QDate buildDate();
 };
 
 #endif

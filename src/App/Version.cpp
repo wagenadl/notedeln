@@ -20,6 +20,7 @@
 #include <QFile>
 #include <QFileInfo>
 #include <QDebug>
+#include "BuildDate.h"
 
 namespace Version {
   QString verbit() {
@@ -35,12 +36,9 @@ namespace Version {
   }
 
     
-  QDateTime buildDate() {
-    QString date = QString(__DATE__);
-    QString time = QString(__TIME__);
-    QDate d(QDate::fromString(date.simplified(), "MMM d yyyy"));
-    QTime t(QTime::fromString(time));
-    return QDateTime(d, t);
+  QDate buildDate() {
+    QString date = ::buildDate();
+    return QDate::fromString(date.simplified(), "MMM d yyyy");
   }
 
   QString toString() {
@@ -49,11 +47,10 @@ namespace Version {
       ver = verbit();
       int idx = ver.lastIndexOf(".");
       QString subv = ver.mid(idx+1);
-      // if (subv=="?" || (subv.toInt()&1)==1) {
-      //   // odd version: development
-      //   QDateTime dt = buildDate();
-      //   ver += "." + dt.toString("yyMMdd");
-      // }
+      if (subv=="?" || (subv.toInt()&1)==1) {
+        // odd version: development
+        ver += "-" + buildDate().toString("yyMMdd");
+      }
     }
     return ver;
   }

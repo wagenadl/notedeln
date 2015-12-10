@@ -14,7 +14,7 @@ void AboutBox::about() {
   QString eln = Translate::_("eln");
   QString ttl = "<b>" + eln + "</b> " + Version::toString();
   QString copyright = QString::fromUtf8("(C) 2013–")
-    + QString::number(Version::buildDate().date().year())
+    + QString::number(Version::buildDate().year())
     + " " + author;
   QString msg = ttl + "<br>"
     + copyright + "<br><br>"

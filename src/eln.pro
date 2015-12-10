@@ -19,6 +19,7 @@ android {
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets 
 greaterThan(QT_MAJOR_VERSION, 4): QT += printsupport
+
 android {
 } else {
     greaterThan(QT_MAJOR_VERSION, 4): QT += webkitwidgets
@@ -59,8 +60,15 @@ win32 {
 
 CONFIG(debug, debug|release) { TARGET=$${TARGET}_debug }
 
-message("HEADERS: $$HEADERS" )
-message("SOURCES: $$SOURCES" )
-message("RESOURCES: $$RESOURCES" )
-message("INCLUDEPATH: $$sourcedirs" )
-message("TARGET: $$TARGET")
+# message("HEADERS: $$HEADERS" )
+# message("SOURCES: $$SOURCES" )
+# message("RESOURCES: $$RESOURCES" )
+# message("INCLUDEPATH: $$sourcedirs" )
+# message("TARGET: $$TARGET")
+
+tgt_ver.target = version_stub.h
+tgt_ver.commands = touch version_stub.h
+tgt_ver.depends = tgt_v2
+tgt_v2.commands =
+
+QMAKE_EXTRA_TARGETS += tgt_ver tgt_v2
