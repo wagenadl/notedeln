@@ -49,11 +49,11 @@ namespace Version {
       ver = verbit();
       int idx = ver.lastIndexOf(".");
       QString subv = ver.mid(idx+1);
-      if (subv=="?" || (subv.toInt()&1)==1) {
-        // odd version: development
-        QDateTime dt = buildDate();
-	ver += "." + dt.toString("yyMMdd");
-      }
+      // if (subv=="?" || (subv.toInt()&1)==1) {
+      //   // odd version: development
+      //   QDateTime dt = buildDate();
+      //   ver += "." + dt.toString("yyMMdd");
+      // }
     }
     return ver;
   }
