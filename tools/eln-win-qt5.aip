@@ -12,7 +12,7 @@
     <ROW Property="ProductCode" Value="1033:{42E28BE0-6DBE-4050-B0F1-3206FF86FEBB} " Type="16"/>
     <ROW Property="ProductLanguage" Value="1033"/>
     <ROW Property="ProductName" Value="eln"/>
-    <ROW Property="ProductVersion" Value="1.1.0" Type="32"/>
+    <ROW Property="ProductVersion" Value="1.1.4" Type="32"/>
     <ROW Property="SecureCustomProperties" Value="OLDPRODUCTS;AI_NEWERPRODUCTFOUND"/>
     <ROW Property="UpgradeCode" Value="{C6C85204-2E1F-421F-B3C0-A4985844BB4C}"/>
     <ROW Property="WindowsType9X" MultiBuildValue="DefaultBuild:Windows 9x/ME" ValueLocId="-"/>
@@ -89,7 +89,7 @@
     <ROW File="webgrab.exe" Component_="webgrab.exe" FileName="webgrab.exe" Attributes="0" SourcePath="..\build-webgrab-Desktop_Qt_5_4_2_MinGW_32bit-Release\release\webgrab.exe" SelfReg="false" NextFile="qwindows.dll" DigSign="true"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.BuildComponent">
-    <ROW BuildKey="DefaultBuild" BuildName="DefaultBuild" BuildOrder="1" BuildType="0" PackageFileName="eln-1.1.0-win-qt5" Languages="en" InstallationType="4" UseLargeSchema="true"/>
+    <ROW BuildKey="DefaultBuild" BuildName="DefaultBuild" BuildOrder="1" BuildType="0" PackageFileName="eln-1.1.4-win-qt5" Languages="en" InstallationType="4" UseLargeSchema="true"/>
     <ATTRIBUTE name="CurrentBuild" value="DefaultBuild"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.DictionaryComponent">
