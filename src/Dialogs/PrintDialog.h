@@ -43,6 +43,7 @@ public:
   Range entriesRange() const;
   int entriesFrom() const;
   int entriesTo() const;
+  bool openFileAfter() const;
 public slots:
   void setMaxPage(int);
   void setMaxTOCPage(int);

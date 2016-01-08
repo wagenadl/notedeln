@@ -27,18 +27,14 @@
 #include "Toolbars.h"
 #include "PrintDialog.h"
 
+#include <QUrl>
 #include <QPrinter>
 #include <QProgressDialog>
 #include <QPainter>
+#include <QDesktopServices>
 #include <QDebug>
 
 void PageView::openPrintDialog() {
-  /* Nonstandard interpretation of range options:
-     - Current page: only current sheet of current entry
-     - Selection: all sheets of current entry
-     - From-to range: always ignore front matter
-     - All: whole book
-  */
   QPrinter printer;
   PrintDialog dialog(this);
   dialog.setWindowTitle(tr("Print book"));
@@ -194,6 +190,9 @@ void PageView::openPrintDialog() {
   }
 
   progress.setValue(progress.maximum());
+
+  if (dialog.toFile() && dialog.openFileAfter()) 
+    QDesktopServices::openUrl(QUrl(dialog.filename()));
 
   switch (oldSection) {
   case Front:

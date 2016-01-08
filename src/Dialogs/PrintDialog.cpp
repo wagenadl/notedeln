@@ -91,6 +91,10 @@ bool PrintDialog::toFile() const {
   return ui->pFile->isChecked();
 }
 
+bool PrintDialog::openFileAfter() const {
+  return ui->pOpenPDF->isChecked();
+}
+
 QString PrintDialog::filename() const {
   return ui->pFileName->text();
 }

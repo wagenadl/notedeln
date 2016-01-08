@@ -1,3 +1,33 @@
+eln (1.1.4-1) trusty; urgency=medium
+
+  User-visible changes: 
+  
+  * Icon bars now hide when mouse leaves window. This fixes the bugs relating to per-view mode settings.
+  
+  * Ctrl-Period now restores inadvertent super/subscript.
+  
+  Implementation changes: 
+  
+  * Indexing overhauled. Now much more reliable.
+  
+  * BookData no longer uses or updates endDate. FrontScene uses TOC to calculate endDate. This means that book.eln will no longer cause merge conflicts.
+  
+  
+  Bugs fixed:
+  
+  * Tables cannot be split across sheets, but navigation bugs fixed. Central problem was that handleSheetRequest did not get connected for TableBlocks.
+  
+  * Fixes to Assert and CrashReport: Assert::crash now actual quits the application. CrashReport does not fork for Debug version: forking kept gdb from working right.
+  * Mode is now part of Notebook
+  * LateNotes now create their own ResManagers
+  * Bugfix to gotoEntryPage by UUID. Improvements to new event view code.
+  * Entirely new approach to event views. Works better.
+  * Added "-novc" flag to disable VC for debugging purposes
+  * All dialogs now use Translate for "eln"; Assertions cleaned up; CrashReport now actually works (at least in Linux).
+  * Now includes build date in version number if minor is odd
+
+ -- Daniel Wagenaar <wagenadl@uc.edu>  Wed, 16 Dec 2015 08:41:18 -0500
+
 eln (1.1.0-1) trusty; urgency=medium
 
   User visible changes:

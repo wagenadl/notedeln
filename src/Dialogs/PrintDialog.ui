@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>500</width>
-    <height>541</height>
+    <width>732</width>
+    <height>807</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -81,14 +81,14 @@
             <item>
              <widget class="QPushButton" name="pBrowse">
               <property name="sizePolicy">
-               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
               </property>
               <property name="maximumSize">
                <size>
-                <width>64</width>
+                <width>16777215</width>
                 <height>16777215</height>
                </size>
               </property>
@@ -111,6 +111,16 @@
           <widget class="QRadioButton" name="pFile">
            <property name="text">
             <string>File:</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1">
+          <widget class="QCheckBox" name="pOpenPDF">
+           <property name="text">
+            <string>Open the created pdf file</string>
            </property>
            <property name="checked">
             <bool>true</bool>
@@ -441,8 +451,8 @@
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>248</x>
-     <y>254</y>
+     <x>257</x>
+     <y>797</y>
     </hint>
     <hint type="destinationlabel">
      <x>157</x>
@@ -457,12 +467,28 @@
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>316</x>
-     <y>260</y>
+     <x>325</x>
+     <y>797</y>
     </hint>
     <hint type="destinationlabel">
      <x>286</x>
      <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pFile</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>pOpenPDF</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>81</x>
+     <y>100</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>196</x>
+     <y>149</y>
     </hint>
    </hints>
   </connection>
