@@ -23,6 +23,11 @@ my $status = `git status --porcelain`;
 chomp $status;
 die "You have uncommitted changes\n" unless $status eq "";
 
+system("git fetch") and die "Could not run git fetch\n";
+my $headup = `git rev-list HEAD..\@\{upstream\}`;
+chomp $headup;
+die "Your branch is behind upstream\n" unless $headup eq "";
+
 my $here = `pwd`;
 chomp $here;
 my @bits = split("/", $here);
