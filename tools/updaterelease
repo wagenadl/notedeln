@@ -1,0 +1,53 @@
+#!/usr/bin/perl -w
+
+use strict;
+
+# updaterelease - update a previously created release tarchive
+
+# Usage: updaterelease [path]
+# updaterelease works in the current directory or on the named path
+
+if (@ARGV) {
+    chdir shift @ARGV;
+}
+
+my $name = `git config user.name`; 
+chomp $name;
+die "No user name configured\n" if $name eq "";
+
+my $email = `git config user.email`; 
+chomp $email;
+die "No user email configured\n" if $email eq "";
+
+my $status = `git status --porcelain`;
+chomp $status;
+die "You have uncommitted changes\n" unless $status eq "";
+
+my $here = `pwd`;
+chomp $here;
+my @bits = split("/", $here);
+my $package = pop @bits;
+
+my $vsn = `cat src/version`;
+chomp $vsn;
+
+print STDERR "Current version number is $vsn.\n";
+print STDERR "I am assuming that your change log is already complete.\n";
+print STDERR "If that is not correct, update both CHANGELOG and the debian version.\n";
+
+my $tar = "releases/$package-$vsn.tar.gz";
+system("mkdir -p ../releases");
+system("git archive -o ../$tar --prefix=$package-$vsn/ HEAD") and
+  die "Could not create archive\n";
+
+chdir("..");
+$here = `pwd`; 
+chomp $here;
+print STDERR "Release created; archive stored as $here/$tar.\n\n";
+
+print STDERR "Do not forget to do:\n\n";
+print STDERR "  git tag -a v$vsn -m 'Bumped version number'\n";
+print STDERR "  git push\n";
+print STDERR "  git push --tags\n\n";
+print STDERR "But first, run tools/mkdeb and make sure eln builds on Windows and Mac!\n\n";
+

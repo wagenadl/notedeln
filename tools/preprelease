@@ -2,10 +2,10 @@
 
 use strict;
 
-# mkrelease - creates a release from a git archive
+# preprelease - creates a release from a git archive
 
-# Usage: mkrelease [path]
-# mkrelease works in the current directory or on the named path
+# Usage: preprelease [path]
+# preprelease works in the current directory or on the named path
 
 if (@ARGV) {
     chdir shift @ARGV;
@@ -55,7 +55,7 @@ for (@commits) {
     $commits .= "#$_\n";
 }
 
-my $tmpfn = "/tmp/mkrelease-$$.txt";
+my $tmpfn = "/tmp/preprelease-$$.txt";
 open OUT, ">$tmpfn" or die "Cannot create $tmpfn";
 print OUT "# Creating new release for project $package\n";
 print OUT "# Previous version: $oldvsn\n" if defined $oldvsn;
