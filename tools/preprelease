@@ -19,6 +19,8 @@ my $email = `git config user.email`;
 chomp $email;
 die "No user email configured\n" if $email eq "";
 
+system("git fetch") and die "Could not run git fetch\n";
+
 my $status = `git status --porcelain`;
 chomp $status;
 die "You have uncommitted changes\n" unless $status eq "";
