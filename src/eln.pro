@@ -43,6 +43,7 @@ win32 {
 
 mac {
     ICON = App/eln.icns
+    CONFIG += c++11
     QMAKE_INFO_PLIST = App/Info.plist
     OTHER_FILES += App/Info.plist
     TARGET = ../eln
