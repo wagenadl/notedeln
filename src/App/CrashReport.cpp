@@ -18,7 +18,7 @@
 #include <QDebug>
 #include "CrashReport.h"
 
-#if defined(Q_OS_UNIX) || defined(Q_OS_MAC)
+#if defined(Q_OS_UNIX)  && ! defined(Q_OS_MAC)
 
 #include <unistd.h>
 #include <QDebug>
