@@ -34,7 +34,11 @@ MOC_DIR = $${OBJECTS_DIR}
 RCC_DIR = $${OBJECTS_DIR}
 UI_DIR = $${OBJECTS_DIR}
 
-#QMAKE_CXXFLAGS += -std=c++11
+greaterThan(QT_MAJOR_VERSION, 4) {
+    CONFIG += c++11
+} else {
+    QMAKE_CXXFLAGS += -std=c++11
+}
 
 win32 {
     RC_FILE = App/winicon.rc
@@ -43,7 +47,6 @@ win32 {
 
 mac {
     ICON = App/eln.icns
-    CONFIG += c++11
     QMAKE_MAC_SDK = macosx10.11
     QMAKE_INFO_PLIST = App/Info.plist
     OTHER_FILES += App/Info.plist
