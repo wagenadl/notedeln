@@ -1,4 +1,4 @@
-// ResourceMagic/MagicPubmed.cpp - This file is part of eln
+// ResourceMagic/AN_Pubmed.cpp - This file is part of eln
 
 /* eln is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -14,12 +14,12 @@
    along with eln.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-// MagicPubmed.cpp
+// AN_Pubmed.cpp
 
-#include "MagicPubmed.h"
+#include "AN_Pubmed.h"
 #include <QProcess>
 
-MagicPubmed::MagicPubmed(QString tag, class Style const &) {
+AN_Pubmed::AN_Pubmed(QString tag, class Style const &) {
   ok_ = false;
   QStringList args;
   args << "-O-";
@@ -68,14 +68,14 @@ MagicPubmed::MagicPubmed(QString tag, class Style const &) {
   ok_ = true;
 }
 
-bool MagicPubmed::ok() const {
+bool AN_Pubmed::ok() const {
   return ok_;
 }
 
-QUrl MagicPubmed::url() const {
+QUrl AN_Pubmed::url() const {
   return url_;
 }
 
-QString MagicPubmed::ref() const {
+QString AN_Pubmed::ref() const {
   return ref_;
 }

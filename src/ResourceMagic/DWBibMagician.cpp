@@ -18,7 +18,7 @@
 
 #include "DWBibMagician.h"
 #include "Style.h"
-#include "MagicBiblio.h"
+#include "AN_Biblio.h"
 #include <QDebug>
 
 DWBibMagician::DWBibMagician(): style(Style::defaultStyle()) {
@@ -28,21 +28,16 @@ DWBibMagician::DWBibMagician(Style const &style): style(style) {
 }
 
 bool DWBibMagician::matches(QString s) const {
-  MagicBiblio b(s, style);
+  AN_Biblio b(s, style);
   return b.ok();
 }
 
 QUrl DWBibMagician::objectUrl(QString s) const {
-  MagicBiblio b(s, style);
+  AN_Biblio b(s, style);
   return b.ok() ? b.url() : QUrl();
 }
 
 QString DWBibMagician::title(QString s) const {
-  MagicBiblio b(s, style);
+  AN_Biblio b(s, style);
   return b.ref();
 }
-
-
-//bool DWBibMagician::keepAlways(QString) const {
-//  return true;
-//}

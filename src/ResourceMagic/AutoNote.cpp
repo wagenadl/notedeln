@@ -22,27 +22,23 @@
 #include "Style.h"
 #include "ResManager.h"
 #include "TextData.h"
-#include "MagicBiblio.h"
-#include "MagicPubmed.h"
+#include "AN_Biblio.h"
+#include "AN_Pubmed.h"
 
 #include <QDebug>
 
 bool AutoNote::autoNote(QString tag, TextItem *dest, Style const &st) {
-  QVariantMap autos = st["auto-notes"].toMap();
-  foreach (QString k, autos.keys()) {
-    if (QRegExp(k).exactMatch(tag)) {
-      QString func = autos[k].toString();
-      QString txt = "";
-      if (func=="bib") {
-	txt = MagicBiblio(tag, st).ref();
-      } else if (func=="pubmed") {
-	txt = MagicPubmed(tag, st).ref();
-      }
-      if (txt.isEmpty())
-	return false;
-      dest->insertBasicHtml(txt, dest->textCursor().position());
-      return true;
-    }
+  QString txt;
+  if (QRegExp("\\d\\d\\d\\d\\d\\d*").exactMatch(tag)) {
+    // At least 5 digits makes a PMID.
+     txt = AN_Pubmed(tag, st).ref();
+  } else if (QRegExp("\\d\\d(\\d\\d)?-[A-Za-z][A-Za-z]?[A-Za-z]?[A-Za-z]?[1-9]?").exactMatch(tag)) {
+    // This is for my own bibliography system: YY-AAAAN
+    txt = AN_Biblio(tag, st).ref();
+  }
+  if (!txt.isEmpty()) {
+    dest->insertBasicHtml(txt, dest->textCursor().position());
+    return true;
   }
   return false;
 }
