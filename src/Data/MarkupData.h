@@ -47,6 +47,7 @@ public:
     Selected, // this is never saved in json; just for MarkupStyles
     DeadLink, // this is never saved in json; just for MarkupStyles
     SearchResult, // this is never saved in json; just for MarkupStyles
+    LoadingLink, // this is never saved in json; just for MarkupStyles
   };
 public:
   MarkupData(Data *parent=0);

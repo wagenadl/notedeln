@@ -147,22 +147,44 @@ void Printer::toImg(QString fn) {
   QSizeF si = s->sceneRect().size();
   double w = si.width();
   double h = si.height();
-  double scl = w>h ? maxDim/w : maxDim/h;
-  
-  QPixmap printer(scl*w, scl*h);
-  printer.fill();
-  QPainter p;
-  p.begin(&printer);
-  s->render(&p);
-  p.end();
+  if (w*h>0) {
+    double rat = w/h;
+    double wo, ho;
+    if (rat>2.) {
+      // crop somehow
+      ho = maxDim/2;
+      wo = rat*ho;
+    } else if (rat<2/3.) {
+      // crop somehow
+      wo = maxDim*2/3;
+      ho = wo/rat;
+    } else {
+      double scl = w>h ? maxDim/w : maxDim/h;
+      wo = scl*w;
+      ho = scl*h;
+    }
+    QPixmap printer(wo, ho);
+    printer.fill();
+    QPainter p;
+    p.begin(&printer);
+    s->render(&p);
+    p.end();
 
-  QPixmap copy = printer.copy(0, 0,
-			      printer.width()-1, printer.height()-1);
-  // trim off one pixel
-  
-  if (!copy.save(fn)) {
-    fprintf(stderr, "Failed to save image");
-    QApplication::exit(2);
+    QRect crop(0, 0, wo, ho);
+    if (rat>2.) 
+      crop = QRect((wo-2*ho)/2, 0, 2*ho, ho);
+    else if (rat<2/3.)
+      crop = QRect(0, 0, wo, 1.5*wo);
+    QPixmap copy = printer.copy(crop.adjusted(0, 0, -1, -1));
+    // trim off one pixel [why? 1/29/16]
+    if (!copy.save(fn)) {
+      fprintf(stderr, "Failed to save image");
+      QApplication::exit(2);
+    }
+  } else {
+    fprintf(stderr, "Saving empty image");
+    QPixmap nul(0,0);
+    nul.save(fn);
   }
 }
 

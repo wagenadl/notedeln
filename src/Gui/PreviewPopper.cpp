@@ -24,10 +24,11 @@
 #include <QGraphicsSceneHoverEvent>
 #include <QDebug>
 #include "Assert.h"
+#include "PopLabel.h"
 
 PreviewPopper::PreviewPopper(Resource *res,
-			     QPoint center, QObject *parent):
-  QObject(parent), res(res), center(center) {
+			     QRect over, QObject *parent):
+  QObject(parent), res(res), over(over) {
   widget = 0;
   timerID = startTimer(100);
 }
@@ -55,19 +56,21 @@ QWidget *PreviewPopper::popup() {
     p.load(res->previewPath());
 
   if (!p.isNull()) {
-    QLabel *label = new QLabel(0, Qt::FramelessWindowHint);
-    label->setPixmap(p);
-    label->resize(label->sizeHint());
-    widget = label;
+    widget = new PopLabel;
+    widget->setPixmap(p);
   } else if (!res->title().isEmpty()) {
-    QLabel *label = new QLabel(0, Qt::FramelessWindowHint);
-    label->setText(res->title());
-    label->resize(label->sizeHint());
-    widget = label;
+    widget = new PopLabel;
+    widget->setText(res->title());
   }
   if (widget) {
+    connect(widget, SIGNAL(clicked(Qt::KeyboardModifiers)),
+	    this, SIGNAL(clicked(Qt::KeyboardModifiers)));
+    connect(widget, SIGNAL(left()),
+	    this, SLOT(closeAndDie()));
+    widget->resize(widget->sizeHint());
     smartPosition();
     widget->show();
+    qDebug() << widget->pos();
   }
   return widget;
 }
@@ -95,6 +98,9 @@ void PreviewPopper::smartPosition() {
   double bestArea = 0;
   int dy = 25;
   int dx = 50;
+
+  QPoint center = QCursor::pos();
+  qDebug() << "Cursor: " << center;
 
   // below
   dest = center + QPoint(-s.width()/3, dy);
@@ -147,7 +153,17 @@ void PreviewPopper::smartPosition() {
     bestDest = dest;
     bestArea = area;
   }
+  qDebug() << "Bestdest" << bestDest << " area" << bestArea << s;
 
   widget->move(bestDest);
 }
 
+void PreviewPopper::closeSoon() {
+  if (widget)
+    widget->closeSoon();
+}
+
+void PreviewPopper::closeAndDie() {
+  qDebug() << "Close and die";
+  deleteLater();
+}

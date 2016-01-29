@@ -25,18 +25,27 @@
 class PreviewPopper: public QObject {
   Q_OBJECT;
 public:
-  PreviewPopper(class Resource *res, QPoint center, QObject *parent);
+  PreviewPopper(class Resource *res, QRect over, QObject *parent);
   virtual ~PreviewPopper();
-  QWidget *popup(); // open popup immediately and return widget pointer
-  // or zero if resource not available
+  QWidget *popup();
+  /* POPUP - Open popup immediately and return widget pointer
+     Returns zero if resource not available.
+  */
+  void closeSoon();
+  /* CLOSESOON - Close popup soon, unless mouse enters it. */
+signals:
+  void clicked(Qt::KeyboardModifiers);
+  /* CLICKED - Emitted when the popup is clicked */
 protected:
   virtual void timerEvent(QTimerEvent *);
+private slots:
+  void closeAndDie();
 private:
   void smartPosition();
 private:
   Resource *res;
-  QPoint center;
-  class QWidget *widget;
+  QRect over;
+  class PopLabel *widget;
   int timerID;
 };
 

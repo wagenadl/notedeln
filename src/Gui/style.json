@@ -128,6 +128,9 @@
 "hover-found-alpha": 0.15,
 "hover-not-found-color": "#ff0000",
 "hover-not-found-alpha": 0.1,
+"hover-not-found-foreground-color": "#ff0000",
+"hover-loading-color": "#ffff00",
+"hover-loading-alpha": 0.25,
 "transientshading-color": "#22ff00",
 "transientshading-alpha": 0.25,
 "magicians": {

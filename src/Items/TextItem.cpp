@@ -307,19 +307,36 @@ void TextItem::attemptMarkup(QPointF p, MarkupData::Style m) {
   grabMouse();
 }
 
-void TextItem::representDeadLinks(QList<TransientMarkup> &tmm) const {
+void TextItem::representDeadLinks(QList<TransientMarkup> &tmm) {
   qDebug() << "representdeadlinks";
   for (MarkupData *md: data()->markups()) {
-    qDebug() << "md text" << md->text() << " type" << md->styleName(md->style());
-    OneLink *l = linkHelper->linkFor(md);
-    if (l) {
-      qDebug() << "got link";
-      if (!l->hasArchive()) {
+    if (md->style()==MarkupData::Link) {
+      qDebug() << "md link text" << md->text();
+      ResManager *resmgr = md->resManager();
+      if (!resmgr) {
+	qDebug() << "No resource manager";
+	continue;
+      }
+      Resource *res = resmgr->byTag(md->text());
+      if (!res) {
+	qDebug() << "No resource";
+	if (!QRegExp("\\d\\d?\\d?\\d?[a-z]?").exactMatch(md->text())) {
+	  qDebug() << "  and not a page";
+	  tmm << TransientMarkup(md->start(), md->end(),
+				 MarkupData::DeadLink);
+	}
+      } else if (res->inProgress()) {
+	qDebug() << "  in progress";
+	tmm << TransientMarkup(md->start(), md->end(),
+			       MarkupData::LoadingLink);
+	if (!in_progress_res.contains(res)) {
+	  in_progress_res.insert(res);
+	  connect(res, SIGNAL(mod()), SLOT(inProgressMod()));
+	}
+      } else if (!res->hasArchive()) {
 	qDebug() << "no archive";
 	tmm << TransientMarkup(md->start(), md->end(),
 			       MarkupData::DeadLink);
-      } else {
-	qDebug() << "no link";
       }
     }
   }
@@ -1378,5 +1395,11 @@ BlockItem *TextItem::ancestralBlock() {
     return Item::ancestralBlock();
 }
 
-    
-    
+void TextItem::inProgressMod() {
+  Resource *res = dynamic_cast<Resource *>(sender());
+  update();
+  if (res && !res->inProgress()) {
+    disconnect(res, SIGNAL(mod()), this, SLOT(inProgressMod()));
+    in_progress_res.remove(res);
+  }
+}
