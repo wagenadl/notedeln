@@ -36,17 +36,18 @@ public:
   void update();
 private slots:
   void downloadFinished();
-protected:
+public:
   QString refText() const;
   void openLink();
   void openArchive();
-  void getArchiveAndPreview();
   bool hasArchive() const;
   bool hasPreview() const;
   class Resource *resource() const;
   void activate(QGraphicsSceneMouseEvent *);
   void contextMenu(QGraphicsSceneMouseEvent *);
   void openPage(bool newView=false);
+protected:
+  void getArchiveAndPreview();
 private:
   MarkupData *md; // we do not own
   TextItem *ti; // we do not own

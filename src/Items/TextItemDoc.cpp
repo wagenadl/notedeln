@@ -513,6 +513,10 @@ void TextItemDoc::remove(int offset, int length) {
   emit contentsChanged(offset, dN, 0);
 }
 
+static double clip01(double x) {
+  return x<=0 ? 0 : x>=1 ? 1 : x;
+}
+
 static QColor alphaBlend(QColor base, QColor over) {
   double r0 = base.redF();
   double g0 = base.greenF();
@@ -531,7 +535,7 @@ static QColor alphaBlend(QColor base, QColor over) {
   double b = a1/a*b1 + (1-a1/a)*b0;
   
   QColor out;
-  out.setRgbF(r, g, b, a);
+  out.setRgbF(clip01(r), clip01(g), clip01(b), clip01(a));
   return out;
 }
 
@@ -628,9 +632,12 @@ void TextItemDoc::render(QPainter *p, QList<TransientMarkup> tmm) const {
 
       QColor bgcol("#ffffff"); bgcol.setAlphaF(0);
       Style const &st(d->text->style());
-      if (s.contains(MarkupData::DeadLink)) 
+      if (s.contains(MarkupData::DeadLink)) {
+	qDebug() << "bgcol " << bgcol;
+	qDebug() << "+" << st.alphaColor("hover-not-found");
         bgcol = alphaBlend(bgcol, st.alphaColor("hover-not-found"));
-      else if (s.contains(MarkupData::Link)) 
+	qDebug() << ">bgcol " << bgcol;
+      } else if (s.contains(MarkupData::Link)) 
         bgcol = alphaBlend(bgcol, st.alphaColor("hover-found"));
       if (s.contains(MarkupData::Emphasize))
         bgcol = alphaBlend(bgcol, st.alphaColor("emphasize"));
@@ -639,6 +646,7 @@ void TextItemDoc::render(QPainter *p, QList<TransientMarkup> tmm) const {
       if (s.contains(MarkupData::Selected))
         bgcol = alphaBlend(bgcol, st.alphaColor("selected"));
       if (bgcol.alpha()>0) {
+	qDebug() << ">>bgcol " << bgcol;
         p->setPen(QPen(Qt::NoPen));
         p->setBrush(bgcol);
         p->drawRect(QRectF(QPointF(x0, ytop), QPointF(x, ybottom)));
