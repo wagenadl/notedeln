@@ -149,6 +149,7 @@ protected:
                Qt::KeyboardModifiers mod);
   virtual void representCursor(QList<TransientMarkup> &) const;
   virtual void representSearchPhrase(QList<TransientMarkup> &) const;
+  virtual void representDeadLinks(QList<TransientMarkup> &) const;
 protected:
   bool mayMark;
   bool mayNote;

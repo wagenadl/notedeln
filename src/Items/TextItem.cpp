@@ -38,6 +38,7 @@
 #include "SheetScene.h"
 #include "PageView.h"
 #include "Unicode.h"
+#include "OneLink.h"
 
 #include <math.h>
 #include <QPainter>
@@ -304,6 +305,24 @@ void TextItem::attemptMarkup(QPointF p, MarkupData::Style m) {
   lateMarkType = m;
   lateMarkStart = pos;
   grabMouse();
+}
+
+void TextItem::representDeadLinks(QList<TransientMarkup> &tmm) const {
+  qDebug() << "representdeadlinks";
+  for (MarkupData *md: data()->markups()) {
+    qDebug() << "md text" << md->text() << " type" << md->styleName(md->style());
+    OneLink *l = linkHelper->linkFor(md);
+    if (l) {
+      qDebug() << "got link";
+      if (!l->hasArchive()) {
+	qDebug() << "no archive";
+	tmm << TransientMarkup(md->start(), md->end(),
+			       MarkupData::DeadLink);
+      } else {
+	qDebug() << "no link";
+      }
+    }
+  }
 }
 
 void TextItem::representCursor(QList<TransientMarkup> &tmm) const {
@@ -1215,6 +1234,7 @@ void TextItem::paint(QPainter *p, const QStyleOptionGraphicsItem*, QWidget*) {
   QList<TransientMarkup> tmm;
   representCursor(tmm);
   representSearchPhrase(tmm);
+  representDeadLinks(tmm);
   text->render(p, tmm);
 
   if (hasFocus() && mode()->mode()==Mode::Type && isWritable())
