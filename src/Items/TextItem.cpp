@@ -1050,7 +1050,8 @@ bool TextItem::tryFootnote(bool del) {
   }
   
   TextCursor c = textCursor();
-  MarkupData *oldmd = data()->markupAt(c.position(), MarkupData::FootnoteRef);
+  MarkupData *oldmd = data()->markupAt(c.selectionStart(), c.selectionEnd(),
+				       MarkupData::FootnoteRef);
   int start=-1;
   int end=-1;
   QString symMark;
