@@ -34,6 +34,12 @@ public:
   void setTagText(QString); // updates data
   QString tagText() const;
   bool setAutoContents();
+  /* Note that, as a FootnoteItem is a TextBlockItem, it will return
+     itself as "ancestralBlock", rather than the block to which it
+     is attached.
+     Also note that the current code base does not call setBaseScene
+     on foot notes. Accordingly, baseScene() will usually return 0.
+  */
 private:
   void updateTag();
 private slots:

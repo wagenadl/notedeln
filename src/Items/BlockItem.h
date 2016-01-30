@@ -66,6 +66,7 @@ public slots:
   void refTextChange(QString olds, QString news);
 private:
   QPointF findRefTextIn(QString, Item *);
+  int countReferences(QString reftext) const;
 private:
   BaseScene *bs;
   QList<QPointer<FootnoteItem> > foots;
