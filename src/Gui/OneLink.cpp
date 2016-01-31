@@ -33,13 +33,14 @@
 #include <QProcess>
 #include <QMenu>
 
-OneLink::OneLink(class MarkupData *md, class TextItem *item):
+OneLink::OneLink(class MarkupData *md, class TextItem *item, bool tryload):
   QObject(item), md(md), ti(item) {
   //  start = end = -1;
   popper = 0;
   busy = false;
   lastRef = "";
-  update();
+  if (tryload)
+    update();
 }
 
 OneLink::~OneLink() {
@@ -65,7 +66,7 @@ bool OneLink::mousePress(QGraphicsSceneMouseEvent *e) {
   case Qt::LeftButton:
     if (ti->mode()->mode()==Mode::Browse
 	|| (e->modifiers() & Qt::ControlModifier)) {
-      activate(e);
+      activate(e->modifiers());
       return true;
     } else {
       return false;
@@ -105,37 +106,37 @@ void OneLink::contextMenu(QGraphicsSceneMouseEvent *e) {
   }
 }
 
-void OneLink::activate(QGraphicsSceneMouseEvent *e) {
-  if (e->modifiers() & Qt::ShiftModifier)
+void OneLink::activate(Qt::KeyboardModifiers m) {
+  if (m & Qt::ShiftModifier)
     openLink();
   else 
     openArchive();
 }
 
 bool OneLink::mouseDoubleClick(QGraphicsSceneMouseEvent *e) {
-  activate(e);
+  activate(e->modifiers());
   return true;
 }
 
 void OneLink::enter(QGraphicsSceneHoverEvent *e) {
   if (popper) {
     popper->popup();
-    return;
+  } else {
+    QString txt = refText();
+    if (txt.isEmpty())
+      return;
+    Resource *r = resource();
+    if (r) {
+      popper = new PreviewPopper(r, QRect(), this);
+      connect(popper, SIGNAL(clicked(Qt::KeyboardModifiers)),
+	      SLOT(activate(Qt::KeyboardModifiers)));
+    }
   }
-  QString txt = refText();
-  if (txt.isEmpty())
-    return;
-  Resource *r = resource();
-  if (r)
-    popper = new PreviewPopper(r, e->screenPos(), this);
 }
 
 void OneLink::leave() {
-  if (popper) {
-    popper->setParent(0);
-    popper->deleteLater();
-  }
-  popper = 0;
+  if (popper) 
+    popper->closeSoon();
 }
 
 Resource *OneLink::resource() const {

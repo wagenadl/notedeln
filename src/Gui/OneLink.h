@@ -23,11 +23,13 @@
 #include <QObject>
 #include <QGraphicsSceneMouseEvent>
 #include <QGraphicsSceneHoverEvent>
+#include "PreviewPopper.h"
+#include <QPointer>
 
 class OneLink: public QObject {
   Q_OBJECT;
 public:
-  OneLink(class MarkupData *md, class TextItem *item);
+  OneLink(class MarkupData *md, class TextItem *item, bool tryload);
   virtual ~OneLink();
   bool mousePress(QGraphicsSceneMouseEvent *);
   bool mouseDoubleClick(QGraphicsSceneMouseEvent *);
@@ -36,21 +38,22 @@ public:
   void update();
 private slots:
   void downloadFinished();
-protected:
+  void activate(Qt::KeyboardModifiers);
+public:
   QString refText() const;
   void openLink();
   void openArchive();
-  void getArchiveAndPreview();
   bool hasArchive() const;
   bool hasPreview() const;
   class Resource *resource() const;
-  void activate(QGraphicsSceneMouseEvent *);
   void contextMenu(QGraphicsSceneMouseEvent *);
   void openPage(bool newView=false);
+protected:
+  void getArchiveAndPreview();
 private:
   MarkupData *md; // we do not own
   TextItem *ti; // we do not own
-  class PreviewPopper *popper; // we own
+  QPointer<PreviewPopper> popper; // we own
   QString lastRef;
   bool lastRefIsNew;
   bool busy;  

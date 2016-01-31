@@ -22,6 +22,7 @@
 #include <QDebug>
 #include "ResourceMagic.h"
 #include "Magician.h"
+#include "Assert.h"
 
 static Data::Creator<Resource> c("res");
 
@@ -29,6 +30,7 @@ Resource::Resource(Data *parent): Data(parent) {
   setType("res");
   loader = 0;
   magic = 0;
+  failed = false;
 }
 
 Resource::~Resource() {
@@ -195,6 +197,8 @@ void Resource::ensureArchiveFilename() {
 }
 
 bool Resource::importImage(QImage img) {
+  if (tag_.isEmpty())
+    return false;
   if (arch.isEmpty())
     setArchiveFilename(safeBaseName(tag_) + "-" + uuid() + ".png");
   ensureDir();
@@ -203,31 +207,13 @@ bool Resource::importImage(QImage img) {
   return ok;
 }
 
-bool Resource::import() {
-  ensureArchiveFilename();
-  ResLoader *l = new ResLoader(this);
-  bool ok = l->getNowDialog();
-  if (!ok)
-    dir.remove(arch);
-  delete l;
-  return ok;
-}
-
-void Resource::getArchive() {
-  if (loader)
-    return; // can't start another one
-  ensureArchiveFilename();
-  loader = new ResLoader(this);
-  connect(loader, SIGNAL(finished()), SLOT(downloadFinished()));
-  loader->start();
-}
-  
 void Resource::getArchiveAndPreview() {
   if (loader)
     return; // can't start another one
   ensureArchiveFilename();
   if (prev.isEmpty())
     setPreviewFilename(safeBaseName(tag_) + "-" + uuid() + "p.png");
+  failed = false;
   if (src.isValid()) {
     loader = new ResLoader(this);
     connect(loader, SIGNAL(finished()), SLOT(downloadFinished()));
@@ -240,24 +226,21 @@ void Resource::getArchiveAndPreview() {
   }    
 }
 
-void Resource::getPreviewOnly() {
-  if (loader)
-    return; // can't start another one
-  if (prev.isEmpty())
-    setPreviewFilename(safeBaseName(tag_) + "-" + uuid() + "p.png");
-  if (!arch.isEmpty())
-    setArchiveFilename("");
-  loader = new ResLoader(this);
-  connect(loader, SIGNAL(finished()), SLOT(downloadFinished()));
-  loader->start();
+bool Resource::hasFailed() const {
+  return failed;
+}
+
+bool Resource::inProgress() const {
+  return loader;
 }
 
 void Resource::downloadFinished() {
-  if (loader->failed()) {
+  if (loader->isFailed()) {
     if (!arch.isEmpty())
       dir.remove(arch);
     if (!prev.isEmpty())
       dir.remove(prev);
+    failed = true;
   }
   loader->deleteLater();
   loader = 0;
@@ -271,6 +254,8 @@ void Resource::ensureDir() {
 }
 
 void Resource::doMagic() {
+  ASSERT(!loader);
+  
   if (magic)
     magic->next();
   else
@@ -306,6 +291,8 @@ void Resource::doMagic() {
       magic->next();
     }
   }
+
+  // not successful
   if (!arch.isEmpty())
     dir.remove(arch);
   if (!prev.isEmpty())
@@ -316,11 +303,12 @@ void Resource::doMagic() {
   ttl = "";
   desc = "";
   markModified();
+  failed = true;
   emit finished(); // oh well
 }
 
 void Resource::magicWebUrlFinished() {
-  if (loader->complete()) {
+  if (loader->isComplete()) {
     // good work!
     loader->deleteLater();
     loader = 0;
@@ -355,7 +343,7 @@ void Resource::magicWebUrlFinished() {
 }
 
 void Resource::magicObjectUrlFinished() {
-  if (loader->complete() /* || magic->keepAlways()*/) {
+  if (loader->isComplete()) {
     // good work!
     loader->deleteLater();
     loader = 0;

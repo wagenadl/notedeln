@@ -102,6 +102,7 @@ private:
 protected slots:
   virtual void markupChange(MarkupData *);
   virtual void docChange();
+  virtual void inProgressMod();
 protected:
   void ensureCursorVisible();
 protected:
@@ -149,6 +150,7 @@ protected:
                Qt::KeyboardModifiers mod);
   virtual void representCursor(QList<TransientMarkup> &) const;
   virtual void representSearchPhrase(QList<TransientMarkup> &) const;
+  virtual void representDeadLinks(QList<TransientMarkup> &);
 protected:
   bool mayMark;
   bool mayNote;
@@ -166,6 +168,7 @@ protected:
   QTime lastClickTime;
   QPoint lastClickScreenPos;
   QPointer<BlockItem> pblock;
+  QSet<QObject*> in_progress_res;
 };
 
 #endif

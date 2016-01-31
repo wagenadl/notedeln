@@ -1,4 +1,4 @@
- // ResourceMagic/MagicPubmed.H - This file is part of eln
+ // ResourceMagic/AN_Pubmed.H - This file is part of eln
 
 /* eln is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -14,22 +14,22 @@
    along with eln.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-// MagicPubmed.H
+// AN_Pubmed.H
 
-#ifndef MAGICPUBMED_H
+#ifndef AN_PUBMED_H
 
-#define MAGICPUBMED_H
+#define AN_PUBMED_H
 
 #include <QUrl>
 #include <QVariant>
 
-class MagicPubmed {
-  /*:C MagicPubmed
-   *:D Magic bibliographic references
+class AN_Pubmed {
+  /*:C AN_Pubmed
+   *:D AN_ bibliographic references
    *:D A properly formatted tag is at least 5 numbers: a PMID.
    */
 public:
-  MagicPubmed(QString tag, class Style const &st);
+  AN_Pubmed(QString tag, class Style const &st);
   bool ok() const; // true if the tag can be interpreted as a reference
   QUrl url() const; // url of a pdf file of the referred article
   QString ref() const; // html-formatted reference

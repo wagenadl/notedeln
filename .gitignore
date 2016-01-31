@@ -47,3 +47,4 @@ webgrab_debug
 src/webgrab
 ui_PrintDialog.h
 ui_NewBookDialog.h
+Info.plist

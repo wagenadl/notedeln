@@ -1,4 +1,4 @@
-// ResourceMagic/MagicBiblio.cpp - This file is part of eln
+// ResourceMagic/AN_Biblio.cpp - This file is part of eln
 
 /* eln is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -14,9 +14,9 @@
    along with eln.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-// MagicBiblio.C
+// AN_Biblio.C
 
-#include "MagicBiblio.h"
+#include "AN_Biblio.h"
 
 #include "JSONFile.h"
 #include "Style.h"
@@ -28,7 +28,7 @@
 #include <QDir>
 #include <QDebug>
 
-QVariantMap const &MagicBiblio::biblio(Style const &st) {
+QVariantMap const &AN_Biblio::biblio(Style const &st) {
   static QVariantMap empty;
   static QMap<QString, QVariantMap> bbls;
   static QMap<QString, QDateTime> lastloaded;
@@ -46,7 +46,7 @@ QVariantMap const &MagicBiblio::biblio(Style const &st) {
   return bbls[k];
 }
 
-MagicBiblio::MagicBiblio(QString tag, Style const &st) {
+AN_Biblio::AN_Biblio(QString tag, Style const &st) {
   if (tag.indexOf(QRegExp("[A-Z]"))==0)
     tag_ = tag.mid(1);
   else
@@ -64,17 +64,17 @@ MagicBiblio::MagicBiblio(QString tag, Style const &st) {
       url_ = QUrl("file://" + dir.absoluteFilePath(tag_ + ".pdf"));
   } // otherwise, url_ will be null
 
-  qDebug() << "MagicBiblio" << tag << ref_ << url_;
+  qDebug() << "AN_Biblio" << tag << ref_ << url_;
 }
 
-bool MagicBiblio::ok() const {
+bool AN_Biblio::ok() const {
   return !ref_.isEmpty();
 }
 
-QString MagicBiblio::ref() const {
+QString AN_Biblio::ref() const {
   return ref_;
 }
 
-QUrl MagicBiblio::url() const {
+QUrl AN_Biblio::url() const {
   return url_;
 }

@@ -6,6 +6,7 @@
 #include <QPainter>
 #include <QPen>
 #include <QGraphicsDropShadowEffect>
+#include <math.h>
 
 ClockFace::ClockFace(QGraphicsItem *parent): QGraphicsObject(parent) {
   scale = 100;

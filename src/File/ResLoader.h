@@ -30,21 +30,28 @@ public:
   ResLoader(class Resource *parent, bool convertHtmlToPdf=true);
   virtual ~ResLoader();
   void start();
-  bool getNow(double timeout_s=-1); // true if finished without error
-  bool getNowDialog(double delay_s = 0.2);
-  bool complete() const; // true if finished without error
-  bool failed() const; // true if finished with error
-  // should we offer networkError() from qnr?
-  // In case of error, the DST is deleted.
-  QString mimeType() const; // may return "" if not (yet) known
+  /* START - Starts the loading process
+     Upon completion, FINISHED() is emitted, whether or not successful.
+  */
+  bool isComplete() const;
+  /* ISCOMPLETE - Returns true if finished without error */
+  bool isFailed() const;
+  /* ISFAILED - Returns true if finished with error */
+  QString mimeType() const;
+  /* MIMETYPE - Mime type of downloaded resource
+     May return "" if not (yet) known. */
   static QString mime2ext(QString);
+  /* MIME2EXT - Convert a mime type to a file extension.
+     Currently only knows about "pdf" and "html". Returns "" if unknown.
+   */
 signals:
-  void finished(); // ok or not
-  void progress(int); // percent, or -1 if unknown
+  void finished();
+  /* FINISHED - Emitted when process finishes.
+     Emitted whether or not the download was successful.
+  */
 private slots:
   void qnrFinished();
   void qnrDataAv();
-  void qnrProgress(qint64, qint64);
   void processFinished();
   void processError();
 private:

@@ -38,6 +38,7 @@
 #include "SheetScene.h"
 #include "PageView.h"
 #include "Unicode.h"
+#include "OneLink.h"
 
 #include <math.h>
 #include <QPainter>
@@ -304,6 +305,41 @@ void TextItem::attemptMarkup(QPointF p, MarkupData::Style m) {
   lateMarkType = m;
   lateMarkStart = pos;
   grabMouse();
+}
+
+void TextItem::representDeadLinks(QList<TransientMarkup> &tmm) {
+  qDebug() << "representdeadlinks";
+  for (MarkupData *md: data()->markups()) {
+    if (md->style()==MarkupData::Link) {
+      qDebug() << "md link text" << md->text();
+      ResManager *resmgr = md->resManager();
+      if (!resmgr) {
+	qDebug() << "No resource manager";
+	continue;
+      }
+      Resource *res = resmgr->byTag(md->text());
+      if (!res) {
+	qDebug() << "No resource";
+	if (!QRegExp("\\d\\d?\\d?\\d?[a-z]?").exactMatch(md->text())) {
+	  qDebug() << "  and not a page";
+	  tmm << TransientMarkup(md->start(), md->end(),
+				 MarkupData::DeadLink);
+	}
+      } else if (res->inProgress()) {
+	qDebug() << "  in progress";
+	tmm << TransientMarkup(md->start(), md->end(),
+			       MarkupData::LoadingLink);
+	if (!in_progress_res.contains(res)) {
+	  in_progress_res.insert(res);
+	  connect(res, SIGNAL(mod()), SLOT(inProgressMod()));
+	}
+      } else if (!res->hasArchive()) {
+	qDebug() << "no archive";
+	tmm << TransientMarkup(md->start(), md->end(),
+			       MarkupData::DeadLink);
+      }
+    }
+  }
 }
 
 void TextItem::representCursor(QList<TransientMarkup> &tmm) const {
@@ -1252,6 +1288,7 @@ void TextItem::paint(QPainter *p, const QStyleOptionGraphicsItem*, QWidget*) {
   QList<TransientMarkup> tmm;
   representCursor(tmm);
   representSearchPhrase(tmm);
+  representDeadLinks(tmm);
   text->render(p, tmm);
 
   if (hasFocus() && mode()->mode()==Mode::Type && isWritable())
@@ -1395,5 +1432,11 @@ BlockItem *TextItem::ancestralBlock() {
     return Item::ancestralBlock();
 }
 
-    
-    
+void TextItem::inProgressMod() {
+  Resource *res = dynamic_cast<Resource *>(sender());
+  update();
+  if (res && !res->inProgress()) {
+    disconnect(res, SIGNAL(mod()), this, SLOT(inProgressMod()));
+    in_progress_res.remove(res);
+  }
+}

@@ -79,8 +79,6 @@ void ResLoader::startDownload() {
 
   qnr = networkAccessManager().get(rq);
   connect(qnr, SIGNAL(finished()), SLOT(qnrFinished()), Qt::QueuedConnection);
-  connect(qnr, SIGNAL(downloadProgress(qint64, qint64)),
-	  SLOT(qnrProgress(qint64, qint64)), Qt::QueuedConnection);
   connect(qnr, SIGNAL(readyRead()), SLOT(qnrDataAv()), Qt::QueuedConnection);
 }
 
@@ -89,11 +87,11 @@ ResLoader::~ResLoader() {
     delete qnr; // really? doubtful
 }
 
-bool ResLoader::complete() const {
+bool ResLoader::isComplete() const {
   return ok;
 }
 
-bool ResLoader::failed() const {
+bool ResLoader::isFailed() const {
   return err;
 }
 
@@ -101,15 +99,6 @@ QString ResLoader::mimeType() const {
   QString mime = qnr->header(QNetworkRequest::ContentTypeHeader).toString();
   int idx = mime.indexOf(";");
   return (idx>=0) ? mime.left(idx) : mime;
-}
-
-void ResLoader::qnrProgress(qint64 n, qint64 m) {
-  if (m<=0)
-    emit progress(-1);
-  else if (n<0)
-    emit progress(-1);
-  else
-    emit progress(int(100*double(n)/double(m)));
 }
 
 void ResLoader::qnrDataAv() {
@@ -203,61 +192,6 @@ void ResLoader::qnrFinished() {
 
   ok = true;
   emit finished();
-}
-
-bool ResLoader::getNow(double timeout_s) {
-  if (ok)
-    return true;
-  if (err)
-    return false;
-
-  QEventLoop el(this);
-  QTimer t(this);
-
-  connect(&t, SIGNAL(timeout()), &el, SLOT(quit()));
-  connect(qnr, SIGNAL(finished()), &el, SLOT(quit()));
-
-  t.setSingleShot(true);
-  if (timeout_s>=0)
-    t.start(int(1e3*timeout_s));
-
-  el.exec();
-
-  if (qnr->isFinished() && !ok && !err)
-    qnrFinished(); // since slots get called in arbitrary order, we must do this
-  
-  if (ok)
-    return true;
-  else
-    return false; // this does *not* necessarily mean error
-}
-
-bool ResLoader::getNowDialog(double delay_s) {
-  if (getNow(delay_s))
-    return true;
-  if (err)
-    return false;
-
-  QProgressDialog dlg("Downloading " + src.toString(),
-		      "Cancel",
-		      0, 100);
-  connect(this, SIGNAL(progress(int)), &dlg, SLOT(setValue(int)));
-  dlg.show();
-  QEventLoop el(this);
-  connect(qnr, SIGNAL(finished()), &el, SLOT(quit()));
-  connect(&dlg, SIGNAL(canceled()), &el, SLOT(quit()));
-  el.exec();
-  if (qnr->isFinished() && !ok && !err)
-    qnrFinished(); // since slots get called in arbitrary order, we must do this
-  
-  if (ok)
-    return true;
-
-  qnr->abort();
-  qDebug() << "ResLoader: Aborted upon user request";
-  err = true;
-  dst->close();
-  return false;
 }
 
 void ResLoader::processError() {

@@ -1,0 +1,9 @@
+CrashReport::CrashReport() {
+  // Crash reporting not yet implemented for Windows; I don't know
+  // how to fork. Instead, I could run a new instance of eln with
+  // some special flag ("eln -crashreporter") that would act as the
+  // crash reporter.
+}
+
+CrashReport::~CrashReport() {
+}

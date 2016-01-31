@@ -1,4 +1,4 @@
-// ResourceMagic/MagicBiblio.H - This file is part of eln
+// ResourceMagic/AN_Biblio.H - This file is part of eln
 
 /* eln is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -14,23 +14,23 @@
    along with eln.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-// MagicBiblio.H
+// AN_Biblio.H
 
-#ifndef MAGICBIBLIO_H
+#ifndef AN_BIBLIO_H
 
-#define MAGICBIBLIO_H
+#define AN_BIBLIO_H
 
 #include <QUrl>
 #include <QVariant>
 
-class MagicBiblio {
-  /*:C MagicBiblio
-   *:D Magic bibliographic references
+class AN_Biblio {
+  /*:C AN_Biblio
+   *:D AN_ bibliographic references
    *:D A properly formatted tag is YY-ABCD or YYYY-ABCD.
        A single letter preceding the YY is automatically skipped.
    */
 public:
-  MagicBiblio(QString tag, class Style const &st);
+  AN_Biblio(QString tag, class Style const &st);
   bool ok() const; // true if the tag can be interpreted as a reference
   QUrl url() const; // url of a pdf file of the referred article
   QString ref() const; // html-formatted reference

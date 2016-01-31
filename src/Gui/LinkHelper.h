@@ -33,9 +33,10 @@ public:
   void mouseMove(class QGraphicsSceneHoverEvent *);
 public:
   void updateMarkup(class MarkupData *);
-  void newMarkup(MarkupData *);
+  class OneLink *newMarkup(MarkupData *, bool trulyNew=true);
   void removeMarkup(MarkupData *);
   void updateAll();
+  OneLink *linkFor(MarkupData *);
 private:
   MarkupData *findMarkup(QPointF) const;
   void mouseCore(QPointF);
