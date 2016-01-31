@@ -20,13 +20,13 @@
   {\large By Daniel A. Wagenaar}
   \vfill
   
-  {Copyright (c) 2013--2015}
+  {Copyright (c) 2013--2016}
   
 \end{centering}
 \pagebreak
 ~
 \vfill
-\noindent Copyright (C) 2013--2015 Daniel A. Wagenaar\medskip
+\noindent Copyright (C) 2013--2016 Daniel A. Wagenaar\medskip
 
 ``eln'' is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -182,7 +182,12 @@ eln or its documentation.\bigskip
 
 \noindent Cincinnati, February 2014;
 
-\noindent Woods Hole, June 2015.
+\noindent Woods Hole, June 2015;
+
+\noindent Pasadena, January 2016.
+
+
+
 
 \chapter{Installation}
 
@@ -258,9 +263,16 @@ new notebook. When you click ``Create new notebook,'' it will
 immediately ask you where you want to store that notebook. It will
 then open the front page of your notebook, where you can change its
 title and add your name as the author as well as your affiliation or
-other relevant information. To
-leave the front page and go to the table of contents, press ``Page
-Down'' on your keyboard.
+other relevant information. 
+
+Other options on the opening screen are ``Open other existing
+notebook,'' which speaks for itself, and ``Clone hosted notebook for
+local use,'' which is explained under ``Archiving (version control),''
+below.
+
+
+To leave the front page and go to the first actual page of your new
+notebook, press ``Page Down'' on your keyboard.
 
 \section{Creating new entries}
 
@@ -487,6 +499,8 @@ notin & $\notin$ \\
 prop & $\propto$ \\
 N\footnote{Also Z, Q, R, and C.}  & $\mathbb{N}$\\
 d & $\partial$ \\
+circle & $\circ$ \\
+square & $\square$ \\
 \end{tabular}
 &
 \begin{tabular}[t]{cc}
@@ -517,7 +531,7 @@ Extending this list is easy, so let me know if you have suggestions.
 Press ``Control''+``N'' to create a footnote. Footnotes are connected
 to the main text by arbitrary tags: the word at the cursor
 becomes the tag. Footnotes are deleted by deleting the tag in the main
-text.
+text or by pressing ``Control''+``Shift''+``N'' while the tag is highlighted..
 
 If your tag is a big integer, it is interpreted as a PubMed ID. In
 that case, eln will insert the corresponding citation in the note for
@@ -532,15 +546,15 @@ created automatically. Hovering over the link displays a
 thumbnail of the first page, and ``Control''+Click opens the
 downloaded article (as a pdf). ``Control''+``Shift''+Click opens the
 original web page. Hyperlinks are typeset with a pale blue background
-once download is complete and with a pink background before download
-is complete or if download fails.
+once download is complete and with a pink background if download
+fails. (A yellow background indicates that download is in progress.)
 
 \section{Magic links}
 
 Eln recognizes not just URL-style hyperlinks, but also a number of
 other ``magic'' links:
 \begin{itemize}
-\item A small number (at most 3 digits), upon pressing ``Control''+``L''
+\item A small number (at most 4 digits), upon pressing ``Control''+``L''
 becomes a hyperlink to another page in the notebook.
 \item A large number (more than 4 digits)
 will be interpreted as a PubMed ID and will link to PubMed. When
@@ -621,44 +635,45 @@ remotely is somewhat more involved. If you have no experience with
 Git, it is probably best to remedy that first. Some of the following
 is likely to be hard to understand otherwise.
 
-\emph{Caution: Black diamond contents ahead.} For remote archiving, then, you need to have a host computer that you
-can access by ssh without a password. Typically, that involves setting
-up a public/private RSA key pair using ssh-keygen or similar and
-appending the public key to the file ``.ssh/authorized\_keys'' on the
+\emph{Caution: Black diamond contents ahead.} For remote archiving,
+then, you need to have a host computer that you can access by ssh
+without a password. Typically, that involves setting up a
+public/private RSA key pair using ssh-keygen or similar and appending
+the public key to the file ``.ssh/authorized\_keys'' on the
 server. Further details can be found elsewhere. In my experience,
 doing this from a Windows computer is much more tricky than from
 either Linux or Mac OS; the only Windows solution I have found is
 ``Pageant,'' which is part of the ``PuTTY'' package.\footnote{At
-  http://www.putty.org. See
-  http://the.earth.li/~sgtatham/putty/0.58/htmldoc/Chapter9.html for
-  an introduction to Pageant.} If you use Git to store your notebook
-on a remote host, you can also access it from other computers. To do
-that, you would select ``Clone hosted notebook for local use'' from
-the eln opening screen. Conveniently, once you have cloned the
-notebook, you can treat it just like any other local notebook, with
-one caveat: you must never open a notebook simultaneously on two
-computers, and always allow Git to ``commit and push'' any changes
-back to the host. (Otherwise, your notebook can get into a messy state
-from which recovery will require typing ``git'' commands in a terminal
+http://www.putty.org. See
+http://the.earth.li/~sgtatham/putty/0.58/htmldoc/Chapter9.html for an
+introduction to Pageant.} If you use Git to store your notebook on a
+remote host, you can also access it from other computers. To do that,
+you would select ``Clone hosted notebook for local use'' from the eln
+opening screen. Conveniently, once you have cloned the notebook, you
+can treat it just like any other local notebook, with one caveat: you
+must never open a notebook simultaneously on two computers, and always
+allow Git to ``commit and push'' any changes back to the
+host. (Otherwise, your notebook can get into a messy state from which
+recovery will require typing ``git'' commands in a terminal
 window. Note that it is always completely safe to only use one client
 computer with Git.)
 
-\emph{Warning: Double black diamond contents ahead.} It is also possible to
-turn an existing notebook into a Git repository. There are two steps:
-(1) you should replace the line in your notebook's ``style.json'' file that says ``"vc": ""'' to ``"vc":
-"git"''; (2) you should locate the ``.nb'' folder, type ``git init''
-to turn your notebook into a Git repository, then type some variant of
-``ssh user@host git init --bare somewhere/nice/notebook.nb; git push
--u user@host:somewhere/nice/notebook.nb'' to set up the archive
-host. (If you prefer, you can use Bazaar instead of Git; just put ``"vc":
-"bzr"'' in the ``style.json'' file, turn the
-notebook into a Bazaar repository (using ``bzr init'') and
-push it to a server and bind it to the pushed repository.)
+\emph{Warning: Double black diamond contents ahead.} It is also
+possible to turn an existing notebook into a Git repository. There are
+two steps: (1) you should replace the line in your notebook's
+``style.json'' file that says ``"vc": ""'' to ``"vc": "git"''; (2) you
+should locate the ``.nb'' folder, type ``git init'' to turn your
+notebook into a Git repository, then type some variant of ``ssh
+user@host git init --bare somewhere/nice/notebook.nb; git push -u
+user@host:somewhere/nice/notebook.nb'' to set up the archive host. (If
+you prefer, you can use Bazaar instead of Git; just put ``"vc":
+"bzr"'' in the ``style.json'' file, turn the notebook into a Bazaar
+repository (using ``bzr init'') and push it to a server and bind it to
+the pushed repository.)
 
-Again, if this section doesn't
-make sense to you, please first learn about Bazaar or Git version
-control, then read it again before contacting me. (And yes, I will be
-happy to assist.)
+Again, if this section doesn't make sense to you, please first learn
+about Bazaar or Git version control, then read it again before
+contacting me. (And yes, I will be happy to assist.)
 
 \section{Conclusion}
 
