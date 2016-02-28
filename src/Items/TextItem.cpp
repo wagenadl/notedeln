@@ -308,18 +308,18 @@ void TextItem::attemptMarkup(QPointF p, MarkupData::Style m) {
 }
 
 void TextItem::representDeadLinks(QList<TransientMarkup> &tmm) const {
-  qDebug() << "representdeadlinks";
+  //  qDebug() << "representdeadlinks";
   for (MarkupData *md: data()->markups()) {
-    qDebug() << "md text" << md->text() << " type" << md->styleName(md->style());
+    // qDebug() << "md text" << md->text() << " type" << md->styleName(md->style());
     OneLink *l = linkHelper->linkFor(md);
     if (l) {
-      qDebug() << "got link";
+      // qDebug() << "got link";
       if (!l->hasArchive()) {
-	qDebug() << "no archive";
+	// qDebug() << "no archive";
 	tmm << TransientMarkup(md->start(), md->end(),
 			       MarkupData::DeadLink);
       } else {
-	qDebug() << "no link";
+	// qDebug() << "no link";
       }
     }
   }
