@@ -308,7 +308,6 @@ void TextItem::attemptMarkup(QPointF p, MarkupData::Style m) {
 }
 
 void TextItem::representDeadLinks(QList<TransientMarkup> &tmm) {
-  qDebug() << "representdeadlinks";
   for (MarkupData *md: data()->markups()) {
     if (md->style()==MarkupData::Link) {
       qDebug() << "md link text" << md->text();

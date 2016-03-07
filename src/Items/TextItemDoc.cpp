@@ -650,7 +650,6 @@ void TextItemDoc::render(QPainter *p, QList<TransientMarkup> tmm) const {
       if (s.contains(MarkupData::Selected))
         bgcol = alphaBlend(bgcol, st.alphaColor("selected"));
       if (bgcol.alpha()>0) {
-	qDebug() << ">>bgcol " << bgcol;
         p->setPen(QPen(Qt::NoPen));
         p->setBrush(bgcol);
         p->drawRect(QRectF(QPointF(x0, ytop), QPointF(x, ybottom)));
