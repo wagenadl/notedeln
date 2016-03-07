@@ -118,7 +118,7 @@ bool OneLink::mouseDoubleClick(QGraphicsSceneMouseEvent *e) {
   return true;
 }
 
-void OneLink::enter(QGraphicsSceneHoverEvent *e) {
+void OneLink::enter(QGraphicsSceneHoverEvent *) {
   if (popper) {
     popper->popup();
   } else {
