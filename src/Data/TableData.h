@@ -54,6 +54,15 @@ public:
   TableCell cellAt(int pos) const;
   TableCell cell(int c, int r) const;
   int rc2index(int r, int c) const;
+public:
+  /* Following are high-level functions that recalculate cell starts and markup
+     data positions. */
+  void insertRow(int beforerow);
+  /* INSERTROW - Insert a new row above given old row */
+  void deleteRow(int row);
+  void insertColumn(int beforecol);
+  /* INSERTCOLUMN - Insert a new column above given old column */
+  void deleteColumn(int col);
 protected:
   void loadMore(QVariantMap const &src);
   void saveMore(QVariantMap &dst) const;

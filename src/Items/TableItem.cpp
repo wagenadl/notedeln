@@ -360,139 +360,38 @@ void TableItem::selectCell(int r, int c) {
   update();
 }
 
-void TableItem::deleteRows(int r0, int n) {
-  int C = data()->columns();
-  int R = data()->rows();
-  if (r0<0) {
-    n += r0;
-    r0 = 0;
-  }
-  if (r0+n>R)
-    n = R - r0;
-  if (r0==0 && n==R)
-    n--; // refuse to delete all rows
-  if (n<=0)
-    return;
+void TableItem::deleteRows(int r0, int N) {
+  for (int n=0; n<N; n++)
+    data()->deleteRow(r0);
 
-  QStringList oldcells = data()->text().split("\n");
-  // first and last are always empty, then come the actual cells
-  QStringList newcells;
-
-  newcells << oldcells.takeFirst();
-  for (int r=0; r<r0; r++) 
-    for (int c=0; c<C; c++)
-      newcells << oldcells.takeFirst();
-  for (int r=r0; r<r0+n; r++)
-    for (int c=0; c<C; c++)
-      oldcells.takeFirst();
-  for (int r=r0+n; r<R; r++)
-    for (int c=0; c<C; c++)
-      newcells << oldcells.takeFirst();
-  newcells << oldcells.takeFirst();
-  ASSERT(oldcells.isEmpty());
-
-  data()->setRows(R - n);
-  data()->setText(newcells.join("\n"));
   text->relayout();
   docChange();
 
-  if (R-n==1 && C==1)
+  if (data()->rows()==1 && data()->columns()==1)
     emit unicellular(data());
 }
 
-void TableItem::deleteColumns(int c0, int n) {
-  int R = data()->rows();
-  int C = data()->columns();
-  if (c0<0) {
-    n += c0;
-    c0 = 0;
-  }
-  if (c0+n>C)
-    n = C - c0;
-  if (c0==0 && n==C)
-    n--; // refuse to delete all columns
-  if (n<=0)
-    return;
+void TableItem::deleteColumns(int c0, int N) {
+  for (int n=0; n<N; n++)
+    data()->deleteColumn(c0);
 
-  QStringList oldcells = data()->text().split("\n");
-  // first and last are always empty, then come the actual cells
-  QStringList newcells;
-  newcells << oldcells.takeFirst();
-  for (int r=0; r<R; r++) {
-    for (int c=0; c<c0; c++)
-      newcells << oldcells.takeFirst();
-    for (int c=c0; c<c0+n; c++)
-      oldcells.takeFirst();
-    for (int c=c0+n; c<C; c++)
-      newcells << oldcells.takeFirst();
-  }
-  newcells << oldcells.takeFirst();
-  ASSERT(oldcells.isEmpty());
-  
-  data()->setColumns(C - n);
-  data()->setText(newcells.join("\n"));
   text->relayout();
   docChange();
-  if (C-n==1 && R==1)
+
+  if (data()->rows()==1 && data()->columns()==1)
     emit unicellular(data());
 }
 
 void TableItem::insertRow(int before) {
-  int C = data()->columns();
-  int R = data()->rows();
-  if (before<0)
-    before = 0;
-  if (before>R)
-    before = R;
+  data()->insertRow(before);
 
-  QStringList oldcells = data()->text().split("\n");
-  // first and last are always empty, then come the actual cells
-  QStringList newcells;
-
-  newcells << oldcells.takeFirst();
-  for (int r=0; r<before; r++) 
-    for (int c=0; c<C; c++)
-      newcells << oldcells.takeFirst();
-  for (int c=0; c<C; c++)
-    newcells << "";
-  for (int r=before; r<R; r++)
-    for (int c=0; c<C; c++)
-      newcells << oldcells.takeFirst();
-  newcells << oldcells.takeFirst();
-  ASSERT(oldcells.isEmpty());
-  
-  data()->setRows(R+1);
-  data()->setText(newcells.join("\n"));
   text->relayout();
   docChange();  
 }
 
 void TableItem::insertColumn(int before) {
-  int R = data()->rows();
-  int C = data()->columns();
+  data()->insertColumn(before);
 
-  if (before<0)
-    before = 0;
-  if (before>C)
-    before = C;
-
-  QStringList oldcells = data()->text().split("\n");
-  // first and last are always empty, then come the actual cells
-  QStringList newcells;
-
-  newcells << oldcells.takeFirst();
-  for (int r=0; r<R; r++) {
-    for (int c=0; c<before; c++)
-      newcells << oldcells.takeFirst();
-    newcells << "";
-    for (int c=before; c<C; c++)
-      newcells << oldcells.takeFirst();
-  }
-  newcells << oldcells.takeFirst();
-  ASSERT(oldcells.isEmpty());
-  
-  data()->setColumns(C+1);
-  data()->setText(newcells.join("\n"));
   text->relayout();
   docChange();  
 }
