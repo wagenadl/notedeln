@@ -333,6 +333,11 @@ template <typename T> int findFirstGT(QVector<T> const &vec, T key) {
 
 QPointF TextItemDoc::locate(int offset) const {
   ASSERT(!d->linestarts.isEmpty());
+
+  if (offset<0) {
+    COMPLAIN("TextItemDoc::locate: negative offset");
+    return QPointF(0,0);
+  }
   
   QVector<double> const &charw = d->charWidths();
   QVector<int> const &starts = d->linestarts;
