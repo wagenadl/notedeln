@@ -308,24 +308,25 @@ void TextItem::attemptMarkup(QPointF p, MarkupData::Style m) {
 }
 
 void TextItem::representDeadLinks(QList<TransientMarkup> &tmm) {
+  // qDebug() << "representdeadlinks";
   for (MarkupData *md: data()->markups()) {
     if (md->style()==MarkupData::Link) {
-      qDebug() << "md link text" << md->text();
+      // qDebug() << "md link text" << md->text();
       ResManager *resmgr = md->resManager();
       if (!resmgr) {
-	qDebug() << "No resource manager";
+	// qDebug() << "No resource manager";
 	continue;
       }
       Resource *res = resmgr->byTag(md->text());
       if (!res) {
-	qDebug() << "No resource";
+	// qDebug() << "No resource";
 	if (!QRegExp("\\d\\d?\\d?\\d?[a-z]?").exactMatch(md->text())) {
-	  qDebug() << "  and not a page";
+	  // qDebug() << "  and not a page";
 	  tmm << TransientMarkup(md->start(), md->end(),
 				 MarkupData::DeadLink);
 	}
       } else if (res->inProgress()) {
-	qDebug() << "  in progress";
+	// qDebug() << "  in progress";
 	tmm << TransientMarkup(md->start(), md->end(),
 			       MarkupData::LoadingLink);
 	if (!in_progress_res.contains(res)) {
@@ -333,7 +334,7 @@ void TextItem::representDeadLinks(QList<TransientMarkup> &tmm) {
 	  connect(res, SIGNAL(mod()), SLOT(inProgressMod()));
 	}
       } else if (!res->hasArchive()) {
-	qDebug() << "no archive";
+	// qDebug() << "no archive";
 	tmm << TransientMarkup(md->start(), md->end(),
 			       MarkupData::DeadLink);
       }

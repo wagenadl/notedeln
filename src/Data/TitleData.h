@@ -30,9 +30,8 @@ public:
   TitleData(Data *parent=0);
   virtual ~TitleData();
   TextData const *text() const;
-  TextData *text(); // usu. better to use revise()
+  TextData *text();
   bool isDefault() const;
-  static QString defaultTitle();
 signals:
   void textMod();
 protected:

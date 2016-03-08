@@ -27,7 +27,6 @@ TitleData::TitleData(Data *parent): Data(parent) {
   qDebug() << "TitleData" << this << parent;
   setType("title");
   TextData *v0 = new TextData(this);
-  v0->setText(defaultTitle());
   connect(v0, SIGNAL(mod()), this, SIGNAL(textMod()));
 }
 
@@ -39,13 +38,17 @@ void TitleData::loadMore(QVariantMap const &vm) {
   connect(text(), SIGNAL(mod()), this, SIGNAL(textMod()));
 }
   
-QString TitleData::defaultTitle() {
-  return "";
-}
-
 bool TitleData::isDefault() const {
-  qDebug() << "isDefault" << this;
-  return children<TextData>().size()==1 && text()->text()==defaultTitle();
+  /* Check if we are properly initialized */
+  if (type() != "title")
+    return true;
+  auto lst = children<TextData>();
+  if (lst.size()!=1)
+    return true;
+  TextData const *txt = lst.last();
+  if (!txt)
+    return true;
+  return txt->text()=="";
 }
 
 TextData const *TitleData::text() const {
