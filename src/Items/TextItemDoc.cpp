@@ -333,6 +333,9 @@ template <typename T> int findFirstGT(QVector<T> const &vec, T key) {
 
 QPointF TextItemDoc::locate(int offset) const {
   ASSERT(!d->linestarts.isEmpty());
+
+  if (offset<0)
+    return QPointF();
   
   QVector<double> const &charw = d->charWidths();
   QVector<int> const &starts = d->linestarts;
@@ -633,10 +636,9 @@ void TextItemDoc::render(QPainter *p, QList<TransientMarkup> tmm) const {
       QColor bgcol("#ffffff"); bgcol.setAlphaF(0);
       Style const &st(d->text->style());
       if (s.contains(MarkupData::DeadLink)) {
-	qDebug() << "bgcol " << bgcol;
-	qDebug() << "+" << st.alphaColor("hover-not-found");
         bgcol = alphaBlend(bgcol, st.alphaColor("hover-not-found"));
-	qDebug() << ">bgcol " << bgcol;
+      } else if (s.contains(MarkupData::LoadingLink)) {
+        bgcol = alphaBlend(bgcol, st.alphaColor("hover-loading"));
       } else if (s.contains(MarkupData::Link)) 
         bgcol = alphaBlend(bgcol, st.alphaColor("hover-found"));
       if (s.contains(MarkupData::Emphasize))
@@ -655,6 +657,8 @@ void TextItemDoc::render(QPainter *p, QList<TransientMarkup> tmm) const {
 
       if (s.contains(MarkupData::FootnoteRef))
         p->setPen(QPen(d->text->style().color("customref-color")));
+      else if (s.contains(MarkupData::DeadLink))
+	p->setPen(QPen(d->text->style().color("hover-not-found-foreground-color")));
       else
         p->setPen(QPen(color()));
       

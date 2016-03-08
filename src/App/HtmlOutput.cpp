@@ -352,6 +352,7 @@ void HtmlOutput::add(TextData const *source, ResManager const *resmgr,
     case MarkupData::Normal: tag = ""; break;
     case MarkupData::Selected:
     case MarkupData::DeadLink:
+    case MarkupData::LoadingLink:
     case MarkupData::SearchResult:
       ASSERT(0); // this should not happen
       break;

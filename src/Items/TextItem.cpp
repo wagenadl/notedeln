@@ -307,19 +307,36 @@ void TextItem::attemptMarkup(QPointF p, MarkupData::Style m) {
   grabMouse();
 }
 
-void TextItem::representDeadLinks(QList<TransientMarkup> &tmm) const {
-  //  qDebug() << "representdeadlinks";
+void TextItem::representDeadLinks(QList<TransientMarkup> &tmm) {
+  // qDebug() << "representdeadlinks";
   for (MarkupData *md: data()->markups()) {
-    // qDebug() << "md text" << md->text() << " type" << md->styleName(md->style());
-    OneLink *l = linkHelper->linkFor(md);
-    if (l) {
-      // qDebug() << "got link";
-      if (!l->hasArchive()) {
+    if (md->style()==MarkupData::Link) {
+      // qDebug() << "md link text" << md->text();
+      ResManager *resmgr = md->resManager();
+      if (!resmgr) {
+	// qDebug() << "No resource manager";
+	continue;
+      }
+      Resource *res = resmgr->byTag(md->text());
+      if (!res) {
+	// qDebug() << "No resource";
+	if (!QRegExp("\\d\\d?\\d?\\d?[a-z]?").exactMatch(md->text())) {
+	  // qDebug() << "  and not a page";
+	  tmm << TransientMarkup(md->start(), md->end(),
+				 MarkupData::DeadLink);
+	}
+      } else if (res->inProgress()) {
+	// qDebug() << "  in progress";
+	tmm << TransientMarkup(md->start(), md->end(),
+			       MarkupData::LoadingLink);
+	if (!in_progress_res.contains(res)) {
+	  in_progress_res.insert(res);
+	  connect(res, SIGNAL(mod()), SLOT(inProgressMod()));
+	}
+      } else if (!res->hasArchive()) {
 	// qDebug() << "no archive";
 	tmm << TransientMarkup(md->start(), md->end(),
 			       MarkupData::DeadLink);
-      } else {
-	// qDebug() << "no link";
       }
     }
   }
@@ -513,7 +530,7 @@ bool TextItem::keyPressWithControl(QKeyEvent *e) {
     update();
     return true;
   case Qt::Key_N:
-    tryFootnote();
+    tryFootnote(e->modifiers() & Qt::ShiftModifier);
     return true;
   case Qt::Key_L:
     tryExplicitLink();
@@ -995,9 +1012,32 @@ int TextItem::refineEnd(int end, int base) {
   return end;
 }
 
-static bool approvedMark(QString s) {
-  QString marks = "*@#%$&+"; // add more later
-  return marks.contains(s);
+static QString approvedMark(TextCursor m) {
+  static QString marks = "*@#%$&+"; // Add more?
+  QString out = "";
+  int n = m.position();
+  TextItemDoc *doc = m.document();
+  while (n>0) {
+    QChar c = doc->characterAt(--n);
+    qDebug() << "approvedmark" << n << c;
+    if (marks.contains(c))
+      out += c;
+    else
+      break;
+  }
+  return out;
+}
+
+static QString substituteMark(QString s) {
+  static QMap<QString, QString> map;
+  if (map.isEmpty()) {
+    map["+"] = QString::fromUtf8("†");
+    map["++"] = QString::fromUtf8("‡");
+    map["@"] = QString::fromUtf8("¶");
+    map["$"] = QString::fromUtf8("§");
+    map["#"] = QString::fromUtf8("♯");
+  }    
+  return map.contains(s) ? map[s] : s;
 }
 
 bool TextItem::tryExplicitLink() {
@@ -1023,68 +1063,80 @@ bool TextItem::tryExplicitLink() {
   }
 }
 
-bool TextItem::tryFootnote() {
+bool TextItem::tryFootnote(bool del) {
   BlockItem *anc = ancestralBlock();
   if (!anc) {
+    /* This happens when trying to add a footnote to a gfxnote or latenote. */
     qDebug() << "Cannot add footnote without ancestral block";
     return false;
   }
 
   EntryScene *bs = dynamic_cast<EntryScene*>(anc->baseScene());
-  ASSERT(bs);
+  if (!bs) {
+    /* This happens when trying to add a footnote to a footnote. */
+    qDebug() << "Cannot add footnote without scene";
+    return false;
+  }
   int i = bs->findBlock(anc);
-  ASSERT(i>=0);
+  if (i<0) {
+    /* This could happen when trying to add a footnote to a footnote,
+       if somehow setBaseScene had been called on that note. */
+    qDebug() << "Cannot add footnote if block is not in scene";
+    return false;
+  }
   
   TextCursor c = textCursor();
-  MarkupData *oldmd = data()->markupAt(c.position(), MarkupData::FootnoteRef);
+  MarkupData *oldmd = data()->markupAt(c.selectionStart(), c.selectionEnd(),
+				       MarkupData::FootnoteRef);
   int start=-1;
   int end=-1;
-  bool mayDelete = false;
+  QString symMark;
   if (c.hasSelection()) {
     start = c.selectionStart();
     end = c.selectionEnd();
-    mayDelete = true;
   } else {
     TextCursor m = c.findBackward(QRegExp("[^-\\w]"));
     QString mrk = m.selectedText();
     start = m.hasSelection() ? m.selectionEnd() : 0;
     m = c.findForward(QRegExp("[^-\\w]"));
     end = m.hasSelection() ? m.selectionStart() : data()->text().size();
-    if (start==end && start>0) 
-      if (approvedMark(mrk))
-	--start; // markup is a single non-word char like "*".
+    if (start==end && start>0) {
+      symMark = approvedMark(c);
+      // symMark is one or more non-word chars like "*".      
+      // symMark is empty if it was not an approved mark
+      start -= symMark.size();
+    }
   }
 
-  if (oldmd && oldmd->start()==start && oldmd->end()==end) {
-    if (mayDelete) {
+  if (del) {
+    if (oldmd && oldmd->start()==start && oldmd->end()==end) {
       // delete old mark
       QString tag = oldmd->text();
       deleteMarkup(oldmd);
       BlockItem *bi = ancestralBlock();
-      if (bi) { // consider deleting note
-	bool remainingRefs = false;
-	foreach (MarkupData *md, data()->markups()) {
-	  if (md->text() == tag) {
-	    remainingRefs = true;
-	    break;
-	  }
-	}
-	if (remainingRefs)
-	  bs->restackBlocks();
-	else
-	  bi->refTextChange(tag, ""); // remove footnote
-      }
-    } else {
-      return false; // should perhaps give focus to the footnote
+      bi->refTextChange(tag, ""); // remove footnote or whatever
+      return true;
     }
-    return false;
-  } else if (start<end) {
-    MarkupData *md = addMarkup(MarkupData::FootnoteRef, start, end);
-    bs->newFootnote(i, md->text());
-    return true;
   } else {
-    return false;
+    if (!oldmd && start<end) {
+      if (!symMark.isEmpty()) {
+	QString repl = substituteMark(symMark);
+	if (repl!=symMark) {
+	  cursor.setPosition(start);
+	  cursor.setPosition(end, TextCursor::KeepAnchor);
+	  cursor.deleteChar();
+	  cursor.insertText(repl);
+	  end = cursor.position();
+	  start = end - repl.length();
+	}
+	addMarkup(MarkupData::Superscript, start, end);
+      }
+      MarkupData *md = addMarkup(MarkupData::FootnoteRef, start, end);
+      bs->newFootnote(i, md->text());
+      return true;
+    }
   }
+  return false;
 }
 
 bool TextItem::tryToCopy() const {
@@ -1205,7 +1257,9 @@ void TextItem::markupChange(MarkupData *md) {
     QString news = md->text();
     if (news!=olds) {
       reftexts[md] = news;
-      emit refTextChange(olds, news);
+      BlockItem *bi = ancestralBlock();
+      if (bi)
+	bi->refTextChange(olds, news);
     }
   } break;
   case MarkupData::Link:
@@ -1378,5 +1432,11 @@ BlockItem *TextItem::ancestralBlock() {
     return Item::ancestralBlock();
 }
 
-    
-    
+void TextItem::inProgressMod() {
+  Resource *res = dynamic_cast<Resource *>(sender());
+  update();
+  if (res && !res->inProgress()) {
+    disconnect(res, SIGNAL(mod()), this, SLOT(inProgressMod()));
+    in_progress_res.remove(res);
+  }
+}

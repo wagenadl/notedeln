@@ -35,9 +35,7 @@ public:
   Resource *byURL(QUrl) const; // 0 if not found
   void setRoot(QString);
   Resource *importImage(QImage img, QUrl source=QUrl());
-  Resource *import(QUrl source);
   Resource *getArchiveAndPreview(QUrl source, QString altRes=""); // does not wait for completion
-  Resource *getPreviewOnly(QUrl source, QString altRes=""); // does not wait for completion
   void dropResource(Resource *);
   void perhapsDropResource(QString);
   Resource *newResource(QString altRes="");

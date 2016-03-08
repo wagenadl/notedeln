@@ -102,6 +102,7 @@ private:
 protected slots:
   virtual void markupChange(MarkupData *);
   virtual void docChange();
+  virtual void inProgressMod();
 protected:
   void ensureCursorVisible();
 protected:
@@ -115,7 +116,7 @@ private:
   int refineStart(int start, int base);
   int refineEnd(int end, int base);
 protected:
-  bool tryFootnote();
+  bool tryFootnote(bool del);
   virtual bool tryToPaste(bool noparagraphs=false);
   virtual bool tryToCopy() const;
   bool tryScriptStyles(bool onlyIfBalanced=false);
@@ -149,7 +150,7 @@ protected:
                Qt::KeyboardModifiers mod);
   virtual void representCursor(QList<TransientMarkup> &) const;
   virtual void representSearchPhrase(QList<TransientMarkup> &) const;
-  virtual void representDeadLinks(QList<TransientMarkup> &) const;
+  virtual void representDeadLinks(QList<TransientMarkup> &);
 protected:
   bool mayMark;
   bool mayNote;
@@ -167,6 +168,7 @@ protected:
   QTime lastClickTime;
   QPoint lastClickScreenPos;
   QPointer<BlockItem> pblock;
+  QSet<QObject*> in_progress_res;
 };
 
 #endif

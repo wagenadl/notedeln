@@ -28,7 +28,7 @@ LinkHelper::LinkHelper(TextItem *parent): QObject(parent) {
   item = parent;
   current = 0;
   foreach (MarkupData *md, parent->data()->children<MarkupData>())
-    newMarkup(md);
+    newMarkup(md, false);
 }
 
 LinkHelper::~LinkHelper() {
@@ -78,9 +78,9 @@ void LinkHelper::mouseMove(QGraphicsSceneHoverEvent *e) {
     current->enter(e);
 }
 
-OneLink *LinkHelper::newMarkup(MarkupData *md) {
+OneLink *LinkHelper::newMarkup(MarkupData *md, bool trulyNew) {
   if (md->style()==MarkupData::Link) {
-    links[md] = new OneLink(md, item);
+    links[md] = new OneLink(md, item, trulyNew);
     return links[md];
   } else {
     return NULL;
