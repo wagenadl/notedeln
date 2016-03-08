@@ -24,6 +24,7 @@
 static Data::Creator<TitleData> c("title");
 
 TitleData::TitleData(Data *parent): Data(parent) {
+  qDebug() << "TitleData" << this << parent;
   setType("title");
   TextData *v0 = new TextData(this);
   v0->setText(defaultTitle());
@@ -43,6 +44,7 @@ QString TitleData::defaultTitle() {
 }
 
 bool TitleData::isDefault() const {
+  qDebug() << "isDefault" << this;
   return children<TextData>().size()==1 && text()->text()==defaultTitle();
 }
 
