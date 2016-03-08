@@ -57,29 +57,90 @@ BlockItem *BlockItem::ancestralBlock() {
   return this;
 }
 
+static int countReferencesIn(Data const *d0, QString txt) {
+  int cnt = 0;
+  qDebug() << "refs in" << d0 << txt;
+  foreach (Data *d, d0->allChildren()) {
+    MarkupData *md = dynamic_cast<MarkupData *>(d);
+    if (md) {
+      qDebug() << "ref" << md->text() << md->styleName(md->style())
+	       << (md->text() == txt);
+      if (md->style()==MarkupData::FootnoteRef && md->text() == txt)
+	cnt ++;
+    } else {
+      cnt += countReferencesIn(d, txt);
+    }
+  }
+  return cnt;
+}
+
+int BlockItem::countReferences(QString txt) const {
+  // count references in any child or grand child
+  if (txt.isEmpty())
+    return 0;
+  return countReferencesIn(data(), txt);
+}
+  
 void BlockItem::refTextChange(QString olds, QString news) {
-  QSet<FootnoteItem *> dropset;
+  int nOldRefs = countReferences(olds);
+  int nNewRefs = countReferences(news);
+  qDebug() << "BI: reftxtchg" << olds << news << nOldRefs << nNewRefs;
+  // nOldRefs is *other* refs; the change must already have been made
+  // nNewRefs is other refs plus the one that just changed
+  ASSERT(news.isEmpty() || nNewRefs>0);
+
+  QSet<FootnoteItem *> affected;
   foreach (FootnoteItem *fni, foots) {
-    if (fni==0)
-      continue;
-    if (fni->data()->tag()==olds) {
-      // Found a footnote that is affected by this.
-      if (news.isEmpty())
-	dropset.insert(fni);
-      else
+    if (fni && fni->data()->tag()==olds)
+      affected.insert(fni);
+  }
+
+  if (affected.isEmpty()) {
+    qDebug() << "No footnote matching this reference text.";
+    // we could have an assertion instead
+    return;
+  }
+
+  if (news.isEmpty()) {
+    /* We will delete the footnotes if there are no references left.
+       Otherwise, we'll leave them in peace. */
+    if (nOldRefs==0) {
+      foreach (FootnoteItem *fni, affected) {
+	foots.removeAll(fni);
+	FootnoteData *fnd = fni->data();
+	fni->deleteLater();
+	data()->deleteChild(fnd);
+      }
+      emit heightChanged();
+    }
+  } else {
+    /* We can duplicate the footnote if there are multiple references,
+       duplicating the text, and changing the ref only on the new note. */
+    if (nOldRefs>0) {
+      if (affected.size()>1) {
+	/* Multiple footnotes, same tags. We'll just muck with one at random.
+	   This is not good, but I don't know what else I could do.
+	*/
+	FootnoteItem *fni = *affected.begin();
+	fni->setTagText(news);
+      } else {
+	FootnoteItem *fni0 = *affected.begin();
+	FootnoteData *fnd1 = new FootnoteData(data());
+	fnd1->setTag(news);
+	fnd1->text()->setText(fni0->data()->text()->text());
+	FootnoteItem *fni1 = newFootnote(fnd1);
+	fni1->makeWritable();
+	emit heightChanged();
+      }
+    } else {
+      // just change the tags
+      foreach (FootnoteItem *fni, affected) 
 	fni->setTagText(news);
     }
   }
-  foreach (FootnoteItem *fni, dropset) {
-    foots.removeAll(fni);
-    FootnoteData *fnd = fni->data();
-    fni->deleteLater();
-    data()->deleteChild(fnd);
-  }
-  if (!dropset.isEmpty())
-    emit heightChanged();
 
-  // we should remove null notes, but it's not important
+  // I do not understand this old comment:
+  // "We should remove null notes, but it's not important."
 }
 
 void BlockItem::resetPosition() {

@@ -294,8 +294,8 @@ bool TableItem::keyPressWithControl(QKeyEvent *e) {
     tryToPaste();
     return true;
   case Qt::Key_N:
-    if (nr==1 && nc==1)
-      tryFootnote(); // footnote refs cannot span cells
+    if (nr==1 && nc==1) // footnote refs cannot span cells
+      tryFootnote(e->modifiers() & Qt::ShiftModifier);
     return true; 
   case Qt::Key_L:
     if (nr==1 && nc==1)

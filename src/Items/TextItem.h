@@ -116,7 +116,7 @@ private:
   int refineStart(int start, int base);
   int refineEnd(int end, int base);
 protected:
-  bool tryFootnote();
+  bool tryFootnote(bool del);
   virtual bool tryToPaste(bool noparagraphs=false);
   virtual bool tryToCopy() const;
   bool tryScriptStyles(bool onlyIfBalanced=false);
