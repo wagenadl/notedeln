@@ -21,6 +21,8 @@
 #include <QObject>
 #include <QMap>
 #include <QSet>
+#include <QDateTime>
+#include <QVariant>
 
 class WordIndex: public QObject {
   Q_OBJECT;
@@ -38,9 +40,14 @@ public:
   QSet<int> findPartialWord(QString wordbit); // must match at beginning of word
   QSet<int> findWords(QStringList words, bool lastPartial=false);
   /* Returned integers are start pages of entries */
+  QDateTime lastSeen(int pg) const;
+  bool update(class Catalog const &cat); // true if changed
+private:
+  void buildIndex(QVariantMap const &idx);
 private:
   QMap< QString, QSet<int> > index;
   /* Maps words to sets of start pages */
+  QMap<int, QDateTime> lastseen;
 };
 
 #endif

@@ -5,7 +5,7 @@
 #include <QFileInfo>
 #include <QRegExp>
 
-Catalog::Catalog(QString pgdir) {
+Catalog::Catalog(QString pgdir): pgdir(pgdir) {
   ok = false;
   QDir pages(pgdir);
   if (!pages.exists())

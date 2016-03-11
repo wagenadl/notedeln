@@ -26,6 +26,7 @@
 #include "RecentBooks.h"
 #include "Index.h"
 #include "Translate.h"
+#include "Catalog.h"
 
 #include <QApplication>
 #include <QMessageBox>
@@ -67,8 +68,10 @@ void Notebook::load() {
     throw QString("Could not load book file");
   bookFile_->data()->setBook(this);
 
+  Catalog cat(root.filePath("pages"));
+  
   tocFile_ = TOCFile::load(root.filePath("toc.json"), this);
-  if (tocFile_ && !tocFile_->data()->update(root.filePath("pages"))) {
+  if (tocFile_ && !tocFile_->data()->update(cat)) {
     qDebug() << "TOC update failed - will rebuild TOC and index";
     delete tocFile_;
     tocFile_ = 0;
@@ -87,7 +90,7 @@ void Notebook::load() {
     throw QString("Could not load TOC");
   tocFile_->data()->setBook(this);
 
-  index_ = new Index(dirPath(), toc(), this);
+  index_ = new Index(dirPath(), cat, toc(), this);
 
   style_ = new Style(root.filePath("style.json"));
 

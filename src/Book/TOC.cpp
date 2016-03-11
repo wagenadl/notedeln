@@ -168,8 +168,7 @@ QString TOC::extractUUIDFromFilename(QString fn) {
   return re.exactMatch(fn) ? re.cap(2) : "";
 }
 
-bool TOC::update(QString pgdir) {
-  Catalog cat(pgdir);
+bool TOC::update(Catalog const &cat) {
   QStringList misc_errors = cat.errors();
   QMultiMap<int, QString> pg2file = cat.pageToFileMap();
   
@@ -224,15 +223,16 @@ bool TOC::update(QString pgdir) {
 
   // So there is some stuff to fix
   // We can probably do it, but we should check carefully
-  return doUpdate(pgdir, cat, outdated_or_missing_page_in_index,
+  return doUpdate(cat, outdated_or_missing_page_in_index,
                   missing_from_index);
 }
 
-bool TOC::doUpdate(QDir pages, Catalog const &cat,
+bool TOC::doUpdate(Catalog const &cat,
                    QList<int> const &outdated_or_missing_page_in_index,
                    QStringList missing_from_index) {
   QMap<int, EntryFile *> entryfiles;
-
+  QDir pages(cat.path());
+  
   foreach (int n, outdated_or_missing_page_in_index) {
     QString fn = *cat.pageToFileMap().find(n);
     QRegExp re("^(\\d\\d*)-(.*).json");

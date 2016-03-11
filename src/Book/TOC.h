@@ -57,7 +57,7 @@ public:
   bool isLast(TOCEntry const *) const;
   void setBook(class Notebook *);
   virtual class Notebook *book() const; // pointer to parent book, if any.
-  bool update(QString pgdir);
+  bool update(class Catalog const &cat);
   /* Ensures that there is a 1:1 relationship between the TOC and the
      actual contents of the pages directory. Returns true if OK.
      The only discrepancies UPDATE can deal with are entry files that are
@@ -89,7 +89,7 @@ private:
                       QStringList missing_from_index,
                       QStringList duplicates_in_directory,
                       QStringList misc_errors);
-  bool doUpdate(QDir pages, class Catalog const &cat,
+  bool doUpdate(class Catalog const &cat,
                 QList<int> const &outdated_or_missing_page_in_index,
                 QStringList missing_from_index);
 

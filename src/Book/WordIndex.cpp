@@ -39,15 +39,35 @@ bool WordIndex::load(QString filename) {
   QVariantMap idx = JSONFile::load(filename, &ok);
   if (!ok)
     return false;
+
+  if (idx.contains("vsn no")) {
+    buildIndex(idx["index"].toMap());
+    lastseen.clear();
+    QVariantMap ls(idx["ls"].toMap());
+    for (QVariantMap::iterator i = ls.begin(); i!=ls.end(); i++) {
+      int pg = i.key().toInt();
+      QDateTime dt = i.value().toDateTime();
+      lastseen[pg] = dt;
+    }     
+  } else {
+    lastseen.clear();
+    buildIndex(idx);
+  }
+
+  return true;
+}
+
+void WordIndex::buildIndex(QVariantMap const &idx) {
   index.clear();
-  for (QVariantMap::iterator i = idx.begin(); i!=idx.end(); i++) {
+
+  for (auto i = idx.begin(); i!=idx.end(); i++) {
     QString w = i.key();
     QVariantList lst = i.value().toList();
     for (QVariantList::iterator j = lst.begin(); j!=lst.end(); j++) {
-      index[w].insert((*j).toInt());
+      int pg = (*j).toInt();
+      index[w].insert(pg);
     }
   }
-  return true;
 }
 
 bool WordIndex::save(QString filename) {
@@ -59,7 +79,20 @@ bool WordIndex::save(QString filename) {
       lst.append(QVariant(n));
     idx[w] = QVariant(lst);
   }
-  return JSONFile::save(idx, filename, true);
+
+  QVariantMap ls;
+  for (auto i=lastseen.begin(); i!=lastseen.end(); i++) {
+    int pgno = i.key();
+    QDateTime dt = i.value();
+    ls[QString::number(pgno)] = QVariant(dt);
+  }
+
+  QVariantMap top;
+  top["vsn no"] = 1;
+  top["index"] = idx;
+  top["ls"] = ls;
+  
+  return JSONFile::save(top, filename, true);
 }
 
 bool WordIndex::build(class TOC *toc, QString pagesDir) {
@@ -96,8 +129,8 @@ bool WordIndex::build(class TOC *toc, QString pagesDir) {
 
 void WordIndex::rebuildEntry(int startPage, QSet<QString> newset,
                              QSet<QString> *oldset) {
-  qDebug() << "WordIndex::rebuildEntry" << startPage;
-
+  lastseen[startPage] = QDateTime::currentDateTime();
+  
   if (oldset) {
     QSet<QString> dropped = *oldset - newset;
     QSet<QString> added = newset - *oldset;
@@ -116,6 +149,7 @@ void WordIndex::rebuildEntry(int startPage, QSet<QString> newset,
 }
 
 void WordIndex::dropEntry(int startPage) {
+  lastseen.remove(startPage);
   for (QSet<int> &set: index)
     set.remove(startPage);
 }
@@ -151,3 +185,9 @@ QSet<int> WordIndex::findWords(QStringList words, bool lastPartial) {
 
   return s;
 }
+
+bool WordIndex::update(Catalog const &cat) {
+  return false;
+  // NYI
+}
+    

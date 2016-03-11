@@ -14,6 +14,7 @@ class Catalog {
   // Catalog of files in the pages/ folder
 public:
   Catalog(QString pgdir);
+  QString path() const { return pgdir; }
   bool isValid() const { return ok; }
   bool isClean() const;
   QMultiMap<int, QString> const &pageToFileMap() const { return pg2file; }
@@ -22,6 +23,7 @@ public:
   QDateTime noteDirMod(QString) const;
   QStringList errors() const { return err; }
 private:
+  QString pgdir;
   QMultiMap<int, QString> pg2file;
   QMap<QString, QDateTime> filemods;
   QMap<QString, QDateTime> notemods;
