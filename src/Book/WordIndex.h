@@ -41,7 +41,7 @@ public:
   QSet<int> findWords(QStringList words, bool lastPartial=false);
   /* Returned integers are start pages of entries */
   QDateTime lastSeen(int pg) const;
-  bool update(class Catalog const &cat); // true if changed
+  bool update(class TOC const *, QString pgdir); // true if changed
 private:
   void buildIndex(QVariantMap const &idx);
 private:

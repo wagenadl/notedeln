@@ -27,8 +27,7 @@
 class Index: public QObject {
   Q_OBJECT;
 public:
-  Index(QString rootDir, class Catalog const &cat,
-        class TOC *toc, QObject *parent);
+  Index(QString rootDir, class TOC *toc, QObject *parent);
   virtual ~Index();
   void watchEntry(EntryFile *);
   void unwatchEntry(EntryFile *);

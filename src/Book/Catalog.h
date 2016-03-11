@@ -15,8 +15,8 @@ class Catalog {
 public:
   Catalog(QString pgdir);
   QString path() const { return pgdir; }
-  bool isValid() const { return ok; }
-  bool isClean() const;
+  bool isValid() const { return ok; } // dir could be read
+  bool isClean() const; // no errors and no duplicates
   QMultiMap<int, QString> const &pageToFileMap() const { return pg2file; }
   QDateTime fileMod(QString) const;
   bool hasNotes(QString) const;

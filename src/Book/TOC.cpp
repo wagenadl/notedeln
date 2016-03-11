@@ -30,6 +30,23 @@
 
 static Data::Creator<TOC> c("toc");
 
+
+static TOC *errorReturn(QString s) {
+  QMessageBox mb(QMessageBox::Critical, "Failure to rebuild TOC",
+		 QString("No TOC file found in notebook folder and I could ")
+		 + "not reconstruct it:\n\n"
+		 + s + "\n\n"
+		 + "Manual recovery will be needed.",
+		 0);
+  mb.addButton("Quit", QMessageBox::RejectRole);
+  mb.exec();
+  QApplication::quit();
+  ::exit(1);
+  return 0;
+}
+
+
+
 TOC::TOC(Data *parent): Data(parent) {
   setType("toc");
   nb = 0;
@@ -101,6 +118,7 @@ TOCEntry *TOC::addEntry(EntryData *data) {
   e->setUuid(data->uuid());
   e->setCreated(data->created());
   e->setModified(data->modified());
+  e->setLastSeen(QDateTime::currentDateTime());
   entries_[e->startPage()] = e;
   return e;
 }
@@ -115,6 +133,7 @@ TOCEntry *TOC::updateEntry(EntryData *data) {
   e->setUuid(data->uuid());
   e->setCreated(data->created());
   e->setModified(data->modified());
+  e->setLastSeen(QDateTime::currentDateTime());
   return e;
 }
 
@@ -183,8 +202,10 @@ bool TOC::update(Catalog const &cat) {
       ? QString("%1.json").arg(pgno)
       : QString("%1-%2.json").arg(pgno, 4, 10, QChar('0')).arg(uuid);
     if (pg2file.contains(pgno, fn)) {
-      if (cat.fileMod(fn) > entries()[pgno]->modified().addSecs(1))
+      if (cat.fileMod(fn) > entries()[pgno]->modified().addSecs(10)) {
         outdated_or_missing_page_in_index << pgno;
+	qDebug() << "Outdated" << pgno << fn;
+      }
     } else {
       missing_from_directory
         << (uuid.isEmpty()
@@ -227,30 +248,86 @@ bool TOC::update(Catalog const &cat) {
                   missing_from_index);
 }
 
+static bool quickRead(QString fn,
+		      int &pgno, QString &uuid, QDateTime &date) {
+  QFile f(fn);
+  if (!f.open(QFile::ReadOnly))
+    return false;
+  char buffer[100];
+  QRegExp re1(": *\"(.*)\"");
+  QRegExp re2(": (\\d+)");
+  int n = 0;
+  while (n<3 && f.readLine(buffer, 100)>0) {
+    QString line(buffer);
+    qDebug() << "quickread read line " << line;
+    if (line.indexOf("\"mod\"")>=0 && re1.indexIn(line)) {
+      date = QVariant(re1.cap(1)).toDateTime();
+      n++;
+    } else if (line.indexOf("\"startPage\"")>=0 && re2.indexIn(line)) {
+      pgno = re2.cap(1).toInt();
+      n++;
+    } else if (line.indexOf("\"uuid\"")>=0 && re1.indexIn(line)) {
+      uuid = re1.cap(1);
+      n++;
+    } else if (line.indexOf("\"cc\"")>=0) {
+      return true;
+    }
+  }
+  return n>=3;
+}
+
+
 bool TOC::doUpdate(Catalog const &cat,
                    QList<int> const &outdated_or_missing_page_in_index,
                    QStringList missing_from_index) {
-  QMap<int, EntryFile *> entryfiles;
-  QDir pages(cat.path());
+
+  QProgressDialog mb("Updating table of contents...",
+		     "Cancel", 0,
+		     2 * outdated_or_missing_page_in_index.size());
+  mb.setWindowModality(Qt::WindowModal);
+  mb.setMinimumDuration(200);
+  mb.setValue(0);
   
-  foreach (int n, outdated_or_missing_page_in_index) {
-    QString fn = *cat.pageToFileMap().find(n);
+  QMap<int, QString> entryUuid;
+  QDir pages(cat.path());
+
+  int k = 0;
+  foreach (int pgno, outdated_or_missing_page_in_index) {
+    if (mb.wasCanceled()) 
+      return false;
+
+    QString fn = *cat.pageToFileMap().find(pgno);
     QRegExp re("^(\\d\\d*)-(.*).json");
     QString namedid = re.exactMatch(fn) ? re.cap(2) : "";
-    EntryFile *f = EntryFile::load(pages.absoluteFilePath(fn), 0);
-    if (!f || f->data()->startPage()!=n || f->data()->uuid()!=namedid) {
+    int storedpgno;
+    QString storeduuid;
+    QDateTime storeddate;
+    if (!quickRead(pages.absoluteFilePath(fn),
+		   storedpgno, storeduuid, storeddate)
+	|| storedpgno!=pgno || storeduuid!=namedid) {
+      mb.close();
       reportMismatch(QStringList(), missing_from_index,
                      QStringList(), QStringList());
-      foreach (EntryFile *f, entryfiles)
-        delete f;
       return false;
     }
-    entryfiles[n] = f;
+    if (!entries_.contains(pgno)
+	|| storeddate > entries_[pgno]->lastSeen()) 
+      entryUuid[pgno] = storeduuid;
+    mb.setValue(++k);
   }
-  foreach (EntryFile *f, entryfiles) {
-    if (!updateEntry(f->data()))
-      addEntry(f->data());
-    delete f;
+  mb.setMaximum(k + entryUuid.size());
+  for (int pgno: entryUuid.keys()) {
+    EntryFile *f = ::loadEntry(cat.path(), pgno, entryUuid[pgno], 0);
+    if (f) {
+      if (!updateEntry(f->data()))
+	addEntry(f->data());
+      delete f;
+    } else {
+      delete f;
+      errorReturn(QString("Failed to load %1-%2.")
+		  .arg(pgno).arg(entryUuid[pgno]));
+    }
+    mb.setValue(++k);
   }
   return true;
 }
@@ -298,20 +375,6 @@ struct Entry_ {
   }
 };
 
-static TOC *errorReturn(QString s) {
-  QMessageBox mb(QMessageBox::Critical, "Failure to rebuild TOC",
-		 QString("No TOC file found in notebook folder and I could ")
-		 + "not reconstruct it:\n\n"
-		 + s + "\n\n"
-		 + "Manual recovery will be needed.",
-		 0);
-  mb.addButton("Quit", QMessageBox::RejectRole);
-  mb.exec();
-  QApplication::quit();
-  ::exit(1);
-  return 0;
-}
-
 void TOC::resolveDuplicates(QMultiMap<int, QString> &pg2file,
 			    QDir pages) {
   bool dups = true;
@@ -348,7 +411,7 @@ void TOC::resolveDuplicates(QMultiMap<int, QString> &pg2file, int pgno,
       if (fi.exists() && fi.size()>0) {
 	errorReturn("Failed to load " + it.fn + ".");  
       } else {
-	fd.remove();
+	fd.remove(); // !? I don't understand this - DW 3/11/16
 	continue;
       }
     }
@@ -391,8 +454,8 @@ TOC *TOC::rebuild(QDir pages) {
   QProgressDialog mb("Table of contents found missing or corrupted."
                      " Attempting to rebuild...", "Cancel", 0, 1000);
   mb.setWindowModality(Qt::WindowModal);
-  mb.setMinimumDuration(0);
-  mb.setValue(1);
+  mb.setMinimumDuration(200);
+  mb.setValue(0);
 
   Catalog cat(pages.absolutePath());
   QStringList error_accum = cat.errors();
@@ -405,14 +468,10 @@ TOC *TOC::rebuild(QDir pages) {
 
   resolveDuplicates(pg2file, pages);
 
-  int N = 0;
-  foreach (int n, pg2file.keys())
-    if (n>N)
-      N = n;
-  mb.setMaximum(N);
+  mb.setMaximum(pg2file.keys().size());
+  int k = 0;
   
   foreach (int n, pg2file.keys()) {
-    mb.setValue(n);
     if (mb.wasCanceled()) 
       return 0;
 
@@ -455,6 +514,7 @@ TOC *TOC::rebuild(QDir pages) {
     
     toc->addEntry(f->data());
     delete f;
+    mb.setValue(++k);
   }
 
   return toc;

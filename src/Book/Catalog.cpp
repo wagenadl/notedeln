@@ -47,7 +47,12 @@ Catalog::Catalog(QString pgdir): pgdir(pgdir) {
 }
 
 bool Catalog::isClean() const {
-  return err.isEmpty();
+  if (!err.isEmpty())
+    return false;
+  for (int k: pg2file.keys())
+    if (pg2file.count(k)!=1)
+      return false;
+  return true;
 }
 
 QDateTime Catalog::fileMod(QString fn) const {

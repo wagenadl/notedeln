@@ -90,7 +90,7 @@ void Notebook::load() {
     throw QString("Could not load TOC");
   tocFile_->data()->setBook(this);
 
-  index_ = new Index(dirPath(), cat, toc(), this);
+  index_ = new Index(dirPath(), toc(), this);
 
   style_ = new Style(root.filePath("style.json"));
 

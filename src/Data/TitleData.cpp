@@ -24,7 +24,6 @@
 static Data::Creator<TitleData> c("title");
 
 TitleData::TitleData(Data *parent): Data(parent) {
-  qDebug() << "TitleData" << this << parent;
   setType("title");
   TextData *v0 = new TextData(this);
   connect(v0, SIGNAL(mod()), this, SIGNAL(textMod()));

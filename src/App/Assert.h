@@ -34,5 +34,6 @@ void assertion_complain(QString msg, char const *file, int line);
 #define ASSERT(cond) ((!(cond)) ? assertion_crash(#cond, __FILE__, __LINE__) : assertion_noop())
 
 #define COMPLAIN(msg) (assertion_complain(msg, __FILE__, __LINE__))
+#define MILDASSERT(cond) ((!(cond)) ? assertion_complain(#cond, __FILE__, __LINE__) : assertion_noop())
 
 #endif

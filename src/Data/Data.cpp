@@ -294,12 +294,12 @@ void Data::loadProps(QVariantMap const &src) {
   
   for (QVariantMap::const_iterator i = src.begin(); i != src.end(); ++i) {
     if (props.contains(i.key())) {
-      if (enumprops.contains(i.key()))
+      if (enumprops.contains(i.key())) 
 	// This ridiculous trick is needed to make qt load enum values,
 	// because qt doesn't like longlong variants for enum.
-	ASSERT(setProperty(i.key().toLatin1(), i.value().toInt()));
+	MILDASSERT(setProperty(i.key().toLatin1(), i.value().toInt()));
       else
-	ASSERT(setProperty(i.key().toLatin1(), i.value()));
+	MILDASSERT(setProperty(i.key().toLatin1(), i.value()));
     }
   }
 }

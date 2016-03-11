@@ -42,6 +42,10 @@ int TOCEntry::sheetCount() const {
   return sheetCount_;
 }
 
+QDateTime TOCEntry::lastSeen() const {
+  return seen_;
+}
+
 void TOCEntry::setStartPage(int n) {
   startPage_ = n;
   markModified();
@@ -57,4 +61,7 @@ void TOCEntry::setSheetCount(int n) {
   markModified();
 }
 
-
+void TOCEntry::setLastSeen(QDateTime const &t) {
+  seen_ = t;
+  markModified();
+}
