@@ -1,10 +1,13 @@
 // Catalog.cpp
 
 #include "Catalog.h"
+#include <QDir>
+#include <QFileInfo>
+#include <QRegExp>
 
-Catalog::Catalog(QString nbroot) {
+Catalog::Catalog(QString pgdir) {
   ok = false;
-  QDir pages(nbroot + "/pages");
+  QDir pages(pgdir);
   if (!pages.exists())
     return;
 
@@ -17,7 +20,7 @@ Catalog::Catalog(QString nbroot) {
       QString fn = fi.fileName();
       if (fn.endsWith(".moved") || fn.endsWith(".THIS")
           || fn.endsWith(".OTHER") || fn.endsWith(".BASE")) 
-        err_out << "Presence of " + fn + " indicates unsuccessful bzr update.";
+        err << "Presence of " + fn + " indicates unsuccessful bzr update.";
       if (!fn.endsWith(".json"))
         continue;
       if (re1.exactMatch(fn)) {
@@ -33,15 +36,17 @@ Catalog::Catalog(QString nbroot) {
       }
     } else if (fi.isDir()) {
       QString fn = fi.fileName();
+      if (fn.endsWith(".moved") || fn.endsWith(".THIS")
+          || fn.endsWith(".OTHER") || fn.endsWith(".BASE")) 
+        err << "Presence of " + fn + " indicates unsuccessful bzr update.";
       if (ren.exactMatch(fn)) {
-        int n = re1.cap(1).toInt();
         notemods[fn] = fi.lastModified();
       }
     }
   }  
 }
 
-bool Catalog::clean() const {
+bool Catalog::isClean() const {
   return err.isEmpty();
 }
 

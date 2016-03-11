@@ -26,6 +26,7 @@
 #include "TitleData.h"
 #include "Assert.h"
 #include <QProgressDialog>
+#include "Catalog.h"
 
 static Data::Creator<TOC> c("toc");
 
@@ -152,10 +153,11 @@ QString TOC::extractUUIDFromFilename(QString fn) {
   return re.exactMatch(fn) ? re.cap(2) : "";
 }
 
-bool TOC::verify(QDir pages) const {
-  QStringList misc_errors;
-  QMultiMap<int, QString> pg2file = readPageDir(pages, misc_errors);
-
+bool TOC::verify(QString pgdir) const {
+  Catalog cat(pgdir);
+  QStringList misc_errors = cat.errors();
+  QMultiMap<int, QString> pg2file = cat.pageToFileMap();
+  
   QStringList missing_from_directory;
   QStringList missing_from_index;
   QStringList duplicates_in_directory;
@@ -233,33 +235,6 @@ struct Entry_ {
     return cre<other.cre;
   }
 };
-
-
-QMultiMap<int, QString> TOC::readPageDir(QDir pages, QStringList &error_out) {
-  QMultiMap<int, QString> pg2file;
-  QRegExp re1("^(\\d\\d*)-([a-z0-9]+).json");
-  QRegExp re0("^(\\d\\d*).json");
-  foreach (QFileInfo const &fi, pages.entryInfoList()) {
-    if (!fi.isFile())
-      continue;
-    QString fn = fi.fileName();
-    if (fn.endsWith(".moved") || fn.endsWith(".THIS")
-        || fn.endsWith(".OTHER") || fn.endsWith(".BASE")) 
-      error_out << "Presence of " + fn + " indicates unsuccessful bzr update.";
-    if (!fn.endsWith(".json"))
-      continue;
-    if (re1.exactMatch(fn)) {
-      int n = re1.cap(1).toInt();
-      pg2file.insert(n, fn);
-    } else if (re0.exactMatch(fn)) {
-      int n = re0.cap(1).toInt();
-      pg2file.insert(n, fn);
-    } else {
-      error_out << "Cannot parse " + fn + " as a page file name.";
-    }
-  }
-  return pg2file;
-}  
 
 static TOC *errorReturn(QString s) {
   QMessageBox mb(QMessageBox::Critical, "Failure to rebuild TOC",
@@ -357,11 +332,12 @@ TOC *TOC::rebuild(QDir pages) {
   mb.setMinimumDuration(0);
   mb.setValue(1);
 
-  QStringList error_accum;
-  QMultiMap<int, QString> pg2file = readPageDir(pages, error_accum);
+  Catalog cat(pages.absolutePath());
+  QStringList error_accum = cat.errors();
+  QMultiMap<int, QString> pg2file = cat.pageToFileMap();
 
   if (!error_accum.isEmpty())
-    return errorReturn(error_accum.first());
+    return errorReturn(error_accum.join("\n"));
 
   TOC *toc = new TOC();
 

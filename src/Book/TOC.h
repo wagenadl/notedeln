@@ -56,7 +56,7 @@ public:
   bool isLast(TOCEntry const *) const;
   void setBook(class Notebook *);
   virtual class Notebook *book() const; // pointer to parent book, if any.
-  bool verify(QDir pages) const;
+  bool verify(QString pgdir) const;
   /* Verifies that there is a 1:1 relationship between the TOC and the
      actual contents of the pages directory. Returns true if OK.
      If not OK, reports a message to the GUI and offers the user to quit
@@ -69,8 +69,6 @@ public:
   static void resolveDuplicates(QMultiMap<int, QString> &pg2file, int pgno,
 				QDir pages);
   static QString extractUUIDFromFilename(QString fn);
-  static QMultiMap<int, QString> readPageDir(QDir pages,
-					     QStringList &error_out);
   static TOC *rebuild(QDir pages);
   /* Builds a TOC structure from a pages folder.
      This /only/ works if all the .json files in that folder are readable

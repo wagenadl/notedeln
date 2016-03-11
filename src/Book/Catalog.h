@@ -6,11 +6,14 @@
 
 #include <QMap>
 #include <QMultiMap>
+#include <QString>
+#include <QDateTime>
+#include <QStringList>
 
 class Catalog {
   // Catalog of files in the pages/ folder
 public:
-  Catalog(QString nbroot);
+  Catalog(QString pgdir);
   bool isValid() const { return ok; }
   bool isClean() const;
   QMultiMap<int, QString> const &pageToFileMap() const { return pg2file; }
