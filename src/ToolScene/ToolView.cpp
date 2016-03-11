@@ -15,15 +15,20 @@
 */
 
 // ToolView.cpp
-
 #include "ToolView.h"
+#include "Toolbars.h"
 #include "ToolScene.h"
 #include <QMouseEvent>
 #include <QDebug>
 #include <QGraphicsItem>
 #include <QDragEnterEvent>
+#include <QTimer>
 
 ToolView::ToolView(Mode *mode, QWidget *parent): QGraphicsView(parent) {
+  timer = new QTimer(this);
+  timer->setInterval(5);
+  connect(timer, SIGNAL(timeout()), SLOT(timeout()));
+  opacity = 1.;
   tools = new ToolScene(mode, this);
   setStyleSheet("background: transparent");
   setFrameShape(NoFrame);
@@ -92,3 +97,24 @@ void ToolView::resizeEvent(QResizeEvent *) {
   tools->moveClock(QRectF(mapToScene(QPoint(0,0)),
 			  mapToScene(QPoint(width(), height()))));
 }  
+
+void ToolView::hideSlowly() {
+  if (!timer->isActive())
+    timer->start();
+}
+
+void ToolView::show() {
+  timer->stop();
+  opacity = 1.;
+  tools->toolbars()->setOpacity(1.);
+  QGraphicsView::show();
+}
+
+void ToolView::timeout() {
+  opacity *= 0.95;
+  if (opacity<=.1) {
+    timer->stop();
+    hide();
+  }
+  tools->toolbars()->setOpacity(opacity);
+}

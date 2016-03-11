@@ -35,6 +35,10 @@ public slots:
   void setScale(double);
   void autoMask();
   void setFullScreen(bool);
+  void hideSlowly();
+  virtual void show();
+private slots:
+  void timeout();
 protected:
   void resizeEvent(QResizeEvent *);
   void mousePressEvent(QMouseEvent *);
@@ -43,6 +47,8 @@ protected:
   void dropEvent(QDropEvent *);
 private:
   class ToolScene *tools;
+  class QTimer *timer;
+  double opacity;
 };
 
 #endif

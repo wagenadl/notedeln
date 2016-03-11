@@ -207,5 +207,5 @@ void PageEditor::enterEvent(QEvent *e) {
 
 void PageEditor::leaveEvent(QEvent *e) {
   QMainWindow::leaveEvent(e);
-  toolview->hide();
+  toolview->hideSlowly();
 }
