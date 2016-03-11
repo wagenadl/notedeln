@@ -334,8 +334,10 @@ template <typename T> int findFirstGT(QVector<T> const &vec, T key) {
 QPointF TextItemDoc::locate(int offset) const {
   ASSERT(!d->linestarts.isEmpty());
 
-  if (offset<0)
-    return QPointF();
+  if (offset<0) {
+    COMPLAIN("TextItemDoc::locate: negative offset");
+    return QPointF(0,0);
+  }
   
   QVector<double> const &charw = d->charWidths();
   QVector<int> const &starts = d->linestarts;
@@ -648,7 +650,6 @@ void TextItemDoc::render(QPainter *p, QList<TransientMarkup> tmm) const {
       if (s.contains(MarkupData::Selected))
         bgcol = alphaBlend(bgcol, st.alphaColor("selected"));
       if (bgcol.alpha()>0) {
-	qDebug() << ">>bgcol " << bgcol;
         p->setPen(QPen(Qt::NoPen));
         p->setBrush(bgcol);
         p->drawRect(QRectF(QPointF(x0, ytop), QPointF(x, ybottom)));

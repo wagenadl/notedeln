@@ -180,3 +180,6 @@ void assertion_crash(QString msg, char const *file, int line) {
   Assertion::crash(msg, file, line);
 }
 
+void assertion_complain(QString msg, char const *file, int line) {
+  qDebug() << "Trouble: " << msg << "in file" << file << "at line" << line;
+}

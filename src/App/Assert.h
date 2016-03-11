@@ -29,7 +29,10 @@ void assertion_register_notebook(class Notebook *);
 
 void assertion_crash(QString msg, char const *file, int line);
 inline void assertion_noop() { }
+void assertion_complain(QString msg, char const *file, int line);
 
 #define ASSERT(cond) ((!(cond)) ? assertion_crash(#cond, __FILE__, __LINE__) : assertion_noop())
+
+#define COMPLAIN(msg) (assertion_complain(msg, __FILE__, __LINE__))
 
 #endif
