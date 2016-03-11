@@ -185,6 +185,15 @@ bool Notebook::createGitArchive(QDir d) {
     return false;
   }
 
+  { QFile ignore(d.absoluteFilePath(".gitignore"));
+    if (!ignore.open(QFile::WriteOnly))
+      return false;
+    ignore.write("*~\n");
+    ignore.write(".*~\n");
+    ignore.write("toc.json\n");
+    ignore.write("index.json\n");
+  }
+
   proc.start("git", QStringList() << "add" << ".");
   if (!proc.waitForFinished()
       || proc.exitStatus()!=QProcess::NormalExit
