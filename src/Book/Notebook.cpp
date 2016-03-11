@@ -68,8 +68,8 @@ void Notebook::load() {
   bookFile_->data()->setBook(this);
 
   tocFile_ = TOCFile::load(root.filePath("toc.json"), this);
-  if (tocFile_ && !tocFile_->data()->verify(root.filePath("pages"))) {
-    qDebug() << "TOC verification failed - will rebuild TOC and index";
+  if (tocFile_ && !tocFile_->data()->update(root.filePath("pages"))) {
+    qDebug() << "TOC update failed - will rebuild TOC and index";
     delete tocFile_;
     tocFile_ = 0;
     root.remove("toc.json");

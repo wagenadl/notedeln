@@ -105,6 +105,21 @@ TOCEntry *TOC::addEntry(EntryData *data) {
   return e;
 }
 
+TOCEntry *TOC::updateEntry(EntryData *data) {
+  TOCEntry *e = find(data->startPage());
+  if (!e)
+    return e;
+  e->setStartPage(data->startPage());
+  e->setTitle(data->titleText());
+  e->setSheetCount(data->sheetCount());
+  e->setUuid(data->uuid());
+  e->setCreated(data->created());
+  e->setModified(data->modified());
+  return e;
+}
+
+
+
 bool TOC::isLast(TOCEntry const *e) const {
   return e == lastEntry();
 }
@@ -153,7 +168,7 @@ QString TOC::extractUUIDFromFilename(QString fn) {
   return re.exactMatch(fn) ? re.cap(2) : "";
 }
 
-bool TOC::verify(QString pgdir) const {
+bool TOC::update(QString pgdir) {
   Catalog cat(pgdir);
   QStringList misc_errors = cat.errors();
   QMultiMap<int, QString> pg2file = cat.pageToFileMap();
@@ -161,17 +176,22 @@ bool TOC::verify(QString pgdir) const {
   QStringList missing_from_directory;
   QStringList missing_from_index;
   QStringList duplicates_in_directory;
+  QList<int> outdated_or_missing_page_in_index;
 
   foreach (int pgno, entries().keys()) {
     QString uuid = entries()[pgno]->uuid();
     QString fn = uuid.isEmpty()
       ? QString("%1.json").arg(pgno)
       : QString("%1-%2.json").arg(pgno, 4, 10, QChar('0')).arg(uuid);
-    if (!pg2file.contains(pgno, fn)) 
+    if (pg2file.contains(pgno, fn)) {
+      if (cat.fileMod(fn) > entries()[pgno]->modified().addSecs(1))
+        outdated_or_missing_page_in_index << pgno;
+    } else {
       missing_from_directory
         << (uuid.isEmpty()
             ? QString("%1").arg(pgno)
             : QString("%1 (%2)").arg(pgno, 4, 10, QChar('0')).arg(uuid));
+    }
   }
   QSet<int> seen;
   foreach (int pgno, pg2file.keys()) {
@@ -180,22 +200,65 @@ bool TOC::verify(QString pgdir) const {
     seen.insert(pgno);
     QString fn = *pg2file.find(pgno);
     QString uuid = extractUUIDFromFilename(fn);
-    if (pg2file.count(pgno)>1) 
+    if (pg2file.count(pgno)>1) {
       duplicates_in_directory << QString("%1").arg(pgno);
-    else if (!entries().contains(pgno) || entries()[pgno]->uuid()!=uuid) 
+    } else if (!entries().contains(pgno) || entries()[pgno]->uuid()!=uuid) {
       missing_from_index
         << (uuid.isEmpty()
             ? QString("%1").arg(pgno)
             : QString("%1 (%2)").arg(pgno, 4, 10, QChar('0')).arg(uuid));
+      outdated_or_missing_page_in_index << pgno;
+    }
   }
 
-  if (missing_from_directory.isEmpty()
-      && missing_from_index.isEmpty()
-      && duplicates_in_directory.isEmpty()
-      && misc_errors.isEmpty())
+  if (!missing_from_directory.isEmpty()
+      || !duplicates_in_directory.isEmpty()
+      || !misc_errors.isEmpty()) {
+    reportMismatch(missing_from_directory, missing_from_index,
+                   duplicates_in_directory, misc_errors);
+    return false;
+  }
+
+  if (outdated_or_missing_page_in_index.isEmpty())
     return true;
 
-  // Mismatch
+  // So there is some stuff to fix
+  // We can probably do it, but we should check carefully
+  return doUpdate(pgdir, cat, outdated_or_missing_page_in_index,
+                  missing_from_index);
+}
+
+bool TOC::doUpdate(QDir pages, Catalog const &cat,
+                   QList<int> const &outdated_or_missing_page_in_index,
+                   QStringList missing_from_index) {
+  QMap<int, EntryFile *> entryfiles;
+
+  foreach (int n, outdated_or_missing_page_in_index) {
+    QString fn = *cat.pageToFileMap().find(n);
+    QRegExp re("^(\\d\\d*)-(.*).json");
+    QString namedid = re.exactMatch(fn) ? re.cap(2) : "";
+    EntryFile *f = EntryFile::load(pages.absoluteFilePath(fn), 0);
+    if (!f || f->data()->startPage()!=n || f->data()->uuid()!=namedid) {
+      reportMismatch(QStringList(), missing_from_index,
+                     QStringList(), QStringList());
+      foreach (EntryFile *f, entryfiles)
+        delete f;
+      return false;
+    }
+    entryfiles[n] = f;
+  }
+  foreach (EntryFile *f, entryfiles) {
+    if (!updateEntry(f->data()))
+      addEntry(f->data());
+    delete f;
+  }
+  return true;
+}
+
+void TOC::reportMismatch(QStringList missing_from_directory,
+                         QStringList missing_from_index,
+                         QStringList duplicates_in_directory,
+                         QStringList misc_errors) {
   QString msg = "Detected a mismatch between the table of contents"
     " and the actual contents of the notebook:\n";
   if (!missing_from_directory.isEmpty())
@@ -212,14 +275,13 @@ bool TOC::verify(QString pgdir) const {
     msg += misc_errors.join("; ") + "\n";
   msg += "Click OK to remove the TOC file; it will be rebuilt automatically. "
     "Alternatively, click Abort to quit.";
-
+  
   if (QMessageBox::warning(0, "eln", msg,
                            QMessageBox::Ok | QMessageBox::Abort)
-      == QMessageBox::Ok)
-    return false;
-  
-  QApplication::quit();
-  ::exit(1);
+      != QMessageBox::Ok) {
+    QApplication::quit();
+    ::exit(1);
+  }
 }
 
 struct Entry_ {

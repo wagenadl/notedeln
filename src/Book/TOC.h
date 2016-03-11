@@ -50,15 +50,19 @@ public:
            // ... the given entry, or 0 if none exists or if te is invalid.
   bool contains(int startPage) const;
   TOCEntry *addEntry(class EntryData *data);
+  TOCEntry *updateEntry(class EntryData *data);  
   bool deleteEntry(TOCEntry *);
   int newPageNumber() const;
   QDateTime latestMod() const;
   bool isLast(TOCEntry const *) const;
   void setBook(class Notebook *);
   virtual class Notebook *book() const; // pointer to parent book, if any.
-  bool verify(QString pgdir) const;
-  /* Verifies that there is a 1:1 relationship between the TOC and the
+  bool update(QString pgdir);
+  /* Ensures that there is a 1:1 relationship between the TOC and the
      actual contents of the pages directory. Returns true if OK.
+     The only discrepancies UPDATE can deal with are entry files that are
+     missing from the TOC or that have a modification date more recent
+     than the information in the TOC.
      If not OK, reports a message to the GUI and offers the user to quit
      the application. If the user chooses to quit, this method does not
      return. Otherwise, it returns false.
@@ -80,6 +84,15 @@ public:
   
 protected:
   virtual void loadMore(QVariantMap const &src);
+private:
+  void reportMismatch(QStringList missing_from_directory,
+                      QStringList missing_from_index,
+                      QStringList duplicates_in_directory,
+                      QStringList misc_errors);
+  bool doUpdate(QDir pages, class Catalog const &cat,
+                QList<int> const &outdated_or_missing_page_in_index,
+                QStringList missing_from_index);
+
 private: // hide these from general use
   void addChild(Data *);
   bool deleteChild(Data *);
