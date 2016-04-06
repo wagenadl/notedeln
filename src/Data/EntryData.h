@@ -50,8 +50,8 @@ public:
   virtual bool isWritable() const;
   void resetCreation(); // only works if isempty.
   virtual bool lateNotesAllowed() const;
-  class TitleData *title() const;
-  QString titleText() const;
+  class TitleData *title();
+  QString titleText();
   QList<class BlockData *> blocks() const;
   void addBlock(BlockData *); // we become owner
   void insertBlockBefore(BlockData *newBlock, Data *ref); // we become owner
@@ -77,7 +77,6 @@ protected:
   bool unlocked_;
   int stampTime_;
   QString cui_;
-  TitleData *title_;
   int maxSheet;
   Notebook *nb;
   bool wasEmpty;

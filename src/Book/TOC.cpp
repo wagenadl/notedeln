@@ -202,7 +202,7 @@ bool TOC::update(Catalog const &cat) {
       ? QString("%1.json").arg(pgno)
       : QString("%1-%2.json").arg(pgno, 4, 10, QChar('0')).arg(uuid);
     if (pg2file.contains(pgno, fn)) {
-      if (cat.fileMod(fn) > entries()[pgno]->modified().addSecs(10)) {
+      if (cat.fileMod(fn) > entries()[pgno]->lastSeen().addSecs(1)) {
         outdated_or_missing_page_in_index << pgno;
 	qDebug() << "Outdated" << pgno << fn;
       }
