@@ -81,6 +81,7 @@ bool WordIndex::save(QString filename) {
   }
 
   QVariantMap ls;
+  qDebug() << "Saving index. sizeof lastseen is" << lastseen.size();
   for (auto i=lastseen.begin(); i!=lastseen.end(); i++) {
     int pgno = i.key();
     QDateTime dt = i.value();
@@ -96,16 +97,16 @@ bool WordIndex::save(QString filename) {
 }
 
 bool WordIndex::build(class TOC *toc, QString pagesDir) {
-  QProgressDialog mb("Index found missing or corrupted."
-                     " Attempting to rebuild...", "Cancel",
+  QProgressDialog mb("Search index found missing or corrupted."
+                     " Rebuilding...", "Cancel",
                      0, toc->newPageNumber());
   mb.setWindowModality(Qt::WindowModal);
-  mb.setMinimumDuration(0);
-  mb.setValue(1);
+  mb.setMinimumDuration(200);
+  mb.setValue(0);
+  
   index.clear();
   QStringList warns;
   foreach (int pg, toc->entries().keys()) {
-    mb.setValue(pg);
     if (mb.wasCanceled())
       return false;
     QString uuid = toc->tocEntry(pg)->uuid();
@@ -118,7 +119,11 @@ bool WordIndex::build(class TOC *toc, QString pagesDir) {
       qDebug() << "WordIndex::build - Cannot load entry" << pg << uuid;
       warns << QString("%1").arg(pg);
     }
-  }
+    lastseen[pg] = QDateTime::currentDateTime();
+    qDebug() << "lastseen " << pg << lastseen[pg];
+    mb.setValue(pg);
+  } 
+  mb.close();
   if (!warns.isEmpty())
     QMessageBox::warning(0, Translate::_("eln"),
                          "The following pages could not be loaded"
@@ -186,8 +191,50 @@ QSet<int> WordIndex::findWords(QStringList words, bool lastPartial) {
   return s;
 }
 
-bool WordIndex::update(Catalog const &cat) {
-  return false;
-  // NYI
+bool WordIndex::update(TOC const *toc, QString pagesDir) {
+  QList<TOCEntry const *> todo;
+  for (TOCEntry const *entry: toc->entries()) {
+    int pg = entry->startPage();
+    QDateTime mod = entry->modified();
+    if (!lastseen.contains(pg) || mod>lastseen[pg].addSecs(10))
+      todo << entry;
+  }
+  
+  if (todo.isEmpty())
+    return false;
+
+  QProgressDialog mb("Updating search index...", "Cancel",
+                     0, todo.size());
+  mb.setWindowModality(Qt::WindowModal);
+  mb.setMinimumDuration(200);
+
+  int k = 0;
+  QStringList warns;
+  for (TOCEntry const *entry: todo) {
+    if (mb.wasCanceled())
+      return k>0;
+    int pgno = entry->startPage();
+    QString uuid = entry->uuid();
+    EntryFile *f = ::loadEntry(pagesDir, pgno, uuid, 0);
+    if (f) {
+      for (QString w: f->data()->wordSet())
+        index[w].insert(pgno);
+      delete f;
+      lastseen[pgno] = QDateTime::currentDateTime();
+    } else {
+      qDebug() << "WordIndex::update - Cannot load entry" << pgno << uuid;
+      warns << QString("%1").arg(pgno);
+    }
+    mb.setValue(++k);
+  }
+  mb.close();
+  if (!warns.isEmpty())
+    QMessageBox::warning(0, Translate::_("eln"),
+                         "The following pages could not be loaded"
+                         " while updating the search index: "
+                         + warns.join(", ") + ".", QMessageBox::Close);
+  return true;
 }
+  
+
     

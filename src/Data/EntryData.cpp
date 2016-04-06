@@ -32,7 +32,6 @@ static Data::Creator<EntryData> c("page");
 // TOCEntry already uses that. So I'll leave that for now.
 
 EntryData::EntryData(Data *parent): Data(parent) {
-  qDebug() << "EntryData" << this << parent;
   nb = 0;
   setType("page");
   startPage_ = 1;

@@ -27,8 +27,7 @@
 
 #define INDEX_SAVEIVAL_S 5
 
-Index::Index(QString rootDir, class Catalog const &cat,
-             class TOC *toc, QObject *parent):
+Index::Index(QString rootDir, class TOC *toc, QObject *parent):
   QObject(parent), rootdir(rootDir) {
   widx = new WordIndex(this);
   mp = new QSignalMapper(this);
@@ -38,12 +37,13 @@ Index::Index(QString rootDir, class Catalog const &cat,
   QString fn = rootdir + "/index.json";
   if (QFile(fn).exists()) {
     widx->load(fn);
-    if (widx->update(cat))
+    if (widx->update(toc, rootdir + "/pages"))
       widx->save(fn);
   } else {
     if (widx->build(toc, rootdir + "/pages"))
       widx->save(fn);
   }
+  needToSave = false;
 }
 
 Index::~Index() {
@@ -87,6 +87,7 @@ void Index::flush() {
   qDebug() << "Index::flush";
   if (needToSave)
     words()->save(rootdir + "/index.json");
+  needToSave = false;
 }
 
 WordIndex *Index::words() const {

@@ -27,6 +27,7 @@ class TOCEntry: public Data {
   Q_PROPERTY(int startPage READ startPage WRITE setStartPage);
   Q_PROPERTY(QString title READ title WRITE setTitle);
   Q_PROPERTY(int sheetCount READ sheetCount WRITE setSheetCount);
+  Q_PROPERTY(QDateTime seen READ lastSeen WRITE setLastSeen);
 public:
   TOCEntry(Data *parent=0);
   virtual ~TOCEntry();
@@ -34,14 +35,17 @@ public:
   int startPage() const;
   QString title() const;
   int sheetCount() const;
+  QDateTime lastSeen() const;
   // write properties
   void setStartPage(int);
   void setTitle(QString);
   void setSheetCount(int);
+  void setLastSeen(QDateTime const &);
 private:
   int startPage_;
   QString title_;
   int sheetCount_;
+  QDateTime seen_;
 };
 
 #endif

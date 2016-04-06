@@ -90,7 +90,7 @@ void Notebook::load() {
     throw QString("Could not load TOC");
   tocFile_->data()->setBook(this);
 
-  index_ = new Index(dirPath(), cat, toc(), this);
+  index_ = new Index(dirPath(), toc(), this);
 
   style_ = new Style(root.filePath("style.json"));
 
@@ -183,6 +183,15 @@ bool Notebook::createGitArchive(QDir d) {
     errMsg() =  "Failed to initialize git archive";
     qDebug() << "Notebook: " << errMsg();
     return false;
+  }
+
+  { QFile ignore(d.absoluteFilePath(".gitignore"));
+    if (!ignore.open(QFile::WriteOnly))
+      return false;
+    ignore.write("*~\n");
+    ignore.write(".*~\n");
+    ignore.write("toc.json\n");
+    ignore.write("index.json\n");
   }
 
   proc.start("git", QStringList() << "add" << ".");
