@@ -34,16 +34,13 @@ static Data::Creator<EntryData> c("page");
 EntryData::EntryData(Data *parent): Data(parent) {
   qDebug() << "EntryData" << this << parent;
   nb = 0;
-  title_ = 0;
   setType("page");
   startPage_ = 1;
   unlocked_ = false;
   stampTime_ = 0;
   wasEmpty = true;
-  title_ = new TitleData(this);
   cui_ = App::instance()->cui()->current();
 
-  connect(title_, SIGNAL(textMod()), SIGNAL(titleMod()));
   maxSheet = 0;
 }
 
@@ -107,7 +104,7 @@ void EntryData::newSheet() {
 
 void EntryData::loadMore(QVariantMap const &src) {
   Data::loadMore(src);
-  title_ = firstChild<TitleData>();
+  TitleData *title_ = firstChild<TitleData>();
   // Any old title has already been destructed by Data's loadChildren()
   ASSERT(title_);
   connect(title_, SIGNAL(textMod()), SIGNAL(titleMod()));
@@ -121,12 +118,19 @@ void EntryData::loadMore(QVariantMap const &src) {
   }
 }
 
-TitleData *EntryData::title() const {
+TitleData *EntryData::title() {
+  TitleData *title_ = firstChild<TitleData>();
+  qDebug() << "title_ = " << title_;
+  if (!title_) {
+    title_ = new TitleData(this);
+    connect(title_, SIGNAL(textMod()), SIGNAL(titleMod()));
+  }
+  
   return title_;
 }
 
-QString EntryData::titleText() const {
-  return title_->text()->text();
+QString EntryData::titleText() {
+  return title()->text()->text();
 }
 
 int EntryData::startPage() const {
