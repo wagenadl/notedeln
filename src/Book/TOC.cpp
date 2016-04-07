@@ -299,7 +299,7 @@ bool TOC::doUpdate(Catalog const &cat,
     QString fn = *cat.pageToFileMap().find(pgno);
     QRegExp re("^(\\d\\d*)-(.*).json");
     QString namedid = re.exactMatch(fn) ? re.cap(2) : "";
-    int storedpgno;
+    int storedpgno = 0;
     QString storeduuid;
     QDateTime storeddate;
     if (!quickRead(pages.absoluteFilePath(fn),
