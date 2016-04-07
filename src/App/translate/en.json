@@ -16,7 +16,7 @@
 "balloon-nav-p10": "Flip back 10 pages (Ctrl+Page Up). Shift click to open new window.",
 "balloon-nav-prev": "Go to previous page (Page Up). Shift click to open new window.",
 "balloon-nav-next": "Go to next page (Page Down). Shift click to open new window.",
-"balloon-nav-plus": "Create new entry after this one (Page Down). No effect if current entry is empty.",
+"balloon-nav-plus": "Create new entry after this one (Page Down).",
 "balloon-nav-n10": "Flip forward 10 pages (Ctrl+Page Down). Shift click to open new window.",
 "balloon-nav-end": "Go to last page (Ctrl+End). Shift click to open new window.",
     "Untitled": "Untitled",
