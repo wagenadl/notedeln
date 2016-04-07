@@ -120,11 +120,16 @@ void Restacker::restackBlock(int i) {
   // We need to check once more, because it is possible that we don't fit
   // on the next sheet either. This corner case was previously treated
   // incorrectly. (It happens when there is not enough space for even one
-  // line on the original sheet.)
-  if (yblock + vish > yfn - fnh) 
-    restackBlockSplit(i, bi->splittableY(yfn-yblock));
-  else
+  // line on the original sheet or for oversized graphics blocks.)
+  if (yblock + vish > yfn - fnh)  {
+    double ycut = bi->splittableY(yfn-yblock);
+    if (ycut>0)
+      restackBlockSplit(i, ycut);
+    else
+      restackBlockOne(i); // place it anyway
+  } else {
     restackBlockOne(i);
+  }
 }
 
 void Restacker::restackBlockOne(int i) {
