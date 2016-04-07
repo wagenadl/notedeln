@@ -414,8 +414,8 @@ void PageView::gotoEntryPage(int n, int dir) {
       // let's look at page before end
       CachedEntry ef(book->entry(te->startPage()));
       ASSERT(ef);
-      if (ef->isEmpty()) {
-	// previous page is empty -> go there instead
+      if (ef->isEmpty() || dir>1) {
+	// final page is empty, or we got here from the NAV_N10 icon -> go to final page instead
 	gotoEntryPage(te->startPage() + te->sheetCount() - 1);
 	return;
       }

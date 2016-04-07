@@ -51,6 +51,9 @@ QList<class BlockData *> EntryData::blocks() const {
 }
 
 bool EntryData::isEmpty() const {
+  TitleData *title_ = firstChild<TitleData>();
+  if (title_ && !title_->isDefault())
+    return false;
   foreach (BlockData *b, blocks())
     if (!b->isEmpty())
       return false;

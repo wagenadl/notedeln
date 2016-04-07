@@ -39,21 +39,14 @@ void TitleData::loadMore(QVariantMap const &vm) {
   
 bool TitleData::isDefault() const {
   /* Check if we are properly initialized */
-  if (type() != "title")
-    return true;
-  auto lst = children<TextData>();
-  if (lst.size()!=1)
-    return true;
-  TextData const *txt = lst.last();
-  if (!txt)
-    return true;
-  return txt->text()=="";
+  TextData const *txt = text();
+  return !txt || txt->text()=="";
 }
 
 TextData const *TitleData::text() const {
-  return children<TextData>().last();
+  return firstChild<TextData>();
 }
 
 TextData *TitleData::text() {
-  return children<TextData>().last();
+  return firstChild<TextData>();
 }
