@@ -1,3 +1,28 @@
+eln (1.1.6-1) trusty; urgency=medium
+
+  User visible changes:
+  
+  Improved footnote handling. Using symbols as footnote markers creates
+  automatic superscripts. Bug related to overlapping footnote references 
+  fixed.
+  
+  Bugfix: Markups in table preserved when inserting/deleting rows/columns.
+  
+  Slight improvements in navigation icons and behavior.
+  
+  Dead links are shown in red.
+  
+  Webgrab limits aspect ratio of preview.
+  
+  Other changes:
+  
+  The files toc.json and index.json are no longer maintained in git. Rather,
+  they are locally updated. A ".gitignore" file is generated automatically.
+  
+  Several bugs figxed.
+
+ -- Daniel Wagenaar <wagenadl@uc.edu>  Fri, 08 Apr 2016 09:52:28 -0400
+
 eln (1.1.4-1) trusty; urgency=medium
 
   User-visible changes: 
