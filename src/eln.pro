@@ -3,7 +3,7 @@
 # When adding source files, run scripts/updatesources to include them
 
 TEMPLATE = app
-TARGET = eln
+TARGET = ../build/eln
 #LIBS += -lqjson
 
 include(eln.pri)

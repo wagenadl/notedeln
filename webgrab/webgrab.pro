@@ -1,5 +1,5 @@
 TEMPLATE = app
-TARGET = webgrab
+TARGET = ../build/webgrab
 DEPENDPATH += .
 INCLUDEPATH += .
 QT += webkit svg
@@ -7,6 +7,9 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets printsupport webkitwidgets
 CONFIG += debug_and_release
 CONFIG-=app_bundle
 CONFIG(debug, debug|release) { TARGET=$${TARGET}_debug }
+
+OBJECTS_DIR=../build/webgrab-release
+CONFIG(debug, debug|release) { OBJECTS_DIR=../build/webgrab-debug }
 
 # Input
 HEADERS += Printer.h Options.h MozillaPage.h

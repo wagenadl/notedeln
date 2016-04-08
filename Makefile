@@ -32,8 +32,8 @@ install: all
 	install -d $(SHAREPATH)/icons/gnome/48x48/mimetypes
 	install -d $(SHAREPATH)/mime/packages
 	install -d $(DOCPATH)
-	install src/eln $(INSTALLPATH)/bin/eln
-	install webgrab/webgrab $(INSTALLPATH)/bin/webgrab
+	install build/eln $(INSTALLPATH)/bin/eln
+	install build/webgrab $(INSTALLPATH)/bin/webgrab
 	cp doc/eln.1 $(SHAREPATH)/man/man1/eln.1
 	cp doc/webgrab.1 $(SHAREPATH)/man/man1/webgrab.1
 	cp src/App/eln.png $(SHAREPATH)/pixmaps/eln.png
