@@ -25,6 +25,7 @@
 #include "Translate.h"
 #include <QList>
 #include <QPointer>
+#include "Version.h"
 
 #ifdef QT_NO_DEBUG
 #define ASSERT_BACKTRACE 0
@@ -58,7 +59,12 @@ private:
   static int &priorFailures();
   static QList<QPointer<QObject> > &registeredBooks();
   static QSet<class Notebook *> notebooks();
+  static QString email;
+  static QString vsn;
 };
+
+QString Assertion::email;
+QString Assertion::vsn;
 
 //////////////////////////////////////////////////////////////////////
 
@@ -94,6 +100,10 @@ void Assertion::crash(QString msg, char const *file, int line) {
 
 void Assertion::registerNotebook(Notebook *nb) {
   registeredBooks() << nb;
+  if (vsn.isEmpty())
+    vsn = Version::toString();
+  if (email.isEmpty())
+    email = Translate::_("author-email");
 }
 
 QList<QPointer<QObject> > &Assertion::registeredBooks() {
@@ -123,7 +133,6 @@ QString Assertion::tryToSave() {
   }
 }
   
-
 void Assertion::reportSaved(int nsaved, int nunsaved) {
   QMessageBox mb(QMessageBox::Critical, Translate::_("eln"),
                  Translate::_("eln")
@@ -140,7 +149,15 @@ void Assertion::reportSaved(int nsaved, int nunsaved) {
       " may have been lost.";
   else if (nsaved>0)
     msg += "\nYour notebook has been saved.";
-  msg += "\n\nPlease send a bug report to the author.";
+  msg += "\n\nPlease send a bug report to the author";
+  if (!email.isEmpty())
+    msg += " at " + email;
+  msg += ".";
+  if (!vsn.isEmpty())
+    msg += " Please mention this ELN version: " + vsn + ".";
+  msg += "\n\n(ELN automatically saves your work every few seconds,"
+    " so hopefully your data loss is minimal."
+    " Regardless: apologies for the inconvenience.)";
   mb.setInformativeText(msg);
   mb.exec();
 }

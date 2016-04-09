@@ -9,6 +9,7 @@
 #include <sys/wait.h>
 #include "Calltrace.h"
 #include "Translate.h"
+#include "Version.h"
 
 static int eln_pipe[2] = { -1, -1 };
 
@@ -65,7 +66,7 @@ static void eln_grabsignals() {
   sigaction(SIGPIPE, &newHdlr, 0);
 }
 
-static void eln_crashreporter(int fd, QString email) {
+static void eln_crashreporter(int fd, QString email, QString vsn) {
   QString in;
   char buf[1024];
   int n;
@@ -120,20 +121,17 @@ static void eln_crashreporter(int fd, QString email) {
         .arg(status-128).arg(strsignal(status-128));
     else
       msg = QString("    Terminated with exit code %1.").arg(status);
-    msg += "\n\nIf you did not cause that to happen on purpose,"
-      " please send a bug report to the author at " + email + "."
-      "\n\n(ELN automatically saves your work every few seconds, so hopefully"
-      " your data loss is minimal."
-      " Regardless: apologies for the inconvenience.)";
+    msg += "\n\nIf you did not cause that to happen on purpose:";
   } else {
     if (!s.endsWith(".")) 
       s += ".";
     msg = "    " + s;
-    msg += "\n\nPlease send a bug report to the author at " + email + "."
+  }
+  msg += "\n\nPlease send a bug report to the author at " + email
+      + ", mentioning this ELN version: " + vsn + "."
       "\n\n(ELN automatically saves your work every few seconds, so hopefully"
       " your data loss is minimal."
       " Regardless: apologies for the inconvenience.)";
-  }
   mb.setInformativeText(msg);
   if (!bits.isEmpty())
     mb.setDetailedText(bits.join(CR_MARKER));
@@ -160,7 +158,8 @@ CrashReport::CrashReport() {
     // parent
     close(eln_pipe[1]);
     close(0);
-    eln_crashreporter(eln_pipe[0], Translate::_("author-email"));
+    eln_crashreporter(eln_pipe[0], Translate::_("author-email"),
+                      Version::toString());
     exit(1);
   } else {
     // child
