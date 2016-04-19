@@ -44,7 +44,6 @@ PrintDialog::PrintDialog(QWidget *parent): QDialog(parent) {
   } else {
     foreach (QPrinterInfo const &p, printers)
       ui->pPrinterName->addItem(p.printerName());
-    ui->pPrinter->setChecked(true);
   }
 
   ui->pFileName->setText(defaultLocation() + "/output.pdf");
