@@ -18,6 +18,8 @@ clean: PREP WEBGPREP
 	+rm -f src/eln.pri
 	+rm -f src/Makefile
 	+rm -f src/Makefile.*
+	+rm -f webgrab/Makefile
+	+rm -f webgrab/Makefile.*
 
 SRC: PREP
 	+make -C src release
