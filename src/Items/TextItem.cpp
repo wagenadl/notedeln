@@ -539,22 +539,7 @@ bool TextItem::keyPressWithControl(QKeyEvent *e) {
     tryScriptStyles();
     return true;
   case Qt::Key_Backslash:
-    tryTeXCode();
-    return true;
-  case Qt::Key_2:
-    cursor.insertText(QString::fromUtf8("²"));
-    return true;
-  case Qt::Key_3:
-    cursor.insertText(QString::fromUtf8("³"));
-    return true;
-  case Qt::Key_4:
-    cursor.insertText(QString::fromUtf8("⁴"));
-    return true;
-  case Qt::Key_Space:
-    cursor.insertText(QString::fromUtf8(" "));
-    return true;
-  case Qt::Key_Enter: case Qt::Key_Return:
-    cursor.insertText(QString("\n"));
+      tryTeXCode();
     return true;
   case Qt::Key_S:
     cursor.clearSelection();
@@ -698,9 +683,36 @@ bool TextItem::muckWithIndentation(TextBlockItem *p,
 bool TextItem::keyPressAsInsertion(QKeyEvent *e) {
   if (mode()->mode()!=Mode::Type)
     return false;
-  QString now = e->text();
-  if (now.isEmpty() || now[0]<32 || now[0]==127)
-    return false;
+  QString now = "";
+  if (e->modifiers() & Qt::ControlModifier) {
+    switch (e->key()) {
+    case Qt::Key_2:
+      now = QString::fromUtf8("²");
+      break;
+    case Qt::Key_3:
+      now = QString::fromUtf8("³");
+      break;
+    case Qt::Key_4:
+      now = QString::fromUtf8("⁴");
+    break;
+    case Qt::Key_Enter: case Qt::Key_Return:
+      now = QString("\n");
+      break;
+    case Qt::Key_Space:
+      if (e->modifiers() & Qt::ShiftModifier)
+	now = QString::fromUtf8(" "); // figure space
+      else
+	now = QString::fromUtf8(" "); // unbreakable space
+      break;
+    default:
+      break;
+    }
+  }
+  if (now.isEmpty()) {
+    now = e->text();
+    if (now[0]<32 || now[0]==127)
+      return false; 
+  }
   if (!cursor.hasSelection()) {
     cursor.insertText(now);
     ensureCursorVisible();
