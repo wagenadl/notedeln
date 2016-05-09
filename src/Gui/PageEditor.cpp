@@ -148,13 +148,19 @@ void PageEditor::keyPressEvent(QKeyEvent *e) {
   if (isHibernating())
     return;
   
-  bool take = false;
+  bool take = true;
   switch (e->key()) {
   case Qt::Key_F12:
     newEditor();
-    take = true;
+    break;
+  case Qt::Key_F11:
+    if (isFullScreen())
+      showNormal();
+    else
+      showFullScreen();
     break;
   default:
+    take = false;
     break;
   }
 
