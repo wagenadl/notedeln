@@ -15,7 +15,9 @@ clean:
 	+make -C webgrab clean
 	+make -C doc clean
 	+rm -f src/*/*.pri
-	+rm -f src/Makefile*
+	+rm -f src/eln.pri
+	+rm -f src/Makefile
+	+rm -f src/Makefile.*
 
 SRC:
 	tools/updatesources.sh
