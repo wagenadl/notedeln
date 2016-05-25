@@ -54,3 +54,23 @@ int TableCell::length() const {
   ASSERT(isValid());
   return tbl->cellLength(r,c);
 }
+
+TableCellRange::TableCellRange(TableCell start, TableCell end) {
+  ASSERT(start.table() == end.table());
+  r0 = start.row();
+  c0 = start.column();
+  int dr = end.row() - start.row();
+  int dc = end.column() - start.column();
+  if (dr<0) {
+    r0 += dr;
+    nr = 1 - dr;
+  } else {
+    nr = 1 + dr;
+  }
+  if (dc<0) {
+    c0 += dc;
+    nc = 1 - dc;
+  } else {
+    nc = 1 + dc;
+  }
+}

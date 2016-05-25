@@ -33,6 +33,7 @@ public:
   bool isEmpty() const;
   bool operator==(TableCell const &a) const;
   bool operator!=(TableCell const &a) const { return !operator==(a); }
+  TableData const *table() const { return tbl; }
 private:
   TableData const *tbl;
   int r, c;
@@ -43,6 +44,7 @@ public:
   TableCellRange(TableData const *tbl=0, int r0=-1, int c0=-1,
                  int nr=0, int nc=0):
     tbl(tbl), r0(r0), c0(c0), nr(nr), nc(nc) { }
+  TableCellRange(TableCell start, TableCell end);
   bool isEmpty() const { return nr==0 || nc==0; }
   bool isSingleCell() const { return nr==1 && nc==1; }
   int firstRow() const { return r0; }

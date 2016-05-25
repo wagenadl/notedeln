@@ -136,7 +136,7 @@ int TableItemDoc::find(QPointF xy, bool /*strict*/) const {
 }
 
 QString TableItemDoc::selectedText(int start, int end) const {
-  TableCellRange rng(table(), start, end);
+  TableCellRange rng(table()->cellAt(start), table()->cellAt(end));
   if (rng.isSingleCell())
     return TextItemDoc::selectedText(start, end);
 
