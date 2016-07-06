@@ -70,6 +70,7 @@ public slots:
   void previousPage();
   void lastPage(Qt::KeyboardModifiers m=0);
   void openFindDialog();
+  void openGotoPageDialog();
   void htmlDialog();
   void drop(QDropEvent);
   void ensureSearchVisible(QString uuid, QString phrase);

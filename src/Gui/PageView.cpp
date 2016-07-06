@@ -41,6 +41,7 @@
 #include "SheetScene.h"
 #include "TitleItem.h"
 #include "DefaultLocation.h"
+#include "GotoPageDialog.h"
 
 #include <QWheelEvent>
 #include <QKeyEvent>
@@ -268,6 +269,12 @@ void PageView::keyPressEvent(QKeyEvent *e) {
   case Qt::Key_F:
     if (e->modifiers() & Qt::ControlModifier)
       openFindDialog();
+    else
+      take = false;
+    break;
+  case Qt::Key_G:
+    if (e->modifiers() & Qt::ControlModifier)
+      openGotoPageDialog();
     else
       take = false;
     break;
@@ -711,6 +718,13 @@ void PageView::createContinuationEntry() {
 
 void PageView::openFindDialog() {
   searchDialog->newSearch();
+}
+
+void PageView::openGotoPageDialog() {
+  int N = book->toc()->newPageNumber();
+  int n = GotoPageDialog::exec(this, N-1);
+  if (n>0)
+    gotoEntryPage(n);
 }
 
 void PageView::htmlDialog() {
