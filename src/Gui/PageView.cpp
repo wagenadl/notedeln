@@ -469,10 +469,14 @@ void PageView::gotoFront() {
 }
 
 void PageView::gotoTOC(int n) {
+  if (n<0) {
+    if (currentSection==Entries) 
+      n = bank->tocScene()->sheetForPage(currentPage)+1;
+    else
+      n = bank->tocScene()->sheetCount();
+  }
   leavePage();
   currentSection = TOC;
-  if (n<0)
-    n = bank->tocScene()->sheetCount();
   gotoSheet(n-1);
 }
 
@@ -587,7 +591,7 @@ void PageView::nextPage() {
     if (book->toc()->newPageNumber()==1)
       gotoEntryPage(1, 1);
     else
-      gotoTOC();
+      gotoTOC(1);
     break;
   case TOC:
     if (!gotoSheet(currentSheet+1))

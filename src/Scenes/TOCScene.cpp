@@ -88,6 +88,8 @@ void TOCScene::relayout() {
   double y1 = ph - style().real("margin-bottom");
   double y = y0;
 
+  page2sheet.clear();
+  
   for (int k=0; k<items.size(); k++) {
     TOCItem *i = items[k];
     double h = i->childrenBoundingRect().height();
@@ -95,6 +97,7 @@ void TOCScene::relayout() {
       y = y0;
       sheet++;
     }
+    page2sheet[i->data()->startPage()] = sheet;
     if (sheet>=sheetCount())
       setSheetCount(sheet+1);
     sheets[sheet]->addItem(i);
@@ -117,3 +120,13 @@ void TOCScene::pageNumberClicked(int n, Qt::KeyboardModifiers m) {
   if (ev)
     ev->pageNumberClick(n, m);
 }
+
+int TOCScene::sheetForPage(int pg) const {
+  while (pg>0) {
+    if (page2sheet.contains(pg))
+      return page2sheet[pg];
+    --pg;
+  }
+  return 0;
+}
+

@@ -21,6 +21,7 @@
 #define TOCSCENE_H
 
 #include "BaseScene.h"
+#include <QMap>
 
 class TOCScene: public BaseScene {
   Q_OBJECT;
@@ -30,6 +31,7 @@ public:
   virtual ~TOCScene();
   virtual QString title() const;
   virtual QString pgNoToString(int) const;
+  int sheetForPage(int) const;
 public slots:
   void tocChanged();
   void itemChanged();
@@ -43,6 +45,7 @@ private:
   TOC *data;
   QList<class TOCItem *> items;
   QList<class QGraphicsLineItem *> lines;
+  QMap<int, int> page2sheet;
 };
 
 #endif
