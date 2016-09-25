@@ -12,7 +12,7 @@
     <ROW Property="ProductCode" Value="1033:{42E28BE0-6DBE-4050-B0F1-3206FF86FEBB} " Type="16"/>
     <ROW Property="ProductLanguage" Value="1033"/>
     <ROW Property="ProductName" Value="eln"/>
-    <ROW Property="ProductVersion" Value="1.1.7" Type="32"/>
+    <ROW Property="ProductVersion" Value="1.1.8" Type="32"/>
     <ROW Property="SecureCustomProperties" Value="OLDPRODUCTS;AI_NEWERPRODUCTFOUND"/>
     <ROW Property="UpgradeCode" Value="{C6C85204-2E1F-421F-B3C0-A4985844BB4C}"/>
     <ROW Property="WindowsType9X" MultiBuildValue="DefaultBuild:Windows 9x/ME" ValueLocId="-"/>
@@ -78,7 +78,7 @@
     <ROW File="Qt5WebKit.dll" Component_="Qt5WebKit.dll" FileName="Qt5Web~1.dll|Qt5WebKit.dll" Attributes="0" SourcePath="..\..\..\..\..\..\Qt\Qt5.4.2\5.4\mingw491_32\bin\Qt5WebKit.dll" SelfReg="false" NextFile="Qt5WebKitWidgets.dll"/>
     <ROW File="Qt5WebKitWidgets.dll" Component_="Qt5WebKitWidgets.dll" FileName="Qt5Web~2.dll|Qt5WebKitWidgets.dll" Attributes="0" SourcePath="..\..\..\..\..\..\Qt\Qt5.4.2\5.4\mingw491_32\bin\Qt5WebKitWidgets.dll" SelfReg="false" NextFile="Qt5Widgets.dll"/>
     <ROW File="Qt5Widgets.dll" Component_="Qt5Widgets.dll" FileName="Qt5Wid~1.dll|Qt5Widgets.dll" Attributes="0" SourcePath="..\..\..\..\..\..\Qt\Qt5.4.2\5.4\mingw491_32\bin\Qt5Widgets.dll" SelfReg="false" NextFile="libgcc_s_dw21.dll"/>
-    <ROW File="eln.exe" Component_="eln.exe" FileName="eln.exe" Attributes="0" SourcePath="..\build-eln-Desktop_Qt_5_4_2_MinGW_32bit-Release\release\eln.exe" SelfReg="false" NextFile="Qt5Core.dll" DigSign="true"/>
+    <ROW File="eln.exe" Component_="eln.exe" FileName="eln.exe" Attributes="0" SourcePath="..\build-eln-Desktop_Qt_5_4_2_MinGW_32bit-Release\build\eln.exe" SelfReg="false" NextFile="Qt5Core.dll" DigSign="true"/>
     <ROW File="icudt53.dll" Component_="icudt53.dll" FileName="icudt53.dll" Attributes="0" SourcePath="..\..\..\..\..\..\Qt\Qt5.4.2\5.4\mingw491_32\bin\icudt53.dll" SelfReg="false" NextFile="Qt5Multimedia.dll"/>
     <ROW File="icuin53.dll" Component_="icuin53.dll" FileName="icuin53.dll" Attributes="0" SourcePath="..\..\..\..\..\..\Qt\Qt5.4.2\5.4\mingw491_32\bin\icuin53.dll" SelfReg="false" NextFile="icuuc53.dll"/>
     <ROW File="icuuc53.dll" Component_="icuuc53.dll" FileName="icuuc53.dll" Attributes="0" SourcePath="..\..\..\..\..\..\Qt\Qt5.4.2\5.4\mingw491_32\bin\icuuc53.dll" SelfReg="false" NextFile="icudt53.dll"/>
@@ -86,10 +86,10 @@
     <ROW File="libstdc6.dll" Component_="libstdc6.dll" FileName="libstd~1.dll|libstdc++-6.dll" Attributes="0" SourcePath="..\..\..\..\..\..\Qt\Qt5.4.2\5.4\mingw491_32\bin\libstdc++-6.dll" SelfReg="false" NextFile="libwinpthread1.dll"/>
     <ROW File="libwinpthread1.dll" Component_="libwinpthread1.dll" FileName="libwin~1.dll|libwinpthread-1.dll" Attributes="0" SourcePath="..\..\..\..\..\..\Qt\Qt5.4.2\5.4\mingw491_32\bin\libwinpthread-1.dll" SelfReg="false" NextFile="icuin53.dll"/>
     <ROW File="qwindows.dll" Component_="qwindows.dll" FileName="qwindows.dll" Attributes="0" SourcePath="..\..\..\..\..\..\Qt\Qt5.4.2\5.4\mingw491_32\plugins\platforms\qwindows.dll" SelfReg="false" NextFile="Qt5WebChannel.dll"/>
-    <ROW File="webgrab.exe" Component_="webgrab.exe" FileName="webgrab.exe" Attributes="0" SourcePath="..\build-webgrab-Desktop_Qt_5_4_2_MinGW_32bit-Release\release\webgrab.exe" SelfReg="false" NextFile="qwindows.dll" DigSign="true"/>
+    <ROW File="webgrab.exe" Component_="webgrab.exe" FileName="webgrab.exe" Attributes="0" SourcePath="..\build-webgrab-Desktop_Qt_5_4_2_MinGW_32bit-Release\build\webgrab.exe" SelfReg="false" NextFile="qwindows.dll" DigSign="true"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.BuildComponent">
-    <ROW BuildKey="DefaultBuild" BuildName="DefaultBuild" BuildOrder="1" BuildType="0" PackageFileName="eln-1.1.7-win-qt5" Languages="en" InstallationType="4" UseLargeSchema="true"/>
+    <ROW BuildKey="DefaultBuild" BuildName="DefaultBuild" BuildOrder="1" BuildType="0" PackageFileName="eln-1.1.8-win-qt5" Languages="en" InstallationType="4" UseLargeSchema="true"/>
     <ATTRIBUTE name="CurrentBuild" value="DefaultBuild"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.DictionaryComponent">

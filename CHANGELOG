@@ -1,3 +1,19 @@
+eln 1.1.8
+
+  
+  
+  Very minor changes:
+  
+  
+  Figure space now needs Ctrl+Shift+Space
+  PrintDialog no longer opens created pdf by default
+  Change code "in" to "inset"
+  F11 toggles fullscreen
+  Slight improvement to Assert and CrashReport. Crash box now includes ELN version number
+  Moved the debian building tools to separate repository
+
+  -- Daniel A. Wagenaar <wagenadl@uc.edu>  Mon, 09 May 2016 14:43:54 -0400
+
 eln 1.1.7
 
   
