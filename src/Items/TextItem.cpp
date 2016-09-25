@@ -768,7 +768,7 @@ void TextItem::keyPressEvent(QKeyEvent *e) {
     clearFocus();
     return;
   }
-  switch (mode()->mode()) {
+  switch (mode()->permanentMode()) {
   case Mode::Browse:
     if (keyPressInBrowseMode(e))
       e->accept();

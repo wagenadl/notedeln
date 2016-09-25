@@ -36,11 +36,13 @@ public:
     Highlight,
     Strikeout,
     Plain,
+    Invalid,
   };
 public:
   Mode(bool readonly, QObject *parent=0);
   virtual ~Mode();
   M mode() const;
+  M permanentMode() const; // as mode, but ignores temporary override
   double lineWidth() const;
   QColor color() const;
   GfxMarkData::Shape shape() const;
@@ -57,7 +59,7 @@ public slots:
   void setMarkSize(double);
   void setMathMode(bool);
   void temporaryOverride(Mode::M);
-  void temporaryRelease(Mode::M);
+  void temporaryRelease();
 signals:
   void modeChanged(Mode::M);
   void lineWidthChanged(double);

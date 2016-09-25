@@ -153,6 +153,11 @@ void PageView::enterEvent(QEvent *e) {
   QGraphicsView::enterEvent(e);
 }
 
+void PageView::leaveEvent(QEvent *e) {
+  mode()->temporaryRelease();
+  QGraphicsView::leaveEvent(e);
+}
+
 void PageView::inputMethodEvent(QInputMethodEvent *e) {
   EventView ev(this);
   QGraphicsView::inputMethodEvent(e);
@@ -316,7 +321,7 @@ void PageView::keyPressEvent(QKeyEvent *e) {
     else
       take = false;
     break;
-  case Qt::Key_Alt:
+  case Qt::Key_Control:
     mode()->temporaryOverride(Mode::MoveResize);
     take = false;
     break;
@@ -334,8 +339,8 @@ void PageView::keyPressEvent(QKeyEvent *e) {
 void PageView::keyReleaseEvent(QKeyEvent *e) {
   EventView ev(this);
   switch (e->key()) {
-  case Qt::Key_Alt:
-    mode()->temporaryRelease(Mode::MoveResize);
+  case Qt::Key_Control:
+    mode()->temporaryRelease();
     break;
   default:
     break;
@@ -795,6 +800,7 @@ void PageView::focusInEvent(QFocusEvent *e) {
 }
 
 void PageView::focusOutEvent(QFocusEvent *e) {
+  mode()->temporaryRelease();
   EventView ev(this);
   QGraphicsView::focusOutEvent(e);
   update(); // ensure text cursor looks ok
