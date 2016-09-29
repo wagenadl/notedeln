@@ -91,6 +91,7 @@ protected:
   virtual void wheelEvent(QWheelEvent *);
   virtual void dragEnterEvent(QDragEnterEvent *);
   virtual void enterEvent(QEvent *);
+  virtual void leaveEvent(QEvent *);
   virtual void inputMethodEvent(QInputMethodEvent *);
   virtual void focusInEvent(QFocusEvent *);
   virtual void focusOutEvent(QFocusEvent *);
