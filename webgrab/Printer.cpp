@@ -46,7 +46,7 @@ void Printer::display() {
     si.setWidth(1100);
   if (si.height()>1100)
     si.setHeight(1100);
-  v->resize(si);
+  v->resize(si); // adjust window size
 
   v->show();
 }
@@ -64,6 +64,10 @@ void Printer::complete(bool ok) {
   Q_ASSERT(!vv.isEmpty());
   v = vv[0];
   Q_ASSERT(v);
+
+  QPixmap foo(100, 100);
+  QPainter ptr(&foo);
+  s->render(&ptr); // this forces Qt to actually calculate bboxes
   
   if (opt.out.isEmpty()) {
     display();
@@ -89,7 +93,6 @@ void Printer::toPdf(QString fn) {
 }
 
 void Printer::toMultiPagePdf(QString fn) {
-  qDebug() << "Rendering to multipage pdf" << fn;
   QPrinter printer;
   printer.setOutputFileName(fn);
   QSizeF pp = printer.paperSize(QPrinter::Point);
@@ -109,8 +112,7 @@ void Printer::toMultiPagePdf(QString fn) {
     if (y0!=sr.top())
       printer.newPage();
     QRectF clip(QPointF(sr.left(), y0), QSizeF(sr.width(), dy));
-    s->setSceneRect(clip);
-    s->render(&p);
+    s->render(&p, QRectF(), clip);
   }
   p.end();
 }
@@ -128,7 +130,6 @@ void Printer::toSinglePagePdf(QString fn) {
 }
 
 void Printer::toSvg(QString fn) {
-  qDebug() << "Rendering to svg" << fn;
   QSvgGenerator printer;
   printer.setFileName(fn);
   printer.setResolution(90);
@@ -142,7 +143,6 @@ void Printer::toSvg(QString fn) {
 }
 
 void Printer::toImg(QString fn) {
-  qDebug() << "Rendering to image file" << fn;
   double maxDim = opt.imSize;
   QSizeF si = s->sceneRect().size();
   double w = si.width();
