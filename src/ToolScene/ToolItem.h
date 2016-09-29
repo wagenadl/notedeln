@@ -48,6 +48,8 @@ protected:
   void hoverMoveEvent(QGraphicsSceneHoverEvent *);
   void mousePressEvent(QGraphicsSceneMouseEvent *);
   void mouseReleaseEvent(QGraphicsSceneMouseEvent *);
+public slots:
+  void cancelPopup();
 private slots:
   void popup();
 private:

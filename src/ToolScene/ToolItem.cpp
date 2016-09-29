@@ -27,6 +27,7 @@
 #include <QTimer>
 #include <QTextDocument>
 #include <QGraphicsScene>
+#include <QDebug>
 
 #define TOOLSIZE 31.5
 #define TOOLRAD 3.0
@@ -162,6 +163,10 @@ void ToolItem::hoverEnterEvent(QGraphicsSceneHoverEvent *e) {
 void ToolItem::hoverLeaveEvent(QGraphicsSceneHoverEvent *) {
   hov = false;
   update();
+  cancelPopup();
+}
+
+void ToolItem::cancelPopup() {
   if (popupDelay)
     popupDelay->stop();
   if (balloon)

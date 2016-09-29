@@ -137,4 +137,8 @@ void Navbar::setPageType(Navbar::PageType pt) {
   ti_end->setEnabled(!islast);
   ti_plus->setVisible(islast);
   ti_plus->setEnabled(pt!=EmptyLastEntry);
+  if (islast)
+    ti_n1->cancelPopup();
+  else
+    ti_plus->cancelPopup();
 }
