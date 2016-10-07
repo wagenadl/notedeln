@@ -38,12 +38,15 @@ public:
 public slots:
   void showHelp();
   void setPageType(PageType);
+  void hidePlus();
+  void showPlus();
 signals:
   void goTOC(Qt::KeyboardModifiers);
   void goFind();
   void goEnd(Qt::KeyboardModifiers);
   void goRelative(int, Qt::KeyboardModifiers);
   // forward by n pages (n may be negative)
+  void goNew(Qt::KeyboardModifiers);
   void goPrint();
 protected:
   virtual void doLeftClick(QString, Qt::KeyboardModifiers);

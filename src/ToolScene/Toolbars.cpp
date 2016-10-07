@@ -74,12 +74,13 @@ Toolbars::Toolbars(Mode *mode, QGraphicsItem *parent): QGraphicsObject(parent) {
 
   nav = new Navbar(this);
 
-
   ro = mode->isReadOnly();
-  if (ro)
+  if (ro) {
     hideTools();
-  else
+    nav->hidePlus();
+  } else {
     setMode(mode->mode());
+  }
 
   placeChildren();
   

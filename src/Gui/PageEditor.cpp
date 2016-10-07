@@ -95,6 +95,8 @@ void PageEditor::initialize() {
 	  view, SLOT(openPrintDialog()));
   connect(toolview->toolbars()->navbar(), SIGNAL(goEnd(Qt::KeyboardModifiers)),
 	  view, SLOT(lastPage(Qt::KeyboardModifiers)));
+  connect(toolview->toolbars()->navbar(), SIGNAL(goNew(Qt::KeyboardModifiers)),
+	  view, SLOT(newPage(Qt::KeyboardModifiers)));
   connect(toolview->toolbars()->navbar(),
 	  SIGNAL(goRelative(int, Qt::KeyboardModifiers)),
 	  view, SLOT(goRelative(int, Qt::KeyboardModifiers)));

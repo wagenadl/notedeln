@@ -72,7 +72,17 @@ Navbar::Navbar(QGraphicsItem *parent): Toolbar(parent) {
   addTool(NAV_END, t);
   ti_end = t;
 
-  addSpace(-1.5);
+  addSpace(-.5);
+  
+  t = new ToolItem();
+  t->setSvg(":icons/nav-plus.svg");
+  t->setBalloonHelpText(":nav-plus");
+  addTool(NAV_PLUS, t);
+  ti_plus = t;
+  //t->setPos(ti_n1->pos());
+  //t->setVisible(false);
+
+  addSpace(-1);
   
   t = new ToolItem();
   t->setSvg(":icons/nav-find.svg");
@@ -89,13 +99,6 @@ Navbar::Navbar(QGraphicsItem *parent): Toolbar(parent) {
   t->setBalloonHelpText(":nav-help");
   addTool(NAV_HELP, t);
 
-  t = new ToolItem();
-  t->setSvg(":icons/nav-plus.svg");
-  t->setBalloonHelpText(":nav-plus");
-  addTool(NAV_PLUS, t);
-  ti_plus = t;
-  t->setPos(ti_n1->pos());
-  t->setVisible(false);
 }
 
 
@@ -111,12 +114,14 @@ void Navbar::doLeftClick(QString s, Qt::KeyboardModifiers m) {
     emit goRelative(-10, m);
   else if (s==NAV_PREV)
     emit goRelative(-1, m);
-  else if (s==NAV_NEXT || s==NAV_PLUS)
+  else if (s==NAV_NEXT)
     emit goRelative(1, m);
   else if (s==NAV_N10)
     emit goRelative(10, m);
   else if (s==NAV_END)
     emit goEnd(m);
+  else if (s==NAV_PLUS)
+    emit goNew(m);
   else if (s==NAV_PRINT)
     emit goPrint();
   else if (s==NAV_HELP)
@@ -132,13 +137,15 @@ void Navbar::setPageType(Navbar::PageType pt) {
   bool islast = pt==LastEntry || pt==EmptyLastEntry;
   ti_p1->setEnabled(!isfirst);
   ti_p10->setEnabled(!isfirst);
-  ti_n1->setVisible(!islast);
+  ti_n1->setEnabled(!islast);
   ti_n10->setEnabled(!islast);
   ti_end->setEnabled(!islast);
-  ti_plus->setVisible(islast);
-  ti_plus->setEnabled(pt!=EmptyLastEntry);
-  if (islast)
-    ti_n1->cancelPopup();
-  else
-    ti_plus->cancelPopup();
+}
+
+void Navbar::hidePlus() {
+  ti_plus->hide();
+}
+
+void Navbar::showPlus() {
+  ti_plus->show();
 }

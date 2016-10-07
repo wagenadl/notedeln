@@ -69,6 +69,7 @@ public slots:
   void goRelative(int n, Qt::KeyboardModifiers=0);
   void previousPage();
   void lastPage(Qt::KeyboardModifiers m=0);
+  void newPage(Qt::KeyboardModifiers m=0);
   void openFindDialog();
   void openGotoPageDialog();
   void htmlDialog();

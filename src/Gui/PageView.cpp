@@ -632,6 +632,15 @@ void PageView::focusEntry() {
   }
 }
 
+void PageView::newPage(Qt::KeyboardModifiers m) {
+  if (m & Qt::ShiftModifier) {
+    newView()->newPage();
+  } else {
+    gotoEntryPage(book->toc()->newPageNumber());
+    focusEntry();
+  }
+}
+
 void PageView::lastPage(Qt::KeyboardModifiers m) {
   if (m & Qt::ShiftModifier) {
     newView()->lastPage();

@@ -272,6 +272,7 @@ CachedEntry Notebook::entry(int n)  {
 
 CachedEntry Notebook::createEntry(int n) {
   ASSERT(tocFile_);
+  ASSERT(!isReadOnly());
 
   if (pgFiles.contains(n)) {
     return recoverFromExistingEntry(n);
