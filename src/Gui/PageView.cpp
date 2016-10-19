@@ -353,7 +353,6 @@ void PageView::keyReleaseEvent(QKeyEvent *e) {
   EventView ev(this);
   switch (e->key()) {
   case Qt::Key_Control:
-  case Qt::Key_Shift:
     mode()->temporaryRelease();
     break;
   default:
