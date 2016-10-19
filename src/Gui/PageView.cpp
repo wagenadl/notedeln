@@ -329,7 +329,13 @@ void PageView::keyPressEvent(QKeyEvent *e) {
       take = false;
     break;
   case Qt::Key_Control:
-    mode()->temporaryOverride(Mode::MoveResize);
+    if (e->modifiers() & Qt::ShiftModifier)
+      mode()->temporaryOverride(Mode::MoveResize);
+    take = false;
+    break;
+  case Qt::Key_Shift:
+    if (e->modifiers() & Qt::ControlModifier)
+      mode()->temporaryOverride(Mode::MoveResize);
     take = false;
     break;
   default:
