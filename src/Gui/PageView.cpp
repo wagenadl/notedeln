@@ -245,7 +245,9 @@ void PageView::keyPressEvent(QKeyEvent *e) {
       take = false;
     break;
   case Qt::Key_Delete:
+    qDebug() << "Key_Delete";
     if (currentSection==Entries && mode()->mode()==Mode::MoveResize) {
+      qDebug() << ".. mode is moveresize";
       QPointF p = mapToScene(mapFromGlobal(QCursor::pos()));
       Item *item = 0;
       for (QGraphicsItem *gi = entryScene->itemAt(p, currentSheet); gi!=0;
@@ -254,7 +256,13 @@ void PageView::keyPressEvent(QKeyEvent *e) {
 	if (item)
 	  break;
       }
+      qDebug() << ".. item is " << item;
+      Item *alt = item ? item->glowItem() : 0;
+      if (alt)
+        item = alt;
+      qDebug() << ".. alt is " << alt;
       if (item && item->isWritable()) {
+        qDebug() << ".. is writable";
 	BlockItem *block = item->ancestralBlock();
 	if (block && block->allChildren().isEmpty())
 	  entryScene->notifyChildless(block);

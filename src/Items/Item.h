@@ -23,6 +23,7 @@
 #include "Data.h"
 #include <QGraphicsObject>
 #include <QObject>
+#include <QPointer>
 #include <Qt>
 #include "Style.h"
 #include "Assert.h"
@@ -75,6 +76,7 @@ public:
   GfxNoteItem *newGfxNote(QPointF p0) { return newGfxNote(p0, p0); }
   virtual GfxNoteItem *newGfxNote(QPointF p0, QPointF p1);
   virtual bool makesOwnNotes() const { return false; }
+  Item *glowItem() const;
 public: // but only for use in derived class source files
   template <class DT, class IT> class Creator {
   public:
@@ -115,9 +117,12 @@ private: // these must never be called
   void perhapsCreateGlow();
   void removeGlow();
   bool shouldGlow() const;
+  void setGlowItem(Item *child);
+  void unsetGlowItem(Item *child);
 private:
   Data *d;
   bool writable;
+  QPointer<Item> glowitem;
 };
 
 #endif

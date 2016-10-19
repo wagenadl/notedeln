@@ -174,6 +174,8 @@ void Item::perhapsCreateGlow() {
     eff->setOffset(QPointF(0, 0));
     eff->setBlurRadius(4);
     setGraphicsEffect(eff);
+    if (parent())
+      parent()->setGlowItem(this);
   }
 }  
 
@@ -187,6 +189,8 @@ void Item::hoverEnterEvent(QGraphicsSceneHoverEvent *e) {
 void Item::hoverLeaveEvent(QGraphicsSceneHoverEvent *e) {
   ASSERT(d);
   removeGlow();
+  if (parent())
+    parent()->unsetGlowItem(this);
   e->accept();
 }
 
@@ -201,4 +205,17 @@ BlockItem *Item::ancestralBlock() {
 
 void Item::setScale(qreal f) {
   QGraphicsObject::setScale(f);
+}
+
+Item *Item::glowItem() const {
+  return glowitem;
+}
+
+void Item::setGlowItem(Item *it) {
+  glowitem = it;
+}
+
+void Item::unsetGlowItem(Item *it) {
+  if (glowitem==it)
+    glowitem = 0;
 }
