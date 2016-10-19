@@ -34,6 +34,7 @@
 #include <QMessageBox>
 #include "CrashReport.h"
 #include "VersionControl.h"
+#include "CUI.h"
 
 int main(int argc, char **argv) {
   CrashReport cr;
@@ -44,6 +45,11 @@ int main(int argc, char **argv) {
     Fonts fonts;
     if (argc>1 && QString("-novc")==argv[1]) {
       VersionControl::globallyDisable();
+      argc--;
+      argv++;
+    }
+    if (argc>1 && QString("-nocui")==argv[1]) {
+      CUI::globallyDisable();
       argc--;
       argv++;
     }
