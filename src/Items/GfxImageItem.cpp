@@ -204,8 +204,11 @@ GfxNoteItem *GfxImageItem::newGfxNote(QPointF p0, QPointF p1) {
 
 void GfxImageItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
   bool take = false;
-  if (e->modifiers() & Qt::ControlModifier) {
-    //take = true; // we will not process this, but consider a double click
+  if ((e->modifiers() & Qt::ControlModifier)
+      && !(e->modifiers() & Qt::ShiftModifier)) {
+    take = false; // We will not process this, but consider a double click
+    // Note that if both Control and Shift are held, we _will_ consider
+    // move/resize
   } else if (isWritable()) {
     switch (mode()->mode()) {
     case Mode::MoveResize:
