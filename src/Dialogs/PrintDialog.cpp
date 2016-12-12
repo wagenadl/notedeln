@@ -27,6 +27,7 @@
 PrintDialog::PrintDialog(QWidget *parent): QDialog(parent) {
   ui = new Ui_printDialog();
   ui->setupUi(this);
+  resize(sizeHint());
 
   connect(ui->pPrinter, SIGNAL(toggled(bool)), SLOT(setDestination()));
   connect(ui->pPrinterName, SIGNAL(currentIndexChanged(int)),
