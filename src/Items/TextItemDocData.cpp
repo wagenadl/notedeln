@@ -82,8 +82,9 @@ void TextItemDocData::recalcSomeWidths(int start, int end) const {
       current = edges[n];
       fm = fv.metrics(current);
     }
-    if (edges.contains(n+1) || n+1>=N) {
-      // simple, no kerning across edges
+    if (edges.contains(n+1) || n+1>=N
+	|| txt[n+1].category()==QChar::Other_Control) {
+      // simple, no kerning across edges or table cells
       charwidths[n] = fm->width(c);
       if (edges.contains(n+1) && current.contains(MarkupData::Italic)
 	  && !edges[n+1].contains(MarkupData::Italic))

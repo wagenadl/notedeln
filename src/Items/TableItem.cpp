@@ -463,6 +463,8 @@ TableCell TableItem::cellAtCursor() const {
 void TableItem::paint(QPainter *p,
 		      const QStyleOptionGraphicsItem *o, QWidget *w) {
   TextItem::paint(p, o, w);
+
+  // Draw top and bottom lines
   QPen pen(text->color());
   pen.setWidth(1);
   p->setPen(pen);
@@ -472,6 +474,7 @@ void TableItem::paint(QPainter *p,
 }
 
 void TableItem::representCursor(QList<TransientMarkup> &tmm) const {
+  // Represent local or multicell selection as a markup
   if (cursor.hasSelection()) {
     if (selectionSpansCells()) {
       TableCellRange rng = selectedCells();
