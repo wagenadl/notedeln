@@ -26,13 +26,13 @@ SRC: PREP
 
 PREP:
 	tools/updatesources.sh
-	( cd src; qmake-qt4 || qmake )
+	( cd src; qmake -qt=qt5 || qmake )
 
 WEBGRAB: WEBGPREP
 	+make -C webgrab release
 
 WEBGPREP:
-	( cd webgrab; qmake-qt4 || qmake )
+	( cd webgrab; qmake -qt=qt5 || qmake )
 
 install: all
 	install -d $(INSTALLPATH)/bin
