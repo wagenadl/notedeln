@@ -118,6 +118,8 @@ void Mode::setMarkSize(double ms1) {
 }
 
 void Mode::temporaryOverride(Mode::M m1) {
+  if (m==m1)
+    return;
   M m0 = m;
   setMode(m1);
   overridden = m0;
