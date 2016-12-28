@@ -202,6 +202,7 @@ void TableItem::deleteSelection() {
     int c0 = rng.firstColumn();
     int nr = rng.rows();
     int nc = rng.columns();
+    qDebug() << r0 << c0 << "+" << nr << nc << "/" << data()->rows() << data()->columns();
     if (nr==int(data()->rows()) && data()->columns()>1) {
       deleteColumns(c0, nc);
       cursor.clearSelection();
@@ -211,9 +212,13 @@ void TableItem::deleteSelection() {
     } else {
       for (int r=r0; r<r0+nr; r++) {
 	for (int c=c0; c<c0+nc; c++) {
-	  cursor.setPosition(data()->cellStart(r, c));
-	  cursor.setPosition(data()->cellEnd(r,c), TextCursor::KeepAnchor);
-	  cursor.deleteChar();
+          int s = data()->cellStart(r,c);
+          int e = data()->cellEnd(r,c);
+          if (e>s) {
+            cursor.setPosition(s);
+            cursor.setPosition(e, TextCursor::KeepAnchor);
+            cursor.deleteChar();
+          }
 	}
       }
     }
