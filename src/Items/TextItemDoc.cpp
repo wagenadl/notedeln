@@ -681,6 +681,7 @@ void TextItemDoc::render(QPainter *p, QList<TransientMarkup> tmm) const {
 	p->drawLine(QPointF(x0, y1), QPointF(x, y1));
 	p->setPen(p1);
       }
+      qDebug() << "Add underline code!";
 
       p->setFont(*fonts.font(s));
       p->drawText(QPointF(x0, y0), bit);
