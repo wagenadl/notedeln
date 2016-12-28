@@ -535,14 +535,14 @@ bool TextItem::keyPressWithControl(QKeyEvent *e) {
   case Qt::Key_L:
     tryExplicitLink();
     return true;
+  case Qt::Key_Semicolon:
+    unscriptStyles();
+    return true;
   case Qt::Key_Period:
-    if (e->modifiers() & Qt::ShiftModifier)
-      unscriptStyles();
-    else
-      tryScriptStyles();
+    tryScriptStyles();
     return true;
   case Qt::Key_Backslash:
-      tryTeXCode();
+    tryTeXCode();
     return true;
   case Qt::Key_S:
     cursor.clearSelection();
