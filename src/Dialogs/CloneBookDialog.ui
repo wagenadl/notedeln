@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>987</width>
-    <height>589</height>
+    <height>687</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -20,9 +20,6 @@
       <string>Archive location</string>
      </property>
      <layout class="QHBoxLayout" name="horizontalLayout_2">
-      <property name="topMargin">
-       <number>15</number>
-      </property>
       <property name="rightMargin">
        <number>0</number>
       </property>
@@ -45,7 +42,16 @@
    <item>
     <widget class="QWidget" name="widget_5" native="true">
      <layout class="QGridLayout" name="gridLayout">
-      <property name="margin">
+      <property name="leftMargin">
+       <number>0</number>
+      </property>
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <property name="rightMargin">
+       <number>0</number>
+      </property>
+      <property name="bottomMargin">
        <number>0</number>
       </property>
      </layout>
@@ -144,7 +150,16 @@
             <property name="sizeConstraint">
              <enum>QLayout::SetDefaultConstraint</enum>
             </property>
-            <property name="margin">
+            <property name="leftMargin">
+             <number>0</number>
+            </property>
+            <property name="topMargin">
+             <number>0</number>
+            </property>
+            <property name="rightMargin">
+             <number>0</number>
+            </property>
+            <property name="bottomMargin">
              <number>0</number>
             </property>
             <item>
@@ -263,7 +278,7 @@
          <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Sans'; font-size:16pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Sans'; font-size:11pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Archiving to a remote host is only supported if you have passwordless ssh access to that host.  To arrange that, you first need to have (or create) a public/private key pair, e.g., using ssh-keygen [1]. Then you need to copy the public key from the pair to the host’s “.ssh/authorized_keys” file. On modern Linux systems, that’s basically all it takes. It is even OK to protect your key with a passphrase. I think the same goes for Mac OS. On Windows, you will also need Pageant [2] (see [3] for more info) or something similar to make sure the key gets used.&lt;/p&gt;
 &lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;[1] https://help.ubuntu.com/community/SSH/OpenSSH/Keys&lt;/p&gt;
@@ -319,17 +334,8 @@ p, li { white-space: pre-wrap; }
       <string>Clone location</string>
      </property>
      <layout class="QHBoxLayout" name="horizontalLayout_4">
-      <property name="leftMargin">
-       <number>9</number>
-      </property>
-      <property name="topMargin">
-       <number>14</number>
-      </property>
       <property name="rightMargin">
        <number>0</number>
-      </property>
-      <property name="bottomMargin">
-       <number>9</number>
       </property>
       <item>
        <widget class="QLineEdit" name="location"/>
