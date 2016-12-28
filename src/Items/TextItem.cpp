@@ -536,7 +536,10 @@ bool TextItem::keyPressWithControl(QKeyEvent *e) {
     tryExplicitLink();
     return true;
   case Qt::Key_Period:
-    tryScriptStyles();
+    if (e->modifiers() & Qt::ShiftModifier)
+      unscriptStyles();
+    else
+      tryScriptStyles();
     return true;
   case Qt::Key_Backslash:
       tryTeXCode();
@@ -858,10 +861,8 @@ static bool balancedBrackets(QString s) {
  return true;
 }
 
-bool TextItem::tryScriptStyles(bool onlyIfBalanced) {
-  /* Returns true if we decide to make a superscript or subscript, that is,
-     if there is a preceding "^" or "_".
-   */
+bool TextItem::unscriptStyles() {
+  // drop old super/subscript 
   cursor.clearSelection();
   
   MarkupData *oldscript = data()->markupAt(cursor.position(),
@@ -869,18 +870,32 @@ bool TextItem::tryScriptStyles(bool onlyIfBalanced) {
   if (!oldscript)
     oldscript = data()->markupAt(cursor.position(),
 				 MarkupData::Subscript);
-  if (oldscript) {
-    // drop old super/subscript instead of creating a new one
-    MarkupData::Style s = oldscript->style();
-    int start = oldscript->start();
-    deleteMarkup(oldscript);
-    TextCursor c(cursor);
-    c.setPosition(start);
-    c.insertText(s==MarkupData::Superscript ? "^" : "_");
-    cursor.movePosition(TextCursor::Right);
-    return true;
-  }
+  if (!oldscript)
+    return false;
+
+  MarkupData::Style s = oldscript->style();
+  int start = oldscript->start();
+  deleteMarkup(oldscript);
+  TextCursor c(cursor);
+  c.setPosition(start);
+  c.insertText(s==MarkupData::Superscript ? "^" : "_");
+  cursor.movePosition(TextCursor::Right);
+  return true;
+}
   
+
+bool TextItem::tryScriptStyles(bool onlyIfBalanced) {
+  /* Returns true if we decide to make a superscript or subscript, that is,
+     if there is a preceding "^" or "_".
+   */
+  cursor.clearSelection();
+  
+  if (data()->markupAt(cursor.position(),
+                       MarkupData::Superscript)
+      || data()->markupAt(cursor.position(),
+                          MarkupData::Subscript))
+    return false;
+      
   TextCursor m = cursor.findBackward(QRegExp("\\^|_"));
   if (!m.hasSelection())
     return false; // no "^" or "_"
