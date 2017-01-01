@@ -176,7 +176,8 @@ void GfxNoteItem::updateTextPos() {
 	- sr.left();
       if (tw<36)
 	tw = 36;
-      data()->setTextWidth(tw);
+      if (data()->isWritable())
+        data()->setTextWidth(tw);
       text->setTextWidth(tw);
     }
   }
