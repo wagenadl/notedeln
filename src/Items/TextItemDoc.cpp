@@ -134,7 +134,13 @@ QColor TextItemDoc::color() const {
 }
 
 QRectF TextItemDoc::boundingRect() const {
-  return d->br;
+  QRectF r = d->br;
+  if (r.width()>=1000) {
+    // not actual
+    QRectF tbr = tightBoundingRect();
+    r.setWidth(tbr.width());
+  }
+  return r;
 }
 
 void TextItemDoc::recalculateCharacterWidths() {
