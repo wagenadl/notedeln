@@ -135,7 +135,7 @@
 "transientshading-alpha": 0.25,
 "magicians": {
   "page": {
-    "re": "\\d\\d\\d?\\d?[a-z]?",
+    "re": "\\d\\d?\\d?\\d?[a-z]?",
     "object": "page://%1"
     },
   "pubmed": {
