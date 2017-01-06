@@ -191,6 +191,8 @@ void TextItem::handleLeftClick(QGraphicsSceneMouseEvent *e) {
     }
   } break;
   case Mode::MoveResize:
+    if (linkHelper->mousePress(e)) 
+      break;
     if (mayMove) {
       bool resize = shouldResize(e->pos());
       GfxNoteItem *gni = dynamic_cast<GfxNoteItem*>(parent());
