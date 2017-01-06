@@ -141,12 +141,6 @@
   "pubmed": {
     "re": "\\d\\d\\d\\d\\d\\d*",
     "web": "http://www.ncbi.nlm.nih.gov/pubmed/%1"
-    },
-  "thorlabs": {
-    "re": "[A-Z][-A-Z0-9a-z]*",
-    "web": "http://www.thorlabs.us/thorProduct.cfm?partNumber=%1",
-    "link-key": "title",
-    "link-value": "Auto CAD PDF"
     }
   },
 "front-recolor": "#7f7f7f",
