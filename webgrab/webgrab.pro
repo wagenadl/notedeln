@@ -2,8 +2,20 @@ TEMPLATE = app
 TARGET = ../build/webgrab
 DEPENDPATH += .
 INCLUDEPATH += .
-QT += webkit svg
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets printsupport webkitwidgets
+QT += svg
+greaterThan(QT_MAJOR_VERSION, 4) {
+  QT += widgets printsupport
+  linux {
+    QT += webkit webkitwidgets
+    QMAKE_CXXFLAGS += -DUSE_WEBKIT
+  } else {
+    QT += webengine webenginewidgets
+    QMAKE_CXXFLAGS += -DUSE_WEBENGINE
+  }
+} else {
+  QT += webkit
+  QMAKE_CXXFLAGS += -DUSE_WEBKIT
+}
 CONFIG += debug_and_release
 CONFIG-=app_bundle
 CONFIG(debug, debug|release) { TARGET=$${TARGET}_debug }
