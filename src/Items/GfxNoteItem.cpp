@@ -169,6 +169,7 @@ void GfxNoteItem::updateTextPos() {
   // Auto limit text width
   if (data()->textWidth()<1) {
     QRectF sr = text->mapRectToScene(text->netBounds());
+    qDebug() << "gfxnoteitem::updatetextpos" << data()->textWidth() << text->textWidth() << sr;
     if (sr.right() >= style().real("page-width")
 	- style().real("margin-right-over")) {
       double tw = style().real("page-width")
@@ -176,13 +177,14 @@ void GfxNoteItem::updateTextPos() {
 	- sr.left();
       if (tw<36)
 	tw = 36;
-      data()->setTextWidth(tw);
+      if (data()->isWritable())
+        data()->setTextWidth(tw);
       text->setTextWidth(tw);
     }
   }
 
   // Arrange line to be shortest
-  if (data()->delta().manhattanLength()>2) { // minimum line length
+  if (data()->delta().manhattanLength()>5) { // minimum line length
     if (!line) {
       line = new QGraphicsLineItem(QLineF(QPointF(0,0), QPointF(1,1)), this);
       line->setPen(QPen(QBrush(QColor(style().string("note-line-color"))),

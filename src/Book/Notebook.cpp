@@ -56,6 +56,7 @@ Notebook::Notebook(QString path, bool ro0): root(QDir(path)), ro(ro0) {
   tocFile_ = 0;
   bookFile_ = 0;
   mode_ = new Mode(isReadOnly(), this);
+  load();
 }
 
 void Notebook::load() {
@@ -65,7 +66,7 @@ void Notebook::load() {
   QString bookfile = root.exists("book.eln") ? "book.eln" : "book.json";    
   bookFile_ = BookFile::load(root.filePath(bookfile), this);
   if (!bookFile_)
-    throw QString("Could not load book file");
+    throw QString("Could not load book file.");
   bookFile_->data()->setBook(this);
 
   Catalog cat(root.filePath("pages"));
@@ -111,7 +112,7 @@ Style const &Notebook::style() const {
 }
 
 QString &Notebook::errMsg() {
-  static QString e;
+  static QString e = "";
   return e;
 }
 

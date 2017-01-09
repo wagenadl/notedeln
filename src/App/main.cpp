@@ -100,10 +100,18 @@ int main(int argc, char **argv) {
     assertion_register_notebook(nb);
 
     int r = 0;
-    {
-      AppInstance inst(&app, nb);
-      r = app.exec();
+    AppInstance *inst = 0;
+    try {
+      inst = new AppInstance(&app, nb);
+    } catch (QString s) {
+      QMessageBox::critical(0, Translate::_("eln"),
+                            Translate::_("could-not-open-notebook")
+                            .arg(nb->dirPath())
+                            + "\n" + Notebook::errorMessage(),
+                            QMessageBox::Close);
     }
+    r = app.exec();
+    delete inst;
 
     delete RecentBooks::instance();
     return r;

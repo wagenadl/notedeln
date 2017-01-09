@@ -134,7 +134,13 @@ QColor TextItemDoc::color() const {
 }
 
 QRectF TextItemDoc::boundingRect() const {
-  return d->br;
+  QRectF r = d->br;
+  if (r.width()>=1000) {
+    // not actual
+    QRectF tbr = tightBoundingRect();
+    r.setWidth(tbr.width());
+  }
+  return r;
 }
 
 void TextItemDoc::recalculateCharacterWidths() {
@@ -668,6 +674,21 @@ void TextItemDoc::render(QPainter *p, QList<TransientMarkup> tmm) const {
 	  - ((s.contains(MarkupData::Superscript)
 	      || s.contains(MarkupData::Subscript)) ? 0.7 : 1.0)
 	  * 0.6 * d->xheight;
+	QPen pn = p->pen();
+	QPen p1 = pn;
+	qreal h, s, l, a;
+	QColor c = pn.color();
+	c.getHslF(&h, &s, &l, &a);
+	l *= 1.7; if (l>1) l = 1;
+	c.setHslF(h, s, l, a);
+	pn.setColor(c);
+	pn.setWidthF(1.2);
+	p->setPen(pn);
+	p->drawLine(QPointF(x0, y1), QPointF(x, y1));
+	p->setPen(p1);
+      }
+      if (s.contains(MarkupData::Underline)) {
+	double y1 = y0 + 0.25 * d->xheight;
 	QPen pn = p->pen();
 	QPen p1 = pn;
 	qreal h, s, l, a;

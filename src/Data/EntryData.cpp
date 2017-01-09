@@ -206,8 +206,6 @@ Notebook *EntryData::book() const {
 }
 
 ResManager *EntryData::resManager() const {
-  if (!this)
-    return 0; // for convenience, allow to be called without a page
   return firstChild<ResManager>();
 }
 

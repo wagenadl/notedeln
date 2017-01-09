@@ -191,6 +191,8 @@ void TextItem::handleLeftClick(QGraphicsSceneMouseEvent *e) {
     }
   } break;
   case Mode::MoveResize:
+    if (linkHelper->mousePress(e)) 
+      break;
     if (mayMove) {
       bool resize = shouldResize(e->pos());
       GfxNoteItem *gni = dynamic_cast<GfxNoteItem*>(parent());
@@ -535,11 +537,14 @@ bool TextItem::keyPressWithControl(QKeyEvent *e) {
   case Qt::Key_L:
     tryExplicitLink();
     return true;
+  case Qt::Key_Semicolon:
+    unscriptStyles();
+    return true;
   case Qt::Key_Period:
     tryScriptStyles();
     return true;
   case Qt::Key_Backslash:
-      tryTeXCode();
+    tryTeXCode();
     return true;
   case Qt::Key_S:
     cursor.clearSelection();
@@ -858,10 +863,8 @@ static bool balancedBrackets(QString s) {
  return true;
 }
 
-bool TextItem::tryScriptStyles(bool onlyIfBalanced) {
-  /* Returns true if we decide to make a superscript or subscript, that is,
-     if there is a preceding "^" or "_".
-   */
+bool TextItem::unscriptStyles() {
+  // drop old super/subscript 
   cursor.clearSelection();
   
   MarkupData *oldscript = data()->markupAt(cursor.position(),
@@ -869,18 +872,32 @@ bool TextItem::tryScriptStyles(bool onlyIfBalanced) {
   if (!oldscript)
     oldscript = data()->markupAt(cursor.position(),
 				 MarkupData::Subscript);
-  if (oldscript) {
-    // drop old super/subscript instead of creating a new one
-    MarkupData::Style s = oldscript->style();
-    int start = oldscript->start();
-    deleteMarkup(oldscript);
-    TextCursor c(cursor);
-    c.setPosition(start);
-    c.insertText(s==MarkupData::Superscript ? "^" : "_");
-    cursor.movePosition(TextCursor::Right);
-    return true;
-  }
+  if (!oldscript)
+    return false;
+
+  MarkupData::Style s = oldscript->style();
+  int start = oldscript->start();
+  deleteMarkup(oldscript);
+  TextCursor c(cursor);
+  c.setPosition(start);
+  c.insertText(s==MarkupData::Superscript ? "^" : "_");
+  cursor.movePosition(TextCursor::Right);
+  return true;
+}
   
+
+bool TextItem::tryScriptStyles(bool onlyIfBalanced) {
+  /* Returns true if we decide to make a superscript or subscript, that is,
+     if there is a preceding "^" or "_".
+   */
+  cursor.clearSelection();
+  
+  if (data()->markupAt(cursor.position(),
+                       MarkupData::Superscript)
+      || data()->markupAt(cursor.position(),
+                          MarkupData::Subscript))
+    return false;
+      
   TextCursor m = cursor.findBackward(QRegExp("\\^|_"));
   if (!m.hasSelection())
     return false; // no "^" or "_"
