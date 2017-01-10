@@ -41,6 +41,9 @@ public:
   void setTitle(QString);
   void setSheetCount(int);
   void setLastSeen(QDateTime const &);
+  bool contains(QString pgno) const;
+  bool contains(int pgno) const;
+  int sheetOf(QString pgno) const;
 private:
   int startPage_;
   QString title_;

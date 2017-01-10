@@ -1246,8 +1246,10 @@ QString EntryScene::pgNoToString(int n) const {
   int n0 = clippedPgNo(n);
   if (n0 == n)
     return QString::number(n);
-  else
+  else if (n-n0<=26)
     return QString("%1%2").arg(n0).arg(QChar('a'+n-n0-1));
+  else
+    return QString("%1??").arg(n0);
 }
 
 QList<BlockItem const *> EntryScene::blocks() const {

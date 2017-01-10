@@ -21,6 +21,9 @@
 #include <QImage>
 #include <QDebug>
 #include "Assert.h"
+#include "Notebook.h"
+#include "TOC.h"
+#include "TOCEntry.h"
 
 static Data::Creator<Resource> c("res");
 
@@ -106,8 +109,6 @@ void Resource::setRoot(QDir d) {
 }
 
 bool Resource::hasArchive() const {
-  if (src.scheme()=="page")
-    return true;
   return !arch.isEmpty() && dir.exists(arch) && !loader;
 }
 
@@ -121,8 +122,6 @@ bool Resource::needsArchive() const {
 }  
 
 bool Resource::hasPreview() const {
-  if (src.scheme()=="page")
-    return true;
   return !prev.isEmpty() && dir.exists(prev) && !loader;
 }
 
@@ -242,7 +241,8 @@ void Resource::getArchiveAndPreview() {
     loader = new ResLoader(this);
     connect(loader, SIGNAL(finished()), SLOT(downloadFinished()));
     loader->start();
-  }    
+  } else {
+  }
 }
 
 static bool isHttpLike(QString s) {
@@ -288,12 +288,37 @@ static QUrl urlFromTag(QString s) {
 
   return QUrl(s);
 }
-  
+
+static bool isPubMed(QString s) {
+  return QRegExp("\\d\\d\\d\\d\\d\\d*").exactMatch(s);
+}
+
+static bool isPageNumber(QString s) {
+  return QRegExp("\\d\\d*[a-z]?").exactMatch(s);
+}
+
+static QUrl pageLink(QString s, Notebook *book) {
+  ASSERT(book);
+  TOC *toc = book->toc();
+  ASSERT(toc);
+  TOCEntry *te = toc->find(s);
+  if (te) 
+    return QUrl(QString("page://%1/%2/%3")
+                .arg(s)
+                .arg(te->uuid())
+                .arg(te->sheetOf(s)));
+  else
+    return QUrl();
+}
 
 void Resource::validateSource() {
   // Right now, we only do http-like sources
   if (isHttpLike(tag())) 
     setSourceURL(urlFromTag(tag()));
+  else if (isPubMed(tag()))
+    setSourceURL("http://www.ncbi.nlm.nih.gov/pubmed/" + tag());
+  else if (isPageNumber(tag()))
+    setSourceURL(pageLink(tag(), book()));
 }
 
 bool Resource::hasFailed() const {

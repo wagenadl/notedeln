@@ -42,6 +42,35 @@ int TOCEntry::sheetCount() const {
   return sheetCount_;
 }
 
+bool TOCEntry::contains(int pgno) const {
+  return pgno >= startPage()
+    && pgno < startPage() + sheetCount();
+}
+
+bool TOCEntry::contains(QString pgno) const {
+  QRegExp re("(\\d\\d*)([a-z]?)");
+  if (!re.exactMatch(pgno))
+    return false;
+  int n = re.cap(1).toInt();
+  QString a = re.cap(2);
+  if (a=="")
+    return contains(n);
+  else
+    return contains(n) && contains(n + 1 + a[0].unicode() - 'a');
+}
+
+int TOCEntry::sheetOf(QString pgno) const {
+  QRegExp re("(\\d\\d*)([a-z]?)");
+  if (!re.exactMatch(pgno))
+    return -1;
+  int n = re.cap(1).toInt();
+  QString a = re.cap(2);
+  if (a=="")
+    return n - startPage();
+  else
+    return n + 1 + a[0].unicode() - 'a' - startPage();
+}
+
 QDateTime TOCEntry::lastSeen() const {
   return seen_;
 }

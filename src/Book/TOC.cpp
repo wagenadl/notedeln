@@ -75,7 +75,17 @@ TOCEntry *TOC::find(int page) const {
   // sized notebooks
   TOCEntry *r = 0;
   foreach (TOCEntry *e, entries_) 
-    if (e->startPage() <= page && e->startPage()+e->sheetCount() > page)
+    if (e->contains(page))
+      r = e;
+  return r;
+}
+
+TOCEntry *TOC::find(QString page) const {
+  // This is not an efficient implementation, but it's fine for reasonably
+  // sized notebooks
+  TOCEntry *r = 0;
+  foreach (TOCEntry *e, entries_) 
+    if (e->contains(page))
       r = e;
   return r;
 }

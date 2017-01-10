@@ -36,6 +36,7 @@ public:
   QMap<int, TOCEntry *> const &entries() const;
   TOCEntry *tocEntry(int startPage) const; // assertion if not found
   TOCEntry *find(int page) const;
+  TOCEntry *find(QString page) const;
   /* Returns entry containing the page page or 0 if none does. */
   TOCEntry *findUUID(QString uuid) const; // 0 if none
   TOCEntry *findForward(int page) const;

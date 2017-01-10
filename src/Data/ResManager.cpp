@@ -83,6 +83,7 @@ bool ResManager::isAnyoneUsing(QString tag, Data *tree) const {
 void ResManager::dropResource(Resource *r) {
   if (!r)
     return;
+  qDebug() << "dropresource" << r->tag() << r->sourceURL();
   QString ap = r->hasArchive() ? r->archivePath() : "";
   QString pp = r->hasPreview() ?  r->previewPath() : "";
   if (!deleteChild(r))

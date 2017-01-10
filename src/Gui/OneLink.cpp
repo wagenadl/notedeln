@@ -195,17 +195,15 @@ void OneLink::openArchive() {
     qDebug() << "OneLink: openArchive" << refText() << "(no arch)";
     return;
   }
-  if (!r->hasArchive()) {
-    openLink();
-    return;
-  }
-
+  
   if (r->sourceURL().scheme() == "page") {
     openPage();
-  } else {
+  } else if (r->hasArchive()) {
     bool ok = QDesktopServices::openUrl(QUrl(r->archivePath()));
     if (!ok)
       qDebug() << "Failed to start external location " << r->archivePath();
+  } else {
+    openLink();
   }
 }  
 
@@ -259,7 +257,7 @@ void OneLink::downloadFinished() {
       resmgr->dropResource(r);
     /* This is actually dangerous in case two refs are looking for the
        same resource simultaneously and one gets edited. */
-  } else if (r->hasArchive() || r->hasPreview()
+  } else if (!r->needsArchive() || !r->needsPreview()
              || !r->title().isEmpty() || !r->description().isEmpty()) {
     // at least somewhat successful
     md->attachResource(lastRef);
