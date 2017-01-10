@@ -130,8 +130,6 @@ bool Resource::needsPreview() const {
     return false;
   else if (loader)
     return false;
-  else if (!arch.endsWith(".pdf"))
-    return false;
   else
     return !hasPreview();
 }
@@ -162,7 +160,10 @@ static QString safeExtension(QString fn) {
 }
   
 static QString safeBaseName(QString fn) {
+  qDebug() << " safename" << fn;
+
   fn.replace(QRegExp("^http(s?)://"), "");
+  fn.replace(QRegExp("^file://"), "");
   fn.replace(QRegExp("^//*"), "");
   fn.replace(QRegExp("//*$"), "");
   int idx = fn.lastIndexOf(".");
@@ -187,8 +188,9 @@ static QString safeBaseName(QString fn) {
   }
 
   fn = f_0 + "_" + f_n;
-  
+
   fn.replace(QRegExp("[^[a-zA-Z0-9]_]"), "_");
+  qDebug() << " -> " << fn;
   return fn;
 }
 
@@ -204,7 +206,7 @@ void Resource::ensureArchiveFilename() {
     QString leaf = bits.last();
     int idx = leaf.lastIndexOf(".");
     if (idx>=0) {
-      int tagIdx = tag_.lastIndexOf(".");
+      int tagIdx = base.lastIndexOf(".");
       if (tagIdx>=0)
 	base = base.left(tagIdx);
       base += leaf.mid(idx);

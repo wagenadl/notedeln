@@ -50,8 +50,7 @@ signals:
      Emitted whether or not the download was successful.
   */
 private slots:
-  void qnrFinished();
-  void qnrDataAv();
+  void downloadFinished();
   void processFinished();
   void processError();
 private:
@@ -62,15 +61,13 @@ private:
   bool parentAlive() const;
   void getTitleFromHtml();
 private:
-  static class QNetworkAccessManager &networkAccessManager();
   class Resource *parentRes;
-  class QNetworkReply *qnr;
+  class Downloader *downloader;
   class QProcess *proc;
   bool ok;
   bool err;
   QUrl src;
   QFile *dst;
-  int redirectCount;
   bool convertHtmlToPdf;
 };
 
