@@ -43,8 +43,6 @@ public:
   QString refText() const;
   void openLink();
   void openArchive();
-  bool hasArchive() const;
-  bool hasPreview() const;
   class Resource *resource() const;
   void contextMenu(QGraphicsSceneMouseEvent *);
   void openPage(bool newView=false);

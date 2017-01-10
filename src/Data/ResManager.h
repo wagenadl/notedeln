@@ -42,7 +42,7 @@ public:
 private:
   QDir dir;
 private:
-  bool anyoneUsing(QString tag, Data *tree=0) const;
+  bool isAnyoneUsing(QString tag, Data *tree=0) const;
 };
 
 #endif

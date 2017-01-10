@@ -75,16 +75,23 @@ public: // functions to do with using the resource
   bool hasArchive() const;
   /* HASARCHIVE - Do we have a stored archive?
      HASARCHIVE returns true if an archive file exists for this resource.
-     It also returns true for "page:" references (internal references to
-     other pages of the notebook.)
      It returns false if the archive is currently being loaded.
+  */
+  bool needsArchive() const;
+  /* NEEDSARCHIVE - Are we lacking an archive?
+     NEEDSARCHIVE returns true iff HASARCHIVE returns false, except for "page:"
+     references (internal references to other pages of the notebook), for
+     which NEEDSARCHIVE always returns false.
   */
   bool hasPreview() const;
   /* HASPREVIEW - Do we have a stored preview?
      HASPREVIEW returns true if an preview image exists for this resource.
-     It also returns true for "page:" references (internal references to
-     other pages of the notebook.)
      It returns false if the preview is currently being constructed.
+  */
+  bool needsPreview() const;
+  /* NEEDSPREVIEW - Are we lacking a preview?
+     NEEDSPREVIEW returns true if the archive is a pdf file for which a preview
+     png would be useful.
   */
   QString archivePath() const;
   /* ARCHIVEPATH - Full path of archive file */
@@ -125,11 +132,9 @@ signals:
   /* FINISHED - Emitted when the archive is downloaded */
 private slots:
   void downloadFinished();
-  void magicWebUrlFinished();
-  void magicObjectUrlFinished();
 private:
   void ensureArchiveFilename();
-  void doMagic();
+  void getAPSpecial();
 private:
   QString tag_;
   QUrl src;
@@ -139,7 +144,6 @@ private:
   QString desc;
 private:
   class ResLoader *loader;
-  class ResourceMagic *magic;
   QDir dir;
   bool failed;
 };

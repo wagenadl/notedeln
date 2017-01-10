@@ -32,9 +32,7 @@ QVariantMap const &AN_Biblio::biblio(Style const &st) {
   static QVariantMap empty;
   static QMap<QString, QVariantMap> bbls;
   static QMap<QString, QDateTime> lastloaded;
-  if (!st.contains("bib-file"))
-    return empty;
-  QString k = st.string("bib-file");
+  QString k = st.string("bib-file", "");
   if (k.isEmpty())
     return empty;
   QDateTime lastmod = QFileInfo(k).lastModified();

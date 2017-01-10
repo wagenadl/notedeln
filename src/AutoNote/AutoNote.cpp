@@ -36,6 +36,7 @@ bool AutoNote::autoNote(QString tag, TextItem *dest, Style const &st) {
     // This is for my own bibliography system: YY-AAAAN
     txt = AN_Biblio(tag, st).ref();
   }
+  qDebug() << "AutoNote" << tag << txt;
   if (!txt.isEmpty()) {
     dest->insertBasicHtml(txt, dest->textCursor().position());
     return true;

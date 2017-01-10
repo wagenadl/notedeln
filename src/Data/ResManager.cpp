@@ -65,17 +65,17 @@ Resource *ResManager::getArchiveAndPreview(QUrl source, QString altRes) {
 
 void ResManager::perhapsDropResource(QString tag) {
   Resource *res = byTag(tag);
-  if (res && anyoneUsing(tag))
+  if (res && isAnyoneUsing(tag))
     dropResource(res);
 }
 
-bool ResManager::anyoneUsing(QString tag, Data *tree) const {
+bool ResManager::isAnyoneUsing(QString tag, Data *tree) const {
   if (!tree)
     tree = parent();
   if (tree->resourceTags().contains(tag))
     return true;
   foreach (Data *d, tree->allChildren())
-    if (anyoneUsing(tag, d))
+    if (isAnyoneUsing(tag, d))
       return true;
   return false;
 }
@@ -102,9 +102,9 @@ Resource *ResManager::newResource(QString altRes) {
   res->setRoot(dir.absolutePath());
   if (altRes.isEmpty()) {
     int n = 1;
-    while (byTag(QString::number(n)))
+    while (byTag("*" + QString::number(n))) 
       n++;
-    res->setTag(QString::number(n));
+    res->setTag("*" + QString::number(n));
   } else {
     res->setTag(altRes);
   }

@@ -19,7 +19,6 @@
 #include "TextItem.h"
 #include "PreviewPopper.h"
 #include "ResManager.h"
-#include "ResourceMagic.h"
 #include "Assert.h"
 #include "SheetScene.h"
 #include "PageView.h"
@@ -47,8 +46,9 @@ OneLink::~OneLink() {
 }
 
 void OneLink::update() {
-  if (!hasArchive() || !hasPreview()) {
-    if (ti->isWritable()) {
+  if (ti->isWritable()) {
+    Resource *res = resource();
+    if (!res || res->needsArchive() || res->needsPreview()) {
       getArchiveAndPreview();
     }
   }
@@ -148,16 +148,6 @@ Resource *OneLink::resource() const {
   return resmgr->byTag(refText());
 }
 
-bool OneLink::hasArchive() const {
-  Resource *res = resource();
-  return res ? res->hasArchive() : false;
-}
-
-bool OneLink::hasPreview() const {
-  Resource *res = resource();
-  return res ? res->hasPreview() : false;
-}
-
 QString OneLink::refText() const {
   TextCursor c(ti->document(), md->start(), md->end());
   return c.selectedText();
@@ -205,7 +195,7 @@ void OneLink::openArchive() {
     qDebug() << "OneLink: openArchive" << refText() << "(no arch)";
     return;
   }
-  if (!hasArchive()) {
+  if (!r->hasArchive()) {
     openLink();
     return;
   }
@@ -267,6 +257,8 @@ void OneLink::downloadFinished() {
        changed; so we're not interested in the results anymore. */
     if (lastRefIsNew) 
       resmgr->dropResource(r);
+    /* This is actually dangerous in case two refs are looking for the
+       same resource simultaneously and one gets edited. */
   } else if (r->hasArchive() || r->hasPreview()
              || !r->title().isEmpty() || !r->description().isEmpty()) {
     // at least somewhat successful
