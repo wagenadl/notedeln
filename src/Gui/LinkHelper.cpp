@@ -89,7 +89,10 @@ OneLink *LinkHelper::newMarkup(MarkupData *md, bool trulyNew) {
 
 void LinkHelper::removeMarkup(MarkupData *md) {
   if (links.contains(md)) {
-    links[md]->deleteLater();
+    OneLink *lnk = links[md];
+    if (current==lnk)
+      current = 0;
+    lnk->deleteLater();
     links.remove(md);
   }
 }

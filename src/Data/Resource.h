@@ -134,7 +134,7 @@ private slots:
   void downloadFinished();
 private:
   void ensureArchiveFilename();
-  void getAPSpecial();
+  void validateSource();
 private:
   QString tag_;
   QUrl src;

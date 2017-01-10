@@ -12,18 +12,9 @@ include(eln.pri)
 
 CONFIG += debug_and_release
 QT += network svg
-android {
-} else {
-    QT += webkit
-}
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets 
 greaterThan(QT_MAJOR_VERSION, 4): QT += printsupport
-
-android {
-} else {
-    greaterThan(QT_MAJOR_VERSION, 4): QT += webkitwidgets
-}
 
 DEPENDPATH +=  $$sourcedirs
 INCLUDEPATH += $$sourcedirs

@@ -226,6 +226,7 @@ bool Resource::importImage(QImage img) {
 }
 
 void Resource::getArchiveAndPreview() {
+  qDebug() << "getarchiveandpreview for " << tag_ << loader << needsArchive() << needsPreview() << src << src.isValid();
   if (loader)
     return; // can't start another one
   if (!needsArchive() && !needsPreview())
@@ -234,17 +235,65 @@ void Resource::getArchiveAndPreview() {
   if (prev.isEmpty())
     setPreviewFilename(safeBaseName(tag_) + "-" + uuid() + "p.png");
   failed = false;
+  if (!src.isValid())
+    validateSource();
+  qDebug() << "validated? " << src << src.isValid();
   if (src.isValid()) {
     loader = new ResLoader(this);
     connect(loader, SIGNAL(finished()), SLOT(downloadFinished()));
     loader->start();
-  } else {
-    getAPSpecial();
   }    
 }
 
-void Resource::getAPSpecial() {
-  return;
+static bool isHttpLike(QString s) {
+  if (s.startsWith("http://")
+      || s.startsWith("https://")
+      || s.startsWith("file://")
+      || s.startsWith("~/")
+      || s.startsWith("/"))
+    return true;
+
+  QStringList spl = s.split("/");
+  if (spl[0].startsWith("www.")
+      || spl[0].endsWith(".com")
+      || spl[0].endsWith(".net")
+      || spl[0].endsWith(".org")
+      || spl[0].endsWith(".edu"))
+    return true;
+
+  return false;
+}
+
+static QUrl urlFromTag(QString s) {
+  if (s.startsWith("http://")
+      || s.startsWith("https://")
+      || s.startsWith("file://"))
+    return QUrl(s);
+
+  if (s.startsWith("/"))
+    return QUrl("file://" + s);
+
+  if (s.startsWith("~/")) {
+    QString home = qgetenv("HOME");
+    return QUrl("file://" + home + "/" + s.mid(2));
+  }
+  
+  QStringList spl = s.split("/");  
+  if (spl[0].startsWith("www.")
+      || spl[0].endsWith(".com")
+      || spl[0].endsWith(".net")
+      || spl[0].endsWith(".org")
+      || spl[0].endsWith(".edu"))
+    return QUrl("http://" + s);
+
+  return QUrl(s);
+}
+  
+
+void Resource::validateSource() {
+  // Right now, we only do http-like sources
+  if (isHttpLike(tag())) 
+    setSourceURL(urlFromTag(tag()));
 }
 
 bool Resource::hasFailed() const {
