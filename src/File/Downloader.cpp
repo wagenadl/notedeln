@@ -42,6 +42,7 @@ void Downloader::start(QString fn) {
       startDownload();
     } else {
       err = true;
+      errs = "Could not open destination for writing";
       emit finished();
     }
   }
@@ -103,6 +104,7 @@ void Downloader::qnrDataAv() {
           dst->close();
         qnr->close();
         err = true;
+	errs = "Max download size exceeded";
         emit finished();
         return;
       }
@@ -120,6 +122,7 @@ void Downloader::qnrDataAv() {
         dst->close();
       qnr->close();
       err = true;
+      errs = "Network error: " + qnr->error();
       emit finished();
       break;
     }
@@ -137,10 +140,7 @@ static bool hostMatch(QString a, QString b) {
 }
 
 QString Downloader::error() const {
-  if (qnr->error())
-    return QString("%1").arg(qnr->error());
-  else
-    return "";
+  return err ? errs : QString();
 }
 
 void Downloader::qnrFinished() {
@@ -155,6 +155,7 @@ void Downloader::qnrFinished() {
   if (qnr->error()) {
     qDebug() << "Downloader " << src.toString() << ": qnr error" << qnr->error();
     err = true;
+    errs = "Network error" + qnr->error();
   }
 
   if (err) {
@@ -167,6 +168,7 @@ void Downloader::qnrFinished() {
     if (++redirectCount >= 10) {
       qDebug() << "Downloader: Too many redirects";
       err = true;
+      errs = "Too many redirects";
     } else {
       qnr->deleteLater();
       qnr = 0;
@@ -180,6 +182,7 @@ void Downloader::qnrFinished() {
       } else {
 	qDebug() << "Cross-site redirect: refusing" << newUrl.toString();
 	err = true;
+	errs = "Refusing cross-site redirect";
       }
     }
   }

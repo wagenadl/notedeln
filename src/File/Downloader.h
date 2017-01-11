@@ -52,6 +52,7 @@ private:
   bool err;
   int N;
   int redirectCount;
+  QString errs;
 private:
   static class QNetworkAccessManager &networkAccessManager();
 };
