@@ -24,6 +24,7 @@
 #include <QTimer>
 #include <QSignalMapper>
 #include "EntryFile.h"
+#include "LateNoteManager.h"
 
 #define INDEX_SAVEIVAL_S 5
 
@@ -50,41 +51,46 @@ Index::~Index() {
   flush();
 }
 
-void Index::watchEntry(EntryFile *e) {
+void Index::watchEntry(Entry *e) {
   ASSERT(e);
   EntryData *d = e->data();
   ASSERT(d);
+  EntryFile *f = e->file();
+  ASSERT(f);
   int pgno = d->startPage();
-  qDebug() << "Index: watchEntry" << pgno;
-  connect(e, SIGNAL(saved()), mp, SLOT(map()), Qt::UniqueConnection);
-  oldsets[pgno] = d->wordSet();
-  mp->setMapping(e, e);
+  connect(f, SIGNAL(saved()), mp, SLOT(map()), Qt::UniqueConnection);
+  connect(e->lateNoteManager(), SIGNAL(mod()),
+	  mp, SLOT(map()), Qt::UniqueConnection);
+  oldsets[pgno] = e->wordSet();
+  mp->setMapping(f, e);
+  mp->setMapping(e->lateNoteManager(), e);
 }
 
-void Index::unwatchEntry(EntryFile *e) {
+void Index::unwatchEntry(Entry *e) {
   ASSERT(e);
   EntryData *d = e->data();
   ASSERT(d);
+  EntryFile *f = e->file();
+  ASSERT(f);
   int pgno = d->startPage();
-  qDebug() << "Index: unwatchEntry" << pgno;
-  disconnect(e, SIGNAL(saved()), mp, SLOT(map()));
-  mp->removeMappings(e);
+  disconnect(f, SIGNAL(saved()), mp, SLOT(map()));
+  disconnect(e->lateNoteManager(), SIGNAL(mod()), mp, SLOT(map()));
+  mp->removeMappings(f);
+  mp->removeMappings(e->lateNoteManager());
   oldsets.remove(pgno);
 }
 
-void Index::deleteEntry(EntryFile *e) {
+void Index::deleteEntry(Entry *e) {
   ASSERT(e);
   EntryData *d = e->data();
   ASSERT(d);
   int pgno = d->startPage();
-  qDebug() << "Index: deleteEntry" << pgno;
   words()->dropEntry(pgno);
   unwatchEntry(e);
 }
 
 void Index::flush() {
   saveTimer->stop();
-  qDebug() << "Index::flush";
   if (needToSave)
     words()->save(rootdir + "/index.json");
   needToSave = false;
@@ -95,11 +101,11 @@ WordIndex *Index::words() const {
 }
 
 void Index::updateEntry(QObject *obj) {
-  EntryFile *e = dynamic_cast<EntryFile *>(obj);
+  Entry *e = dynamic_cast<Entry *>(obj);
   ASSERT(e);
   EntryData *d = e->data();
   ASSERT(d);
-  QSet<QString> words = d->wordSet();
+  QSet<QString> words = e->wordSet();
   int pgno = d->startPage();
 
   if (words!=oldsets[pgno]) {

@@ -26,6 +26,7 @@
 #include "Index.h"
 #include "WordIndex.h"
 #include "Assert.h"
+#include "LateNoteManager.h"
 
 #include <QSet>
 #include <QDebug>
@@ -104,6 +105,7 @@ QList<SearchResult> Search::immediatelyFindPhrase(QString phrase) const {
   QSet<int> entries = book->index()->words()->findWords(words, true);
   QList<int> sortedEntries = entries.toList();
   qSort(sortedEntries);
+  qDebug () << "immfp" << entries;
 
   QList<SearchResult> results;
   
@@ -114,6 +116,8 @@ QList<SearchResult> Search::immediatelyFindPhrase(QString phrase) const {
     foreach (TitleData const *bd, ef->children<TitleData>())
       addToResults(results, phrase, ttl, bd, pgno, pgno);
     foreach (BlockData const *bd, ef->children<BlockData>())
+      addToResults(results, phrase, ttl, bd, pgno, pgno + bd->sheet());
+    foreach (LateNoteData const *bd, ef.lateNoteManager()->notes())
       addToResults(results, phrase, ttl, bd, pgno, pgno + bd->sheet());
   }
 

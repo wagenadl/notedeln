@@ -39,6 +39,7 @@ public:
   bool saveNow() const;
   bool needToSave() const;
   void setBook(class Notebook *);
+  QSet<QString> wordSet() const;
 private:
   EntryData *data_;
   EntryFile *file_;
