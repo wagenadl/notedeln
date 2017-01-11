@@ -39,7 +39,7 @@ public:
   bool saveNow() const;
   bool needToSave() const;
   void setBook(class Notebook *);
-  QSet<QString> wordSet() const;
+  QSet<QString> wordSet() const; // does *not* ensure that late notes are loaded
 private:
   EntryData *data_;
   EntryFile *file_;

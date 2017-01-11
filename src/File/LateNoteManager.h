@@ -21,7 +21,6 @@ public:
   virtual Data *takeChild(Data *, ModType mt=UserVisibleMod);
   bool needToSave() const;
   bool saveAll() const;
-private:
   void ensureLoaded();
 private:
   QDir dir;

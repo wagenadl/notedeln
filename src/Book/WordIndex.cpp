@@ -25,6 +25,7 @@
 #include <QDebug>
 #include <QMessageBox>
 #include <QProgressDialog>
+#include "LateNoteManager.h"
 
 WordIndex::WordIndex(QObject *parent): QObject(parent) {
 }
@@ -112,9 +113,11 @@ bool WordIndex::build(class TOC *toc, QString pagesDir) {
     QString uuid = toc->tocEntry(pg)->uuid();
     EntryFile *f = ::loadEntry(pagesDir, pg, uuid, 0);
     if (f) {
-      for (QString w: f->data()->wordSet())
+      Entry *entry = new Entry(f);
+      entry->lateNoteManager()->ensureLoaded();
+      for (QString w: entry->wordSet())
         index[w].insert(pg);
-      delete f;
+      delete entry;
     } else {
       qDebug() << "WordIndex::build - Cannot load entry" << pg << uuid;
       warns << QString("%1").arg(pg);
