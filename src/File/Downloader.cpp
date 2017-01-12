@@ -92,7 +92,7 @@ QString Downloader::mimeType() const {
 void Downloader::qnrDataAv() {
   if (ok || err)
     return;
-
+  ASSERT(qnr);
   QByteArray buf(65536, 0);
   while (true) {
     qint64 n = qnr->read(buf.data(), 65536);
@@ -150,6 +150,8 @@ void Downloader::qnrFinished() {
   if (dst)
     dst->close();
 
+  ASSERT(qnr);
+  
   qnr->close(); // needed?
 
   if (qnr->error()) {
