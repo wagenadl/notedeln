@@ -29,8 +29,6 @@ GfxNoteData::GfxNoteData(Data *parent): GfxData(parent) {
   sheet_ = 0;
   dx_ = dy_ = 0;
   textWidth_ = 0;
-  for (Data *d: allChildren())
-    qDebug() << "GfxNoteDate" << this << " child " << d;
 }
 
 GfxNoteData::~GfxNoteData() {

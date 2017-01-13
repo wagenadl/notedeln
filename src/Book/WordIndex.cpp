@@ -82,7 +82,7 @@ bool WordIndex::save(QString filename) {
   }
 
   QVariantMap ls;
-  qDebug() << "Saving index. sizeof lastseen is" << lastseen.size();
+  // qDebug() << "Saving index. sizeof lastseen is" << lastseen.size();
   for (auto i=lastseen.begin(); i!=lastseen.end(); i++) {
     int pgno = i.key();
     QDateTime dt = i.value();
