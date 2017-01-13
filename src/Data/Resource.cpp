@@ -20,16 +20,16 @@
 #include "ResLoader.h"
 #include <QImage>
 #include <QDebug>
-#include "ResourceMagic.h"
-#include "Magician.h"
 #include "Assert.h"
+#include "Notebook.h"
+#include "TOC.h"
+#include "TOCEntry.h"
 
 static Data::Creator<Resource> c("res");
 
 Resource::Resource(Data *parent): Data(parent) {
   setType("res");
   loader = 0;
-  magic = 0;
   failed = false;
 }
 
@@ -109,16 +109,31 @@ void Resource::setRoot(QDir d) {
 }
 
 bool Resource::hasArchive() const {
-  if (src.scheme()=="page")
-    return true;
   return !arch.isEmpty() && dir.exists(arch) && !loader;
 }
 
-bool Resource::hasPreview() const {
+bool Resource::needsArchive() const {
   if (src.scheme()=="page")
-    return true;
+    return false;
+  else if (loader)
+    return false;
+  else
+    return !hasArchive();
+}  
+
+bool Resource::hasPreview() const {
   return !prev.isEmpty() && dir.exists(prev) && !loader;
 }
+
+bool Resource::needsPreview() const {
+  if (src.scheme()=="page")
+    return false;
+  else if (loader)
+    return false;
+  else
+    return !hasPreview();
+}
+  
 
 QString Resource::archivePath() const {
   return dir.absoluteFilePath(arch);
@@ -145,7 +160,10 @@ static QString safeExtension(QString fn) {
 }
   
 static QString safeBaseName(QString fn) {
+  qDebug() << " safename" << fn;
+
   fn.replace(QRegExp("^http(s?)://"), "");
+  fn.replace(QRegExp("^file://"), "");
   fn.replace(QRegExp("^//*"), "");
   fn.replace(QRegExp("//*$"), "");
   int idx = fn.lastIndexOf(".");
@@ -170,8 +188,9 @@ static QString safeBaseName(QString fn) {
   }
 
   fn = f_0 + "_" + f_n;
-  
+
   fn.replace(QRegExp("[^[a-zA-Z0-9]_]"), "_");
+  qDebug() << " -> " << fn;
   return fn;
 }
 
@@ -187,7 +206,7 @@ void Resource::ensureArchiveFilename() {
     QString leaf = bits.last();
     int idx = leaf.lastIndexOf(".");
     if (idx>=0) {
-      int tagIdx = tag_.lastIndexOf(".");
+      int tagIdx = base.lastIndexOf(".");
       if (tagIdx>=0)
 	base = base.left(tagIdx);
       base += leaf.mid(idx);
@@ -208,22 +227,100 @@ bool Resource::importImage(QImage img) {
 }
 
 void Resource::getArchiveAndPreview() {
+  qDebug() << "getarchiveandpreview for " << tag_ << loader << needsArchive() << needsPreview() << src << src.isValid();
   if (loader)
     return; // can't start another one
+  if (!needsArchive() && !needsPreview())
+    return;
   ensureArchiveFilename();
   if (prev.isEmpty())
     setPreviewFilename(safeBaseName(tag_) + "-" + uuid() + "p.png");
   failed = false;
+  if (!src.isValid())
+    validateSource();
+  qDebug() << "validated? " << src << src.isValid();
   if (src.isValid()) {
     loader = new ResLoader(this);
     connect(loader, SIGNAL(finished()), SLOT(downloadFinished()));
     loader->start();
   } else {
-    if (magic)
-      delete magic;
-    magic = 0;
-    doMagic();
-  }    
+  }
+}
+
+static bool isHttpLike(QString s) {
+  if (s.startsWith("http://")
+      || s.startsWith("https://")
+      || s.startsWith("file://")
+      || s.startsWith("~/")
+      || s.startsWith("/"))
+    return true;
+
+  QStringList spl = s.split("/");
+  if (spl[0].startsWith("www.")
+      || spl[0].endsWith(".com")
+      || spl[0].endsWith(".net")
+      || spl[0].endsWith(".org")
+      || spl[0].endsWith(".edu"))
+    return true;
+
+  return false;
+}
+
+static QUrl urlFromTag(QString s) {
+  if (s.startsWith("http://")
+      || s.startsWith("https://")
+      || s.startsWith("file://"))
+    return QUrl(s);
+
+  if (s.startsWith("/"))
+    return QUrl("file://" + s);
+
+  if (s.startsWith("~/")) {
+    QString home = qgetenv("HOME");
+    return QUrl("file://" + home + "/" + s.mid(2));
+  }
+  
+  QStringList spl = s.split("/");  
+  if (spl[0].startsWith("www.")
+      || spl[0].endsWith(".com")
+      || spl[0].endsWith(".net")
+      || spl[0].endsWith(".org")
+      || spl[0].endsWith(".edu"))
+    return QUrl("http://" + s);
+
+  return QUrl(s);
+}
+
+static bool isPubMed(QString s) {
+  return QRegExp("\\d\\d\\d\\d\\d\\d*").exactMatch(s);
+}
+
+static bool isPageNumber(QString s) {
+  return QRegExp("\\d\\d*[a-z]?").exactMatch(s);
+}
+
+static QUrl pageLink(QString s, Notebook *book) {
+  ASSERT(book);
+  TOC *toc = book->toc();
+  ASSERT(toc);
+  TOCEntry *te = toc->find(s);
+  if (te) 
+    return QUrl(QString("page://%1/%2/%3")
+                .arg(s)
+                .arg(te->uuid())
+                .arg(te->sheetOf(s)));
+  else
+    return QUrl();
+}
+
+void Resource::validateSource() {
+  // Right now, we only do http-like sources
+  if (isHttpLike(tag())) 
+    setSourceURL(urlFromTag(tag()));
+  else if (isPubMed(tag()))
+    setSourceURL("http://www.ncbi.nlm.nih.gov/pubmed/" + tag());
+  else if (isPageNumber(tag()))
+    setSourceURL(pageLink(tag(), book()));
 }
 
 bool Resource::hasFailed() const {
@@ -253,108 +350,4 @@ void Resource::ensureDir() {
     QDir::root().mkpath(dir.absolutePath());
 }
 
-void Resource::doMagic() {
-  ASSERT(!loader);
-  
-  if (magic)
-    magic->next();
-  else
-    magic = new ResourceMagic(tag_, this);
-
-  while (!magic->isExhausted()) {
-    src = QUrl();
-    ttl = magic->title();
-    desc = magic->desc();
-    if (magic->webUrl().isValid()) {
-      src = magic->webUrl();
-      if (src.scheme()=="page")
-        return;
-      ensureArchiveFilename();
-      loader = new ResLoader(this, false);
-      connect(loader, SIGNAL(finished()), SLOT(magicWebUrlFinished()));
-      loader->start();
-      return;
-    } else if (magic->objectUrl().isValid()) {
-      src = magic->objectUrl();
-      if (src.scheme()=="page")
-        return;
-      ensureArchiveFilename();
-      if (prev.isEmpty())
-	setPreviewFilename(safeBaseName(tag_) + "-" + uuid() + "p.png");
-      loader = new ResLoader(this);
-      connect(loader, SIGNAL(finished()), SLOT(magicObjectUrlFinished()));
-      loader->start();
-      return;
-    } else {
-      ttl = "";
-      desc = "";
-      magic->next();
-    }
-  }
-
-  // not successful
-  if (!arch.isEmpty())
-    dir.remove(arch);
-  if (!prev.isEmpty())
-    dir.remove(prev);
-  src = QUrl();
-  arch = "";
-  prev = "";
-  ttl = "";
-  desc = "";
-  markModified();
-  failed = true;
-  emit finished(); // oh well
-}
-
-void Resource::magicWebUrlFinished() {
-  if (loader->isComplete()) {
-    // good work!
-    loader->deleteLater();
-    loader = 0;
-    if (magic->objectUrlNeedsWebPage()) {
-      QFile a(archivePath());
-      if (a.open(QFile::ReadOnly)) {
-	QString html = a.readAll();
-	src = magic->objectUrlFromWebPage(html);
-	a.close();
-	loader = new ResLoader(this);
-	connect(loader, SIGNAL(finished()), SLOT(magicObjectUrlFinished()));
-        loader->start();
-      } else {
-	markModified();
-	emit finished();
-      }
-    } else if (magic->objectUrl().isValid()) {
-      src = magic->objectUrl();
-      ensureArchiveFilename();
-      loader = new ResLoader(this);
-      connect(loader, SIGNAL(finished()), SLOT(magicObjectUrlFinished()));
-      loader->start();
-    } else {
-      markModified();
-      emit finished();
-    }
-  } else {
-    loader->deleteLater();
-    loader = 0;
-    doMagic(); // try next magician
-  }
-}
-
-void Resource::magicObjectUrlFinished() {
-  if (loader->isComplete()) {
-    // good work!
-    loader->deleteLater();
-    loader = 0;
-    if (magic->webUrl().isValid()) 
-      src = magic->webUrl(); // restore web url
-    markModified();
-    emit finished();
-  } else {
-    loader->deleteLater();
-    loader = 0;
-    doMagic(); // try next magician
-  }
-}
 

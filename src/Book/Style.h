@@ -30,6 +30,7 @@ public:
   double real(QString) const;
   double real(QString, double dflt) const;
   QString string(QString) const;
+  QString string(QString, QString dflt) const;
   bool flag(QString) const;
   int integer(QString) const;
   QColor color(QString) const;

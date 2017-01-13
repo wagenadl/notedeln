@@ -19,6 +19,7 @@
 #include "GfxNoteData.h"
 #include "Assert.h"
 #include <math.h>
+#include <QDebug>
 
 static Data::Creator<GfxNoteData> c("gfxnote");
 

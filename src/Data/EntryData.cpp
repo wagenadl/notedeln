@@ -122,7 +122,6 @@ void EntryData::loadMore(QVariantMap const &src) {
 
 TitleData *EntryData::title() {
   TitleData *title_ = firstChild<TitleData>();
-  qDebug() << "title_ = " << title_;
   if (!title_) {
     title_ = new TitleData(this);
     connect(title_, SIGNAL(textMod()), SIGNAL(titleMod()));
@@ -240,4 +239,3 @@ void EntryData::markModified(ModType mt) {
   }
 }
 
-      

@@ -36,17 +36,16 @@ public:
 signals:
   void clicked(Qt::KeyboardModifiers);
   /* CLICKED - Emitted when the popup is clicked */
-protected:
-  virtual void timerEvent(QTimerEvent *);
 private slots:
   void closeAndDie();
+  void timeout();
 private:
   void smartPosition();
 private:
   Resource *res;
   QRect over;
   class PopLabel *widget;
-  int timerID;
+  class QTimer *timer;
 };
 
 #endif

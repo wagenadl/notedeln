@@ -1,6 +1,6 @@
 #!/bin/sh
 
-SUBDIRS="App ToolScene Dialogs Gui Book Data File Items Scenes ResourceMagic"
+SUBDIRS="App ToolScene Dialogs Gui Book Data File Items Scenes AutoNote"
 
 cd `dirname $0`
 cd ../src

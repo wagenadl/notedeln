@@ -26,7 +26,6 @@
 #include "Style.h"
 #include "ResManager.h"
 #include "BlockItem.h"
-#include "ResourceMagic.h"
 #include "Assert.h"
 #include "TeXCodes.h"
 #include "Digraphs.h"
@@ -335,7 +334,7 @@ void TextItem::representDeadLinks(QList<TransientMarkup> &tmm) {
 	  in_progress_res.insert(res);
 	  connect(res, SIGNAL(mod()), SLOT(inProgressMod()));
 	}
-      } else if (!res->hasArchive()) {
+      } else if (res->needsArchive()) {
 	// qDebug() << "no archive";
 	tmm << TransientMarkup(md->start(), md->end(),
 			       MarkupData::DeadLink);
@@ -1069,8 +1068,41 @@ static QString substituteMark(QString s) {
   return map.contains(s) ? map[s] : s;
 }
 
+static TextCursor linkAt(TextCursor const &c) {
+  if (c.hasSelection())
+    return c;
+
+  TextItemDoc *doc = c.document();
+
+  TextCursor e = c.findForward(QRegExp("\\s"));
+  int end = e.hasSelection() ? e.selectionStart() : -1;
+  if (end<0) {
+    e = c;
+    e.movePosition(TextCursor::End);
+    end = e.position();
+  }
+  QString endchars = QString::fromUtf8(";:.,)]}’”!?—");
+  while (end>0 && endchars.contains(doc->characterAt(end-1)))
+    end--;
+
+  TextCursor s = c.findBackward(QRegExp("\\s"));
+  int start = s.hasSelection() ? s.selectionEnd() : 0;
+  QString startchars = QString::fromUtf8("([{‘“¡¿—");
+  while (start<end && startchars.contains(doc->characterAt(start)))
+    start++;
+
+  if (start>=end)
+    return TextCursor();
+    
+  // Now, start..end is the area that we will work with
+  TextCursor m = c;
+  m.setPosition(start);
+  m.setPosition(end, TextCursor::KeepAnchor);
+  return m;
+}
+  
 bool TextItem::tryExplicitLink() {
-  TextCursor m = ResourceMagic::explicitLinkAt(textCursor(), style());
+  TextCursor m = linkAt(textCursor());
   if (!m.hasSelection())
     return false;
   int start = m.selectionStart();

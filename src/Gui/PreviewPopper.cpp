@@ -25,22 +25,24 @@
 #include <QDebug>
 #include "Assert.h"
 #include "PopLabel.h"
+#include <QTimer>
 
 PreviewPopper::PreviewPopper(Resource *res,
 			     QRect over, QObject *parent):
   QObject(parent), res(res), over(over) {
   widget = 0;
-  timerID = startTimer(100);
+  timer = new QTimer(this);
+  connect(timer, SIGNAL(timeout()), SLOT(timeout()));
+  timer->setSingleShot(true);
+  timer->start(100);
 }
 
 PreviewPopper::~PreviewPopper() {
-  killTimer(timerID);
   if (widget)
     delete widget;
 }
 
-void PreviewPopper::timerEvent(QTimerEvent *) {
-  killTimer(timerID);
+void PreviewPopper::timeout() {
   popup();
 }
 

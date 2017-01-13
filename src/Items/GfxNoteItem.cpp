@@ -169,7 +169,6 @@ void GfxNoteItem::updateTextPos() {
   // Auto limit text width
   if (data()->textWidth()<1) {
     QRectF sr = text->mapRectToScene(text->netBounds());
-    qDebug() << "gfxnoteitem::updatetextpos" << data()->textWidth() << text->textWidth() << sr;
     if (sr.right() >= style().real("page-width")
 	- style().real("margin-right-over")) {
       double tw = style().real("page-width")

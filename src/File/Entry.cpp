@@ -84,3 +84,9 @@ bool Entry::saveNow() const {
   return ok;
 }
 
+QSet<QString> Entry::wordSet() const {
+  QSet<QString> d = data()->wordSet();
+  if (lnm_)
+    d |= lnm_->wordSet();
+  return d;
+}

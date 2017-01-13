@@ -21,23 +21,13 @@
 #include "Assert.h"
 #include "WebGrab.h"
 
-#include <QNetworkAccessManager>
-#include <QNetworkReply>
-#include <QNetworkRequest>
-#include <QEventLoop>
+#include "Downloader.h"
 #include <QTimer>
 #include <QDebug>
 #include <QVariant>
-#include <QProgressDialog>
 #include <QProcess>
-#include <QTemporaryFile>
 #include <QTextDocument>
 #include <QTextStream>
-
-QNetworkAccessManager &ResLoader::networkAccessManager() {
-  static QNetworkAccessManager n;
-  return n;
-}
 
 ResLoader::ResLoader(Resource *parent, bool convertHtmlToPdf):
   QObject(parent), parentRes(parent), convertHtmlToPdf(convertHtmlToPdf) {
@@ -47,8 +37,7 @@ ResLoader::ResLoader(Resource *parent, bool convertHtmlToPdf):
   err = false;
   dst = 0;
   proc = 0;
-  qnr = 0;
-  redirectCount = 0;
+  downloader = 0;
 
   src = parentRes->sourceURL();
   if (src.scheme()=="page")
@@ -68,23 +57,14 @@ void ResLoader::start() {
 } 
 
 void ResLoader::startDownload() {
-  if (!dst->open(QFile::WriteOnly)) {
-    qDebug() << "ResLoader: Cannot open dst";
-    err = true;
-    return;
-  }
-
-  QNetworkRequest rq(src);
-  rq.setRawHeader("User-Agent", "Mozilla Firefox");
-
-  qnr = networkAccessManager().get(rq);
-  connect(qnr, SIGNAL(finished()), SLOT(qnrFinished()), Qt::QueuedConnection);
-  connect(qnr, SIGNAL(readyRead()), SLOT(qnrDataAv()), Qt::QueuedConnection);
+  downloader = new Downloader(src, this);
+  connect(downloader, SIGNAL(finished()), SLOT(downloadFinished()));
+  downloader->start(dst->fileName());
 }
 
 ResLoader::~ResLoader() {
-  if (qnr)
-    delete qnr; // really? doubtful
+  if (downloader)
+    delete downloader;
 }
 
 bool ResLoader::isComplete() const {
@@ -96,53 +76,16 @@ bool ResLoader::isFailed() const {
 }
 
 QString ResLoader::mimeType() const {
-  QString mime = qnr->header(QNetworkRequest::ContentTypeHeader).toString();
-  int idx = mime.indexOf(";");
-  return (idx>=0) ? mime.left(idx) : mime;
+  return downloader ? downloader->mimeType() : "";
 }
 
-void ResLoader::qnrDataAv() {
-  if (ok || err)
-    return;
-  QByteArray buf(65536, 0);
-  while (true) {
-    qint64 n = qnr->read(buf.data(), 65536);
-    if (n>0) {
-      dst->write(buf.data(), n);
-      if (n<65536)
-	break;
-    } else if (n==0) {
-      break;
-    } else {
-      qDebug() << "ResLoader: read<0 !?";
-      dst->close();
-      qnr->close();
-      err = true;
-      emit finished();
-      break;
-    }
-  }
-}
-
-static bool hostMatch(QString a, QString b) {
-  if (a==b)
-    return true;
-  if (a.startsWith("www.") && a.mid(4)==b)
-    return true;
-  if (b.startsWith("www.") && b.mid(4)==a)
-    return true;
-  return false;
-}
-
-void ResLoader::qnrFinished() {
+void ResLoader::downloadFinished() {
   if (ok || err) // already finished
     return;
 
-  dst->close();
-  qnr->close(); // needed?
-
-  if (qnr->error()) {
-    qDebug() << "ResLoader " << src.toString() << ": qnr error" << qnr->error();
+  if (downloader->isFailed()) {
+    qDebug() << "ResLoader " << src.toString()
+             << ": downloader error" << downloader->error();
     err = true;
   }
 
@@ -150,33 +93,10 @@ void ResLoader::qnrFinished() {
     emit finished();
     return;
   }
-  
-  QVariant attr = qnr->attribute(QNetworkRequest::RedirectionTargetAttribute);
-  if (!attr.toString().isEmpty()) {
-    if (++redirectCount >= 10) {
-      qDebug() << "ResLoader: Too many redirects";
-      err = true;
-    } else {
-      qnr->deleteLater();
-      qnr = 0;
-      QUrl newUrl(attr.toString());
-      if (hostMatch(newUrl.host(), src.host()) && parentAlive()) {
-	qDebug() << "Accepting redirect of " << src.toString()
-		 << "to" << newUrl.toString();
-	src = newUrl;
-	parentRes->setSourceURL(src);
-	startDownload();
-	return;
-      } else {
-	qDebug() << "Cross-site redirect: refusing" << newUrl.toString();
-	err = true;
-      }
-    }
-  }
 
-  if (err) {
-    emit finished();
-    return;
+  if (downloader->source() != src) {
+    src = downloader->source();
+    parentRes->setSourceURL(src);
   }
   
   if (mimeType()=="text/html") 

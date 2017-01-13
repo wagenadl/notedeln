@@ -78,7 +78,7 @@ QVariant Style::operator[](QString k) const {
 }
 
 double Style::real(QString k, double dflt) const {
-  if (options_.contains(k))
+  if (contains(k))
     return real(k);
   else
     return dflt;
@@ -90,6 +90,13 @@ double Style::real(QString k) const {
 
 QString Style::string(QString k) const {
   return (*this)[k].toString();
+}
+
+QString Style::string(QString k, QString dflt) const {
+  if (contains(k))
+    return string(k);
+  else
+    return dflt;
 }
 
 bool Style::flag(QString k) const {
