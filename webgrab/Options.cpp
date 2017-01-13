@@ -27,7 +27,7 @@ Options::Options(int &argc, char **&argv) {
   while (argc>1 && argv[1][0]=='-') {
     for (int n=1; argv[1][n]; n++) {
       switch (argv[1][n]) {
-      case 'p': paginate=true; break;
+      case 'p': paginate = true; break;
       case 't': imSize = 160; break;
       case 's': imSize = 320; break;
       case 'm': imSize = 640; break;
