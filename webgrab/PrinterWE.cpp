@@ -37,20 +37,20 @@ PrinterWE::~PrinterWE() {
 
 void PrinterWE::display() {
   QSize si = src->page()->contentsSize().toSize();
-  qDebug() << "display" << si;
   if (!si.isEmpty() && !havesize) {
       havesize = true;
-    si += QSize(2,2);
-    if (si.width()>1100)
+    si += QSize(4, 4);
+    if (si.width()>1100) {
       si.setWidth(1100);
-    if (si.height()>1100)
+      si.setHeight(si.height() + 30); // make space for scroll bar
+    }
+    if (si.height()>1100) {
       si.setHeight(1100);
-    qDebug() << "display ->" << si;
+      si.setWidth(si.width() + 30); // make space for scroll bar
+    }
     src->resize(si); // adjust window size
   }
   QSize si2 = src->page()->contentsSize().toSize();
-  qDebug() << "display" << si2;
-
 }
 
 
@@ -61,26 +61,27 @@ void PrinterWE::complete(bool ok) {
     return;
   }
   qDebug() << "complete";
-  src->show();
-
+  if (opt.out.isEmpty()) {
+    src->show();
+  } else {
+    bool stayalive = false;
+    foreach (QString fn, opt.out) {
+      if (fn.endsWith(".pdf")) {
+        stayalive = true;
+        toPdf(fn);
+      } else if (fn.endsWith(".svg")) {
+        toSvg(fn);
+      } else {
+        toImg(fn);
+      }
+    }
+    if (!stayalive)
+      QApplication::exit(0);
+  }
 }
 
-void PrinterWE::sizeChange(QSizeF const &s) {
-    qDebug() << "size change " << s;
-    display();
-    if (opt.out.isEmpty()) {
-      return;
-    } else {
-      foreach (QString fn, opt.out) {
-        if (fn.endsWith(".pdf"))
-      toPdf(fn);
-        else if (fn.endsWith(".svg"))
-      toSvg(fn);
-        else
-      toImg(fn);
-      }
-  //    QApplication::exit(0);
-    }
+void PrinterWE::sizeChange(QSizeF const &) {
+  display();
 }
 
 void PrinterWE::toPdf(QString fn) {
@@ -101,7 +102,6 @@ public:
     }
     f.write(ar);
     f.close();
-    qDebug() << "Hello world" << ar.size();
     QApplication::exit(0);
   }
 private:
@@ -109,81 +109,48 @@ private:
 };
 
 void PrinterWE::toMultiPagePdf(QString fn) {
-  qDebug() << "tomultipagepdf" << fn;
   Receiver *recv = new Receiver(fn);
   src->page()->printToPdf(*recv, QPageLayout(QPageSize(QPageSize::Letter), QPageLayout::Portrait, QMarginsF()));
 }
 
 void PrinterWE::toSinglePagePdf(QString fn) {
-  qDebug() << "Rendering to single page pdf" << fn << src->page()->contentsSize() << src->size();
-  QPrinter printer;
-  printer.setOutputFileName(fn);
-  printer.setFullPage(true);
-  printer.setPaperSize(src->page()->contentsSize(), QPrinter::Point);
-  QPainter p;
-  p.begin(&printer);
-  src->render(&p);
-  p.end();
+  toMultiPagePdf(fn);
+  // single-page pdf not supported in WebEngine.
 }
 
 void PrinterWE::toSvg(QString fn) {
   QSvgGenerator printer;
   printer.setFileName(fn);
   printer.setResolution(90);
-  QSizeF si = src->page()->contentsSize()*90./72.;
-  printer.setSize(si.toSize());
-  
+  QFont font;
+  QFontMetricsF fm(font);
+  QString txt = src->page()->title();
+  QRectF r = fm.boundingRect(txt);
+  printer.setSize((r.size() * 90./72).toSize());
   QPainter p;
   p.begin(&printer);
-  src->render(&p);
+  p.setFont(font);
+  p.drawText(QRectF(QPointF(0,0), r.size()), txt);
   p.end();
 }
 
 void PrinterWE::toImg(QString fn) {
-  double maxDim = opt.imSize;
-  QSizeF si = src->page()->contentsSize();
-  double w = si.width();
-  double h = si.height();
-  if (w*h>0) {
-    double rat = w/h;
-    double wo, ho;
-    if (rat>2.) {
-      // crop somehow
-      ho = maxDim/2;
-      wo = rat*ho;
-    } else if (rat<2/3.) {
-      // crop somehow
-      wo = maxDim*2/3;
-      ho = wo/rat;
-    } else {
-      double scl = w>h ? maxDim/w : maxDim/h;
-      wo = scl*w;
-      ho = scl*h;
-    }
-    QPixmap printer(wo, ho);
-    printer.fill();
-    QPainter p;
-    p.begin(&printer);
-    src->render(&p);
-    p.end();
-
-    QRect crop(0, 0, wo, ho);
-    if (rat>2.) 
-      crop = QRect((wo-2*ho)/2, 0, 2*ho, ho);
-    else if (rat<2/3.)
-      crop = QRect(0, 0, wo, 1.5*wo);
-    QPixmap copy = printer.copy(crop.adjusted(0, 0, -1, -1));
-    // trim off one pixel [why? 1/29/16]
-    if (!copy.save(fn)) {
-      fprintf(stderr, "Failed to save image");
+  QFont font;
+  QFontMetricsF fm(font);
+  QString txt = src->page()->title();
+  QRectF r = fm.boundingRect(txt);
+  QPixmap printer(r.size().toSize());
+  printer.fill(QColor("white"));
+  QPainter p;
+  p.begin(&printer);
+  p.setFont(font);
+  p.drawText(QRectF(QPointF(0,0), r.size()), txt);
+  p.end();
+  if (!printer.save(fn)) {
+      qDebug() << "Failed to save image";
       QApplication::exit(2);
-    }
-  } else {
-    fprintf(stderr, "Saving empty image");
-    QPixmap nul(0,0);
-    nul.save(fn);
   }
-}
+ }
 
 void PrinterWE::featureReq(QUrl const &url, QWebEnginePage::Feature f) {
     src->page()->setFeaturePermission(url, f, QWebEnginePage::PermissionDeniedByUser);
