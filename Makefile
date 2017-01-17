@@ -43,8 +43,8 @@ install: all
 	install -d $(DOCPATH)
 	install build/eln $(INSTALLPATH)/bin/eln
 	install build/webgrab $(INSTALLPATH)/bin/webgrab
-	cp doc/eln.1 $(SHAREPATH)/man/man1/eln.1
-	cp doc/webgrab.1 $(SHAREPATH)/man/man1/webgrab.1
+	cp build-doc/eln.1 $(SHAREPATH)/man/man1/eln.1
+	cp build-doc/webgrab.1 $(SHAREPATH)/man/man1/webgrab.1
 	cp src/App/eln.png $(SHAREPATH)/pixmaps/eln.png
 	cp src/eln.xpm $(SHAREPATH)/pixmaps/eln.xpm
 	cp src/App/eln.png $(SHAREPATH)/icons/gnome/48x48/mimetypes/application-eln-book.png
@@ -54,14 +54,16 @@ install: all
 # update-mime-database $(SHAREPATH)/mime/ || true
 
 	install src/eln.desktop $(SHAREPATH)/applications/eln.desktop
-	cp doc/userguide.pdf $(DOCPATH)/userguide.pdf
+	cp build-doc/userguide.pdf $(DOCPATH)/userguide.pdf
 	cp README $(DOCPATH)/readme
 	gzip -9 $(DOCPATH)/readme
 	cp CHANGELOG $(DOCPATH)/changelog
 	gzip -9 $(DOCPATH)/changelog
 	install src/Gui/fonts/ubuntu-font-licence-1.0.txt.gz $(DOCPATH)/ubuntu-font-licence-1.0.txt.gz
 
-DOC:;	+make -C doc
+DOC:;	mkdir -p build-doc
+	cp doc/Makefile build-doc/
+	+make -C build-doc
 
 # Tar preparation
 tar: all
