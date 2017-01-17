@@ -85,7 +85,7 @@ if ($debvsn =~ /^$vsn-/) {
   close OUT;
 }
 
-System("git commit -a -m'debian changelog updated'") and die "Failed to commit';
+System("git commit -a -m'debian changelog updated'") and die "Failed to commit\n";
 System("gbp buildpackage") and die "Package building failed\n";
 
 System("mv ../${package}_$vsn-1* ../releases") and die "Archiving failed\n";
