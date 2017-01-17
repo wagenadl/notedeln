@@ -1,7 +1,3 @@
-src/Makefile
-webgrab/Makefile
-Makefile.*
-*.pri
 *~
 object_script.*
 
@@ -9,18 +5,7 @@ build
 build-*
 release-*
 *pro.user*
-missfont.log
-
-debian/eln.debhelper.log
-debian/eln
-userguide.log
-userguide.aux
-userguide.pdf
-debian/eln.substvars
-debian/files
-eln_debug
-octave-core
-
+*.log
 .DS_Store
 *.app
 .qmake.stash

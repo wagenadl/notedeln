@@ -13,6 +13,10 @@ DOCPATH = $(SHAREPATH)/doc/eln
 # Linux and Mac building
 all: SRC WEBGRAB DOC
 
+update:
+	tools/updatesources.sh
+
+
 clean:
 	+rm -rf build
 	+rm -rf build-webgrab
@@ -21,7 +25,6 @@ SRC: PREP
 	+make -C build release
 
 PREP:
-	tools/updatesources.sh
 	mkdir -p build
 	( cd build; qmake -qt=qt5 ../src/eln.pro )
 
