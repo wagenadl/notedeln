@@ -67,7 +67,7 @@ print STDERR "Version: $debvsn vs $vsn ($debinfo; $debpkg)\n";
 if ($debvsn =~ /^$vsn-/) {
   print STDERR "debian/changelog already up-to-date; not touching.\n";
 } else {
-  system("mv debian/changelog tools/debian/changelog~") and
+  system("mv debian/changelog debian/changelog~") and
     die "Cannot move debian/changelog\n";
   open IN, "<debian/changelog~" or die "Cannot read debian/changelog\n";
   open OUT, ">debian/changelog" or die "Cannot write debian/changelog\n";
