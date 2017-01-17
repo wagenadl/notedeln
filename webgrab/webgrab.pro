@@ -31,12 +31,6 @@ CONFIG += debug_and_release
 CONFIG-=app_bundle
 CONFIG(debug, debug|release) { TARGET=$${TARGET}_debug }
 
-OBJECTS_DIR=../build/webgrab-release
-CONFIG(debug, debug|release) { OBJECTS_DIR=../build/webgrab-debug }
-MOC_DIR = $${OBJECTS_DIR}
-RCC_DIR = $${OBJECTS_DIR}
-UI_DIR = $${OBJECTS_DIR}
-          
 # Input
 HEADERS += Options.h
 SOURCES += Options.cpp

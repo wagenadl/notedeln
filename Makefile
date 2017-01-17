@@ -1,3 +1,4 @@
+# Debian installation
 ifdef DESTDIR
 INSTALLPATH = $(DESTDIR)/usr
 SHAREPATH = $(DESTDIR)/usr/share
@@ -8,6 +9,7 @@ endif
 
 DOCPATH = $(SHAREPATH)/doc/eln
 
+# Linux and Mac building
 all: SRC WEBGRAB DOC
 
 clean:
@@ -22,13 +24,14 @@ PREP:
 	mkdir -p build
 	( cd build; qmake -qt=qt5 ../src/eln.pro )
 
-WEBGRAB: WEBGPREP
-	+make -C webgrab release
+WEBGRAB: WEBGRABPREP
+	+make -C build-webgrab release
 
-WEBGPREP:
+WEBGRABPREP:
 	mkdir -p build-webgrab
 	( cd build-webgrab; qmake -qt=qt5 ../webgrab/webgrab.pro )
 
+# Debian installation
 install: all
 	install -d $(INSTALLPATH)/bin
 	install -d $(SHAREPATH)/man/man1
@@ -44,10 +47,10 @@ install: all
 	cp src/App/eln.png $(SHAREPATH)/pixmaps/eln.png
 	cp src/eln.xpm $(SHAREPATH)/pixmaps/eln.xpm
 	cp src/App/eln.png $(SHAREPATH)/icons/gnome/48x48/mimetypes/application-eln-book.png
-	# gtk-update-icon-cache $(SHAREPATH)/icons/gnome || true
+# gtk-update-icon-cache $(SHAREPATH)/icons/gnome || true
 
 	cp src/eln.xml $(SHAREPATH)/mime/packages/eln.xml
-	# update-mime-database $(SHAREPATH)/mime/ || true
+# update-mime-database $(SHAREPATH)/mime/ || true
 
 	install src/eln.desktop $(SHAREPATH)/applications/eln.desktop
 	cp doc/userguide.pdf $(DOCPATH)/userguide.pdf
@@ -59,13 +62,15 @@ install: all
 
 DOC:;	+make -C doc
 
+# Tar preparation
 tar: all
 	git archive -o ../eln.tar.gz --prefix=eln/ HEAD
 
+# Mac installation
 macclean:; rm -rf eln.app eln.dmg
 
 macapp: all
-	cp webgrab/webgrab eln.app/Contents/MacOS
+	cp webgrab-build/webgrab eln.app/Contents/MacOS
 	strip eln.app/Contents/MacOS/*
 	cp src/App/elnmac.sh eln.app/Contents/MacOS/
 	chmod a+x eln.app/Contents/MacOS/elnmac.sh
