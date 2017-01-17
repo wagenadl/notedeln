@@ -1,5 +1,6 @@
-# Debian installation
+# Unix installation
 ifdef DESTDIR
+# Debian uses this
 INSTALLPATH = $(DESTDIR)/usr
 SHAREPATH = $(DESTDIR)/usr/share
 else
@@ -31,7 +32,7 @@ WEBGRABPREP:
 	mkdir -p build-webgrab
 	( cd build-webgrab; qmake -qt=qt5 ../webgrab/webgrab.pro )
 
-# Debian installation
+# Unix installation
 install: all
 	install -d $(INSTALLPATH)/bin
 	install -d $(SHAREPATH)/man/man1
