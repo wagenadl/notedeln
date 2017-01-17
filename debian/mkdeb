@@ -21,7 +21,8 @@ my $email = `git config user.email`;
 chomp $email;
 die "No user email configured\n" if $email eq "";
 
-my $br = `git co debian`;
+System("git checkout debian");
+System("git merge master");
 
 my $status = `git status --porcelain`;
 chomp $status;
@@ -88,7 +89,10 @@ if ($debvsn =~ /^$vsn-/) {
 
 System("gbp buildpackage") and die "Package building failed\n";
 
-System("mv ../${package}_$vsn-1* ../releases") and die "Archiving failed\n";
+System("mv ../${package}_$vsn-* ../releases") and die "Archiving failed\n";
+System("mv ../${package}_$vsn.* ../releases");
 
 print STDERR "Your binary debian package:\n";
-system("ls releases/${package}_$vsn-1*deb");
+system("ls ../releases/${package}_$vsn-1*deb");
+
+print STDERR "\nDo not forget to run:\n  git branch master\n";
