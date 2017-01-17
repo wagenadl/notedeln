@@ -2,7 +2,7 @@
 Name=eln
 GenericName=Electronic Lab Notebook
 Comment=Electronic Lab Notebook
-Exec=eln
+Exec=eln %f
 Terminal=false
 Type=Application
 Categories=Office
