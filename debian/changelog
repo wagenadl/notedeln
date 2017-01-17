@@ -1,11 +1,11 @@
-eln (1.1.15-1) trusty; urgency=medium
+eln (1.1.15-1) yakkety; urgency=medium
 
   * Fixed eln.desktop to contain %f
   * Docs now built in shadow dir.
 
  -- Daniel A. Wagenaar <daw@caltech.edu>  Mon, 16 Jan 2017 23:48:06 -0800
 
-eln (1.1.11-1) trusty; urgency=medium
+eln (1.1.11-1) yakkety; urgency=medium
 
   User visible changes
 
