@@ -1,3 +1,43 @@
+eln 1.1.11
+
+  
+  
+  User visible changes
+  
+  * Webgrab modified to work with QWebEngine on Windows and Mac. Sadly, I cannot get preview images, since QWebEngine will only save as pdf, and Qt does not have a native pdf renderer. So, the current version creates a fake preview that just has the window title.
+  * Fixed bug in Downloader that caused crash on error
+  * Latenotes and gfx notes now included in search index
+  * Page links now work for single-digit pages
+  * Removed disused magic links
+  * Ctrl-Shift click on link text now works again and does not try to move note.    
+  * GfxNoteItem no longer grabs mouse in 1000-pix-wide box if width is unlimited
+  * Now displays proper error if trying to load non-notebook.
+  * Underlining restored
+  * Command to remove sub/superscripts now on Control+Semicolon.
+  * Ancient bug fixed in TableItem that caused crash when deleting empty cells as part of a selection
+  * Fixed bad spacing in tables due to Qt5 mismeasuring newlines in font metrics
+  * Minor changes to dialogs for hi-dpi
+  * Shift+Control+Drag fix for move/resize images
+  * Mode shift now triggered by Shift+Ctrl rather than Alt
+  * New entry ("+") button always visible
+  * Bugfix to navigation bar help balloons not disappearing
+  * Webgrab now calculates better bboxes
+  * Added goto page dialog on Ctrl-G
+  * The TOC button now goes to TOC sheet for current entry.
+  * Longstanding bug fixed: superscripting in tables now works
+  
+  Implementation changes
+  
+  * EntryData::resManager no longer pretends it can work with this==0.
+  * GfxNoteItem no longer sets its width if readonly
+  * temporaryOverride no longer overrides movement
+  * Changed author email address
+  * Now uses qt5 in Linux
+  * Fixed bug where Delete failed when itemAt somehow did not return a sketch item even though the glow was still on it. Used a bit of a hack: storing a "glow item" pointer with each item.
+  * Created '-nocui' option to circumvent computer ID checking. Fixed long-standing bug in CUI recycling implementation. Made CUI independent of user home directory date stamp, because I found that logging out and back in reset that date stamp.
+
+  -- Daniel A. Wagenaar <daw@caltech.edu>  Mon, 16 Jan 2017 20:36:39 -0800
+
 eln 1.1.8
 
   
