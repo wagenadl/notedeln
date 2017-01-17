@@ -1,3 +1,14 @@
+eln 1.1.15
+
+  
+  
+  * Fixed eln.desktop to contain %f
+  * Docs now built in shadow dir.
+  
+  
+
+  -- Daniel A. Wagenaar <daw@caltech.edu>  Mon, 16 Jan 2017 23:47:47 -0800
+
 eln 1.1.11
 
   
