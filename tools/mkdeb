@@ -88,7 +88,7 @@ if ($debvsn =~ /^$vsn-/) {
 System("git commit -a -m'debian changelog updated");
 System("gbp buildpackage") and die "Package building failed\n";
 
-System("mv ../${pacakge}_$vsn-1* ../releases") and die "Archiving failed\n";
+System("mv ../${package}_$vsn-1* ../releases") and die "Archiving failed\n";
 
 print STDERR "Your binary debian package:\n";
 system("ls releases/${package}_$vsn-1*deb");
