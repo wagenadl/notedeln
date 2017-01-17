@@ -10,29 +10,24 @@ DOCPATH = $(SHAREPATH)/doc/eln
 
 all: SRC WEBGRAB DOC
 
-clean: PREP WEBGPREP
-	+make -C src clean
-	+make -C webgrab clean
-	+make -C doc clean
-	+rm -f src/*/*.pri
-	+rm -f src/eln.pri
-	+rm -f src/Makefile
-	+rm -f src/Makefile.*
-	+rm -f webgrab/Makefile
-	+rm -f webgrab/Makefile.*
+clean:
+	+rm -rf build
+	+rm -rf build-webgrab
 
 SRC: PREP
-	+make -C src release
+	+make -C build release
 
 PREP:
 	tools/updatesources.sh
-	( cd src; qmake -qt=qt5 || qmake )
+	mkdir -p build
+	( cd build; qmake -qt=qt5 ../src/eln.pro )
 
 WEBGRAB: WEBGPREP
 	+make -C webgrab release
 
 WEBGPREP:
-	( cd webgrab; qmake -qt=qt5 || qmake )
+	mkdir -p build-webgrab
+	( cd build-webgrab; qmake -qt=qt5 ../webgrab/webgrab.pro )
 
 install: all
 	install -d $(INSTALLPATH)/bin

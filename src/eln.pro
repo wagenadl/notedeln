@@ -3,7 +3,7 @@
 # When adding source files, run scripts/updatesources to include them
 
 TEMPLATE = app
-TARGET = ../build/eln
+TARGET = eln
 #LIBS += -lqjson
 
 include(eln.pri)
@@ -18,12 +18,6 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += printsupport
 
 DEPENDPATH +=  $$sourcedirs
 INCLUDEPATH += $$sourcedirs
-
-OBJECTS_DIR=../build/release
-CONFIG(debug, debug|release) { OBJECTS_DIR=../build/debug }
-MOC_DIR = $${OBJECTS_DIR}
-RCC_DIR = $${OBJECTS_DIR}
-UI_DIR = $${OBJECTS_DIR}
 
 greaterThan(QT_MAJOR_VERSION, 4) {
     CONFIG += c++11
@@ -56,15 +50,9 @@ win32 {
 
 CONFIG(debug, debug|release) { TARGET=$${TARGET}_debug }
 
-# message("HEADERS: $$HEADERS" )
-# message("SOURCES: $$SOURCES" )
-# message("RESOURCES: $$RESOURCES" )
-# message("INCLUDEPATH: $$sourcedirs" )
-# message("TARGET: $$TARGET")
-
-tgt_ver.target = version_stub.h
-tgt_ver.commands = touch version_stub.h
+tgt_ver.target = ../build/version_stub.h
+tgt_ver.commands = touch ../build/version_stub.h
 tgt_ver.depends = tgt_v2
 tgt_v2.commands =
-
 QMAKE_EXTRA_TARGETS += tgt_ver tgt_v2
+PRE_TARGETDEPS = ../build/version_stub.h
