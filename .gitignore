@@ -11,3 +11,5 @@ release-*
 .qmake.stash
 *.dmg
 Info.plist
+*debhelper*
+

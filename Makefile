@@ -20,6 +20,7 @@ update:
 clean:
 	+rm -rf build
 	+rm -rf build-webgrab
+	+rm -rf build-doc
 
 SRC: PREP
 	+make -C build release
