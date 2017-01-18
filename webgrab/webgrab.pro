@@ -1,5 +1,5 @@
 TEMPLATE = app
-TARGET = ../build/webgrab
+TARGET = webgrab
 DEPENDPATH += .
 INCLUDEPATH += .
 QT += svg

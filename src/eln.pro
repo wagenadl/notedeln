@@ -54,5 +54,5 @@ tgt_ver.target = ../build/version_stub.h
 tgt_ver.commands = touch ../build/version_stub.h
 tgt_ver.depends = tgt_v2
 tgt_v2.commands =
-QMAKE_EXTRA_TARGETS += tgt_ver tgt_v2
-PRE_TARGETDEPS = ../build/version_stub.h
+#QMAKE_EXTRA_TARGETS += tgt_ver tgt_v2
+#PRE_TARGETDEPS = ../build/version_stub.h
