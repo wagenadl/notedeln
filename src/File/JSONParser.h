@@ -43,20 +43,20 @@ private:
 public:
   JSONParser(QString);
   bool atEnd() const throw();
-  QVariantMap readObject() throw(Error);
-  QVariantList readArray() throw(Error);
-  QVariant readAny() throw(Error);
-  void assertEnd() const throw(Error);
+  QVariantMap readObject();
+  QVariantList readArray();
+  QVariant readAny();
+  void assertEnd() const;
 protected:
-  QString readString() throw(Error);
-  QVariant readNumber() throw(Error);
-  QVariant readValue(QString exp="value") throw(Error);
+  QString readString();
+  QVariant readNumber();
+  QVariant readValue(QString exp="value");
   void skipWhite() throw();
-  QChar peekNext() const throw(Error);
-  QChar getNext() throw(Error);
-  bool conditionalReadLiteral(QString s) throw(Error);
-  void assertNext() const throw(Error);
-  void makeError(QString msg, bool atPrev=false) const throw(Error);
+  QChar peekNext() const;
+  QChar getNext();
+  bool conditionalReadLiteral(QString s);
+  void assertNext() const;
+  void makeError(QString msg, bool atPrev=false) const;
 };
 
 
