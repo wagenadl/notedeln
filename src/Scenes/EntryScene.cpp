@@ -62,8 +62,6 @@
 #include <QSignalMapper>
 #include <QCursor>
 #include <QUrl>
-#include <QNetworkAccessManager>
-#include <QNetworkRequest>
 #include <QClipboard>
 #include <QApplication>
 #include <QMimeData>

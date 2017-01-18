@@ -13,8 +13,12 @@ int Downloader::maxDownloadLength() {
 }
 
 QNetworkAccessManager &Downloader::networkAccessManager() {
-  static QNetworkAccessManager n;
-  return n;
+  static QNetworkAccessManager *n = new QNetworkAccessManager();
+  // This used to be simply "static QNetworkAcessManager n;", but at least
+  // once did I see a crash when that QNAM was destroyed at program exit.
+  // I don't understand why, but I think there is less harm in this
+  // minor memory leak.
+  return *n;
 }
 
 Downloader::Downloader(QUrl url, QObject *parent): QObject(parent), src(url) {
