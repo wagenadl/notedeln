@@ -94,6 +94,10 @@ QString Downloader::mimeType() const {
   return (idx>=0) ? mime.left(idx) : mime;
 }
 
+QByteArray Downloader::data() const {
+  return dat;
+}
+
 void Downloader::qnrDataAv() {
   if (ok || err)
     return;
@@ -135,6 +139,7 @@ void Downloader::qnrDataAv() {
 }
 
 static bool hostMatch(QString a, QString b) {
+  qDebug() << "hostmatch" << a << b << (a==b);
   if (a==b)
     return true;
   if (a.startsWith("www.") && a.mid(4)==b)
@@ -180,14 +185,14 @@ void Downloader::qnrFinished() {
       qnr->deleteLater();
       qnr = 0;
       QUrl newUrl(attr.toString());
-      if (hostMatch(newUrl.host(), src.host()) && parent()) {
+      if (hostMatch(newUrl.host(), src.host())) {
 	qDebug() << "Accepting redirect of " << src.toString()
 		 << "to" << newUrl.toString();
 	src = newUrl;
         startDownload();
 	return;
       } else {
-	qDebug() << "Cross-site redirect: refusing" << newUrl.toString();
+        qDebug() << "Cross-site redirect: refusing" << newUrl.host() << "from" << newUrl.toString() << "was" << src.host() << "from" << src.toString();
 	err = true;
 	errs = "Refusing cross-site redirect";
       }

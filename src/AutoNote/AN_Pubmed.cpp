@@ -17,20 +17,26 @@
 // AN_Pubmed.cpp
 
 #include "AN_Pubmed.h"
-#include <QProcess>
+#include <QEventLoop>
+#include "Downloader.h"
+#include <QDebug>
 
 AN_Pubmed::AN_Pubmed(QString tag, class Style const &) {
   ok_ = false;
-  QStringList args;
-  args << "-O-";
-  args << QString("http://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi"
+  QString url = QString("http://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi"
 		  "?db=pubmed&id=%1&rettype=medline&retmode=text").arg(tag);
-  QProcess wget;
-  wget.start("wget", args);
-  if (!wget.waitForFinished(10000))
+  Downloader dl(url);
+  QEventLoop el;
+  QObject::connect(&dl, SIGNAL(finished()), &el, SLOT(quit()));
+  qDebug() << "AN_PubMed: starting download";
+  dl.start();
+  qDebug() << "AN_PubMed: started download";
+  el.exec();
+  qDebug() << "AN_PubMed: download finished";
+  if (!dl.isComplete())
     return;
 
-  QString res = QString(wget.readAllStandardOutput());
+  QString res(dl.data());
   QStringList bits = res.split("\n");
   QMap<QString, QStringList> tags;
   QString lastkey;
