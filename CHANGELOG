@@ -1,3 +1,16 @@
+eln 1.1.16
+
+  
+  
+  https links now work in windows, for PubMed autonotes and URL references.
+  
+  AutoNote now uses Downloader
+  Improved release system
+  
+  
+
+  -- Daniel A. Wagenaar <daw@caltech.edu>  Wed, 18 Jan 2017 13:10:59 -0800
+
 eln 1.1.15
 
   

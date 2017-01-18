@@ -125,24 +125,13 @@ open OUT, ">src/version";
 print OUT "$newvsn\n";
 close OUT;
 
-system("cp tools/eln-win-qt5.aip tools/eln-win-qt5.aip~") and
-  die "Could not backup windows deployment script\n";
-open IN, "<tools/eln-win-qt5.aip~" or
-  die "Could not read windows deployment script\n";
-open OUT, ">tools/eln-win-qt5.aip" or
-  die "Could not read windows deployment script\n";
-while (<IN>) {
-  s/Property="ProductVersion" Value="[^"]*?"/Property="ProductVersion" Value="$newvsn"/;
-  s/PackageFileName="eln-[^"]*?-win-qt5"/PackageFileName="eln-$newvsn-win-qt5"/;
-  print OUT $_;
-}
-close IN;
-close OUT;
+system("tools/updateinnoscript.pl $package $newvsn") and
+  die "Could not update windows deplotment script\n";
 
 system("git add CHANGELOG") and die "Could not add CHANGELOG\n";
 system("git add src/version") and die "Could not add src/version\n";
-system("git add tools/eln-win-qt5.aip") and
-  die "Could not add tools/eln-win-qt5.aip\n";
+system("git add tools/$package-x86.iss") and
+  die "Could not add tools/$package-x86.iss\n";
 system("git commit -m'Prepared for new version $newvsn'") and
     die "Could not commit\n";
 
@@ -160,8 +149,11 @@ print STDERR "Do not forget to do:\n\n";
 print STDERR "  git tag -a v$newvsn -m 'Bumped version number'\n";
 print STDERR "  git push\n";
 print STDERR "  git push --tags\n\n";
-print STDERR "But first, run:\n";
+print STDERR "But first:\n";
+print STDERR "* Build a debian package:\n\n";
 print STDERR "  git checkout debian\n";
 print STDERR "  ./debian/mkdeb\n";
 print STDERR "  git checkout master\n\n";
-print STDERR "Also, make sure eln builds on Windows and Mac!\n\n";
+print STDERR "* Build a windows package:\n\n";
+print STDERR "  ./tools/win32deploy.sh\n\n";
+print STDERR "* Build a mac package.";
