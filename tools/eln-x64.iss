@@ -5,7 +5,7 @@
 ; NOTE: The value of AppId uniquely identifies this application.
 ; Do not use the same AppId value in installers for other applications.
 ; (To generate a new GUID, click Tools | Generate GUID inside the IDE.)
-AppId={{715DDC95-B7DD-4D56-B564-F36527D2CCC7}
+AppId={{84AF32E8-9487-421E-9A8B-73712049EBBD}
 AppName=ELN
 AppVersion=1.1.11
 ;AppVerName=ELN 1.1.11
@@ -15,7 +15,7 @@ AppSupportURL=http://www.danielwagenaar.net
 AppUpdatesURL=http://www.danielwagenaar.net
 DefaultDirName={pf}\ELN
 DisableProgramGroupPage=yes
-LicenseFile=C:\Users\Daniel Wagenaar\Documents\Progs\eln\gpl-3.0.txt
+LicenseFile=C:\Users\Daniel Wagenaar\Documents\Progs\eln\GPL-3.0.gz
 OutputDir=../build
 OutputBaseFilename=eln-1.1.11-setup
 SetupIconFile=C:\Users\Daniel Wagenaar\Documents\Progs\eln\src\App\eln.ico

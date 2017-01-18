@@ -7,8 +7,8 @@ use File::Path;
 
 ######################################################################
 # EXTERNAL PATHS
-my $qbin_path = "c:/Qt/Qt5.7.0-x86/5.7/msvc2013/bin";
-my $msvc_path = "c:/Program Files (x86)/Microsoft Visual Studio 12.0/VC";
+my $qbin_path = "c:/Qt/Qt5.7.1/5.7/msvc2015_64/bin";
+my $msvc_path = "c:/Program Files (x86)/Microsoft Visual Studio 14.0/VC";
 
 ######################################################################
 # INTERNAL PATHS
@@ -24,15 +24,15 @@ $ENV{VCINSTALLDIR} = $msvc_path;
 File::Path::remove_tree($release_path) if -d $release_path;
 File::Path::make_path($release_path);
 
-system("$qbinpath/windeployqt --dir $release_path "
+system("$qbin_path/windeployqt --dir $release_path "
        . " --compiler-runtime $eln_buildpath/eln.exe")
   and die "Failed to get eln deployment";
 
-system("$qbinpath/windeployqt --dir $release_path "
+system("$qbin_path/windeployqt --dir $release_path "
        . " --compiler-runtime $webgrab_buildpath/webgrab.exe")
   and die "Failed to get webgrab deployment";
 
-File::Copy::copy("$eln_buildpath/eln.exe", "$releasepath/");
-File::Copy::copy("$webgrab_buildpath/webgrab.exe", "$releasepath/");
+File::Copy::copy("$eln_buildpath/eln.exe", "$release_path/");
+File::Copy::copy("$webgrab_buildpath/webgrab.exe", "$release_path/");
 
 print "Now run 'tools/eln-x64.iss' using Inno Setup.\n";
