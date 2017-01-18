@@ -30,7 +30,7 @@ while (<IN>) {
   }
   $havevsn = 1 if s/AppVersion=(.*)/AppVersion=$newvsn/;
   $haveout = 1 if s/OutputBaseFilename=$package-(.*)-x86-setup/OutputBaseName=$package-$newvsn-x86-setup/;
-  print OUT $_;
+  print OUT "$_\n";
 }
 close IN;
 close OUT;

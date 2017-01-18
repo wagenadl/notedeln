@@ -8,7 +8,6 @@
 AppId={{84AF32E8-9487-421E-9A8B-73712049EBBD}
 AppName=ELN
 AppVersion=1.1.15
-;AppVerName=ELN 1.1.11
 AppPublisher=Daniel Wagenaar
 AppPublisherURL=http://www.danielwagenaar.net
 AppSupportURL=http://www.danielwagenaar.net
