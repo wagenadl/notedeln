@@ -7,6 +7,10 @@ else
 INSTALLPATH = /usr/local
 SHAREPATH = /usr/local/share
 endif
+SELECTQT=
+# SELECTQT="-qt=qt5"
+MACQTDIR=/Users/wagenaar/Qt-5.7/5.7
+PATH:=${PATH}:$(MACQTDIR)/clang_64/bin
 
 DOCPATH = $(SHAREPATH)/doc/eln
 
@@ -27,14 +31,14 @@ SRC: PREP
 
 PREP:
 	mkdir -p build
-	( cd build; qmake -qt=qt5 ../src/eln.pro )
+	( cd build; qmake $(SELECTQT) ../src/eln.pro )
 
 WEBGRAB: WEBGRABPREP
 	+make -C build-webgrab release
 
 WEBGRABPREP:
 	mkdir -p build-webgrab
-	( cd build-webgrab; qmake -qt=qt5 ../webgrab/webgrab.pro )
+	( cd build-webgrab; qmake $(SELECTQT) ../webgrab/webgrab.pro )
 
 # Unix installation
 install: all
@@ -76,14 +80,14 @@ tar: all
 # Mac installation
 macclean:; rm -rf eln.app eln.dmg
 
-macapp: all
-	cp webgrab-build/webgrab eln.app/Contents/MacOS
+macapp: SRC WEBGRAB 
+	cp build-webgrab/webgrab eln.app/Contents/MacOS
 	strip eln.app/Contents/MacOS/*
 	cp src/App/elnmac.sh eln.app/Contents/MacOS/
 	chmod a+x eln.app/Contents/MacOS/elnmac.sh
 
 macdmg: macapp
-	/Users/wagenaar/Qt5.2.1/5.2.1/clang_64/bin/macdeployqt eln.app -dmg -executable=eln.app/Contents/MacOS/webgrab 
+	$(MACQTDIR)/clang_64/bin/macdeployqt eln.app -dmg -executable=eln.app/Contents/MacOS/webgrab 
 
 .PHONY: SRC WEBGRAB DOC all clean tar macclean macapp macdmg
 
