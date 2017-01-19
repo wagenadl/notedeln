@@ -1,66 +1,23 @@
-eln 1.1.19
-
-  
-  
-  
-  
-
-  -- Daniel A. Wagenaar <daw@caltech.edu>  Wed, 18 Jan 2017 20:57:04 -0800
-
-eln 1.1.18
-
-  
-  
-  
-  
-
-  -- Daniel A. Wagenaar <daw@caltech.edu>  Wed, 18 Jan 2017 13:14:07 -0800
-
-eln 1.1.17
-
-  
-  
-  
-  
-
-  -- Daniel A. Wagenaar <daw@caltech.edu>  Wed, 18 Jan 2017 13:11:35 -0800
-
 eln 1.1.16
 
-  
-  
-  https links now work in windows, for PubMed autonotes and URL references.
-  
-  AutoNote now uses Downloader
-  Improved release system
-  
-  
-
-  -- Daniel A. Wagenaar <daw@caltech.edu>  Wed, 18 Jan 2017 13:10:59 -0800
-
-eln 1.1.15
-
-  
-  
+  * https links now work in windows, for PubMed autonotes and URL references.
+  * AutoNote now uses Downloader
+  * Improved release system
   * Fixed eln.desktop to contain %f
   * Docs now built in shadow dir.
-  
-  
 
-  -- Daniel A. Wagenaar <daw@caltech.edu>  Mon, 16 Jan 2017 23:47:47 -0800
+  -- Daniel A. Wagenaar <daw@caltech.edu>  Wed, 18 Jan 2017 21:01:00 -0800
 
 eln 1.1.11
 
-  
-  
   User visible changes
-  
+
   * Webgrab modified to work with QWebEngine on Windows and Mac. Sadly, I cannot get preview images, since QWebEngine will only save as pdf, and Qt does not have a native pdf renderer. So, the current version creates a fake preview that just has the window title.
   * Fixed bug in Downloader that caused crash on error
   * Latenotes and gfx notes now included in search index
   * Page links now work for single-digit pages
   * Removed disused magic links
-  * Ctrl-Shift click on link text now works again and does not try to move note.    
+  * Ctrl-Shift click on link text now works again and does not try to move note.
   * GfxNoteItem no longer grabs mouse in 1000-pix-wide box if width is unlimited
   * Now displays proper error if trying to load non-notebook.
   * Underlining restored
@@ -76,9 +33,9 @@ eln 1.1.11
   * Added goto page dialog on Ctrl-G
   * The TOC button now goes to TOC sheet for current entry.
   * Longstanding bug fixed: superscripting in tables now works
-  
+
   Implementation changes
-  
+
   * EntryData::resManager no longer pretends it can work with this==0.
   * GfxNoteItem no longer sets its width if readonly
   * temporaryOverride no longer overrides movement
@@ -91,11 +48,11 @@ eln 1.1.11
 
 eln 1.1.8
 
-  
-  
+
+
   Very minor changes:
-  
-  
+
+
   Figure space now needs Ctrl+Shift+Space
   PrintDialog no longer opens created pdf by default
   Change code "in" to "inset"
@@ -107,66 +64,66 @@ eln 1.1.8
 
 eln 1.1.7
 
-  
-  
+
+
   Trivial change to build process
-  
-  
+
+
 
   -- Daniel A. Wagenaar <wagenadl@uc.edu>  Fri, 08 Apr 2016 12:14:13 -0400
 
 eln 1.1.6
 
-  
-  
+
+
   User visible changes:
-  
+
   Improved footnote handling. Using symbols as footnote markers creates
-  automatic superscripts. Bug related to overlapping footnote references 
+  automatic superscripts. Bug related to overlapping footnote references
   fixed.
-  
+
   Bugfix: Markups in table preserved when inserting/deleting rows/columns.
-  
+
   Slight improvements in navigation icons and behavior.
-  
+
   Dead links are shown in red.
-  
+
   Webgrab limits aspect ratio of preview.
-  
+
   Other changes:
-  
+
   The files toc.json and index.json are no longer maintained in git. Rather,
   they are locally updated. A ".gitignore" file is generated automatically.
-  
+
   Several bugs figxed.
-  
-  
+
+
 
   -- Daniel Wagenaar <wagenadl@uc.edu>  Fri, 08 Apr 2016 09:52:19 -0400
 
 eln 1.1.4
 
-  
-  
-  
-  
-  User-visible changes: 
-  
+
+
+
+
+  User-visible changes:
+
   * Icon bars now hide when mouse leaves window. This fixes the bugs relating to per-view mode settings.
-  
+
   * Ctrl-Period now restores inadvertent super/subscript.
-  
-  Implementation changes: 
-  
+
+  Implementation changes:
+
   * Indexing overhauled. Now much more reliable.
-  
+
   * BookData no longer uses or updates endDate. FrontScene uses TOC to calculate endDate. This means that book.eln will no longer cause merge conflicts.
-  
-  
+
+
   Bugs fixed:
-  
+
   * Tables cannot be split across sheets, but navigation bugs fixed. Central problem was that handleSheetRequest did not get connected for TableBlocks.
-  
+
   * Fixes to Assert and CrashReport: Assert::crash now actual quits the application. CrashReport does not fork for Debug version: forking kept gdb from working right.
   * Mode is now part of Notebook
   * LateNotes now create their own ResManagers
@@ -180,75 +137,75 @@ eln 1.1.4
 
 eln 1.1.0
 
-  
-  
+
+
   User visible changes:
-  
+
       SplashScene now works much better at HiDPI
-  
+
       Navbar hides >> and >| on last page; > is replaced by +. TOC icon now goes to last page of TOC.
-  
+
       EntryData now reports when it becomes empty or nonempty. This allows greying/enabling the "+" icon in Navbar.
-  
+
       New context menu on hyperlinks
-  
+
       Slight refinement to note positioning for small notes
-  
+
       Rebuilding TOC automatically renumbers as needed
-  
+
       Modifying an entry on a computer other than the one on which it was made is no longer allowed, except for adding "late notes".
-  
+
       Added a clock face when ELN is full screen.
-  
+
       "Create new notebook" and "Load existing notebook" dialogs now open with better default folder locations.
-  
-  
+
+
   Internal improvements:
-  
+
       "Late notes" are now stored in a separate file to reduce the risk of merge conflicts. The only incompatibility this causes between old and new files and old and new versions of ELN is that old versions of ELN will not display the new-style notes.
-  
+
       Page links are now internally enhanced with a UUID to render them
-      immune to renumbering. 
-  
+      immune to renumbering.
+
       Now converts filename on command line from Windows style as needed.
-  
+
       Several trivial changes to make ELN compile on Android. User interface still leaves a lot to be desired: ELN is clearly not an "app".
-  
-  
+
+
   Bugs fixed:
-  
+
       Footnotes can now be added to secondary sheets of a paragraph. If a footnote is connected to multiple tags, it may appear on any sheet. (That is, it is not automatically moved to the first sheet.) If one tag of a multiply tagged footnote is removed, the footnote is no longer deleted, and it is moved to the appropriate sheet. Unchanged correct behaviors: If a paragraph with multiply tagged footnotes is split, the footnote is copied to both blocks. And if merging blocks results in multiply tagged footnotes, the notes are combined. (If the texts of the notes differ, they are simply concatenated.)
-  
+
       Navbar visibility now correctly updated when moving to front matter. When shift-clicking on Navbar, correct window now jumps.
-  
+
       Blockdateitems were slightly shifted below first line of block. No more.
   SplashScene now works much better at HiDPI
-  
+
       Initial placement of freshly loaded notes now correct
-  
+
 
   -- Daniel Wagenaar <wagenadl@uc.edu>  Mon, 23 Nov 2015 09:02:22 -0800
 
 eln 1.0.4
 
-  
-  
+
+
   Several bugfixes:
-  
+
   * Footnotes now get placed in correct order, even from split paragraphs. Footnotes now get placed on correct sheet, even from split paragrahs and when first visiting entry.
   * Fixed positioning bug for continuation notes
   * I think I got the bug fixed where handleSheetRequest worked in more than one pageview
   * Click in bottom margin once again creates new paragraph
   * TextItem and TextBlockItem now correctly deal with Ctrl-Tab on secondary fragment
   * Added username field to Clone/New dialogs
-  
+
 
   -- Daniel Wagenaar <wagenadl@uc.edu>  Fri, 18 Sep 2015 15:01:18 -0400
 
 eln 1.0.2
 
-  
-  
+
+
   * Added GPL text
   * git test now quiet
   * Selection across sheets now works
@@ -273,19 +230,15 @@ eln 1.0.2
 
 eln 1.0.0
 
-  
+
   Finally ready for a 1.0 release. Relatively minor changes since 0.10.2:
-  
+
   - Improved splash screen with better dialogs that allow setting up git
     archives.
-  
+
   - Improved front scene that makes it clearer what the editable items are.
-  
+
   - Many bug fixes
-  
-  
-  
-  
 
   -- Daniel Wagenaar <wagenadl@uc.edu>  Mon, 24 Aug 2015 15:58:59 -0400
 
