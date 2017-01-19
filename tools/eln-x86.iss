@@ -7,7 +7,7 @@
 ; (To generate a new GUID, click Tools | Generate GUID inside the IDE.)
 AppId={{84AF32E8-9487-421E-9A8B-73712049EBBD}
 AppName=ELN
-AppVersion=1.1.20
+AppVersion=1.1.17
 AppPublisher=Daniel Wagenaar
 AppPublisherURL=http://www.danielwagenaar.net
 AppSupportURL=http://www.danielwagenaar.net
@@ -16,7 +16,7 @@ DefaultDirName={pf}\ELN
 DisableProgramGroupPage=yes
 LicenseFile=C:\Users\Daniel Wagenaar\Documents\Progs\eln\GPL-3.0.txt
 OutputDir=..\..\releases
-OutputBaseName=eln-1.1.20-x86-setup
+OutputBaseName=eln-1.1.17-x86-setup
 SetupIconFile=C:\Users\Daniel Wagenaar\Documents\Progs\eln\src\App\eln.ico
 Compression=lzma
 SolidCompression=yes

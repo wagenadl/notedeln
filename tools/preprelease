@@ -184,9 +184,10 @@ sub commitmessage {
   close IN;
 
   unlink($tmpfn);
-
+  $message =~ s/ +\n/\n/g;
   $message =~ s/^\n+//;
   $message =~ s/\n+$//;
+  $message =~ s/\n\n+/\n\n/g;
   return ($message, $newvsn);
 }
 
