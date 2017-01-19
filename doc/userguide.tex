@@ -20,13 +20,13 @@
   {\large By Daniel A. Wagenaar}
   \vfill
   
-  {Copyright (c) 2013--2016}
+  {Copyright (c) 2013--2017}
   
 \end{centering}
 \pagebreak
 ~
 \vfill
-\noindent Copyright (C) 2013--2016 Daniel A. Wagenaar\medskip
+\noindent Copyright (C) 2013--2017 Daniel A. Wagenaar\medskip
 
 ``eln'' is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -186,6 +186,8 @@ eln or its documentation.\bigskip
 
 \noindent Pasadena, January 2016.
 
+\noindent Pasadena, January 2017.
+
 
 
 
@@ -217,19 +219,20 @@ behind.
 \section{Compiling the source}
 To compile the source,  start from the provided
 ``eln.tar.gz'' archive or check out the bzr source at http://launchpad.net/eln. You will need
-``Qt'' version 4.8 or later. (Eln also compiles with Qt 5.)
+``Qt'' version 5.6 or later. (Eln can also compile with Qt 4.8 on
+Linux with minor changes to the ``Makefile''.)
 
 \subsection{Compiling on Linux or Mac OS}
 
-You will need a C++ compiler and ``make''. On Linux, this is as simple
+You will need a C++ compiler and ``make''. On Ubuntu Linux, this is as simple
 as ``sudo apt-get install g++ make''. On Mac OS, you need the
 ``Command Line tools for XCode'' from the Apple Developers' web
-site\footnote{https://developer.apple.com/xcode.}. (I used ``xcode462\_clitools\_10\_76938260a.dmg''.)
+site\footnote{https://developer.apple.com/xcode.}.
 
 Open a terminal and ``cd'' to the root of the unpacked source
 archive. Then type ``make'' and fetch a cup of tea. Then, either
-manually copy the files ``src/eln'' and
-``webgrab/webgrab'' to some location on your PATH, or type ``sudo make
+manually copy the files ``build/eln'' and
+``build-webgrab/webgrab'' to some location on your PATH, or type ``sudo make
 install'' to install into ``/usr/local/bin''.
 
 \subsection{Compiling on Windows}
@@ -308,9 +311,9 @@ Graphics can be added by dragging an image file onto the page or by
 pressing ``Control''+``V'' to paste an image from the
 clipboard. Images (and other graphics objects) can be moved around,
 cropped, and resized by selecting the ``hand'' icon (by clicking it or
-pressing ``F3''). As a convenience, holding down ``Alt'' in any mode
-temporarily selects the ``hand'' icon and enables the same
-manipulations.
+pressing ``F3''). As a convenience, holding down ``Control'' and
+``Shift'' together in any mode temporarily selects the ``hand'' icon
+and enables the same manipulations.
 
 Various plot symbols and doodles can be added using the ``symbol'' and
 ``line'' icons (``F4'' and ``F5''). Several choices for symbol size,
@@ -319,14 +322,13 @@ extendible. (This is a design choice: by limiting the options, eln
 hopes to encourage you to not spend too much time thinking about the
 perfect color for your annotation.) 
 
-Text annotations can be added
-to the graphics canvas using the ``text balloon'' icon (``F6'') and
-either clicking to place text or dragging to place text with a
-connector line. Type faces and font sizes cannot be changed (again, on
-purpose), but you \emph{can} change the width of your annotation by
-selecting the ``hand'' icon (``F3'' or ``Alt'') and dragging the right
-edge of your annotation. The end of a connector line can be moved by
-holding ``Shift'' while dragging the annotation.
+Text annotations can be added to the graphics canvas using the ``text
+balloon'' icon (``F6'') and either clicking to place text or dragging
+to place text with a connector line. Type faces and font sizes cannot
+be changed (again, on purpose), but you \emph{can} change the width of
+your annotation by selecting the ``hand'' icon (``F3'' or ``Alt'') and
+dragging the right edge of your annotation. The end of a connector
+line can be moved by holding ``Shift'' while dragging the annotation.
 
 Graphics objects can be deleted while in ``hand'' mode by hovering the
 cursor over them and pressing ``Delete.'' They can be restored by
@@ -337,12 +339,12 @@ pressing ``Delete.''
 
 Tables can be inserted as their own paragraphs. Simply start typing
 the contents of the first table cell, then hit ``Tab'' to create a
-second cell. Navigation
-within a table is with ``Tab'' and ``Shift''+``Tab'' for left and
-right, ``Enter'' and ``Shift''+``Enter'' for next and previous line,
-and of course the arrow keys. New columns or rows can be inserted by
-holding ``Control'' while navigating. Columns or rows can be deleted
-by selecting the entire column or row and pressing ``Delete.''
+second cell. Navigation within a table is with ``Tab'' and
+``Shift''+``Tab'' for left and right, ``Enter'' and
+``Shift''+``Enter'' for next and previous line, and of course the
+arrow keys. New columns or rows can be inserted by holding ``Control''
+while navigating. Columns or rows can be deleted by selecting the
+entire column or row and pressing ``Delete.''
 
 \section{Saving your work}
 
@@ -393,11 +395,11 @@ cross-out.
 
 \section{Special characters}
 
-Eln supports most of unicode and---presumably---you can use any input method
-supported by Qt to enter text.\footnote{I have only
-  tested this with the ``compose'' key method in ``Gnome''; I am
-  interested in your test results.} In addition, the following
-substitutions are made unconditionally as you type:\medskip
+Eln supports most of unicode and---presumably---you can use any input
+method supported by Qt to enter text.\footnote{I have only tested this
+  with the ``compose'' key method in ``Gnome''; I am interested in
+  your test results.} In addition, the following substitutions are
+made unconditionally as you type:\medskip
 
 \begin{centering}
 \begin{tabular}{c@{\kern.5in}c@{\kern.5in}c@{\kern.5in}c}
@@ -540,14 +542,17 @@ automatically created note contents, I want to hear from you.)
 
 \section{Hyperlinks}
 
-Press ``Control''+``L'' to create a hyperlink. If you
-type an evident URL (e.g., starting with http://), a hyperlink will be
-created automatically. Hovering over the link displays a
-thumbnail of the first page, and ``Control''+Click opens the
-downloaded article (as a pdf). ``Control''+``Shift''+Click opens the
-original web page. Hyperlinks are typeset with a pale blue background
-once download is complete and with a pink background if download
-fails. (A yellow background indicates that download is in progress.)
+Press ``Control''+``L'' to create a hyperlink. If you type an evident
+URL (e.g., starting with http://), a hyperlink will be created
+automatically. Hovering over the link displays a thumbnail of the
+page\footnote{Currently, the Mac and Windows versions merely show the
+  title of a web page while hovering. I hope to restore thumbnailing
+  when Qt's QWebEngine technology further matures.}, and
+``Control''+Click opens a pdf of the downloaded
+page. ``Control''+``Shift''+Click opens the original web
+page. Hyperlinks are typeset with a pale blue background once download
+is complete and with a pink background if download fails. (A yellow
+background indicates that download is in progress.)
 
 \section{Magic links}
 
@@ -560,25 +565,18 @@ becomes a hyperlink to another page in the notebook.
 will be interpreted as a PubMed ID and will link to PubMed. When
 possible, the corresponding article will be automatically downloaded
 and archived with the notebook. 
-\item Eln will try to interpret Thorlabs part numbers and
-  download the data sheet.
 \end{itemize}
-This ``magic'' can be modified in the ``style.json'' file of a
-notebook (see below under ``Customization'') and will be augmented in
-future versions to include part numbers from other vendors. Feel free
-to put in your requests!
 
 \section{Typesetting quotations, computer code, and other imported materials}
 
 Occasionally it is useful to typeset ``imported'' materials such as
 quotations differently from the rest of your notes. In a small
-concession to typographic nicety, eln allows you to do this: Place
-the cursor at
-the beginning of a paragraph and press ``Control''+``Tab.'' The
-paragraph will be typeset in a slightly different color, a slightly
-smaller point size, and with slightly larger margins. To undo, simply
-press ``Control''+``Tab'' again. Similarly, indentation can be
-toggled between indented paragraphs (the default), non-indented
+concession to typographic nicety, eln allows you to do this: Place the
+cursor at the beginning of a paragraph and press ``Control''+``Tab.''
+The paragraph will be typeset in a slightly different color, a
+slightly smaller point size, and with slightly larger margins. To
+undo, simply press ``Control''+``Tab'' again. Similarly, indentation
+can be toggled between indented paragraphs (the default), non-indented
 paragraphs, and ``dedented'' paragraph, which is useful for typing
 bullet lists. This is done by placing the cursor at the beginning of a
 paragraph and pressing ``Shift''+``Tab.''
@@ -594,8 +592,9 @@ special characters can be entered simply by typing their name and
 single-character words are typeset in italics. Additionally, simple
 subscripts and superscripts can be typeset by just typing underscore
 or hat followed by the text of the sub- or superscript. As a result, a
-basic equation like ``$\int_1^\infty 1/x^2\, \mathrm{d}x = 1$'' can be typeset simple
-by typing ``int\_$\!$\_1$^\wedge$inf 1/x$^\wedge$2 dx = 1''.
+basic equation like ``$\int_1^\infty 1/x^2\, \mathrm{d}x = 1$'' can be
+typeset simple by typing ``int\_$\!$\_1$^\wedge$inf 1/x$^\wedge$2 dx =
+1''.
 
 \section{Exporting and printing}
 
@@ -620,8 +619,7 @@ notebook. I don't have the time right now to document all of them
 (feel free to contribute). Particularly important ones are
 ``page-width'' and ``page-height'' which specify the width and height
 of a notebook page in points (1/72'') and the various
-``\ldots-font-family'' variables. Also of interest is the
-``magicians'' section.
+``\ldots-font-family'' variables.
 
 \section{Archiving (version control)}
 
@@ -636,7 +634,7 @@ Git, it is probably best to remedy that first. Some of the following
 is likely to be hard to understand otherwise.
 
 \emph{Caution: Black diamond contents ahead.} For remote archiving,
-then, you need to have a host computer that you can access by ssh
+you need to have a host computer that you can access by ssh
 without a password. Typically, that involves setting up a
 public/private RSA key pair using ssh-keygen or similar and appending
 the public key to the file ``.ssh/authorized\_keys'' on the
@@ -665,14 +663,10 @@ two steps: (1) you should replace the line in your notebook's
 should locate the ``.nb'' folder, type ``git init'' to turn your
 notebook into a Git repository, then type some variant of ``ssh
 user@host git init --bare somewhere/nice/notebook.nb; git push -u
-user@host:somewhere/nice/notebook.nb'' to set up the archive host. (If
-you prefer, you can use Bazaar instead of Git; just put ``"vc":
-"bzr"'' in the ``style.json'' file, turn the notebook into a Bazaar
-repository (using ``bzr init'') and push it to a server and bind it to
-the pushed repository.)
+user@host:somewhere/nice/notebook.nb'' to set up the archive host.
 
 Again, if this section doesn't make sense to you, please first learn
-about Bazaar or Git version control, then read it again before
+about Git version control, then read it again before
 contacting me. (And yes, I will be happy to assist.)
 
 \section{Conclusion}

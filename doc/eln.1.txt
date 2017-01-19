@@ -28,8 +28,8 @@ contact the author if one bites you.
 
 AUTHOR
 ------
-Daniel Wagenaar <wagenadl@uc.edu>, Department of Biological Sciences,
-University of Cincinnati. http://www.danielwagenaar.net.
+Daniel Wagenaar <daw@caltech.edu>, Division of Biology and Biological 
+Engineering, California Institute of Technology. http://www.danielwagenaar.net.
 
 SEE ALSO
 --------
