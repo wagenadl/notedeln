@@ -4,156 +4,276 @@ use strict;
 
 # preprelease - creates a release from a git archive
 
-# Usage: preprelease [path]
+# Usage: (re)preprelease [path]
 # preprelease works in the current directory or on the named path
 
 if (@ARGV) {
-    chdir shift @ARGV;
+  chdir shift @ARGV;
 }
 
-my $name = `git config user.name`; 
-chomp $name;
-die "No user name configured\n" if $name eq "";
+my $isrepeat = $0 =~ /reprep/;
 
-my $email = `git config user.email`; 
-chomp $email;
-die "No user email configured\n" if $email eq "";
+my $info = getbasicinfo();
 
-system("git fetch") and die "Could not run git fetch\n";
+unless (-f "CHANGELOG") {
+  system("touch CHANGELOG");
+}
 
-my $status = `git status --porcelain`;
-chomp $status;
-die "You have uncommitted changes\n" unless $status eq "";
+if ($isrepeat) {
+  reprep($info);
+} else {
+  prep($info);
+}
 
-system("git fetch") and die "Could not run git fetch\n";
-my $headup = `git rev-list HEAD..\@\{upstream\}`;
-chomp $headup;
-die "Your branch is behind upstream\n" unless $headup eq "";
+######################################################################
+sub reprep {
+  my $info = shift;
+  my $vsn = $info->{sourceversion};
 
-my $here = `pwd`;
-chomp $here;
-my @bits = split("/", $here);
-my $package = pop @bits;
+  print STDERR "Current version number is $vsn.\n";
+  print STDERR "I am assuming that your change log is already complete.\n";
+  print STDERR "If that is not correct, update both CHANGELOG and the debian version.\n";
 
-my $oldvsn;
-my $newvsn;
-if (-f "CHANGELOG") {
+  maketar($info, $vsn);
+
+  exhort($vsn);
+}
+
+sub prep {
+  my $info = shift;
+  my $commits = getcommits($info);
+
+  my $tmpfn = prepmessage($commits, $info);
+
+  system("vi $tmpfn") and die "vi crashed";
+
+  my ($message, $newvsn) = commitmessage($tmpfn);
+  die "No release message given\n" if $message eq "";
+  die "Incorrectly formatted version\n" unless $newvsn =~ /^\d+\.\d+\.\d+(-.+)?/;
+
+  updatechangelog($message, $newvsn, $info);
+
+  updateversion($newvsn);
+
+  updateinno($newvsn, $info);
+
+  gitadd($newvsn, $info);
+
+  maketar($newvsn, $info);
+
+  exhort($newvsn);
+}
+
+######################################################################
+sub getbasicinfo {
+  my $name = `git config user.name`;
+  chomp $name;
+  die "No user name configured\n" if $name eq "";
+
+  my $email = `git config user.email`;
+  chomp $email;
+  die "No user email configured\n" if $email eq "";
+
+  system("git fetch") and die "Could not run git fetch\n";
+
+  my $status = `git status --porcelain`;
+  chomp $status;
+  die "You have uncommitted changes\n" unless $status eq "";
+
+  system("git fetch") and die "Could not run git fetch\n";
+  my $headup = `git rev-list HEAD..\@\{upstream\}`;
+  chomp $headup;
+  die "Your branch is behind upstream\n" unless $headup eq "";
+
+  my $here = `pwd`;
+  chomp $here;
+  my @bits = split("/", $here);
+  my $package = pop @bits;
+
+  my $srcvsn = `cat src/version`;
+  chomp $srcvsn;
+
+  my $chglvsn;
+  my $nextvsn = "0.1.0";
+  if (-f "CHANGELOG") {
     my $headline = `head -n 1 CHANGELOG`;
     chomp $headline;
     my ($pkg, $vsn, @junk) = split(" ", $headline);
-    die "Junk in CHANGELOG headline\n" if @junk || !defined($pkg) || 
-	!defined($vsn);
+    die "Junk in CHANGELOG headline\n" if @junk || !defined($pkg) ||
+      !defined($vsn);
     die "Package name mismatch\n" if $pkg ne $package;
-    $oldvsn = $vsn;
+    $chglvsn = $vsn;
     $vsn =~ /^(\d+)\.(\d+)\.(\d+)(-.+)?/ or die "Junk in CHANGELOG headline\n";
-    $newvsn = "$1.$2." . ($3+1);
-} else {
-    $newvsn = "0.1.0";
-    system("touch CHANGELOG");
+    $nextvsn = "$1.$2." . ($3+1);
+  }
+
+  my %info = ( "name" => $name,
+               "email" => $email,
+               "package" => $package,
+               "sourceversion" => $srcvsn,
+               "changelogversion" => $chglvsn,
+               "nextversion" => $nextvsn,
+               "here" => $here
+             );
+  return \%info;
 }
 
-my $commits = "";
-my $range = (defined $oldvsn) ? "v$oldvsn.." : "";
-my @commits = split("\n", `git log $range`);
-for (@commits) {
+sub getcommits {
+  my $info = shift;
+  my $oldvsn = $info->{changelogversion};
+  my $range = "";
+  if (defined $oldvsn) {
+    my $chk = `git tag -l v$oldvsn`;
+    if ($chk =~ /v$oldvsn/) {
+      $range = "v$oldvsn..";
+    } else {
+      return "# There was no tag for previous version.\n"
+        . "# You will have to manually extract CHANGELOG information"
+        . " from the git log\n";
+    }
+  }
+  my @commits = split("\n", `git log $range`);
+  my $commits = "";
+  for (@commits) {
     chomp;
     /^\s+$/ and next;
     /^\s+/ or next;
     $commits .= "#$_\n";
-}
-
-my $tmpfn = "/tmp/preprelease-$$.txt";
-open OUT, ">$tmpfn" or die "Cannot create $tmpfn";
-print OUT "# Creating new release for project $package\n";
-print OUT "# Previous version: $oldvsn\n" if defined $oldvsn;
-print OUT "# New version: (edit at will)\n";
-print OUT "\n";
-print OUT "$newvsn\n";
-print OUT "\n";
-print OUT "# Release message: (you must type at least a short message, else\n";
-print OUT "# the release will be aborted)\n";
-print OUT "\n";
-print OUT "\n";
-print OUT "# Commit messages since previous release: (FYI)\n";
-print OUT "\n";
-print OUT $commits;
-close OUT;
-
-system("vi $tmpfn") and die "vi crashed";
-
-open IN, "<$tmpfn";
-$newvsn = undef;
-my $message = "";
-while (<IN>) {
-  chomp;
-  /^\s*#/ and next;
-  if (!defined $newvsn) {
-    /^\s*$/ and next;
-    $newvsn = $_;
-  } else {
-    $message .= "  $_\n";
   }
+  return $commits;
 }
-close IN;
 
-unlink($tmpfn);
+sub prepmessage {
+  my $commits = shift;
+  my $info = shift;
+  my $tmpfn = "/tmp/preprelease-$$.txt";
+  open OUT, ">$tmpfn" or die "Cannot create $tmpfn";
+  print OUT "# Creating new release for project $info->{package}\n";
+  print OUT "# Previous version: $info->{changelogversion}\n"
+    if defined $info->{changelogversion};
+  print OUT "# New version: (edit at will)\n";
+  print OUT "\n";
+  print OUT "$info->{nextversion}\n";
+  print OUT "\n";
+  print OUT "# Release message: (you must type at least a short message, else\n";
+  print OUT "# the release will be aborted)\n";
+  print OUT "\n";
+  print OUT "\n";
+  print OUT "# Commit messages since previous release: (FYI)\n";
+  print OUT "\n";
+  print OUT $commits;
+  close OUT;
+  return $tmpfn;
+}
 
-$message =~ s/^\n+//;
-$message =~ s/\n+$//;
-die "No release message given\n" if $message eq "";
-die "Incorrectly formatted version\n" unless $newvsn =~ /^\d+\.\d+\.\d+(-.+)?/;
+sub commitmessage {
+  my $tmpfn = shift;
+  open IN, "<$tmpfn";
+  my $newvsn = undef;
+  my $message = "";
+  while (<IN>) {
+    chomp;
+    /^\s*#/ and next;
+    if (!defined $newvsn) {
+      /^\s*$/ and next;
+      $newvsn = $_;
+    } else {
+      $message .= "  $_\n";
+    }
+  }
+  close IN;
 
-open IN, "<CHANGELOG";
-my @changelog = <IN>;
-close IN;
+  unlink($tmpfn);
 
-system("mv CHANGELOG CHANGELOG~");
+  $message =~ s/^\n+//;
+  $message =~ s/\n+$//;
+  return ($message, $newvsn);
+}
 
-open OUT, ">CHANGELOG";
-print OUT "$package $newvsn\n";
-print OUT "\n";
-print OUT "$message\n";
-print OUT "\n";
-my $date = `date -R`; 
-chomp $date;
-print OUT "  -- $name <$email>  $date\n";
-print OUT "\n";
-print OUT join("", @changelog);
-close OUT;
+sub updatechangelog {
+  my $message = shift;
+  my $newvsn = shift;
+  my $info = shift;
 
-open OUT, ">src/version";
-print OUT "$newvsn\n";
-close OUT;
+  open IN, "<CHANGELOG";
+  my @changelog = <IN>;
+  close IN;
 
-system("tools/updateinnoscript.pl $package $newvsn") and
-  die "Could not update windows deplotment script\n";
+  system("mv CHANGELOG CHANGELOG~");
 
-system("git add CHANGELOG") and die "Could not add CHANGELOG\n";
-system("git add src/version") and die "Could not add src/version\n";
-system("git add tools/$package-x86.iss") and
-  die "Could not add tools/$package-x86.iss\n";
-system("git commit -m'Prepared for new version $newvsn'") and
+  open OUT, ">CHANGELOG";
+  print OUT "$info->{package} $newvsn\n";
+  print OUT "\n";
+  print OUT "$message\n";
+  print OUT "\n";
+  my $date = `date -R`;
+  chomp $date;
+  print OUT "  -- $info->{name} <$info->{email}>  $date\n";
+  print OUT "\n";
+  print OUT join("", @changelog);
+  close OUT;
+}
+
+sub updateversion {
+  my $newvsn = shift;
+
+  open OUT, ">src/version";
+  print OUT "$newvsn\n";
+  close OUT;
+}
+
+sub updateinno {
+  my $newvsn = shift;
+  my $info = shift;
+
+  my $package = $info->{package};
+  system("tools/updateinnoscript.pl $package $newvsn") and
+    die "Could not update windows deplotment script\n";
+}
+
+sub gitadd {
+  my $newvsn = shift;
+  my $info = shift;
+
+  my $package = $info->{package};
+  system("git add CHANGELOG") and die "Could not add CHANGELOG\n";
+  system("git add src/version") and die "Could not add src/version\n";
+  system("git add tools/$package-x86.iss") and
+    die "Could not add tools/$package-x86.iss\n";
+  system("git commit -m'Prepared for new version $newvsn'") and
     die "Could not commit\n";
+}
 
-my $tar = "releases/$package-$newvsn.tar.gz";
-system("mkdir -p ../releases");
-system("git archive -o ../$tar --prefix=$package-$newvsn/ HEAD") and
-  die "Could not create archive\n";
+sub maketar {
+  my $newvsn = shift;
+  my $info = shift;
 
-chdir("..");
-$here = `pwd`; 
-chomp $here;
-print STDERR "Release created; archive stored as $here/$tar.\n\n";
+  my $package = $info->{package};
 
-print STDERR "Do not forget to do:\n\n";
-print STDERR "  git tag -a v$newvsn -m 'Bumped version number'\n";
-print STDERR "  git push\n";
-print STDERR "  git push --tags\n\n";
-print STDERR "But first:\n\n";
-print STDERR "* Build a debian package:\n\n";
-print STDERR "  git checkout debian\n";
-print STDERR "  ./debian/mkdeb\n";
-print STDERR "  git checkout master\n\n";
-print STDERR "* Build a windows package:\n\n";
-print STDERR "  ./tools/win32deploy.sh\n\n";
-print STDERR "* Build a mac package.\n";
+  my $tar = "releases/$package-$newvsn.tar.gz";
+  system("mkdir -p ../releases");
+  system("git archive -o ../$tar --prefix=$package-$newvsn/ HEAD") and
+    die "Could not create archive\n";
+
+  chdir("..");
+  my $here = `pwd`;
+  chomp $here;
+  print STDERR "Release created; archive stored as $here/$tar.\n\n";
+  chdir($info->{here});
+}
+
+sub exhort {
+  my $newvsn = shift;
+  print STDERR "Do not forget to do:\n\n";
+  print STDERR "  git tag -a v$newvsn -m 'Bumped version number'\n";
+  print STDERR "  git push\n";
+  print STDERR "  git push --tags\n\n";
+  print STDERR "But first:\n\n";
+  print STDERR "* Build a debian package:\n\n";
+  print STDERR "  git checkout debian\n";
+  print STDERR "  ./debian/mkdeb\n";
+  print STDERR "  git checkout master\n\n";
+  print STDERR "* Build a windows package:\n\n";
+  print STDERR "  ./tools/win32deploy.sh\n\n";
+  print STDERR "* Build a mac package.\n";
+}
