@@ -1,16 +1,34 @@
+# This makefile is for Linux and MacOS building
+# Windows uses QCreator.
+
 # Unix installation
 ifdef DESTDIR
-# Debian uses this
-INSTALLPATH = $(DESTDIR)/usr
-SHAREPATH = $(DESTDIR)/usr/share
+  # Debian uses this
+  INSTALLPATH = $(DESTDIR)/usr
+  SHAREPATH = $(DESTDIR)/usr/share
 else
-INSTALLPATH = /usr/local
-SHAREPATH = /usr/local/share
+  INSTALLPATH = /usr/local
+  SHAREPATH = /usr/local/share
 endif
-SELECTQT=
-# SELECTQT="-qt=qt5"
-MACQTDIR=/Users/wagenaar/Qt-5.7/5.7
-PATH:=${PATH}:$(MACQTDIR)/clang_64/bin
+
+QMAKE=qmake
+
+UNAME=$(shell uname -s)
+
+ifeq ($(UNAME),Linux)
+  # Linux
+  SELECTQT="-qt=qt5"
+else
+  ifeq ($(UNAME),Darwin)
+    # Mac OS
+    SELECTQT=
+    QROOT=/Users/wagenaar/Qt-5.7/5.7
+    QBINPATH=$(QROOT)/clang_64/bin
+    QMAKE=$(QBINPATH)/qmake
+  else
+    $(error Unknown operating system. This makefile is for Mac or Linux.)
+  endif
+endif
 
 DOCPATH = $(SHAREPATH)/doc/eln
 
@@ -31,14 +49,14 @@ SRC: PREP
 
 PREP:
 	mkdir -p build
-	( cd build; qmake $(SELECTQT) ../src/eln.pro )
+	( cd build; $(QMAKE) $(SELECTQT) ../src/eln.pro )
 
 WEBGRAB: WEBGRABPREP
 	+make -C build-webgrab release
 
 WEBGRABPREP:
 	mkdir -p build-webgrab
-	( cd build-webgrab; qmake $(SELECTQT) ../webgrab/webgrab.pro )
+	( cd build-webgrab; $(QMAKE) $(SELECTQT) ../webgrab/webgrab.pro )
 
 # Unix installation
 install: all
@@ -87,7 +105,7 @@ macapp: SRC WEBGRAB
 	chmod a+x eln.app/Contents/MacOS/elnmac.sh
 
 macdmg: macapp
-	$(MACQTDIR)/clang_64/bin/macdeployqt eln.app -dmg -executable=eln.app/Contents/MacOS/webgrab 
+	$(QBINPATH)/macdeployqt eln.app -dmg -executable=eln.app/Contents/MacOS/webgrab 
 
 .PHONY: SRC WEBGRAB DOC all clean tar macclean macapp macdmg
 
