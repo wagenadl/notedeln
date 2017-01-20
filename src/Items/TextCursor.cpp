@@ -122,7 +122,7 @@ QString TextCursor::selectedText() const {
 
 bool TextCursor::movePosition(TextCursor::MoveOperation op,
                               TextCursor::MoveMode m) {
-  bool p0 = pos;
+  int p0 = pos;
   
   ASSERT(doc);
   

@@ -35,7 +35,7 @@ JSONParser::JSONParser(QString i): input(i) {
   currentLineStartOffset = 0;
 }
 
-void JSONParser::makeError(QString msg, bool atPrev) const throw(Error) {
+void JSONParser::makeError(QString msg, bool atPrev) const {
   int l = currentLine;
   int c = currentOffset-currentLineStartOffset;
   if (atPrev)
@@ -44,7 +44,7 @@ void JSONParser::makeError(QString msg, bool atPrev) const throw(Error) {
   throw Error(msg, l, c);
 }
 
-bool JSONParser::conditionalReadLiteral(QString s) throw(Error) {
+bool JSONParser::conditionalReadLiteral(QString s) {
   if (input.mid(currentOffset, s.size()) == s) {
     currentOffset += s.size();
     if (atEnd())
@@ -62,17 +62,17 @@ bool JSONParser::atEnd() const throw() {
   return currentOffset>=input.size();
 }
 
-void JSONParser::assertEnd() const throw(Error) {
+void JSONParser::assertEnd() const {
   if (!atEnd())
     makeError("Expected EOF");
 }
 
-void JSONParser::assertNext() const throw(Error) {
+void JSONParser::assertNext() const {
   if (atEnd())
     makeError("Unexpected EOF");
 }
 
-QChar JSONParser::peekNext() const throw(Error) {
+QChar JSONParser::peekNext() const {
   assertNext();
   QChar r = input[currentOffset];
   if (r=='\r')
@@ -80,7 +80,7 @@ QChar JSONParser::peekNext() const throw(Error) {
   return r;
 }
 
-QChar JSONParser::getNext() throw(Error) {
+QChar JSONParser::getNext() {
   assertNext();
   QChar r = input[currentOffset++];
   if (r=='\n' || r=='\r') {
@@ -116,7 +116,7 @@ void JSONParser::skipWhite() throw() {
   }
 }
 
-QString JSONParser::readString() throw(Error) {
+QString JSONParser::readString() {
   if (getNext()!='"')
     makeError("Expected a string", true);
   QString res = "";
@@ -158,7 +158,7 @@ QString JSONParser::readString() throw(Error) {
   return res;
 }
 
-QVariant JSONParser::readNumber() throw(Error) {
+QVariant JSONParser::readNumber() {
   QString bit = "";
   bool isInt = true;
   while (!atEnd()) {
@@ -188,7 +188,7 @@ QVariant JSONParser::readNumber() throw(Error) {
   return QVariant(v);
 }
 
-QVariant JSONParser::readValue(QString exp) throw(Error) {
+QVariant JSONParser::readValue(QString exp) {
   QChar c = peekNext();
   if (c=='"')
     return QVariant(readString());
@@ -205,7 +205,7 @@ QVariant JSONParser::readValue(QString exp) throw(Error) {
   return QVariant(); // not executed
 }
 
-QVariantMap JSONParser::readObject() throw(Error) {
+QVariantMap JSONParser::readObject() {
   if (getNext()!='{') 
     makeError("Not an object", true);
   skipWhite();
@@ -233,7 +233,7 @@ QVariantMap JSONParser::readObject() throw(Error) {
   return res; // not executed
 }
 
-QVariantList JSONParser::readArray() throw(Error) {
+QVariantList JSONParser::readArray() {
   if (getNext()!='[')
     makeError("Not an array", true);
   skipWhite();
@@ -257,7 +257,7 @@ QVariantList JSONParser::readArray() throw(Error) {
   return res; // not reached
 }
 
-QVariant JSONParser::readAny() throw(Error) {
+QVariant JSONParser::readAny() {
   switch (peekNext().unicode()) {
     case '{':
       return QVariant(JSONParser::readObject());
