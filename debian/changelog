@@ -1,3 +1,14 @@
+eln (1.2.0-1) yakkety; urgency=medium
+
+  This is the first release of ELN in nearly a year that includes
+  versions for Mac, Windows, as well as Linux.
+  ELN has been largely feature-complete, so mostly this is a bug-fix
+  release.
+  The most major improvement is probably that resolving URL references
+  now works on Windows.
+
+ -- Daniel A. Wagenaar <daw@caltech.edu>  Thu, 19 Jan 2017 19:55:26 -0800
+
 eln (1.1.15-1) yakkety; urgency=medium
 
   * Fixed eln.desktop to contain %f
