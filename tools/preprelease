@@ -272,6 +272,7 @@ sub exhort {
   print STDERR "But first:\n\n";
   print STDERR "* Build a debian package:\n\n";
   print STDERR "  git checkout debian\n";
+  print STDERR "  git merge master\n";
   print STDERR "  ./debian/mkdeb\n";
   print STDERR "  git checkout master\n\n";
   print STDERR "* Build a windows package (on a windows machine):\n\n";
