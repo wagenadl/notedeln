@@ -95,4 +95,4 @@ System("mv ../${package}_$vsn.* ../releases");
 print STDERR "Your binary debian package:\n";
 system("ls ../releases/${package}_$vsn-1*deb");
 
-print STDERR "\nDo not forget to run:\n  git branch master\n";
+print STDERR "\nDo not forget to run:\n  git checkout master\n";
