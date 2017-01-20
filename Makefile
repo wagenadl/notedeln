@@ -68,7 +68,7 @@ install: all
 	install -d $(SHAREPATH)/mime/packages
 	install -d $(DOCPATH)
 	install build/eln $(INSTALLPATH)/bin/eln
-	install build/webgrab $(INSTALLPATH)/bin/webgrab
+	install build-webgrab/webgrab $(INSTALLPATH)/bin/webgrab
 	cp build-doc/eln.1 $(SHAREPATH)/man/man1/eln.1
 	cp build-doc/webgrab.1 $(SHAREPATH)/man/man1/webgrab.1
 	cp src/App/eln.png $(SHAREPATH)/pixmaps/eln.png
