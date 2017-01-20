@@ -1,3 +1,14 @@
+eln 1.2.0
+
+  This is the first release of ELN in nearly a year that includes
+  versions for Mac, Windows, as well as Linux.
+  ELN has been largely feature-complete, so mostly this is a bug-fix
+  release.
+  The most major improvement is probably that resolving URL references
+  now works on Windows.
+
+  -- Daniel A. Wagenaar <daw@caltech.edu>  Thu, 19 Jan 2017 17:13:30 -0800
+
 eln 1.1.16
 
   * https links now work in windows, for PubMed autonotes and URL references.
@@ -48,10 +59,7 @@ eln 1.1.11
 
 eln 1.1.8
 
-
-
   Very minor changes:
-
 
   Figure space now needs Ctrl+Shift+Space
   PrintDialog no longer opens created pdf by default
@@ -64,17 +72,11 @@ eln 1.1.8
 
 eln 1.1.7
 
-
-
   Trivial change to build process
-
-
 
   -- Daniel A. Wagenaar <wagenadl@uc.edu>  Fri, 08 Apr 2016 12:14:13 -0400
 
 eln 1.1.6
-
-
 
   User visible changes:
 
@@ -97,15 +99,9 @@ eln 1.1.6
 
   Several bugs figxed.
 
-
-
   -- Daniel Wagenaar <wagenadl@uc.edu>  Fri, 08 Apr 2016 09:52:19 -0400
 
 eln 1.1.4
-
-
-
-
 
   User-visible changes:
 
@@ -118,7 +114,6 @@ eln 1.1.4
   * Indexing overhauled. Now much more reliable.
 
   * BookData no longer uses or updates endDate. FrontScene uses TOC to calculate endDate. This means that book.eln will no longer cause merge conflicts.
-
 
   Bugs fixed:
 
@@ -136,8 +131,6 @@ eln 1.1.4
   -- Daniel Wagenaar <wagenadl@uc.edu>  Wed, 16 Dec 2015 08:39:33 -0500
 
 eln 1.1.0
-
-
 
   User visible changes:
 
@@ -159,7 +152,6 @@ eln 1.1.0
 
       "Create new notebook" and "Load existing notebook" dialogs now open with better default folder locations.
 
-
   Internal improvements:
 
       "Late notes" are now stored in a separate file to reduce the risk of merge conflicts. The only incompatibility this causes between old and new files and old and new versions of ELN is that old versions of ELN will not display the new-style notes.
@@ -170,7 +162,6 @@ eln 1.1.0
       Now converts filename on command line from Windows style as needed.
 
       Several trivial changes to make ELN compile on Android. User interface still leaves a lot to be desired: ELN is clearly not an "app".
-
 
   Bugs fixed:
 
@@ -183,12 +174,9 @@ eln 1.1.0
 
       Initial placement of freshly loaded notes now correct
 
-
   -- Daniel Wagenaar <wagenadl@uc.edu>  Mon, 23 Nov 2015 09:02:22 -0800
 
 eln 1.0.4
-
-
 
   Several bugfixes:
 
@@ -199,12 +187,9 @@ eln 1.0.4
   * TextItem and TextBlockItem now correctly deal with Ctrl-Tab on secondary fragment
   * Added username field to Clone/New dialogs
 
-
   -- Daniel Wagenaar <wagenadl@uc.edu>  Fri, 18 Sep 2015 15:01:18 -0400
 
 eln 1.0.2
-
-
 
   * Added GPL text
   * git test now quiet
@@ -229,7 +214,6 @@ eln 1.0.2
   -- Daniel Wagenaar <wagenadl@uc.edu>  Wed, 09 Sep 2015 08:05:10 -0400
 
 eln 1.0.0
-
 
   Finally ready for a 1.0 release. Relatively minor changes since 0.10.2:
 
@@ -379,4 +363,3 @@ eln 0.5.100
   Testing the new release system
 
   -- Daniel Wagenaar <wagenadl@uc.edu>  Mon, 01 Jun 2015 10:45:23 -0400
-
