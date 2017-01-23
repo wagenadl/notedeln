@@ -25,6 +25,10 @@ static bool isLatinLetter(QChar x) {
   return (x>='A' && x<='Z') || (x>='a' && x<='z');
 }
 
+static bool isLatinLetter(QString x) {
+  return x.size()==1 && isLatinLetter(x[0]);
+}
+
 void TextItem::letterAsMath(QString txt) {
   if (cursor.hasSelection()) {
     // we are going to overwrite this selection, I guess
@@ -63,18 +67,19 @@ void TextItem::letterAsMath(QString txt) {
 	cursor.insertText(QString(prevChar));
       cursor.insertText(txt);
       if (prevChar=='d') { // magic for "dx"
-	if (!(antePrevChar>='A' && antePrevChar<='Z')
-	    && !(antePrevChar>='a' && antePrevChar<='z')) {
+	if (!isLatinLetter(antePrevChar)
+	    && txt!="o") { // don't italicize d_o_.
 	  addMarkup(MarkupData::Italic,
 		    cursor.position()-txt.length(), cursor.position());
 	}
       }
     }
   } else {
-    // previous was not a letter, let's italicize
+    // previous was not a letter, let's italicize (except for "I" and "a")
     cursor.insertText(txt);
-    addMarkup(MarkupData::Italic,
-	      cursor.position()-txt.length(), cursor.position());
+    if (txt != "I" && txt != "a")
+      addMarkup(MarkupData::Italic,
+		cursor.position()-txt.length(), cursor.position());
   }
 }  
 
@@ -82,7 +87,7 @@ bool TextItem::keyPressAsMath(QKeyEvent *e) {
   //  int key = e->key();
   //  Qt::KeyboardModifiers mod = e->modifiers();
   QString txt = e->text();
-  if ((txt>="A" && txt<="Z") || (txt>="a" && txt<="z")) {
+  if (isLatinLetter(txt)) {
     letterAsMath(txt);
     return true;
   } else if (txt=="-") {
