@@ -1,3 +1,9 @@
+eln (1.2.0-2) yakkety; urgency=medium
+
+  Trivial fix to dependencies.
+
+ -- Daniel A. Wagenaar <daw@caltech.edu>  Fri, 27 Jan 2017 09:29:00 -0800
+
 eln (1.2.0-1) yakkety; urgency=medium
 
   This is the first release of ELN in nearly a year that includes

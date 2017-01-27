@@ -8,6 +8,6 @@ Homepage: http://www.danielwagenaar.net/eln
 
 Package: eln
 Architecture: any
-Depends: ${shlibs:Depends},${misc:Depends}, libqt5gui5 (>=5.6.1), libqtwebkit5 (>= 5.6.1)
+Depends: ${shlibs:Depends},${misc:Depends}, libqt5gui5 (>=5.6.1), libqt5webkit5 (>= 5.6.1)
 Description: Electronic Lab Notebook
  ELN is a simple electronic lab notebook with an emphasis on solid data storage.
