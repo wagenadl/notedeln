@@ -25,7 +25,7 @@ $msvc_path =~ s/\//\\/g;
 $ENV{VCINSTALLDIR} = $msvc_path;
 
 die "eln executable not found" unless -f "$eln_buildpath/eln.exe";
-die "webgrab executable not found" unless -f "$webgreb_buildpath/webgrab.exe";
+die "webgrab executable not found" unless -f "$webgrab_buildpath/webgrab.exe";
 
 
 File::Path::remove_tree($release_path) if -d $release_path;
