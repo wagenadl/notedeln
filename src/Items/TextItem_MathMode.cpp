@@ -26,6 +26,7 @@ static bool isLatinLetter(QChar x) {
 }
 
 void TextItem::letterAsMath(QString txt) {
+  const QString rquote = QString::fromUtf8("’");
   if (cursor.hasSelection()) {
     // we are going to overwrite this selection, I guess
     cursor.deleteChar();
@@ -37,7 +38,8 @@ void TextItem::letterAsMath(QString txt) {
     // previous was also a letter; potential deitalicize or bold face
     MarkupData *mdi = data()->markupAt(cursor.position(), MarkupData::Italic);
     MarkupData *mdb = data()->markupAt(cursor.position(), MarkupData::Bold);
-    if (prevChar==txt[0] && !isLatinLetter(antePrevChar)) {
+    if (prevChar==txt[0] && !isLatinLetter(antePrevChar)
+	&& antePrevChar!=rquote && prevChar!='a') {
       // we had the same letter before -> cycle faces
       // order is italic -> bold italic -> bold -> plain -> italic
       if (mdb) {
@@ -64,16 +66,19 @@ void TextItem::letterAsMath(QString txt) {
       cursor.insertText(txt);
       if (prevChar=='d') { // magic for "dx"
 	if (!(antePrevChar>='A' && antePrevChar<='Z')
-	    && !(antePrevChar>='a' && antePrevChar<='z')) {
+	    && !(antePrevChar>='a' && antePrevChar<='z')
+	    && txt!="o") { /* but not "do" */
 	  addMarkup(MarkupData::Italic,
 		    cursor.position()-txt.length(), cursor.position());
 	}
       }
     }
   } else {
-    // previous was not a letter, let's italicize
+    // previous was not a letter, let's insert.
     cursor.insertText(txt);
-    addMarkup(MarkupData::Italic,
+    // and, if previous was not "’", let's italicize, except for "I" and "a".
+    if (prevChar!=rquote && txt!="I" && txt!="a")
+      addMarkup(MarkupData::Italic,
 	      cursor.position()-txt.length(), cursor.position());
   }
 }  
@@ -82,6 +87,7 @@ bool TextItem::keyPressAsMath(QKeyEvent *e) {
   //  int key = e->key();
   //  Qt::KeyboardModifiers mod = e->modifiers();
   QString txt = e->text();
+  qDebug() << "asmath" << txt << e->modifiers();
   if ((txt>="A" && txt<="Z") || (txt>="a" && txt<="z")) {
     letterAsMath(txt);
     return true;

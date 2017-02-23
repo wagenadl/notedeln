@@ -578,8 +578,6 @@ bool TextItem::keyPressWithControl(QKeyEvent *e) {
 bool TextItem::keyPressAsSimpleStyle(int key, TextCursor const &cursor) {
   switch (key) {
   case Qt::Key_Slash:
-    if (mode()->mathMode())
-      tryTeXCode();
     toggleSimpleStyle(MarkupData::Italic, cursor);
     return true;
   case Qt::Key_8: case Qt::Key_Asterisk: case Qt::Key_Comma:
@@ -623,6 +621,7 @@ bool TextItem::tryTeXCode(bool noX, bool onlyAtEndOfWord) {
   }
   // got a word
   QString key = c.selectedText();
+  qDebug() << "trytex" << key << noX << onlyAtEndOfWord;
   if (!TeXCodes::contains(key))
     return false;
   if (noX && key.size()==1)
