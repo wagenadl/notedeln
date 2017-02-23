@@ -582,7 +582,10 @@ void EntryScene::futileMovement(int block) {
   int tgtidx = -1;
   if (fmi.key()==Qt::Key_Enter || fmi.key()==Qt::Key_Return) {
     TextCursor c = tbi->textCursor();
-    if (c.atEnd()) 
+    /* Ctrl-Enter makes next block with same indentation. Note that this
+       currently cannot happen, because Ctrl-Enter is intercepted in TextItem
+       and inserts a '\n' in the text. */
+    if (c.atEnd() && !(fmi.modifiers() & Qt::ControlModifier)) 
       newTextBlock(block, true);
     else
       splitTextBlock(block, c.position());

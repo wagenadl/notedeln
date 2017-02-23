@@ -436,8 +436,9 @@ bool TextItem::keyPressAsMotion(QKeyEvent *e) {
     }
   } return true;
   case Qt::Key_Return: case Qt::Key_Enter:
-    if (allowParagraphs_) {
-      cursor.insertText("\n");
+    if (allowParagraphs_ || e->modifiers() & Qt::ControlModifier) {
+      /* Note that this code is not executed for tables. */
+      cursor.insertText("\n"); 
       ensureCursorVisible();      
     } else {
       emit futileMovementKey(e->key(), e->modifiers());
