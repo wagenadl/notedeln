@@ -50,7 +50,7 @@ private slots:
   void abandon();
   
 private:
-  QPointF nearestCorner(QPointF pbase=QPointF());
+  QPointF nearestCorner(QPointF pbase=QPointF(), bool *inside_return = 0);
 protected:
   class TextItem *text;
   QGraphicsLineItem *line;

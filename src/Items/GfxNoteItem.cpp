@@ -29,6 +29,8 @@
 #include <QTextLine>
 #include <math.h>
 
+#define MINLINELENGTH 0.1
+
 static Item::Creator<GfxNoteData, GfxNoteItem> c("gfxnote");
 
 GfxNoteItem::GfxNoteItem(GfxNoteData *data, Item *parent):
@@ -96,11 +98,12 @@ static double sigmoid(double xl, double xr) {
   return xl + x; //+ w*a;
 }
 
-QPointF GfxNoteItem::nearestCorner(QPointF pbase) {
+QPointF GfxNoteItem::nearestCorner(QPointF pbase, bool *insidep) {
   QRectF docr = text->document()->tightBoundingRect()
     .translated(text->pos() - pbase);
 
-  double dx = style().real("note-x-inset");
+  double dx = style().real("note-x-inset") / 2;
+  double dx2 = dx;
   double x0, y0;
   double ygood = docr.top()>0 ? docr.top()
     : docr.bottom()<0 ? -docr.bottom()
@@ -108,51 +111,58 @@ QPointF GfxNoteItem::nearestCorner(QPointF pbase) {
   double xgood = docr.left()>0 ? docr.left()
     : docr.right()<0 ? - docr.right()
     : 0;
+  if (insidep)
+    *insidep = false;
+
   if (ygood>xgood) {
     // coming mostly from above or below
     if (docr.top() > dx) {
       // coming substantially from above
-      y0 = docr.top() - dx/2;
+      y0 = docr.top() - dx2;
       x0 = sigmoid(docr.left(), docr.right());
     } else if (docr.bottom() < -dx) {
       // coming substantially from below
-      y0 = docr.bottom() + dx/2;
+      y0 = docr.bottom() + dx2;
       x0 = sigmoid(docr.left(), docr.right());
     } else if (docr.left() > dx) {
       // coming substantially from the left
-      x0 = docr.left() - dx/2;
+      x0 = docr.left() - dx2;
       y0 = sigmoid(docr.top(), docr.bottom());
     } else if (docr.right() < -dx) {
       // coming substantially from the right
-      x0 = docr.right() + dx/2;
+      x0 = docr.right() + dx2;
       y0 = sigmoid(docr.top(), docr.bottom());
     } else {
       // too close by; what can we do that is reasonable?
       x0 = docr.left();
       y0 = docr.top();
+      if (insidep)
+	*insidep = true;
     }
   } else {
     // coming mostly from left or right
     if (docr.left() > dx) {
       // coming substantially from the left
-      x0 = docr.left() - dx/2;
+      x0 = docr.left() - dx2;
       y0 = sigmoid(docr.top(), docr.bottom());
     } else if (docr.right() < -dx) {
       // coming substantially from the right
-      x0 = docr.right() + dx/2;
+      x0 = docr.right() + dx2;
       y0 = sigmoid(docr.top(), docr.bottom());
     } else if (docr.top() > dx) {
       // coming substantially from above
-      y0 = docr.top() - dx/2;
+      y0 = docr.top() - dx2;
       x0 = sigmoid(docr.left(), docr.right());
     } else if (docr.bottom() < -dx) {
       // coming substantially from below
-      y0 = docr.bottom() + dx/2;
+      y0 = docr.bottom() + dx2;
       x0 = sigmoid(docr.left(), docr.right());
     } else {
       // too close by; what can we do that is reasonable?
       x0 = docr.left();
       y0 = docr.top();
+      if (insidep)
+	*insidep = true;
     }
   }
   return pbase + QPointF(x0, y0);
@@ -183,15 +193,16 @@ void GfxNoteItem::updateTextPos() {
   }
 
   // Arrange line to be shortest
-  if (data()->delta().manhattanLength()>5) { // minimum line length
+  if (data()->delta().manhattanLength()>MINLINELENGTH) { // minimum line length
     if (!line) {
       line = new QGraphicsLineItem(QLineF(QPointF(0,0), QPointF(1,1)), this);
       line->setPen(QPen(QBrush(QColor(style().string("note-line-color"))),
 			style().real("note-line-width")));
     }
-    QPointF oth = nearestCorner();
+    bool inside = false;
+    QPointF oth = nearestCorner(QPointF(0,0), &inside);
     line->setLine(QLineF(QPointF(0,0), oth));
-    if (oth.manhattanLength()<1e-4) 
+    if (inside)
       line->hide();
     else 
       line->show();
@@ -220,19 +231,27 @@ void GfxNoteItem::mouseMoveEvent(QGraphicsSceneMouseEvent *e) {
   } else {
     QPointF delta = e->pos() - e->lastPos();
     text->setPos(text->pos() + delta);
-    if (e->modifiers() & Qt::ShiftModifier && !line) {
+    if ((e->modifiers() & Qt::ShiftModifier)
+	&& !(e->modifiers() & Qt::ControlModifier)
+	&& !line) {
+      /* Create a line only if shift held but not control */
       line = new QGraphicsLineItem(QLineF(QPointF(0,0), QPointF(1,1)), this);
       line->setPen(QPen(QBrush(QColor(style().string("note-line-color"))),
 			style().real("note-line-width")));
     }      
     if (line) {
       QLineF l = line->line(); // origLine;
-      if (e->modifiers() & Qt::ShiftModifier) 
+      if ((e->modifiers() & Qt::ShiftModifier)) {
+	// leave line's end point in place if shift held
+      } else {
+	// move line's end point along if shift not held
 	l.setP1(l.p1() + delta);
-      QPointF oth = nearestCorner(l.p1());
+      }
+      bool inside = false;
+      QPointF oth = nearestCorner(l.p1(), &inside);
       l.setP2(oth);
       line->setLine(l);
-      if ((oth-l.p1()).manhattanLength() < 1e-4) 
+      if ((oth-l.p1()).manhattanLength() < MINLINELENGTH || inside) 
 	line->hide();
       else
 	line->show();
@@ -250,6 +269,10 @@ void GfxNoteItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *e) {
   } else {
     QPointF ptext = text->pos() - QPointF(0, style().real("note-y-offset"));
     QPointF p0 = mapToParent(ptext);
+    if (line && !line->isVisible()) {
+      delete line;
+      line = 0;
+    }
     if (line) {
       QPointF pbase = line->line().p1();
       p0 = mapToParent(pbase);
