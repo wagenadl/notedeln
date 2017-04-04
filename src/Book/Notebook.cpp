@@ -56,7 +56,6 @@ Notebook::Notebook(QString path, bool ro0): root(QDir(path)), ro(ro0) {
   tocFile_ = 0;
   bookFile_ = 0;
   mode_ = new Mode(isReadOnly(), this);
-  load();
 }
 
 void Notebook::load() {
@@ -69,18 +68,28 @@ void Notebook::load() {
     throw QString("Could not load book file.");
   bookFile_->data()->setBook(this);
 
+  qDebug() << "Cataloging pages for " << root.absolutePath();
   Catalog cat(root.filePath("pages"));
-  
+
+  qDebug() << "Loading TOC for " << root.absolutePath();
   tocFile_ = TOCFile::load(root.filePath("toc.json"), this);
-  if (tocFile_ && !tocFile_->data()->update(cat)) {
-    qDebug() << "TOC update failed - will rebuild TOC and index";
-    delete tocFile_;
-    tocFile_ = 0;
-    root.remove("toc.json");
-    root.remove("index.json");
+  if (tocFile_) {
+    qDebug() << "Updating TOC";
+    if (tocFile_->data()->update(cat)) {
+      qDebug() << "TOC updated";
+    } else {
+      qDebug() << "TOC update failed - will rebuild TOC and index";
+      delete tocFile_;
+      tocFile_ = 0;
+      root.remove("toc.json");
+      root.remove("index.json");
+    }
+  } else {
+    qDebug() << "No TOC file found";
   }
+  
   if (!tocFile_) {
-    qDebug() << "No TOC file found, trying to rebuild";
+    qDebug() << "Trying to rebuild TOC";
     TOC *t = TOC::rebuild(root.filePath("pages"));
     if (!t)
       throw QString("Could not rebuild TOC");
@@ -89,6 +98,7 @@ void Notebook::load() {
   }
   if (!tocFile_)
     throw QString("Could not load TOC");
+  
   tocFile_->data()->setBook(this);
 
   index_ = new Index(dirPath(), toc(), this);

@@ -26,7 +26,9 @@ AppInstance::AppInstance(App *app, Notebook *nb): book(nb) {
   updateTimer = 0;
   backgroundVC = 0;
 
+  qDebug() << "AppInstance: seting up VC";
   setupVC();
+  qDebug() << "VC setup complete";
 
   book->load();
 
@@ -71,7 +73,9 @@ void AppInstance::forgetEditor(QObject *e) {
 void AppInstance::setupVC() {
   QString vc = book->checkVersionControl();
   if (!vc.isEmpty()) {
+    qDebug() << "Have VC";
     if (VersionControl::update(book->dirPath(), vc)) {
+      qDebug() << "Updated from VC";
       backgroundVC = new BackgroundVC(this);
       commitTimer = new QTimer(this);
       commitTimer->setSingleShot(true);
