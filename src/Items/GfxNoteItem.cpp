@@ -229,24 +229,23 @@ void GfxNoteItem::mouseMoveEvent(QGraphicsSceneMouseEvent *e) {
       w = 30;
     text->setTextWidth(w);
   } else {
+    draganchor = e->modifiers() & Qt::ShiftModifier;
     QPointF delta = e->pos() - e->lastPos();
-    text->setPos(text->pos() + delta);
-    if ((e->modifiers() & Qt::ShiftModifier)
-	&& !(e->modifiers() & Qt::ControlModifier)
-	&& !line) {
-      /* Create a line only if shift held but not control */
-      line = new QGraphicsLineItem(QLineF(QPointF(0,0), QPointF(1,1)), this);
-      line->setPen(QPen(QBrush(QColor(style().string("note-line-color"))),
-			style().real("note-line-width")));
-    }      
+    if (draganchor) {
+      if (!line) {
+	/* Create a line */
+	line = new QGraphicsLineItem(QLineF(QPointF(0,0), QPointF(1,1)), this);
+	line->setPen(QPen(QBrush(QColor(style().string("note-line-color"))),
+			  style().real("note-line-width")));
+      }
+      QLineF l = line->line(); // origLine;
+      l.setP1(l.p1() + delta);
+      line->setLine(l);
+    } else {
+      text->setPos(text->pos() + delta);
+    }
     if (line) {
       QLineF l = line->line(); // origLine;
-      if ((e->modifiers() & Qt::ShiftModifier)) {
-	// leave line's end point in place if shift held
-      } else {
-	// move line's end point along if shift not held
-	l.setP1(l.p1() + delta);
-      }
       bool inside = false;
       QPointF oth = nearestCorner(l.p1(), &inside);
       l.setP2(oth);
@@ -308,12 +307,16 @@ void GfxNoteItem::setFocus() {
   text->setFocus();
 }
 
-void GfxNoteItem::childMousePress(QPointF, Qt::MouseButton b, bool resizeFlag) {
-  if (mode()->mode()==Mode::MoveResize && b==Qt::LeftButton) {
-    text->setFocus();
-    text->clearFocus();
-    //    lockBounds();
-    resizing = resizeFlag;
+void GfxNoteItem::childMousePress(QPointF p, Qt::MouseButton b,
+				  Qt::KeyboardModifiers m) {
+  if (!isWritable())
+    return;
+  if ((mode()->mode()==Mode::MoveResize
+      || (m & Qt::ControlModifier)
+       || (m & Qt::ShiftModifier))
+      && b==Qt::LeftButton) {
+    resizing = shouldResize(p);
+    draganchor = m & Qt::ShiftModifier;
     if (resizing) {
       initialTextWidth = data()->textWidth();
       if (initialTextWidth<1) {
@@ -363,3 +366,13 @@ void GfxNoteItem::hoverEnterEvent(QGraphicsSceneHoverEvent *e) {
   Item::hoverEnterEvent(e);
   text->setGraphicsEffect(0); // prevent double green
 }
+
+
+bool GfxNoteItem::shouldResize(QPointF p) const {
+  double tw = data()->textWidth();
+  if (tw<=0)
+    tw = text->netBounds().width();
+  bool should = mapFromScene(p).x()-netBounds().left() > .75*tw;
+  return should;
+}
+ 

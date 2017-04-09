@@ -35,11 +35,12 @@ public:
   void paint(QPainter *, const QStyleOptionGraphicsItem *, QWidget *);
   static GfxNoteItem *newNote(QPointF p0, QPointF p1, Item *parent);
   virtual void makeWritable();
-  void childMousePress(QPointF, Qt::MouseButton, bool resizeFlag);
+  void childMousePress(QPointF pscene, Qt::MouseButton, Qt::KeyboardModifiers);
   class TextItem *textItem() { return text; }
   virtual void setScale(qreal f);
   void translate(QPointF dxy);
   void setFocus();
+  bool shouldResize(QPointF pscene) const;
 protected:
   virtual void hoverEnterEvent(QGraphicsSceneHoverEvent *);
   virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *);
@@ -48,13 +49,13 @@ private slots:
   void updateTextPos(); // must be called after scale change
   void futileMovementKey(int, Qt::KeyboardModifiers);
   void abandon();
-  
 private:
   QPointF nearestCorner(QPointF pbase=QPointF(), bool *inside_return = 0);
 protected:
   class TextItem *text;
   QGraphicsLineItem *line;
   bool resizing;
+  bool draganchor;
   double initialTextWidth;
 };
 

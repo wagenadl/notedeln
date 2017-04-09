@@ -188,15 +188,19 @@ void TextItem::handleLeftClick(QGraphicsSceneMouseEvent *e) {
       setFocus();
       update();
     }
+    if (mayMove) {
+      GfxNoteItem *gni = dynamic_cast<GfxNoteItem*>(parent());
+      if (gni)
+        gni->childMousePress(e->scenePos(), e->button(), e->modifiers());
+    }
   } break;
   case Mode::MoveResize:
     if (linkHelper->mousePress(e)) 
       break;
     if (mayMove) {
-      bool resize = shouldResize(e->pos());
       GfxNoteItem *gni = dynamic_cast<GfxNoteItem*>(parent());
       if (gni)
-        gni->childMousePress(e->scenePos(), e->button(), resize);
+        gni->childMousePress(e->scenePos(), e->button(), e->modifiers());
     }
     break;
   case Mode::Highlight:
@@ -784,7 +788,7 @@ void TextItem::keyPressEvent(QKeyEvent *e) {
     clearFocus();
     return;
   }
-  switch (mode()->permanentMode()) {
+  switch (mode()->mode()) {
   case Mode::Browse:
     if (keyPressInBrowseMode(e))
       e->accept();
@@ -1251,30 +1255,27 @@ void TextItem::setAllowParagraphs(bool yes) {
   allowParagraphs_ = yes;
 }
 
-bool TextItem::shouldResize(QPointF p) const {
-  GfxNoteItem *gni = dynamic_cast<GfxNoteItem*>(parent());
-  if (!gni)
-    return false;
-  double tw = gni->data()->textWidth();
-  if (tw<=0)
-    tw = netBounds().width();
-  bool should = p.x()-netBounds().left() > .75*tw;
-  return should;
-}
- 
-Qt::CursorShape TextItem::cursorShape() const {
+Qt::CursorShape TextItem::cursorShape(Qt::KeyboardModifiers m) const {
   Qt::CursorShape cs = defaultCursorShape();
   switch (mode()->mode()) {
   case Mode::Type:
-    if (isWritable())
+    if (mayMove && (m & Qt::ControlModifier)) {
+      GfxNoteItem *gni = dynamic_cast<GfxNoteItem*>(parent());
+      if (gni && gni->shouldResize(mapToScene(cursorPos)))
+        cs = Qt::SplitHCursor;
+      else
+        cs = Qt::SizeAllCursor;
+    } else if (isWritable()) {
       cs = Qt::IBeamCursor;
+    }
     break;
   case Mode::Annotate:
     cs = Qt::CrossCursor;
     break;
   case Mode::MoveResize:
     if (mayMove) {
-      if (shouldResize(cursorPos))
+      GfxNoteItem *gni = dynamic_cast<GfxNoteItem*>(parent());
+      if (gni && gni->shouldResize(mapToScene(cursorPos)))
         cs = Qt::SplitHCursor;
       else
         cs = Qt::SizeAllCursor;
@@ -1295,7 +1296,7 @@ bool TextItem::changesCursorShape() const {
 
 void TextItem::hoverMoveEvent(QGraphicsSceneHoverEvent *e) {
   cursorPos = e->pos(); // cache for the use of modifierChanged
-  setCursor(Cursors::refined(cursorShape()));
+  setCursor(Cursors::refined(cursorShape(e->modifiers())));
   linkHelper->mouseMove(e);
   Item::hoverMoveEvent(e);
   e->accept();
@@ -1303,7 +1304,7 @@ void TextItem::hoverMoveEvent(QGraphicsSceneHoverEvent *e) {
 
 void TextItem::hoverLeaveEvent(QGraphicsSceneHoverEvent *e) {
   cursorPos = e->pos(); // cache for the use of modifierChanged
-  setCursor(Cursors::refined(cursorShape()));
+  setCursor(Cursors::refined(cursorShape(e->modifiers())));
   linkHelper->mouseMove(e);
   Item::hoverLeaveEvent(e);
   e->accept();

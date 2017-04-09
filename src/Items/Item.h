@@ -90,8 +90,10 @@ public: // but only for use in derived class source files
 public:
   static Qt::CursorShape defaultCursorShape();
   virtual bool changesCursorShape() const;
-  virtual Qt::CursorShape cursorShape() const;
+  virtual Qt::CursorShape cursorShape(Qt::KeyboardModifiers m) const;
 protected:
+  virtual void keyPressEvent(QKeyEvent *);
+  virtual void keyReleaseEvent(QKeyEvent *);
   virtual void hoverEnterEvent(QGraphicsSceneHoverEvent *);
   virtual void hoverLeaveEvent(QGraphicsSceneHoverEvent *);
   template<class T> T *castData() {
@@ -114,7 +116,7 @@ private: // these must never be called
   const QObjectList &children() const; // hide from QObject
   // QObject's parent() has been overridden
   void setParent(QObject *); // hide from QObject
-  void perhapsCreateGlow();
+  void perhapsCreateGlow(Qt::KeyboardModifiers m);
   void removeGlow();
   bool shouldGlow() const;
   void setGlowItem(Item *child);

@@ -25,6 +25,7 @@
 #include "FootnoteItem.h" // for debug
 #include "EntryScene.h"
 #include <QGraphicsSceneMouseEvent>
+#include <QKeyEvent>
 #include "DragLine.h"
 #include "App.h"
 #include "GfxData.h"
@@ -123,11 +124,29 @@ QList<Item*> Item::allChildren() const {
   return children<Item>();
 }
 
+void Item::keyPressEvent(QKeyEvent *e) {
+  if (e->key()==Qt::Key_Control) {
+    /* ΧΧΧ This is wrong, we should look at item under mouse XXX */
+    if (changesCursorShape())
+      setCursor(Cursors::refined(cursorShape(e->modifiers())));
+  }
+  QGraphicsItem::keyPressEvent(e);
+}
+
+void Item::keyReleaseEvent(QKeyEvent *e) {
+  if (e->key()==Qt::Key_Control) {
+    /* ΧΧΧ This is wrong, we should look at item under mouse XXX */
+    if (changesCursorShape())
+      setCursor(Cursors::refined(cursorShape(e->modifiers())));
+  }
+  QGraphicsItem::keyReleaseEvent(e);
+}
+
 Qt::CursorShape Item::defaultCursorShape() {
   return Qt::ArrowCursor;
 }
 
-Qt::CursorShape Item::cursorShape() const {
+Qt::CursorShape Item::cursorShape(Qt::KeyboardModifiers) const {
   return defaultCursorShape();
 }
 
@@ -161,14 +180,15 @@ void Item::removeGlow() {
 
 void Item::modeChangeUnderCursor() {
   if (mode()->mode()==Mode::MoveResize)
-    perhapsCreateGlow();
+    perhapsCreateGlow(0);
   else
     removeGlow();
 }
 
-void Item::perhapsCreateGlow() {
+void Item::perhapsCreateGlow(Qt::KeyboardModifiers m) {
   ASSERT(d);
-  if (writable && shouldGlow() && mode()->mode()==Mode::MoveResize) {
+  if (writable && shouldGlow()
+      && (mode()->mode()==Mode::MoveResize || (m & Qt::ControlModifier))) {
     QGraphicsDropShadowEffect *eff = new QGraphicsDropShadowEffect;
     eff->setColor(QColor("#00ff33"));
     eff->setOffset(QPointF(0, 0));
@@ -180,9 +200,9 @@ void Item::perhapsCreateGlow() {
 }  
 
 void Item::hoverEnterEvent(QGraphicsSceneHoverEvent *e) {
-  perhapsCreateGlow();
+  perhapsCreateGlow(e->modifiers());
   if (changesCursorShape())
-    setCursor(Cursors::refined(cursorShape()));
+    setCursor(Cursors::refined(cursorShape(e->modifiers())));
   e->accept();
 }
 

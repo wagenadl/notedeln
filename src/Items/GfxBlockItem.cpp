@@ -223,14 +223,14 @@ void GfxBlockItem::dragEnterEvent(QGraphicsSceneDragDropEvent *e) {
 
 void GfxBlockItem::dragLeaveEvent(QGraphicsSceneDragDropEvent *e) {
   BlockItem::dragLeaveEvent(e);
-  setCursor(cursorShape());
+  setCursor(cursorShape(e->modifiers()));
 }
 
 bool GfxBlockItem::changesCursorShape() const {
   return true;
 }
 
-Qt::CursorShape GfxBlockItem::cursorShape() const {
+Qt::CursorShape GfxBlockItem::cursorShape(Qt::KeyboardModifiers) const {
   Qt::CursorShape cs = defaultCursorShape();
   switch (mode()->mode()) {
   case Mode::Annotate:
