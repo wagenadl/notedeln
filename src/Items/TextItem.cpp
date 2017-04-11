@@ -468,7 +468,8 @@ bool TextItem::keyPressAsMotion(QKeyEvent *e) {
     tryMove(TextCursor::Left, e->key(), e->modifiers());
     return true;
   case Qt::Key_Up:
-    if (text->lineFor(cursor.position())==0)
+    if (text->lineFor(cursor.position())==0
+	&& !(e->modifiers() & Qt::ShiftModifier))
       emit futileMovementKey(e->key(), e->modifiers());
     else
       tryMove(TextCursor::Up, e->key(), e->modifiers());
@@ -477,7 +478,8 @@ bool TextItem::keyPressAsMotion(QKeyEvent *e) {
     tryMove(TextCursor::Right, e->key(), e->modifiers());
     return true;
   case Qt::Key_Down:
-    if (text->lineFor(cursor.position())==text->lineStarts().size()-1)
+    if (text->lineFor(cursor.position())==text->lineStarts().size()-1
+	&& !(e->modifiers() & Qt::ShiftModifier))	
       emit futileMovementKey(e->key(), e->modifiers());
     else
       tryMove(TextCursor::Down, e->key(), e->modifiers());
@@ -499,7 +501,8 @@ void TextItem::tryMove(TextCursor::MoveOperation op,
   TextCursor::MoveMode mm = mod & Qt::ShiftModifier ? TextCursor::KeepAnchor
     : TextCursor::MoveAnchor;
   c.movePosition(op, mm);
-  if (c==textCursor()) {
+  if (c==textCursor()
+      && !(mod & Qt::ShiftModifier)) {
     emit futileMovementKey(key, mod);
     return;
   }
