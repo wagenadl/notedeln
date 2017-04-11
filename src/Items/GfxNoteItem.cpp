@@ -28,10 +28,39 @@
 #include <QTextLayout>
 #include <QTextLine>
 #include <math.h>
+#include "Cursors.h"
 
 #define MINLINELENGTH 0.1
 
 static Item::Creator<GfxNoteData, GfxNoteItem> c("gfxnote");
+
+//////////////////////////////////////////////////////////////////////
+class LineItem: public QGraphicsLineItem {
+public:
+  LineItem(QLineF l, GfxNoteItem *parent): QGraphicsLineItem(l, parent) {
+    note = parent;
+    setAcceptHoverEvents(true);
+  }
+  virtual ~LineItem() {
+  }
+  virtual void mousePressEvent(QGraphicsSceneMouseEvent *e) {
+    ASSERT(note);
+    note->lineMousePress(e->scenePos(), e->button(), e->modifiers());
+  }
+  virtual void hoverEnterEvent(QGraphicsSceneHoverEvent *e) {
+    ASSERT(note);
+    auto m = e->modifiers();
+    if (m & Qt::ShiftModifier)
+      m |= Qt::ControlModifier;
+    note->perhapsCreateGlow(e->modifiers());
+  }
+  virtual void hoverLeaveEvent(QGraphicsSceneHoverEvent *) {
+    ASSERT(note);
+    note->removeGlow();
+  }
+private:
+  GfxNoteItem *note;
+};
 
 GfxNoteItem::GfxNoteItem(GfxNoteData *data, Item *parent):
   Item(data, parent) {
@@ -195,7 +224,7 @@ void GfxNoteItem::updateTextPos() {
   // Arrange line to be shortest
   if (data()->delta().manhattanLength()>MINLINELENGTH) { // minimum line length
     if (!line) {
-      line = new QGraphicsLineItem(QLineF(QPointF(0,0), QPointF(1,1)), this);
+      line = new LineItem(QLineF(QPointF(0,0), QPointF(1,1)), this);
       line->setPen(QPen(QBrush(QColor(style().string("note-line-color"))),
 			style().real("note-line-width")));
     }
@@ -229,12 +258,12 @@ void GfxNoteItem::mouseMoveEvent(QGraphicsSceneMouseEvent *e) {
       w = 30;
     text->setTextWidth(w);
   } else {
-    draganchor = e->modifiers() & Qt::ShiftModifier;
+    bool draganchor = e->modifiers() & Qt::ShiftModifier;
     QPointF delta = e->pos() - e->lastPos();
     if (draganchor) {
       if (!line) {
 	/* Create a line */
-	line = new QGraphicsLineItem(QLineF(QPointF(0,0), QPointF(1,1)), this);
+	line = new LineItem(QLineF(QPointF(0,0), QPointF(1,1)), this);
 	line->setPen(QPen(QBrush(QColor(style().string("note-line-color"))),
 			  style().real("note-line-width")));
       }
@@ -307,6 +336,8 @@ void GfxNoteItem::setFocus() {
   text->setFocus();
 }
 
+
+
 void GfxNoteItem::childMousePress(QPointF p, Qt::MouseButton b,
 				  Qt::KeyboardModifiers m) {
   if (!isWritable())
@@ -316,7 +347,6 @@ void GfxNoteItem::childMousePress(QPointF p, Qt::MouseButton b,
        || (m & Qt::ShiftModifier))
       && b==Qt::LeftButton) {
     resizing = shouldResize(p);
-    draganchor = m & Qt::ShiftModifier;
     if (resizing) {
       initialTextWidth = data()->textWidth();
       if (initialTextWidth<1) {
@@ -324,6 +354,19 @@ void GfxNoteItem::childMousePress(QPointF p, Qt::MouseButton b,
 	text->setTextWidth(initialTextWidth);
       }
     }
+    grabMouse();
+  }
+}
+
+void GfxNoteItem::lineMousePress(QPointF, Qt::MouseButton b,
+				  Qt::KeyboardModifiers m) {
+  if (!isWritable())
+    return;
+  if ((mode()->mode()==Mode::MoveResize
+      || (m & Qt::ControlModifier)
+       || (m & Qt::ShiftModifier))
+      && b==Qt::LeftButton) {
+    resizing = false;
     grabMouse();
   }
 }
@@ -376,3 +419,29 @@ bool GfxNoteItem::shouldResize(QPointF p) const {
   return should;
 }
  
+void GfxNoteItem::perhapsCreateGlow(Qt::KeyboardModifiers m) {
+  Item::perhapsCreateGlow(m);
+}
+
+void GfxNoteItem::removeGlow() {
+  Item::removeGlow();
+}
+
+bool GfxNoteItem::changesCursorShape() const {
+  return true;
+}
+
+Qt::CursorShape GfxNoteItem::cursorShape(Qt::KeyboardModifiers m) const {
+  Qt::CursorShape cs = defaultCursorShape();
+  if (parent())
+    cs = parent()->cursorShape(m);
+  if (!isWritable())
+    return cs;
+  if (mode()->mode() == Mode::MoveResize
+      || (m & Qt::ControlModifier)
+      || (m & Qt::ShiftModifier))
+    cs = Qt::SizeAllCursor;
+  if (line)
+    line->setCursor(Cursors::refined(cs));
+  return cs;
+}

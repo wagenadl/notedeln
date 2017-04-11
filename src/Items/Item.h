@@ -116,6 +116,7 @@ private: // these must never be called
   const QObjectList &children() const; // hide from QObject
   // QObject's parent() has been overridden
   void setParent(QObject *); // hide from QObject
+protected: // but don't use unless you know what you're doing
   void perhapsCreateGlow(Qt::KeyboardModifiers m);
   void removeGlow();
   bool shouldGlow() const;
