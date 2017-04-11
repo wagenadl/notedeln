@@ -269,7 +269,6 @@ static bool quickRead(QString fn,
   int n = 0;
   while (n<3 && f.readLine(buffer, 100)>0) {
     QString line(buffer);
-    qDebug() << "quickread read line " << line;
     if (line.indexOf("\"mod\"")>=0 && re1.indexIn(line)) {
       date = QVariant(re1.cap(1)).toDateTime();
       n++;
