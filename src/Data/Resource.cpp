@@ -189,7 +189,7 @@ static QString safeBaseName(QString fn) {
 
   fn = f_0 + "_" + f_n;
 
-  fn.replace(QRegExp("[^[a-zA-Z0-9]_]"), "_");
+  fn.replace(QRegExp("[^a-zA-Z0-9_]"), "_");
   qDebug() << " -> " << fn;
   return fn;
 }
