@@ -25,6 +25,10 @@ static bool isLatinLetter(QChar x) {
   return (x>='A' && x<='Z') || (x>='a' && x<='z');
 }
 
+static bool isLatinLetter(QString x) {
+  return x.size()==1 && isLatinLetter(x[0]);
+}
+
 void TextItem::letterAsMath(QString txt) {
   const QString rquote = QString::fromUtf8("’");
   if (cursor.hasSelection()) {
@@ -65,9 +69,8 @@ void TextItem::letterAsMath(QString txt) {
 	cursor.insertText(QString(prevChar));
       cursor.insertText(txt);
       if (prevChar=='d') { // magic for "dx"
-	if (!(antePrevChar>='A' && antePrevChar<='Z')
-	    && !(antePrevChar>='a' && antePrevChar<='z')
-	    && txt!="o") { /* but not "do" */
+	if (!isLatinLetter(antePrevChar)
+	    && txt!="o") { // don't italicize d_o_.
 	  addMarkup(MarkupData::Italic,
 		    cursor.position()-txt.length(), cursor.position());
 	}
@@ -87,8 +90,7 @@ bool TextItem::keyPressAsMath(QKeyEvent *e) {
   //  int key = e->key();
   //  Qt::KeyboardModifiers mod = e->modifiers();
   QString txt = e->text();
-  qDebug() << "asmath" << txt << e->modifiers();
-  if ((txt>="A" && txt<="Z") || (txt>="a" && txt<="z")) {
+  if (isLatinLetter(txt)) {
     letterAsMath(txt);
     return true;
   } else if (txt=="-") {

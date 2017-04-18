@@ -81,9 +81,6 @@
   "par": "¶",
   "sec": "§",
   "section": "§",
-  "half": "½",
-  "quarter": "¼",
-  "third": "⅓",
   "inf": "∞",
   "uA": "μA",
   "ug": "μg",
@@ -101,10 +98,8 @@
   "MOhm": "MΩ",
   "GOhm": "GΩ",
   "mOhm": "mΩ",
-  "exists": "∃",
   "E": "∃",
   "A": "∀",
-  "forall": "∀",
   "inset": "∈",
   "notinset": "∉",
   "N": "ℕ",
@@ -116,6 +111,6 @@
   "perp": "⟂",
   "prop": "∝",
   "d": "∂",
-  "circle": "○",
-  "square": "□"
+  "circ": "○",
+  "sqr": "□"
 }
