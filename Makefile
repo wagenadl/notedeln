@@ -49,6 +49,7 @@ SRC: PREP
 
 PREP:
 	mkdir -p build
+	rm -f build/*/BuildDate.o
 	( cd build; $(QMAKE) $(SELECTQT) ../src/eln.pro )
 
 WEBGRAB: WEBGRABPREP
