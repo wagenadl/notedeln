@@ -1,3 +1,20 @@
+eln 1.2.2
+
+  * Bugfix to Resource::safeName that caused Windows version to not paste images
+  * Shift + Movement keys no longer jumps to next paragraph by way of the
+    futilemovement mechanism, so selection does not get undesirably lost.
+  * GfxNoteItem can now be dragged by the line
+  * Got rid of temporary move mode. Movement now with Control. User guide updated
+  * Fixed bug: Notebook no longer load()s upon construction. That is important,
+    because otherwise git update happened _after_ checking TOC
+  * Ctrl-Enter continues paragraph.
+  * Improvements to mathmode text entering: I'll, can't, a, I now work directly.
+    v <Ctrl-Slash> no longer makes arrow down. <partial> now correct.
+  * Trivial bugfix to windeploy
+  * Minor bugfix to innoscript
+
+  -- Daniel A. Wagenaar <daw@caltech.edu>  Tue, 18 Apr 2017 13:21:58 -0700
+
 eln 1.2.0
 
   This is the first release of ELN in nearly a year that includes
