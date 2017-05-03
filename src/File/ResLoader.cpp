@@ -115,7 +115,7 @@ void ResLoader::downloadFinished() {
 }
 
 void ResLoader::processError() {
-  qDebug() << "ResLoader: process error for " << src << proc->error();
+  qDebug() << "ResLoader: process error for " << src << proc->error() << proc->program();
   qDebug() << proc->exitCode() << proc->exitStatus();
   qDebug() << proc->readAllStandardOutput();
   qDebug() << proc->readAllStandardError();

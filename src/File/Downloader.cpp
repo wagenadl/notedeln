@@ -43,7 +43,9 @@ void Downloader::start(QString fn) {
     qDebug() << "Downloader: already started";
   } else {
     dst = new QFile(fn);
+    qDebug() << "Downloader: " << fn;
     if (dst->open(QFile::WriteOnly)) {
+      qDebug() << "Downloader " << fn << "starting";
       startDownload();
     } else {
       err = true;
@@ -117,10 +119,13 @@ void Downloader::qnrDataAv() {
         emit finished();
         return;
       }
-      if (dst)
+      qDebug() << "qnr" << n << dst;
+      if (dst) {
+	qDebug() << dst->fileName() << " / "<< dst->isOpen();
         dst->write(buf.data(), n);
-      else
+      } else {
         dat += buf;
+      }
       if (n<65536)
 	break;
     } else if (n==0) {
@@ -156,9 +161,6 @@ QString Downloader::error() const {
 void Downloader::qnrFinished() {
   if (ok || err) // already finished
     return;
-
-  if (dst)
-    dst->close();
 
   ASSERT(qnr);
   
@@ -199,6 +201,9 @@ void Downloader::qnrFinished() {
     }
   }
 
+  if (dst)
+    dst->close();
+  
   if (!err) 
     ok = true;
 
