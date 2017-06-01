@@ -68,6 +68,7 @@ void Resource::setTag(QString s) {
 }
 
 void Resource::setSourceURL(QUrl u) {
+  qDebug() << "Resource::setSpurceUrl" << tag_ << u;
   if (src==u)
     return;
   src = u;
@@ -321,6 +322,7 @@ void Resource::validateSource() {
     setSourceURL("http://www.ncbi.nlm.nih.gov/pubmed/" + tag());
   else if (isPageNumber(tag()))
     setSourceURL(pageLink(tag(), book()));
+  qDebug() << "validate" << tag() << isHttpLike(tag()) << src;
 }
 
 bool Resource::hasFailed() const {

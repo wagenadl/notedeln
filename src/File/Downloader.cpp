@@ -39,13 +39,14 @@ void Downloader::start() {
 }
 
 void Downloader::start(QString fn) {
+  ASSERT(!qnr);
   if (started) {
     qDebug() << "Downloader: already started";
   } else {
     dst = new QFile(fn);
     qDebug() << "Downloader: " << fn;
     if (dst->open(QFile::WriteOnly)) {
-      qDebug() << "Downloader " << fn << "starting";
+      qDebug() << "Downloader " << fn << "starting" << src.toString();
       startDownload();
     } else {
       err = true;
@@ -56,6 +57,8 @@ void Downloader::start(QString fn) {
 }
 
 void Downloader::startDownload() {
+  ASSERT(!qnr);
+  
   dat.clear();
   N = 0;
   started = true;
@@ -116,13 +119,15 @@ void Downloader::qnrDataAv() {
         qnr->close();
         err = true;
 	errs = "Max download size exceeded";
+	qnr->deleteLater();
+	qnr = 0;
         emit finished();
         return;
       }
       qDebug() << "qnr" << n << dst;
       if (dst) {
 	qDebug() << dst->fileName() << " / "<< dst->isOpen();
-        dst->write(buf.data(), n);
+        qDebug() << "write" << dst->write(buf.data(), n);
       } else {
         dat += buf;
       }
@@ -137,6 +142,8 @@ void Downloader::qnrDataAv() {
       qnr->close();
       err = true;
       errs = "Network error: " + qnr->error();
+      qnr->deleteLater();
+      qnr = 0;
       emit finished();
       break;
     }
@@ -159,6 +166,8 @@ QString Downloader::error() const {
 }
 
 void Downloader::qnrFinished() {
+  //  qDebug() << "Downloader finished for " << src.toString();
+  //  system("ls");
   if (ok || err) // already finished
     return;
 
@@ -173,6 +182,8 @@ void Downloader::qnrFinished() {
   }
 
   if (err) {
+    qnr->deleteLater();
+    qnr = 0;
     emit finished();
     return;
   }
@@ -207,5 +218,8 @@ void Downloader::qnrFinished() {
   if (!err) 
     ok = true;
 
+  qDebug() << "Downloader emitting finished";
+  qnr->deleteLater();
+  qnr = 0;
   emit finished();
 }
