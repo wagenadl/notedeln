@@ -43,6 +43,7 @@
 #include "DefaultLocation.h"
 #include "GotoPageDialog.h"
 
+#include <QMimeData>
 #include <QWheelEvent>
 #include <QKeyEvent>
 #include <QDebug>
@@ -141,6 +142,11 @@ void PageView::mousePressEvent(QMouseEvent *e) {
 }
 
 void PageView::dragEnterEvent(QDragEnterEvent *e) {
+  QMimeData const *md = e->mimeData();
+  qDebug() << "PageView::dragEnterEvent: has image?" << md->hasImage()
+	   << "hasurl?" << md->hasUrls()
+	   << "hastext?" << md->hasText()
+	   << "proposed" << e->proposedAction();
   EventView ev(this);
   QGraphicsView::dragEnterEvent(e);
 }
@@ -786,6 +792,11 @@ void PageView::modeChange() {
 }
 
 void PageView::drop(QDropEvent e) {
+  QMimeData const *md = e.mimeData();
+  qDebug() << "PageView::drop: has image?" << md->hasImage()
+	   << "hasurl?" << md->hasUrls()
+	   << "hastext?" << md->hasText()
+	   << "proposed" << e.proposedAction();
   dropEvent(&e);
 }
 
