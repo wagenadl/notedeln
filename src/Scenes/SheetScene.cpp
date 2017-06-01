@@ -272,6 +272,7 @@ void SheetScene::mousePressEvent(QGraphicsSceneMouseEvent *e) {
 }
 
 void SheetScene::dragMoveEvent(QGraphicsSceneDragDropEvent *e) {
+  QMimeData const *md = e->mimeData();
   if (base && base->isWritable()
       && (md->hasImage() || md->hasUrls() || md->hasText())) {
     e->acceptProposedAction();
