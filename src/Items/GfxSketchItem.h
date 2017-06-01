@@ -46,7 +46,7 @@ protected:
   virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *);
   virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *);
   virtual bool changesCursorShape() const;
-  virtual Qt::CursorShape cursorShape() const;
+  virtual Qt::CursorShape cursorShape(Qt::KeyboardModifiers) const;
 private:
   void rebuildPath();
 signals:

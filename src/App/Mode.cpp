@@ -22,7 +22,6 @@
 Mode::Mode(bool ro, QObject *parent): QObject(parent), ro(ro) {
   m = Browse;
   math = false;
-  overridden = Invalid;
   lw = 1.5;
   ms = 10;
   shp = GfxMarkData::SolidCircle;
@@ -69,7 +68,6 @@ void Mode::setMode(Mode::M m1) {
     m1 = Browse;
   }
   m = m1;
-  overridden = Invalid; // forget override state
   emit modeChanged(m);
 }
 
@@ -117,19 +115,3 @@ void Mode::setMarkSize(double ms1) {
   emit markSizeChanged(ms);
 }
 
-void Mode::temporaryOverride(Mode::M m1) {
-  if (m==m1)
-    return;
-  M m0 = m;
-  setMode(m1);
-  overridden = m0;
-}
-
-void Mode::temporaryRelease() {
-  if (overridden != Invalid)
-    setMode(overridden);
-}
-
-Mode::M Mode::permanentMode() const {
-  return (overridden == Invalid) ? m : overridden;
-}

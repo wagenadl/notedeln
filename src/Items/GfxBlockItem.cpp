@@ -215,22 +215,29 @@ void GfxBlockItem::makeWritable() {
 
 void GfxBlockItem::dragEnterEvent(QGraphicsSceneDragDropEvent *e) {
   QMimeData const *md = e->mimeData();
-  if (md->hasImage() || md->hasUrls() || md->hasText()) {
+  qDebug() << "GfxBlockItem::dragEnterEvent: has image? " << md->hasImage()
+	   << "hasurl?" << md->hasUrls()
+	   << "hastext?" << md->hasText()
+	   << "proposed" << e->proposedAction()
+	   << "iswritable" << isWritable();
+  if (isWritable() && (md->hasImage() || md->hasUrls() || md->hasText())) {
     e->setDropAction(Qt::CopyAction);
     setCursor(Cursors::crossCursor());
+  } else {
+    e->ignore();
   }
 }
 
 void GfxBlockItem::dragLeaveEvent(QGraphicsSceneDragDropEvent *e) {
   BlockItem::dragLeaveEvent(e);
-  setCursor(cursorShape());
+  setCursor(cursorShape(e->modifiers()));
 }
 
 bool GfxBlockItem::changesCursorShape() const {
   return true;
 }
 
-Qt::CursorShape GfxBlockItem::cursorShape() const {
+Qt::CursorShape GfxBlockItem::cursorShape(Qt::KeyboardModifiers) const {
   Qt::CursorShape cs = defaultCursorShape();
   switch (mode()->mode()) {
   case Mode::Annotate:

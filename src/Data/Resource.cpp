@@ -68,6 +68,7 @@ void Resource::setTag(QString s) {
 }
 
 void Resource::setSourceURL(QUrl u) {
+  qDebug() << "Resource::setSpurceUrl" << tag_ << u;
   if (src==u)
     return;
   src = u;
@@ -189,7 +190,7 @@ static QString safeBaseName(QString fn) {
 
   fn = f_0 + "_" + f_n;
 
-  fn.replace(QRegExp("[^[a-zA-Z0-9]_]"), "_");
+  fn.replace(QRegExp("[^a-zA-Z0-9_]"), "_");
   qDebug() << " -> " << fn;
   return fn;
 }
@@ -321,6 +322,7 @@ void Resource::validateSource() {
     setSourceURL("http://www.ncbi.nlm.nih.gov/pubmed/" + tag());
   else if (isPageNumber(tag()))
     setSourceURL(pageLink(tag(), book()));
+  qDebug() << "validate" << tag() << isHttpLike(tag()) << src;
 }
 
 bool Resource::hasFailed() const {

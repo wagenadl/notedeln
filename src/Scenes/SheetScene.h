@@ -54,6 +54,7 @@ protected:
   virtual void mousePressEvent(QGraphicsSceneMouseEvent *);
   virtual void keyPressEvent(QKeyEvent *);
   virtual void dragEnterEvent(QGraphicsSceneDragDropEvent *);
+  virtual void dragMoveEvent(QGraphicsSceneDragDropEvent *);
   virtual void dropEvent(QGraphicsSceneDragDropEvent *);
   virtual void drawBackground(QPainter *, const QRectF &);
 private slots:

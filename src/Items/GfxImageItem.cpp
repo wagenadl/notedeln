@@ -182,6 +182,7 @@ void GfxImageItem::mouseMoveEvent(QGraphicsSceneMouseEvent *e) {
 }
 
 void GfxImageItem::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *e) {
+  qDebug() << "GII::dclick";
   Resource *r = data()->resManager()->byTag(data()->resName());
   if (!r) {
     qDebug() << "GfxImageItem: double click: no resource";
@@ -202,40 +203,44 @@ GfxNoteItem *GfxImageItem::newGfxNote(QPointF p0, QPointF p1) {
   return gni;
 }
 
+void GfxImageItem::startDrag(QGraphicsSceneMouseEvent *e) {
+  dragType = dragTypeForPoint(e->pos());
+  dragStart = mapToParent(e->pos());
+  cropStart = mapRectToParent(data()->cropRect());
+  imStart = mapRectToParent(QRectF(QPointF(0,0), data()->size()));
+  dragCrop = data()->cropRect().toRect();
+}  
+
 void GfxImageItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
   bool take = false;
-  if ((e->modifiers() & Qt::ControlModifier)
-      && !(e->modifiers() & Qt::ShiftModifier)) {
-    take = false; // We will not process this, but consider a double click
-    // Note that if both Control and Shift are held, we _will_ consider
-    // move/resize
-  } else if (isWritable()) {
-    switch (mode()->mode()) {
-    case Mode::MoveResize:
-      dragType = dragTypeForPoint(e->pos());
-      dragStart = mapToParent(e->pos());
-      cropStart = mapRectToParent(data()->cropRect());
-      imStart = mapRectToParent(QRectF(QPointF(0,0), data()->size()));
-      dragCrop = data()->cropRect().toRect();
+  if (isWritable()) {
+    if (e->modifiers() & Qt::ControlModifier) {
+      startDrag(e);
       take = true;
-      break;
-    case Mode::Type: 
-      createGfxNote(e->pos());
-      take = true;
-      break;
-    case Mode::Mark: {
-      GfxMarkItem *mi = GfxMarkItem::newMark(e->pos(), this);
-      mi->setScale(1./data()->scale());
-      take = true;
-    } break;
-    case Mode::Freehand: {
-      GfxSketchItem *mi = GfxSketchItem::newSketch(e->pos(), this);
-      mi->setScale(1./data()->scale());
-      mi->build();
-      take = true;
-    } break;
-    default:
-      break;
+    } else {
+      switch (mode()->mode()) {
+      case Mode::MoveResize:
+        startDrag(e);
+        take = true;
+        break;
+      case Mode::Type:
+        createGfxNote(e->pos());
+        take = true;
+        break;
+      case Mode::Mark: {
+        GfxMarkItem *mi = GfxMarkItem::newMark(e->pos(), this);
+        mi->setScale(1./data()->scale());
+        take = true;
+      } break;
+      case Mode::Freehand: {
+        GfxSketchItem *mi = GfxSketchItem::newSketch(e->pos(), this);
+        mi->setScale(1./data()->scale());
+        mi->build();
+        take = true;
+      } break;
+      default:
+        break;
+      }
     }
   }
   
@@ -317,8 +322,9 @@ bool GfxImageItem::changesCursorShape() const {
   return true;
 }
 
-Qt::CursorShape GfxImageItem::cursorShape() const {
-  if (mode()->mode()==Mode::MoveResize)
+Qt::CursorShape GfxImageItem::cursorShape(Qt::KeyboardModifiers m) const {
+  if (mode()->mode()==Mode::MoveResize
+      || (m & Qt::ControlModifier))
     return cursorForDragType(dragTypeForPoint(cursorPos));
   else 
     return Qt::CrossCursor;
@@ -326,7 +332,8 @@ Qt::CursorShape GfxImageItem::cursorShape() const {
 
 void GfxImageItem::hoverMoveEvent(QGraphicsSceneHoverEvent *e) {
   cursorPos = e->pos(); // cache for the use of modifierChanged
-  if (mode()->mode()==Mode::MoveResize)
+  if (mode()->mode()==Mode::MoveResize
+    || (e->modifiers() && Qt::ControlModifier))
     setCursor(cursorForDragType(dragTypeForPoint(cursorPos)));
   else
     setCursor(Qt::CrossCursor);

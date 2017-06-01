@@ -89,6 +89,8 @@ void ResLoader::downloadFinished() {
     err = true;
   }
 
+  qDebug() << "ResLoader::downloadFinished" << err << src.toString() << mimeType() << convertHtmlToPdf;
+
   if (err) {
     emit finished();
     return;
@@ -115,7 +117,7 @@ void ResLoader::downloadFinished() {
 }
 
 void ResLoader::processError() {
-  qDebug() << "ResLoader: process error for " << src << proc->error();
+  qDebug() << "ResLoader: process error for " << src << proc->error() << proc->program();
   qDebug() << proc->exitCode() << proc->exitStatus();
   qDebug() << proc->readAllStandardOutput();
   qDebug() << proc->readAllStandardError();
@@ -199,6 +201,7 @@ bool ResLoader::makePdfAndPreview() {
   args.append(parentRes->archivePath());
   if (!parentRes->previewFilename().isEmpty())
     args.append(parentRes->previewPath());
+  qDebug() << "makepdfandpreview" << WebGrab::executable() << args;
   startProcess(WebGrab::executable(), args);
   return true;
 }

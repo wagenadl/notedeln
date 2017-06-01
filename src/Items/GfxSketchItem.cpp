@@ -115,7 +115,9 @@ void GfxSketchItem::build() {
 void GfxSketchItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
   if (building)
     return;
-  if (isWritable() && mode()->mode()==Mode::MoveResize) {
+  if (isWritable()
+      && (mode()->mode()==Mode::MoveResize
+	  || (e->modifiers() & Qt::ControlModifier))) {
     e->accept();
   } else {
     QGraphicsObject::mousePressEvent(e);
@@ -202,9 +204,9 @@ void GfxSketchItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *e) {
   }
 }
 
-
-Qt::CursorShape GfxSketchItem::cursorShape() const {
-  if (mode()->mode()==Mode::MoveResize)
+Qt::CursorShape GfxSketchItem::cursorShape(Qt::KeyboardModifiers m) const {
+  if (mode()->mode()==Mode::MoveResize
+      || (m & Qt::ControlModifier))
     return Qt::SizeAllCursor;
   else 
     return Qt::CrossCursor;
