@@ -1,3 +1,12 @@
+eln 1.2.4
+
+  Drag and drop now works to paste images below text.
+  Downloading with http redirection works again.
+  Minor hack to TextItem to prevent clipping in case of font metric
+  inconsistencies between different computers.
+
+  -- Daniel A. Wagenaar <daw@caltech.edu>  Thu, 01 Jun 2017 11:46:30 -0700
+
 eln 1.2.2
 
   * Bugfix to Resource::safeName that caused Windows version to not paste images
