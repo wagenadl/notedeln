@@ -250,6 +250,10 @@ void GfxNoteItem::updateTextPos() {
     if (line)
       line->hide();
   }
+
+  BlockItem *ancestor = ancestralBlock();
+  if (ancestor)
+    ancestor->sizeToFit();
 }
 
 QRectF GfxNoteItem::boundingRect() const {
@@ -323,8 +327,9 @@ void GfxNoteItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *e) {
     setPos(p0);
     updateTextPos();
   }
-  if (ancestralBlock())
-    ancestralBlock()->sizeToFit();
+  BlockItem *ancestor = ancestralBlock();
+  if (ancestor)
+    ancestor->sizeToFit();
   e->accept();
 }
 
