@@ -117,12 +117,16 @@ void GfxBlockItem::sizeToFit() {
 
   double yref = data()->yref();
   double h = data()->height();
+
+  bool mustemit = false;
+  
   if (yref!=r.top()) {
     prepareGeometryChange();
     if (isWritable())
       data()->setYref(r.top());
     else
       data()->sneakilySetYref(r.top());
+    mustemit = true;
   }
   if (h!=r.height()) {
     prepareGeometryChange();
@@ -130,8 +134,11 @@ void GfxBlockItem::sizeToFit() {
       data()->setHeight(r.height());
     else
       data()->sneakilySetHeight(r.height());        
-    emit heightChanged();
+    mustemit = true;
   }
+
+  if (mustemit)
+    emit heightChanged();
 }
 
 QRectF GfxBlockItem::boundingRect() const {
