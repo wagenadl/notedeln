@@ -419,7 +419,8 @@ void EntryScene::splitTextBlock(int iblock, int pos) {
   tbi_post->setFocus();
 }
 
-void EntryScene::joinTextBlocks(int iblock_pre, int iblock_post) {
+void EntryScene::joinTextBlocks(int iblock_pre, int iblock_post,
+				bool forward) {
   ASSERT(iblock_pre<iblock_post);
   ASSERT(iblock_pre>=0);
   ASSERT(iblock_post<blockItems.size());
@@ -439,7 +440,8 @@ void EntryScene::joinTextBlocks(int iblock_pre, int iblock_post) {
   deleteBlock(iblock_pre);
   block1->join(block2);
   block1->resetSheetSplits();
-  TextBlockItem *tbi = injectTextBlock(block1, iblock_pre);
+  TextBlockItem *tbi = injectTextBlock(block1,
+				       forward ? iblock_post - 1 : iblock_pre);
   tbi->text()->document()->relayout();
   restackBlocks(iblock_pre);
   gotoSheetOfBlock(iblock_pre);
@@ -637,11 +639,13 @@ void EntryScene::futileMovement(int block) {
   }
 
   if (fmi.key()==Qt::Key_Delete) {
-    if (tgtidx==block+1) // do not combine across (e.g.) gfxblocks
-      joinTextBlocks(block, tgtidx);
+    if (tgtidx==block+1 // do not combine across (e.g.) gfxblocks
+	|| blockItems[block]->data()->isEmpty()) // ... unless empty
+      joinTextBlocks(block, tgtidx, true);
     return;
   } else if (fmi.key()==Qt::Key_Backspace) {
-    if (tgtidx==block-1)
+    if (tgtidx==block-1
+	|| blockItems[block]->data()->isEmpty()) // ... unless empty
       joinTextBlocks(tgtidx, block);
     return;
   }

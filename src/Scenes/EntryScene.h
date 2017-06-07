@@ -116,7 +116,7 @@ private:
   class BlockItem *tryMakeGfxBlock(class BlockData *bd);
   class BlockItem *tryMakeTextBlock(class BlockData *bd);
   class BlockItem *tryMakeTableBlock(class BlockData *bd);
-  void joinTextBlocks(int iblock_pre, int iblock_post);
+  void joinTextBlocks(int iblock_pre, int iblock_post, bool forward=false);
   int indexOfBlock(class BlockItem *) const; // -1 if none
   void repositionContItem();
   void reshapeBelowItem();
