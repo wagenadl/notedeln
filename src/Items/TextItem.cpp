@@ -806,7 +806,6 @@ void TextItem::keyPressEvent(QKeyEvent *e) {
     break;
   case Mode::Type:
     if (isWritable()) {
-      qDebug() << "keypress" << e;
       if (keyPressWithControl(e) 
 	  || keyPressAsSpecialChar(e)
 	  || (mode()->mathMode() && keyPressAsMath(e))
@@ -936,7 +935,30 @@ bool TextItem::tryScriptStyles(bool onlyIfBalanced) {
 }
 
 void TextItem::tryItalicizeAbbreviation(TextCursor const &c) {
-  // NYI
+  TextCursor w = c;
+  w.selectAround(c.position()-2,
+		 TextCursor::StartOfWord, TextCursor::EndOfWord);
+  QString word = w.selectedText();
+  QSet<QString> dict = Latin::abbrev(word);
+  int start = -1;
+  if (!dict.isEmpty()) {
+    int p = w.selectionStart() - 1;
+    for (QString s: dict) {
+      if (document()->selectedText(p-s.length(), p).toLower() == s) {
+	start = p-s.length();
+	break;
+      }
+    }
+  }
+  if (start>=0) {
+    int end = c.position();
+    MarkupData *oldmd = data()->markupAt(start, MarkupData::Italic);
+    if (oldmd && oldmd->start()==start && oldmd->end()==end) {
+      deleteMarkup(oldmd);
+    } else if (start<end) {
+      addMarkup(MarkupData::Italic, start, end);
+    }
+  }
 }
 
 void TextItem::toggleSimpleStyle(MarkupData::Style type,
