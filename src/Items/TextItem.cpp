@@ -28,6 +28,7 @@
 #include "BlockItem.h"
 #include "Assert.h"
 #include "TeXCodes.h"
+#include "Latin.h"
 #include "Digraphs.h"
 #include "TextBlockItem.h"
 #include "TextItemDoc.h"
@@ -934,6 +935,9 @@ bool TextItem::tryScriptStyles(bool onlyIfBalanced) {
   return true;
 }
 
+void TextItem::tryItalicizeAbbreviation(TextCursor const &c) {
+  // NYI
+}
 
 void TextItem::toggleSimpleStyle(MarkupData::Style type,
                                  TextCursor const &c) {
@@ -979,12 +983,29 @@ void TextItem::toggleSimpleStyle(MarkupData::Style type,
           end++;
       }
     } else {
+      if (type == MarkupData::Italic && document()->characterAt(base-1)=='.')
+	tryItalicizeAbbreviation(c);
       return;
     }
     start = refineStart(start, base);
     end = refineEnd(end, base);
   }
 
+  if (type == MarkupData::Italic) {
+    // Try latin phrases "in vivo" etc. They are italicized as one.
+    QString word = document()->selectedText(start, end);
+    QSet<QString> const &dict = Latin::normal(word);
+    if (!dict.isEmpty()) {
+      for (QString s: dict) {
+	if (document()->selectedText(start-1-s.size(), start-1)
+	    .toLower() == s) {
+	  start -= 1 + s.size();
+	  break;
+	}
+      }
+    }
+  }
+  
   MarkupData *oldmd = data()->markupAt(start, type);
   
   if (oldmd && oldmd->start()==start && oldmd->end()==end) {

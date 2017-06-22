@@ -1,0 +1,8 @@
+{ "normal": { "vivo": [ "in", "ex" ],
+	      "vitro": [ "in" ],
+	      "initio": [ "ab" ],
+	      "novo": [ "de" ]
+	    },
+  "abbrev": { "al": [ "et" ]
+	    }
+}

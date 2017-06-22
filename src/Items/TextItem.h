@@ -123,6 +123,7 @@ protected:
   bool unscriptStyles();
   bool tryTeXCode(bool noX=false, bool onlyAtEndOfWord=false);
   void toggleSimpleStyle(MarkupData::Style type, class TextCursor const &c);
+  void tryItalicizeAbbreviation(class TextCursor const &c);
   bool charBeforeIsLetter(int pos) const;
   bool charAfterIsLetter(int pos) const;
   void attemptMarkup(QPointF p, MarkupData::Style);
