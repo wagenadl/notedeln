@@ -184,7 +184,7 @@ void GfxBlockItem::drawGrid(QPainter *p, QRectF const &bb, double dx) {
     p->drawLine(bb.left(), y, bb.right(), y);
 }
 
-bool GfxBlockItem::perhapsSendMousePressToChild(QGraphicsSceneMouseEvent *e) {
+bool GfxBlockItem::perhapsSendMousePressToChild(QGraphicsSceneMouseEvent *) {
   /* Idea is to find a child item that is near the mouse press position, and
      send the press event to it in the hopes of creating a drag for it. I don't
      know if this is really practical: Somehow, subsequent mouse move and
