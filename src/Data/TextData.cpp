@@ -77,6 +77,13 @@ MarkupData *TextData::markupAt(int start, int end,
   return 0;
 }
 
+MarkupData *TextData::markupAt(int start, int end) const {
+  foreach (MarkupData *md, children<MarkupData>()) 
+    if (md->end()>=start && md->start()<=end)
+      return md;
+  return 0;
+}
+
 MarkupData *TextData::mergeMarkup(int start, int end, MarkupData::Style style,
 				  bool *new_return) {
   MarkupData *md = new MarkupData(start, end, style);

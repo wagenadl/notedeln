@@ -629,11 +629,16 @@ bool TextItem::tryTeXCode(bool noX, bool onlyAtEndOfWord) {
   }
   // got a word
   QString key = c.selectedText();
-  qDebug() << "trytex" << key << noX << onlyAtEndOfWord;
+
   if (!TeXCodes::contains(key))
     return false;
   if (noX && key.size()==1)
     return false;
+
+  if (data()->markupAt(c.selectionStart()+1, c.selectionEnd()-1))
+    return false; // don't do it if there is a style split.
+  /* This fixes the “x_i” -> “ξ” bug. */
+
   QString val = TeXCodes::map(key);
   cursor = c;
   cursor.deleteChar(); // delete the word
@@ -800,6 +805,7 @@ void TextItem::keyPressEvent(QKeyEvent *e) {
     break;
   case Mode::Type:
     if (isWritable()) {
+      qDebug() << "keypress" << e;
       if (keyPressWithControl(e) 
 	  || keyPressAsSpecialChar(e)
 	  || (mode()->mathMode() && keyPressAsMath(e))
