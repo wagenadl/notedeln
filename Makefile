@@ -17,11 +17,10 @@ UNAME=$(shell uname -s)
 
 ifeq ($(UNAME),Linux)
   # Linux
-  SELECTQT="-qt=qt5"
+  SELECTQT=QT_SELECT=5
 else
   ifeq ($(UNAME),Darwin)
     # Mac OS
-    SELECTQT=
     QROOT=/Users/wagenaar/Qt-5.7/5.7
     QBINPATH=$(QROOT)/clang_64/bin
     QMAKE=$(QBINPATH)/qmake
@@ -50,14 +49,14 @@ SRC: PREP
 PREP:
 	mkdir -p build
 	rm -f build/*/BuildDate.o
-	( cd build; $(QMAKE) $(SELECTQT) ../src/eln.pro )
+	( cd build; $(SELECTQT) $(QMAKE) ../src/eln.pro )
 
 WEBGRAB: WEBGRABPREP
 	+make -C build-webgrab release
 
 WEBGRABPREP:
 	mkdir -p build-webgrab
-	( cd build-webgrab; $(QMAKE) $(SELECTQT) ../webgrab/webgrab.pro )
+	( cd build-webgrab;  $(SELECTQT) $(QMAKE)../webgrab/webgrab.pro )
 
 # Unix installation
 install: all
