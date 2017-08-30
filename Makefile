@@ -11,9 +11,13 @@ else
   SHAREPATH = /usr/local/share
 endif
 
-QMAKE=qmake
-
 UNAME=$(shell uname -s)
+
+ifeq (, $(shell which qmake-qt5))
+  QMAKE=qmake
+else
+  QMAKE=qmake-qt5
+endif
 
 ifeq ($(UNAME),Linux)
   # Linux
@@ -25,7 +29,7 @@ else
     QBINPATH=$(QROOT)/clang_64/bin
     QMAKE=$(QBINPATH)/qmake
   else
-    $(error Unknown operating system. This makefile is for Mac or Linux.)
+    $(error Unknown operating system. This Makefile is for Mac or Linux.)
   endif
 endif
 
