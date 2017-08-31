@@ -84,7 +84,7 @@ install: all
 
 	install src/eln.desktop $(SHAREPATH)/applications/eln.desktop
 
-	cp README $(DOCPATH)/readme
+	cp README.md $(DOCPATH)/readme
 	gzip -9 $(DOCPATH)/readme
 	cp CHANGELOG $(DOCPATH)/changelog
 	gzip -9 $(DOCPATH)/changelog
