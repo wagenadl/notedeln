@@ -21,6 +21,7 @@
 #define ASSERT_H
 
 #include <QString>
+#include <QDebug>
 
 class AssertedException {
 };
