@@ -36,29 +36,28 @@ endif
 DOCPATH = $(SHAREPATH)/doc/eln
 
 # Linux and Mac building
-all: SRC WEBGRAB
+all: src webgrab man
 
 update:
 	tools/updatesources.sh
-
 
 clean:
 	+rm -rf build
 	+rm -rf build-webgrab
 	+rm -rf build-doc
 
-SRC: PREP
+src: prep
 	+make -C build release
 
-PREP:
+prep:
 	mkdir -p build
 	rm -f build/*/BuildDate.o
 	( cd build; $(SELECTQT) $(QMAKE) ../src/eln.pro )
 
-WEBGRAB: WEBGRABPREP
+webgrab: webgrabprep
 	+make -C build-webgrab release
 
-WEBGRABPREP:
+webgrabprep:
 	mkdir -p build-webgrab
 	( cd build-webgrab;  $(SELECTQT) $(QMAKE) ../webgrab/webgrab.pro )
 
@@ -91,14 +90,18 @@ install: all
 	gzip -9 $(DOCPATH)/changelog
 	install src/Gui/fonts/ubuntu-font-licence-1.0.txt.gz $(DOCPATH)/ubuntu-font-licence-1.0.txt.gz
 
-doc:;	mkdir -p build-doc
+man:
+	mkdir -p build-doc
 	cp doc/Makefile build-doc/
-	+make -C build-doc
+	+make -C build-doc eln.1 webgrab.1
 
-install-doc: doc
+userguide:
+	mkdir -p build-doc
+	cp doc/Makefile build-doc/
+	+make -C build-doc userguide.pdf
+
+install-userguide: doc
 	cp build-doc/userguide.pdf $(DOCPATH)/userguide.pdf
-
-doc-install: install-doc
 
 # Tar preparation
 tar: all
@@ -116,5 +119,6 @@ macapp: SRC WEBGRAB
 macdmg: macapp
 	$(QBINPATH)/macdeployqt eln.app -dmg -executable=eln.app/Contents/MacOS/webgrab 
 
-.PHONY: SRC WEBGRAB doc all clean tar macclean macapp macdmg doc-install install-doc
+.PHONY: src webgrab all clean tar macclean macapp macdmg man userguide \
+        install install-userguide prep webgrabprep
 

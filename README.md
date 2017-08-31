@@ -47,14 +47,14 @@ straightforward:
   On Ubuntu, you would do:
 
         sudo apt install git qtmultimedia5-dev \
-             libqt5webkit5-dev libqt5svg5-dev 
+             libqt5webkit5-dev libqt5svg5-dev asciidoc
 
   On OpenSUSE, you would do:
 
         sudo zypper install --no-recommends git libqt5-qtbase-common-devel \
              libqt5-qtmultimedia-devel libQt5WebKitWidgets-devel \
              libqt5-qtsvg-devel libqt5-qttools-devel \
-             libQt5PrintSupport-devel
+             libQt5PrintSupport-devel asciidoc
 
   (I would be happy to include your instructions for other
   distributions. Please [drop me a line](mailto:daw@caltech.edu).)
