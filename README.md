@@ -42,11 +42,19 @@ straightforward:
 
 * Make sure you have the required dependencies. Most importantly, you
   should have the complete Qt development system installed, version
-  5.6.1 or above. Package vary widely across distributions. On Ubuntu,
-  you would do:
+  5.6.1 or above. Packages vary widely across distributions.
 
-        sudo apt install qtbase5-dev qtbase5-dev-tools qtmultimedia5-dev \
-            qttools5-dev-tools libqt5webkit5-dev libqt5svg5-dev
+  On Ubuntu, you would do:
+
+        sudo apt install git qtmultimedia5-dev \
+             libqt5webkit5-dev libqt5svg5-dev 
+
+  On OpenSUSE, you would do:
+
+        sudo zypper install --no-recommends git libqt5-qtbase-common-devel \
+             libqt5-qtmultimedia-devel libQt5WebKitWidgets-devel \
+             libqt5-qtsvg-devel libqt5-qttools-devel \
+             libQt5PrintSupport-devel
 
   (I would be happy to include your instructions for other
   distributions. Please [drop me a line](mailto:daw@caltech.edu).)

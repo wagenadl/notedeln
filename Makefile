@@ -36,7 +36,7 @@ endif
 DOCPATH = $(SHAREPATH)/doc/eln
 
 # Linux and Mac building
-all: SRC WEBGRAB DOC
+all: SRC WEBGRAB
 
 update:
 	tools/updatesources.sh
@@ -84,16 +84,21 @@ install: all
 # update-mime-database $(SHAREPATH)/mime/ || true
 
 	install src/eln.desktop $(SHAREPATH)/applications/eln.desktop
-	cp build-doc/userguide.pdf $(DOCPATH)/userguide.pdf
+
 	cp README $(DOCPATH)/readme
 	gzip -9 $(DOCPATH)/readme
 	cp CHANGELOG $(DOCPATH)/changelog
 	gzip -9 $(DOCPATH)/changelog
 	install src/Gui/fonts/ubuntu-font-licence-1.0.txt.gz $(DOCPATH)/ubuntu-font-licence-1.0.txt.gz
 
-DOC:;	mkdir -p build-doc
+doc:;	mkdir -p build-doc
 	cp doc/Makefile build-doc/
 	+make -C build-doc
+
+install-doc: doc
+	cp build-doc/userguide.pdf $(DOCPATH)/userguide.pdf
+
+doc-install: install-doc
 
 # Tar preparation
 tar: all
@@ -111,5 +116,5 @@ macapp: SRC WEBGRAB
 macdmg: macapp
 	$(QBINPATH)/macdeployqt eln.app -dmg -executable=eln.app/Contents/MacOS/webgrab 
 
-.PHONY: SRC WEBGRAB DOC all clean tar macclean macapp macdmg
+.PHONY: SRC WEBGRAB doc all clean tar macclean macapp macdmg doc-install install-doc
 
