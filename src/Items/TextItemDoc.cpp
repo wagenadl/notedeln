@@ -380,10 +380,14 @@ int TextItemDoc::find(QPointF xy, bool strict) const {
 	return -1;
       while (pos<npos) {
 	double x1 = x0 + charw[pos];
-	if (x0+x1>=2*x) // past the halfway point of the character?
+	if (x0+x1>=2*x) {// past the halfway point of the character?
+	  if (Unicode::isLowSurrogate(text()[pos]))
+	    pos--;
 	  return pos;
-	pos++;
-	x0 = x1;
+	} else {
+	  pos++;
+	  x0 = x1;
+	}
       }
       if (strict && x>x0)
 	return -1;
