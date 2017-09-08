@@ -144,6 +144,7 @@ QRectF TextItemDoc::boundingRect() const {
 }
 
 void TextItemDoc::recalculateCharacterWidths() {
+  qDebug() << "forced recalc";
   d->forgetWidths();
   buildLinePos();
 }
@@ -352,7 +353,7 @@ QPointF TextItemDoc::locate(int offset) const {
   QPointF xy = d->linepos[line];
   int pos = starts[line];
 
-  while (pos<offset)
+  while (pos<offset) 
     xy += QPointF(charw[pos++], 0);
   
   return xy;
@@ -414,7 +415,7 @@ void TextItemDoc::insert(int offset, QString text) {
   int N0 = cw0.size();
   ASSERT(N0==t0.size());
   int dN = text.size();
-  
+
   QVector<double> cw1(N0 + dN);
   memcpy(cw1.data(), cw0.data(), offset*sizeof(double));
   memcpy(cw1.data()+offset+dN, cw0.data()+offset,
@@ -469,14 +470,25 @@ QPair<int, int> TextItemDoc::removeWithCombining(int offset, int length) {
   QString t = d->text->text();
   
   // extend beginning
-  while (offset>firstPosition() && Unicode::isCombining(t[offset])) {
-    offset--;
-    length++;
+  while (offset>firstPosition()) {
+    QChar c = t[offset];
+    if (Unicode::isCombining(c) || Unicode::isLowSurrogate(c)) {
+      offset--;
+      length++;
+    } else {
+      break;
+    }
   }
   // extend end
-  while (offset+length<lastPosition() && Unicode::isCombining(t[offset+length]))
-    length++;
-
+  while (offset+length<lastPosition()) {
+    QChar c = t[offset+length];
+    if (Unicode::isCombining(c) || Unicode::isLowSurrogate(c)) {
+      length++;
+    } else {
+      break;
+    }
+  }
+  
   remove(offset, length);
 
   return QPair<int, int>(offset, length);

@@ -199,7 +199,7 @@ TextItem *TextBlockItem::text() const {
 void TextBlockItem::sizeToFit() {
   if (beingDeleted())
     return;
-  frags[0]->document()->relayout(); // is this needed?
+  //  frags[0]->document()->relayout(); // is this needed? // I don't think so
   double h0 = data()->height();
   double h1 = frags[0]->mapRectToParent(frags[0]->netBounds()).height();
   if (h1!=h0) {

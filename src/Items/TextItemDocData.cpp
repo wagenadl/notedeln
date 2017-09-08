@@ -18,6 +18,7 @@
 
 #include "TextItemDocData.h"
 #include "MarkupEdges.h"
+#include "Unicode.h"
 #include <QDebug>
 
 TextItemDocData::TextItemDocData(TextData *text): text(text) {
@@ -43,7 +44,7 @@ void TextItemDocData::setCharWidths(QVector<double> const &cw) {
 }
 
 QVector<double> const &TextItemDocData::charWidths() const {
-  if (charwidths.isEmpty()) 
+  if (charwidths.isEmpty())
     recalcSomeWidths(0, -1);
   return charwidths;
 }
@@ -52,13 +53,20 @@ void TextItemDocData::recalcSomeWidths(int start, int end) const {
   /* Calculates widths for every character in range. */
   /* If we currently don't have _any_ widths, we calculate whole doc. */
   /* Currently does not yet do italics correction, but it will. */
+
+  QString txt = text->text();
   
   if (charwidths.isEmpty()) {
     start = 0;
     end = -1;
   }
-  if (start>0)
+  if (start>0) {
     --start;
+    while (start>=0
+	   && (Unicode::isLowSurrogate(txt[start])
+	       || Unicode::isCombining(txt[start])))
+      -- start;
+  }
 
   MarkupStyles current;
   MarkupEdges edges(text->markups());
@@ -70,7 +78,6 @@ void TextItemDocData::recalcSomeWidths(int start, int end) const {
   
   QFontMetricsF const *fm = fv.metrics(current);
   
-  QString txt = text->text();
   int N = txt.size();
   charwidths.resize(N);
   if (end<0)
@@ -78,6 +85,13 @@ void TextItemDocData::recalcSomeWidths(int start, int end) const {
 
   for (int n=start; n<end; n++) {
     QChar c = txt[n];
+    QString s(c);
+    if (Unicode::isHighSurrogate(c) && n+1<N) {
+      // utf16 long characters
+      s = txt.mid(n, 2);
+      charwidths[n] = 0; // store width with second of pair
+      n += 1;
+    }
     if (edges.contains(n)) {
       current = edges[n];
       fm = fv.metrics(current);
@@ -85,13 +99,16 @@ void TextItemDocData::recalcSomeWidths(int start, int end) const {
     if (edges.contains(n+1) || n+1>=N
 	|| txt[n+1].category()==QChar::Other_Control) {
       // simple, no kerning across edges or table cells
-      charwidths[n] = fm->width(c);
+      charwidths[n] = fm->width(s);
       if (edges.contains(n+1) && current.contains(MarkupData::Italic)
 	  && !edges[n+1].contains(MarkupData::Italic))
 	charwidths[n] += italicCorrection(current);
     } else {
       QChar d = txt[n+1];
-      charwidths[n] = fm->width(QString(c) + QString(d)) - fm->width(d);
+      QString t(d);
+      if (Unicode::isHighSurrogate(d) && n+2<N)
+	t = txt.mid(n+1, 2);
+      charwidths[n] = fm->width(s+t) - fm->width(t);
     }
   }
 }
