@@ -502,6 +502,13 @@ void TextItem::tryMove(TextCursor::MoveOperation op,
   TextCursor::MoveMode mm = mod & Qt::ShiftModifier ? TextCursor::KeepAnchor
     : TextCursor::MoveAnchor;
   c.movePosition(op, mm);
+  if (op==TextCursor::Left) {
+    if (Unicode::isLowSurrogate(text->characterAt(c.position())))
+      c.movePosition(TextCursor::Left, mm);
+  } else {
+    if (Unicode::isLowSurrogate(text->characterAt(c.position())))
+      c.movePosition(TextCursor::Right, mm);
+  }
   if (c==textCursor()
       && !(mod & Qt::ShiftModifier)) {
     emit futileMovementKey(key, mod);
