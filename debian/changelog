@@ -1,4 +1,4 @@
-eln (1.2.6-1) yakkety; urgency=medium
+eln (1.2.6-1) zesty; urgency=medium
 
   Now can use 0x1xxxx Unicode characters.
   Now using bold italic greek which looks much better with Ubuntu font
