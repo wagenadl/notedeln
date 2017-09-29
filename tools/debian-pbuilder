@@ -1,0 +1,5 @@
+#!/bin/zsh
+
+# sudo pbuilder create --basetgz /data/dw/pbuilder/zesty.tgz --distribution zesty
+
+sudo pbuilder build  --basetgz /data/dw/pbuilder/zesty.tgz ../releases/eln_1.2.6-1.dsc
