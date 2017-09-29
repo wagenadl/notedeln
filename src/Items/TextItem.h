@@ -106,7 +106,7 @@ protected slots:
 protected:
   void ensureCursorVisible();
 protected:
-  Qt::CursorShape cursorShape() const;
+  Qt::CursorShape cursorShape(Qt::KeyboardModifiers) const;
   bool changesCursorShape() const;
 public:
   bool tryExplicitLink();
@@ -123,9 +123,9 @@ protected:
   bool unscriptStyles();
   bool tryTeXCode(bool noX=false, bool onlyAtEndOfWord=false);
   void toggleSimpleStyle(MarkupData::Style type, class TextCursor const &c);
+  void tryItalicizeAbbreviation(class TextCursor const &c);
   bool charBeforeIsLetter(int pos) const;
   bool charAfterIsLetter(int pos) const;
-  bool shouldResize(QPointF) const;
   void attemptMarkup(QPointF p, MarkupData::Style);
   void updateMarkup(int pos);
   bool muckWithIndentation(class TextBlockItem *p,

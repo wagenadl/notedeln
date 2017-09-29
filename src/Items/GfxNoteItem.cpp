@@ -28,8 +28,39 @@
 #include <QTextLayout>
 #include <QTextLine>
 #include <math.h>
+#include "Cursors.h"
+
+#define MINLINELENGTH 0.1
 
 static Item::Creator<GfxNoteData, GfxNoteItem> c("gfxnote");
+
+//////////////////////////////////////////////////////////////////////
+class LineItem: public QGraphicsLineItem {
+public:
+  LineItem(QLineF l, GfxNoteItem *parent): QGraphicsLineItem(l, parent) {
+    note = parent;
+    setAcceptHoverEvents(true);
+  }
+  virtual ~LineItem() {
+  }
+  virtual void mousePressEvent(QGraphicsSceneMouseEvent *e) {
+    ASSERT(note);
+    note->lineMousePress(e->scenePos(), e->button(), e->modifiers());
+  }
+  virtual void hoverEnterEvent(QGraphicsSceneHoverEvent *e) {
+    ASSERT(note);
+    auto m = e->modifiers();
+    if (m & Qt::ShiftModifier)
+      m |= Qt::ControlModifier;
+    note->perhapsCreateGlow(e->modifiers());
+  }
+  virtual void hoverLeaveEvent(QGraphicsSceneHoverEvent *) {
+    ASSERT(note);
+    note->removeGlow();
+  }
+private:
+  GfxNoteItem *note;
+};
 
 GfxNoteItem::GfxNoteItem(GfxNoteData *data, Item *parent):
   Item(data, parent) {
@@ -63,16 +94,27 @@ GfxNoteItem::~GfxNoteItem() {
 }
 
 void GfxNoteItem::abandon() {
-  BlockItem *ancestor = ancestralBlock();
-  Item *p = parent();
-  if (p && p->beingDeleted()) {
-    qDebug() << "I have a parent but it is being deleted. No toces!";
+  if (beingDeleted()) {
+    qDebug() << "(GfxNoteItem::abandon: being deleted)";
     return; 
   }
-  qDebug() << "GfxNoteItem::abandon" << this << data() << data()->parent();
+  Item *p = parent();
+  if (p && p->beingDeleted()) {
+    qDebug() << "(GfxNoteItem::abandon: parent being deleted)";
+    return; 
+  }
+  qDebug() << "GfxNoteItem::abandon";
+  qDebug() << "  I am " << this << beingDeleted();
+  qDebug() << "  my parent" << parent();
+  qDebug() << "  my data" << data();
+  qDebug() << "  my data's parent" << data()->parent();
+
   if (data()->parent())
     data()->parent()->deleteChild(data());
+
   deleteLater();
+
+  BlockItem *ancestor = ancestralBlock();
   if (ancestor)
     ancestor->sizeToFit();
 }
@@ -96,11 +138,12 @@ static double sigmoid(double xl, double xr) {
   return xl + x; //+ w*a;
 }
 
-QPointF GfxNoteItem::nearestCorner(QPointF pbase) {
+QPointF GfxNoteItem::nearestCorner(QPointF pbase, bool *insidep) {
   QRectF docr = text->document()->tightBoundingRect()
     .translated(text->pos() - pbase);
 
-  double dx = style().real("note-x-inset");
+  double dx = style().real("note-x-inset") / 2;
+  double dx2 = dx;
   double x0, y0;
   double ygood = docr.top()>0 ? docr.top()
     : docr.bottom()<0 ? -docr.bottom()
@@ -108,51 +151,58 @@ QPointF GfxNoteItem::nearestCorner(QPointF pbase) {
   double xgood = docr.left()>0 ? docr.left()
     : docr.right()<0 ? - docr.right()
     : 0;
+  if (insidep)
+    *insidep = false;
+
   if (ygood>xgood) {
     // coming mostly from above or below
     if (docr.top() > dx) {
       // coming substantially from above
-      y0 = docr.top() - dx/2;
+      y0 = docr.top() - dx2;
       x0 = sigmoid(docr.left(), docr.right());
     } else if (docr.bottom() < -dx) {
       // coming substantially from below
-      y0 = docr.bottom() + dx/2;
+      y0 = docr.bottom() + dx2;
       x0 = sigmoid(docr.left(), docr.right());
     } else if (docr.left() > dx) {
       // coming substantially from the left
-      x0 = docr.left() - dx/2;
+      x0 = docr.left() - dx2;
       y0 = sigmoid(docr.top(), docr.bottom());
     } else if (docr.right() < -dx) {
       // coming substantially from the right
-      x0 = docr.right() + dx/2;
+      x0 = docr.right() + dx2;
       y0 = sigmoid(docr.top(), docr.bottom());
     } else {
       // too close by; what can we do that is reasonable?
       x0 = docr.left();
       y0 = docr.top();
+      if (insidep)
+	*insidep = true;
     }
   } else {
     // coming mostly from left or right
     if (docr.left() > dx) {
       // coming substantially from the left
-      x0 = docr.left() - dx/2;
+      x0 = docr.left() - dx2;
       y0 = sigmoid(docr.top(), docr.bottom());
     } else if (docr.right() < -dx) {
       // coming substantially from the right
-      x0 = docr.right() + dx/2;
+      x0 = docr.right() + dx2;
       y0 = sigmoid(docr.top(), docr.bottom());
     } else if (docr.top() > dx) {
       // coming substantially from above
-      y0 = docr.top() - dx/2;
+      y0 = docr.top() - dx2;
       x0 = sigmoid(docr.left(), docr.right());
     } else if (docr.bottom() < -dx) {
       // coming substantially from below
-      y0 = docr.bottom() + dx/2;
+      y0 = docr.bottom() + dx2;
       x0 = sigmoid(docr.left(), docr.right());
     } else {
       // too close by; what can we do that is reasonable?
       x0 = docr.left();
       y0 = docr.top();
+      if (insidep)
+	*insidep = true;
     }
   }
   return pbase + QPointF(x0, y0);
@@ -183,15 +233,16 @@ void GfxNoteItem::updateTextPos() {
   }
 
   // Arrange line to be shortest
-  if (data()->delta().manhattanLength()>5) { // minimum line length
+  if (data()->delta().manhattanLength()>MINLINELENGTH) { // minimum line length
     if (!line) {
-      line = new QGraphicsLineItem(QLineF(QPointF(0,0), QPointF(1,1)), this);
+      line = new LineItem(QLineF(QPointF(0,0), QPointF(1,1)), this);
       line->setPen(QPen(QBrush(QColor(style().string("note-line-color"))),
 			style().real("note-line-width")));
     }
-    QPointF oth = nearestCorner();
+    bool inside = false;
+    QPointF oth = nearestCorner(QPointF(0,0), &inside);
     line->setLine(QLineF(QPointF(0,0), oth));
-    if (oth.manhattanLength()<1e-4) 
+    if (inside)
       line->hide();
     else 
       line->show();
@@ -199,6 +250,10 @@ void GfxNoteItem::updateTextPos() {
     if (line)
       line->hide();
   }
+
+  BlockItem *ancestor = ancestralBlock();
+  if (ancestor)
+    ancestor->sizeToFit();
 }
 
 QRectF GfxNoteItem::boundingRect() const {
@@ -218,21 +273,28 @@ void GfxNoteItem::mouseMoveEvent(QGraphicsSceneMouseEvent *e) {
       w = 30;
     text->setTextWidth(w);
   } else {
+    bool draganchor = e->modifiers() & Qt::ShiftModifier;
     QPointF delta = e->pos() - e->lastPos();
-    text->setPos(text->pos() + delta);
-    if (e->modifiers() & Qt::ShiftModifier && !line) {
-      line = new QGraphicsLineItem(QLineF(QPointF(0,0), QPointF(1,1)), this);
-      line->setPen(QPen(QBrush(QColor(style().string("note-line-color"))),
-			style().real("note-line-width")));
-    }      
+    if (draganchor) {
+      if (!line) {
+	/* Create a line */
+	line = new LineItem(QLineF(QPointF(0,0), QPointF(1,1)), this);
+	line->setPen(QPen(QBrush(QColor(style().string("note-line-color"))),
+			  style().real("note-line-width")));
+      }
+      QLineF l = line->line(); // origLine;
+      l.setP1(l.p1() + delta);
+      line->setLine(l);
+    } else {
+      text->setPos(text->pos() + delta);
+    }
     if (line) {
       QLineF l = line->line(); // origLine;
-      if (e->modifiers() & Qt::ShiftModifier) 
-	l.setP1(l.p1() + delta);
-      QPointF oth = nearestCorner(l.p1());
+      bool inside = false;
+      QPointF oth = nearestCorner(l.p1(), &inside);
       l.setP2(oth);
       line->setLine(l);
-      if ((oth-l.p1()).manhattanLength() < 1e-4) 
+      if ((oth-l.p1()).manhattanLength() < MINLINELENGTH || inside) 
 	line->hide();
       else
 	line->show();
@@ -250,6 +312,10 @@ void GfxNoteItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *e) {
   } else {
     QPointF ptext = text->pos() - QPointF(0, style().real("note-y-offset"));
     QPointF p0 = mapToParent(ptext);
+    if (line && !line->isVisible()) {
+      delete line;
+      line = 0;
+    }
     if (line) {
       QPointF pbase = line->line().p1();
       p0 = mapToParent(pbase);
@@ -261,8 +327,9 @@ void GfxNoteItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *e) {
     setPos(p0);
     updateTextPos();
   }
-  if (ancestralBlock())
-    ancestralBlock()->sizeToFit();
+  BlockItem *ancestor = ancestralBlock();
+  if (ancestor)
+    ancestor->sizeToFit();
   e->accept();
 }
 
@@ -285,12 +352,17 @@ void GfxNoteItem::setFocus() {
   text->setFocus();
 }
 
-void GfxNoteItem::childMousePress(QPointF, Qt::MouseButton b, bool resizeFlag) {
-  if (mode()->mode()==Mode::MoveResize && b==Qt::LeftButton) {
-    text->setFocus();
-    text->clearFocus();
-    //    lockBounds();
-    resizing = resizeFlag;
+
+
+void GfxNoteItem::childMousePress(QPointF p, Qt::MouseButton b,
+				  Qt::KeyboardModifiers m) {
+  if (!isWritable())
+    return;
+  if ((mode()->mode()==Mode::MoveResize
+      || (m & Qt::ControlModifier)
+       || (m & Qt::ShiftModifier))
+      && b==Qt::LeftButton) {
+    resizing = shouldResize(p);
     if (resizing) {
       initialTextWidth = data()->textWidth();
       if (initialTextWidth<1) {
@@ -298,6 +370,19 @@ void GfxNoteItem::childMousePress(QPointF, Qt::MouseButton b, bool resizeFlag) {
 	text->setTextWidth(initialTextWidth);
       }
     }
+    grabMouse();
+  }
+}
+
+void GfxNoteItem::lineMousePress(QPointF, Qt::MouseButton b,
+				  Qt::KeyboardModifiers m) {
+  if (!isWritable())
+    return;
+  if ((mode()->mode()==Mode::MoveResize
+      || (m & Qt::ControlModifier)
+       || (m & Qt::ShiftModifier))
+      && b==Qt::LeftButton) {
+    resizing = false;
     grabMouse();
   }
 }
@@ -339,4 +424,40 @@ void GfxNoteItem::futileMovementKey(int k, Qt::KeyboardModifiers) {
 void GfxNoteItem::hoverEnterEvent(QGraphicsSceneHoverEvent *e) {
   Item::hoverEnterEvent(e);
   text->setGraphicsEffect(0); // prevent double green
+}
+
+
+bool GfxNoteItem::shouldResize(QPointF p) const {
+  double tw = data()->textWidth();
+  if (tw<=0)
+    tw = text->netBounds().width();
+  bool should = mapFromScene(p).x()-netBounds().left() > .75*tw;
+  return should;
+}
+ 
+void GfxNoteItem::perhapsCreateGlow(Qt::KeyboardModifiers m) {
+  Item::perhapsCreateGlow(m);
+}
+
+void GfxNoteItem::removeGlow() {
+  Item::removeGlow();
+}
+
+bool GfxNoteItem::changesCursorShape() const {
+  return true;
+}
+
+Qt::CursorShape GfxNoteItem::cursorShape(Qt::KeyboardModifiers m) const {
+  Qt::CursorShape cs = defaultCursorShape();
+  if (parent())
+    cs = parent()->cursorShape(m);
+  if (!isWritable())
+    return cs;
+  if (mode()->mode() == Mode::MoveResize
+      || (m & Qt::ControlModifier)
+      || (m & Qt::ShiftModifier))
+    cs = Qt::SizeAllCursor;
+  if (line)
+    line->setCursor(Cursors::refined(cs));
+  return cs;
 }

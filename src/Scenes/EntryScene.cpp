@@ -370,16 +370,16 @@ void EntryScene::deleteBlock(int blocki) {
 GfxBlockItem *EntryScene::newGfxBlock(int iAbove) {
   int iNew = (iAbove>=0)
     ? iAbove + 1
-    : blockItems.size();
+    : 0; // blockItems.size();
 
-  if (iAbove>=0) {
-    // perhaps not create a new one after all
-    GfxBlockItem *tbi = dynamic_cast<GfxBlockItem *>(blockItems[iAbove]);
-    if (tbi && tbi->isWritable()) {
-      // Previous block is writable, use it instead
-      return tbi;
-    }
-  }
+  // if (iAbove>=0) {
+  //   // perhaps not create a new one after all
+  //   GfxBlockItem *tbi = dynamic_cast<GfxBlockItem *>(blockItems[iAbove]);
+  //   if (tbi && tbi->isWritable()) {
+  //     // Previous block is writable, use it instead
+  //     return tbi;
+  //   }
+  // }
 
   GfxBlockData *gbd = new GfxBlockData();
   QList<BlockData *> existingBlocks = data_->blocks();
@@ -419,7 +419,8 @@ void EntryScene::splitTextBlock(int iblock, int pos) {
   tbi_post->setFocus();
 }
 
-void EntryScene::joinTextBlocks(int iblock_pre, int iblock_post) {
+void EntryScene::joinTextBlocks(int iblock_pre, int iblock_post,
+				bool forward) {
   ASSERT(iblock_pre<iblock_post);
   ASSERT(iblock_pre>=0);
   ASSERT(iblock_post<blockItems.size());
@@ -439,7 +440,8 @@ void EntryScene::joinTextBlocks(int iblock_pre, int iblock_post) {
   deleteBlock(iblock_pre);
   block1->join(block2);
   block1->resetSheetSplits();
-  TextBlockItem *tbi = injectTextBlock(block1, iblock_pre);
+  TextBlockItem *tbi = injectTextBlock(block1,
+				       forward ? iblock_post - 1 : iblock_pre);
   tbi->text()->document()->relayout();
   restackBlocks(iblock_pre);
   gotoSheetOfBlock(iblock_pre);
@@ -517,14 +519,17 @@ TableBlockItem *EntryScene::newTableBlock(int iAbove) {
 }
 
 int EntryScene::lastBlockAbove(QPointF scenepos, int sheet) {
+  int alt = blockItems.size() - 1;
   for (int i=0; i<blockItems.size(); i++) {
     if (blockItems[i]->data()->sheet() != sheet)
       continue;
     double y = blockItems[i]->sceneBoundingRect().bottom();
     if (y>scenepos.y())
       return i-1;
+    else
+      alt = i;
   }
-  return blockItems.size()-1;
+  return alt;
 }
 
 TextBlockItem *EntryScene::newTextBlockAt(QPointF scenepos, int sheet,
@@ -582,7 +587,10 @@ void EntryScene::futileMovement(int block) {
   int tgtidx = -1;
   if (fmi.key()==Qt::Key_Enter || fmi.key()==Qt::Key_Return) {
     TextCursor c = tbi->textCursor();
-    if (c.atEnd()) 
+    /* Ctrl-Enter makes next block with same indentation. Note that this
+       currently cannot happen, because Ctrl-Enter is intercepted in TextItem
+       and inserts a '\n' in the text. */
+    if (c.atEnd() && !(fmi.modifiers() & Qt::ControlModifier)) 
       newTextBlock(block, true);
     else
       splitTextBlock(block, c.position());
@@ -631,11 +639,13 @@ void EntryScene::futileMovement(int block) {
   }
 
   if (fmi.key()==Qt::Key_Delete) {
-    if (tgtidx==block+1) // do not combine across (e.g.) gfxblocks
-      joinTextBlocks(block, tgtidx);
+    if (tgtidx==block+1 // do not combine across (e.g.) gfxblocks
+	|| blockItems[block]->data()->isEmpty()) // ... unless empty
+      joinTextBlocks(block, tgtidx, true);
     return;
   } else if (fmi.key()==Qt::Key_Backspace) {
-    if (tgtidx==block-1)
+    if (tgtidx==block-1
+	|| blockItems[block]->data()->isEmpty()) // ... unless empty
       joinTextBlocks(tgtidx, block);
     return;
   }
@@ -1024,8 +1034,12 @@ bool EntryScene::importDroppedImage(QPointF scenePos, int sheet,
   /* If dropped on an existing gfxblock, insert it there.
      If dropped on belowItem, insert after last block on page.
      If dropped on text block, insert after that text block.
-     Before creating a new graphics block, consider whether there is
-     a graphics block right after it.
+     In the past, I did this:
+     "Before creating a new graphics block, consider whether there is
+     a graphics block right after it."
+     But now I think that is not actually that useful. The issue was that
+     adjacent GfxBlocks are hard to tell aprt, i.e., the boundary is nearly
+     invisible. I now think that that visibility is the issue to be addressed.
    */
   QPointF pdest(0,0);
 
@@ -1033,8 +1047,8 @@ bool EntryScene::importDroppedImage(QPointF scenePos, int sheet,
   GfxBlockItem *gdst = (i>=0) ? dynamic_cast<GfxBlockItem*>(blockItems[i]) : 0;
   if (gdst) 
     pdest = gdst->mapFromScene(scenePos);
-  else if (i>=0 && i+1<blockItems.size())
-    gdst = dynamic_cast<GfxBlockItem*>(blockItems[i+1]);
+  // else if (i>=0 && i+1<blockItems.size())
+  //   gdst = dynamic_cast<GfxBlockItem*>(blockItems[i+1]);
   if (!gdst)
     gdst = newGfxBlockAt(scenePos, sheet);
 

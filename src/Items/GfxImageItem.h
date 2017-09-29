@@ -39,6 +39,8 @@ public:
   virtual void paint(QPainter*, const QStyleOptionGraphicsItem*, QWidget*);
   bool makesOwnNotes() const { return isWritable(); }
   virtual GfxNoteItem *newGfxNote(QPointF p0, QPointF p1);   
+  virtual Qt::CursorShape cursorShape(Qt::KeyboardModifiers) const;
+  virtual bool changesCursorShape() const;
 protected:
   virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *);
   virtual void mousePressEvent(QGraphicsSceneMouseEvent *);
@@ -58,13 +60,11 @@ private:
     CropTop,
     CropBottom,
   };
-protected:
-  virtual Qt::CursorShape cursorShape() const;
-  virtual bool changesCursorShape() const;
 private:
   QPointF moveDelta(QGraphicsSceneMouseEvent *);
   DragType dragTypeForPoint(QPointF) const;
   static Qt::CursorShape cursorForDragType(DragType);
+  void startDrag(QGraphicsSceneMouseEvent *);
 private:
   QImage image; // not cropped
   DragType dragType;

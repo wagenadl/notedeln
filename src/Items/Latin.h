@@ -1,4 +1,4 @@
-// App/Assert.H - This file is part of eln
+// Items/Latin.H - This file is part of eln
 
 /* eln is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -14,27 +14,26 @@
    along with eln.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-// Assert.H
+// Latin.H
 
-#ifndef ASSERT_H
+#ifndef LATIN_H
 
-#define ASSERT_H
+#define LATIN_H
 
+#include <QMap>
+#include <QSet>
 #include <QString>
-#include <QDebug>
+#include <QVariant>
 
-class AssertedException {
+class Latin {
+public:
+  static QSet<QString> const &normal(QString);
+  static QSet<QString> const &abbrev(QString);
+private:
+  static QVariantMap const &json();
+  static QMap<QString, QSet<QString> > load(QString);
+  static QMap<QString, QSet<QString> > const &normal();
+  static QMap<QString, QSet<QString> > const &abbrev();
 };
-
-void assertion_register_notebook(class Notebook *);
-
-void assertion_crash(QString msg, char const *file, int line);
-inline void assertion_noop() { }
-void assertion_complain(QString msg, char const *file, int line);
-
-#define ASSERT(cond) ((!(cond)) ? assertion_crash(#cond, __FILE__, __LINE__) : assertion_noop())
-
-#define COMPLAIN(msg) (assertion_complain(msg, __FILE__, __LINE__))
-#define MILDASSERT(cond) ((!(cond)) ? assertion_complain(#cond, __FILE__, __LINE__) : assertion_noop())
 
 #endif

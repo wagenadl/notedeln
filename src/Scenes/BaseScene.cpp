@@ -225,6 +225,7 @@ bool BaseScene::keyPressEvent(QKeyEvent *, SheetScene *) {
 }
 
 bool BaseScene::dropEvent(QGraphicsSceneDragDropEvent *, SheetScene *) {
+  qDebug() << "BaseScene::dropEvent";
   return false;
 }
 
@@ -238,4 +239,12 @@ QList<QGraphicsView *> BaseScene::allViews() const {
 
 Notebook *BaseScene::book() const {
   return book_;
+}
+
+bool BaseScene::isWritable() const {
+  return false;
+}
+
+bool BaseScene::dropBelow(QPointF, int, QMimeData const *) {
+  return false;
 }

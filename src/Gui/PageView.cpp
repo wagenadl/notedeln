@@ -43,6 +43,7 @@
 #include "DefaultLocation.h"
 #include "GotoPageDialog.h"
 
+#include <QMimeData>
 #include <QWheelEvent>
 #include <QKeyEvent>
 #include <QDebug>
@@ -141,6 +142,11 @@ void PageView::mousePressEvent(QMouseEvent *e) {
 }
 
 void PageView::dragEnterEvent(QDragEnterEvent *e) {
+  QMimeData const *md = e->mimeData();
+  qDebug() << "PageView::dragEnterEvent: has image?" << md->hasImage()
+	   << "hasurl?" << md->hasUrls()
+	   << "hastext?" << md->hasText()
+	   << "proposed" << e->proposedAction();
   EventView ev(this);
   QGraphicsView::dragEnterEvent(e);
 }
@@ -152,7 +158,6 @@ void PageView::enterEvent(QEvent *e) {
 }
 
 void PageView::leaveEvent(QEvent *e) {
-  mode()->temporaryRelease();
   QGraphicsView::leaveEvent(e);
 }
 
@@ -243,7 +248,9 @@ void PageView::keyPressEvent(QKeyEvent *e) {
     break;
   case Qt::Key_Delete:
     qDebug() << "Key_Delete";
-    if (currentSection==Entries && mode()->mode()==Mode::MoveResize) {
+    if (currentSection==Entries &&
+	(mode()->mode()==Mode::MoveResize
+	 || (e->modifiers() & Qt::ControlModifier))) {
       qDebug() << ".. mode is moveresize";
       QPointF p = mapToScene(mapFromGlobal(QCursor::pos()));
       Item *item = 0;
@@ -255,16 +262,21 @@ void PageView::keyPressEvent(QKeyEvent *e) {
       }
       qDebug() << ".. item is " << item;
       Item *alt = item ? item->glowItem() : 0;
+      qDebug() << ".. alt is " << alt;
       if (alt)
         item = alt;
-      qDebug() << ".. alt is " << alt;
       if (item && item->isWritable()) {
         qDebug() << ".. is writable";
 	BlockItem *block = item->ancestralBlock();
-	if (block && block->allChildren().isEmpty())
+	qDebug() << ".. ancestralblock is" << block;
+	if (block && block->allChildren().isEmpty()) {
+	  qDebug() << ".. childless";
 	  entryScene->notifyChildless(block);
-	else
+	} else {
+	  qDebug() << ".. grab if restorable";
 	  deletedStack->grabIfRestorable(item);
+	}
+	qDebug() << ".. back";
       }
     } else {
       take = false;
@@ -333,16 +345,6 @@ void PageView::keyPressEvent(QKeyEvent *e) {
     else
       take = false;
     break;
-  case Qt::Key_Control:
-    if (e->modifiers() & Qt::ShiftModifier)
-      mode()->temporaryOverride(Mode::MoveResize);
-    take = false;
-    break;
-  case Qt::Key_Shift:
-    if (e->modifiers() & Qt::ControlModifier)
-      mode()->temporaryOverride(Mode::MoveResize);
-    take = false;
-    break;
   default:
     take = false;
     break;
@@ -355,15 +357,6 @@ void PageView::keyPressEvent(QKeyEvent *e) {
 }
 
 void PageView::keyReleaseEvent(QKeyEvent *e) {
-  EventView ev(this);
-  switch (e->key()) {
-  case Qt::Key_Control:
-    mode()->temporaryRelease();
-    break;
-  default:
-    break;
-  }
-    
   QGraphicsView::keyReleaseEvent(e);
 }
 
@@ -797,12 +790,18 @@ void PageView::modeChange() {
   QPointF p = mapToScene(mapFromGlobal(QCursor::pos()));
   Item *item = dynamic_cast<Item*>(entryScene->itemAt(p, currentSheet));
   if (item) {
-    item->setCursor(Cursors::refined(item->cursorShape()));
+    item->setCursor(Cursors::refined(item->cursorShape(0)));
+    // XXX should find out current keyboard state above! XXX
     item->modeChangeUnderCursor();
   }
 }
 
 void PageView::drop(QDropEvent e) {
+  QMimeData const *md = e.mimeData();
+  qDebug() << "PageView::drop: has image?" << md->hasImage()
+	   << "hasurl?" << md->hasUrls()
+	   << "hastext?" << md->hasText()
+	   << "proposed" << e.proposedAction();
   dropEvent(&e);
 }
 
@@ -838,7 +837,6 @@ void PageView::focusInEvent(QFocusEvent *e) {
 }
 
 void PageView::focusOutEvent(QFocusEvent *e) {
-  mode()->temporaryRelease();
   EventView ev(this);
   QGraphicsView::focusOutEvent(e);
   update(); // ensure text cursor looks ok

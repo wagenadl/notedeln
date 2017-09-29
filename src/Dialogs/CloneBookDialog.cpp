@@ -184,7 +184,7 @@ QString CloneBookDialog::getClone() {
                            << cbd.cloneLocation());
     bool ok = proc.exec();
     if (ok)
-      return cbd.archiveLocation();
+      return cbd.cloneLocation();
     
     QMessageBox::warning(&cbd, Translate::_("eln"),
                          Translate::_("clone-failed")

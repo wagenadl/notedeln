@@ -50,12 +50,13 @@ protected:
   void importDroppedUrl(QUrl const &url, QPointF p);
   void importDroppedSvg(QUrl const &url, QPointF p);
   virtual bool changesCursorShape() const;
-  virtual Qt::CursorShape cursorShape() const;
+  virtual Qt::CursorShape cursorShape(Qt::KeyboardModifiers) const;
 private:
   double availableWidth() const;
   QRectF generousChildrenBounds() const;
   void drawGrid(QPainter *p, QRectF const &bb, double dx);
   void createMark(QPointF pos);
+  bool perhapsSendMousePressToChild(QGraphicsSceneMouseEvent *);
 };
 
 #endif

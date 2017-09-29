@@ -114,7 +114,7 @@ Graphic manipulation is similarly rudimentary: you can drag-and-drop
 or cut-and-paste images and (svg) vector graphics into a notebook
 entry, and these graphics can be cropped and resized, but they cannot,
 e.g., be rotated or recolored. You can add simple symbols in a limited
-set of colors to the graphics as well as draw ``doodles.'' It is also
+set of colors to the graphics as well as draw freehand lines. It is also
 possible to attach text notes to the graphics. You cannot, however,
 create arbitrarily complex graphics in eln; for that, the author
 recommends using the GIMP\footnote{http://www.gimp.org.} or
@@ -309,18 +309,14 @@ in text mode (but not browse mode) as well.
 
 Graphics can be added by dragging an image file onto the page or by
 pressing ``Control''+``V'' to paste an image from the
-clipboard. Images (and other graphics objects) can be moved around,
-cropped, and resized by selecting the ``hand'' icon (by clicking it or
-pressing ``F3''). As a convenience, holding down ``Control'' and
-``Shift'' together in any mode temporarily selects the ``hand'' icon
-and enables the same manipulations.
+clipboard. 
 
-Various plot symbols and doodles can be added using the ``symbol'' and
-``line'' icons (``F4'' and ``F5''). Several choices for symbol size,
-line width, and color are available, but these options are not
-extendible. (This is a design choice: by limiting the options, eln
-hopes to encourage you to not spend too much time thinking about the
-perfect color for your annotation.) 
+Various plot symbols as well as freehand lines can be added using the
+``symbol'' and ``line'' icons (``F4'' and ``F5''). Several choices for
+symbol size, line width, and color are available.  (These options
+are not extendible. By limiting the options,
+eln hopes to encourage you to not spend too much time thinking about
+the perfect color for your annotation.)
 
 Text annotations can be added to the graphics canvas using the ``text
 balloon'' icon (``F6'') and either clicking to place text or dragging
@@ -328,12 +324,22 @@ to place text with a connector line. Type faces and font sizes cannot
 be changed (again, on purpose), but you \emph{can} change the width of
 your annotation by selecting the ``hand'' icon (``F3'' or ``Alt'') and
 dragging the right edge of your annotation. The end of a connector
-line can be moved by holding ``Shift'' while dragging the annotation.
+line can be moved by holding ``Shift'' while dragging the
+annotation. (A note without a connector line can be given a connector
+line by Shift-dragging; connector lines automatically vanish if their ends
+are dragged into the text of the note.)
+
+Images, plot symbols, freehand lines, and text annotations can be
+moved around, cropped, and resized by selecting the ``hand'' icon (by
+clicking it or pressing ``F3''). As a convenience, a mouse drag with
+``Control'' held performs the same manipulations without selecting the
+``hand'' icon.
 
 Graphics objects can be deleted while in ``hand'' mode by hovering the
 cursor over them and pressing ``Delete.'' They can be restored by
 pressing ``Insert.'' An empty graphics canvas can be deleted by
-pressing ``Delete.''
+pressing ``Delete.'' ``Control''+``Delete'' works in any mode,
+provided there is no active text cursor.
 
 \section{Adding tables}
 
@@ -471,9 +477,9 @@ dots & $\ldots$ \\
 deg & $^\circ$ \\
 prime & $'$ \\
 dprime & $''$ \\
-half & $1\over2$ \\
-third & $1\over3$ \\
-quarter & $1\over4$ \\
+%half & $1\over2$ \\
+%third & $1\over3$ \\
+%quarter & $1\over4$ \\
 \end{tabular}
 &
 \begin{tabular}[t]{cc}
@@ -494,15 +500,15 @@ section & $\S$ \\
 \begin{tabular}[t]{cc}
 star & $\star$ \\
 perp & $\perp$ \\
-all \emph {or} A & $\forall$ \\
-exists \emph{or} E & $\exists$ \\
+A & $\forall$ \\
+E & $\exists$ \\
 in & $\in$ \\
 notin & $\notin$ \\
 prop & $\propto$ \\
 N\footnote{Also Z, Q, R, and C.}  & $\mathbb{N}$\\
 d & $\partial$ \\
-circle & $\circ$ \\
-square & $\square$ \\
+circ & $\circ$ \\
+sqr & $\square$ \\
 \end{tabular}
 &
 \begin{tabular}[t]{cc}

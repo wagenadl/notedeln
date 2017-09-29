@@ -11,53 +11,55 @@ else
   SHAREPATH = /usr/local/share
 endif
 
-QMAKE=qmake
-
 UNAME=$(shell uname -s)
+
+ifeq (, $(shell which qmake-qt5))
+  QMAKE=qmake
+else
+  QMAKE=qmake-qt5
+endif
 
 ifeq ($(UNAME),Linux)
   # Linux
-  SELECTQT="-qt=qt5"
+  SELECTQT=QT_SELECT=5
 else
   ifeq ($(UNAME),Darwin)
     # Mac OS
-    SELECTQT=
     QROOT=/Users/wagenaar/Qt-5.7/5.7
     QBINPATH=$(QROOT)/clang_64/bin
     QMAKE=$(QBINPATH)/qmake
   else
-    $(error Unknown operating system. This makefile is for Mac or Linux.)
+    $(error Unknown operating system. This Makefile is for Mac or Linux.)
   endif
 endif
 
 DOCPATH = $(SHAREPATH)/doc/eln
 
 # Linux and Mac building
-all: SRC WEBGRAB DOC
+all: src webgrab man
 
 update:
 	tools/updatesources.sh
-
 
 clean:
 	+rm -rf build
 	+rm -rf build-webgrab
 	+rm -rf build-doc
 
-SRC: PREP
+src: prep
 	+make -C build release
 
-PREP:
+prep:
 	mkdir -p build
 	rm -f build/*/BuildDate.o
-	( cd build; $(QMAKE) $(SELECTQT) ../src/eln.pro )
+	( cd build; $(SELECTQT) $(QMAKE) ../src/eln.pro )
 
-WEBGRAB: WEBGRABPREP
+webgrab: webgrabprep
 	+make -C build-webgrab release
 
-WEBGRABPREP:
+webgrabprep:
 	mkdir -p build-webgrab
-	( cd build-webgrab; $(QMAKE) $(SELECTQT) ../webgrab/webgrab.pro )
+	( cd build-webgrab;  $(SELECTQT) $(QMAKE) ../webgrab/webgrab.pro )
 
 # Unix installation
 install: all
@@ -81,16 +83,25 @@ install: all
 # update-mime-database $(SHAREPATH)/mime/ || true
 
 	install src/eln.desktop $(SHAREPATH)/applications/eln.desktop
-	cp build-doc/userguide.pdf $(DOCPATH)/userguide.pdf
-	cp README $(DOCPATH)/readme
+
+	cp README.md $(DOCPATH)/readme
 	gzip -9 $(DOCPATH)/readme
 	cp CHANGELOG $(DOCPATH)/changelog
 	gzip -9 $(DOCPATH)/changelog
 	install src/Gui/fonts/ubuntu-font-licence-1.0.txt.gz $(DOCPATH)/ubuntu-font-licence-1.0.txt.gz
 
-DOC:;	mkdir -p build-doc
+man:
+	mkdir -p build-doc
 	cp doc/Makefile build-doc/
-	+make -C build-doc
+	+make -C build-doc eln.1 webgrab.1
+
+userguide:
+	mkdir -p build-doc
+	cp doc/Makefile build-doc/
+	+make -C build-doc userguide.pdf
+
+install-userguide: doc
+	cp build-doc/userguide.pdf $(DOCPATH)/userguide.pdf
 
 # Tar preparation
 tar: all
@@ -108,5 +119,6 @@ macapp: SRC WEBGRAB
 macdmg: macapp
 	$(QBINPATH)/macdeployqt eln.app -dmg -executable=eln.app/Contents/MacOS/webgrab 
 
-.PHONY: SRC WEBGRAB DOC all clean tar macclean macapp macdmg
+.PHONY: src webgrab all clean tar macclean macapp macdmg man userguide \
+        install install-userguide prep webgrabprep
 

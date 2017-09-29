@@ -47,6 +47,8 @@ public:
   class SheetScene *sheet(int n, bool autoextend=false);
   class PageView *eventView() const;
   QList<class QGraphicsView *> allViews() const; // all views on this scene
+  virtual bool isWritable() const;
+  virtual bool dropBelow(QPointF scenePos, int sheet, class QMimeData const *md);
 public slots:
   virtual void focusTitle(int sheet);
   virtual void focusFirst(int /*sheet*/) {}

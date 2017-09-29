@@ -28,6 +28,7 @@
 #include "BlockItem.h"
 #include "Assert.h"
 #include "TeXCodes.h"
+#include "Latin.h"
 #include "Digraphs.h"
 #include "TextBlockItem.h"
 #include "TextItemDoc.h"
@@ -188,15 +189,19 @@ void TextItem::handleLeftClick(QGraphicsSceneMouseEvent *e) {
       setFocus();
       update();
     }
+    if (mayMove) {
+      GfxNoteItem *gni = dynamic_cast<GfxNoteItem*>(parent());
+      if (gni)
+        gni->childMousePress(e->scenePos(), e->button(), e->modifiers());
+    }
   } break;
   case Mode::MoveResize:
     if (linkHelper->mousePress(e)) 
       break;
     if (mayMove) {
-      bool resize = shouldResize(e->pos());
       GfxNoteItem *gni = dynamic_cast<GfxNoteItem*>(parent());
       if (gni)
-        gni->childMousePress(e->scenePos(), e->button(), resize);
+        gni->childMousePress(e->scenePos(), e->button(), e->modifiers());
     }
     break;
   case Mode::Highlight:
@@ -436,8 +441,9 @@ bool TextItem::keyPressAsMotion(QKeyEvent *e) {
     }
   } return true;
   case Qt::Key_Return: case Qt::Key_Enter:
-    if (allowParagraphs_) {
-      cursor.insertText("\n");
+    if (allowParagraphs_ || e->modifiers() & Qt::ControlModifier) {
+      /* Note that this code is not executed for tables. */
+      cursor.insertText("\n"); 
       ensureCursorVisible();      
     } else {
       emit futileMovementKey(e->key(), e->modifiers());
@@ -463,7 +469,8 @@ bool TextItem::keyPressAsMotion(QKeyEvent *e) {
     tryMove(TextCursor::Left, e->key(), e->modifiers());
     return true;
   case Qt::Key_Up:
-    if (text->lineFor(cursor.position())==0)
+    if (text->lineFor(cursor.position())==0
+	&& !(e->modifiers() & Qt::ShiftModifier))
       emit futileMovementKey(e->key(), e->modifiers());
     else
       tryMove(TextCursor::Up, e->key(), e->modifiers());
@@ -472,7 +479,8 @@ bool TextItem::keyPressAsMotion(QKeyEvent *e) {
     tryMove(TextCursor::Right, e->key(), e->modifiers());
     return true;
   case Qt::Key_Down:
-    if (text->lineFor(cursor.position())==text->lineStarts().size()-1)
+    if (text->lineFor(cursor.position())==text->lineStarts().size()-1
+	&& !(e->modifiers() & Qt::ShiftModifier))	
       emit futileMovementKey(e->key(), e->modifiers());
     else
       tryMove(TextCursor::Down, e->key(), e->modifiers());
@@ -494,7 +502,15 @@ void TextItem::tryMove(TextCursor::MoveOperation op,
   TextCursor::MoveMode mm = mod & Qt::ShiftModifier ? TextCursor::KeepAnchor
     : TextCursor::MoveAnchor;
   c.movePosition(op, mm);
-  if (c==textCursor()) {
+  if (op==TextCursor::Left) {
+    if (Unicode::isLowSurrogate(text->characterAt(c.position())))
+      c.movePosition(TextCursor::Left, mm);
+  } else {
+    if (Unicode::isLowSurrogate(text->characterAt(c.position())))
+      c.movePosition(TextCursor::Right, mm);
+  }
+  if (c==textCursor()
+      && !(mod & Qt::ShiftModifier)) {
     emit futileMovementKey(key, mod);
     return;
   }
@@ -516,7 +532,7 @@ bool TextItem::keyPressWithControl(QKeyEvent *e) {
   
   switch (e->key()) {
   case Qt::Key_V:
-    tryToPaste();
+    tryToPaste(); // for text only; image pasting is handled in EntryScene
     return true;
   case Qt::Key_C:
     tryToCopy();
@@ -578,8 +594,6 @@ bool TextItem::keyPressWithControl(QKeyEvent *e) {
 bool TextItem::keyPressAsSimpleStyle(int key, TextCursor const &cursor) {
   switch (key) {
   case Qt::Key_Slash:
-    if (mode()->mathMode())
-      tryTeXCode();
     toggleSimpleStyle(MarkupData::Italic, cursor);
     return true;
   case Qt::Key_8: case Qt::Key_Asterisk: case Qt::Key_Comma:
@@ -623,10 +637,16 @@ bool TextItem::tryTeXCode(bool noX, bool onlyAtEndOfWord) {
   }
   // got a word
   QString key = c.selectedText();
+
   if (!TeXCodes::contains(key))
     return false;
   if (noX && key.size()==1)
     return false;
+
+  if (data()->markupAt(c.selectionStart()+1, c.selectionEnd()-1))
+    return false; // don't do it if there is a style split.
+  /* This fixes the “x_i” -> “ξ” bug. */
+
   QString val = TeXCodes::map(key);
   cursor = c;
   cursor.deleteChar(); // delete the word
@@ -784,7 +804,7 @@ void TextItem::keyPressEvent(QKeyEvent *e) {
     clearFocus();
     return;
   }
-  switch (mode()->permanentMode()) {
+  switch (mode()->mode()) {
   case Mode::Browse:
     if (keyPressInBrowseMode(e))
       e->accept();
@@ -921,6 +941,32 @@ bool TextItem::tryScriptStyles(bool onlyIfBalanced) {
   return true;
 }
 
+void TextItem::tryItalicizeAbbreviation(TextCursor const &c) {
+  TextCursor w = c;
+  w.selectAround(c.position()-2,
+		 TextCursor::StartOfWord, TextCursor::EndOfWord);
+  QString word = w.selectedText();
+  QSet<QString> dict = Latin::abbrev(word);
+  int start = -1;
+  if (!dict.isEmpty()) {
+    int p = w.selectionStart() - 1;
+    for (QString s: dict) {
+      if (document()->selectedText(p-s.length(), p).toLower() == s) {
+	start = p-s.length();
+	break;
+      }
+    }
+  }
+  if (start>=0) {
+    int end = c.position();
+    MarkupData *oldmd = data()->markupAt(start, MarkupData::Italic);
+    if (oldmd && oldmd->start()==start && oldmd->end()==end) {
+      deleteMarkup(oldmd);
+    } else if (start<end) {
+      addMarkup(MarkupData::Italic, start, end);
+    }
+  }
+}
 
 void TextItem::toggleSimpleStyle(MarkupData::Style type,
                                  TextCursor const &c) {
@@ -966,12 +1012,29 @@ void TextItem::toggleSimpleStyle(MarkupData::Style type,
           end++;
       }
     } else {
+      if (type == MarkupData::Italic && document()->characterAt(base-1)=='.')
+	tryItalicizeAbbreviation(c);
       return;
     }
     start = refineStart(start, base);
     end = refineEnd(end, base);
   }
 
+  if (type == MarkupData::Italic) {
+    // Try latin phrases "in vivo" etc. They are italicized as one.
+    QString word = document()->selectedText(start, end);
+    QSet<QString> const &dict = Latin::normal(word);
+    if (!dict.isEmpty()) {
+      for (QString s: dict) {
+	if (document()->selectedText(start-1-s.size(), start-1)
+	    .toLower() == s) {
+	  start -= 1 + s.size();
+	  break;
+	}
+      }
+    }
+  }
+  
   MarkupData *oldmd = data()->markupAt(start, type);
   
   if (oldmd && oldmd->start()==start && oldmd->end()==end) {
@@ -1251,30 +1314,27 @@ void TextItem::setAllowParagraphs(bool yes) {
   allowParagraphs_ = yes;
 }
 
-bool TextItem::shouldResize(QPointF p) const {
-  GfxNoteItem *gni = dynamic_cast<GfxNoteItem*>(parent());
-  if (!gni)
-    return false;
-  double tw = gni->data()->textWidth();
-  if (tw<=0)
-    tw = netBounds().width();
-  bool should = p.x()-netBounds().left() > .75*tw;
-  return should;
-}
- 
-Qt::CursorShape TextItem::cursorShape() const {
+Qt::CursorShape TextItem::cursorShape(Qt::KeyboardModifiers m) const {
   Qt::CursorShape cs = defaultCursorShape();
   switch (mode()->mode()) {
   case Mode::Type:
-    if (isWritable())
+    if (mayMove && (m & Qt::ControlModifier)) {
+      GfxNoteItem *gni = dynamic_cast<GfxNoteItem*>(parent());
+      if (gni && gni->shouldResize(mapToScene(cursorPos)))
+        cs = Qt::SplitHCursor;
+      else
+        cs = Qt::SizeAllCursor;
+    } else if (isWritable()) {
       cs = Qt::IBeamCursor;
+    }
     break;
   case Mode::Annotate:
     cs = Qt::CrossCursor;
     break;
   case Mode::MoveResize:
     if (mayMove) {
-      if (shouldResize(cursorPos))
+      GfxNoteItem *gni = dynamic_cast<GfxNoteItem*>(parent());
+      if (gni && gni->shouldResize(mapToScene(cursorPos)))
         cs = Qt::SplitHCursor;
       else
         cs = Qt::SizeAllCursor;
@@ -1295,7 +1355,7 @@ bool TextItem::changesCursorShape() const {
 
 void TextItem::hoverMoveEvent(QGraphicsSceneHoverEvent *e) {
   cursorPos = e->pos(); // cache for the use of modifierChanged
-  setCursor(Cursors::refined(cursorShape()));
+  setCursor(Cursors::refined(cursorShape(e->modifiers())));
   linkHelper->mouseMove(e);
   Item::hoverMoveEvent(e);
   e->accept();
@@ -1303,7 +1363,7 @@ void TextItem::hoverMoveEvent(QGraphicsSceneHoverEvent *e) {
 
 void TextItem::hoverLeaveEvent(QGraphicsSceneHoverEvent *e) {
   cursorPos = e->pos(); // cache for the use of modifierChanged
-  setCursor(Cursors::refined(cursorShape()));
+  setCursor(Cursors::refined(cursorShape(e->modifiers())));
   linkHelper->mouseMove(e);
   Item::hoverLeaveEvent(e);
   e->accept();
@@ -1342,9 +1402,9 @@ void TextItem::paint(QPainter *p, const QStyleOptionGraphicsItem*, QWidget*) {
     return;
   
   if (clips())
-    p->setClipRect(clip_);
+    p->setClipRect(clip_.adjusted(-10,0,10,0));
   else
-    p->setClipRect(boundingRect());
+    p->setClipRect(boundingRect().adjusted(-10,0,10,0));
 
   QList<TransientMarkup> tmm;
   representCursor(tmm);

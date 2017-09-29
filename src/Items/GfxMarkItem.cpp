@@ -19,7 +19,7 @@
 #include "GfxMarkItem.h"
 #include "BlockItem.h"
 #include "Cursors.h"
-
+#include <QDebug>
 #include <QPainter>
 #include <QPen>
 #include <QBrush>
@@ -134,7 +134,9 @@ GfxMarkItem *GfxMarkItem::newMark(QPointF p,
 }
   
 void GfxMarkItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
-  if (isWritable() && mode()->mode()==Mode::MoveResize) {
+  if (isWritable()
+      && (mode()->mode()==Mode::MoveResize
+	  || e->modifiers() & Qt::ControlModifier)) {
     e->accept();
   } else {
     QGraphicsObject::mousePressEvent(e);
@@ -154,8 +156,9 @@ void GfxMarkItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *e) {
 }
 
 
-Qt::CursorShape GfxMarkItem::cursorShape() const {
-  if (mode()->mode()==Mode::MoveResize)
+Qt::CursorShape GfxMarkItem::cursorShape(Qt::KeyboardModifiers m) const {
+  if (mode()->mode()==Mode::MoveResize
+      || (m & Qt::ControlModifier))
     return Qt::SizeAllCursor;
   else 
     return Qt::CrossCursor;

@@ -6,9 +6,9 @@ HEADERS += \
      AutoNote/AutoNote.h  \
 
 SOURCES += \
+     AutoNote/AN_Biblio.cpp  \
      AutoNote/AN_Pubmed.cpp  \
      AutoNote/AutoNote.cpp  \
-     AutoNote/AN_Biblio.cpp  \
 
 RESOURCES += \
 

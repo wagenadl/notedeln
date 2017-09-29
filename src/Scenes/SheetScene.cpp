@@ -26,6 +26,7 @@
 #include "EventView.h"
 #include "Notebook.h"
 
+#include <QMimeData>
 #include <QGraphicsTextItem>
 #include <QGraphicsRectItem>
 #include <QGraphicsLineItem>
@@ -270,13 +271,42 @@ void SheetScene::mousePressEvent(QGraphicsSceneMouseEvent *e) {
   QGraphicsScene::mousePressEvent(e);
 }
 
+void SheetScene::dragMoveEvent(QGraphicsSceneDragDropEvent *e) {
+  QMimeData const *md = e->mimeData();
+  if (base && base->isWritable()
+      && (md->hasImage() || md->hasUrls() || md->hasText())) {
+    e->acceptProposedAction();
+    // if we don't do this, drag&drop doesn't work
+  } else {
+    e->ignore();
+  }
+}
+
 void SheetScene::dragEnterEvent(QGraphicsSceneDragDropEvent *e) {
-  e->acceptProposedAction(); // we pretend we can accept anything
+  QMimeData const *md = e->mimeData();
+  qDebug() << "SheetScene::dragEnterEvent: has image?" << md->hasImage()
+	   << "hasurl?" << md->hasUrls()
+	   << "hastext?" << md->hasText()
+	   << "has base?" << base
+	   << "iswritable" << (base && base->isWritable())
+	   << "proposed" << e->proposedAction();
+  if (base && base->isWritable()
+      && (md->hasImage() || md->hasUrls() || md->hasText())) {
+    e->acceptProposedAction();
+  } else {
+    e->ignore();
+  }
 }
 
 void SheetScene::dropEvent(QGraphicsSceneDragDropEvent *e) {
+  QMimeData const *md = e->mimeData();
+  qDebug() << "SheetScene::dropEvent: has image?" << md->hasImage()
+	   << "hasurl?" << md->hasUrls()
+	   << "hastext?" << md->hasText()
+	   << "has base?" << base;
   if (base && base->dropEvent(e, this))
     return;
+  qDebug() << "... forwarding to qgraphicsscene";
   QGraphicsScene::dropEvent(e);
 }
 
