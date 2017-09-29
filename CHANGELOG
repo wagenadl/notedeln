@@ -1,3 +1,18 @@
+eln 1.2.6
+
+  Now can use 0x1xxxx Unicode characters.
+  Now using bold italic greek which looks much better with Ubuntu font
+  Fixed, crudely, presumably longstanding bug that crashed when TextBlockItem::sizeToFit was called from GfxNoteItem/LateNoteItem::updateTextPos before the TBI had its fragments created.
+  CloneDialog now correctly returns clone location.
+  Now italicizes “et al.”, “in vivo”, “de novo” etc. as a unit
+  Fixed x_i -> ξ bug
+  Deletion of empty text blocks between gfxblocks now works. Likewise, creating a text block between adjacent gfxblocks now works
+  Fixed longstanding bug re image moving. Now a change of "yref" causes GfxBlockItem to emit heightChanges so that a restack follows.
+  GfxBlockItem now correctly resizes when GfxNoteItem changes
+  Fixed longstanding bug: Crash when empty GfxNote is deleted with Ctrl-Delete
+
+  -- Daniel A. Wagenaar <daw@caltech.edu>  Thu, 28 Sep 2017 20:45:37 -0700
+
 eln 1.2.4
 
   Drag and drop now works to paste images below text.
