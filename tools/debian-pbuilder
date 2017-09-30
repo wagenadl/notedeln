@@ -1,5 +1,9 @@
 #!/bin/zsh
 
+git co debian
+
+echo "Do not forget to “git co master” when done"
+
 VERSION=`cat src/version`
 DSC=`ls ../releases/eln_$VERSION*.dsc | tail -1`
 [[ -z "$DSC" ]] && {
@@ -20,5 +24,5 @@ for DIST in xenial zesty; do
     sudo pbuilder update --basetgz $BASETGZ --distribution $DIST
 
     echo pbuilder build --basetgz $BASETGZ --buildresult ../releases $DSC
-    sudo pbuilder build --basetgz $BASETGZ --buildresult ../releases $DSC
+    sudo pbuilder build --basetgz $BASETGZ --buildresult ../releases $DSC || exit 1
 done
