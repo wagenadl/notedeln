@@ -1,5 +1,9 @@
 #!/bin/zsh
 
+git co debian
+
+echo "Do not forget to “git co master” when done"
+
 VERSION=`cat src/version`
 DSC=`ls ../releases/eln_$VERSION*.dsc | tail -1`
 [[ -z "$DSC" ]] && {
@@ -11,15 +15,14 @@ echo Using $DSC for $VERSION
 
 for DIST in xenial zesty; do
     BASETGZ=/data/dw/pbuilder/$DIST.tgz
-    APTCACHE=/data/dw/pbuilder/cache
     [[ -f $BASETGZ ]] || {
-        echo pbuilder create --basetgz $BASETGZ --aptcache $APTCACHE --distribution $DIST
-        sudo pbuilder create --basetgz $BASETGZ --aptcache $APTCACHE --distribution $DIST
+        echo pbuilder create --basetgz $BASETGZ --distribution $DIST
+        sudo pbuilder create --basetgz $BASETGZ --distribution $DIST
     }
 
-    echo pbuilder update --basetgz $BASETGZ --aptcache $APTCACHE --distribution $DIST
-    sudo pbuilder update --basetgz $BASETGZ --aptcache $APTCACHE --distribution $DIST
+    echo pbuilder update --basetgz $BASETGZ --distribution $DIST
+    sudo pbuilder update --basetgz $BASETGZ --distribution $DIST
 
-    echo pbuilder build  --basetgz $BASETGZ $DSC
-    sudo pbuilder build  --basetgz $BASETGZ $DSC
+    echo pbuilder build --basetgz $BASETGZ --buildresult ../releases $DSC
+    sudo pbuilder build --basetgz $BASETGZ --buildresult ../releases $DSC || exit 1
 done
