@@ -19,6 +19,8 @@ for DIST in xenial; do
     echo pbuilder update --basetgz $BASETGZ --distribution $DIST
     sudo pbuilder update --basetgz $BASETGZ --distribution $DIST
 
-    echo pbuilder build --basetgz $BASETGZ --distribution $DIST --buildresult ../releases $DSC
-    sudo pbuilder build --basetgz $BASETGZ --distribution $DIST --buildresult ../releases $DSC || exit 1
+    mkdir -p ../releases/$DIST
+    
+    echo pbuilder build --basetgz $BASETGZ --distribution $DIST --buildresult ../releases/$DIST $DSC
+    sudo pbuilder build --basetgz $BASETGZ --distribution $DIST --buildresult ../releases/$DIST $DSC || exit 1
 done
