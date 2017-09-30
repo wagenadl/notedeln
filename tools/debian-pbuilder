@@ -11,10 +11,15 @@ echo Using $DSC for $VERSION
 
 for DIST in xenial zesty; do
     BASETGZ=/data/dw/pbuilder/$DIST.tgz
+    APTCACHE=/data/dw/pbuilder/cache
     [[ -f $BASETGZ ]] || {
-        echo pbuilder create --basetgz $BASETGZ --distribution $DIST
-        sudo pbuilder create --basetgz $BASETGZ --distribution $DIST
+        echo pbuilder create --basetgz $BASETGZ --apt-cache $APTCACHE --distribution $DIST
+        sudo pbuilder create --basetgz $BASETGZ --apt-cache $APTCACHE --distribution $DIST
     }
+
+    echo pbuilder update --basetgz $BASETGZ --apt-cache $APTCACHE --distribution $DIST
+    sudo pbuilder update --basetgz $BASETGZ --apt-cache $APTCACHE --distribution $DIST
+
     echo pbuilder build  --basetgz $BASETGZ $DSC
     sudo pbuilder build  --basetgz $BASETGZ $DSC
 done
