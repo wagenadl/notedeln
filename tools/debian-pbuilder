@@ -1,9 +1,5 @@
 #!/bin/zsh
 
-git co debian
-
-echo "Do not forget to “git co master” when done"
-
 VERSION=`cat src/version`
 DSC=`ls ../releases/eln_$VERSION*.dsc | tail -1`
 [[ -z "$DSC" ]] && {
@@ -13,7 +9,7 @@ DSC=`ls ../releases/eln_$VERSION*.dsc | tail -1`
 }
 echo Using $DSC for $VERSION
 
-for DIST in xenial zesty; do
+for DIST in xenial; do
     BASETGZ=/data/dw/pbuilder/$DIST.tgz
     [[ -f $BASETGZ ]] || {
         echo pbuilder create --basetgz $BASETGZ --distribution $DIST
@@ -23,6 +19,6 @@ for DIST in xenial zesty; do
     echo pbuilder update --basetgz $BASETGZ --distribution $DIST
     sudo pbuilder update --basetgz $BASETGZ --distribution $DIST
 
-    echo pbuilder build --basetgz $BASETGZ --buildresult ../releases $DSC
-    sudo pbuilder build --basetgz $BASETGZ --buildresult ../releases $DSC || exit 1
+    echo pbuilder build --basetgz $BASETGZ --distribution $DIST --buildresult ../releases $DSC
+    sudo pbuilder build --basetgz $BASETGZ --distribution $DIST --buildresult ../releases $DSC || exit 1
 done
