@@ -5,6 +5,6 @@ userguide.pdf: ../doc/userguide.tex
 	pdflatex $<
 
 %.1: ../doc/%.1.txt
-	a2x --doctype manpage --format manpage --destination-dir=../build-doc $<
+	a2x --doctype manpage --format manpage --no-xmllint --destination-dir=../build-doc $<
 
 clean:; rm -f userguide.log userguide.aux userguide.pdf
