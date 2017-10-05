@@ -148,6 +148,7 @@ QString TableItemDoc::selectedText(int start, int end) const {
 }
 
 QRectF TableItemDoc::tightBoundingRect() const {
-  return boundingRect().adjusted(3, 5, -3, -5);
+  QRectF r = d->br;
+  return r.adjusted(3, 5, -3, -5);
 }
 
