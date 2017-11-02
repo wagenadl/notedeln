@@ -287,6 +287,7 @@ void TextItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
 	}
       }
     }
+    break;
   case Qt::RightButton:
     linkHelper->mousePress(e);
   default:
@@ -1397,7 +1398,7 @@ QRectF TextItem::boundingRect() const {
   return text->boundingRect().adjusted(-10, 0, 10, 0);
 }
 
-void TextItem::paint(QPainter *p, const QStyleOptionGraphicsItem*, QWidget*) {
+void TextItem::paint(QPainter *p, const QStyleOptionGraphicsItem *, QWidget *) {
   if (!text)
     return;
   
@@ -1408,7 +1409,8 @@ void TextItem::paint(QPainter *p, const QStyleOptionGraphicsItem*, QWidget*) {
 
   QList<TransientMarkup> tmm;
   representCursor(tmm);
-  representSearchPhrase(tmm);
+  if (SheetScene::searchHighlightsVisible())
+    representSearchPhrase(tmm);
   representDeadLinks(tmm);
   text->render(p, tmm);
 

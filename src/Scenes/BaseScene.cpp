@@ -106,6 +106,7 @@ void BaseScene::focusTitle(int sheet) {
 
 bool BaseScene::print(QPrinter *prt, QPainter *p,
 		      int firstSheet, int lastSheet) {
+  SheetScene::hideSearchHighlights();
   if (firstSheet<0)
     firstSheet=0;
   if (lastSheet>=nSheets)
@@ -123,6 +124,7 @@ bool BaseScene::print(QPrinter *prt, QPainter *p,
     sheets[k]->render(p);
     first = false;
   }
+  SheetScene::unhideSearchHighlights();
   return !first;
 }
 
