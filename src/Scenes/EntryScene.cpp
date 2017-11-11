@@ -164,6 +164,10 @@ BlockItem *EntryScene::tryMakeTextBlock(BlockData *bd) {
   connect(tbi, SIGNAL(multicellular(int, class TextData *)),
 	  SLOT(makeMulticellular(int, class TextData *)),
 	  Qt::QueuedConnection);
+  connect(tbi, SIGNAL(multicellularpaste(class TextData *, QString)),
+	  SLOT(makeMulticellularAndPaste(class TextData *, QString)),
+	  Qt::QueuedConnection);
+    
   return tbi;
 }
   
@@ -491,6 +495,9 @@ TextBlockItem *EntryScene::injectTextBlock(TextBlockData *tbd, int iblock) {
   connect(tbi, SIGNAL(sheetRequest(int)), this, SIGNAL(sheetRequest(int)));
   connect(tbi, SIGNAL(multicellular(int, class TextData *)),
 	  SLOT(makeMulticellular(int, class TextData *)),
+	  Qt::QueuedConnection);
+  connect(tbi, SIGNAL(multicellularpaste(class TextData *, QString)),
+	  SLOT(makeMulticellularAndPaste(class TextData *, QString)),
 	  Qt::QueuedConnection);
   remap();
   return tbi;
@@ -1326,10 +1333,10 @@ void EntryScene::makeUnicellular(TableData *td) {
   tbi1->setTextCursor(c);
 }
   
-void EntryScene::makeMulticellular(int pos, TextData *td) {
+TableBlockItem *EntryScene::makeMulticellular(int pos, TextData *td) {
   int iblock = findBlock(td);
   if (iblock<0)
-    return;
+    return 0;
 
   TextBlockItem *tbi0 = dynamic_cast<TextBlockItem *>(blockItems[iblock]);
   ASSERT(tbi0);
@@ -1347,4 +1354,16 @@ void EntryScene::makeMulticellular(int pos, TextData *td) {
   gotoSheetOfBlock(iblock);
   tbi1->setFocus();
   tbi1->setTextCursor(c1);
+  return tbi1;
+}
+
+void EntryScene::makeMulticellularAndPaste(TextData *td, QString txt) {
+  qDebug() <<"mmapaste";
+  TableBlockItem *tbi = makeMulticellular(0, td);
+  if (!tbi)
+    return; // oh well
+  TextCursor c1(tbi->document());
+  c1.setPosition(1);
+  tbi->setTextCursor(c1);
+  tbi->table()->pasteMultiCell(txt);
 }

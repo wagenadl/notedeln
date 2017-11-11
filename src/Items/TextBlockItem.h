@@ -67,9 +67,11 @@ signals:
   void futileMovement(); // up key on top line etc
   void sheetRequest(int);
   void multicellular(int, class TextData *);
+  void multicellularpaste(class TextData *, QString);
 public slots:
   void sizeToFit();
   void muckWithIndentation(TextCursor);
+  void testmulticellularpaste(class TextData *, QString);
 protected:
   void focusInEvent(QFocusEvent*);
   void mousePressEvent(QGraphicsSceneMouseEvent*);

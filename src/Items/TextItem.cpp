@@ -1281,6 +1281,12 @@ bool TextItem::tryToPaste(bool nonewlines) {
   qDebug() << "TI::trytopaste";
   QClipboard *cb = QApplication::clipboard();
   QMimeData const *md = cb->mimeData(QClipboard::Clipboard);
+  if (data()->isEmpty() && md->hasText() && md->text().contains("\t")) {
+    // we should become a table item and paste in there.
+    qDebug() << "multicellularpaste";
+    emit multicellularpaste(data(), md->text());
+    return true;
+  }
   if (md->hasHtml()) {
     QString txt = md->html();
     if (cursor.hasSelection())

@@ -75,7 +75,8 @@ protected slots:
   void futileMovement(int block);
   void focusFirst(int sheet);
   void makeUnicellular(class TableData *);
-  void makeMulticellular(int pos, class TextData *);
+  class TableBlockItem *makeMulticellular(int pos, class TextData *);
+  void makeMulticellularAndPaste(class TextData *, QString);
 private:
   void resetCreation();
   void splitTextBlock(int iblock, int pos);

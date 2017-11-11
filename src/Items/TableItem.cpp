@@ -601,6 +601,8 @@ bool TableItem::pasteMultiCell(QString txt) {
     }
   }
 
+  qDebug() << "R" << nr << NR << firstBlockedRowLeft << firstBlockedRowOther;
+  qDebug() << "C" << nc << NC << firstBlockedColumnTop << firstBlockedColumnOther;
   if (firstBlockedRowLeft>=nr && firstBlockedRowOther>=nr
       && firstBlockedColumnTop>=nc && firstBlockedColumnOther>=nc) {
     ; // easy

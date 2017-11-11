@@ -77,6 +77,7 @@ signals:
   void mousePress(QPointF, Qt::MouseButton);
   void refTextChange(QString oldText, QString newText);
   void multicellular(int pos, TextData *td);
+  void multicellularpaste(TextData *td, QString);
 public:
   virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *);
   virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *);
