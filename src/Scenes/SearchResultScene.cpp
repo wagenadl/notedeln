@@ -73,6 +73,7 @@ void SearchResultScene::populate() {
               SIGNAL(clicked(int, Qt::KeyboardModifiers, QString)),
               SLOT(pageNumberClick(int, Qt::KeyboardModifiers, QString)));
       if (y > y0 && y + headers.last()->childrenBoundingRect().height() > y1) {
+	createContinuationItem(sheet, y, y1);
         y = y0;
         sheet += 1;
       }
@@ -87,6 +88,7 @@ void SearchResultScene::populate() {
       + headers.last()->childrenBoundingRect().height();
     lastLine->setPos(0, headers.last()->childrenBoundingRect().height());
     if (headers.last()->pos().y() > y0 && y > y1) { // move to next sheet
+      createContinuationItem(sheet, headers.last()->pos().y(), y1);
       headers.last()->setPos(0, y0);
       sheetnos.last() += 1;
       sheet += 1;
@@ -95,6 +97,28 @@ void SearchResultScene::populate() {
     }
   }
   nSheets = sheet+1;
+}
+
+void SearchResultScene::createContinuationItem(int i, double ytop, double ybot) {
+  QGraphicsTextItem *item = new QGraphicsTextItem(style().string("continued"));
+  QFont f = style().font("title-font");
+  f.setStyle(QFont::StyleItalic);
+  item->setFont(f);
+  item->setDefaultTextColor(style().color("latenote-text-color"));
+  this->sheet(i, true)->addItem(item);
+  double x0 = style().real("margin-left");
+  double w0 = style().real("page-width") - style().real("margin-right")
+    - style().real("margin-left");
+  double h0 = ybot - ytop;
+  QSizeF wh = item->boundingRect().size();
+  double w = wh.width();
+  double h = wh.height();
+  double x = x0 + (w0 - w) / 2;
+  double y = ytop + (h0 - h) / 2;
+  double y0 = ytop + 12; // enforce a little margin
+  if (y < y0)
+    y = y0;
+  item->setPos(x, y);
 }
 
 QString SearchResultScene::title() const { 
