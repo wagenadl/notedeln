@@ -963,6 +963,7 @@ bool EntryScene::tryToPaste(SheetScene *s) {
      If we don't have focus, anything is placed in the focused block if it
      is a canvas, or in a new block if not.
   */
+  qDebug() << "trytopaste";
   if (!isWritable())
     return false;
   
@@ -989,17 +990,29 @@ bool EntryScene::tryToPaste(SheetScene *s) {
   
   QClipboard *cb = QApplication::clipboard();
   QMimeData const *md = cb->mimeData(QClipboard::Clipboard);
-  if (md->hasImage())
-    return importDroppedImage(scenePos, sheet,
-			      qvariant_cast<QImage>(md->imageData()),
-			      QUrl());
-  if (fi) 
-    return false; // we'll import Urls as text into the focused item
+  qDebug() << "I/U/T" << md->hasImage() << md->hasUrls() << md->hasText();
+  qDebug() << "fi" << fi;
+  if (md->hasUrls())
+    qDebug() << "u=" << md->urls();
+  if (md->hasText())
+    qDebug() << "t=" << md->text();
+
+  /* The optimal behavior is actually quite tricky.
+     In Linux, when I copy and paste:
+     - an image file, I get a url and text
+     - an image, I get an image
+     - regular text, I get text
+     - a piece of a spreadsheet, I get an image and text
+   */
 
   if (md->hasUrls())
-    return importDroppedUrls(scenePos, sheet, md->urls());
+    return importDroppedUrls(scenePos, sheet, md->urls(), fi);
   else if (md->hasText())
-    return importDroppedText(scenePos, sheet, md->text());
+    return importDroppedText(scenePos, sheet, md->text(), 0, 0, 0, fi);
+  else if (md->hasImage())
+    return importDroppedImage(scenePos, sheet,
+			      qvariant_cast<QImage>(md->imageData()),
+                              QUrl());
   else
     return false;
 }
@@ -1065,16 +1078,17 @@ int EntryScene::indexOfBlock(BlockItem *bi) const {
 }
 
 bool EntryScene::importDroppedUrls(QPointF scenePos, int sheet,
-				   QList<QUrl> const &urls) {
+				   QList<QUrl> const &urls,
+                                   TextItem *fi) {
   bool ok = false;
   foreach (QUrl const &u, urls)
-    if (importDroppedUrl(scenePos, sheet, u))
+    if (importDroppedUrl(scenePos, sheet, u, fi))
       ok = true;
   return ok;
 }
 
 bool EntryScene::importDroppedUrl(QPointF scenePos, int sheet,
-				  QUrl const &url) {
+				  QUrl const &url, TextItem *fi) {
   // QGraphicsItem *dst = itemAt(scenePos);
   /* A URL could be any of the following:
      (1) A local image file
@@ -1094,7 +1108,7 @@ bool EntryScene::importDroppedUrl(QPointF scenePos, int sheet,
       return importDroppedFile(scenePos, sheet, path);
   } else {
     // Right now, we import all network urls as text
-    return importDroppedText(scenePos, sheet, url.toString());
+    return importDroppedText(scenePos, sheet, url.toString(), 0, 0, 0, fi);
   }
   return false;
 }
@@ -1102,7 +1116,10 @@ bool EntryScene::importDroppedUrl(QPointF scenePos, int sheet,
 bool EntryScene::importDroppedText(QPointF scenePos, int sheet,
 				   QString const &txt,
                                    TextItem **itemReturn,
-                                   int *startReturn, int *endReturn) {
+                                   int *startReturn, int *endReturn,
+                                   TextItem *fi) {
+  if (fi)
+    return false; // let item handle it instead
   TextItem *ti = 0;
   if (inMargin(scenePos)) {
     Item *fti = sheets[sheet]->fancyTitleItem();

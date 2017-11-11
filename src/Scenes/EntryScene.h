@@ -86,11 +86,15 @@ private:
   bool importDroppedImage(QPointF scenePos, int sheet,
 			  QImage const &img, class QUrl const &source);
   bool importDroppedUrls(QPointF scenePos, int sheet,
-			 QList<class QUrl> const &url);
-  bool importDroppedUrl(QPointF scenePos, int sheet, class QUrl const &url);
+			 QList<class QUrl> const &url,
+                         class TextItem *fi=0);
+  bool importDroppedUrl(QPointF scenePos, int sheet, class QUrl const &url,
+                        class TextItem *fi=0);
   bool importDroppedText(QPointF scenePos, int sheet, QString const &txt,
                          class TextItem **itemReturn=0,
-                         int *startReturn=0, int *endReturn=0);
+                         int *startReturn=0, int *endReturn=0,
+                         class TextItem *fi=0);
+  // In the above, fi!=0 indicates Ctrl-V on an existing text item.
   bool importDroppedFile(QPointF scenePos, int sheet, QString const &fn);
   bool importDroppedSvg(QPointF scenePos, int sheet, class QUrl const &url);
   void makeBackground();

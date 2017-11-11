@@ -1277,14 +1277,9 @@ bool TextItem::tryToCopy() const {
 }
 
 bool TextItem::tryToPaste(bool nonewlines) {
+  qDebug() << "TI::trytopaste";
   QClipboard *cb = QApplication::clipboard();
   QMimeData const *md = cb->mimeData(QClipboard::Clipboard);
-  if (md->hasImage()) {
-    return false;
-  } else if (md->hasUrls()) {
-    return false; // perhaps we should allow URLs, but format specially?
-  }
-
   if (md->hasHtml()) {
     QString txt = md->html();
     if (cursor.hasSelection())
