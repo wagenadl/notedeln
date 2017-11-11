@@ -75,7 +75,8 @@ protected slots:
   void futileMovement(int block);
   void focusFirst(int sheet);
   void makeUnicellular(class TableData *);
-  void makeMulticellular(int pos, class TextData *);
+  class TableBlockItem *makeMulticellular(int pos, class TextData *);
+  void makeMulticellularAndPaste(class TextData *, QString);
 private:
   void resetCreation();
   void splitTextBlock(int iblock, int pos);
@@ -86,11 +87,15 @@ private:
   bool importDroppedImage(QPointF scenePos, int sheet,
 			  QImage const &img, class QUrl const &source);
   bool importDroppedUrls(QPointF scenePos, int sheet,
-			 QList<class QUrl> const &url);
-  bool importDroppedUrl(QPointF scenePos, int sheet, class QUrl const &url);
+			 QList<class QUrl> const &url,
+                         class TextItem *fi=0);
+  bool importDroppedUrl(QPointF scenePos, int sheet, class QUrl const &url,
+                        class TextItem *fi=0);
   bool importDroppedText(QPointF scenePos, int sheet, QString const &txt,
                          class TextItem **itemReturn=0,
-                         int *startReturn=0, int *endReturn=0);
+                         int *startReturn=0, int *endReturn=0,
+                         class TextItem *fi=0);
+  // In the above, fi!=0 indicates Ctrl-V on an existing text item.
   bool importDroppedFile(QPointF scenePos, int sheet, QString const &fn);
   bool importDroppedSvg(QPointF scenePos, int sheet, class QUrl const &url);
   void makeBackground();

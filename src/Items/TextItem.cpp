@@ -287,6 +287,7 @@ void TextItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
 	}
       }
     }
+    break;
   case Qt::RightButton:
     linkHelper->mousePress(e);
   default:
@@ -1277,14 +1278,15 @@ bool TextItem::tryToCopy() const {
 }
 
 bool TextItem::tryToPaste(bool nonewlines) {
+  qDebug() << "TI::trytopaste";
   QClipboard *cb = QApplication::clipboard();
   QMimeData const *md = cb->mimeData(QClipboard::Clipboard);
-  if (md->hasImage()) {
-    return false;
-  } else if (md->hasUrls()) {
-    return false; // perhaps we should allow URLs, but format specially?
+  if (data()->isEmpty() && md->hasText() && md->text().contains("\t")) {
+    // we should become a table item and paste in there.
+    qDebug() << "multicellularpaste";
+    emit multicellularpaste(data(), md->text());
+    return true;
   }
-
   if (md->hasHtml()) {
     QString txt = md->html();
     if (cursor.hasSelection())
@@ -1397,7 +1399,7 @@ QRectF TextItem::boundingRect() const {
   return text->boundingRect().adjusted(-10, 0, 10, 0);
 }
 
-void TextItem::paint(QPainter *p, const QStyleOptionGraphicsItem*, QWidget*) {
+void TextItem::paint(QPainter *p, const QStyleOptionGraphicsItem *, QWidget *) {
   if (!text)
     return;
   
@@ -1408,7 +1410,8 @@ void TextItem::paint(QPainter *p, const QStyleOptionGraphicsItem*, QWidget*) {
 
   QList<TransientMarkup> tmm;
   representCursor(tmm);
-  representSearchPhrase(tmm);
+  if (SheetScene::searchHighlightsVisible())
+    representSearchPhrase(tmm);
   representDeadLinks(tmm);
   text->render(p, tmm);
 

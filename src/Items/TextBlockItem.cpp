@@ -67,6 +67,9 @@ TextBlockItem::TextBlockItem(TextBlockData *data, Item *parent,
 	    SLOT(ensureVisible(TextCursor, QPointF)));
     connect(frags[i], SIGNAL(multicellular(int, TextData*)),
 	    this, SIGNAL(multicellular(int, TextData*)));
+    connect(frags[i], SIGNAL(multicellularpaste(TextData*, QString)),
+	    this, SLOT(testmulticellularpaste(TextData*, QString)));
+    qDebug() << "connected mcp";
 
   }
   
@@ -370,3 +373,9 @@ void TextBlockItem::muckWithIndentation(TextCursor c) {
   QPointF p = frags[0]->posToPoint(c.position());
   ensureVisible(c, p);
 }
+
+void TextBlockItem::testmulticellularpaste(class TextData *td, QString txt) {
+  qDebug() << "TBI: TMCP";
+  emit multicellularpaste(td, txt);
+}
+

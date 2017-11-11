@@ -42,6 +42,7 @@ public:
   bool isWholeCellSelected() const;
   bool selectionSpansCells() const;
   bool nothingAfterCursor() const;
+  bool pasteMultiCell(QString txt); // true if successful
 public:
   virtual void paint(QPainter*, const QStyleOptionGraphicsItem*, QWidget*);
 public slots:
@@ -58,7 +59,6 @@ protected:
   void focusInEvent(QFocusEvent *);
   virtual bool tryToPaste(bool nonewlines=true);
   virtual void representCursor(QList<TransientMarkup> &) const;
-  bool pasteMultiCell(QString txt); // true if successful
 private:
   bool keyPressAsMotion(QKeyEvent *e);
   bool keyPressWithControl(QKeyEvent *e);

@@ -41,6 +41,7 @@ protected:
   virtual QString pgNoToString(int) const;
 private:
   Style const &style() const;
+  void createContinuationItem(int isheet, double ytop, double ybot);
 private:
   Notebook *book;
   QString phrase;

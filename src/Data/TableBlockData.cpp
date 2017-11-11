@@ -25,6 +25,7 @@
 static Data::Creator<TableBlockData> c("tableblock");
 
 TableBlockData::TableBlockData(Data *parent): TextBlockData(parent) {
+  table_ = 0;
   setType("tableblock");
   deleteChild(text_);
   table_ = new TableData(this);
@@ -52,7 +53,7 @@ void TableBlockData::loadMore(QVariantMap const &src) {
 }
 
 bool TableBlockData::isEmpty() const {
-  return BlockData::isEmpty() && table_->isEmpty();
+  return BlockData::isEmpty() && (!table_ || table_->isEmpty());
 }
 
 TextBlockData *TableBlockData::deepCopyAsTextBlock() const {
