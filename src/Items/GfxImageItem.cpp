@@ -333,7 +333,7 @@ Qt::CursorShape GfxImageItem::cursorShape(Qt::KeyboardModifiers m) const {
 void GfxImageItem::hoverMoveEvent(QGraphicsSceneHoverEvent *e) {
   cursorPos = e->pos(); // cache for the use of modifierChanged
   if (mode()->mode()==Mode::MoveResize
-    || (e->modifiers() && Qt::ControlModifier))
+    || (e->modifiers() & Qt::ControlModifier))
     setCursor(cursorForDragType(dragTypeForPoint(cursorPos)));
   else
     setCursor(Qt::CrossCursor);
