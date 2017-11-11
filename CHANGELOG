@@ -1,3 +1,13 @@
+eln 1.2.10
+
+  Improved pasting of tables and image files.
+  Added "hbar" to list of codes.
+  Search highlighting no longer exported to pdf.
+  Added “(Continued)” to search results as needed.
+  Several minor bugs fixed.
+
+  -- Daniel A. Wagenaar <daw@caltech.edu>  Fri, 10 Nov 2017 22:07:21 -0800
+
 eln 1.2.8
 
   Bugfix: Tables that were wider than the page caused ELN to crash.
