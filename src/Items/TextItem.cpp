@@ -35,7 +35,6 @@
 #include "LinkHelper.h"
 #include "HtmlBuilder.h"
 #include "HtmlParser.h"
-#include "SheetScene.h"
 #include "PageView.h"
 #include "Unicode.h"
 #include "OneLink.h"
@@ -1410,8 +1409,7 @@ void TextItem::paint(QPainter *p, const QStyleOptionGraphicsItem *, QWidget *) {
 
   QList<TransientMarkup> tmm;
   representCursor(tmm);
-  if (SheetScene::searchHighlightsVisible())
-    representSearchPhrase(tmm);
+  representSearchPhrase(tmm);
   representDeadLinks(tmm);
   text->render(p, tmm);
 

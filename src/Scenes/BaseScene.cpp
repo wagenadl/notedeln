@@ -24,6 +24,7 @@
 #include "PageView.h"
 #include "SheetScene.h"
 #include "TitleItem.h"
+#include "SearchDialog.h"
 
 #include <QGraphicsTextItem>
 #include <QGraphicsLineItem>
@@ -106,7 +107,9 @@ void BaseScene::focusTitle(int sheet) {
 
 bool BaseScene::print(QPrinter *prt, QPainter *p,
 		      int firstSheet, int lastSheet) {
-  SheetScene::hideSearchHighlights();
+  QString phr = SearchDialog::latestPhrase();
+  SearchDialog::setLatestPhrase("");
+
   if (firstSheet<0)
     firstSheet=0;
   if (lastSheet>=nSheets)
@@ -124,7 +127,10 @@ bool BaseScene::print(QPrinter *prt, QPainter *p,
     sheets[k]->render(p);
     first = false;
   }
-  SheetScene::unhideSearchHighlights();
+
+  if (SearchDialog::latestPhrase().isEmpty())
+    SearchDialog::setLatestPhrase(phr);
+  
   return !first;
 }
 
