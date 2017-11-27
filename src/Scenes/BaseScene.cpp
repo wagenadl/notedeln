@@ -37,6 +37,7 @@
 #include <QSignalMapper>
 
 #include "Notebook.h"
+#include "BookData.h"
 
 BaseScene::BaseScene(Data *data, QObject *parent):
   QObject(parent) {
@@ -124,7 +125,14 @@ bool BaseScene::print(QPrinter *prt, QPainter *p,
   for (int k=firstSheet; k<=lastSheet; k++) {
     if (!first)
       prt->newPage();
+    QList<QGraphicsItem *> anno = printAnnotations(k);
+    for (auto a: anno)
+      sheets[k]->addItem(a);
     sheets[k]->render(p);
+    for (auto a: anno)
+      sheets[k]->removeItem(a);
+    for (auto a: anno)
+      delete a;
     first = false;
   }
 
@@ -132,6 +140,33 @@ bool BaseScene::print(QPrinter *prt, QPainter *p,
     SearchDialog::setLatestPhrase(phr);
   
   return !first;
+}
+
+QList<QGraphicsItem *> BaseScene::printAnnotations(int sheet) {
+  QList<QGraphicsItem *> lst;
+  BookData const *bd = book()->bookData();
+  QString au = bd->author().replace("\n", " ");
+  QString ti = bd->title().replace("\n", " ");
+  if (au.isEmpty() && ti.isEmpty())
+    return lst;
+  QString sep = (au.isEmpty() || ti.isEmpty()) ? "": ": ";
+  QGraphicsTextItem *auti = new QGraphicsTextItem(au + sep + ti);
+  QFont f(style().font("pgno-font"));
+  f.setStyle(QFont::StyleItalic);
+  auti->setFont(f);
+  auti->setTextWidth(style().real("page-width")
+		     - style().real("margin-left")
+		     - style().real("margin-right"));
+  auti->setDefaultTextColor(style().color("pgno-color"));
+  QPointF tr = auti->boundingRect().topLeft();
+  auti->setPos(style().real("margin-left")
+		   - tr.x(),
+		   style().real("page-height")
+		   - style().real("margin-bottom") 
+		   + style().real("pgno-sep") 
+		   - tr.y());
+  lst << auti;
+  return lst;
 }
 
 QGraphicsItem *BaseScene::itemAt(const QPointF &p, int sheet) const {
