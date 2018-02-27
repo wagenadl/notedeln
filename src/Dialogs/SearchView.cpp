@@ -72,6 +72,7 @@ void SearchView::keyPressEvent(QKeyEvent *e) {
   case Qt::Key_P:
     if (e->modifiers() & Qt::ControlModifier)
       printme(srs);
+    break;
   default:
     take = false;
     break;

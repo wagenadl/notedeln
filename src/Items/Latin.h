@@ -1,4 +1,4 @@
-// App/SearchDialog.h - This file is part of eln
+// Items/Latin.H - This file is part of eln
 
 /* eln is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -14,31 +14,26 @@
    along with eln.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-// SearchDialog.H
+// Latin.H
 
-#ifndef SEARCHDIALOG_H
+#ifndef LATIN_H
 
-#define SEARCHDIALOG_H
+#define LATIN_H
 
-#include <QObject>
-#include <QPointer>
-#include "PageView.h"
+#include <QMap>
+#include <QSet>
+#include <QString>
+#include <QVariant>
 
-class SearchDialog: public QObject {
-  Q_OBJECT;
+class Latin {
 public:
-  SearchDialog(class PageView *parent);
-  virtual ~SearchDialog();
-  static QString latestPhrase();
-  static void setLatestPhrase(QString);
-public slots:
-  void newSearch();
-private slots:
-  void gotoPage(int n, Qt::KeyboardModifiers, QString uuid, QString phrase);
+  static QSet<QString> const &normal(QString);
+  static QSet<QString> const &abbrev(QString);
 private:
-  QPointer<PageView> pgView;
-  QString lastPhrase;
-  static QString &storedPhrase();
+  static QVariantMap const &json();
+  static QMap<QString, QSet<QString> > load(QString);
+  static QMap<QString, QSet<QString> > const &normal();
+  static QMap<QString, QSet<QString> > const &abbrev();
 };
 
 #endif

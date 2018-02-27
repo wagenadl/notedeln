@@ -18,6 +18,7 @@
 
 #include "Restacker.h"
 #include "BlockItem.h"
+#include "GfxBlockItem.h"
 #include "FocusProxyCache.h"
 #include "Style.h"
 #include "FootnoteItem.h"
@@ -153,6 +154,10 @@ void Restacker::restackBlockOne(int i) {
   bi->unsplit();
 
   yblock += bd->height();
+  if (dynamic_cast<GfxBlockData *>(bd)) 
+    if (i+1 < blocks.size())
+      if (dynamic_cast<GfxBlockData *>(blocks[i+1]->data()))
+	yblock += .25 * 72; // should be styled
 }
 
 void Restacker::restackBlockSplit(int i, double ycut) {

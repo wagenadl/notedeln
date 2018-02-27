@@ -67,6 +67,9 @@ TextBlockItem::TextBlockItem(TextBlockData *data, Item *parent,
 	    SLOT(ensureVisible(TextCursor, QPointF)));
     connect(frags[i], SIGNAL(multicellular(int, TextData*)),
 	    this, SIGNAL(multicellular(int, TextData*)));
+    connect(frags[i], SIGNAL(multicellularpaste(TextData*, QString)),
+	    this, SLOT(testmulticellularpaste(TextData*, QString)));
+    qDebug() << "connected mcp";
 
   }
   
@@ -199,7 +202,11 @@ TextItem *TextBlockItem::text() const {
 void TextBlockItem::sizeToFit() {
   if (beingDeleted())
     return;
-  frags[0]->document()->relayout(); // is this needed?
+  if (frags.size()==0) {
+    qDebug() << "TBI::sizetofit" << data()->uuid() << "no fragments yet";
+    return;
+  }
+  //  frags[0]->document()->relayout(); // is this needed? // I don't think so
   double h0 = data()->height();
   double h1 = frags[0]->mapRectToParent(frags[0]->netBounds()).height();
   if (h1!=h0) {
@@ -366,3 +373,9 @@ void TextBlockItem::muckWithIndentation(TextCursor c) {
   QPointF p = frags[0]->posToPoint(c.position());
   ensureVisible(c, p);
 }
+
+void TextBlockItem::testmulticellularpaste(class TextData *td, QString txt) {
+  qDebug() << "TBI: TMCP";
+  emit multicellularpaste(td, txt);
+}
+

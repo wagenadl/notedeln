@@ -1,3 +1,61 @@
+eln 1.2.12
+
+  Two requested minor features added:
+
+  * Git clone now allows host:port syntax
+
+  * Now annotates print output with author and title on every page
+
+  Several other fixes:
+
+  * Improved handling of Ctrl-V for image files and spreadsheet selections
+
+  * Added "hbar" to TeX codes
+
+  * Search result highlighting now hidden for printing
+
+  * Added “(Continued)” to search results as needed
+
+  -- Daniel A. Wagenaar <daw@caltech.edu>  Tue, 27 Feb 2018 12:49:37 -0800
+
+eln 1.2.10
+
+  Improved pasting of tables and image files.
+  Added "hbar" to list of codes.
+  Search highlighting no longer exported to pdf.
+  Added “(Continued)” to search results as needed.
+  Several minor bugs fixed.
+
+  -- Daniel A. Wagenaar <daw@caltech.edu>  Fri, 10 Nov 2017 22:07:21 -0800
+
+eln 1.2.8
+
+  Bugfix: Tables that were wider than the page caused ELN to crash.
+  No more.
+
+  -- Daniel A. Wagenaar <daw@caltech.edu>  Wed, 04 Oct 2017 17:03:39 -0700
+
+eln 1.2.7
+
+  Working on pbuilder compatibility
+
+  -- Daniel A. Wagenaar <daw@caltech.edu>  Fri, 29 Sep 2017 19:46:06 -0700
+
+eln 1.2.6
+
+  Now can use 0x1xxxx Unicode characters.
+  Now using bold italic greek which looks much better with Ubuntu font
+  Fixed, crudely, presumably longstanding bug that crashed when TextBlockItem::sizeToFit was called from GfxNoteItem/LateNoteItem::updateTextPos before the TBI had its fragments created.
+  CloneDialog now correctly returns clone location.
+  Now italicizes “et al.”, “in vivo”, “de novo” etc. as a unit
+  Fixed x_i -> ξ bug
+  Deletion of empty text blocks between gfxblocks now works. Likewise, creating a text block between adjacent gfxblocks now works
+  Fixed longstanding bug re image moving. Now a change of "yref" causes GfxBlockItem to emit heightChanges so that a restack follows.
+  GfxBlockItem now correctly resizes when GfxNoteItem changes
+  Fixed longstanding bug: Crash when empty GfxNote is deleted with Ctrl-Delete
+
+  -- Daniel A. Wagenaar <daw@caltech.edu>  Thu, 28 Sep 2017 20:45:37 -0700
+
 eln 1.2.4
 
   Drag and drop now works to paste images below text.

@@ -64,6 +64,7 @@ protected:
   virtual void setSheetCount(int n);
   void setContInMargin(bool x=true);
   int findSheet(class SheetScene *); // -1 if not found
+  virtual QList<QGraphicsItem *> printAnnotations(int isheet);
 public: // for SheetScene only
   virtual bool mousePressEvent(QGraphicsSceneMouseEvent *, SheetScene *);
   virtual bool keyPressEvent(QKeyEvent *, SheetScene *);

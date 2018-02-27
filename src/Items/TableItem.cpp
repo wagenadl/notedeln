@@ -148,14 +148,10 @@ bool TableItem::nothingAfterCursor() const {
 }
 
 bool TableItem::tryToPaste(bool /*noparagraphs*/) {
+  qDebug() << "Table::trytopaste";
   // following copied from TextItem's trytopaste
   QClipboard *cb = QApplication::clipboard();
   QMimeData const *md = cb->mimeData(QClipboard::Clipboard);
-  if (md->hasImage()) {
-    return false;
-  } else if (md->hasUrls()) {
-    return false; // perhaps we should allow URLs, but format specially?
-  }
 
   // let's not try to parse html tables right now, although we could
   if (md->hasText()) {
@@ -605,6 +601,8 @@ bool TableItem::pasteMultiCell(QString txt) {
     }
   }
 
+  qDebug() << "R" << nr << NR << firstBlockedRowLeft << firstBlockedRowOther;
+  qDebug() << "C" << nc << NC << firstBlockedColumnTop << firstBlockedColumnOther;
   if (firstBlockedRowLeft>=nr && firstBlockedRowOther>=nr
       && firstBlockedColumnTop>=nc && firstBlockedColumnOther>=nc) {
     ; // easy

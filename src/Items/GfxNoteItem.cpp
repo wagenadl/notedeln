@@ -94,16 +94,27 @@ GfxNoteItem::~GfxNoteItem() {
 }
 
 void GfxNoteItem::abandon() {
-  BlockItem *ancestor = ancestralBlock();
-  Item *p = parent();
-  if (p && p->beingDeleted()) {
-    qDebug() << "I have a parent but it is being deleted. No toces!";
+  if (beingDeleted()) {
+    qDebug() << "(GfxNoteItem::abandon: being deleted)";
     return; 
   }
-  qDebug() << "GfxNoteItem::abandon" << this << data() << data()->parent();
+  Item *p = parent();
+  if (p && p->beingDeleted()) {
+    qDebug() << "(GfxNoteItem::abandon: parent being deleted)";
+    return; 
+  }
+  qDebug() << "GfxNoteItem::abandon";
+  qDebug() << "  I am " << this << beingDeleted();
+  qDebug() << "  my parent" << parent();
+  qDebug() << "  my data" << data();
+  qDebug() << "  my data's parent" << data()->parent();
+
   if (data()->parent())
     data()->parent()->deleteChild(data());
+
   deleteLater();
+
+  BlockItem *ancestor = ancestralBlock();
   if (ancestor)
     ancestor->sizeToFit();
 }
@@ -239,6 +250,10 @@ void GfxNoteItem::updateTextPos() {
     if (line)
       line->hide();
   }
+
+  BlockItem *ancestor = ancestralBlock();
+  if (ancestor)
+    ancestor->sizeToFit();
 }
 
 QRectF GfxNoteItem::boundingRect() const {
@@ -312,8 +327,9 @@ void GfxNoteItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *e) {
     setPos(p0);
     updateTextPos();
   }
-  if (ancestralBlock())
-    ancestralBlock()->sizeToFit();
+  BlockItem *ancestor = ancestralBlock();
+  if (ancestor)
+    ancestor->sizeToFit();
   e->accept();
 }
 

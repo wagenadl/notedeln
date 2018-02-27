@@ -56,6 +56,7 @@ private:
   QRectF generousChildrenBounds() const;
   void drawGrid(QPainter *p, QRectF const &bb, double dx);
   void createMark(QPointF pos);
+  bool perhapsSendMousePressToChild(QGraphicsSceneMouseEvent *);
 };
 
 #endif

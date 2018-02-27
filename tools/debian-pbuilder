@@ -1,0 +1,26 @@
+#!/bin/zsh
+
+VERSION=`cat src/version`
+DSC=`ls ../releases/eln_$VERSION*.dsc | tail -1`
+[[ -z "$DSC" ]] && {
+    echo No DSC file available for $VERSION.
+    echo Please build it first.
+    exit 1
+}
+echo Using $DSC for $VERSION
+
+for DIST in xenial; do
+    BASETGZ=/data/dw/pbuilder/$DIST.tgz
+    [[ -f $BASETGZ ]] || {
+        echo pbuilder create --basetgz $BASETGZ --distribution $DIST
+        sudo pbuilder create --basetgz $BASETGZ --distribution $DIST
+    }
+
+    echo pbuilder update --basetgz $BASETGZ --distribution $DIST
+    sudo pbuilder update --basetgz $BASETGZ --distribution $DIST
+
+    mkdir -p ../releases/$DIST
+    
+    echo pbuilder build --basetgz $BASETGZ --distribution $DIST --buildresult ../releases/$DIST $DSC
+    sudo pbuilder build --basetgz $BASETGZ --distribution $DIST --buildresult ../releases/$DIST $DSC || exit 1
+done

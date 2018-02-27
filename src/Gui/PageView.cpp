@@ -262,16 +262,21 @@ void PageView::keyPressEvent(QKeyEvent *e) {
       }
       qDebug() << ".. item is " << item;
       Item *alt = item ? item->glowItem() : 0;
+      qDebug() << ".. alt is " << alt;
       if (alt)
         item = alt;
-      qDebug() << ".. alt is " << alt;
       if (item && item->isWritable()) {
         qDebug() << ".. is writable";
 	BlockItem *block = item->ancestralBlock();
-	if (block && block->allChildren().isEmpty())
+	qDebug() << ".. ancestralblock is" << block;
+	if (block && block->allChildren().isEmpty()) {
+	  qDebug() << ".. childless";
 	  entryScene->notifyChildless(block);
-	else
+	} else {
+	  qDebug() << ".. grab if restorable";
 	  deletedStack->grabIfRestorable(item);
+	}
+	qDebug() << ".. back";
       }
     } else {
       take = false;

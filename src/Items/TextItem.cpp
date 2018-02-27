@@ -28,13 +28,13 @@
 #include "BlockItem.h"
 #include "Assert.h"
 #include "TeXCodes.h"
+#include "Latin.h"
 #include "Digraphs.h"
 #include "TextBlockItem.h"
 #include "TextItemDoc.h"
 #include "LinkHelper.h"
 #include "HtmlBuilder.h"
 #include "HtmlParser.h"
-#include "SheetScene.h"
 #include "PageView.h"
 #include "Unicode.h"
 #include "OneLink.h"
@@ -286,6 +286,7 @@ void TextItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
 	}
       }
     }
+    break;
   case Qt::RightButton:
     linkHelper->mousePress(e);
   default:
@@ -501,6 +502,13 @@ void TextItem::tryMove(TextCursor::MoveOperation op,
   TextCursor::MoveMode mm = mod & Qt::ShiftModifier ? TextCursor::KeepAnchor
     : TextCursor::MoveAnchor;
   c.movePosition(op, mm);
+  if (op==TextCursor::Left) {
+    if (Unicode::isLowSurrogate(text->characterAt(c.position())))
+      c.movePosition(TextCursor::Left, mm);
+  } else {
+    if (Unicode::isLowSurrogate(text->characterAt(c.position())))
+      c.movePosition(TextCursor::Right, mm);
+  }
   if (c==textCursor()
       && !(mod & Qt::ShiftModifier)) {
     emit futileMovementKey(key, mod);
@@ -524,7 +532,7 @@ bool TextItem::keyPressWithControl(QKeyEvent *e) {
   
   switch (e->key()) {
   case Qt::Key_V:
-    tryToPaste();
+    tryToPaste(); // for text only; image pasting is handled in EntryScene
     return true;
   case Qt::Key_C:
     tryToCopy();
@@ -629,11 +637,16 @@ bool TextItem::tryTeXCode(bool noX, bool onlyAtEndOfWord) {
   }
   // got a word
   QString key = c.selectedText();
-  qDebug() << "trytex" << key << noX << onlyAtEndOfWord;
+
   if (!TeXCodes::contains(key))
     return false;
   if (noX && key.size()==1)
     return false;
+
+  if (data()->markupAt(c.selectionStart()+1, c.selectionEnd()-1))
+    return false; // don't do it if there is a style split.
+  /* This fixes the “x_i” -> “ξ” bug. */
+
   QString val = TeXCodes::map(key);
   cursor = c;
   cursor.deleteChar(); // delete the word
@@ -928,6 +941,32 @@ bool TextItem::tryScriptStyles(bool onlyIfBalanced) {
   return true;
 }
 
+void TextItem::tryItalicizeAbbreviation(TextCursor const &c) {
+  TextCursor w = c;
+  w.selectAround(c.position()-2,
+		 TextCursor::StartOfWord, TextCursor::EndOfWord);
+  QString word = w.selectedText();
+  QSet<QString> dict = Latin::abbrev(word);
+  int start = -1;
+  if (!dict.isEmpty()) {
+    int p = w.selectionStart() - 1;
+    for (QString s: dict) {
+      if (document()->selectedText(p-s.length(), p).toLower() == s) {
+	start = p-s.length();
+	break;
+      }
+    }
+  }
+  if (start>=0) {
+    int end = c.position();
+    MarkupData *oldmd = data()->markupAt(start, MarkupData::Italic);
+    if (oldmd && oldmd->start()==start && oldmd->end()==end) {
+      deleteMarkup(oldmd);
+    } else if (start<end) {
+      addMarkup(MarkupData::Italic, start, end);
+    }
+  }
+}
 
 void TextItem::toggleSimpleStyle(MarkupData::Style type,
                                  TextCursor const &c) {
@@ -973,12 +1012,29 @@ void TextItem::toggleSimpleStyle(MarkupData::Style type,
           end++;
       }
     } else {
+      if (type == MarkupData::Italic && document()->characterAt(base-1)=='.')
+	tryItalicizeAbbreviation(c);
       return;
     }
     start = refineStart(start, base);
     end = refineEnd(end, base);
   }
 
+  if (type == MarkupData::Italic) {
+    // Try latin phrases "in vivo" etc. They are italicized as one.
+    QString word = document()->selectedText(start, end);
+    QSet<QString> const &dict = Latin::normal(word);
+    if (!dict.isEmpty()) {
+      for (QString s: dict) {
+	if (document()->selectedText(start-1-s.size(), start-1)
+	    .toLower() == s) {
+	  start -= 1 + s.size();
+	  break;
+	}
+      }
+    }
+  }
+  
   MarkupData *oldmd = data()->markupAt(start, type);
   
   if (oldmd && oldmd->start()==start && oldmd->end()==end) {
@@ -1221,14 +1277,15 @@ bool TextItem::tryToCopy() const {
 }
 
 bool TextItem::tryToPaste(bool nonewlines) {
+  qDebug() << "TI::trytopaste";
   QClipboard *cb = QApplication::clipboard();
   QMimeData const *md = cb->mimeData(QClipboard::Clipboard);
-  if (md->hasImage()) {
-    return false;
-  } else if (md->hasUrls()) {
-    return false; // perhaps we should allow URLs, but format specially?
+  if (data()->isEmpty() && md->hasText() && md->text().contains("\t")) {
+    // we should become a table item and paste in there.
+    qDebug() << "multicellularpaste";
+    emit multicellularpaste(data(), md->text());
+    return true;
   }
-
   if (md->hasHtml()) {
     QString txt = md->html();
     if (cursor.hasSelection())
@@ -1341,7 +1398,7 @@ QRectF TextItem::boundingRect() const {
   return text->boundingRect().adjusted(-10, 0, 10, 0);
 }
 
-void TextItem::paint(QPainter *p, const QStyleOptionGraphicsItem*, QWidget*) {
+void TextItem::paint(QPainter *p, const QStyleOptionGraphicsItem *, QWidget *) {
   if (!text)
     return;
   

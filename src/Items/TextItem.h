@@ -77,6 +77,7 @@ signals:
   void mousePress(QPointF, Qt::MouseButton);
   void refTextChange(QString oldText, QString newText);
   void multicellular(int pos, TextData *td);
+  void multicellularpaste(TextData *td, QString);
 public:
   virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *);
   virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *);
@@ -123,6 +124,7 @@ protected:
   bool unscriptStyles();
   bool tryTeXCode(bool noX=false, bool onlyAtEndOfWord=false);
   void toggleSimpleStyle(MarkupData::Style type, class TextCursor const &c);
+  void tryItalicizeAbbreviation(class TextCursor const &c);
   bool charBeforeIsLetter(int pos) const;
   bool charAfterIsLetter(int pos) const;
   void attemptMarkup(QPointF p, MarkupData::Style);

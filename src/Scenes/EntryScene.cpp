@@ -164,6 +164,10 @@ BlockItem *EntryScene::tryMakeTextBlock(BlockData *bd) {
   connect(tbi, SIGNAL(multicellular(int, class TextData *)),
 	  SLOT(makeMulticellular(int, class TextData *)),
 	  Qt::QueuedConnection);
+  connect(tbi, SIGNAL(multicellularpaste(class TextData *, QString)),
+	  SLOT(makeMulticellularAndPaste(class TextData *, QString)),
+	  Qt::QueuedConnection);
+    
   return tbi;
 }
   
@@ -370,16 +374,16 @@ void EntryScene::deleteBlock(int blocki) {
 GfxBlockItem *EntryScene::newGfxBlock(int iAbove) {
   int iNew = (iAbove>=0)
     ? iAbove + 1
-    : blockItems.size();
+    : 0; // blockItems.size();
 
-  if (iAbove>=0) {
-    // perhaps not create a new one after all
-    GfxBlockItem *tbi = dynamic_cast<GfxBlockItem *>(blockItems[iAbove]);
-    if (tbi && tbi->isWritable()) {
-      // Previous block is writable, use it instead
-      return tbi;
-    }
-  }
+  // if (iAbove>=0) {
+  //   // perhaps not create a new one after all
+  //   GfxBlockItem *tbi = dynamic_cast<GfxBlockItem *>(blockItems[iAbove]);
+  //   if (tbi && tbi->isWritable()) {
+  //     // Previous block is writable, use it instead
+  //     return tbi;
+  //   }
+  // }
 
   GfxBlockData *gbd = new GfxBlockData();
   QList<BlockData *> existingBlocks = data_->blocks();
@@ -419,7 +423,8 @@ void EntryScene::splitTextBlock(int iblock, int pos) {
   tbi_post->setFocus();
 }
 
-void EntryScene::joinTextBlocks(int iblock_pre, int iblock_post) {
+void EntryScene::joinTextBlocks(int iblock_pre, int iblock_post,
+				bool forward) {
   ASSERT(iblock_pre<iblock_post);
   ASSERT(iblock_pre>=0);
   ASSERT(iblock_post<blockItems.size());
@@ -439,7 +444,8 @@ void EntryScene::joinTextBlocks(int iblock_pre, int iblock_post) {
   deleteBlock(iblock_pre);
   block1->join(block2);
   block1->resetSheetSplits();
-  TextBlockItem *tbi = injectTextBlock(block1, iblock_pre);
+  TextBlockItem *tbi = injectTextBlock(block1,
+				       forward ? iblock_post - 1 : iblock_pre);
   tbi->text()->document()->relayout();
   restackBlocks(iblock_pre);
   gotoSheetOfBlock(iblock_pre);
@@ -490,6 +496,9 @@ TextBlockItem *EntryScene::injectTextBlock(TextBlockData *tbd, int iblock) {
   connect(tbi, SIGNAL(multicellular(int, class TextData *)),
 	  SLOT(makeMulticellular(int, class TextData *)),
 	  Qt::QueuedConnection);
+  connect(tbi, SIGNAL(multicellularpaste(class TextData *, QString)),
+	  SLOT(makeMulticellularAndPaste(class TextData *, QString)),
+	  Qt::QueuedConnection);
   remap();
   return tbi;
 }
@@ -517,14 +526,17 @@ TableBlockItem *EntryScene::newTableBlock(int iAbove) {
 }
 
 int EntryScene::lastBlockAbove(QPointF scenepos, int sheet) {
+  int alt = blockItems.size() - 1;
   for (int i=0; i<blockItems.size(); i++) {
     if (blockItems[i]->data()->sheet() != sheet)
       continue;
     double y = blockItems[i]->sceneBoundingRect().bottom();
     if (y>scenepos.y())
       return i-1;
+    else
+      alt = i;
   }
-  return blockItems.size()-1;
+  return alt;
 }
 
 TextBlockItem *EntryScene::newTextBlockAt(QPointF scenepos, int sheet,
@@ -634,11 +646,13 @@ void EntryScene::futileMovement(int block) {
   }
 
   if (fmi.key()==Qt::Key_Delete) {
-    if (tgtidx==block+1) // do not combine across (e.g.) gfxblocks
-      joinTextBlocks(block, tgtidx);
+    if (tgtidx==block+1 // do not combine across (e.g.) gfxblocks
+	|| blockItems[block]->data()->isEmpty()) // ... unless empty
+      joinTextBlocks(block, tgtidx, true);
     return;
   } else if (fmi.key()==Qt::Key_Backspace) {
-    if (tgtidx==block-1)
+    if (tgtidx==block-1
+	|| blockItems[block]->data()->isEmpty()) // ... unless empty
       joinTextBlocks(tgtidx, block);
     return;
   }
@@ -956,6 +970,7 @@ bool EntryScene::tryToPaste(SheetScene *s) {
      If we don't have focus, anything is placed in the focused block if it
      is a canvas, or in a new block if not.
   */
+  qDebug() << "trytopaste";
   if (!isWritable())
     return false;
   
@@ -982,17 +997,29 @@ bool EntryScene::tryToPaste(SheetScene *s) {
   
   QClipboard *cb = QApplication::clipboard();
   QMimeData const *md = cb->mimeData(QClipboard::Clipboard);
-  if (md->hasImage())
-    return importDroppedImage(scenePos, sheet,
-			      qvariant_cast<QImage>(md->imageData()),
-			      QUrl());
-  if (fi) 
-    return false; // we'll import Urls as text into the focused item
+  qDebug() << "I/U/T" << md->hasImage() << md->hasUrls() << md->hasText();
+  qDebug() << "fi" << fi;
+  if (md->hasUrls())
+    qDebug() << "u=" << md->urls();
+  if (md->hasText())
+    qDebug() << "t=" << md->text();
+
+  /* The optimal behavior is actually quite tricky.
+     In Linux, when I copy and paste:
+     - an image file, I get a url and text
+     - an image, I get an image
+     - regular text, I get text
+     - a piece of a spreadsheet, I get an image and text
+   */
 
   if (md->hasUrls())
-    return importDroppedUrls(scenePos, sheet, md->urls());
+    return importDroppedUrls(scenePos, sheet, md->urls(), fi);
   else if (md->hasText())
-    return importDroppedText(scenePos, sheet, md->text());
+    return importDroppedText(scenePos, sheet, md->text(), 0, 0, 0, fi);
+  else if (md->hasImage())
+    return importDroppedImage(scenePos, sheet,
+			      qvariant_cast<QImage>(md->imageData()),
+                              QUrl());
   else
     return false;
 }
@@ -1027,8 +1054,12 @@ bool EntryScene::importDroppedImage(QPointF scenePos, int sheet,
   /* If dropped on an existing gfxblock, insert it there.
      If dropped on belowItem, insert after last block on page.
      If dropped on text block, insert after that text block.
-     Before creating a new graphics block, consider whether there is
-     a graphics block right after it.
+     In the past, I did this:
+     "Before creating a new graphics block, consider whether there is
+     a graphics block right after it."
+     But now I think that is not actually that useful. The issue was that
+     adjacent GfxBlocks are hard to tell aprt, i.e., the boundary is nearly
+     invisible. I now think that that visibility is the issue to be addressed.
    */
   QPointF pdest(0,0);
 
@@ -1036,8 +1067,8 @@ bool EntryScene::importDroppedImage(QPointF scenePos, int sheet,
   GfxBlockItem *gdst = (i>=0) ? dynamic_cast<GfxBlockItem*>(blockItems[i]) : 0;
   if (gdst) 
     pdest = gdst->mapFromScene(scenePos);
-  else if (i>=0 && i+1<blockItems.size())
-    gdst = dynamic_cast<GfxBlockItem*>(blockItems[i+1]);
+  // else if (i>=0 && i+1<blockItems.size())
+  //   gdst = dynamic_cast<GfxBlockItem*>(blockItems[i+1]);
   if (!gdst)
     gdst = newGfxBlockAt(scenePos, sheet);
 
@@ -1054,16 +1085,17 @@ int EntryScene::indexOfBlock(BlockItem *bi) const {
 }
 
 bool EntryScene::importDroppedUrls(QPointF scenePos, int sheet,
-				   QList<QUrl> const &urls) {
+				   QList<QUrl> const &urls,
+                                   TextItem *fi) {
   bool ok = false;
   foreach (QUrl const &u, urls)
-    if (importDroppedUrl(scenePos, sheet, u))
+    if (importDroppedUrl(scenePos, sheet, u, fi))
       ok = true;
   return ok;
 }
 
 bool EntryScene::importDroppedUrl(QPointF scenePos, int sheet,
-				  QUrl const &url) {
+				  QUrl const &url, TextItem *fi) {
   // QGraphicsItem *dst = itemAt(scenePos);
   /* A URL could be any of the following:
      (1) A local image file
@@ -1083,7 +1115,7 @@ bool EntryScene::importDroppedUrl(QPointF scenePos, int sheet,
       return importDroppedFile(scenePos, sheet, path);
   } else {
     // Right now, we import all network urls as text
-    return importDroppedText(scenePos, sheet, url.toString());
+    return importDroppedText(scenePos, sheet, url.toString(), 0, 0, 0, fi);
   }
   return false;
 }
@@ -1091,7 +1123,10 @@ bool EntryScene::importDroppedUrl(QPointF scenePos, int sheet,
 bool EntryScene::importDroppedText(QPointF scenePos, int sheet,
 				   QString const &txt,
                                    TextItem **itemReturn,
-                                   int *startReturn, int *endReturn) {
+                                   int *startReturn, int *endReturn,
+                                   TextItem *fi) {
+  if (fi)
+    return false; // let item handle it instead
   TextItem *ti = 0;
   if (inMargin(scenePos)) {
     Item *fti = sheets[sheet]->fancyTitleItem();
@@ -1298,10 +1333,10 @@ void EntryScene::makeUnicellular(TableData *td) {
   tbi1->setTextCursor(c);
 }
   
-void EntryScene::makeMulticellular(int pos, TextData *td) {
+TableBlockItem *EntryScene::makeMulticellular(int pos, TextData *td) {
   int iblock = findBlock(td);
   if (iblock<0)
-    return;
+    return 0;
 
   TextBlockItem *tbi0 = dynamic_cast<TextBlockItem *>(blockItems[iblock]);
   ASSERT(tbi0);
@@ -1319,4 +1354,16 @@ void EntryScene::makeMulticellular(int pos, TextData *td) {
   gotoSheetOfBlock(iblock);
   tbi1->setFocus();
   tbi1->setTextCursor(c1);
+  return tbi1;
+}
+
+void EntryScene::makeMulticellularAndPaste(TextData *td, QString txt) {
+  qDebug() <<"mmapaste";
+  TableBlockItem *tbi = makeMulticellular(0, td);
+  if (!tbi)
+    return; // oh well
+  TextCursor c1(tbi->document());
+  c1.setPosition(1);
+  tbi->setTextCursor(c1);
+  tbi->table()->pasteMultiCell(txt);
 }

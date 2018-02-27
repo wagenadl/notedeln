@@ -117,12 +117,16 @@ void GfxBlockItem::sizeToFit() {
 
   double yref = data()->yref();
   double h = data()->height();
+
+  bool mustemit = false;
+  
   if (yref!=r.top()) {
     prepareGeometryChange();
     if (isWritable())
       data()->setYref(r.top());
     else
       data()->sneakilySetYref(r.top());
+    mustemit = true;
   }
   if (h!=r.height()) {
     prepareGeometryChange();
@@ -130,8 +134,11 @@ void GfxBlockItem::sizeToFit() {
       data()->setHeight(r.height());
     else
       data()->sneakilySetHeight(r.height());        
-    emit heightChanged();
+    mustemit = true;
   }
+
+  if (mustemit)
+    emit heightChanged();
 }
 
 QRectF GfxBlockItem::boundingRect() const {
@@ -177,6 +184,16 @@ void GfxBlockItem::drawGrid(QPainter *p, QRectF const &bb, double dx) {
     p->drawLine(bb.left(), y, bb.right(), y);
 }
 
+bool GfxBlockItem::perhapsSendMousePressToChild(QGraphicsSceneMouseEvent *) {
+  /* Idea is to find a child item that is near the mouse press position, and
+     send the press event to it in the hopes of creating a drag for it. I don't
+     know if this is really practical: Somehow, subsequent mouse move and
+     mouse release events would have to be forwarded as well.
+  */
+  return false; // make Control-press do nothing.
+}
+  
+
 void GfxBlockItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
   Mode::M mod = mode()->mode();
   //  Qt::MouseButton but = e->button();
@@ -194,8 +211,12 @@ void GfxBlockItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
       take = true;
     } break;
     case Mode::Type:
-      createGfxNote(e->pos());
-      take = true;
+      if (e->modifiers() & Qt::ControlModifier) {
+	take = perhapsSendMousePressToChild(e);
+      } else {
+	createGfxNote(e->pos());
+	take = true;
+      }
       break;
     default:
       break;

@@ -368,3 +368,4 @@ void SheetScene::setCursors() {
   marginItem()->setCursor(Cursors::refined(marginShape));
   backgroundItem()->setCursor(Cursors::refined(backgroundShape));
 }  
+

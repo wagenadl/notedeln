@@ -176,15 +176,19 @@ QString CloneBookDialog::getClone() {
     EProcess proc;
     proc.setWindowCaption(Translate::_("retrieving-clone"));
     proc.setNoStartMessage(Translate::_("no-git"));
+    qDebug() << "git from " << (cbd.isLocal() ? cbd.archiveLocation()
+				: ("ssh://" + cbd.archiveHost() + "/"
+				   + cbd.archiveLocation()))
+	     << cbd.cloneLocation();
     proc.setCommandAndArgs("git",
                            QStringList() << "clone"
                            << (cbd.isLocal() ? cbd.archiveLocation()
-                               : (cbd.archiveHost() + ":"
+                               : ("ssh://" + cbd.archiveHost() + "/"
                                   + cbd.archiveLocation()))
                            << cbd.cloneLocation());
     bool ok = proc.exec();
     if (ok)
-      return cbd.archiveLocation();
+      return cbd.cloneLocation();
     
     QMessageBox::warning(&cbd, Translate::_("eln"),
                          Translate::_("clone-failed")
