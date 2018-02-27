@@ -1,3 +1,23 @@
+eln (1.2.12-1) yakkety; urgency=medium
+
+  Two requested minor features added:
+
+  * Git clone now allows host:port syntax
+
+  * Now annotates print output with author and title on every page
+
+  Several other fixes:
+
+  * Improved handling of Ctrl-V for image files and spreadsheet selections
+
+  * Added "hbar" to TeX codes
+
+  * Search result highlighting now hidden for printing
+
+  * Added “(Continued)” to search results as needed
+
+ -- Daniel A. Wagenaar <daw@caltech.edu>  Tue, 27 Feb 2018 12:49:52 -0800
+
 eln (1.2.4-1) yakkety; urgency=medium
 
   Drag and drop now works to paste images below text.
