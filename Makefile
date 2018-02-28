@@ -111,6 +111,7 @@ tar: all
 macclean:; rm -rf eln.app eln.dmg
 
 macapp: SRC WEBGRAB 
+	mkdir -p eln.app/Contents/MacOS
 	cp build-webgrab/webgrab eln.app/Contents/MacOS
 	strip eln.app/Contents/MacOS/*
 	cp src/App/elnmac.sh eln.app/Contents/MacOS/
