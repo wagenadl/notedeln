@@ -34,7 +34,7 @@ contributions are welcome.
 
 On Ubuntu Linux, Windows 7/10, and Mac OS X, you should be able to
 install the executables available from
-http://www.danielwagenaar.net/eln.html.
+[danielwagenaar.net/eln](http://www.danielwagenaar.net/eln.html).
 
 ## Installation from source on Linux
 
