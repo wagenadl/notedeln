@@ -43,7 +43,7 @@ void TextItem::letterAsMath(QString txt) {
     MarkupData *mdi = data()->markupAt(cursor.position(), MarkupData::Italic);
     MarkupData *mdb = data()->markupAt(cursor.position(), MarkupData::Bold);
     if (prevChar==txt[0] && !isLatinLetter(antePrevChar)
-	&& antePrevChar!=rquote && prevChar!='a') {
+	&& antePrevChar!=rquote && prevChar!='m') {
       // we had the same letter before -> cycle faces
       // order is italic -> bold italic -> bold -> plain -> italic
       if (mdb) {
