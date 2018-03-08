@@ -814,8 +814,8 @@ void TextItem::keyPressEvent(QKeyEvent *e) {
   case Mode::Type:
     if (isWritable()) {
       if (keyPressWithControl(e) 
-	  || keyPressAsSpecialChar(e)
 	  || (mode()->mathMode() && keyPressAsMath(e))
+	  || keyPressAsSpecialChar(e)
 	  || keyPressAsMotion(e)
 	  || keyPressAsSpecialEvent(e)
 	  || keyPressAsInsertion(e)) {

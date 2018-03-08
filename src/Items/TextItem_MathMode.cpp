@@ -46,6 +46,7 @@ void TextItem::letterAsMath(QString txt) {
 	&& antePrevChar!=rquote && prevChar!='m') {
       // we had the same letter before -> cycle faces
       // order is italic -> bold italic -> bold -> plain -> italic
+      // but "mm" is redupped instead because millimeter is a unit
       if (mdb) {
 	if (mdi) 
 	  deleteMarkup(mdi);
@@ -79,17 +80,38 @@ void TextItem::letterAsMath(QString txt) {
   } else {
     // previous was not a letter, let's insert.
     cursor.insertText(txt);
-    // and, if previous was not "’", let's italicize, except for "I" and "a".
-    if (prevChar!=rquote && txt!="I" && txt!="a")
+    // and let's italicize, except in a few conditions:
+    if (prevChar==rquote) {
+      // don't italicize after "’" (for "somebody's" etc.)
+    } else if (txt=="I" || txt=="a" || txt=="A")  {
+      // don't italicize the one-letter words "I" and "a"
+    } else if (prevChar=="."
+	       && ((antePrevChar=="i" && txt=="e")
+		   || (antePrevChar=="e" && txt=="g")
+		   || (antePrevChar=="d" && txt=="d"))) {
+      // treat "e.g.", "i.e.", etc. specially
+      qDebug() << "." << antePrevChar << txt;
+      MarkupData *mdi = data()->markupAt(cursor.position()-2,
+					 MarkupData::Italic);
+      if (mdi)
+	deleteMarkup(mdi);
+    } else {
       addMarkup(MarkupData::Italic,
 	      cursor.position()-txt.length(), cursor.position());
+    }
   }
 }  
 
 bool TextItem::keyPressAsMath(QKeyEvent *e) {
   //  int key = e->key();
   //  Qt::KeyboardModifiers mod = e->modifiers();
+  static QString punct = ",;.:";
+  static QString spacing = " \t\n\r";
+  static QString closing = ")]}\"'”’";
   QString txt = e->text();
+
+  qDebug() << "keyasmath" << txt;
+
   if (isLatinLetter(txt)) {
     letterAsMath(txt);
     return true;
@@ -98,7 +120,9 @@ bool TextItem::keyPressAsMath(QKeyEvent *e) {
       cursor.deleteChar();
     cursor.insertText(QString::fromUtf8("−"));
     return true;
-  } else if (txt!="") {
+  }
+
+  if (txt!="") {
     // we may apply finished TeX Code
     if (cursor.hasSelection()) 
       return false; // we're overwriting, let some other piece of code deal.
@@ -114,19 +138,19 @@ bool TextItem::keyPressAsMath(QKeyEvent *e) {
       tryScriptStyles();
     } else if (txt=="_") {
       tryScriptStyles();
-    } else if (txt==" ") {
-      bool afterPunct = QString(",;.:")
-	.contains(document()->characterAt(cursor.position()-1));
-      if (afterPunct)
+    } else if ((spacing.contains(txt) || closing.contains(txt))
+	       && punct.contains(document()->characterAt(cursor.position()-1))) {
 	cursor.movePosition(TextCursor::Left);
-      tryScriptStyles(true);
-      if (afterPunct)
+	tryScriptStyles(true);
 	cursor.movePosition(TextCursor::Right);
+    } else if (spacing.contains(txt)) {
+      tryScriptStyles(true);
+    } else if (closing.contains(txt)) {
+      // try script styles if no corresponding opening
+      tryScriptStyles(true);
     }
-    return false; // still insert the character
-  } else {
-    return false;
   }
+  return false; // still insert the character
 }
 
  
