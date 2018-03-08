@@ -71,18 +71,27 @@ MarkupData *TextData::markupAt(int pos, MarkupData::Style typ) const {
 
 MarkupData *TextData::markupAt(int start, int end,
 			       MarkupData::Style typ) const {
-  foreach (MarkupData *md, children<MarkupData>()) 
+  foreach (MarkupData *md, children<MarkupData>())
     if (md->style()==typ && md->end()>=start && md->start()<=end)
       return md;
   return 0;
 }
 
 MarkupData *TextData::markupAt(int start, int end) const {
-  foreach (MarkupData *md, children<MarkupData>()) 
+  foreach (MarkupData *md, children<MarkupData>())
     if (md->end()>=start && md->start()<=end)
       return md;
   return 0;
 }
+
+MarkupData *TextData::markupEdgeIn(int start, int end) const {
+  foreach (MarkupData *md, children<MarkupData>())
+    if ((md->start() > start && md->start() < end)
+	|| (md->end() > start && md->end() < end))
+      return md;
+  return 0;
+}
+  
 
 MarkupData *TextData::mergeMarkup(int start, int end, MarkupData::Style style,
 				  bool *new_return) {

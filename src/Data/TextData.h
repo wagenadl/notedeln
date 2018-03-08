@@ -56,12 +56,14 @@ public:
      created. In either case, ownership of the MarkupData transfers to
      the TextData. */
   MarkupData *markupAt(int start, int end, MarkupData::Style type) const;
-  /* markupAt finds the first markup that starts at or before START and ends
-     at or after END. */
+  /* markupAt finds the first markup that overlaps partially with [START, END],
+     i.e. that starts at or before END and ends at or after START. */
   MarkupData *markupAt(int pos, MarkupData::Style type) const;
   /* markupAt(pos) uses POS for both START and END. */
   MarkupData *markupAt(int start, int end) const;
   /* This overload finds markups regardless of type. */
+  MarkupData *markupEdgeIn(int start, int end) const;
+  /* Returns a markup that either starts or ends after START and before END. */
   int offsetOfFootnoteTag(QString) const;
   virtual QSet<QString> wordSet() const override;
 protected:

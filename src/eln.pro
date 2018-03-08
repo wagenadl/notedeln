@@ -1,5 +1,5 @@
 # QMake project file for eln                  -*- mode: shell-script; -*-
-#
+w#
 # When adding source files, run scripts/updatesources to include them
 
 TEMPLATE = app
