@@ -18,6 +18,7 @@
 
 #include "TextItem.h"
 #include "TeXCodes.h"
+#include "Digraphs.h"
 #include <QKeyEvent>
 #include <QDebug>
 
@@ -31,10 +32,9 @@ static bool isLatinLetter(QString x) {
 
 void TextItem::letterAsMath(QString txt) {
   const QString rquote = QString::fromUtf8("’");
-  if (cursor.hasSelection()) {
-    // we are going to overwrite this selection, I guess
-    cursor.deleteChar();
-  }
+  if (cursor.hasSelection())
+    return; // don't do it.
+
   // we may italicize or deitalice
   QChar prevChar = document()->characterAt(cursor.position()-1);
   QChar antePrevChar = document()->characterAt(cursor.position()-2);
@@ -108,18 +108,52 @@ bool TextItem::keyPressAsMath(QKeyEvent *e) {
   static QString punct = ",;.:";
   static QString spacing = " \t\n\r";
   static QString closing = ")]}\"'”’";
+  static QString suremath = "+-_^*/=";
+
+  if (cursor.hasSelection())
+    return false;
+  
   QString txt = e->text();
 
+  if (txt.isEmpty())
+    return false;
   qDebug() << "keyasmath" << txt;
 
   if (isLatinLetter(txt)) {
     letterAsMath(txt);
     return true;
-  } else if (txt=="-") {
-    if (cursor.hasSelection()) 
-      cursor.deleteChar();
-    cursor.insertText(QString::fromUtf8("−"));
-    return true;
+  } else if (suremath.contains(txt)) {
+    QChar charBefore = document()->characterAt(cursor.position()-1);
+    QChar charBefore2 = document()->characterAt(cursor.position()-2);
+    if ((charBefore=='a' || charBefore=='A' || charBefore=='I') && !isLatinLetter(charBefore2)) {
+      // italicize after all
+      if (!data()->markupAt(cursor.position()-1, MarkupData::Italic))
+	  addMarkup(MarkupData::Italic,
+		    cursor.position()-1, cursor.position());
+    } else if ((charBefore2=='a' || charBefore2=='A' || charBefore2=='I')
+	       && !isLatinLetter(charBefore)
+	       && !isLatinLetter(document()->characterAt(cursor.position()-3))) {
+      // italicize after all
+      if (!data()->markupAt(cursor.position()-2, MarkupData::Italic))
+	  addMarkup(MarkupData::Italic,
+		    cursor.position()-2, cursor.position()-1);
+    }
+    
+    if (txt=="-") {
+      QString digraph = QString(charBefore) + "-";
+      QString trigraph = QString(charBefore2) + digraph;
+      if (Digraphs::contains(digraph)) {
+	cursor.deletePreviousChar();
+	cursor.insertText(Digraphs::map(digraph));
+      } else if (Digraphs::contains(trigraph)) {
+      cursor.deletePreviousChar();
+      cursor.deletePreviousChar();
+      cursor.insertText(Digraphs::map(trigraph));
+      } else {
+	cursor.insertText(QString::fromUtf8("−"));
+      }
+      return true;
+    }
   }
 
   if (txt!="") {
