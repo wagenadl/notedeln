@@ -116,7 +116,7 @@ bool TextItem::keyPressAsMath(QKeyEvent *e) {
   //  Qt::KeyboardModifiers mod = e->modifiers();
   static QString punct = ",;.:";
   static QString spacing = " \t\n\r";
-  static QString closing = ")]}\"'”’";
+  static QString closing = ")]}\"”";
   static QString suremath = "+-_^*/=";
 
   if (cursor.hasSelection())
@@ -134,7 +134,8 @@ bool TextItem::keyPressAsMath(QKeyEvent *e) {
   } else if (suremath.contains(txt)) {
     QChar charBefore = document()->characterAt(cursor.position()-1);
     QChar charBefore2 = document()->characterAt(cursor.position()-2);
-    if ((charBefore=='a' || charBefore=='A' || charBefore=='I') && !isLatinLetter(charBefore2)) {
+    if ((charBefore=='a' || charBefore=='A' || charBefore=='I')
+	&& !isLatinLetter(charBefore2)) {
       // italicize after all
       if (!data()->markupAt(cursor.position()-1, MarkupData::Italic))
 	  addMarkup(MarkupData::Italic,
