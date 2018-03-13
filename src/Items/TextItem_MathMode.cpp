@@ -30,10 +30,17 @@ static bool isLatinLetter(QString x) {
   return x.size()==1 && isLatinLetter(x[0]);
 }
 
+static bool isDigit(QChar x) {
+  return (x>='0' && x<='9');
+}
+
+static bool isDigit(QString x) {
+  return x.size()==1 && isDigit(x[0]);
+}
+
 void TextItem::letterAsMath(QString txt) {
+  // txt can be a letter or a digit, actually
   const QString rquote = QString::fromUtf8("’");
-  if (cursor.hasSelection())
-    return; // don't do it.
 
   // we may italicize or deitalice
   QChar prevChar = document()->characterAt(cursor.position()-1);
@@ -81,7 +88,9 @@ void TextItem::letterAsMath(QString txt) {
     // previous was not a letter, let's insert.
     cursor.insertText(txt);
     // and let's italicize, except in a few conditions:
-    if (prevChar==rquote) {
+    if (isDigit(txt)) {
+      // don't italicize numbers
+    } else if (prevChar==rquote) {
       // don't italicize after "’" (for "somebody's" etc.)
     } else if (txt=="I" || txt=="a" || txt=="A")  {
       // don't italicize the one-letter words "I" and "a"
@@ -119,7 +128,7 @@ bool TextItem::keyPressAsMath(QKeyEvent *e) {
     return false;
   qDebug() << "keyasmath" << txt;
 
-  if (isLatinLetter(txt)) {
+  if (isLatinLetter(txt) || isDigit(txt)) {
     letterAsMath(txt);
     return true;
   } else if (suremath.contains(txt)) {
