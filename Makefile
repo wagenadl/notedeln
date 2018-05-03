@@ -111,13 +111,13 @@ tar: all
 macclean:; rm -rf eln.app eln.dmg
 
 macapp: SRC WEBGRAB 
+	mkdir -p eln.app/Contents/MacOS
 	cp build-webgrab/webgrab eln.app/Contents/MacOS
-	strip eln.app/Contents/MacOS/*
 	cp src/App/elnmac.sh eln.app/Contents/MacOS/
 	chmod a+x eln.app/Contents/MacOS/elnmac.sh
 
 macdmg: macapp
-	$(QBINPATH)/macdeployqt eln.app -dmg -executable=eln.app/Contents/MacOS/webgrab 
+	$(QBINPATH)/macdeployqt eln.app -dmg -executable=eln.app/Contents/MacOS/webgrab -executable=eln.app/Contents/MacOS/eln
 
 .PHONY: src webgrab all clean tar macclean macapp macdmg man userguide \
         install install-userguide prep webgrabprep

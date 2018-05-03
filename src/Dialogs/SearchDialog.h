@@ -30,6 +30,7 @@ public:
   SearchDialog(class PageView *parent);
   virtual ~SearchDialog();
   static QString latestPhrase();
+  static void setLatestPhrase(QString);
 public slots:
   void newSearch();
 private slots:
@@ -38,7 +39,6 @@ private:
   QPointer<PageView> pgView;
   QString lastPhrase;
   static QString &storedPhrase();
-  static void setLatestPhrase(QString);
 };
 
 #endif

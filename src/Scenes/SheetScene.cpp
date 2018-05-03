@@ -369,19 +369,3 @@ void SheetScene::setCursors() {
   backgroundItem()->setCursor(Cursors::refined(backgroundShape));
 }  
 
-void SheetScene::hideSearchHighlights() {
-  shlvis() = false;
-}
-
-void SheetScene::unhideSearchHighlights() {
-  shlvis() = true;
-}
-
-bool SheetScene::searchHighlightsVisible() {
-  return shlvis();
-}
- 
-bool &SheetScene::shlvis() {
-  static bool s = true;
-  return s;
-}

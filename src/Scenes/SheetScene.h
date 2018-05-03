@@ -46,9 +46,6 @@ public:
   class Mode *mode() const;
   QGraphicsRectItem *backgroundItem() { return bgItem; }
   QGraphicsRectItem *marginItem() { return margItem; }
-  static void hideSearchHighlights();
-  static void unhideSearchHighlights();
-  static bool searchHighlightsVisible();
 signals:
   void leaveTitle();
 public:
@@ -81,7 +78,6 @@ private:
   class QGraphicsRectItem *bgItem, *margItem;
   bool contInMargin;
   QPointer<QGraphicsObject> overlay;
-  static bool &shlvis();
 };
 
 #endif
