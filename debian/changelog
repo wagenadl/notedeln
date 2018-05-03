@@ -1,3 +1,23 @@
+eln (1.2.12-1) zesty; urgency=medium
+
+  Two requested minor features added:
+
+  * Git clone now allows host:port syntax
+
+  * Now annotates print output with author and title on every page
+
+  Several other fixes:
+
+  * Improved handling of Ctrl-V for image files and spreadsheet selections
+
+  * Added "hbar" to TeX codes
+
+  * Search result highlighting now hidden for printing
+
+  * Added “(Continued)” to search results as needed
+
+ -- Daniel A. Wagenaar <daw@caltech.edu>  Wed, 02 May 2018 20:30:38 -0700
+
 eln (1.2.10-1) zesty; urgency=medium
 
   Improved pasting of tables and image files.
