@@ -97,6 +97,7 @@ void TextItem::letterAsMath(QString txt) {
     } else if (prevChar=="."
 	       && ((antePrevChar=="i" && txt=="e")
 		   || (antePrevChar=="e" && txt=="g")
+		   || (antePrevChar=="s" && txt=="t")
 		   || (antePrevChar=="d" && txt=="d"))) {
       // treat "e.g.", "i.e.", etc. specially
       qDebug() << "." << antePrevChar << txt;
@@ -128,7 +129,15 @@ bool TextItem::keyPressAsMath(QKeyEvent *e) {
     return false;
   qDebug() << "keyasmath" << txt;
 
-  if (isLatinLetter(txt) || isDigit(txt)) {
+  if (isLatinLetter(txt)) {
+    letterAsMath(txt);
+    return true;
+  } else if (isDigit(txt)) {
+    QChar charBefore = document()->characterAt(cursor.position()-1);
+    if (charBefore=='-') {
+      cursor.deletePreviousChar();
+      cursor.insertText(QString::fromUtf8("−"));
+    }
     letterAsMath(txt);
     return true;
   } else if (suremath.contains(txt)) {
@@ -158,9 +167,11 @@ bool TextItem::keyPressAsMath(QKeyEvent *e) {
 	cursor.deletePreviousChar();
 	cursor.insertText(Digraphs::map(digraph));
       } else if (Digraphs::contains(trigraph)) {
-      cursor.deletePreviousChar();
-      cursor.deletePreviousChar();
-      cursor.insertText(Digraphs::map(trigraph));
+        cursor.deletePreviousChar();
+        cursor.deletePreviousChar();
+        cursor.insertText(Digraphs::map(trigraph));
+      } else if (isLatinLetter(charBefore)) {
+        cursor.insertText("-");
       } else {
 	cursor.insertText(QString::fromUtf8("−"));
       }
