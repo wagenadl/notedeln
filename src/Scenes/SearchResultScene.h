@@ -37,6 +37,9 @@ public slots:
 signals:
   void pageNumberClicked(int, Qt::KeyboardModifiers,
                          QString, QString); // pgno, uuid, phrase
+public:
+  QList<SearchResult> const &searchResults() const;
+  static QMap< QString, QList<SearchResult> > allOpenSearches();
 protected:
   virtual QString pgNoToString(int) const;
 private:
@@ -49,6 +52,7 @@ private:
   QList<SearchResult> results;
   QList<class SearchResItem *> headers; // one for each entry with a result
   QList<int> sheetnos; // one for each header; sheet in this scene
+  static QSet<SearchResultScene *> &allInstances();
 };
 
 #endif

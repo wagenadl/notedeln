@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>849</width>
-    <height>893</height>
+    <width>875</width>
+    <height>1048</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -361,6 +361,13 @@
                </widget>
               </item>
              </layout>
+            </item>
+            <item>
+             <widget class="QRadioButton" name="reSearchResults">
+              <property name="text">
+               <string>Search results</string>
+              </property>
+             </widget>
             </item>
            </layout>
           </widget>
