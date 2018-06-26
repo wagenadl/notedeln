@@ -159,6 +159,8 @@ bool TextItem::keyPressAsMath(QKeyEvent *e) {
     }
     
     if (txt=="-") {
+      if (isLatinLetter(charBefore) && isLatinLetter(charBefore2))
+	return false; // treat as hyphen rather than minus
       QString digraph = QString(charBefore) + "-";
       QString trigraph = QString(charBefore2) + digraph;
       if (Digraphs::contains(digraph)) {
