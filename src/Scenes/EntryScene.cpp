@@ -906,7 +906,7 @@ void EntryScene::addUnlockedWarning() {
 
 BlockItem const *EntryScene::findBlockByUUID(QString uuid) const {
   for (int i=0; i<blockItems.size(); i++) 
-    if (blockItems[i]->data()->findChildByUUID(uuid))
+    if (blockItems[i]->data()->findDescendentByUUID(uuid))
       return blockItems[i];
   return 0;
 }  
@@ -1237,6 +1237,7 @@ bool EntryScene::focusFootnote(int block, QString tag) {
 }
 
 void EntryScene::newFootnote(int block, QString tag) {
+  ASSERT(block>=0 && block<blockItems.size());
   if (focusFootnote(block, tag))
     return;
   FootnoteData *fnd = new FootnoteData(blockItems[block]->data());
