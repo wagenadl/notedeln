@@ -136,8 +136,8 @@ void SearchResultScene::pageNumberClick(int pg, Qt::KeyboardModifiers m,
   emit pageNumberClicked(pg, m, id, phrase);
 }
 
-QSet<SearchResultScene const*> &SearchResultScene::allInstances() {
-  static QSet<SearchResultScene const*> set;
+QSet<SearchResultScene*> &SearchResultScene::allInstances() {
+  static QSet<SearchResultScene *> set;
   return set;
 }
 

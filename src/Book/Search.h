@@ -28,26 +28,7 @@
 #include <QMutex>
 
 #include "Notebook.h"
-
-struct SearchResult {
-  enum Type {
-    Unknown,
-    InTextBlock,
-    InTableBlock,
-    InGfxNote,
-    InLateNote,
-    InFootnote,
-  };
-  Type type;
-  int page;
-  int startPageOfEntry;
-  QString phrase; // search text
-  QString context; // entire text of containing object
-  QString entryTitle;
-  QDateTime cre, mod; // of containing object
-  QString uuid; // of containing object
-  QList<int> whereInContext;
-};
+#include "SearchResult.h"
 
 class Search: public QThread {
   Q_OBJECT;

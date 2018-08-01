@@ -38,8 +38,8 @@
 static QSet<int> startPagesOfSearchResults() {
   QSet<int> pp;
   for (QList<SearchResult> const &lst: SearchResultScene::allOpenSearches())
-    for (int pg: lst.startPageOfEntry)
-      pp.insert(pg);
+    for (SearchResult const &res: lst)
+      pp.insert(res.startPageOfEntry);
   return pp;
 }
 
@@ -105,11 +105,11 @@ void PageView::openPrintDialog() {
       nentries = 1 + dialog.entriesTo() - dialog.entriesFrom();
       break;
     case PrintDialog::Range::SearchResults: {
-      QSet<int> pgs = startPagesOfSearchResults().size();
+      QSet<int> pgs = startPagesOfSearchResults();
       nentries = 0;
       for (int p: pgs) 
-	nentries += book->toc()-tocEntry(p)->sheetCount();
-      break;
+	nentries += book->toc()->tocEntry(p)->sheetCount();
+    } break;
     }
   }
 
