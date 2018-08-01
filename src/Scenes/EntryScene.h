@@ -40,6 +40,7 @@ public:
   int findBlock(class Data const *) const; // -1 if none
   class BlockItem const *findBlockByUUID(QString uuid) const; // -1 if none
   int findBlock(QPointF scenePos, int sheet) const; // -1 if none
+  bool focusFootnote(int block, QString tag); // true if found
   void newFootnote(int block, QString tag);
   virtual bool dropBelow(QPointF scenePos, int sheet, class QMimeData const *md);
   virtual int startPage() const;

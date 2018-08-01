@@ -1242,7 +1242,10 @@ bool TextItem::tryFootnote(bool del) {
       return true;
     }
   } else {
-    if (!oldmd && start<end) {
+    if (oldmd) {
+      bs->focusFootnote(i, oldmd->text());
+      return true;
+    } else if (start<end) {
       if (!symMark.isEmpty()) {
 	QString repl = substituteMark(symMark);
 	if (repl!=symMark) {

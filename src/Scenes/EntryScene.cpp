@@ -1224,15 +1224,21 @@ bool EntryScene::isWritable() const {
   return writable;
 }
 
-void EntryScene::newFootnote(int block, QString tag) {
+bool EntryScene::focusFootnote(int block, QString tag) {
   ASSERT(block>=0 && block<blockItems.size());
   foreach (FootnoteItem *fni, blockItems[block]->footnotes()) {
     if (fni->data()->tag()==tag) {
       emit sheetRequest(fni->data()->sheet());
       fni->setFocus();
-      return;
+      return true;
     }
   }
+  return false;
+}
+
+void EntryScene::newFootnote(int block, QString tag) {
+  if (focusFootnote(block, tag))
+    return;
   FootnoteData *fnd = new FootnoteData(blockItems[block]->data());
   fnd->setTag(tag);
   FootnoteItem *fni = blockItems[block]->newFootnote(fnd);
