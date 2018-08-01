@@ -582,6 +582,7 @@ TextBlockItem *EntryScene::newTextBlock(int iAbove, bool evenIfLastEmpty) {
 }
 
 void EntryScene::futileMovement(int block) {
+  qDebug() << "EntryScene::futileMovement" << block;
   ASSERT(block>=0 && block<blockItems.size());
   // futile movement in a text block
   TextBlockItem *tbi = dynamic_cast<TextBlockItem *>(blockItems[block]);

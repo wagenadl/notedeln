@@ -438,6 +438,7 @@ bool TextItem::keyPressAsMotion(QKeyEvent *e) {
       update();
     } else {
       clearFocus();
+      emit futileMovementKey(e->key(), e->modifiers());
     }
   } return true;
   case Qt::Key_Return: case Qt::Key_Enter:

@@ -159,6 +159,7 @@ TextItemDoc *TextBlockItem::document() const {
 
 void TextBlockItem::futileMovementKey(int key, Qt::KeyboardModifiers mod) {
   fmi = FutileMovementInfo(key, mod, frags[0]);
+  qDebug() << "TextBlockItem::futileMovementKey" << key << mod;
   emit futileMovement(); // we emit w/o content, because EntryScene uses Mapper.
 }
 
