@@ -119,13 +119,13 @@ bool PrintDialog::printEntries() const {
   return ui->rEntries->isChecked();
 }
 
-PrintDialog::Range PrintDialog::tocRange() const {
+PrintDialog::TOCRange PrintDialog::tocRange() const {
   if (ui->rtAll->isChecked())
-    return All;
+    return TOCRange::All;
   else if (ui->rtCurrent->isChecked())
-    return CurrentPage;
+    return TOCRange::CurrentPage;
   else
-    return FromTo;
+    return TOCRange::FromTo;
 }
 int PrintDialog::tocFrom() const {
   return ui->rtrFrom->value();
@@ -137,13 +137,15 @@ int PrintDialog::tocTo() const {
 
 PrintDialog::Range PrintDialog::entriesRange() const {
   if (ui->reAll->isChecked())
-    return All;
+    return Range::All;
   else if (ui->reCurrentPage->isChecked())
-    return CurrentPage;
+    return Range::CurrentPage;
   else if (ui->reCurrentEntry->isChecked())
-    return CurrentEntry;
+    return Range::CurrentEntry;
+  else if (ui->reRange->isChecked())
+    return Range::FromTo;
   else
-    return FromTo;
+    return Range::SearchResults;
 }
 
 int PrintDialog::entriesFrom() const {
