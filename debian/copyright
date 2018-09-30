@@ -15,7 +15,8 @@ License: GPL-3+
  GNU General Public License for more details.
  .
  You should have received a copy of the GNU General Public License
- along with this program. If not, see <http://www.gnu.org/licenses/>
+ along with this program. Most likely, the licence can be found in
+ /usr/share/common-licenses. If not, see <http://www.gnu.org/licenses/>.
  .
  The one exception to this pertains to the files in "src/Gui/fonts",
  which are distributed under the terms of the Ubuntu Font license,

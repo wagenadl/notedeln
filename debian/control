@@ -2,12 +2,12 @@ Source: eln
 Section: editors
 Priority: optional
 Maintainer: Daniel Wagenaar <daw@caltech.edu>
-Build-Depends: debhelper (>= 9.0.0), qtbase5-dev (>= 5.6.1), qttools5-dev-tools (>= 5.6.1),libqt5webkit5-dev (>= 5.6.1), texlive-latex-base (>= 2013.0), texlive-fonts-recommended (>= 2013.0), texlive-latex-extra (>= 2013.0), asciidoc(>= 8.6.0)
+Build-Depends: debhelper (>= 9.0.0), qtbase5-dev (>= 5.5), qttools5-dev-tools (>= 5.5),libqt5webkit5-dev (>= 5.5), asciidoc(>= 8.6.0), libqt5svg5-dev (>= 5.5), xsltproc (>= 1.0), docbook-xml (>= 4.0), docbook-xsl (>= 1.0)
 Standards-Version: 3.9.8
 Homepage: http://www.danielwagenaar.net/eln
 
 Package: eln
 Architecture: any
-Depends: ${shlibs:Depends},${misc:Depends}, libqt5gui5 (>=5.6.1), libqt5webkit5 (>= 5.6.1)
+Depends: ${shlibs:Depends},${misc:Depends}, libqt5gui5 (>=5.5), libqt5webkit5 (>= 5.5), libqt5svg5 (>= 5.5)
 Description: Electronic Lab Notebook
- ELN is a simple electronic lab notebook with an emphasis on solid data storage.
+ ELN is an electronic lab notebook with an emphasis on solid data storage.
