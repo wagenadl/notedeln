@@ -438,6 +438,7 @@ bool TextItem::keyPressAsMotion(QKeyEvent *e) {
       update();
     } else {
       clearFocus();
+      emit futileMovementKey(e->key(), e->modifiers());
     }
   } return true;
   case Qt::Key_Return: case Qt::Key_Enter:
@@ -1241,7 +1242,10 @@ bool TextItem::tryFootnote(bool del) {
       return true;
     }
   } else {
-    if (!oldmd && start<end) {
+    if (oldmd) {
+      bs->focusFootnote(i, oldmd->text());
+      return true;
+    } else if (start<end) {
       if (!symMark.isEmpty()) {
 	QString repl = substituteMark(symMark);
 	if (repl!=symMark) {
