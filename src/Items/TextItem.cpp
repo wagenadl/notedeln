@@ -643,7 +643,7 @@ bool TextItem::tryTeXCode(bool noX, bool onlyAtEndOfWord) {
   if (noX && key.size()==1)
     return false;
 
-  if (data()->markupAt(c.selectionStart()+1, c.selectionEnd()-1))
+  if (data()->markupEdgeIn(c.selectionStart(), c.selectionEnd()))
     return false; // don't do it if there is a style split.
   /* This fixes the “x_i” -> “ξ” bug. */
 
@@ -814,8 +814,8 @@ void TextItem::keyPressEvent(QKeyEvent *e) {
   case Mode::Type:
     if (isWritable()) {
       if (keyPressWithControl(e) 
-	  || keyPressAsSpecialChar(e)
 	  || (mode()->mathMode() && keyPressAsMath(e))
+	  || keyPressAsSpecialChar(e)
 	  || keyPressAsMotion(e)
 	  || keyPressAsSpecialEvent(e)
 	  || keyPressAsInsertion(e)) {
@@ -1110,7 +1110,6 @@ static QString approvedMark(TextCursor m) {
   TextItemDoc *doc = m.document();
   while (n>0) {
     QChar c = doc->characterAt(--n);
-    qDebug() << "approvedmark" << n << c;
     if (marks.contains(c))
       out += c;
     else
@@ -1277,12 +1276,10 @@ bool TextItem::tryToCopy() const {
 }
 
 bool TextItem::tryToPaste(bool nonewlines) {
-  qDebug() << "TI::trytopaste";
   QClipboard *cb = QApplication::clipboard();
   QMimeData const *md = cb->mimeData(QClipboard::Clipboard);
   if (data()->isEmpty() && md->hasText() && md->text().contains("\t")) {
     // we should become a table item and paste in there.
-    qDebug() << "multicellularpaste";
     emit multicellularpaste(data(), md->text());
     return true;
   }

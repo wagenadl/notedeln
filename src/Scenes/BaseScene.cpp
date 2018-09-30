@@ -142,7 +142,7 @@ bool BaseScene::print(QPrinter *prt, QPainter *p,
   return !first;
 }
 
-QList<QGraphicsItem *> BaseScene::printAnnotations(int sheet) {
+QList<QGraphicsItem *> BaseScene::printAnnotations(int /*sheet*/) {
   QList<QGraphicsItem *> lst;
   BookData const *bd = book()->bookData();
   QString au = bd->author().replace("\n", " ");

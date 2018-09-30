@@ -18,6 +18,7 @@
 
 #include "TextItem.h"
 #include "TeXCodes.h"
+#include "Digraphs.h"
 #include <QKeyEvent>
 #include <QDebug>
 
@@ -29,12 +30,18 @@ static bool isLatinLetter(QString x) {
   return x.size()==1 && isLatinLetter(x[0]);
 }
 
+static bool isDigit(QChar x) {
+  return (x>='0' && x<='9');
+}
+
+static bool isDigit(QString x) {
+  return x.size()==1 && isDigit(x[0]);
+}
+
 void TextItem::letterAsMath(QString txt) {
+  // txt can be a letter or a digit, actually
   const QString rquote = QString::fromUtf8("’");
-  if (cursor.hasSelection()) {
-    // we are going to overwrite this selection, I guess
-    cursor.deleteChar();
-  }
+
   // we may italicize or deitalice
   QChar prevChar = document()->characterAt(cursor.position()-1);
   QChar antePrevChar = document()->characterAt(cursor.position()-2);
@@ -43,9 +50,10 @@ void TextItem::letterAsMath(QString txt) {
     MarkupData *mdi = data()->markupAt(cursor.position(), MarkupData::Italic);
     MarkupData *mdb = data()->markupAt(cursor.position(), MarkupData::Bold);
     if (prevChar==txt[0] && !isLatinLetter(antePrevChar)
-	&& antePrevChar!=rquote && prevChar!='a') {
+	&& antePrevChar!=rquote && prevChar!='m') {
       // we had the same letter before -> cycle faces
       // order is italic -> bold italic -> bold -> plain -> italic
+      // but "mm" is redupped instead because millimeter is a unit
       if (mdb) {
 	if (mdi) 
 	  deleteMarkup(mdi);
@@ -79,26 +87,103 @@ void TextItem::letterAsMath(QString txt) {
   } else {
     // previous was not a letter, let's insert.
     cursor.insertText(txt);
-    // and, if previous was not "’", let's italicize, except for "I" and "a".
-    if (prevChar!=rquote && txt!="I" && txt!="a")
+    // and let's italicize, except in a few conditions:
+    if (isDigit(txt)) {
+      // don't italicize numbers
+    } else if (prevChar==rquote) {
+      // don't italicize after "’" (for "somebody's" etc.)
+    } else if (txt=="I" || txt=="a" || txt=="A")  {
+      // don't italicize the one-letter words "I" and "a"
+    } else if (prevChar=="."
+	       && ((antePrevChar=="i" && txt=="e")
+		   || (antePrevChar=="e" && txt=="g")
+		   || (antePrevChar=="s" && txt=="t")
+		   || (antePrevChar=="d" && txt=="d"))) {
+      // treat "e.g.", "i.e.", etc. specially
+      qDebug() << "." << antePrevChar << txt;
+      MarkupData *mdi = data()->markupAt(cursor.position()-2,
+					 MarkupData::Italic);
+      if (mdi)
+	deleteMarkup(mdi);
+    } else {
       addMarkup(MarkupData::Italic,
 	      cursor.position()-txt.length(), cursor.position());
+    }
   }
 }  
 
 bool TextItem::keyPressAsMath(QKeyEvent *e) {
   //  int key = e->key();
   //  Qt::KeyboardModifiers mod = e->modifiers();
+  static QString punct = ",;.:";
+  static QString spacing = " \t\n\r";
+  static QString closing = ")]}\"”";
+  static QString suremath = "+-_^*/=";
+
+  if (cursor.hasSelection())
+    return false;
+  
   QString txt = e->text();
+
+  if (txt.isEmpty())
+    return false;
+  qDebug() << "keyasmath" << txt;
+
   if (isLatinLetter(txt)) {
     letterAsMath(txt);
     return true;
-  } else if (txt=="-") {
-    if (cursor.hasSelection()) 
-      cursor.deleteChar();
-    cursor.insertText(QString::fromUtf8("−"));
+  } else if (isDigit(txt)) {
+    QChar charBefore = document()->characterAt(cursor.position()-1);
+    if (charBefore=='-') {
+      cursor.deletePreviousChar();
+      cursor.insertText(QString::fromUtf8("−"));
+    }
+    letterAsMath(txt);
     return true;
-  } else if (txt!="") {
+  } else if (suremath.contains(txt)) {
+    QChar charBefore = document()->characterAt(cursor.position()-1);
+    QChar charBefore2 = document()->characterAt(cursor.position()-2);
+    if ((charBefore=='a' || charBefore=='A' || charBefore=='I')
+	&& !isLatinLetter(charBefore2)) {
+      // italicize after all
+      if (!data()->markupAt(cursor.position()-1, MarkupData::Italic))
+	  addMarkup(MarkupData::Italic,
+		    cursor.position()-1, cursor.position());
+    } else if ((charBefore2=='a' || charBefore2=='A' || charBefore2=='I')
+	       && !isLatinLetter(charBefore)
+	       && !isLatinLetter(document()->characterAt(cursor.position()-3))) {
+      // italicize after all
+      if (!data()->markupAt(cursor.position()-2, MarkupData::Italic))
+	  addMarkup(MarkupData::Italic,
+		    cursor.position()-2, cursor.position()-1);
+    }
+    
+    if (txt=="-") {
+      qDebug() << "minus";
+      if (isLatinLetter(charBefore) && isLatinLetter(charBefore2))
+	return false; // treat as hyphen rather than minus
+      QString digraph = QString(charBefore) + "-";
+      QString trigraph = QString(charBefore2) + digraph;
+      if (digraph=="--") {
+	cursor.deletePreviousChar();
+	cursor.insertText("−");
+      } else if (Digraphs::contains(digraph)) {
+	cursor.deletePreviousChar();
+	cursor.insertText(Digraphs::map(digraph));
+      } else if (Digraphs::contains(trigraph)) {
+        cursor.deletePreviousChar();
+        cursor.deletePreviousChar();
+        cursor.insertText(Digraphs::map(trigraph));
+      } else if (isLatinLetter(charBefore)) {
+        cursor.insertText("-");
+      } else {
+	cursor.insertText(QString::fromUtf8("−"));
+      }
+      return true;
+    }
+  }
+
+  if (txt!="") {
     // we may apply finished TeX Code
     if (cursor.hasSelection()) 
       return false; // we're overwriting, let some other piece of code deal.
@@ -114,19 +199,19 @@ bool TextItem::keyPressAsMath(QKeyEvent *e) {
       tryScriptStyles();
     } else if (txt=="_") {
       tryScriptStyles();
-    } else if (txt==" ") {
-      bool afterPunct = QString(",;.:")
-	.contains(document()->characterAt(cursor.position()-1));
-      if (afterPunct)
+    } else if ((spacing.contains(txt) || closing.contains(txt))
+	       && punct.contains(document()->characterAt(cursor.position()-1))) {
 	cursor.movePosition(TextCursor::Left);
-      tryScriptStyles(true);
-      if (afterPunct)
+	tryScriptStyles(true);
 	cursor.movePosition(TextCursor::Right);
+    } else if (spacing.contains(txt)) {
+      tryScriptStyles(true);
+    } else if (closing.contains(txt)) {
+      // try script styles if no corresponding opening
+      tryScriptStyles(true);
     }
-    return false; // still insert the character
-  } else {
-    return false;
   }
+  return false; // still insert the character
 }
 
  

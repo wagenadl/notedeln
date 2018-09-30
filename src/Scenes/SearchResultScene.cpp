@@ -30,11 +30,13 @@ SearchResultScene::SearchResultScene(QString phrase, QString title,
 				     QList<SearchResult> results,
                                      Data *data, QObject *parent):
   BaseScene(data, parent), phrase(phrase), ttl(title), results(results) {
+  allInstances().insert(this);
   book = data->book();
   setContInMargin();
 }
 
 SearchResultScene::~SearchResultScene() {
+  allInstances().remove(this);
 }
 
 Style const &SearchResultScene::style() const {
@@ -134,4 +136,14 @@ void SearchResultScene::pageNumberClick(int pg, Qt::KeyboardModifiers m,
   emit pageNumberClicked(pg, m, id, phrase);
 }
 
-  
+QSet<SearchResultScene const*> &SearchResultScene::allInstances() {
+  static QSet<SearchResultScene const*> set;
+  return set;
+}
+
+QMap< QString, QList<SearchResult> > SearchResultScene::allOpenSearches() {
+  QMap< QString, QList<SearchResult> > res;
+  for (SearchResultScene const *srs: allInstances())
+    res[srs->phrase] = srs->results;
+  return res;
+}

@@ -25,7 +25,8 @@
 class PrintDialog: public QDialog {
   Q_OBJECT;
 public:
-  enum Range { All, CurrentPage, CurrentEntry, FromTo };
+  enum class TOCRange { All, CurrentPage, FromTo };
+  enum class Range { All, CurrentPage, CurrentEntry, FromTo, SearchResults };
 public:
   PrintDialog(QWidget *parent=0);
   virtual ~PrintDialog();
@@ -37,7 +38,7 @@ public:
   bool printFrontPage() const;
   bool printTOC() const;
   bool printEntries() const;
-  Range tocRange() const;
+  TOCRange tocRange() const;
   int tocFrom() const;
   int tocTo() const;
   Range entriesRange() const;
