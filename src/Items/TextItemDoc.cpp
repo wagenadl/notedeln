@@ -138,6 +138,7 @@ QRectF TextItemDoc::boundingRect() const {
   if (r.width()>=1000) {
     // not actual
     QRectF tbr = tightBoundingRect();
+    qDebug() << "textitemdoc:br" << r << tbr;
     r.setWidth(tbr.width());
   }
   return r;
