@@ -28,6 +28,7 @@ HEADERS += \
      Items/TextItemDocData.h  \
      Items/TextItemDoc.h  \
      Items/TextItem.h  \
+     Items/TextSplitter.h  \
      Items/TitleItem.h  \
      Items/TOCItem.h  \
      Items/Unicode.h  \
@@ -61,6 +62,7 @@ SOURCES += \
      Items/TextItemDoc.cpp  \
      Items/TextItemDocData.cpp  \
      Items/TextItem_MathMode.cpp  \
+     Items/TextSplitter.cpp  \
      Items/TitleItem.cpp  \
      Items/TOCItem.cpp  \
 
