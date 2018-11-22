@@ -6,6 +6,7 @@ HEADERS += \
      Book/Index.h  \
      Book/Notebook.h  \
      Book/Search.h  \
+     Book/SearchResult.h  \
      Book/Style.h  \
      Book/TOCEntry.h  \
      Book/TOCFile.h  \

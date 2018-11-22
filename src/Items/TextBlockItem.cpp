@@ -56,6 +56,8 @@ TextBlockItem::TextBlockItem(TextBlockData *data, Item *parent,
     frags << ti;
   }
 
+  initializeFormat();
+
   ysplit.push_front(0);
   ysplit.push_back(data->height());
   QRectF r0 = frags[0]->netBounds();
@@ -69,12 +71,9 @@ TextBlockItem::TextBlockItem(TextBlockData *data, Item *parent,
 	    this, SIGNAL(multicellular(int, TextData*)));
     connect(frags[i], SIGNAL(multicellularpaste(TextData*, QString)),
 	    this, SLOT(testmulticellularpaste(TextData*, QString)));
-    qDebug() << "connected mcp";
 
   }
   
-  initializeFormat();
-
   foreach (TextItem *ti, frags) {
     ti->setAllowParagraphs(false);
     ti->setAllowNotes(true);
@@ -159,7 +158,6 @@ TextItemDoc *TextBlockItem::document() const {
 
 void TextBlockItem::futileMovementKey(int key, Qt::KeyboardModifiers mod) {
   fmi = FutileMovementInfo(key, mod, frags[0]);
-  qDebug() << "TextBlockItem::futileMovementKey" << key << mod;
   emit futileMovement(); // we emit w/o content, because EntryScene uses Mapper.
 }
 
