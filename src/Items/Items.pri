@@ -10,6 +10,7 @@ HEADERS += \
      Items/FutileMovementInfo.h  \
      Items/GfxBlockItem.h  \
      Items/GfxImageItem.h  \
+     Items/GfxLineItem.h  \
      Items/GfxMarkItem.h  \
      Items/GfxNoteItem.h  \
      Items/GfxSketchItem.h  \
@@ -43,6 +44,7 @@ SOURCES += \
      Items/FutileMovementInfo.cpp  \
      Items/GfxBlockItem.cpp  \
      Items/GfxImageItem.cpp  \
+     Items/GfxLineItem.cpp  \
      Items/GfxMarkItem.cpp  \
      Items/GfxNoteItem.cpp  \
      Items/GfxSketchItem.cpp  \

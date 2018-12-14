@@ -9,6 +9,7 @@ HEADERS += \
      Data/GfxBlockData.h  \
      Data/GfxData.h  \
      Data/GfxImageData.h  \
+     Data/GfxLineData.h  \
      Data/GfxMarkData.h  \
      Data/GfxNoteData.h  \
      Data/GfxPointsData.h  \
@@ -36,6 +37,7 @@ SOURCES += \
      Data/GfxBlockData.cpp  \
      Data/GfxData.cpp  \
      Data/GfxImageData.cpp  \
+     Data/GfxLineData.cpp  \
      Data/GfxMarkData.cpp  \
      Data/GfxNoteData.cpp  \
      Data/GfxPointsData.cpp  \
