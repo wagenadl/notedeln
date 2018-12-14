@@ -192,6 +192,7 @@ void PageView::keyPressEvent(QKeyEvent *e) {
     if (currentSection==Entries) {
       mode()->setMode(Mode::Freehand);
       mode()->setStraightLineMode(e->modifiers() & Qt::ShiftModifier);
+    }
     break;
   case Qt::Key_F6:
     if (currentSection==Entries)

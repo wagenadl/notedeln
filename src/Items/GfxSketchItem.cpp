@@ -155,38 +155,41 @@ static double distance(QLineF l, QPointF p) {
   dy = y0 + t*dy - p.y();
   return sqrt(dx*dx + dy*dy);
 }
-  
+
+void GfxSketchItem::moveBuilding(QGraphicsSceneMouseEvent *e) {
+  QPointF p = e->pos();
+  QList<double> const &xx = data()->xx();
+  QList<double> const &yy = data()->yy();
+  int N = xx.size();
+  bool okToDropPrevious = false;
+  if (N>=2) {
+    /* We already have at least two points, so we could consider dropping
+       the previous point if that doesn't cause trouble. Here, "trouble"
+       means more than some acceptable distortion. */
+    QLineF l(xx[N-2], yy[N-2], p.x(), p.y());
+    droppedPoints.append(QPointF(xx[N-1], yy[N-1]));
+    okToDropPrevious = true;
+    foreach (QPointF p, droppedPoints) {
+      if (distance(l, p) > MAX_DISTORT) {
+	okToDropPrevious = false;
+	break;
+      }
+    }
+  }
+  if (okToDropPrevious) {
+    data()->setPoint(N-1, p, true);
+  } else {
+    droppedPoints.clear();
+    data()->addPoint(p, true);
+  }
+  prepareGeometryChange();
+  rebuildPath();
+  update();
+}
 
 void GfxSketchItem::mouseMoveEvent(QGraphicsSceneMouseEvent *e) {
   if (building) {
-    QPointF p = e->pos();
-    QList<double> const &xx = data()->xx();
-    QList<double> const &yy = data()->yy();
-    int N = xx.size();
-    bool okToDropPrevious = false;
-    if (N>=2) {
-      /* We already have at least two points, so we could consider dropping
-	 the previous point if that doesn't cause trouble. Here, "trouble"
-         means more than some acceptable distortion. */
-      QLineF l(xx[N-2], yy[N-2], p.x(), p.y());
-      droppedPoints.append(QPointF(xx[N-1], yy[N-1]));
-      okToDropPrevious = true;
-      foreach (QPointF p, droppedPoints) {
-	if (distance(l, p) > MAX_DISTORT) {
-	  okToDropPrevious = false;
-	  break;
-	}
-      }
-    }
-    if (okToDropPrevious) {
-      data()->setPoint(N-1, p, true);
-    } else {
-      droppedPoints.clear();
-      data()->addPoint(p, true);
-    }
-    prepareGeometryChange();
-    rebuildPath();
-    update();
+    moveBuilding(e);
   } else {
     setPos(mapToParent(e->scenePos() - e->lastScenePos()));
     e->accept();

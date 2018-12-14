@@ -49,6 +49,7 @@ protected:
   virtual Qt::CursorShape cursorShape(Qt::KeyboardModifiers) const;
 private:
   void rebuildPath();
+  void moveBuilding(QGraphicsSceneMouseEvent *);
 signals:
   void doneBuilding();
 private:
