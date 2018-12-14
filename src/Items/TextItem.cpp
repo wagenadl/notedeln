@@ -213,6 +213,7 @@ void TextItem::handleLeftClick(QGraphicsSceneMouseEvent *e) {
     attemptMarkup(e->pos(), MarkupData::Normal);
     break;
   default:
+    e->ignore();
     break;
   }
 }
@@ -261,6 +262,7 @@ void TextItem::selectWordOrLineOrParagraph(int pos) {
 }
 
 void TextItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
+  e->accept();
   switch (e->button()) {
   case Qt::LeftButton:
     if ((mode()->mode()==Mode::Type || mode()->mode()==Mode::Browse)
@@ -292,7 +294,6 @@ void TextItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
   default:
     break;
   }
-  e->accept();
 }
 
 int TextItem::pointToPos(QPointF p, bool strict) const {
@@ -1330,7 +1331,7 @@ Qt::CursorShape TextItem::cursorShape(Qt::KeyboardModifiers m) const {
       cs = Qt::IBeamCursor;
     }
     break;
-  case Mode::Annotate:
+  case Mode::Annotate: case Mode::Mark: case Mode::Freehand:
     cs = Qt::CrossCursor;
     break;
   case Mode::MoveResize:
