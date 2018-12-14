@@ -192,7 +192,7 @@ void Item::perhapsCreateGlow(Qt::KeyboardModifiers m) {
     QGraphicsDropShadowEffect *eff = new QGraphicsDropShadowEffect;
     eff->setColor(QColor("#00ff33"));
     eff->setOffset(QPointF(0, 0));
-    eff->setBlurRadius(4);
+    eff->setBlurRadius(6);
     setGraphicsEffect(eff);
     if (parent())
       parent()->setGlowItem(this);
