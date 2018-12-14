@@ -31,9 +31,11 @@ public:
 public slots:
   void setColor(QColor);
   void setLineWidth(double);
+  void setStraightLineMode(bool);
 private:
   double lw;
   QColor c;
+  bool straight;
 };
 
 #endif

@@ -61,6 +61,10 @@ Modebar::Modebar(Mode *mode, QGraphicsItem *parent):
   connect(mode, SIGNAL(lineWidthChanged(double)),
 	  lwt, SLOT(setLineWidth(double)));
   addTool(modeToId(Mode::Freehand), lwt);
+  sketchModeItem = lwt;
+  updateStraightLine();
+  connect(mode, SIGNAL(straightLineModeChanged(bool)),
+	  SLOT(updateStraightLine()));
   
   t = new ToolItem();
   t->setBalloonHelpText(":mode-annotate");
@@ -105,6 +109,15 @@ void Modebar::updateMath() {
   }
 }
 
+void Modebar::updateStraightLine() {
+  bool m = mode->isStraightLineMode();
+  if (m)
+    sketchModeItem->setBalloonHelpText(":mode-straightline");
+  else
+    sketchModeItem->setBalloonHelpText(":mode-freehand");
+  sketchModeItem->setStraightLineMode(m);
+}
+
 
 Mode::M Modebar::idToMode(QString s) {
   return Mode::M(s.toInt());
@@ -118,4 +131,7 @@ void Modebar::doLeftClick(QString id, Qt::KeyboardModifiers m) {
   mode->setMode(idToMode(id));
   if (idToMode(id)==Mode::Type && (m & Qt::ShiftModifier)) 
     mode->setMathMode(!mode->isMathMode());
+  else if (idToMode(id)==Mode::Freehand && (m & Qt::ShiftModifier)) 
+    mode->setStraightLineMode(!mode->isStraightLineMode());
+
 }
