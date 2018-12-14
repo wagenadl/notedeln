@@ -54,12 +54,12 @@ void GfxSketchItem::rebuildPath() {
       path.lineTo(xx[i], yy[i]);
   }
   QPainterPathStroker stroker;
-  stroker.setWidth(data()->lineWidth() + 1);
+  stroker.setWidth(data()->lineWidth() + 6);
   stroked = stroker.createStroke(path);
 }
   
 QRectF GfxSketchItem::boundingRect() const {
-  return path.boundingRect();
+  return path.boundingRect().adjusted(-2, -2, 2, 2);
 }
 
 QPainterPath GfxSketchItem::shape() const {
