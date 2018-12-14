@@ -529,7 +529,7 @@ bool TextItem::keyPressWithControl(QKeyEvent *e) {
   if (keyPressAsSimpleStyle(e->key(), textCursor()))
     return true;
 
-  if (mode()->mathMode())
+  if (mode()->isMathMode())
     tryTeXCode(true);
   
   switch (e->key()) {
@@ -816,7 +816,7 @@ void TextItem::keyPressEvent(QKeyEvent *e) {
   case Mode::Type:
     if (isWritable()) {
       if (keyPressWithControl(e) 
-	  || (mode()->mathMode() && keyPressAsMath(e))
+	  || (mode()->isMathMode() && keyPressAsMath(e))
 	  || keyPressAsSpecialChar(e)
 	  || keyPressAsMotion(e)
 	  || keyPressAsSpecialEvent(e)

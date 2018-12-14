@@ -210,7 +210,7 @@ void PageView::keyPressEvent(QKeyEvent *e) {
     break;
   case Qt::Key_QuoteLeft: case Qt::Key_AsciiTilde: case Qt::Key_4:
     if (e->modifiers() & Qt::ControlModifier)
-      mode()->setMathMode(!mode()->mathMode());
+      mode()->setMathMode(!mode()->isMathMode());
     else
       take = false;
     break;

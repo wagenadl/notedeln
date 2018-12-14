@@ -96,7 +96,7 @@ void Modebar::updateMode() {
 }
 
 void Modebar::updateMath() {
-  if (mode->mathMode()) {
+  if (mode->isMathMode()) {
     typeModeItem->setBalloonHelpText(":mode-type-math");
     typeModeItem->setSvg(":icons/type-math.svg");
   } else {
@@ -117,5 +117,5 @@ QString Modebar::modeToId(Mode::M m) {
 void Modebar::doLeftClick(QString id, Qt::KeyboardModifiers m) {
   mode->setMode(idToMode(id));
   if (idToMode(id)==Mode::Type && (m & Qt::ShiftModifier)) 
-    mode->setMathMode(!mode->mathMode());
+    mode->setMathMode(!mode->isMathMode());
 }
