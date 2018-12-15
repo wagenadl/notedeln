@@ -57,6 +57,8 @@ private:
   bool building;
   QPainterPath path;
   QPainterPath stroked;
+  QPointF presspt, presspt2;
+  int pressidx;
 };
 
 #endif

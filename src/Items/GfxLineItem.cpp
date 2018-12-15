@@ -124,52 +124,39 @@ void GfxLineItem::build(QGraphicsSceneMouseEvent *e) {
     ancestralBlock()->sizeToFit();
   data()->markModified();
 }
+
+static double L2(QPointF const &a, QPointF const &b) {
+  double dx = a.x() - b.x();
+  double dy = a.y() - b.y();
+  return dx*dx + dy*dy;
+}
   
 void GfxLineItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
   if (building) {
-    moveBuilding(e);
-    emit doneBuilding();
+    ;
   } else {
     if (isWritable()
 	&& (mode()->mode()==Mode::MoveResize
 	    || (e->modifiers() & Qt::ControlModifier))) {
       e->accept();
+      double d0 = L2(e->pos(), data()->point(0));
+      double d1 = L2(e->pos(), data()->point(1));
+      double len = L2(data()->point(1), data()->point(0));
+      if (d0<d1 && d0<.1*len) {
+        pressidx = 0;
+        presspt = data()->point(0);
+      } else if (d1<d0 && d1<.1*len) {
+        pressidx = 1;
+        presspt = data()->point(1);
+      } else {
+        pressidx = -1;
+        presspt = data()->point(0);
+        presspt2 = data()->point(1);
+      }
     } else {
       QGraphicsObject::mousePressEvent(e);
     }
   }
-}
-
-static double distance(QLineF l, QPointF p) {
-  // distance between point and line segment
-  /* Parametrize the line L as:
-     x(t) = x0 + t*(x1-x0)
-     y(t) = y0 + t*(y1-y0)
-     Minimize:
-     r(t) = (p_x - x(t))^2 + (p_y - y(t))^2
-     That is:
-     dr/dt = 0 = 2*(x(t)-p_x)*(x1-x0) + 2*(y(t)-p_y*(y1-y0)
-     That is:
-     (x0+t*(x1-x0)-p_x)*(x1-x0) + (y0+t*(y1-y0)-p_y)*(y1-y0) = 0
-     Or:
-     t = [(x0-p_x)*(x1-x0) + (y0-p_y)*(y1-y0)] /
-           [(x1-x0)^2 + (y1-y0)^2].
-     Of course, if t<0, take t=0 and if t>1 take t=1.
-  */
-  double x0 = l.p1().x();
-  double x1 = l.p2().x();
-  double y0 = l.p1().y();
-  double y1 = l.p2().y();
-  double dx = x1-x0;
-  double dy = y1-y0;
-  double t = ((x0-p.x())*dx + ((y0-p.y())*dy)) / (dx*dx + dy*dy);
-  if (t<0)
-    t=0;
-  else if (t>1)
-    t=1;
-  dx = x0 + t*dx - p.x();
-  dy = y0 + t*dy - p.y();
-  return sqrt(dx*dx + dy*dy);
 }
 
 void GfxLineItem::moveBuilding(QGraphicsSceneMouseEvent *e) {
@@ -187,15 +174,32 @@ void GfxLineItem::moveBuilding(QGraphicsSceneMouseEvent *e) {
 void GfxLineItem::mouseMoveEvent(QGraphicsSceneMouseEvent *e) {
   if (building) {
     moveBuilding(e);
-  } else {
-    setPos(mapToParent(e->scenePos() - e->lastScenePos()));
+  } else if (e->buttons() & Qt::LeftButton) {
+    QPointF delta = e->pos() - e->buttonDownPos(Qt::LeftButton);
+    bool usegrid = !(e->modifiers() & Qt::ControlModifier);
+    QPointF p = presspt + delta;
+    if (usegrid)
+      p = roundToGrid(p);
+    if (pressidx>=0) {
+      data()->setPoint(pressidx, p);
+    } else {
+      data()->setPoint(0, p);
+      p = presspt2 + delta;
+      if (usegrid)
+        p = roundToGrid(p);
+      data()->setPoint(1, p);
+    }
+    prepareGeometryChange();
+    rebuildPath();
+      //      setPos(mapToParent(e->scenePos() - e->lastScenePos()));
     e->accept();
   }
 }
 
 void GfxLineItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *e) {
   if (building) {
-    ;
+    moveBuilding(e);
+    emit doneBuilding();
   } else {
     data()->setPos(pos());
     if (ancestralBlock())
