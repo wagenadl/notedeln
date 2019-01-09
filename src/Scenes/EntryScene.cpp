@@ -818,7 +818,10 @@ bool EntryScene::mousePressEvent(QGraphicsSceneMouseEvent *e, SheetScene *s) {
   switch (mo->mode()) {
   case Mode::Mark: case Mode::Freehand:
     if (!it && isWritable() && !inMargin(sp)) {
-      GfxBlockItem *blk = newGfxBlockAt(sp, sh);
+      GfxBlockItem *blk = blockItems.isEmpty() ? 0
+        : dynamic_cast<GfxBlockItem *>(blockItems.last());
+      if (!blk)
+        blk = newGfxBlockAt(sp, sh);
       e->setPos(blk->mapFromScene(e->scenePos())); // brutal!
       blk->mousePressEvent(e);
       take = true;
