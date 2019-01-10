@@ -174,7 +174,7 @@ void TextItemDoc::relayout(bool preserveWidth) {
     QString line = "";
     while (it != splitter.bits().end()) {
       TextSplitter::Bit &b(*it);
-      qDebug() << "Considering" << line << b.text << int(b.type);
+      //      qDebug() << "Considering" << line << b.text << int(b.type);
       // let's add bits to the line
       bool easy = false;
       if (usedwidth + b.width <= availwidth) {
