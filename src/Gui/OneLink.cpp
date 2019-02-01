@@ -162,6 +162,7 @@ void OneLink::openLink() {
   if (r->sourceURL().scheme() == "page") {
     openPage(true);
   } else {
+    qDebug() << "OneLink::openLink" << r->sourceURL();
     bool ok = QDesktopServices::openUrl(r->sourceURL());
     if (!ok)
       qDebug() << "Failed to open external url" << r->sourceURL();
@@ -199,7 +200,9 @@ void OneLink::openArchive() {
   if (r->sourceURL().scheme() == "page") {
     openPage();
   } else if (r->hasArchive()) {
-    bool ok = QDesktopServices::openUrl(QUrl(r->archivePath()));
+    QUrl url(QUrl::fromLocalFile((r->archivePath())));
+    qDebug() << "OneLink::openArchive" << url;
+    bool ok = QDesktopServices::openUrl(url);
     if (!ok)
       qDebug() << "Failed to start external location " << r->archivePath();
   } else {

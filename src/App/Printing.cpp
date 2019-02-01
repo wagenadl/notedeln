@@ -129,16 +129,16 @@ void PageView::openPrintDialog() {
 	printer.newPage();
       switch (dialog.tocRange()) {
       case PrintDialog::TOCRange::All:
-	bank->tocScene()->print(&printer, &p);
-	break;
+        bank->tocScene()->print(&printer, &p);
+        break;
       case PrintDialog::TOCRange::CurrentPage:
-	bank->tocScene()->print(&printer, &p,
-				currentSheet, currentSheet);
-	break;
+        bank->tocScene()->print(&printer, &p,
+                                currentSheet, currentSheet);
+        break;
       case PrintDialog::TOCRange::FromTo:
-	bank->tocScene()->print(&printer, &p,
-				dialog.tocFrom()-1, dialog.tocTo()-1);
-	break;
+        bank->tocScene()->print(&printer, &p,
+                                dialog.tocFrom()-1, dialog.tocTo()-1);
+        break;
       }
       progress.setValue(progress.value()+ntoc);
       any = true;
@@ -150,46 +150,46 @@ void PageView::openPrintDialog() {
     if (nentries) {
       switch (dialog.entriesRange()) {
       case PrintDialog::Range::All:
-	foreach (int startPage, book->toc()->entries().keys()) {
-	  progress.setValue(nfront + ntoc + startPage);
-	  if (progress.wasCanceled())
-	    throw 0;
-	  gotoEntryPage(startPage);
-	  ASSERT(entryScene);
-	  if (any)
-	    printer.newPage();
-	  entryScene->print(&printer, &p);
-	  any = true;
-	}
-	break;
+        foreach (int startPage, book->toc()->entries().keys()) {
+          progress.setValue(nfront + ntoc + startPage);
+          if (progress.wasCanceled())
+            throw 0;
+          gotoEntryPage(startPage);
+          ASSERT(entryScene);
+          if (any)
+            printer.newPage();
+          entryScene->print(&printer, &p);
+          any = true;
+        }
+        break;
       case PrintDialog::Range::CurrentPage:
-	if (any)
-	  printer.newPage();
-	entryScene->print(&printer, &p, currentSheet, currentSheet);
-	progress.setValue(nfront + ntoc + nentries);
-	any = true;
-	break;
+        if (any)
+          printer.newPage();
+        entryScene->print(&printer, &p, currentSheet, currentSheet);
+        progress.setValue(nfront + ntoc + nentries);
+        any = true;
+        break;
       case PrintDialog::Range::CurrentEntry:
-	if (any)
-	  printer.newPage();
-	entryScene->print(&printer, &p);
-	break;
+        if (any)
+          printer.newPage();
+        entryScene->print(&printer, &p);
+        break;
       case PrintDialog::Range::FromTo: {
-	int from = dialog.entriesFrom();
-	int to = dialog.entriesTo();
-	foreach (int startPage, book->toc()->entries().keys()) {
-	  if (progress.wasCanceled())
-	    throw 0;
-	  if (to>=startPage &&
-	      from<startPage+book->toc()->tocEntry(startPage)->sheetCount()) {
-	    gotoEntryPage(startPage);
-	    ASSERT(entryScene);
-	    if (any)
-	      printer.newPage();
-	    any = entryScene->print(&printer, &p, from-startPage, to-startPage);
-	    progress.setValue(progress.value() + entryScene->sheetCount());
-	  }
-	}
+        int from = dialog.entriesFrom();
+        int to = dialog.entriesTo();
+        foreach (int startPage, book->toc()->entries().keys()) {
+          if (progress.wasCanceled())
+            throw 0;
+          if (to>=startPage &&
+              from<startPage+book->toc()->tocEntry(startPage)->sheetCount()) {
+            gotoEntryPage(startPage);
+            ASSERT(entryScene);
+            if (any)
+              printer.newPage();
+            any = entryScene->print(&printer, &p, from-startPage, to-startPage);
+            progress.setValue(progress.value() + entryScene->sheetCount());
+          }
+        }
       } break;
       case PrintDialog::Range::SearchResults: {
 	qDebug() << "Printing search results NYI";

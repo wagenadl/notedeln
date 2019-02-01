@@ -31,6 +31,7 @@ public:
 public slots:
   void updateMode();
   void updateMath();
+  void updateStraightLine();
 protected:
   virtual void doLeftClick(QString id, Qt::KeyboardModifiers);
 private:
@@ -40,6 +41,7 @@ private:
   Mode *mode;
 private:
   class ToolItem *typeModeItem;
+  class LineWidthItem *sketchModeItem;
   
 };
 

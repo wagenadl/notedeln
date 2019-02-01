@@ -189,8 +189,10 @@ void PageView::keyPressEvent(QKeyEvent *e) {
       mode()->setMode(Mode::Mark);
     break;
   case Qt::Key_F5:
-    if (currentSection==Entries)
+    if (currentSection==Entries) {
       mode()->setMode(Mode::Freehand);
+      mode()->setStraightLineMode(e->modifiers() & Qt::ShiftModifier);
+    }
     break;
   case Qt::Key_F6:
     if (currentSection==Entries)
@@ -210,7 +212,7 @@ void PageView::keyPressEvent(QKeyEvent *e) {
     break;
   case Qt::Key_QuoteLeft: case Qt::Key_AsciiTilde: case Qt::Key_4:
     if (e->modifiers() & Qt::ControlModifier)
-      mode()->setMathMode(!mode()->mathMode());
+      mode()->setMathMode(!mode()->isMathMode());
     else
       take = false;
     break;
@@ -458,7 +460,9 @@ void PageView::gotoEntryPage(int n, int dir) {
     entryScene = bank->entryScene(te->startPage());
     connect(entryScene->data(), SIGNAL(emptyStatusChanged(bool)),
 	    SLOT(emptyEntryChange()));
-
+    connect(entryScene.obj(), &EntryScene::restacked,
+            this, &PageView::emptyEntryChange);
+                
     connect(entryScene.obj(), SIGNAL(sheetRequest(int)),
 	    SLOT(handleSheetRequest(int)));
     if (entryScene->data()->isWritable())

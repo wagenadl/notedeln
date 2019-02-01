@@ -21,9 +21,15 @@
 #include <math.h>
 
 LineWidthItem::LineWidthItem(double lw): lw(lw), c("black") {
+  straight = false;
 }
 
 LineWidthItem::~LineWidthItem() {
+}
+
+void LineWidthItem::setStraightLineMode(bool s) {
+  straight = s;
+  update();
 }
 
 void LineWidthItem::paintContents(QPainter *p) {
@@ -33,8 +39,10 @@ void LineWidthItem::paintContents(QPainter *p) {
       pp << QPointF(x, 16-(x-16)-sin(.7*(x-12)));
   p->setPen(QPen(c, lw));
   p->setBrush(Qt::NoBrush);
-  p->drawPolyline(pp);
-  //Line(12, 24, 20, 8); // or something like that
+  if (straight)
+    p->drawLine(QLineF(QPointF(10, 22), QPointF(22, 10)));
+  else
+    p->drawPolyline(pp);
 }
 
 void LineWidthItem::setColor(QColor c1) {

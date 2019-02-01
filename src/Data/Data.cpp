@@ -404,11 +404,11 @@ void Data::setUuid(QString const &u) {
   markModified(InternalMod);
 }
 
-Data const *Data::findChildByUUID(QString id) const {
+Data const *Data::findDescendentByUUID(QString id) const {
   if (uuid_==id)
     return this;
   foreach (Data const *c, allChildren()) {
-    Data const *r = c->findChildByUUID(id);
+    Data const *r = c->findDescendentByUUID(id);
     if (r)
       return r;
   }

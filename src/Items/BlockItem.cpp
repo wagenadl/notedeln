@@ -40,6 +40,12 @@ BlockItem::~BlockItem() {
 
 FootnoteItem *BlockItem::newFootnote(FootnoteData *fd) {
   FootnoteItem *fni = new FootnoteItem(fd, 0);
+  qDebug() << "BlockItem::newFootnote" << this << ancestralBlock();
+  qDebug() << "  bs" << baseScene();
+  if (ancestralBlock())
+    qDebug() << "  abs" << ancestralBlock()->baseScene();
+  qDebug() << "  uuid" << data()->uuid();
+  //  fni->setBaseScene(baseScene()); // is this a good idea?
   if (fd->height()==0) 
     fni->sizeToFit();
   fni->resetPosition();
@@ -152,6 +158,8 @@ void BlockItem::resetPosition() {
 
 void BlockItem::setBaseScene(BaseScene *b) {
   bs = b;
+  // for (FootnoteItem *fni: footnotes())
+  //   fni->setBaseScene(b);
 }
 
 BaseScene *BlockItem::baseScene() {

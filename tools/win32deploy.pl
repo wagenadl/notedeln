@@ -21,6 +21,13 @@ my $release_path = "release-eln-x86";
 
 ######################################################################
 
+my @envpath = split(/:/, $ENV{PATH});
+my @usepath;
+for (@envpath) {
+	push @usepath, $_ unless /Anaconda/;
+}
+$ENV{PATH} = join(":", @usepath);	
+
 $msvc_path =~ s/\//\\/g;
 $ENV{VCINSTALLDIR} = $msvc_path;
 

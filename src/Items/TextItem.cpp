@@ -213,6 +213,7 @@ void TextItem::handleLeftClick(QGraphicsSceneMouseEvent *e) {
     attemptMarkup(e->pos(), MarkupData::Normal);
     break;
   default:
+    e->ignore();
     break;
   }
 }
@@ -261,6 +262,7 @@ void TextItem::selectWordOrLineOrParagraph(int pos) {
 }
 
 void TextItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
+  e->accept();
   switch (e->button()) {
   case Qt::LeftButton:
     if ((mode()->mode()==Mode::Type || mode()->mode()==Mode::Browse)
@@ -292,7 +294,6 @@ void TextItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
   default:
     break;
   }
-  e->accept();
 }
 
 int TextItem::pointToPos(QPointF p, bool strict) const {
@@ -438,6 +439,7 @@ bool TextItem::keyPressAsMotion(QKeyEvent *e) {
       update();
     } else {
       clearFocus();
+      emit futileMovementKey(e->key(), e->modifiers());
     }
   } return true;
   case Qt::Key_Return: case Qt::Key_Enter:
@@ -527,7 +529,7 @@ bool TextItem::keyPressWithControl(QKeyEvent *e) {
   if (keyPressAsSimpleStyle(e->key(), textCursor()))
     return true;
 
-  if (mode()->mathMode())
+  if (mode()->isMathMode())
     tryTeXCode(true);
   
   switch (e->key()) {
@@ -814,7 +816,7 @@ void TextItem::keyPressEvent(QKeyEvent *e) {
   case Mode::Type:
     if (isWritable()) {
       if (keyPressWithControl(e) 
-	  || (mode()->mathMode() && keyPressAsMath(e))
+	  || (mode()->isMathMode() && keyPressAsMath(e))
 	  || keyPressAsSpecialChar(e)
 	  || keyPressAsMotion(e)
 	  || keyPressAsSpecialEvent(e)
@@ -1241,7 +1243,10 @@ bool TextItem::tryFootnote(bool del) {
       return true;
     }
   } else {
-    if (!oldmd && start<end) {
+    if (oldmd) {
+      bs->focusFootnote(i, oldmd->text());
+      return true;
+    } else if (start<end) {
       if (!symMark.isEmpty()) {
 	QString repl = substituteMark(symMark);
 	if (repl!=symMark) {
@@ -1326,7 +1331,7 @@ Qt::CursorShape TextItem::cursorShape(Qt::KeyboardModifiers m) const {
       cs = Qt::IBeamCursor;
     }
     break;
-  case Mode::Annotate:
+  case Mode::Annotate: case Mode::Mark: case Mode::Freehand:
     cs = Qt::CrossCursor;
     break;
   case Mode::MoveResize:
