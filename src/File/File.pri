@@ -4,12 +4,12 @@ HEADERS += \
      File/BackgroundVC.h  \
      File/BookFile.h  \
      File/CachedEntry.h  \
+     File/DFBlocker.h  \
      File/DataFile.h  \
      File/DefaultLocation.h  \
-     File/DFBlocker.h  \
      File/Downloader.h  \
-     File/EntryFile.h  \
      File/Entry.h  \
+     File/EntryFile.h  \
      File/JSONFile.h  \
      File/JSONParser.h  \
      File/LateNoteFile.h  \
@@ -24,8 +24,8 @@ HEADERS += \
 SOURCES += \
      File/BackgroundVC.cpp  \
      File/CachedEntry.cpp  \
-     File/DataFile.cpp  \
      File/DFBlocker.cpp  \
+     File/DataFile.cpp  \
      File/Downloader.cpp  \
      File/Entry.cpp  \
      File/EntryFile.cpp  \
