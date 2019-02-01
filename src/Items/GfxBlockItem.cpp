@@ -36,6 +36,7 @@
 #include <QCursor>
 #include "GfxMarkItem.h"
 #include "GfxSketchItem.h"
+#include "GfxLineItem.h"
 #include "Assert.h"
 #include "Cursors.h"
 #include "Notebook.h"
@@ -206,8 +207,13 @@ void GfxBlockItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
       take = true;
       break;
     case Mode::Freehand: {
-      GfxSketchItem *ski = GfxSketchItem::newSketch(e->pos(), this);
-      ski->build();
+      if (mode()->isStraightLineMode()) {
+	GfxLineItem *li = GfxLineItem::newLine(e->pos(), this);
+	li->build(e);
+      } else {
+	GfxSketchItem *ski = GfxSketchItem::newSketch(e->pos(), this);
+	ski->build();
+      }
       take = true;
     } break;
     case Mode::Type:

@@ -1,4 +1,4 @@
-// App/LineWidthItem.H - This file is part of eln
+// Data/GfxLineData.H - This file is part of eln
 
 /* eln is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -14,28 +14,29 @@
    along with eln.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-// LineWidthItem.H
+// GfxLineData.H
 
-#ifndef LINEWIDTHITEM_H
+#ifndef GFXLINEDATA_H
 
-#define LINEWIDTHITEM_H
+#define GFXLINEDATA_H
 
-#include "ToolItem.h"
+#include "GfxPointsData.h"
+#include <QColor>
 
-class LineWidthItem: public ToolItem {
+class GfxLineData: public GfxPointsData {
   Q_OBJECT;
+  Q_PROPERTY(QColor color READ color WRITE setColor);
+  Q_PROPERTY(double lineWidth READ lineWidth WRITE setLineWidth);
 public:
-  LineWidthItem(double lw);
-  virtual ~LineWidthItem();
-  virtual void paintContents(QPainter *);
-public slots:
+  GfxLineData(Data *parent=0);
+  virtual ~GfxLineData();
+  QColor color() const;
+  double lineWidth() const;
   void setColor(QColor);
   void setLineWidth(double);
-  void setStraightLineMode(bool);
 private:
+  QColor col;
   double lw;
-  QColor c;
-  bool straight;
 };
 
 #endif

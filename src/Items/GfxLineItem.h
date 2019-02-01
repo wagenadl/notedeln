@@ -1,4 +1,4 @@
-// Items/GfxSketchItem.H - This file is part of eln
+// Items/GfxLineItem.H - This file is part of eln
 
 /* eln is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -14,33 +14,33 @@
    along with eln.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-// GfxSketchItem.H
+// GfxLineItem.H
 
-#ifndef GFXSKETCHITEM_H
+#ifndef GFXLINEITEM_H
 
-#define GFXSKETCHITEM_H
+#define GFXLINEITEM_H
 
 #include "Item.h"
-#include "GfxSketchData.h"
+#include "GfxLineData.h"
 #include "Mode.h"
 
 #include <QGraphicsObject>
 
-class GfxSketchItem: public Item {
+class GfxLineItem: public Item {
   Q_OBJECT;
 public:
-  GfxSketchItem(GfxSketchData *data, Item *parent=0);
-  virtual ~GfxSketchItem();
-  DATAACCESS(GfxSketchData);
+  GfxLineItem(GfxLineData *data, Item *parent=0);
+  virtual ~GfxLineItem();
+  DATAACCESS(GfxLineData);
   virtual QRectF boundingRect() const;
   virtual QPainterPath shape() const;
   virtual void paint(QPainter *, const QStyleOptionGraphicsItem *, QWidget *);
   virtual void makeWritable();
-  static GfxSketchItem *newSketch(QPointF p,
-				  QColor c, double lw,
-				  Item *parent);
-  static GfxSketchItem *newSketch(QPointF p, Item *parent);
-  void build();
+  static GfxLineItem *newLine(QPointF p,
+			      QColor c, double lw,
+			      Item *parent);
+  static GfxLineItem *newLine(QPointF p, Item *parent);
+  void build(QGraphicsSceneMouseEvent *);
 protected:
   virtual void mousePressEvent(QGraphicsSceneMouseEvent *);
   virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *);
@@ -50,13 +50,15 @@ protected:
 private:
   void rebuildPath();
   void moveBuilding(QGraphicsSceneMouseEvent *);
+  QPointF roundToGrid(QPointF) const;
 signals:
   void doneBuilding();
 private:
   bool building;
-  QList<QPointF> droppedPoints; // used during building
   QPainterPath path;
   QPainterPath stroked;
+  QPointF presspt, presspt2;
+  int pressidx;
 };
 
 #endif

@@ -46,7 +46,8 @@ public:
   QColor color() const;
   GfxMarkData::Shape shape() const;
   double markSize() const;
-  bool mathMode() const;
+  bool isMathMode() const;
+  bool isStraightLineMode() const;
   bool isReadOnly() const { return ro; }
 public:
   static Mode *ensure(Mode *);
@@ -57,6 +58,7 @@ public slots:
   void setShape(GfxMarkData::Shape);
   void setMarkSize(double);
   void setMathMode(bool);
+  void setStraightLineMode(bool);
 signals:
   void modeChanged(Mode::M);
   void lineWidthChanged(double);
@@ -64,10 +66,12 @@ signals:
   void shapeChanged(GfxMarkData::Shape);
   void markSizeChanged(double);
   void mathModeChanged(bool);
+  void straightLineModeChanged(bool);
 private:
   bool ro;
   M m;
   bool math;
+  bool straight;
   double lw;
   QColor c;
   GfxMarkData::Shape shp;

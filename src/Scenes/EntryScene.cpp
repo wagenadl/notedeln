@@ -582,6 +582,7 @@ TextBlockItem *EntryScene::newTextBlock(int iAbove, bool evenIfLastEmpty) {
 }
 
 void EntryScene::futileMovement(int block) {
+  //  qDebug() << "EntryScene::futileMovement" << block;
   ASSERT(block>=0 && block<blockItems.size());
   // futile movement in a text block
   TextBlockItem *tbi = dynamic_cast<TextBlockItem *>(blockItems[block]);
@@ -625,6 +626,12 @@ void EntryScene::futileMovement(int block) {
 	tgtidx = b;
 	break;
       }
+    }
+    if (tgtidx<0 && block+1<blockItems.size()) {
+    // no text block below us, but yes graphics blocks below us
+      newTextBlock(block + 1, true);
+      tgtidx = block + 2;
+      Q_ASSERT(tgtidx < blockItems.size());
     }
   }
 
@@ -817,7 +824,12 @@ bool EntryScene::mousePressEvent(QGraphicsSceneMouseEvent *e, SheetScene *s) {
   switch (mo->mode()) {
   case Mode::Mark: case Mode::Freehand:
     if (!it && isWritable() && !inMargin(sp)) {
-      GfxBlockItem *blk = newGfxBlockAt(sp, sh);
+      GfxBlockItem *blk = 0;
+      int idx = findLastBlockOnSheet(sh);
+      if (idx>=0)
+        blk = dynamic_cast<GfxBlockItem *>(blockItems[idx]);
+      if (!blk)
+        blk = newGfxBlockAt(sp, sh);
       e->setPos(blk->mapFromScene(e->scenePos())); // brutal!
       blk->mousePressEvent(e);
       take = true;
@@ -905,7 +917,7 @@ void EntryScene::addUnlockedWarning() {
 
 BlockItem const *EntryScene::findBlockByUUID(QString uuid) const {
   for (int i=0; i<blockItems.size(); i++) 
-    if (blockItems[i]->data()->findChildByUUID(uuid))
+    if (blockItems[i]->data()->findDescendentByUUID(uuid))
       return blockItems[i];
   return 0;
 }  
@@ -1223,15 +1235,22 @@ bool EntryScene::isWritable() const {
   return writable;
 }
 
-void EntryScene::newFootnote(int block, QString tag) {
+bool EntryScene::focusFootnote(int block, QString tag) {
   ASSERT(block>=0 && block<blockItems.size());
   foreach (FootnoteItem *fni, blockItems[block]->footnotes()) {
     if (fni->data()->tag()==tag) {
       emit sheetRequest(fni->data()->sheet());
       fni->setFocus();
-      return;
+      return true;
     }
   }
+  return false;
+}
+
+void EntryScene::newFootnote(int block, QString tag) {
+  ASSERT(block>=0 && block<blockItems.size());
+  if (focusFootnote(block, tag))
+    return;
   FootnoteData *fnd = new FootnoteData(blockItems[block]->data());
   fnd->setTag(tag);
   FootnoteItem *fni = blockItems[block]->newFootnote(fnd);
@@ -1366,4 +1385,17 @@ void EntryScene::makeMulticellularAndPaste(TextData *td, QString txt) {
   c1.setPosition(1);
   tbi->setTextCursor(c1);
   tbi->table()->pasteMultiCell(txt);
+}
+
+int EntryScene::findLastBlockOnSheet(int sh) {
+  int B = blockItems.size();
+  int res = -1;
+  for (int b=0; b<B; b++) {
+    int s = blockItems[b]->data()->sheet();
+    if (s>sh)
+      return res;
+    else if (s==sh)
+      res = b;
+  }
+  return res;
 }

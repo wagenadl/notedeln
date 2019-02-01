@@ -174,6 +174,7 @@ void TextItemDoc::relayout(bool preserveWidth) {
     QString line = "";
     while (it != splitter.bits().end()) {
       TextSplitter::Bit &b(*it);
+      //      qDebug() << "Considering" << line << b.text << int(b.type);
       // let's add bits to the line
       bool easy = false;
       if (usedwidth + b.width <= availwidth) {
@@ -200,9 +201,9 @@ void TextItemDoc::relayout(bool preserveWidth) {
 	TextSplitter::Bit const &b(*it);
 	line += b.text;
 	usedwidth += b.width;
-	bool nl = splitter.isType(it, TextSplitter::Type::Newline);
+	startofpar = splitter.isType(it, TextSplitter::Type::Newline);
 	++it;
-	if (nl)
+	if (startofpar)
 	  break;
 	if (splitter.isType(it, TextSplitter::Type::Hyphens)) {
 	  TextSplitter::Bit const &b(*it);
@@ -215,6 +216,9 @@ void TextItemDoc::relayout(bool preserveWidth) {
       }
     }
   }
+
+  if (startofpar)
+    linestarts << d->text->text().size();
 
   d->linestarts = linestarts;
 

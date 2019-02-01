@@ -1,4 +1,4 @@
-// App/LineWidthItem.H - This file is part of eln
+// Data/GfxLineData.cpp - This file is part of eln
 
 /* eln is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -14,28 +14,41 @@
    along with eln.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-// LineWidthItem.H
+// GfxLineData.C
 
-#ifndef LINEWIDTHITEM_H
+#include "GfxLineData.h"
 
-#define LINEWIDTHITEM_H
+static Data::Creator<GfxLineData> c("gfxline");
 
-#include "ToolItem.h"
+GfxLineData::GfxLineData(Data *parent): GfxPointsData(parent) {
+  setType("gfxline");
+  col = QColor("black");
+  lw = 1;
+}
 
-class LineWidthItem: public ToolItem {
-  Q_OBJECT;
-public:
-  LineWidthItem(double lw);
-  virtual ~LineWidthItem();
-  virtual void paintContents(QPainter *);
-public slots:
-  void setColor(QColor);
-  void setLineWidth(double);
-  void setStraightLineMode(bool);
-private:
-  double lw;
-  QColor c;
-  bool straight;
-};
+GfxLineData::~GfxLineData() {
+}
 
-#endif
+QColor GfxLineData::color() const {
+  return col;
+}
+
+double GfxLineData::lineWidth() const {
+  return lw;
+}
+
+void GfxLineData::setColor(QColor c) {
+  if (col==c)
+    return;
+  col = c;
+  markModified();
+}
+
+void GfxLineData::setLineWidth(double w) {
+  if (lw==w)
+    return;
+  lw = w;
+  markModified();
+}
+
+    

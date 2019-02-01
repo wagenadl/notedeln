@@ -1,3 +1,31 @@
+eln 1.2.14
+
+  Improvements:
+
+  - Drawing below existing gfx block no longer creates new block.
+  - Can now draw straight lines.
+  - Slightly bigger glow around items for improved visibility on high-res
+    monitors.
+  - Ctrl-N re-enters existing footnote.
+  - Improved generation of hyphens vs. minus signs in math mode.
+  - Prevent italicization of "s.t.", "e.g.", "i.e." in math mode.
+  - Single quote no longer terminates super/subscript in math mode, as it can
+    be used as prime.
+  - Letter+digit like “M0” no longer italicized in math mode
+  - Refinements to ± and a = 0 in math.
+
+  Bugs fixed:
+
+  - Down arrow in final text block creates new text block if gfx block follows.
+  - Improvement in <=> digraph
+  - Now math mode can generate → as expected
+
+  Remaining bugs:
+
+  - Downloading links in Windows version does not work.
+
+  -- Daniel A. Wagenaar <daw@caltech.edu>  Thu, 31 Jan 2019 17:09:45 -0800
+
 eln 1.2.12
 
   Two requested minor features added:
