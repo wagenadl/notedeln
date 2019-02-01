@@ -460,7 +460,9 @@ void PageView::gotoEntryPage(int n, int dir) {
     entryScene = bank->entryScene(te->startPage());
     connect(entryScene->data(), SIGNAL(emptyStatusChanged(bool)),
 	    SLOT(emptyEntryChange()));
-
+    connect(entryScene.obj(), &EntryScene::restacked,
+            this, &PageView::emptyEntryChange);
+                
     connect(entryScene.obj(), SIGNAL(sheetRequest(int)),
 	    SLOT(handleSheetRequest(int)));
     if (entryScene->data()->isWritable())

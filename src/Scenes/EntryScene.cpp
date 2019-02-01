@@ -627,6 +627,12 @@ void EntryScene::futileMovement(int block) {
 	break;
       }
     }
+    if (tgtidx<0 && block+1<blockItems.size()) {
+    // no text block below us, but yes graphics blocks below us
+      newTextBlock(block + 1, true);
+      tgtidx = block + 2;
+      Q_ASSERT(tgtidx < blockItems.size());
+    }
   }
 
   if (tgtidx<0) {
