@@ -818,8 +818,10 @@ bool EntryScene::mousePressEvent(QGraphicsSceneMouseEvent *e, SheetScene *s) {
   switch (mo->mode()) {
   case Mode::Mark: case Mode::Freehand:
     if (!it && isWritable() && !inMargin(sp)) {
-      GfxBlockItem *blk = blockItems.isEmpty() ? 0
-        : dynamic_cast<GfxBlockItem *>(blockItems.last());
+      GfxBlockItem *blk = 0;
+      int idx = findLastBlockOnSheet(sh);
+      if (idx>=0)
+        blk = dynamic_cast<GfxBlockItem *>(blockItems[idx]);
       if (!blk)
         blk = newGfxBlockAt(sp, sh);
       e->setPos(blk->mapFromScene(e->scenePos())); // brutal!
@@ -1377,4 +1379,17 @@ void EntryScene::makeMulticellularAndPaste(TextData *td, QString txt) {
   c1.setPosition(1);
   tbi->setTextCursor(c1);
   tbi->table()->pasteMultiCell(txt);
+}
+
+int EntryScene::findLastBlockOnSheet(int sh) {
+  int B = blockItems.size();
+  int res = -1;
+  for (int b=0; b<B; b++) {
+    int s = blockItems[b]->data()->sheet();
+    if (s>sh)
+      return res;
+    else if (s==sh)
+      res = b;
+  }
+  return res;
 }
