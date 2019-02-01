@@ -1403,7 +1403,7 @@ QRectF TextItem::boundingRect() const {
 void TextItem::paint(QPainter *p, const QStyleOptionGraphicsItem *, QWidget *) {
   if (!text)
     return;
-
+  
   if (clips())
     p->setClipRect(clip_.adjusted(-10,0,10,0));
   else
