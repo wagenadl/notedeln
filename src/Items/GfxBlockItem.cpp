@@ -37,7 +37,7 @@
 #include "GfxMarkItem.h"
 #include "GfxSketchItem.h"
 #include "GfxLineItem.h"
-#include "Assert.h"
+#include "ElnAssert.h"
 #include "Cursors.h"
 #include "Notebook.h"
 

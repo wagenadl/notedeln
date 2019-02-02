@@ -20,7 +20,7 @@
 #include "Notebook.h"
 #include "BookFile.h"
 #include <QSettings>
-#include "Assert.h"
+#include "ElnAssert.h"
 
 #define MAXLISTLENGTH 20
 

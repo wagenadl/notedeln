@@ -20,7 +20,7 @@
 #include "EntryFile.h"
 #include "EntryData.h"
 #include "JSONFile.h"
-#include "Assert.h"
+#include "ElnAssert.h"
 #include "Translate.h"
 #include <QDebug>
 #include <QMessageBox>

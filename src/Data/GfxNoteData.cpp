@@ -17,7 +17,7 @@
 // GfxNoteData.C
 
 #include "GfxNoteData.h"
-#include "Assert.h"
+#include "ElnAssert.h"
 #include <math.h>
 #include <QDebug>
 

@@ -25,7 +25,7 @@
 #include "Translate.h"
 #include "EntryScene.h"
 #include "Navbar.h"
-#include "Assert.h"
+#include "ElnAssert.h"
 
 #include <QDebug>
 #include <QKeyEvent>

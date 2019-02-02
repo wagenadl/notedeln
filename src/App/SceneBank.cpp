@@ -23,7 +23,7 @@
 #include "TOCScene.h"
 #include "EntryScene.h"
 #include "EntryFile.h"
-#include "Assert.h"
+#include "ElnAssert.h"
 
 SceneBank::SceneBank(Notebook *nb): nb(nb) {
   frontScene_ = new FrontScene(nb, this);

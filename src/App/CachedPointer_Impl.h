@@ -23,7 +23,7 @@
 
 #include <QAtomicInt>
 #include <QAtomicPointer>
-#include "Assert.h"
+#include "ElnAssert.h"
 #include <QDebug>
 
 template <typename T> class CachedPointer {

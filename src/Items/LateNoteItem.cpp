@@ -20,7 +20,7 @@
 #include "LateNoteData.h"
 #include "TextItem.h"
 #include "EntryData.h"
-#include "Assert.h"
+#include "ElnAssert.h"
 
 #include <QPen>
 #include <QBrush>

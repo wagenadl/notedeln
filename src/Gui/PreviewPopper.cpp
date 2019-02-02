@@ -23,7 +23,7 @@
 #include <QLabel>
 #include <QGraphicsSceneHoverEvent>
 #include <QDebug>
-#include "Assert.h"
+#include "ElnAssert.h"
 #include "PopLabel.h"
 #include <QTimer>
 

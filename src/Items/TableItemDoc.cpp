@@ -20,7 +20,7 @@
 #include "TableData.h"
 #include "TextItemDocData.h"
 #include <QDebug>
-#include "Assert.h"
+#include "ElnAssert.h"
 
 TableItemDoc::TableItemDoc(class TableData *data, QObject *parent):
   TextItemDoc(data, parent) {

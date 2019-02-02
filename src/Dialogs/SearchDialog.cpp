@@ -24,7 +24,7 @@
 #include "SearchView.h"
 #include "BookData.h"
 //#include "FindOverlay.h"
-#include "Assert.h"
+#include "ElnAssert.h"
 #include "SheetScene.h"
 
 #include <QInputDialog>

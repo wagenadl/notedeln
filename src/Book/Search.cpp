@@ -25,7 +25,7 @@
 #include "FootnoteData.h"
 #include "Index.h"
 #include "WordIndex.h"
-#include "Assert.h"
+#include "ElnAssert.h"
 #include "LateNoteManager.h"
 
 #include <QSet>

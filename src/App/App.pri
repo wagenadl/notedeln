@@ -4,7 +4,6 @@ HEADERS += \
      App/AlreadyOpen.h  \
      App/App.h  \
      App/AppInstance.h  \
-     App/Assert.h  \
      App/BuildDate.h  \
      App/CUI.h  \
      App/CachedPointer.h  \
@@ -14,6 +13,7 @@ HEADERS += \
      App/DeletedItem.h  \
      App/DeletedStack.h  \
      App/EProcess.h  \
+     App/ElnAssert.h  \
      App/HtmlOutput.h  \
      App/Mode.h  \
      App/RecentBooks.h  \
@@ -27,7 +27,6 @@ SOURCES += \
      App/AlreadyOpen.cpp  \
      App/App.cpp  \
      App/AppInstance.cpp  \
-     App/Assert.cpp  \
      App/BuildDate.cpp  \
      App/CUI.cpp  \
      App/CachedPointer.cpp  \
@@ -36,6 +35,7 @@ SOURCES += \
      App/DeletedItem.cpp  \
      App/DeletedStack.cpp  \
      App/EProcess.cpp  \
+     App/ElnAssert.cpp  \
      App/HtmlOutput.cpp  \
      App/Mode.cpp  \
      App/Printing.cpp  \

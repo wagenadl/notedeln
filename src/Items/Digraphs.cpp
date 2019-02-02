@@ -18,7 +18,7 @@
 
 #include "Digraphs.h"
 
-#include "Assert.h"
+#include "ElnAssert.h"
 #include "JSONFile.h"
 
 QMap<QString, QMap<QString, QString> > const &Digraphs::chars() {

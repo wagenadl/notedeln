@@ -1,4 +1,4 @@
-// App/Assert.H - This file is part of eln
+// App/Elnassert.H - This file is part of eln
 
 /* eln is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -14,11 +14,11 @@
    along with eln.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-// Assert.H
+// Elnassert.H
 
-#ifndef ASSERT_H
+#ifndef ELNASSERT_H
 
-#define ASSERT_H
+#define ELNASSERT_H
 
 #include <QString>
 #include <QDebug>

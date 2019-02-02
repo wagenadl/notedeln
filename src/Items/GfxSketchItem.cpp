@@ -24,7 +24,7 @@
 #include <QGraphicsSceneMouseEvent>
 #include <QCursor>
 #include <QEventLoop>
-#include "Assert.h"
+#include "ElnAssert.h"
 #include "BlockItem.h"
 #include "Cursors.h"
 

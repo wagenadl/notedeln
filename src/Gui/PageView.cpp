@@ -29,7 +29,7 @@
 #include "TitleData.h"
 #include "DeletedStack.h"
 #include "Cursors.h"
-#include "Assert.h"
+#include "ElnAssert.h"
 #include "Mode.h"
 #include "BlockItem.h"
 #include "TextBlockItem.h"

@@ -23,7 +23,7 @@
 
 #include "DataFile.h"
 #include "DFBlocker.h"
-#include "Assert.h"
+#include "ElnAssert.h"
 #include "VersionControl.h"
 
 #ifdef Q_OS_LINUX

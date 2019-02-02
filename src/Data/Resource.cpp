@@ -20,7 +20,7 @@
 #include "ResLoader.h"
 #include <QImage>
 #include <QDebug>
-#include "Assert.h"
+#include "ElnAssert.h"
 #include "Notebook.h"
 #include "TOC.h"
 #include "TOCEntry.h"

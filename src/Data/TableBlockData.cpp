@@ -18,7 +18,7 @@
 
 #include "TableBlockData.h"
 #include "TableData.h"
-#include "Assert.h"
+#include "ElnAssert.h"
 #include <QSet>
 #include <QDebug>
 

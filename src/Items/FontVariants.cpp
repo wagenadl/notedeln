@@ -17,7 +17,7 @@
 // FontVariants.cpp
 
 #include "FontVariants.h"
-#include "Assert.h"
+#include "ElnAssert.h"
 
 
 FontVariants::FontVariants() {

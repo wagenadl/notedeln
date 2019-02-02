@@ -19,7 +19,7 @@
 #include "TextItem.h"
 #include "PreviewPopper.h"
 #include "ResManager.h"
-#include "Assert.h"
+#include "ElnAssert.h"
 #include "SheetScene.h"
 #include "PageView.h"
 #include "TextData.h"

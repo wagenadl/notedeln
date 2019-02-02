@@ -17,7 +17,7 @@
 // TableData.C
 
 #include "TableData.h"
-#include "Assert.h"
+#include "ElnAssert.h"
 #include <QDebug>
 
 static Data::Creator<TableData> c("table");

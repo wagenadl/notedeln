@@ -19,7 +19,7 @@
 #include "MarkupData.h"
 #include "TextData.h"
 #include "Notebook.h"
-#include "Assert.h"
+#include "ElnAssert.h"
 #include <QDebug>
 
 static Data::Creator<MarkupData> c("markup");

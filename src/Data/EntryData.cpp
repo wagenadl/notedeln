@@ -22,7 +22,7 @@
 #include <QDebug>
 #include "Notebook.h"
 #include "ResManager.h"
-#include "Assert.h"
+#include "ElnAssert.h"
 
 #include "App.h"
 #include "CUI.h"

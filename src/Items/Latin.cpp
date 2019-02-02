@@ -17,7 +17,7 @@
 // Latin.C
 
 #include "Latin.h"
-#include "Assert.h"
+#include "ElnAssert.h"
 #include "JSONFile.h"
 
 QVariantMap const &Latin::json() {

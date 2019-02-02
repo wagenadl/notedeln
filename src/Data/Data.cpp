@@ -23,7 +23,7 @@
 #include <QDebug>
 #include "Style.h"
 #include "Notebook.h"
-#include "Assert.h"
+#include "ElnAssert.h"
 #include "UUID.h"
 
 Data::Data(Data *parent0): QObject(parent0) {

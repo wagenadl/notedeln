@@ -25,7 +25,7 @@
 
 #include "TextCursor.h"
 #include <QDebug>
-#include "Assert.h"
+#include "ElnAssert.h"
 #include <math.h>
 
 TICreator::~TICreator() {

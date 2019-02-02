@@ -1,7 +1,7 @@
 // LateNoteManager.cpp
 
 #include "LateNoteManager.h"
-#include "Assert.h"
+#include "ElnAssert.h"
 #include <QDebug>
 
 LateNoteManager::LateNoteManager(QString root, QObject *parent):

@@ -30,7 +30,7 @@
 #include "TextCursor.h"
 #include "TableItemDoc.h"
 #include "TableData.h"
-#include "Assert.h"
+#include "ElnAssert.h"
 #include "Unicode.h"
 
 TextItemDoc *TextItemDoc::create(TextData *data, QObject *parent) {
