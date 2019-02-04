@@ -213,11 +213,9 @@ void Resource::ensureArchiveFilename() {
       base += leaf.mid(idx);
     }
   } else {
-  #ifdef WIN32
     qDebug() << "ensureArchiveFilename" << src.path() << safeExtension(base);
     if (safeExtension(base).isEmpty() || src.path().isEmpty())
       base += ".html";
-#endif
   }
   setArchiveFilename(safeBaseName(base) + "-" + uuid() + safeExtension(base));
 }
