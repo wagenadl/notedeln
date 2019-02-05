@@ -16,7 +16,7 @@
 
 // Elnassert.C
 
-#include "Elnassert.h"
+#include "ElnAssert.h"
 #include <QApplication>
 #include <QDebug>
 #include <QMessageBox>
