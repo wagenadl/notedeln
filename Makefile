@@ -109,6 +109,7 @@ userguide:
 	+make -C build-doc userguide.pdf
 
 install-userguide: doc
+	install -d $(DOCPATH)
 	cp build-doc/userguide.pdf $(DOCPATH)/userguide.pdf
 
 # Tar preparation
