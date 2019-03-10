@@ -1,7 +1,0 @@
-?package(eln):\
-	needs="X11" \
-	section="Applications/Education" \
-	title="ELN" \
-	command="eln" \
-	icon="/usr/share/pixmaps/eln.xpm"
-		  
