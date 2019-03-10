@@ -4,7 +4,7 @@
 #include "Translate.h"
 #include "Version.h"
 #include <QMessageBox>
-#include <QIcon>
+#include <QDebug>
 
 void AboutBox::about() {
   QString author = "Daniel A. Wagenaar";
@@ -26,6 +26,13 @@ void AboutBox::about() {
   box.setWindowTitle(Translate::_("about-eln"));
   box.setTextFormat(Qt::RichText);
   box.setText(msg);
-  box.setIconPixmap(QPixmap(":/eln.png"));
+  box.setIcon(QMessageBox::Information);
+  int iconwidth = box.iconPixmap().width() * 128/48;
+  if (iconwidth>128)
+    iconwidth = 128;
+  box.setIconPixmap(QPixmap(":/eln512.png").scaled(QSize(iconwidth,iconwidth),
+                                                   Qt::KeepAspectRatio,
+                                                   Qt::SmoothTransformation));
+  //  qDebug() << "pmsize" << px.size();
   box.exec();
 }
