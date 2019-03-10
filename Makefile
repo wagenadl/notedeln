@@ -63,7 +63,7 @@ webgrabprep:
 	( cd build-webgrab;  $(SELECTQT) $(QMAKE) ../webgrab/webgrab.pro )
 
 # Unix installation
-install: all
+install: all install-userguide
 	install -d $(INSTALLPATH)/bin
 	install -d $(SHAREPATH)/man/man1
 	install -d $(SHAREPATH)/pixmaps
