@@ -8,9 +8,9 @@ HEADERS += \
      Book/Search.h  \
      Book/SearchResult.h  \
      Book/Style.h  \
+     Book/TOC.h  \
      Book/TOCEntry.h  \
      Book/TOCFile.h  \
-     Book/TOC.h  \
      Book/WordIndex.h  \
 
 SOURCES += \

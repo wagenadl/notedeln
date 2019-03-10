@@ -20,18 +20,18 @@ HEADERS += \
      Items/LateNoteItem.h  \
      Items/Latin.h  \
      Items/SearchResItem.h  \
+     Items/TOCItem.h  \
      Items/TableBlockItem.h  \
-     Items/TableItemDoc.h  \
      Items/TableItem.h  \
+     Items/TableItemDoc.h  \
      Items/TeXCodes.h  \
      Items/TextBlockItem.h  \
      Items/TextCursor.h  \
-     Items/TextItemDocData.h  \
-     Items/TextItemDoc.h  \
      Items/TextItem.h  \
+     Items/TextItemDoc.h  \
+     Items/TextItemDocData.h  \
      Items/TextSplitter.h  \
      Items/TitleItem.h  \
-     Items/TOCItem.h  \
      Items/Unicode.h  \
 
 SOURCES += \
@@ -54,6 +54,7 @@ SOURCES += \
      Items/LateNoteItem.cpp  \
      Items/Latin.cpp  \
      Items/SearchResItem.cpp  \
+     Items/TOCItem.cpp  \
      Items/TableBlockItem.cpp  \
      Items/TableItem.cpp  \
      Items/TableItemDoc.cpp  \
@@ -66,7 +67,6 @@ SOURCES += \
      Items/TextItem_MathMode.cpp  \
      Items/TextSplitter.cpp  \
      Items/TitleItem.cpp  \
-     Items/TOCItem.cpp  \
 
 RESOURCES += \
      Items/Digraphs.qrc  \
