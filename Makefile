@@ -37,7 +37,7 @@ endif
 DOCPATH = $(SHAREPATH)/doc/eln
 
 # Linux and Mac building
-all: src webgrab man
+all: src webgrab man userguide
 
 update:
 	tools/updatesources.sh
@@ -88,18 +88,15 @@ install: all
 	cp src/App/eln.iconset/icon_48x48.png $(SHAREPATH)/icons/gnome/48x48/mimetypes/application-eln-book.png
 	cp src/App/eln.iconset/icon_64x64.png $(SHAREPATH)/icons/gnome/64x64/mimetypes/application-eln-book.png
 	cp src/App/eln.iconset/icon_128x128.png $(SHAREPATH)/icons/gnome/128x128/mimetypes/application-eln-book.png
-	#gtk-update-icon-cache $(SHAREPATH)/icons/gnome || true
-
 	cp src/eln.xml $(SHAREPATH)/mime/packages/eln.xml
-	update-mime-database $(SHAREPATH)/mime/ || true
-
 	install src/eln.desktop $(SHAREPATH)/applications/eln.desktop
-
 	cp README.md $(DOCPATH)/readme
 	gzip -9 $(DOCPATH)/readme
 	cp CHANGELOG $(DOCPATH)/changelog
 	gzip -9 $(DOCPATH)/changelog
 	install src/Gui/fonts/ubuntu-font-licence-1.0.txt.gz $(DOCPATH)/ubuntu-font-licence-1.0.txt.gz
+#       gtk-update-icon-cache $(SHAREPATH)/icons/gnome || true
+#       update-mime-database $(SHAREPATH)/mime/ || true
 
 man:
 	mkdir -p build-doc
