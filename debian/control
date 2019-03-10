@@ -2,7 +2,7 @@ Source: eln
 Section: editors
 Priority: optional
 Maintainer: Daniel Wagenaar <daw@caltech.edu>
-Build-Depends: debhelper (>= 9.0.0), qtbase5-dev (>= 5.5), qttools5-dev-tools (>= 5.5),libqt5webkit5-dev (>= 5.5), asciidoc(>= 8.6.0), libqt5svg5-dev (>= 5.5), xsltproc (>= 1.0), docbook-xml (>= 4.0), docbook-xsl (>= 1.0), texlive-latex-base (>= 2017), texlive-fonts-recommended (>= 2017)
+Build-Depends: debhelper (>= 9.0.0), qtbase5-dev (>= 5.5), qttools5-dev-tools (>= 5.5),libqt5webkit5-dev (>= 5.5), asciidoc(>= 8.6.0), libqt5svg5-dev (>= 5.5), xsltproc (>= 1.0), docbook-xml (>= 4.0), docbook-xsl (>= 1.0), texlive-latex-base (>= 2017), texlive-fonts-recommended (>= 2017), texlive-latex-extra (>= 2017), texlive-latex-recommended (>= 2017)
 Standards-Version: 3.9.8
 Homepage: http://www.danielwagenaar.net/eln
 
