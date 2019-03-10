@@ -6,7 +6,7 @@
 #include <QNetworkReply>
 #include <QNetworkRequest>
 #include <QFile>
-#include "Assert.h"
+#include "ElnAssert.h"
 
 int Downloader::maxDownloadLength() {
   return 1000*1000*100;

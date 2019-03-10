@@ -19,7 +19,7 @@
 #include "EntryFile.h"
 #include "ResManager.h"
 #include <QDebug>
-#include "Assert.h"
+#include "ElnAssert.h"
 #include "UUID.h"
 
 static QString basicFilename(int pgno, QString uuid) {

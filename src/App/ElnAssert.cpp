@@ -1,4 +1,4 @@
-// App/Assert.cpp - This file is part of eln
+// App/Elnassert.cpp - This file is part of eln
 
 /* eln is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -14,9 +14,9 @@
    along with eln.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-// Assert.C
+// Elnassert.C
 
-#include "Assert.h"
+#include "ElnAssert.h"
 #include <QApplication>
 #include <QDebug>
 #include <QMessageBox>

@@ -18,7 +18,7 @@
 
 #include "ResLoader.h"
 #include "Resource.h"
-#include "Assert.h"
+#include "ElnAssert.h"
 #include "WebGrab.h"
 
 #include "Downloader.h"

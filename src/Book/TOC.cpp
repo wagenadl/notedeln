@@ -24,7 +24,7 @@
 #include "EntryData.h"
 #include "EntryFile.h"
 #include "TitleData.h"
-#include "Assert.h"
+#include "ElnAssert.h"
 #include <QProgressDialog>
 #include "Catalog.h"
 

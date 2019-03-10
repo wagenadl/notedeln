@@ -23,7 +23,7 @@
 #include "Item.h"
 #include <QEventLoop>
 #include <QGraphicsSceneMouseEvent>
-#include "Assert.h"
+#include "ElnAssert.h"
 #include <QGraphicsScene>
 
 DragLine::DragLine(QPointF p0, QGraphicsItem *parent):

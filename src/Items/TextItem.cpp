@@ -26,7 +26,7 @@
 #include "Style.h"
 #include "ResManager.h"
 #include "BlockItem.h"
-#include "Assert.h"
+#include "ElnAssert.h"
 #include "TeXCodes.h"
 #include "Latin.h"
 #include "Digraphs.h"

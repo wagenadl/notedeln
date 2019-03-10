@@ -18,7 +18,7 @@
 
 #include "Toolbar.h"
 #include <QDebug>
-#include "Assert.h"
+#include "ElnAssert.h"
 #include "ToolItem.h"
 #include <QTimerEvent>
 

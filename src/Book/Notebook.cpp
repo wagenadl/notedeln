@@ -22,7 +22,7 @@
 #include "EntryFile.h"
 #include "TitleData.h"
 #include "Style.h"
-#include "Assert.h"
+#include "ElnAssert.h"
 #include "RecentBooks.h"
 #include "Index.h"
 #include "Translate.h"

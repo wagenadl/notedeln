@@ -18,7 +18,7 @@
 
 #include "TextCursor.h"
 #include <QDebug>
-#include "Assert.h"
+#include "ElnAssert.h"
 #include "Unicode.h"
 
 TextCursor::Range::Range(int a, int b) {

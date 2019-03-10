@@ -28,7 +28,7 @@
 #include "AppInstance.h"
 #include <QDebug>
 #include <stdlib.h>
-#include "Assert.h"
+#include "ElnAssert.h"
 #include "SplashScene.h"
 #include "AlreadyOpen.h"
 #include <QMessageBox>

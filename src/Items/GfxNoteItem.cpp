@@ -22,7 +22,7 @@
 #include <QDebug>
 #include <QGraphicsSceneMouseEvent>
 #include <QTextDocument>
-#include "Assert.h"
+#include "ElnAssert.h"
 #include "BlockItem.h"
 #include <QTextBlock>
 #include <QTextLayout>

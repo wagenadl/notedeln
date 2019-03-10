@@ -26,7 +26,7 @@
 #include <QPointer>
 #include <Qt>
 #include "Style.h"
-#include "Assert.h"
+#include "ElnAssert.h"
 
 #define DATAACCESS(T) T const *data() const { return constCastData<T>(); } \
                       T *data() { return castData<T>(); }

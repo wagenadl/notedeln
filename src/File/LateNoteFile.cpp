@@ -3,7 +3,7 @@
 #include "LateNoteFile.h"
 
 #include <QDebug>
-#include "Assert.h"
+#include "ElnAssert.h"
 #include "UUID.h"
 #include "ResManager.h"
 

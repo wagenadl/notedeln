@@ -20,7 +20,7 @@
 #include "FootnoteData.h"
 #include "TextItem.h"
 #include "AutoNote.h"
-#include "Assert.h"
+#include "ElnAssert.h"
 
 #include <QDebug>
 

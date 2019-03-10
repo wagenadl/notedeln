@@ -36,7 +36,7 @@
 #include "Mode.h"
 #include "FootnoteData.h"
 #include "FootnoteItem.h"
-#include "Assert.h"
+#include "ElnAssert.h"
 #include "Notebook.h"
 #include "LateNoteItem.h"
 #include "GfxNoteItem.h"

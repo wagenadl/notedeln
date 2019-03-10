@@ -26,6 +26,7 @@ else
   ifeq ($(UNAME),Darwin)
     # Mac OS
     QROOT=/Users/wagenaar/Qt-5.7/5.7
+    QROOT=/Users/wagenaar/Qt-5.12/5.12.1
     QBINPATH=$(QROOT)/clang_64/bin
     QMAKE=$(QBINPATH)/qmake
   else

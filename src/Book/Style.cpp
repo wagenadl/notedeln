@@ -23,7 +23,7 @@
 #include <QDebug>
 #include <QColor>
 #include "JSONParser.h"
-#include "Assert.h"
+#include "ElnAssert.h"
 
 Style const &Style::defaultStyle() {
   static Style s;

@@ -20,7 +20,7 @@
 
 #include "Style.h"
 #include "Data.h"
-#include "Assert.h"
+#include "ElnAssert.h"
 #include "PageView.h"
 #include "SheetScene.h"
 #include "TitleItem.h"

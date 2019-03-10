@@ -20,7 +20,7 @@
 #include "EntryData.h"
 #include "EntryFile.h"
 #include <QDebug>
-#include "Assert.h"
+#include "ElnAssert.h"
 #include "LateNoteManager.h"
 
 Entry::Entry(EntryData *data): data_(data), file_(0) {

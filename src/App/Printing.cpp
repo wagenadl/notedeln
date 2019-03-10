@@ -23,7 +23,7 @@
 #include "TOCScene.h"
 #include "FrontScene.h"
 #include "EntryScene.h"
-#include "Assert.h"
+#include "ElnAssert.h"
 #include "Toolbars.h"
 #include "PrintDialog.h"
 

@@ -20,7 +20,7 @@
 #include <QDebug>
 #include <QTimer>
 #include "JSONFile.h"
-#include "Assert.h"
+#include "ElnAssert.h"
 #include "DFBlocker.h"
 #include "PointerSet.h"
 

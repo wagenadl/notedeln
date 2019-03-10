@@ -17,7 +17,7 @@
 // DeletedItem.C
 
 #include "DeletedItem.h"
-#include "Assert.h"
+#include "ElnAssert.h"
 #include "BlockItem.h"
 
 DeletedItem::DeletedItem(Item *item) {

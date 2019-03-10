@@ -19,7 +19,7 @@
 #include "TextBlockData.h"
 #include <QDebug>
 #include "FootnoteData.h"
-#include "Assert.h"
+#include "ElnAssert.h"
 #include "GfxNoteData.h"
 
 static Data::Creator<TextBlockData> c("textblock");

@@ -18,7 +18,7 @@
 
 #include "TableCell.h"
 #include "TableData.h"
-#include "Assert.h"
+#include "ElnAssert.h"
 #include <QDebug>
 
 bool TableCell::isValid() const {

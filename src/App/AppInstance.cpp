@@ -10,7 +10,7 @@
 #include "App.h"
 #include "VersionControl.h"
 #include "BackgroundVC.h"
-#include "Assert.h"
+#include "ElnAssert.h"
 #include "Style.h"
 
 #include <QTimer>

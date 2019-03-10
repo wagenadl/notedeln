@@ -20,7 +20,7 @@
 #include "ResLoader.h"
 #include <QImage>
 #include <QDebug>
-#include "Assert.h"
+#include "ElnAssert.h"
 #include "Notebook.h"
 #include "TOC.h"
 #include "TOCEntry.h"
@@ -213,11 +213,9 @@ void Resource::ensureArchiveFilename() {
       base += leaf.mid(idx);
     }
   } else {
-  #ifdef WIN32
     qDebug() << "ensureArchiveFilename" << src.path() << safeExtension(base);
     if (safeExtension(base).isEmpty() || src.path().isEmpty())
       base += ".html";
-#endif
   }
   setArchiveFilename(safeBaseName(base) + "-" + uuid() + safeExtension(base));
 }

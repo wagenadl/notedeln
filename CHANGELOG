@@ -19,10 +19,7 @@ eln 1.2.14
   - Down arrow in final text block creates new text block if gfx block follows.
   - Improvement in <=> digraph
   - Now math mode can generate → as expected
-
-  Remaining bugs:
-
-  - Downloading links in Windows version does not work.
+  - Downloading links in Windows version did not work.
 
   -- Daniel A. Wagenaar <daw@caltech.edu>  Thu, 31 Jan 2019 17:09:45 -0800
 

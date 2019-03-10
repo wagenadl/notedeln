@@ -32,7 +32,8 @@ win32 {
 
 mac {
     ICON = App/eln.icns
-    QMAKE_MAC_SDK = macosx10.11
+    #QMAKE_MAC_SDK = macosx10.11
+    QMAKE_MAC_SDK = macosx
     QMAKE_INFO_PLIST = App/Info.plist
     OTHER_FILES += App/Info.plist
     TARGET = ../eln

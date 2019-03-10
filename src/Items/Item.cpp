@@ -30,7 +30,7 @@
 #include "App.h"
 #include "GfxData.h"
 #include "GfxNoteData.h"
-#include "Assert.h"
+#include "ElnAssert.h"
 #include <QGraphicsDropShadowEffect>
 #include "Mode.h"
 #include "BlockItem.h"
