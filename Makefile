@@ -68,7 +68,12 @@ install: all
 	install -d $(SHAREPATH)/man/man1
 	install -d $(SHAREPATH)/pixmaps
 	install -d $(SHAREPATH)/applications
+	install -d $(SHAREPATH)/icons/gnome/24x24/mimetypes
 	install -d $(SHAREPATH)/icons/gnome/48x48/mimetypes
+	install -d $(SHAREPATH)/icons/gnome/16x16/mimetypes
+	install -d $(SHAREPATH)/icons/gnome/32x32/mimetypes
+	install -d $(SHAREPATH)/icons/gnome/64x64/mimetypes
+	install -d $(SHAREPATH)/icons/gnome/128x128/mimetypes
 	install -d $(SHAREPATH)/mime/packages
 	install -d $(DOCPATH)
 	install build/eln $(INSTALLPATH)/bin/eln
@@ -77,11 +82,16 @@ install: all
 	cp build-doc/webgrab.1 $(SHAREPATH)/man/man1/webgrab.1
 	cp src/App/eln.png $(SHAREPATH)/pixmaps/eln.png
 	cp src/eln.xpm $(SHAREPATH)/pixmaps/eln.xpm
-	cp src/App/eln.png $(SHAREPATH)/icons/gnome/48x48/mimetypes/application-eln-book.png
-# gtk-update-icon-cache $(SHAREPATH)/icons/gnome || true
+	cp src/App/eln.iconset/icon_16x16.png $(SHAREPATH)/icons/gnome/16x16/mimetypes/application-eln-book.png
+	cp src/App/eln.iconset/icon_24x24.png $(SHAREPATH)/icons/gnome/24x24/mimetypes/application-eln-book.png
+	cp src/App/eln.iconset/icon_32x32.png $(SHAREPATH)/icons/gnome/32x32/mimetypes/application-eln-book.png
+	cp src/App/eln.iconset/icon_48x48.png $(SHAREPATH)/icons/gnome/48x48/mimetypes/application-eln-book.png
+	cp src/App/eln.iconset/icon_64x64.png $(SHAREPATH)/icons/gnome/64x64/mimetypes/application-eln-book.png
+	cp src/App/eln.iconset/icon_128x128.png $(SHAREPATH)/icons/gnome/128x128/mimetypes/application-eln-book.png
+	#gtk-update-icon-cache $(SHAREPATH)/icons/gnome || true
 
 	cp src/eln.xml $(SHAREPATH)/mime/packages/eln.xml
-# update-mime-database $(SHAREPATH)/mime/ || true
+	update-mime-database $(SHAREPATH)/mime/ || true
 
 	install src/eln.desktop $(SHAREPATH)/applications/eln.desktop
 
