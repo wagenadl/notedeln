@@ -4,10 +4,13 @@
 \usepackage{newcent}
 \usepackage[letterpaper]{geometry}
 \usepackage[perpage]{footmisc}
-\usepackage{wasysym}
-\usepackage{amssymb}
+\usepackage{graphicx}
 \usepackage{footnote}
+\usepackage[margin=0pt,font=small,labelfont=bf]{caption}
 \makesavenoteenv{tabular}
+\def\topfraction{.9}
+\def\textfraction{.1}
+\def\floatpagefraction{.9}
 \begin{document}
 \thispagestyle{empty}
 \begin{centering}
@@ -20,13 +23,13 @@
   {\large By Daniel A. Wagenaar}
   \vfill
   
-  {Copyright (c) 2013--2017}
+  {Copyright (c) 2013--2019}
   
 \end{centering}
 \pagebreak
 ~
 \vfill
-\noindent Copyright (C) 2013--2017 Daniel A. Wagenaar\medskip
+\noindent Copyright (C) 2013--2019 Daniel A. Wagenaar\medskip
 
 ``eln'' is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -405,135 +408,39 @@ Eln supports most of unicode and---presumably---you can use any input
 method supported by Qt to enter text.\footnote{I have only tested this
   with the ``compose'' key method in ``Gnome''; I am interested in
   your test results.} In addition, the following substitutions are
-made unconditionally as you type:\medskip
+made unconditionally as you type (Figure 1).
+%
+\begin{figure}
+\noindent~\hfill\includegraphics[scale=.85]{../doc/digraphs.pdf}\hfill~\vspace{-40pt}
 
-\begin{centering}
-\begin{tabular}{c@{\kern.5in}c@{\kern.5in}c@{\kern.5in}c}
-\begin{tabular}[t]{cc}
-\verb+''+ & '' \\
-\verb+'+ & ' \\
-\verb+``+ & `` \\
-\verb+`+ & ` \\
-\verb+--+ & -- \\
-\verb+---+ & --- \\
-\verb.+-. & $\pm$ \\
-$|-$ & $\vdash$ \\
-$-|$ & $\dashv$ \\
-\end{tabular}
-&
-\begin{tabular}[t]{cc}
-\verb+<-+ & $\leftarrow$ \\
-\verb+->+ & $\rightarrow$ \\
-$|\,^\wedge$ & $\uparrow$ \\
-$|\,|\,^\wedge$ & $\Uparrow$ \\
-\verb+<==+ & $\Leftarrow$ \\
-\verb+=>+ & $\Rightarrow$ \\
-\verb+<-+ & $\leftrightarrow$ \\
-\verb+<==>+ & $\Leftrightarrow$ \\
-\verb+|->+ & $\mapsto$ \\
-\end{tabular}
-&
-\begin{tabular}[t]{cc}
-\verb+>=+ & $\geq$ \\
-\verb+<=+ & $\leq$ \\
-\verb+!=+ & $\neq$ \\
-$^\wedge$\verb+=+ & $\hat=$ \\
-\verb+==+ & $\equiv$ \\
-$\sim$\verb+=+ & $\cong$ \\
-\verb+>>+ & $\gg$ \\
-\verb+<<+ & $\ll$ \\
-$\sim\sim$ & $\approx$ \\
-\end{tabular}
-&
-\begin{tabular}[t]{cc}
-$|\,|$ & $ \parallel $ \\
-$|$\verb+=+ & $\models$ \\
-\verb+!+$|$\verb+=+ & $\kern.3em/\kern-1em\models$ \\
-  \verb+/>+ & $\nearrow$ \\
-  \verb+\>+ & $\searrow$ \\
-\end{tabular}
-\end{tabular}
-
-\end{centering}\bigskip
-
-\noindent (To prevent these automatic substitutions, type the second character
+\caption{{\bf Unconditional character substitutions.} To get the glyph on the left, type the character
+  sequence on the right. {\bf a.}~General punctuation. {\bf
+    b.}~Arrows. {\bf c.}~Less than and greater than. {\bf d.} Decorated
+  equals signs. {\bf e.}~Other mathematical operators.}
+\end{figure}
+%
+(To prevent these automatic substitutions, type the second character
 first, move the cursor back, and then type the first
 character. Suggestions to improve this procedure are invited.)
 
 In addition to the automatic substitutions, there are many symbols
 that can be obtained by typing their name and pressing
-``Control''+``Backslash.'' These include all Greek letters, both
-lower case and capitals, and the following:
+``Control''+``Backslash'' (Figure 2).
+%
+\begin{figure}
+\noindent~\hfill\includegraphics[scale=.85]{../doc/texcodes.pdf}\hfill~\vspace{-17pt}
 
-\begin{centering}
-\begin{tabular}{c@{\kern.25in}c@{\kern.25in}c@{\kern.25in}c}
-\begin{tabular}[t]{cc}
-emdash & --- \\
-endash & -- \\
-figuredash & -- \\
-cdot & $\cdot$ \\
-cdots & $\cdots$ \\
-dots & $\ldots$ \\
-deg & $^\circ$ \\
-prime & $'$ \\
-dprime & $''$ \\
-deg & $^\circ$ \\
-%half & $1\over2$ \\
-%third & $1\over3$ \\
-%quarter & $1\over4$ \\
-\end{tabular}
-&
-\begin{tabular}[t]{cc}
-times \emph{or} x & $\times$ \\
-div & $\div$ \\
-int & $\int$ \\
-sum & $\sum$ \\
-sqrt & $\sqrt{}$ \\
-flat & $\flat$ \\
-sharp & $\sharp$ \\
-natural & $\natural$ \\
-dagger & $\dagger$ \\
-ddagger & $\ddagger$ \\
-pilcrow & $\P$ \\
-section & $\S$ \\
-\end{tabular}
-&
-\begin{tabular}[t]{cc}
-star & $\star$ \\
-perp & $\perp$ \\
-A & $\forall$ \\
-E & $\exists$ \\
-inset & $\in$ \\
-notinset & $\notin$ \\
-prop & $\propto$ \\
-N\footnote{Also Z, Q, R, and C.}  & $\mathbb{N}$\\
-d & $\partial$ \\
-circ & $\circ$ \\
-sqr & $\square$ \\
-hbar & $\hbar$ \\
-\end{tabular}
-&
-\begin{tabular}[t]{cc}
-inf & $\infty$ \\
-  v & $\downarrow$ \\
-  V & $\Downarrow$ \\
-diam & $\diameter$ \\
-Ohm\footnote{Also kOhm, MOhm, GOhm, and mOhm.} &
-$\Omega$ \\
-uA\footnote{Also uC, ug, uJ, ul, uL, um, uM, us, uS, and uV.} & $\mu$A \\
-&\\
-$x$ vec & $\vec x$ \\
-$x$ hat & $\hat x$ \\
-$x$ tilde & $\tilde x$ \\
-$x$ dot & $\dot x$ \\
-$x$ ddot & $\ddot x$ \\
-\end{tabular}
-\end{tabular}
-
-\end{centering}\bigskip
-
-\noindent Note: The last several place accents over the preceding character.
-
+\caption{{\bf Symbols that may be obtained by a TeX-like
+  command.} To get the symbols on the left, type the character
+  sequence on the right and press ``Control''+``Backslash.''
+{\bf a.}~General punctuation. {\bf b.}~Arrows. {\bf c.}~Other
+symbols. {\bf d,~e.}~Lowercase and uppercase Greek letters. {\bf
+  f.}~Scientific units. {\bf g.}~Mathematical operators. {\bf h.}~Other
+mathematical symbols. {\bf i.}~Mathematical accents. (The codes in
+\emph{i} are different from the others, in that the accent is placed
+over the preceding character rather than as a separate entity.)}
+\end{figure}
+%
 Extending this list is easy, so let me know if you have suggestions.
 
 \section{Footnotes}
@@ -597,7 +504,11 @@ When typing mathematical equations, having to frequently press
 ``Control``+``Back tick'' (that's the key to the left of the ``1'' on
 most keyboards) to enter (and exit) ``math'' mode. In math mode,
 special characters can be entered simply by typing their name and
-single-character words are typeset in italics. Additionally, simple
+single-character words are typeset in italics.\footnote{A few exceptions
+  apply: ``x'' does not generate $\times$, ``d'' does not generate
+  $\partial,$ and Eln tries to guess whether you mean the variables
+  $a$ and $I$ or the words ``a'' and ``I.'' A few more subtle cases
+  are handled semi-intelligently as well.} Additionally, simple
 subscripts and superscripts can be typeset by just typing underscore
 or hat followed by the text of the sub- or superscript. As a result, a
 basic equation like ``$\int_1^\infty 1/x^2\, \mathrm{d}x = 1$'' can be
