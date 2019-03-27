@@ -213,8 +213,8 @@ void Resource::ensureArchiveFilename() {
       base += leaf.mid(idx);
     }
   } else {
-    qDebug() << "ensureArchiveFilename" << src.path() << safeExtension(base);
-    if (safeExtension(base).isEmpty() || src.path().isEmpty())
+    qDebug() << "ensureArchiveFilename" << base <<src.path() << safeExtension(base);
+    if (safeExtension(base).isEmpty())
       base += ".html";
   }
   setArchiveFilename(safeBaseName(base) + "-" + uuid() + safeExtension(base));
@@ -232,7 +232,8 @@ bool Resource::importImage(QImage img) {
 }
 
 void Resource::getArchiveAndPreview() {
-  qDebug() << "getarchiveandpreview for " << tag_ << loader << needsArchive() << needsPreview() << src << src.isValid();
+  qDebug() << "getarchiveandpreview for " << tag_ << loader
+	   << needsArchive() << needsPreview() << src << src.isValid();
   if (loader)
     return; // can't start another one
   if (!needsArchive() && !needsPreview())

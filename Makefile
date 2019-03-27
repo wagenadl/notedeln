@@ -57,6 +57,7 @@ prep:
 
 webgrab: webgrabprep
 	+make -C build-webgrab release
+	cp -a build-webgrab/webgrab build/webgrab
 
 webgrabprep:
 	mkdir -p build-webgrab

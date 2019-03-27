@@ -53,6 +53,7 @@ private:
   int N;
   int redirectCount;
   QString errs;
+  QString mimetype;
 private:
   static class QNetworkAccessManager &networkAccessManager();
 };

@@ -93,8 +93,10 @@ bool Downloader::isFailed() const {
 
 QString Downloader::mimeType() const {
   if (!qnr)
-    return "";
+    return mimetype;
   QString mime = qnr->header(QNetworkRequest::ContentTypeHeader).toString();
+  if (mime.isEmpty())
+    return mimetype;
   int idx = mime.indexOf(";");
   return (idx>=0) ? mime.left(idx) : mime;
 }
@@ -107,6 +109,7 @@ void Downloader::qnrDataAv() {
   if (ok || err)
     return;
   ASSERT(qnr);
+  mimetype = mimeType();
   QByteArray buf(65536, 0);
   while (true) {
     qint64 n = qnr->read(buf.data(), 65536);
@@ -124,10 +127,8 @@ void Downloader::qnrDataAv() {
         emit finished();
         return;
       }
-      qDebug() << "qnr" << n << dst;
       if (dst) {
-	qDebug() << dst->fileName() << " / "<< dst->isOpen();
-        qDebug() << "write" << dst->write(buf.data(), n);
+	dst->write(buf.data(), n);
       } else {
         dat += buf;
       }
@@ -151,7 +152,6 @@ void Downloader::qnrDataAv() {
 }
 
 static bool hostMatch(QString a, QString b) {
-  qDebug() << "hostmatch" << a << b << (a==b);
   if (a==b)
     return true;
   if (a.startsWith("www.") && a.mid(4)==b)
@@ -218,7 +218,6 @@ void Downloader::qnrFinished() {
   if (!err) 
     ok = true;
 
-  qDebug() << "Downloader emitting finished";
   qnr->deleteLater();
   qnr = 0;
   emit finished();

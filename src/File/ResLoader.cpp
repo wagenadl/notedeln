@@ -89,7 +89,8 @@ void ResLoader::downloadFinished() {
     err = true;
   }
 
-  qDebug() << "ResLoader::downloadFinished" << err << src.toString() << mimeType() << convertHtmlToPdf;
+  qDebug() << "ResLoader::downloadFinished" << err << src.toString()
+	   << mimeType() << convertHtmlToPdf << downloader;
 
   if (err) {
     emit finished();
