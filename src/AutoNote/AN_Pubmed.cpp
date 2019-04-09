@@ -35,8 +35,8 @@ AN_Pubmed::AN_Pubmed(QString tag, class Style const &) {
   qDebug() << "AN_PubMed: download finished";
   if (!dl.isComplete())
     return;
-
   QString res(dl.data());
+  qDebug() << "res is " << res;
   QStringList bits = res.split("\n");
   QMap<QString, QStringList> tags;
   QString lastkey;
@@ -50,26 +50,43 @@ AN_Pubmed::AN_Pubmed(QString tag, class Style const &) {
       lastkey = key;
     }      
   }
+  qDebug() << "tags" << tags;
   if (!tags.contains("PMID"))
     return;
 
   int nauth = tags["AU"].size();
-  if (nauth==1) {
+  if (nauth==0) {
+    ref_ = "anon";
+  } else if (nauth==1) {
     ref_ = tags["AU"][0];
   } else if (nauth==2) {
     ref_ = tags["AU"][0] + " and " + tags["AU"][1];
   } else {
     ref_ = tags["AU"][0] + " et al.";
   }
-  ref_ += ", " + tags["DA"].first().left(4) + ". ";
-  ref_ += tags["TI"].first();
+  if (tags.contains("DP"))
+    ref_ += ", " + tags["DP"].first().left(4) + ". ";
+  else
+    ref_ += ". ";
+  if (tags.contains("TI"))
+    ref_ += tags["TI"].first();
   if (!ref_.endsWith("."))
     ref_ += ".";
-  ref_ += " <i>" + tags["TA"].first() + "</i>";
-  ref_ += " <b>" + tags["VI"].first() + "</b>";
-  QString pg = tags["PG"].first();
-  pg.replace("-", QString::fromUtf8("–"));
-  ref_ += ", " + pg + ".";
+  if (tags.contains("TA"))
+      ref_ += " <i>" + tags["TA"].first() + "</i>";
+  if (tags.contains("VI"))
+    ref_ += " <b>" + tags["VI"].first() + "</b>";
+  if (tags.contains("PG")) {
+    QString pg = tags["PG"].first();
+    pg.replace("-", QString::fromUtf8("–"));
+    ref_ += ", " + pg + ".";
+  } else if (tags.contains("LID")) {
+    QString pg = tags["LID"].first();
+    pg.replace("-", QString::fromUtf8("–"));
+    ref_ += ", " + pg + ".";
+  } else {
+    ref_ += ".";
+  }
 
   ok_ = true;
 }

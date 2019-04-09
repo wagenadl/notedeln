@@ -196,34 +196,35 @@ eln or its documentation.\bigskip
 
 \chapter{Installation}
 
-The latest version of the software can always be downloaded from\break
-http://www.danielwagenaar.net/eln.
+The latest version of the software can always be downloaded from
+either of the following places:
+\begin{itemize}
+\item https://github.com/wagenadl/eln/releases
+  \item http://www.danielwagenaar.net/eln
+\end{itemize}
 
 \section{Installing precompiled binaries}
 
-Installation on Windows should be easy using the provided ``eln.msi''
+Installation on Windows should be easy using the ``.msi''
 installation package. Installation on Mac OS X should be
-straightforward by unpacking the ``eln-mac.tgz'' archive and placing
+straightforward by unpacking the ``.dmg'' archive and placing
 ``eln.app'' anywhere on your hard disk.  Installation on Debian,
-Ubuntu, or Mint Linux should be equally easy using the provided
-``eln.deb'' installation package. At present, installation on other
+Ubuntu, or Mint Linux should be equally easy using the
+``.deb'' installation package. At present, installation on other
 flavors of Linux will require compiling the sources yourself, but this
 should be straightforward (see below).
 
-Unfortunately, neither Android devices nor iPads are currently
-supported, simply because the author doesn't own any. If you are
-interested in porting eln to either of these platforms or would like
-to commission me to do so, please contact me by email.
+At present, neither Android devices nor iPads are currently supported,
+simply because the author doesn't own any. If you are interested in
+porting eln to either of these platforms or would like to commission
+me to do so, please contact me by email.
 
-Please note that development occurs
-primarily on Linux, so the Windows and Mac OS versions may lag
-behind.
+Please note that development occurs primarily on Linux, so the Windows
+and Mac OS versions may lag behind.
 
 \section{Compiling the source}
-To compile the source,  start from the provided
-``eln.tar.gz'' archive or check out the bzr source at http://launchpad.net/eln. You will need
-``Qt'' version 5.6 or later. (Eln can also compile with Qt 4.8 on
-Linux with minor changes to the ``Makefile''.)
+To compile the source, download the source at https://github.com/wagenadl/eln. You will need
+``Qt'' version 5.6 or later.
 
 \subsection{Compiling on Linux or Mac OS}
 
@@ -236,7 +237,8 @@ Open a terminal and ``cd'' to the root of the unpacked source
 archive. Then type ``make'' and fetch a cup of tea. Then, either
 manually copy the files ``build/eln'' and
 ``build-webgrab/webgrab'' to some location on your PATH, or type ``sudo make
-install'' to install into ``/usr/local/bin''.
+install'' to install into ``/usr/local/bin''. On Mac, ``make macdmg''
+creates a dmg package that can easily be carried to other machines.
 
 \subsection{Compiling on Windows}
 You will need a C++ compiler. I have successfully used both MinGW and
@@ -263,19 +265,20 @@ keyboard.
 
 \section{Creating a new notebook}
 
-When eln starts, it displays a list of recent notebooks and offers the
-choice of opening a notebook that is not on the list or the create a
+When eln starts, it displays a list of recent notebooks and also offers the
+choice of opening a notebook that is not on the list or to create a
 new notebook. When you click ``Create new notebook,'' it will
 immediately ask you where you want to store that notebook. It will
 then open the front page of your notebook, where you can change its
 title and add your name as the author as well as your affiliation or
-other relevant information. 
+other relevant information. It is highly recommended that you give
+your notebook a meaningful title, as that title will show up in eln's
+opening screen in the future.
 
 Other options on the opening screen are ``Open other existing
 notebook,'' which speaks for itself, and ``Clone hosted notebook for
 local use,'' which is explained under ``Archiving (version control),''
 below.
-
 
 To leave the front page and go to the first actual page of your new
 notebook, press ``Page Down'' on your keyboard.
@@ -304,14 +307,12 @@ would expect, and you can split and join paragraphs with ``Enter'' and
 ``Delete'' or ``Backspace'' as you would expect. It is, however, not
 possible to join paragraphs across a graphics canvas. Text may be
 cut-and-pasted as you would expect using ``Control''+``X,''
-``Control''+``C,'' and ``Control''+``V'' as in other programs. What
-may not be obvious is that text can be copied from non-editable pages
-in text mode (but not browse mode) as well.
+``Control''+``C,'' and ``Control''+``V'' as in other programs. 
 
 \section{Adding graphics}
 
 Graphics can be added by dragging an image file onto the page or by
-pressing ``Control''+``V'' to paste an image from the
+pressing ``Control''+``V'' to paste an image from the system
 clipboard. 
 
 Various plot symbols as well as freehand lines can be added using the
@@ -324,8 +325,8 @@ the perfect color for your annotation.)
 Text annotations can be added to the graphics canvas using the ``text
 balloon'' icon (``F6'') and either clicking to place text or dragging
 to place text with a connector line. Type faces and font sizes cannot
-be changed (again, on purpose), but you \emph{can} change the width of
-your annotation by selecting the ``hand'' icon (``F3'' or ``Alt'') and
+be changed (again, on purpose), but you \emph{can} change the wrap width of
+your annotation by selecting the ``hand'' icon (``F3'' or ``Control) and
 dragging the right edge of your annotation. The end of a connector
 line can be moved by holding ``Shift'' while dragging the
 annotation. (A note without a connector line can be given a connector
@@ -360,9 +361,9 @@ entire column or row and pressing ``Delete.''
 You don't have to! Eln automatically saves your work every 10 seconds
 (if you have made any changes) and when you navigate to a different
 entry (ditto). If you have configured version control (see below),
-your changes are automatically committed once you close the
-notebook. (Also, changes are automatically committed every 10
-minutes.)
+your changes are automatically committed and pushed to the server
+every 5 minutes and when you close the
+notebook.
 
 \section{Navigation}
 
@@ -408,7 +409,7 @@ Eln supports most of unicode and---presumably---you can use any input
 method supported by Qt to enter text.\footnote{I have only tested this
   with the ``compose'' key method in ``Gnome''; I am interested in
   your test results.} In addition, the following substitutions are
-made unconditionally as you type (Figure 1).
+made unconditionally as you type (Figure~\ref{fig:charsubst}).
 %
 \begin{figure}
 \noindent~\hfill\includegraphics[scale=.85]{../doc/digraphs.pdf}\hfill~\vspace{-40pt}
@@ -416,7 +417,7 @@ made unconditionally as you type (Figure 1).
 \caption{{\bf Unconditional character substitutions.} To get the glyph on the left, type the character
   sequence on the right. {\bf a.}~General punctuation. {\bf
     b.}~Arrows. {\bf c.}~Less than and greater than. {\bf d.} Decorated
-  equals signs. {\bf e.}~Other mathematical operators.}
+  equals signs. {\bf e.}~Other mathematical operators.}\label{fig:charsubst}
 \end{figure}
 %
 (To prevent these automatic substitutions, type the second character
@@ -425,7 +426,7 @@ character. Suggestions to improve this procedure are invited.)
 
 In addition to the automatic substitutions, there are many symbols
 that can be obtained by typing their name and pressing
-``Control''+``Backslash'' (Figure 2).
+``Control''+``Backslash'' (Figure~\ref{fig:texcodes}).
 %
 \begin{figure}
 \noindent~\hfill\includegraphics[scale=.85]{../doc/texcodes.pdf}\hfill~\vspace{-17pt}
@@ -438,7 +439,7 @@ symbols. {\bf d,~e.}~Lowercase and uppercase Greek letters. {\bf
   f.}~Scientific units. {\bf g.}~Mathematical operators. {\bf h.}~Other
 mathematical symbols. {\bf i.}~Mathematical accents. (The codes in
 \emph{i} are different from the others, in that the accent is placed
-over the preceding character rather than as a separate entity.)}
+over the preceding character rather than as a separate entity.)}\label{fig:texcodes}
 \end{figure}
 %
 Extending this list is easy, so let me know if you have suggestions.
@@ -447,8 +448,12 @@ Extending this list is easy, so let me know if you have suggestions.
 
 Press ``Control''+``N'' to create a footnote. Footnotes are connected
 to the main text by arbitrary tags: the word at the cursor
-becomes the tag. Footnotes are deleted by deleting the tag in the main
-text or by pressing ``Control''+``Shift''+``N'' while the tag is highlighted..
+becomes the tag.  If you prefer to use symbols to tag footnotes, the
+symbols \dag, \ddag, \P, \S, and $\sharp$  can be created by
+typing {\tt +}, {\tt ++}, {\tt @}, {\tt\$}, and
+{\tt \#} before pressing ``Control''+``N.'' Footnotes are deleted by deleting the tag in the main
+text or by pressing ``Control''+``Shift''+``N'' while the tag is
+highlighted.
 
 If your tag is a big integer, it is interpreted as a PubMed ID. In
 that case, eln will insert the corresponding citation in the note for
@@ -457,9 +462,11 @@ automatically created note contents, I want to hear from you.)
 
 \section{Hyperlinks}
 
-Press ``Control''+``L'' to create a hyperlink. If you type an evident
-URL (e.g., starting with http://), a hyperlink will be created
-automatically. Hovering over the link displays a thumbnail of the
+Press ``Control''+``L'' to create a hyperlink. (If your hyperlink
+contains spaces, you will have to select the text first, otherwise,
+eln figures out the boundaries of the link text automatically.)
+
+Hovering over a link displays a thumbnail of the
 page\footnote{Currently, the Mac and Windows versions merely show the
   title of a web page while hovering. I hope to restore thumbnailing
   when Qt's QWebEngine technology further matures.}, and

@@ -41,12 +41,14 @@ public:
 signals:
   void leftClick(Qt::KeyboardModifiers);
   void rightClick(Qt::KeyboardModifiers);
+  void doubleClick(Qt::KeyboardModifiers);
   void release();
 protected:
   void hoverEnterEvent(QGraphicsSceneHoverEvent *);
   void hoverLeaveEvent(QGraphicsSceneHoverEvent *);
   void hoverMoveEvent(QGraphicsSceneHoverEvent *);
   void mousePressEvent(QGraphicsSceneMouseEvent *);
+  void mouseDoubleClickEvent(QGraphicsSceneMouseEvent *);
   void mouseReleaseEvent(QGraphicsSceneMouseEvent *);
 public slots:
   void cancelPopup();

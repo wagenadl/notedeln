@@ -55,6 +55,7 @@ protected:
   void timerEvent(QTimerEvent *);
 private slots:
   void leftClicked(Qt::KeyboardModifiers);
+  void doubleClicked(Qt::KeyboardModifiers);
   void rightClicked(Qt::KeyboardModifiers);
   void released();
   void childGone();

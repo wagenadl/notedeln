@@ -77,6 +77,8 @@ void Toolbar::addTool(QString id, ToolItem *item) {
   connect(item, SIGNAL(destroyed(QObject*)), SLOT(childGone()));
   connect(item, SIGNAL(leftClick(Qt::KeyboardModifiers)),
 	  SLOT(leftClicked(Qt::KeyboardModifiers)));
+  connect(item, SIGNAL(doubleClick(Qt::KeyboardModifiers)),
+	  SLOT(doubleClicked(Qt::KeyboardModifiers)));
   connect(item, SIGNAL(rightClick(Qt::KeyboardModifiers)),
 	  SLOT(rightClicked(Qt::KeyboardModifiers)));
   connect(item, SIGNAL(release()), SLOT(released()));
@@ -107,6 +109,11 @@ void Toolbar::select(QString s) {
 void Toolbar::released() {
   if (!selEna)
     select("");
+}
+
+void Toolbar::doubleClicked(Qt::KeyboardModifiers m) {
+  m |= Qt::ShiftModifier;
+  leftClicked(m);
 }
 
 void Toolbar::leftClicked(Qt::KeyboardModifiers m) {
