@@ -822,7 +822,7 @@ bool EntryScene::mousePressEvent(QGraphicsSceneMouseEvent *e, SheetScene *s) {
   }
   Mode *mo = sheets[sh]->mode();
   switch (mo->mode()) {
-  case Mode::Mark: case Mode::Freehand:
+  case Mode::Mark: case Mode::Draw:
     if (!it && isWritable() && !inMargin(sp)) {
       GfxBlockItem *blk = 0;
       int idx = findLastBlockOnSheet(sh);

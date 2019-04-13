@@ -146,7 +146,7 @@ void Toolbars::setMode(Mode::M m1) {
     mcolors->hide();
   }
 
-  if (m==Mode::Freehand) {
+  if (m==Mode::Draw) {
     widths->show();
     lcolors->show();
   } else {
@@ -154,7 +154,7 @@ void Toolbars::setMode(Mode::M m1) {
     lcolors->hide();
   }
 
-  if (m==Mode::Freehand || m==Mode::Mark) {
+  if (m==Mode::Draw || m==Mode::Mark) {
     nav->hide();
   } else {
     nav->show();

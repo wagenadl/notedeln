@@ -529,7 +529,7 @@ bool TextItem::keyPressWithControl(QKeyEvent *e) {
   if (keyPressAsSimpleStyle(e->key(), textCursor()))
     return true;
 
-  if (mode()->isMathMode())
+  if (mode()->typeMode()==Mode::Math)
     tryTeXCode(true);
   
   switch (e->key()) {
@@ -752,7 +752,7 @@ void TextItem::ensureCursorVisible() {
     emit invisibleFocus(cursor, p);
 }  
 
-bool TextItem::keyPressAsSpecialChar(QKeyEvent *e) {
+bool TextItem::keyPressAsDigraph(QKeyEvent *e) {
   QChar charBefore = document()->characterAt(cursor.position()-1);
   QChar charBefore2 = document()->characterAt(cursor.position()-2);
   QString charNow = e->text();
@@ -816,8 +816,8 @@ void TextItem::keyPressEvent(QKeyEvent *e) {
   case Mode::Type:
     if (isWritable()) {
       if (keyPressWithControl(e) 
-	  || (mode()->isMathMode() && keyPressAsMath(e))
-	  || keyPressAsSpecialChar(e)
+	  || (mode()->typeMode()==Mode::Math && keyPressAsMath(e))
+	  || (mode()->typeMode()!=Mode::Code &&keyPressAsDigraph(e))
 	  || keyPressAsMotion(e)
 	  || keyPressAsSpecialEvent(e)
 	  || keyPressAsInsertion(e)) {
@@ -1331,7 +1331,7 @@ Qt::CursorShape TextItem::cursorShape(Qt::KeyboardModifiers m) const {
       cs = Qt::IBeamCursor;
     }
     break;
-  case Mode::Annotate: case Mode::Mark: case Mode::Freehand:
+  case Mode::Annotate: case Mode::Mark: case Mode::Draw:
     cs = Qt::CrossCursor;
     break;
   case Mode::MoveResize:

@@ -1,7 +1,8 @@
 {
 "balloon-mode-browse": "Browse contents (F1). Click to follow links.",
-"balloon-mode-type": "Edit text (F2). Click below existing contents to create a new paragraph. Note that contents older than 24 hours can generally not be edited. Shift-click to enable math mode.",
-"balloon-mode-type-math": "Edit mathematical text (Shift+F2). Shift-click to disable math mode.",
+"balloon-mode-type": "Edit text (F2). Click below existing contents to create a new paragraph. Note that contents older than 24 hours can generally not be edited. Double click to enable math mode. Control-click to enable code mode.",
+"balloon-mode-type-math": "Edit mathematical text (Shift+F2). Double click to disable math mode.",
+"balloon-mode-type-code": "Edit text as computer code (Control+F2). Automatic digraph substition is disabled. Control-click to return to normal text mode.",
 "balloon-mode-move": "Move notes or objects on a graphics canvas around (F3). Also allows for deletion of objects on a graphics canvas (Delete).",
 "balloon-mode-mark": "Place marks of various sizes and shapes on a graphics canvas (F4).",
 "balloon-mode-freehand": "Draw freehand lines on a graphics canvas (F5). Shift-click to enable straight line mode.",

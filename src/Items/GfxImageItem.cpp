@@ -24,6 +24,7 @@
 #include "GfxNoteItem.h"
 #include "GfxMarkItem.h"
 #include "GfxSketchItem.h"
+#include "GfxLineItem.h"
 #include "BlockItem.h"
 #include "Cursors.h"
 #include <QDesktopServices>
@@ -232,23 +233,28 @@ void GfxImageItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
         mi->setScale(1./data()->scale());
         take = true;
       } break;
-      case Mode::Freehand: {
-        GfxSketchItem *mi = GfxSketchItem::newSketch(e->pos(), this);
-        mi->setScale(1./data()->scale());
-        mi->build();
+      case Mode::Draw: 
+	if (mode()->drawMode()==Mode::Straightline) {
+	  GfxLineItem *li = GfxLineItem::newLine(e->pos(), this);
+	  li->setScale(1./data()->scale());
+	  li->build(e);
+	} else {
+	  GfxSketchItem *ski = GfxSketchItem::newSketch(e->pos(), this);
+	  ski->setScale(1./data()->scale());
+	  ski->build();
+	}
         take = true;
-      } break;
+	break;
       default:
         break;
       }
     }
   }
   
-  if (take) {
+  if (take) 
     e->accept();
-  } else {
+  else 
     e->ignore();
-  }
 }
 
 void GfxImageItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *e) {

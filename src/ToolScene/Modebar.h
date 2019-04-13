@@ -30,8 +30,8 @@ public:
   virtual ~Modebar();
 public slots:
   void updateMode();
-  void updateMath();
-  void updateStraightLine();
+  void updateTypeMode();
+  void updateDrawMode();
 protected:
   virtual void doLeftClick(QString id, Qt::KeyboardModifiers);
 private:

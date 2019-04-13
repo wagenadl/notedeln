@@ -86,7 +86,7 @@ notebooks. So why should you choose ELN? ELN is for you if:
   \item You like your software to be open-source so that you can make
     your own improvements to it, and be confident that you can still
     run it 20 years from now.
-\end{itemize}\pagebreak
+\end{itemize}
 
 \noindent However, ELN may not be for you if:
 \begin{itemize}
@@ -190,19 +190,7 @@ hear from you. My contact information is at
 http://www.danielwagenaar.net. I very much look forward to hearing
 from you. I realize that this guide is extremely terse, and I
 really do welcome questions, particularly if they help me to improve
-ELN or its documentation.\bigskip
-
-\noindent Pasadena, May 2013;
-
-\noindent Cincinnati, February 2014;
-
-\noindent Woods Hole, June 2015;
-
-\noindent Pasadena, January 2016.
-
-\noindent Pasadena, January 2017.
-
-
+ELN or its documentation.
 
 
 \chapter{Installation}
@@ -419,27 +407,28 @@ ELN supports most of unicode and---presumably---you can use any input
 method supported by Qt to enter text.\footnote{I have only tested this
   with the ``compose'' key method in ``Gnome''; I am interested in
   your test results.} In addition, the following substitutions are
-made unconditionally as you type (Figure~\ref{fig:charsubst}).
-%
+made automatically as you type (Figure~\ref{fig:charsubst}).
+(To prevent these  substitutions, you can of course type the
+second character first, move the cursor back, and then type the first
+character. But it might be more convenient to press \keycontrol{F2} to
+enter ``Code mode''; see section~\ref{sec:codemode}.)
+
 \begin{figure}[b]
 \noindent~\hfill\includegraphics[scale=.85]{../doc/digraphs.pdf}\hfill~\vspace{-40pt}
 
-\caption{{\bf Unconditional character substitutions.} To get the glyph on the left, type the character
+\caption{{\bf Automatic character substitutions.} To get the glyph on the left, type the character
   sequence on the right. {\bf a.}~General punctuation. {\bf
     b.}~Arrows. {\bf c.}~Less than and greater than. {\bf d.} Decorated
   equals signs. {\bf e.}~Other mathematical operators.}\label{fig:charsubst}
 \end{figure}
-%
-(To prevent these automatic substitutions, type the second character
-first, move the cursor back, and then type the first
-character. Suggestions to improve this procedure are invited.)
 
 In addition to the automatic substitutions, there are many symbols
 that can be obtained by typing their name and pressing
 \keyctrlbackslash{} (Figure~\ref{fig:texcodes}).
-%
+Extending this list is easy, so let me know if you have suggestions.
+
 \begin{figure}
-\noindent~\hfill\includegraphics[scale=.85]{../doc/texcodes.pdf}\hfill~\vspace{-17pt}
+\noindent~\hfill\includegraphics[scale=.85]{../doc/texcodes.pdf}\hfill~\vspace{-7pt}
 
 \caption{{\bf Symbols that may be obtained by a TeX-like
   command.} To get the symbols on the left, type the character
@@ -451,8 +440,7 @@ mathematical symbols. {\bf i.}~Mathematical accents. (The codes in
 \emph{i} are different from the others, in that the accent is placed
 over the preceding character rather than as a separate entity.)}\label{fig:texcodes}
 \end{figure}
-%
-Extending this list is easy, so let me know if you have suggestions.
+
 
 \section{Footnotes}
 
@@ -516,22 +504,32 @@ paragraphs, which is useful for typing bullet lists. This is done by
 
 When typing mathematical equations, having to frequently press
 \keyctrlbackslash{} for special characters and \keycontrol{/} for
-italics can get tiresome. If so, you can press \keycontrol{`} (that's
-the key to the left of the \key{1} on many qwerty keyboards) to enter (and
-exit) ``math'' mode. (Math code can also be entered by double-clicking
-the ``A\raise1pt\hbox{$|$}'' icon or pressing \keyshift{F2}.)
+italics can get tiresome. To avoid this annoyance, press
+\keycontrol{`} (that's the key to the left of the \key{1} on many
+qwerty keyboards) to enter (and exit) ``math'' mode. (Math code can
+also be entered by double-clicking the ``A\raise1pt\hbox{$|$}'' icon
+or pressing \keyshift{F2}.)
 
-In math mode, special characters can be entered
-simply by typing their name and single-character words are typeset in
-italics.\footnote{A few exceptions apply: ``x'' does not generate
-  $\times$, ``d'' does not generate $\partial,$ and ELN tries to guess
-  whether you mean the variables $a$ and $I$ or the words ``a'' and
-  ``I.'' A few other subtle cases are handled semi-intelligently as
-  well.} Additionally, simple subscripts and superscripts can be
-typeset by just typing underscore or hat followed by the text of the
-sub- or superscript. As a result, a basic equation like
-``$\int_1^\infty 1/x^2\, \mathrm{d}x = 1$'' can be typeset simple by
-typing ``{\tt{int\char95{}1\char94inf 1/x\char94{}2 dx = 1}}''.
+In math mode, special characters can be entered simply by typing their
+name and single-character words are typeset in italics.\footnote{A few
+  exceptions apply: ``x'' does not generate $\times$, ``d'' does not
+  generate $\partial,$ and ELN tries to guess whether you mean the
+  variables $a$ and $I$ or the words ``a'' and ``I.'' A few other
+  subtle cases are handled semi-intelligently as well.} Additionally,
+simple subscripts and superscripts can be typeset by just typing
+underscore or hat followed by the text of the sub- or superscript. As
+a result, a basic equation like ``$\int_1^\infty 1/x^2\, \mathrm{d}x =
+1$'' can be typeset simple by typing ``{\tt{int\char95{}1\char94inf
+    1/x\char94{}2 dx = 1}}''.
+
+\section{Typesetting computer code}\label{sec:codemode}
+
+When typing computer code, the automatic substitions in
+Figure~\ref{fig:charsubst} can be a hindrance. To disable all
+automatic substitions, press \keycontrol{F2} (or click the
+``A\raise1pt\hbox{$|$}'' icon with \key{Ctrl} held). The icon will
+change to ``C\raise1pt\hbox{$|$},'' which signifies ``Code''
+mode. Press \key{F2} to return to normal text mode.
 
 \section{Exporting and printing}
 
@@ -625,5 +623,15 @@ event that ELN appears to have chewed up your notes, please do not
 just throw away the broken notebook. Although I cannot make any
 guarantees (see the GPL license text!), it almost certainly can be
 fixed. And I would be happy to try and help.
+
+\bigskip
+
+\noindent Pasadena, May 2013;
+
+\noindent Cincinnati, February 2014;
+
+\noindent Woods Hole, June 2015;
+
+\noindent Pasadena, January 2016, January 2017, April 2019.
 
 \end{document}

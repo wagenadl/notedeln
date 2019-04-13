@@ -177,7 +177,11 @@ void PageView::keyPressEvent(QKeyEvent *e) {
   case Qt::Key_F2:
     if (currentSection==Entries) {
       mode()->setMode(Mode::Type);
-      mode()->setMathMode(e->modifiers() & Qt::ShiftModifier);
+      mode()->setTypeMode(e->modifiers() & Qt::ShiftModifier
+			  ? Mode::Math
+			  : e->modifiers() & Qt::ControlModifier
+			  ? Mode::Code
+			  : Mode::Normal);
     }
     break;
   case Qt::Key_F3:
@@ -190,8 +194,9 @@ void PageView::keyPressEvent(QKeyEvent *e) {
     break;
   case Qt::Key_F5:
     if (currentSection==Entries) {
-      mode()->setMode(Mode::Freehand);
-      mode()->setStraightLineMode(e->modifiers() & Qt::ShiftModifier);
+      mode()->setMode(Mode::Draw);
+      mode()->setDrawMode((e->modifiers() & Qt::ShiftModifier)
+			  ? Mode::Straightline : Mode::Freehand);
     }
     break;
   case Qt::Key_F6:
@@ -212,7 +217,15 @@ void PageView::keyPressEvent(QKeyEvent *e) {
     break;
   case Qt::Key_QuoteLeft: case Qt::Key_AsciiTilde: case Qt::Key_4:
     if (e->modifiers() & Qt::ControlModifier)
-      mode()->setMathMode(!mode()->isMathMode());
+      mode()->setTypeMode(mode()->typeMode()==Mode::Math
+			  ? Mode::Normal : Mode::Math);
+    else
+      take = false;
+    break;
+  case Qt::Key_NumberSign: case Qt::Key_3:
+    if (e->modifiers() & Qt::ControlModifier)
+      mode()->setTypeMode(mode()->typeMode()==Mode::Code
+			  ? Mode::Normal : Mode::Code);
     else
       take = false;
     break;

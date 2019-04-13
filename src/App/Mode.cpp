@@ -21,8 +21,8 @@
 
 Mode::Mode(bool ro, QObject *parent): QObject(parent), ro(ro) {
   m = Browse;
-  math = false;
-  straight = false;
+  typem = Normal;
+  drawm = Freehand;
   lw = 1.5;
   ms = 10;
   shp = GfxMarkData::SolidCircle;
@@ -44,12 +44,12 @@ Mode::M Mode::mode() const {
   return m;
 }
 
-bool Mode::isMathMode() const {
-  return math;
+Mode::TypeM Mode::typeMode() const {
+  return typem;
 }
 
-bool Mode::isStraightLineMode() const {
-  return straight;
+Mode::DrawM Mode::drawMode() const {
+  return drawm;
 }
 
 double Mode::lineWidth() const {
@@ -76,22 +76,22 @@ void Mode::setMode(Mode::M m1) {
   emit modeChanged(m);
 }
 
-void Mode::setMathMode(bool m1) {
+void Mode::setTypeMode(Mode::TypeM ts) {
   if (ro) {
     qDebug() << "Caution: setMathMode ignored on RO";
     return;
   }
-  math = m1;
-  emit mathModeChanged(math);
+  typem = ts;
+  emit typeModeChanged(typem);
 }
 
-void Mode::setStraightLineMode(bool m1) {
+void Mode::setDrawMode(Mode::DrawM m1) {
   if (ro) {
     qDebug() << "Caution: setStraightLineMode ignored on RO";
     return;
   }
-  straight = m1;
-  emit straightLineModeChanged(straight);
+  drawm = m1;
+  emit drawModeChanged(drawm);
 }
 
 void Mode::setLineWidth(double lw1) {

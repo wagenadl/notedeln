@@ -352,7 +352,7 @@ void SheetScene::setCursors() {
     case Mode::Type:
       backgroundShape = Qt::IBeamCursor;
       break;
-    case Mode::Mark: case Mode::Freehand:
+    case Mode::Mark: case Mode::Draw:
       backgroundShape = Qt::CrossCursor;
       break;
     case Mode::Annotate:    

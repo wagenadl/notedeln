@@ -68,7 +68,7 @@ void Resource::setTag(QString s) {
 }
 
 void Resource::setSourceURL(QUrl u) {
-  qDebug() << "Resource::setSpurceUrl" << tag_ << u;
+  qDebug() << "Resource::setSourceUrl" << tag_ << u;
   if (src==u)
     return;
   src = u;

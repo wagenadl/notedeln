@@ -127,7 +127,6 @@ bool TextItem::keyPressAsMath(QKeyEvent *e) {
 
   if (txt.isEmpty())
     return false;
-  qDebug() << "keyasmath" << txt;
 
   if (isLatinLetter(txt)) {
     letterAsMath(txt);

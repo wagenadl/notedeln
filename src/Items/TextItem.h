@@ -94,7 +94,7 @@ private:
   bool keyPressAsMath(QKeyEvent *);
   void letterAsMath(QString);
   bool keyPressAsMotion(QKeyEvent *);
-  bool keyPressAsSpecialChar(QKeyEvent *);
+  bool keyPressAsDigraph(QKeyEvent *);
   bool keyPressWithControl(QKeyEvent *);
   bool keyPressAsSpecialEvent(QKeyEvent *);
   bool keyPressAsInsertion(QKeyEvent *);

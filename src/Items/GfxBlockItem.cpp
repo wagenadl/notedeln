@@ -206,8 +206,8 @@ void GfxBlockItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
       sizeToFit();
       take = true;
       break;
-    case Mode::Freehand: {
-      if (mode()->isStraightLineMode()) {
+    case Mode::Draw: {
+      if (mode()->drawMode()==Mode::Straightline) {
 	GfxLineItem *li = GfxLineItem::newLine(e->pos(), this);
 	li->build(e);
       } else {
@@ -270,7 +270,7 @@ Qt::CursorShape GfxBlockItem::cursorShape(Qt::KeyboardModifiers) const {
   case Mode::Annotate:
     cs = Qt::CrossCursor;
   break;
-  case Mode::Type: case Mode::Mark: case Mode::Freehand:
+  case Mode::Type: case Mode::Mark: case Mode::Draw:
     if (isWritable())
       cs = Qt::CrossCursor;
     break;
