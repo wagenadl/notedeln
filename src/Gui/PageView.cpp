@@ -229,6 +229,12 @@ void PageView::keyPressEvent(QKeyEvent *e) {
     else
       take = false;
     break;
+  case Qt::Key_Plus:
+    if (e->modifiers() & Qt::ControlModifier)
+      newPage();
+    else
+      take = false;
+    break;
   case Qt::Key_Space: case Qt::Key_Down: case Qt::Key_Right:
     if (mode()->mode()==Mode::Browse && !scene()->focusItem())
       nextPage();
@@ -435,23 +441,23 @@ void PageView::gotoEntryPage(int n, int dir) {
   if (n<1)
     n=1;
   int N = book->toc()->newPageNumber();
-  if (n>N)
-    n=N;
-
-  if (n==N) {
-    // make a new page?
-    TOCEntry *te = book->toc()->findBackward(n);
-    if (te) {
-      // let's look at page before end
-      CachedEntry ef(book->entry(te->startPage()));
-      ASSERT(ef);
-      if (ef->isEmpty() || dir>1) {
-	// final page is empty, or we got here from the NAV_N10 icon -> go to final page instead
-	gotoEntryPage(te->startPage() + te->sheetCount() - 1);
+  if (n>=N) {
+    n = N;
+    if (n<=1) {
+      book->createEntry(n); // create first entry
+    } else {
+      TOCEntry *te = book->toc()->findBackward(n);
+      if (te) {
+	// let's look at page before end
+	CachedEntry ef(book->entry(te->startPage()));
+	ASSERT(ef);
+	n = te->startPage() + te->sheetCount() - 1;
+	dir = 0;
+      } else {
+	qDebug() << "Found no entry before" << n << "!?";
 	return;
       }
     }
-    book->createEntry(n);
   }
 
   TOCEntry *te = book->toc()->find(n);
@@ -657,7 +663,21 @@ void PageView::newPage(Qt::KeyboardModifiers m) {
   if (m & Qt::ShiftModifier) {
     newView()->newPage();
   } else {
-    gotoEntryPage(book->toc()->newPageNumber());
+    int n = book->toc()->newPageNumber();
+    TOCEntry *te = book->toc()->findBackward(n);
+    if (te) {
+      CachedEntry ef(book->entry(te->startPage()));
+      ASSERT(ef);
+      if (ef->isEmpty()) {
+	// don't create new if previous empty
+	gotoEntryPage(n);
+	focusEntry();
+	return;
+      }
+    }
+
+    book->createEntry(n);
+    gotoEntryPage(n);
     focusEntry();
   }
 }
