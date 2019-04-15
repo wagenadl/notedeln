@@ -519,8 +519,10 @@ void TextItem::tryMove(TextCursor::MoveOperation op,
 
   setTextCursor(c);
   QPointF p = posToPoint(c.position());
-  if (clips() && !clipRect().contains(p))
+  if (clips() && !clipRect().contains(p)) {
+    qDebug() << "emitting invisible focus" << p << clipRect();
     emit invisibleFocus(c, p);
+  }
 }
 
 bool TextItem::keyPressWithControl(QKeyEvent *e) {
@@ -748,8 +750,10 @@ bool TextItem::keyPressAsInsertion(QKeyEvent *e) {
 
 void TextItem::ensureCursorVisible() {
   QPointF p = posToPoint(cursor.position());
-  if (clips() && !clipRect().contains(p))
+  if (clips() && !clipRect().contains(p)) {
+    qDebug() << "emitting invisible focus 2" << p << clipRect();
     emit invisibleFocus(cursor, p);
+  }
 }  
 
 bool TextItem::keyPressAsDigraph(QKeyEvent *e) {
@@ -803,6 +807,7 @@ void TextItem::inputMethodEvent(QInputMethodEvent *e) {
   
 void TextItem::keyPressEvent(QKeyEvent *e) {
   if (clips() && !clip_.contains(posToPoint(cursor.position()))) {
+    qDebug() << "keypress out of rect"<< posToPoint(cursor.position()) << clip_;
     clearFocus();
     return;
   }
@@ -1405,7 +1410,7 @@ void TextItem::paint(QPainter *p, const QStyleOptionGraphicsItem *, QWidget *) {
     return;
   
   if (clips())
-    p->setClipRect(clip_.adjusted(-10,0,10,0));
+    p->setClipRect(clip_);
   else
     p->setClipRect(boundingRect().adjusted(-10,0,10,0));
 
@@ -1435,9 +1440,10 @@ void TextItem::renderCursor(QPainter *p, int pos) {
   }
   xy += QPointF(-2, text->baselineShift(sty));
   if (clips() && !clip_.contains(xy)) {
-    qDebug() << "Relinquishing focus on redraw: out of rectangle";
-    clearFocus();
-    return;
+    qDebug() << "xy" << xy << clip_;
+    qDebug() << "NOT Relinquishing focus on redraw: out of rectangle";
+    //    clearFocus();
+    //    return;
   }
   
   PageView *pv = EventView::eventView();
@@ -1497,7 +1503,7 @@ bool TextItem::clips() const {
 }
 
 void TextItem::setClip(QRectF r) {
-  clip_ = r;
+  clip_ = r.adjusted(-10, 0, 10, 0);
   update();
 }
 
