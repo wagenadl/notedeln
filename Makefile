@@ -107,6 +107,7 @@ man:
 userguide:
 	mkdir -p build-doc
 	cp doc/Makefile build-doc/
+	cp -r doc/icons build-doc/
 	+make -C build-doc userguide.pdf
 
 install-userguide: doc

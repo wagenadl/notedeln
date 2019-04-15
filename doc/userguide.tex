@@ -22,6 +22,7 @@
 \def\keyctrlbackslash{\keycontrol{\char92}}
 \def\keyctrlunderscore{\keycontrol{\char95}}
 \def\terminal#1{{\tt#1}}
+\def\icon#1{\raise-2pt\hbox{\includegraphics[height=11pt]{icons/#1.png}}} 
 \begin{document}
 \thispagestyle{empty}
 \begin{centering}
@@ -280,33 +281,34 @@ local use,'' which is explained under ``Archiving (version control),''
 below.
 
 To leave the front page and go to the first actual page of your new
-notebook, press \key{Page Down} on your keyboard.
+notebook, press \key{Page Down} or \controlshift{+} on your keyboard,
+or use the navigation buttons in the tool bar.
 
 \section{Creating new entries}
 
-To create a new entry, simply navigate to the last entry (by
-repeatedly pressing \key{Page Down}, or more conveniently by pressing
-\keycontrol{End}) and then press \key{Page Down} once more. A new
-untitled entry is created. To encourage you to give your entries
-meaningful titles, the cursor is positioned in the title field so you
-can start typing right away. (The title you give to your entry here is
-automatically copied to the table of contents.) To move from the title
-to the first paragraph of your entry, simple press \key{Enter} or \key{Tab}.
+To create a new entry, press \controlshift{+} or click the
+\icon{nav-plus} icon in the tool bar. To encourage you to give
+your entries meaningful titles, the cursor is positioned in the title
+field so you can start typing right away. (The title you give to your
+entry here is automatically copied to the table of contents.) To move
+from the title to the first paragraph of your entry, simple press
+\key{Enter} or \key{Tab}.
 
 \section{Adding text}
 
-Select the ``A\raise1pt\hbox{$|$}'' mode icon (by clicking it or
-pressing \key{F2}) to enter text mode. Click below existing contents or
-inside an existing paragraph to start editing. Note that it is not
-possible to edit an entry that is not the last one in the book or that
-is older than 24 hours.
+Text mode is ELN's default mode, so you should be able to start typing
+right away. If not, click the \icon{type} mode icon (or press
+\key{F2}) to enter text mode. Click below existing contents or inside
+an existing paragraph to start editing. Note that it is not possible
+to edit an entry that is older than 24 hours.
 
 Navigating between text paragraphs is done using the arrow keys as you
-would expect, and you can split and join paragraphs with \key{Enter} and
-\key{Delete} or \key{Backspace} as you would expect. It is, however, not
-possible to join paragraphs across a graphics canvas. Text may be
-cut-and-pasted as you would expect using \keycontrol{X},
-\keycontrol{C}, and \keycontrol{V} as in other programs. 
+would expect, and you can split and join paragraphs with \key{Enter}
+and \key{Delete} or \key{Backspace} as you would expect.\footnote{It
+  is, however, not possible to join paragraphs across a graphics
+  canvas.} Text may be cut-and-pasted as you would expect using
+\keycontrol{X}, \keycontrol{C}, and \keycontrol{V} as in other
+programs.
 
 \section{Adding graphics}
 
@@ -315,45 +317,49 @@ pressing \keycontrol{V} to paste an image from the system
 clipboard. 
 
 Various plot symbols as well as freehand lines can be added using the
-``symbol'' and ``line'' icons (\key{F4} and \key{F5}). Several choices for
-symbol size, line width, and color are available.  (These options
-are not extendible. By limiting the options,
-ELN hopes to encourage you to not spend too much time thinking about
-the perfect color for your annotation.)
+\icon{mark} and \icon{squiggle} icons (\key{F4} and
+\key{F5}). Straight line segments can be added by double clicking the
+\icon{squiggle} icon (or by pressing \keyshift{F5}) which turns the
+squiggly line into a straight line: \icon{straight}. Several choices
+for symbol size, line width, and color are available.  (These options
+are not extendible. By limiting the options, ELN hopes to encourage
+you to not spend too much time thinking about the perfect color for
+your annotation.)
 
-Text annotations can be added to the graphics canvas using the ``text
-balloon'' icon (\key{F6}) and either clicking to place text or dragging
-to place text with a connector line. Type faces and font sizes cannot
-be changed (again, on purpose), but you \emph{can} change the wrap width of
-your annotation by selecting the ``hand'' icon (\key{F3} or \key{Control}) and
-dragging the right edge of your annotation. The end of a connector
-line can be moved by holding \key{Shift} while dragging the
-annotation. (A note without a connector line can be given a connector
-line by Shift-dragging; connector lines automatically vanish if their ends
-are dragged into the text of the note.)
+Text annotations can be added to the graphics canvas using the
+\icon{note} icon (\key{F6}) and either clicking to place text or
+dragging to place text with a connector line. Type faces and font
+sizes cannot be changed (again, on purpose), but you \emph{can} change
+the wrap width of your annotation by selecting the \icon{move} icon
+(\key{F3}) or holding \key{Control}, and dragging the right edge of your
+annotation. The end of a connector line can be moved by holding
+\key{Shift} while dragging the annotation. (A note without a connector
+line can be given a connector line by Shift-dragging; connector lines
+automatically vanish if their ends are dragged into the text of the
+note.)
 
-Images, plot symbols, freehand lines, and text annotations can be
-moved around, cropped, and resized by selecting the ``hand'' icon (by
-clicking it or pressing \key{F3}). As a convenience, a mouse drag with
-\key{Control} held performs the same manipulations without selecting the
-``hand'' icon.
+Images, plot symbols, freehand and straight lines, and text
+annotations can be moved around, cropped, and resized by selecting the
+\icon{move} icon (by clicking it or pressing \key{F3}). As a
+convenience, a mouse drag with \key{Control} held performs the same
+manipulations without selecting the \icon{move} icon.
 
-Graphics objects can be deleted while in ``hand'' mode by hovering the
+Graphics objects can be deleted while in ``move'' mode by hovering the
 cursor over them and pressing \key{Delete}. They can be restored by
 pressing \key{Insert}. An empty graphics canvas can be deleted by
-pressing \key{Delete}. \keycontrol{Delete} works in any mode,
-provided there is no active text cursor.
+pressing \key{Delete}. \keycontrol{Delete} works in any mode, provided
+there is no active text cursor.
 
 \section{Adding tables}
 
 Tables can be inserted as their own paragraphs. Simply start typing
 the contents of the first table cell, then hit \key{Tab} to create a
 second cell. Navigation within a table is with \key{Tab} and
-\keyshift{Tab} for left and right, \key{Enter} and
-\keyshift{Enter} for next and previous line, and of course the
-arrow keys. New columns or rows can be inserted by holding \key{Control}
-while navigating. Columns or rows can be deleted by selecting the
-entire column or row and pressing \key{Delete}.
+\keyshift{Tab} for left and right, \key{Enter} and \keyshift{Enter}
+for next and previous line, and of course the arrow keys. New columns
+or rows can be inserted by holding \key{Control} while
+navigating. Columns or rows can be deleted by selecting the entire
+column or row and pressing \key{Delete}.
 
 \section{Saving your work}
 
@@ -361,27 +367,32 @@ You don't have to! ELN automatically saves your work every 10 seconds
 (if you have made any changes) and when you navigate to a different
 entry (ditto). If you have configured version control (see below),
 your changes are automatically committed and pushed to the server
-every 5 minutes and when you close the
-notebook.
+every 5 minutes and when you close the notebook.
 
 \section{Navigation}
 
 Navigation between pages and entries is done using \key{Page Up} and
 \key{Page Down}, using the scroll wheel of your mouse, or with the
-navigation buttons overlaid on the bottom left of the notebook. To go
-to the table of contents, press \keycontrol{Home}, and to go to the
-latest entry, press \keycontrol{End}. Clicking on a page link (hold
-\key{Control} if the link is on an editable page) activates the
-link. Press \key{Page Down} from the final page to start a new entry or
-press \key{Page Up} from an untitled, unedited new entry to abandon that
-new entry.
+navigation buttons overlaid on the bottom left of the notebook:
+\icon{nav-prev} and \icon{nav-next} move up and down by one page;
+\icon{nav-p10} and \icon{nav-n10} move by 10 pages. To go
+to the table of contents, press \keycontrol{Home} or click
+\icon{nav-toc}, and to go to the latest entry, press \keycontrol{End}
+or click \icon{nav-end}. Clicking on a page link (hold \key{Control}
+if the link is on an editable page) activates the link. Press
+\controlshift{+} (or click the \icon{nav-plus} icon) to start a new
+entry. (Pressing
+\key{Page Up} on an untitled and empty  entry  abandons that 
+entry.)
 
 \section{Editing old entries}
 
-Cannot be done. Except that you can use the ``text balloon'' icon to
+Cannot be done. Except that you can use the \icon{note} icon (\key{F6}) to
 create so-called ``late notes.'' These are automatically set in a
 distinct color and decorated with a date stamp. They
-may be manipulated just like text annotations on a graphics canvas.
+may be manipulated just like text annotations on a graphics canvas. To
+indicate that an entry cannot be edited, ELN switches to ``browse''
+mode, indicated by the \icon{browse} icon being automatically selected.
 
 \section{Formatting}
 
@@ -395,8 +406,8 @@ cursor or the current selection (or to unitalicize). Press
 superscript and \keycontrol{-} (minus) to create a subscript.
 
 In addition, any text, old or new, can be highlighted using the
-``yellow box'' icon (\key{F7}) or crossed out (\key{F8}) and these
-annotations (only) can be removed using the ``clean'' icon
+\icon{highlight} icon (\key{F7}) or \icon{strikeout} (\key{F8}) and these
+annotations (only) can be removed using the \icon{plain} icon
 (\key{F9}). Highlighting of the selection or word under the cursor can
 also be toggled using \keycontrol{!} (or \keycontrol{1}). Likewise,
 \keycontrol{=} toggles cross-out.
@@ -407,51 +418,53 @@ ELN supports most of unicode and---presumably---you can use any input
 method supported by Qt to enter text.\footnote{I have only tested this
   with the ``compose'' key method in ``Gnome''; I am interested in
   your test results.} In addition, the following substitutions are
-made automatically as you type (Figure~\ref{fig:charsubst}).
-(To prevent these  substitutions, you can of course type the
-second character first, move the cursor back, and then type the first
+made automatically as you type (Figure~\ref{fig:charsubst}).  (To
+prevent these substitutions, you can of course type the second
+character first, move the cursor back, and then type the first
 character. But it might be more convenient to press \keycontrol{F2} to
 enter ``Code mode''; see section~\ref{sec:codemode}.)
 
 \begin{figure}[b]
 \noindent~\hfill\includegraphics[scale=.85]{../doc/digraphs.pdf}\hfill~\vspace{-40pt}
 
-\caption{{\bf Automatic character substitutions.} To get the glyph on the left, type the character
-  sequence on the right. {\bf a.}~General punctuation. {\bf
-    b.}~Arrows. {\bf c.}~Less than and greater than. {\bf d.} Decorated
-  equals signs. {\bf e.}~Other mathematical operators.}\label{fig:charsubst}
+\caption{{\bf Automatic character substitutions.} To get the glyph on
+  the left, type the character sequence on the right. {\bf a.}~General
+  punctuation. {\bf b.}~Arrows. {\bf c.}~Less than and greater
+  than. {\bf d.} Decorated equals signs. {\bf e.}~Other mathematical
+  operators.}\label{fig:charsubst}
 \end{figure}
 
 In addition to the automatic substitutions, there are many symbols
 that can be obtained by typing their name and pressing
-\keyctrlbackslash{} (Figure~\ref{fig:texcodes}).
-Extending this list is easy, so let me know if you have suggestions.
+\keyctrlbackslash{} (Figure~\ref{fig:texcodes}).  Extending this list
+is easy, so let me know if you have suggestions.
 
 \begin{figure}
 \noindent~\hfill\includegraphics[scale=.85]{../doc/texcodes.pdf}\hfill~\vspace{-7pt}
 
-\caption{{\bf Symbols that may be obtained by a TeX-like
-  command.} To get the symbols on the left, type the character
-  sequence on the right and press \keyctrlbackslash. 
-{\bf a.}~General punctuation. {\bf b.}~Arrows. {\bf c.}~Other
-symbols. {\bf d,~e.}~Lowercase and uppercase Greek letters. {\bf
-  f.}~Scientific units. {\bf g.}~Mathematical operators. {\bf h.}~Other
-mathematical symbols. {\bf i.}~Mathematical accents. (The codes in
-\emph{i} are different from the others, in that the accent is placed
-over the preceding character rather than as a separate entity.)}\label{fig:texcodes}
+\caption{{\bf Symbols that may be obtained by a TeX-like command.} To
+  get the symbols on the left, type the character sequence on the
+  right and press \keyctrlbackslash.  {\bf a.}~General
+  punctuation. {\bf b.}~Arrows. {\bf c.}~Other symbols. {\bf
+    d,~e.}~Lowercase and uppercase Greek letters. {\bf f.}~Scientific
+  units. {\bf g.}~Mathematical operators. {\bf h.}~Other mathematical
+  symbols. {\bf i.}~Mathematical accents. (The codes in \emph{i} are
+  different from the others, in that the accent is placed over the
+  preceding character rather than as a separate
+  entity.)}\label{fig:texcodes}
 \end{figure}
 
 
 \section{Footnotes}
 
-Press \keycontrol{N} to create a footnote. Footnotes are connected
-to the main text by arbitrary tags: the word at the cursor
-becomes the tag.  If you prefer to use symbols to tag footnotes, the
-symbols *, \dag, \ddag, \S, \P, and $\sharp$  can be created by
-typing {\tt *}, {\tt +}, {\tt ++}, {\tt\$}, {\tt @}, and
-{\tt \#} before pressing \keycontrol{N}. Footnotes are deleted by deleting the tag in the main
-text or by pressing \controlshift{N} while the tag is
-highlighted.
+Press \keycontrol{N} to create a footnote. Footnotes are connected to
+the main text by arbitrary tags: the word at the cursor becomes the
+tag.  If you prefer to use symbols to tag footnotes, the symbols *,
+\dag, \ddag, \S, \P, and $\sharp$ can be created by typing {\tt *},
+    {\tt +}, {\tt ++}, {\tt\$}, {\tt @}, and {\tt \#} before pressing
+    \keycontrol{N}. Footnotes are deleted by deleting the tag in the
+    main text or by pressing \controlshift{N} while the tag is
+    highlighted.
 
 If your tag is a big integer, it is interpreted as a PubMed ID. In
 that case, ELN will insert the corresponding citation in the note for
@@ -469,10 +482,10 @@ page\footnote{Currently, the Mac and Windows versions merely show the
   title of a web page while hovering. I hope to restore thumbnailing
   when Qt's QWebEngine technology further matures.}, and double
 clicking opens a pdf of the downloaded page. Double clicking with
- \key{Shift} held opens the original web
-page. Hyperlinks are typeset with a pale blue background once download
-is complete and with a pink background if download fails. (A yellow
-background indicates that download is in progress.)
+\key{Shift} held opens the original web page. Hyperlinks are typeset
+with a pale blue background once download is complete and with a pink
+background if download fails. (A yellow background indicates that
+download is in progress.)
 
 \section{Magic links}
 
@@ -498,7 +511,7 @@ larger margins. To undo, simply press \keycontrol{Tab}
 again. Similarly, indentation can be cycled between indented
 paragraphs (the default), non-indented paragraphs, and ``dedented''
 paragraphs, which is useful for typing bullet lists. This is done by
- pressing \keyshift{Tab}.
+pressing \keyshift{Tab}.
 
 \section{Typesetting mathematics}
 
@@ -506,8 +519,9 @@ When typing mathematical equations, having to frequently press
 \keyctrlbackslash{} for special characters and \keycontrol{/} for
 italics can get tiresome. To avoid this annoyance, press
 \keycontrol{`} (that's the key to the left of the \key{1} on many
-qwerty keyboards) to enter (and exit) ``math'' mode. (Math code can
-also be entered by double-clicking the ``A\raise1pt\hbox{$|$}'' icon
+qwerty keyboards) to enter (and exit) ``math'' mode, which turns tye
+\icon{type} icon into \icon{type-math}. (Math code can
+also be entered by double-clicking the \icon{type} icon
 or pressing \keyshift{F2}.)
 
 In math mode, special characters can be entered simply by typing their
@@ -527,23 +541,25 @@ a result, a basic equation like ``$\int_1^\infty 1/x^2\, \mathrm{d}x =
 When typing computer code, the automatic substitions in
 Figure~\ref{fig:charsubst} can be a hindrance. To disable all
 automatic substitions, press \keycontrol{F2} (or click the
-``A\raise1pt\hbox{$|$}'' icon with \key{Ctrl} held). The icon will
-change to ``C\raise1pt\hbox{$|$},'' which signifies ``Code''
+\icon{type} icon with \key{Ctrl} held). The icon will
+change to \icon{type-code}, which signifies ``Code''
 mode. Press \key{F2} to return to normal text mode.
 
 \section{Exporting and printing}
 
 ELN can export your entire notebook or portions of it to pdf or print
-them directly. Simply press \keycontrol{P} to open the print dialog
-and select either ``Print to pdf'' or an actual printer.
+them directly. Simply press \keycontrol{P} or click the
+\icon{nav-print} icon
+to open the print dialog and select either ``Print to pdf'' or an
+actual printer.
 
 \section{Searching your notebook}
 
 ELN incorporates a simple but very useful full-text search
-facility. Press \keycontrol{F} to open the search dialog, type any
-word or phrase, and press \key{Enter} or click ``OK.'' A list with
-search results from the entire notebook will open; click on a result
-to navigate to the relevant entry.
+facility. Press \keycontrol{F} or click the \icon{nav-find} icon to open the
+search dialog, type any word or phrase, and press \key{Enter} or click
+``OK.'' A list with search results from the entire notebook will open;
+click on a result to navigate to the relevant entry.
 
 \section{Customization}
 

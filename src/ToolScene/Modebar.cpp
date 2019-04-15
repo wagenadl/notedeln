@@ -21,6 +21,10 @@
 #include "Mode.h"
 #include "MarkSizeItem.h"
 #include "LineWidthItem.h"
+/*
+#include <QPainter>
+#include <QImage>
+*/
 
 Modebar::Modebar(Mode *mode, QGraphicsItem *parent):
   Toolbar(parent), mode(mode) {
@@ -55,6 +59,25 @@ Modebar::Modebar(Mode *mode, QGraphicsItem *parent):
 	  mst, SLOT(setColor(QColor)));
 
   LineWidthItem *lwt = new LineWidthItem(mode->lineWidth());
+
+  /*
+  QImage test(64, 64, QImage::Format_RGB32);
+  test.fill(QColor(255,255,255));
+  QPainter p(&test);
+  p.scale(2, 2);
+  lwt->paintContents(&p);
+  test.save("/tmp/squiggle.png");
+  test.fill(QColor(255,255,255));
+  lwt->setStraightLineMode(true);
+  lwt->paintContents(&p);
+  test.save("/tmp/straight.png");
+  lwt->setStraightLineMode(false);
+  test.fill(QColor(255,255,255));
+  lwt->setStraightLineMode(true);
+  mst->paintContents(&p);
+  test.save("/tmp/mark.png");
+  */
+    
   lwt->setBalloonHelpText(":mode-freehand");
   connect(mode, SIGNAL(colorChanged(QColor)),
 	  lwt, SLOT(setColor(QColor)));
