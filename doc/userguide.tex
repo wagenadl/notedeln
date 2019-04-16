@@ -3,7 +3,7 @@
 \usepackage{mathptm}
 \usepackage{newcent}
 \usepackage[letterpaper,left=1.25in,right=1.25in,top=1.25in,bottom=1.5in]{geometry}
-\usepackage[perpage]{footmisc}
+\usepackage[perpage,symbol]{footmisc}
 \usepackage{graphicx}
 \usepackage{footnote}
 \usepackage[margin=0pt,font=small,labelfont=bf]{caption}
@@ -19,8 +19,10 @@
 \def\keyshift#1{\keycombo{Shift}{#1}}
 \def\controlshift#1{\keystroke{Ctrl}\keystroke{Shift}\keystroke{#1}}
 \def\keyctrlhat{\keycontrol{\char94}}
+\def\keyhat{``{\tt\char94}''}
 \def\keyctrlbackslash{\keycontrol{\char92}}
 \def\keyctrlunderscore{\keycontrol{\char95}}
+\def\keyunderscore{``{\tt\char95}''}
 \def\terminal#1{{\tt#1}}
 \def\icon#1{\raise-2pt\hbox{\includegraphics[height=11pt]{icons/#1.png}}}
 \begin{document}
@@ -32,8 +34,13 @@
   {\Large an Electronic Lab Notebook}
   \vskip60pt
 
+ 
   {\large By Daniel A. Wagenaar}
-  \vfill
+  \vfill  
+
+{\large version {\input{../src/version}}} 
+\vskip10pt
+  
   
   {Copyright (c) 2013--2019}
   
@@ -404,7 +411,10 @@ cursor or the current selection (or to unitalicize). Press
 \keyctrlunderscore{} (underscore; on my keyboard:
 \controlshift{-}) for underline. Type
 \keyctrlhat{} (or \keycontrol{6}) to create a
-superscript and \keycontrol{-} (minus) to create a subscript.
+superscript and \keycontrol{-} (minus) to create a
+subscript.\footnote{Superscripts and subscripts can also be creates by typing
+  \keyhat{} or \keyunderscore{} followed by the text of the
+  superscript or subscript and then pressing \keycontrol{.} (period).}
 
 In addition, any text, old or new, can be highlighted using the
 \icon{highlight} icon (\key{F7}) or \icon{strikeout} (\key{F8}) and these
