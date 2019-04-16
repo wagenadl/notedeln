@@ -738,8 +738,8 @@ void PageView::createContinuationEntry() {
   QPointF pp = fwdNote->mapToScene(fwdNote->netBounds().topLeft());
   fwdNote->translate(fwdNotePos - pp);
 
-  // Goto new page
-  gotoEntryPage(newPage);
+  // Create and go to new page
+  this->newPage();
   ASSERT(entryScene);
   // (So now entryScene refers to the new page.)
   entryScene->data()->title()->text()->setText(newTtl);
