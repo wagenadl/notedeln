@@ -302,11 +302,13 @@ void GfxBlockItem::dropEvent(QGraphicsSceneDragDropEvent *e) {
 }
 
 void GfxBlockItem::importDroppedText(QString txt, QPointF p) {
+  qDebug() << "importdroppedtext" << txt;
   GfxNoteItem *note = newGfxNote(p, p);
   note->textItem()->textCursor().insertText(txt);
 }
 
 void GfxBlockItem::importDroppedUrl(QUrl const &url, QPointF p) {
+  qDebug() << "importdroppedurl" << url;
   if (url.isLocalFile()) {
     QString path = url.toLocalFile();
     if (path.endsWith(".svg")) {
@@ -314,10 +316,10 @@ void GfxBlockItem::importDroppedUrl(QUrl const &url, QPointF p) {
        return;
     }
     QImage image(path);
-    if (!image.isNull())
-      newImage(image, url, p);
-    else 
+    if (image.isNull())
       importDroppedText(path, p); // import filename as text
+    else
+      newImage(image, url, p);
   } else {
     // Right now, we import all network urls as text
     importDroppedText(url.toString(), p);

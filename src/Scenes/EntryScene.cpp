@@ -1036,21 +1036,6 @@ bool EntryScene::tryToPaste(SheetScene *s) {
     return false;
 }
 
-bool EntryScene::dropBelow(QPointF scenePos, int sheet, QMimeData const *md) {
-  if (!isWritable())
-    return false;
-  if (md->hasImage())
-    return importDroppedImage(scenePos, sheet,
-			      qvariant_cast<QImage>(md->imageData()),
-			      QUrl());
-  else if (md->hasUrls())
-    return importDroppedUrls(scenePos, sheet, md->urls());
-  else if (md->hasText())
-    return importDroppedText(scenePos, sheet, md->text());
-  else
-    return false;
-}
-
 bool EntryScene::importDroppedSvg(QPointF scenePos, int sheet,
 				  QUrl const &source) {
   QImage img(SvgFile::downloadAsImage(source));
@@ -1142,7 +1127,8 @@ bool EntryScene::importDroppedText(QPointF scenePos, int sheet,
   TextItem *ti = 0;
   if (inMargin(scenePos)) {
     Item *fti = sheets[sheet]->fancyTitleItem();
-    GfxNoteItem *note = fti->createGfxNote(fti->mapFromScene(scenePos));
+    QPointF p(fti->mapFromScene(scenePos));
+    GfxNoteItem *note = fti->newGfxNote(p, p);
     note->data()->setSheet(sheet);
     ti = note->textItem();
   } else {
@@ -1152,20 +1138,28 @@ bool EntryScene::importDroppedText(QPointF scenePos, int sheet,
         GfxBlockItem *gbi = dynamic_cast<GfxBlockItem*>(blockItems[blk]);
         TextBlockItem *tbi = dynamic_cast<TextBlockItem*>(blockItems[blk]);
         if (tbi) {
+	  qDebug() << "textblock";
           ti = tbi->text();
         } else if (gbi) {
-          GfxNoteItem *note = gbi->createGfxNote(gbi->mapFromScene(scenePos));
+	  qDebug() << "graphicsblock";
+	  QPointF p(gbi->mapFromScene(scenePos));
+          GfxNoteItem *note = gbi->newGfxNote(p, p);
           ti = note->textItem();
         }
-      } else { // not writable block
+      } else {
 	Item *fti = sheets[sheet]->fancyTitleItem();
-	GfxNoteItem *note = fti->createGfxNote(fti->mapFromScene(scenePos));
+	QPointF p(fti->mapFromScene(scenePos));
+	GfxNoteItem *note = fti->newGfxNote(p, p);
 	note->data()->setSheet(sheet);
-        ti = note->textItem();
-      }
+	ti = note->textItem();
+      }	
+    } else {
+      TextBlockItem *tbi = newTextBlockAt(scenePos, sheet);
+      ti = tbi->text();
     }
   }
 
+  qDebug() << "got ti" << ti;
   if (!ti)
     return false;
 

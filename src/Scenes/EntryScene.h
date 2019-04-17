@@ -42,7 +42,6 @@ public:
   int findBlock(QPointF scenePos, int sheet) const; // -1 if none
   bool focusFootnote(int block, QString tag); // true if found
   void newFootnote(int block, QString tag);
-  virtual bool dropBelow(QPointF scenePos, int sheet, class QMimeData const *md);
   virtual int startPage() const;
   class LateNoteItem *createLateNote(QPointF scenePos,
 				     int sheet); // create note by dragging

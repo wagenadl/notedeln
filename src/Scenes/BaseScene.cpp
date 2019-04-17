@@ -288,6 +288,3 @@ bool BaseScene::isWritable() const {
   return false;
 }
 
-bool BaseScene::dropBelow(QPointF, int, QMimeData const *) {
-  return false;
-}
