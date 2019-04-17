@@ -223,10 +223,22 @@ void Resource::ensureArchiveFilename() {
 bool Resource::importImage(QImage img) {
   if (tag_.isEmpty())
     return false;
-  if (arch.isEmpty())
-    setArchiveFilename(safeBaseName(tag_) + "-" + uuid() + ".png");
+  if (arch.isEmpty()) {
+    QString ext = safeExtension(src.path()).toLower();
+    if (ext==".jpeg")
+      ext = ".jpg";
+    if (ext!=".jpg")
+      ext = ".png";
+    setArchiveFilename(safeBaseName(tag_) + "-" + uuid() + ext);
+  }
   ensureDir();
-  bool ok = img.save(archivePath());
+  bool ok = false;
+  if (src.isLocalFile()) {
+    QString fn = src.path();
+    ok = QFile::copy(fn, archivePath());
+  } else {
+    ok = img.save(archivePath());
+  }
   markModified();
   return ok;
 }

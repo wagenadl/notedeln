@@ -66,6 +66,7 @@ static QPointF constrainPointToRect(QPointF p, QRectF rect) {
 }
 
 Item *GfxBlockItem::newImage(QImage img, QUrl src, QPointF pos) {
+  qDebug() << "GfxBlockItem::newImage";
   ASSERT(data()->book());
   ASSERT(data()->resManager());
   double maxW = availableWidth();
