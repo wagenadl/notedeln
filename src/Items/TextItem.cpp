@@ -1503,7 +1503,7 @@ bool TextItem::clips() const {
 }
 
 void TextItem::setClip(QRectF r) {
-  clip_ = r.adjusted(-10, 0, 10, 0);
+  clip_ = r.adjusted(-10, 0, 1000, 0);
   update();
 }
 
