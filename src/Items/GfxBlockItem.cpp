@@ -237,27 +237,6 @@ void GfxBlockItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
 
 void GfxBlockItem::makeWritable() {
   BlockItem::makeWritable();
-  setAcceptDrops(true);
-}
-
-void GfxBlockItem::dragEnterEvent(QGraphicsSceneDragDropEvent *e) {
-  QMimeData const *md = e->mimeData();
-  qDebug() << "GfxBlockItem::dragEnterEvent: has image? " << md->hasImage()
-	   << "hasurl?" << md->hasUrls()
-	   << "hastext?" << md->hasText()
-	   << "proposed" << e->proposedAction()
-	   << "iswritable" << isWritable();
-  if (isWritable() && (md->hasImage() || md->hasUrls() || md->hasText())) {
-    e->setDropAction(Qt::CopyAction);
-    setCursor(Cursors::crossCursor());
-  } else {
-    e->ignore();
-  }
-}
-
-void GfxBlockItem::dragLeaveEvent(QGraphicsSceneDragDropEvent *e) {
-  BlockItem::dragLeaveEvent(e);
-  setCursor(cursorShape(e->modifiers()));
 }
 
 bool GfxBlockItem::changesCursorShape() const {
@@ -278,58 +257,4 @@ Qt::CursorShape GfxBlockItem::cursorShape(Qt::KeyboardModifiers) const {
     break;
   }
   return cs;
-}
-
-void GfxBlockItem::dropEvent(QGraphicsSceneDragDropEvent *e) {
-  QMimeData const *md = e->mimeData();
-  if (md->hasImage()) {
-    QUrl url;
-    if (md->hasUrls()) {
-      QList<QUrl> uu = md->urls();
-      if (!uu.isEmpty())
-	url = uu[0];
-    }
-    newImage(qvariant_cast<QImage>(md->imageData()), url, e->pos());
-    e->setDropAction(Qt::CopyAction);
-  } else if (md->hasUrls()) {
-    foreach (QUrl const &u, md->urls())
-      importDroppedUrl(u, e->pos());
-    e->setDropAction(Qt::CopyAction);
-  } else if (md->hasText()) {
-    importDroppedText(md->text(), e->pos());
-   e->setDropAction(Qt::CopyAction);
-  }
-}
-
-void GfxBlockItem::importDroppedText(QString txt, QPointF p) {
-  qDebug() << "importdroppedtext" << txt;
-  GfxNoteItem *note = newGfxNote(p, p);
-  note->textItem()->textCursor().insertText(txt);
-}
-
-void GfxBlockItem::importDroppedUrl(QUrl const &url, QPointF p) {
-  qDebug() << "importdroppedurl" << url;
-  if (url.isLocalFile()) {
-    QString path = url.toLocalFile();
-    if (path.endsWith(".svg")) {
-       importDroppedSvg(url, p);
-       return;
-    }
-    QImage image(path);
-    if (image.isNull())
-      importDroppedText(path, p); // import filename as text
-    else
-      newImage(image, url, p);
-  } else {
-    // Right now, we import all network urls as text
-    importDroppedText(url.toString(), p);
-  }
-}
-
-void GfxBlockItem::importDroppedSvg(QUrl const &url, QPointF p) {
-  QImage img(SvgFile::downloadAsImage(url));
-  if (img.isNull()) 
-    importDroppedText(url.toString(), p);
-  else
-    newImage(img, url, p);
 }

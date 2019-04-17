@@ -43,12 +43,6 @@ public slots:
 public: // should be protected, but EntryScene calls it
   virtual void mousePressEvent(QGraphicsSceneMouseEvent *);
 protected:
-  virtual void dragEnterEvent(class QGraphicsSceneDragDropEvent *);
-  virtual void dragLeaveEvent(class QGraphicsSceneDragDropEvent *);
-  virtual void dropEvent(class QGraphicsSceneDragDropEvent *);
-  void importDroppedText(QString txt, QPointF p);
-  void importDroppedUrl(QUrl const &url, QPointF p);
-  void importDroppedSvg(QUrl const &url, QPointF p);
   virtual bool changesCursorShape() const;
   virtual Qt::CursorShape cursorShape(Qt::KeyboardModifiers) const;
 private:
