@@ -145,7 +145,6 @@ QRectF TextItemDoc::boundingRect() const {
 }
 
 void TextItemDoc::recalculateCharacterWidths() {
-  qDebug() << "forced recalc";
   d->forgetWidths();
   buildLinePos();
 }

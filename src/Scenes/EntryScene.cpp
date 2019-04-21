@@ -103,8 +103,6 @@ void EntryScene::loadLateNotes() {
     } else {
       LateNoteItem *lni = new LateNoteItem(lnd);
       sheets[lnd->sheet()]->addItem(lni);
-      qDebug() << "Created LNI";
-      qDebug() << lni << lni->data() << lni->data()->parent() << lni->parent();
     }
   }
 }
