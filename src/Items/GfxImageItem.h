@@ -65,6 +65,8 @@ private:
   DragType dragTypeForPoint(QPointF) const;
   static Qt::CursorShape cursorForDragType(DragType);
   void startDrag(QGraphicsSceneMouseEvent *);
+private slots:
+  void setImage(QImage img);
 private:
   QImage image; // not cropped
   DragType dragType;

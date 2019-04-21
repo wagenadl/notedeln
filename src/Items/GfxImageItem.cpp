@@ -29,6 +29,7 @@
 #include "Cursors.h"
 #include <QDesktopServices>
 #include "Notebook.h"
+#include "ImageLoader.h"
 
 #include <QProcess>
 #include <QDebug>
@@ -59,10 +60,21 @@ GfxImageItem::GfxImageItem(GfxImageData *data, Item *parent):
     qDebug() << "GfxImageItem: missing resource" << data->resName();
     return;
   }
-  if (!image.load(res->archivePath())) {
-    qDebug() << "GfxImageItem: image load failed for " << data->resName()
-	     << res->archivePath();
-    return;
+  constexpr int SIZETHRESHOLD = 100000;
+  if (data->width() * data->height() > SIZETHRESHOLD) {
+    ImageLoader *ldr = new ImageLoader;
+    connect(ldr, &ImageLoader::loaded,
+	    this, &GfxImageItem::setImage);
+    image = QImage(data->width(), data->height(), QImage::Format_RGB32);
+    image.fill(QColor(255, 255, 200)); // pale yellow during loading
+    ldr->loadThenDelete(res->archivePath());
+  } else {
+    if (!image.load(res->archivePath())) {
+      qDebug() << "GfxImageItem: image load failed for " << data->resName()
+	       << res->archivePath();
+      image = QImage(data->width(), data->height(), QImage::Format_RGB32);
+      image.fill(QColor(255, 50, 50)); // pink-grey for failed to load
+    }
   }
   pixmap->setPixmap(QPixmap::fromImage(image.copy(data->cropRect().toRect())));
   setScale(data->scale());
@@ -366,4 +378,10 @@ void GfxImageItem::setScale(double s) {
 }
 
 void GfxImageItem::paint(QPainter*, const QStyleOptionGraphicsItem*, QWidget*) {
+}
+
+void GfxImageItem::setImage(QImage img) {
+  image = img;
+  QImage crop(image.copy(data()->cropRect().toRect()));
+  pixmap->setPixmap(QPixmap::fromImage(crop));
 }
