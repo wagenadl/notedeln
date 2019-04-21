@@ -11,11 +11,11 @@ HEADERS += \
      ToolScene/MarkSizeItem.h  \
      ToolScene/Modebar.h  \
      ToolScene/Navbar.h  \
+     ToolScene/Toolbar.h  \
+     ToolScene/Toolbars.h  \
      ToolScene/ToolItem.h  \
      ToolScene/ToolScene.h  \
      ToolScene/ToolView.h  \
-     ToolScene/Toolbar.h  \
-     ToolScene/Toolbars.h  \
 
 SOURCES += \
      ToolScene/ClockFace.cpp  \
@@ -28,11 +28,11 @@ SOURCES += \
      ToolScene/MarkSizeItem.cpp  \
      ToolScene/Modebar.cpp  \
      ToolScene/Navbar.cpp  \
+     ToolScene/Toolbar.cpp  \
+     ToolScene/Toolbars.cpp  \
      ToolScene/ToolItem.cpp  \
      ToolScene/ToolScene.cpp  \
      ToolScene/ToolView.cpp  \
-     ToolScene/Toolbar.cpp  \
-     ToolScene/Toolbars.cpp  \
 
 RESOURCES += \
      ToolScene/icons.qrc  \

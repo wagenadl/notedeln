@@ -5,15 +5,15 @@ HEADERS += \
      App/App.h  \
      App/AppInstance.h  \
      App/BuildDate.h  \
-     App/CUI.h  \
      App/CachedPointer.h  \
      App/CachedPointer_Impl.h  \
      App/Calltrace.h  \
      App/CrashReport.h  \
+     App/CUI.h  \
      App/DeletedItem.h  \
      App/DeletedStack.h  \
-     App/EProcess.h  \
      App/ElnAssert.h  \
+     App/EProcess.h  \
      App/HtmlOutput.h  \
      App/Mode.h  \
      App/RecentBooks.h  \
@@ -28,15 +28,16 @@ SOURCES += \
      App/App.cpp  \
      App/AppInstance.cpp  \
      App/BuildDate.cpp  \
-     App/CUI.cpp  \
      App/CachedPointer.cpp  \
      App/Calltrace.cpp  \
      App/CrashReport.cpp  \
+     App/CUI.cpp  \
      App/DeletedItem.cpp  \
      App/DeletedStack.cpp  \
-     App/EProcess.cpp  \
      App/ElnAssert.cpp  \
+     App/EProcess.cpp  \
      App/HtmlOutput.cpp  \
+     App/main.cpp  \
      App/Mode.cpp  \
      App/Printing.cpp  \
      App/RecentBooks.cpp  \
@@ -45,7 +46,6 @@ SOURCES += \
      App/UserInfo.cpp  \
      App/Version.cpp  \
      App/WebGrab.cpp  \
-     App/main.cpp  \
 
 RESOURCES += \
      App/appicon.qrc  \
