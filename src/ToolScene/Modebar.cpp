@@ -167,3 +167,8 @@ void Modebar::doLeftClick(QString id, Qt::KeyboardModifiers m) {
     mode->setDrawMode(mode->drawMode()==Mode::Straightline
 		      ? Mode::Freehand : Mode::Straightline);
 }
+
+void Modebar::doubleClicked(Qt::KeyboardModifiers m) {
+  m |= Qt::ShiftModifier;
+  leftClicked(m);
+}

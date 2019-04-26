@@ -32,6 +32,8 @@ public slots:
   void updateMode();
   void updateTypeMode();
   void updateDrawMode();
+protected slots:
+  virtual void doubleClicked(Qt::KeyboardModifiers);
 protected:
   virtual void doLeftClick(QString id, Qt::KeyboardModifiers);
 private:

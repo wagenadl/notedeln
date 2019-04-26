@@ -112,7 +112,8 @@ void Toolbar::released() {
 }
 
 void Toolbar::doubleClicked(Qt::KeyboardModifiers m) {
-  m |= Qt::ShiftModifier;
+  // treat like two left clicks
+  leftClicked(m);
   leftClicked(m);
 }
 
