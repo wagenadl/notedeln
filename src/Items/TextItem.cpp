@@ -687,7 +687,8 @@ bool TextItem::muckWithIndentation(TextBlockItem *p,
   } else if (mod & Qt::ShiftModifier) {
     if (hasIndent) 
       p->data()->setIndented(false);
-    else if (hasDedent)
+    else if (hasDedent
+	     || data()->lineStarts().size()<=data()->paragraphStarts().size())
       p->data()->setIndented(true);
     else
       p->data()->setDedented(true);

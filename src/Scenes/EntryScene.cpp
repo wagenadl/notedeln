@@ -596,10 +596,18 @@ void EntryScene::futileMovement(int block) {
     /* Ctrl-Enter makes next block with same indentation. Note that this
        currently cannot happen, because Ctrl-Enter is intercepted in TextItem
        and inserts a '\n' in the text. */
-    if (c.atEnd() && !(fmi.modifiers() & Qt::ControlModifier)) 
+    if (c.atEnd()) {
       newTextBlock(block, true);
-    else
-      splitTextBlock(block, c.position());
+    } else {
+      if (tbi->document()->characterAt(c.position())=='\n') {
+	c.deleteChar();
+	splitTextBlock(block, c.position());
+	//splitTextBlock(block, c.position());
+	newTextBlock(block, true);
+      } else {
+	splitTextBlock(block, c.position());
+      }
+    }
     return;
   }
   
@@ -1007,12 +1015,13 @@ bool EntryScene::tryToPaste(SheetScene *s) {
   
   QClipboard *cb = QApplication::clipboard();
   QMimeData const *md = cb->mimeData(QClipboard::Clipboard);
-  qDebug() << "I/U/T" << md->hasImage() << md->hasUrls() << md->hasText();
-  qDebug() << "fi" << fi;
-  if (md->hasUrls())
-    qDebug() << "u=" << md->urls();
-  if (md->hasText())
-    qDebug() << "t=" << md->text();
+
+  //qDebug() << "I/U/T" << md->hasImage() << md->hasUrls() << md->hasText();
+  //qDebug() << "fi" << fi;
+  //if (md->hasUrls())
+  //  qDebug() << "u=" << md->urls();
+  //if (md->hasText())
+  //  qDebug() << "t=" << md->text();
 
   /* The optimal behavior is actually quite tricky.
      In Linux, when I copy and paste:
