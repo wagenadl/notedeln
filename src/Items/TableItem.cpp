@@ -199,7 +199,13 @@ void TableItem::deleteSelection() {
     int nr = rng.rows();
     int nc = rng.columns();
     qDebug() << r0 << c0 << "+" << nr << nc << "/" << data()->rows() << data()->columns();
-    if (nr==int(data()->rows()) && data()->columns()>1) {
+    if (nr==int(data()->rows()) && nc==int(data()->columns())) {
+      // deleting entire table
+      data()->setRows(1);
+      data()->setColumns(1);
+      data()->setText("\n\n", true);
+      emit unicellular(data());
+    } else if (nr==int(data()->rows()) && data()->columns()>1) {
       deleteColumns(c0, nc);
       cursor.clearSelection();
     } else if (nc==int(data()->columns()) && data()->rows()>1) {
@@ -233,6 +239,8 @@ bool TableItem::keyPressWithControl(QKeyEvent *e) {
   int c0 = rng.firstColumn();
   int nr = rng.rows();
   int nc = rng.columns();
+  int C = data()->columns();
+  int R = data()->rows();
   
   switch (e->key()) {
   case Qt::Key_C:
@@ -252,38 +260,35 @@ bool TableItem::keyPressWithControl(QKeyEvent *e) {
     break;
   case Qt::Key_A: 
     if (isWholeCellSelected()) {
-      if (rng.rows()==int(data()->rows()) && nc==int(data()->columns())) {
+      if (nr==R && nc==C) {
 	// everything selected; cycle back to just one cell
 	selectCell(ctrla_r0, ctrla_c0);
-      } else if (nr==int(data()->rows())) {
+      } else if (nr==R) {
 	// column selected -> select table
 	TextCursor cur0(document(), data()->cellStart(0,0));
-	TextCursor cur1(document(), data()->cellEnd(data()->columns()-1,
-                                                    data()->rows()-1));
+	TextCursor cur1(document(), data()->cellEnd(R-1, C-1));
 	cur0.setPosition(cur1.position(), TextCursor::KeepAnchor);
 	setTextCursor(cur0);
-      } else if (nc==int(data()->columns())) {
+      } else if (nc==C) {
 	// row selected -> select column
 	if (ctrla_c0<0)
 	  ctrla_c0 = 0;
-	else if (ctrla_c0>=int(data()->columns()))
-	  ctrla_c0 = int(data()->columns()-1);
-	TextCursor cur0(document(), data()->cellStart(ctrla_c0, 0));
-	TextCursor cur1(document(),
-                        data()->cellEnd(ctrla_c0, data()->rows()-1));
+	else if (ctrla_c0>=C)
+	  ctrla_c0 = C-1;
+	TextCursor cur0(document(), data()->cellStart(0, ctrla_c0));
+	TextCursor cur1(document(), data()->cellEnd(R-1, ctrla_c0));
 	cur0.setPosition(cur1.position(), TextCursor::KeepAnchor);
 	setTextCursor(cur0);
       } else {
 	// less than a row, less than a column -> select row
-	  if (ctrla_r0<r0)
-	    ctrla_r0 = r0;
-	  else if (ctrla_r0>=r0+nr)
-	    ctrla_r0 = r0+nr-1;
-	  TextCursor cur0(document(), data()->cellStart(0, ctrla_r0));
-	  TextCursor cur1(document(),
-                          data()->cellEnd(data()->columns()-1, ctrla_r0));
-	  cur0.setPosition(cur1.position(), TextCursor::KeepAnchor);
-	  setTextCursor(cur0);
+        if (ctrla_r0<r0)
+          ctrla_r0 = r0;
+        else if (ctrla_r0>=r0+nr)
+          ctrla_r0 = r0+nr-1;
+        TextCursor cur0(document(), data()->cellStart(ctrla_r0, 0));
+        TextCursor cur1(document(), data()->cellEnd(ctrla_r0, C-1));
+        cur0.setPosition(cur1.position(), TextCursor::KeepAnchor);
+        setTextCursor(cur0);
       }
     } else {
       // no cells selected -> select cell
@@ -315,7 +320,7 @@ bool TableItem::normalizeCursorPosition() {
   TextCursor c0 = cursor;
   cursor.clampPosition();
   if (c0!=cursor) {
-    qDebug() << "TableItem::normalizeCursorPosition actually did something";
+    //qDebug() << "TableItem::normalizeCursorPosition actually did something";
     return true;
   } else {
     return false;
