@@ -48,6 +48,12 @@ bool TextCursor::atStart() const {
   return doc ? pos<=doc->firstPosition() : false;
 }
 
+bool TextCursor::atStartOfWord() const {
+  if (atStart())
+    return true;
+  return doc ? doc->characterAt(pos-1).isSpace() : false;
+}
+
 bool TextCursor::atEnd() const {
   return doc ? pos>=doc->lastPosition() : false;
 }
@@ -136,21 +142,29 @@ bool TextCursor::movePosition(TextCursor::MoveOperation op,
   switch (op) {
   case NoMove:
     break;
+  case PreviousWord:
+      if (atStartOfWord() && !atStart())
+        --pos;
+      while (!atStartOfWord())
+        --pos;
+    skipBackwardOverCombining();
+    break;
   case Left:
     if (!atStart())
       --pos;
-    { QString t = doc->text();
-      while (!atStart() && Unicode::isCombining(t[pos]))
-        pos--;
-    }
+    skipBackwardOverCombining();
+    break;
+  case NextWord:
+    if (!atEnd())
+      ++pos;
+    while (!atStartOfWord() && !atEnd())
+      ++pos;
+    skipForwardOverCombining();
     break;
   case Right:
     if (!atEnd())
       ++pos;
-    { QString t = doc->text();
-      while (!atEnd() && Unicode::isCombining(t[pos]))
-        pos++;
-    }
+    skipForwardOverCombining();
     break;
   case Start:
     pos = doc->firstPosition();
@@ -164,10 +178,7 @@ bool TextCursor::movePosition(TextCursor::MoveOperation op,
     pos = doc->find(above);
     if (pos<0)
       pos = doc->firstPosition();
-    { QString t = doc->text();
-      while (!atEnd() && Unicode::isCombining(t[pos]))
-        pos++;
-    }
+    skipForwardOverCombining();
   } break;
   case Down: {
     QPointF here = doc->locate(pos);
@@ -175,10 +186,7 @@ bool TextCursor::movePosition(TextCursor::MoveOperation op,
     pos = doc->find(below);
     if (pos<0)
       pos = doc->lastPosition();
-    { QString t = doc->text();
-      while (!atEnd() && Unicode::isCombining(t[pos]))
-        pos++;
-    }
+    skipForwardOverCombining();
   } break;
   case StartOfLine:
     pos = doc->lineStartFor(pos);
@@ -338,4 +346,14 @@ void TextCursor::exchangePositionAndAnchor() {
   int p = pos;
   pos = anc;
   anc = p;
+}
+
+void TextCursor::skipForwardOverCombining() {
+  while (!atEnd() && Unicode::isSecondary(doc->characterAt(pos)))
+    pos++;
+}
+
+void TextCursor::skipBackwardOverCombining() {
+  while (!atStart() && Unicode::isSecondary(doc->characterAt(pos)))
+    pos--;
 }

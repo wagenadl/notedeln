@@ -468,24 +468,42 @@ bool TextItem::keyPressAsMotion(QKeyEvent *e) {
     }
     return true;
   case Qt::Key_Left:
-    tryMove(TextCursor::Left, e->key(), e->modifiers());
+    tryMove(e->modifiers() & Qt::ControlModifier
+            ? TextCursor::PreviousWord : TextCursor::Left,
+            e->key(), e->modifiers());
     return true;
   case Qt::Key_Up:
-    if (text->lineFor(cursor.position())==0
-	&& !(e->modifiers() & Qt::ShiftModifier))
-      emit futileMovementKey(e->key(), e->modifiers());
-    else
-      tryMove(TextCursor::Up, e->key(), e->modifiers());
+    if (e->modifiers() & Qt::ControlModifier) {
+      if (cursor.atStart() && !(e->modifiers() & Qt::ShiftModifier)) 
+        emit futileMovementKey(e->key(), e->modifiers());
+      else
+        tryMove(TextCursor::Start, e->key(), e->modifiers());
+    } else {
+      if (text->lineFor(cursor.position())==0
+          && !(e->modifiers() & Qt::ShiftModifier))
+        emit futileMovementKey(e->key(), e->modifiers());
+      else
+        tryMove(TextCursor::Up, e->key(), e->modifiers());
+    }
     return true;
   case Qt::Key_Right:
-    tryMove(TextCursor::Right, e->key(), e->modifiers());
+    tryMove(e->modifiers() & Qt::ControlModifier
+            ? TextCursor::NextWord : TextCursor::Right,
+            e->key(), e->modifiers());
     return true;
   case Qt::Key_Down:
-    if (text->lineFor(cursor.position())==text->lineStarts().size()-1
-	&& !(e->modifiers() & Qt::ShiftModifier))	
-      emit futileMovementKey(e->key(), e->modifiers());
-    else
-      tryMove(TextCursor::Down, e->key(), e->modifiers());
+    if (e->modifiers() & Qt::ControlModifier) {
+      if (!(e->modifiers() & Qt::ShiftModifier)) 
+        emit futileMovementKey(e->key(), e->modifiers());
+      else
+        tryMove(TextCursor::End, e->key(), e->modifiers());
+    } else {
+      if (text->lineFor(cursor.position())==text->lineStarts().size()-1
+          && !(e->modifiers() & Qt::ShiftModifier))	
+        emit futileMovementKey(e->key(), e->modifiers());
+      else
+        tryMove(TextCursor::Down, e->key(), e->modifiers());
+    }
     return true;
   case Qt::Key_Home:
     tryMove(TextCursor::StartOfLine, e->key(), e->modifiers());
@@ -501,27 +519,19 @@ void TextItem::tryMove(TextCursor::MoveOperation op,
                        int key,
                        Qt::KeyboardModifiers mod) {
   TextCursor c = textCursor();
-  TextCursor::MoveMode mm = mod & Qt::ShiftModifier ? TextCursor::KeepAnchor
+  TextCursor::MoveMode mm = mod & Qt::ShiftModifier
+    ? TextCursor::KeepAnchor
     : TextCursor::MoveAnchor;
   c.movePosition(op, mm);
-  if (op==TextCursor::Left) {
-    if (Unicode::isLowSurrogate(text->characterAt(c.position())))
-      c.movePosition(TextCursor::Left, mm);
-  } else {
-    if (Unicode::isLowSurrogate(text->characterAt(c.position())))
-      c.movePosition(TextCursor::Right, mm);
-  }
-  if (c==textCursor()
-      && !(mod & Qt::ShiftModifier)) {
+  if (c==textCursor() && !(mod & Qt::ShiftModifier)) {
     emit futileMovementKey(key, mod);
-    return;
-  }
-
-  setTextCursor(c);
-  QPointF p = posToPoint(c.position());
-  if (clips() && !clipRect().contains(p)) {
-    qDebug() << "emitting invisible focus" << p << clipRect();
-    emit invisibleFocus(c, p);
+  } else {
+    setTextCursor(c);
+    QPointF p = posToPoint(c.position());
+    if (clips() && !clipRect().contains(p)) {
+      qDebug() << "emitting invisible focus" << p << clipRect();
+      emit invisibleFocus(c, p);
+    }
   }
 }
 

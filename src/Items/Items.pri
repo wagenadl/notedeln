@@ -67,6 +67,7 @@ SOURCES += \
      Items/TextSplitter.cpp  \
      Items/TitleItem.cpp  \
      Items/TOCItem.cpp  \
+     Items/Unicode.cpp  \
 
 RESOURCES += \
      Items/Digraphs.qrc  \

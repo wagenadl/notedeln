@@ -591,7 +591,8 @@ void EntryScene::futileMovement(int block) {
 
   FutileMovementInfo fmi = tbi->lastFutileMovement();
   int tgtidx = -1;
-  if (fmi.key()==Qt::Key_Enter || fmi.key()==Qt::Key_Return) {
+  switch (fmi.key()) {
+  case Qt::Key_Enter: case Qt::Key_Return: {
     TextCursor c = tbi->textCursor();
     /* Ctrl-Enter makes next block with same indentation. Note that this
        currently cannot happen, because Ctrl-Enter is intercepted in TextItem
@@ -608,11 +609,8 @@ void EntryScene::futileMovement(int block) {
 	splitTextBlock(block, c.position());
       }
     }
-    return;
-  }
-  
-  if (fmi.key()==Qt::Key_Left || fmi.key()==Qt::Key_Up
-      || fmi.key()==Qt::Key_Backspace) {
+  } return;
+  case Qt::Key_Left: case Qt::Key_Up: case Qt::Key_Backspace:
     // upward movement
     for (int b=block-1; b>=0; b--) {
       BlockItem *bi = blockItems[b];
@@ -622,8 +620,8 @@ void EntryScene::futileMovement(int block) {
 	break;
       }
     }
-  } else if (fmi.key()==Qt::Key_Right || fmi.key()==Qt::Key_Down
-	     || fmi.key()==Qt::Key_Delete) {
+    break;
+  case Qt::Key_Right: case Qt::Key_Down: case Qt::Key_Delete:
     // downward movement
     for (int b=block+1; b<blockItems.size(); b++) {
       BlockItem *bi = blockItems[b];
@@ -639,6 +637,7 @@ void EntryScene::futileMovement(int block) {
       tgtidx = block + 2;
       Q_ASSERT(tgtidx < blockItems.size());
     }
+    break;
   }
 
   if (tgtidx<0) {
@@ -672,16 +671,6 @@ void EntryScene::futileMovement(int block) {
   
   TextBlockItem *tgt = dynamic_cast<TextBlockItem*>(blockItems[tgtidx]);
   ASSERT(tgt);
-
-  /// Clear selection? Now handled by TextItemText!
-  //foreach (TextItem *ti, tbi->fragments()) {
-  //  QTextCursor c(ti->textCursor());
-  //  if (c.hasSelection()) {
-  //    c.clearSelection();
-  //    ti->setTextCursor(c);
-  //  }
-  //  ti->clearFocus();
-  //}
   
   TextItemDoc *doc = tgt->document();
   TextCursor c(doc);
@@ -692,23 +681,31 @@ void EntryScene::futileMovement(int block) {
   case Qt::Key_Left: 
     c.movePosition(TextCursor::End);
     break;
-  case Qt::Key_Up: {
-    int N = doc->lastPosition();
-    QPointF endp = doc->locate(N);
-    QPointF tgtp(p.x(), endp.y());
-    int idx = doc->find(tgtp);
-    c.setPosition(idx>=doc->firstPosition() ? idx : N);
-    break; }
+  case Qt::Key_Up: 
+    if (fmi.modifiers() & Qt::ControlModifier) {
+      c.setPosition(doc->firstPosition());
+    } else {
+      int N = doc->lastPosition();
+      QPointF endp = doc->locate(N);
+      QPointF tgtp(p.x(), endp.y());
+      int idx = doc->find(tgtp);
+      c.setPosition(idx>=doc->firstPosition() ? idx : N);
+    }
+    break;
   case Qt::Key_Right:
     c.movePosition(TextCursor::Start);
     break;
-  case Qt::Key_Down: {
-    int n = doc->firstPosition();
-    QPointF startp = doc->locate(n);
-    QPointF tgtp(p.x(), startp.y());
-    int idx = doc->find(tgtp);
-    c.setPosition(idx>=n ? idx : n);
-    break; }
+  case Qt::Key_Down:
+    if (fmi.modifiers() & Qt::ControlModifier) {
+      c.setPosition(doc->firstPosition());
+    } else {
+      int n = doc->firstPosition();
+      QPointF startp = doc->locate(n);
+      QPointF tgtp(p.x(), startp.y());
+      int idx = doc->find(tgtp);
+      c.setPosition(idx>=n ? idx : n);
+    }
+    break; 
   }
   tgt->setTextCursor(c);
 }
