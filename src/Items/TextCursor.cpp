@@ -177,7 +177,7 @@ bool TextCursor::movePosition(TextCursor::MoveOperation op,
     QPointF above = here - QPointF(0, doc->lineHeight());
     pos = doc->find(above);
     if (pos<0)
-      pos = doc->firstPosition();
+      pos = p0; //pos = doc->firstPosition();
     skipForwardOverCombining();
   } break;
   case Down: {
@@ -185,7 +185,7 @@ bool TextCursor::movePosition(TextCursor::MoveOperation op,
     QPointF below = here + QPointF(0, doc->lineHeight());
     pos = doc->find(below);
     if (pos<0)
-      pos = doc->lastPosition();
+      pos = p0; // doc->lastPosition();
     skipForwardOverCombining();
   } break;
   case StartOfLine:
