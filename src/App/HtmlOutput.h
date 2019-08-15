@@ -30,14 +30,16 @@ public:
   HtmlOutput(QString outputFile, QString pageTitle);
   bool ok() const;
   ~HtmlOutput();
-  void add(class EntryScene *source);
-  void add(class TextBlockItem const *source, class ResManager const *resmgr);
-  void add(class GfxBlockItem const *source, ResManager const *resmgr);
-  void add(class TableBlockItem const *source, ResManager const *resmgr);
-  void add(class TextData const *source, ResManager const *resmgr,
+  void addEntry(class EntryScene *source);
+  void addTextBlock(class TextBlockItem const *source,
+                    class ResManager const *resmgr);
+  void addGfxBlock(class GfxBlockItem const *source, ResManager const *resmgr);
+  void addTableBlock(class TableBlockItem const *source,
+                     ResManager const *resmgr);
+  void addText(class TextData const *source, ResManager const *resmgr,
 	   int startidx=0, int endidx=-1, QString cls="text");
-  void add(class GfxNoteData const *source, ResManager const *resmgr);
-  void add(class FootnoteData const *source, ResManager const *resmgr);
+  void addGfxNote(class GfxNoteData const *source, ResManager const *resmgr);
+  void addFootnote(class FootnoteData const *source, ResManager const *resmgr);
 private:
   void addFootnotes(class Data const *source, ResManager const *resmgr);
   void collectGfxNotes(Data const *src, QList<GfxNoteData const *> &dst);
