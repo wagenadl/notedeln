@@ -33,6 +33,7 @@
 #include <QDebug>
 #include <QImage>
 #include <QPainter>
+#include <QSvgGenerator>
 
 bool HtmlOutput::ok() const {
   return file.error() == QFile::NoError && res.exists();
@@ -99,6 +100,20 @@ void HtmlOutput::addEntry(EntryScene *source) {
 
   QList<GfxNoteData const *> gfxnotes;
   collectGfxNotes(source->data()->title(), gfxnotes);
+
+  if (source->blocks().size()>0) {
+    BlockItem const *b = *source->blocks().begin();
+    QList<GfxNoteData const *> herenotes;
+    foreach (GfxNoteData const *nd, gfxnotes) {
+      if (nd->sheet() <= b->data()->sheet() &&
+          nd->y() < b->data()->y0()) {
+        herenotes << nd;
+        addGfxNote(nd, resmgr);
+      }
+    }
+    foreach (GfxNoteData const *nd, herenotes)
+      gfxnotes.removeOne(nd);
+  }    
 
   foreach (BlockItem const *b, source->blocks()) {
     if (dynamic_cast<TableBlockItem const *>(b))
@@ -171,12 +186,21 @@ void HtmlOutput::buildGfxRefs(Data const *source, QList<QString> &dst) {
 
 void HtmlOutput::addRefStart(QString key, ResManager const *resmgr) {
   Resource *r = resmgr->byTag(key);
+  qDebug() << "addrefstart" << key;
   if (r) {
     QUrl url = r->sourceURL();
-    if (url.isValid()) 
-      html << "<a href=\"" << escape(url.toString()) << "\">";
-    else 
+    qDebug() << "got resource" << url.toString();
+    if (url.isValid()) {
+      QString txt = url.toString();
+      if (txt.startsWith("page:")) {
+        qDebug() << "html output for page references NYI";
+        // how can we handle this?
+      } else {
+        html << "<a href=\"" << escape(txt) << "\">";
+      }
+    } else {
       html << "<span class=\"badurl\">"; // is this acceptable at all?
+    }
   } else {
     if (key.startsWith("http://") || key.startsWith("https://"))
       html << "<a href=\"" << escape(key) << "\">";
@@ -189,12 +213,19 @@ void HtmlOutput::addRefStart(QString key, ResManager const *resmgr) {
 
 void HtmlOutput::addRefEnd(QString key, ResManager const *resmgr) {
   Resource *r = resmgr->byTag(key);
+  qDebug() << "addrefend" << key;
   if (r) {
     QUrl url = r->sourceURL();
-    if (url.isValid()) 
-      html << "</a>";
-    else
+    if (url.isValid()) {
+      QString txt = url.toString();
+      if (txt.startsWith("page:")) {
+        // can we handle this?
+      } else {
+        html << "</a>";
+      }
+    } else {
       html << "</span>";
+    }
     if (r->hasArchive()) {
       QString fn = r->archivePath();
       QFile resfile(fn);
@@ -217,8 +248,9 @@ void HtmlOutput::addRefEnd(QString key, ResManager const *resmgr) {
   
 
 void HtmlOutput::addRef(QString key, ResManager const *resmgr) {
+  qDebug() << "addref" << key;
   addRefStart(key, resmgr);
-  html << escape(key) << "</a>";
+  html << escape(key);
   addRefEnd(key, resmgr);
 }
 
@@ -228,13 +260,14 @@ void HtmlOutput::addGfxBlock(GfxBlockItem const *source,
   html << "<div class=\"gfx\">\n";
   QRectF r = source->sceneBoundingRect();
   r |= source->mapRectToScene(source->childrenBoundingRect());
-  QImage img((r.size()*2.5).toSize(),
-	     QImage::Format_ARGB32);
+  QSvgGenerator img;
+  QString fn = source->data()->uuid() + ".svg";
+  img.setFileName(res.absoluteFilePath(fn));
+  img.setSize(r.size().toSize());
+  img.setViewBox(QRect(QPoint(0,0), r.size().toSize()));
   QPainter p(&img);
   source->scene()->render(&p, QRectF(), r);
   p.end();
-  QString fn = QString("%1.png").arg((qulonglong)source->data());
-  img.save(res.absoluteFilePath(fn));
   html << QString("<img src=\"%1/%2\" width=\"%3\">")
     .arg(local).arg(fn).arg(int(1.25*r.width()));
   html << "</div>\n";
@@ -276,7 +309,14 @@ void HtmlOutput::addTableBlock(TableBlockItem const *source,
 
 void HtmlOutput::addTextBlock(TextBlockItem const *source,
                               ResManager const *resmgr) {
-  html << "<div class=\"textblock\">\n";
+  QString cls = "textblock";
+  if (source->data()->dedented())
+    cls += " dedent";
+  else if (!source->data()->indented())
+    cls += " noindent";
+  if (source->data()->displayed())
+    cls += " displaytext";
+  html << "<div class=\"" + cls + "\">\n";
   addText(source->data()->text(), resmgr);
   addGfxNotes(source->data(), resmgr);
   html << "</div>\n";
@@ -452,8 +492,25 @@ void HtmlOutput::addFootnote(FootnoteData const *source,
 
 QString HtmlOutput::escape(QString x) {
 #if QT_VERSION >= 0x050000
-  return x.toHtmlEscaped();
+  x = x.toHtmlEscaped();
 #else
-  return Qt::escape(x);
+  x = Qt::escape(x);
 #endif
+  QStringList bits = x.split("\n");
+  for (QString &bit: bits) {
+    int n = 0;
+    for (int i=0; i<bit.size(); i++) {
+      if (bit[i]==' ')
+        ++n;
+      else
+        break;
+    }
+    QString pfx = "";
+    for (int i=0; i<n; i++)
+      pfx += "&nbsp;";
+    bit = pfx + bit.mid(n);
+  }
+  x = bits.join("\n");
+  x = x.replace("\n", "<br>");
+  return x;
 }
