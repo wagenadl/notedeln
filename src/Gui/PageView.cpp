@@ -793,7 +793,7 @@ void PageView::htmlDialog() {
       if (!fn.endsWith(".html"))
         fn += ".html";
       HtmlOutput html(fn, entryScene->title());
-      html.add(entryScene.obj());
+      html.addEntry(entryScene.obj());
     }
   }
 }

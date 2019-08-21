@@ -36,6 +36,7 @@ public:
     StartOfLine, EndOfLine,
     NextCell, PreviousCell,
     StartOfWord, EndOfWord,
+    PreviousWord, NextWord,
   };
   class Range {
   public:
@@ -55,6 +56,7 @@ public:
   bool isNull() const { return !isValid(); }
   bool atStart() const;
   bool atEnd() const;
+  bool atStartOfWord() const;
   int deleteChar(); // return number of QChars deleted; this can be more ...
   int deletePreviousChar(); // ... than one if combining marks are involved
   TextItemDoc *document() const;
@@ -81,6 +83,8 @@ public:
   TextCursor findBackward(QRegExp) const;
   /* findForward and findBackward ignore any selection in the source cursor. */
   void clampPosition();
+  void skipForwardOverCombining();
+  void skipBackwardOverCombining();
 private:
   TextItemDoc *doc;
   int pos;

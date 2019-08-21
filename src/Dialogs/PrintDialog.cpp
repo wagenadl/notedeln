@@ -144,7 +144,7 @@ PrintDialog::Range PrintDialog::entriesRange() const {
     return Range::CurrentEntry;
   else if (ui->reRange->isChecked())
     return Range::FromTo;
-  else
+  else // ui->reSearchResults->isChecked
     return Range::SearchResults;
 }
 
