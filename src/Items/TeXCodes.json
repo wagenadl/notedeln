@@ -127,5 +127,9 @@
   "MOhm": "MΩ",
   "GOhm": "GΩ",
   "mOhm": "mΩ",
-  "hbar": "ħ"
+  "hbar": "ħ",
+  "lfloor": "⌊",
+  "rfloor": "⌋",
+  "lceil": "⌈",
+  "rceil": "⌉"
 }

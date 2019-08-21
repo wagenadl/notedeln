@@ -133,6 +133,7 @@ void TextItem::initializeFormat() {
 }
 
 void TextItem::docChange() {
+  qDebug() << "docchange" << boundingRect();
   prepareGeometryChange();
   emit textChanged();
   update();
@@ -455,6 +456,8 @@ bool TextItem::keyPressAsMotion(QKeyEvent *e) {
     if (cursor.atStart() && !cursor.hasSelection()) {
       emit futileMovementKey(e->key(), e->modifiers());
     } else {
+      if (cursor.hasSelection())
+	prepareGeometryChange(); // needed in title item. Unsure why.
       cursor.deletePreviousChar();
       ensureCursorVisible();      
     }
@@ -463,6 +466,8 @@ bool TextItem::keyPressAsMotion(QKeyEvent *e) {
     if (cursor.atEnd() && !cursor.hasSelection()) {
       emit futileMovementKey(e->key(), e->modifiers());
     } else {
+      if (cursor.hasSelection())
+	prepareGeometryChange(); // needed in title item. Unsure why.	
       cursor.deleteChar();
       ensureCursorVisible();
     }
@@ -542,8 +547,10 @@ bool TextItem::keyPressWithControl(QKeyEvent *e) {
     tryToCopy();
     return true;
   case Qt::Key_X:
-    if (tryToCopy())
+    if (tryToCopy()) {
+      prepareGeometryChange(); // needed in title item. Unsure why.
       cursor.deleteChar();
+    }
     return true;
   case Qt::Key_A:
     cursor.setPosition(0);
