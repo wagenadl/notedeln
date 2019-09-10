@@ -650,7 +650,7 @@ void EntryScene::futileMovement(int block) {
         newTextBlock(block + 1, true);
         tgtidx = block + 2;
         Q_ASSERT(tgtidx < blockItems.size());
-      } else if (!tbi->isEmpty()) {
+      } else if (dynamic_cast<TableBlockItem const *>(tbi)) {
         newTextBlock(block , true);
         tgtidx = block + 1;
         Q_ASSERT(tgtidx < blockItems.size());
