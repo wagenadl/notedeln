@@ -347,7 +347,7 @@ p, li { white-space: pre-wrap; }
          <item>
           <widget class="QToolButton" name="abrowse">
            <property name="enabled">
-            <bool>false</bool>
+            <bool>true</bool>
            </property>
            <property name="text">
             <string>...</string>
@@ -403,8 +403,8 @@ p, li { white-space: pre-wrap; }
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>284</x>
-     <y>648</y>
+     <x>293</x>
+     <y>733</y>
     </hint>
     <hint type="destinationlabel">
      <x>157</x>
@@ -419,8 +419,8 @@ p, li { white-space: pre-wrap; }
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>343</x>
-     <y>648</y>
+     <x>352</x>
+     <y>733</y>
     </hint>
     <hint type="destinationlabel">
      <x>286</x>
@@ -435,8 +435,8 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>121</x>
-     <y>166</y>
+     <x>113</x>
+     <y>181</y>
     </hint>
     <hint type="destinationlabel">
      <x>289</x>
@@ -471,8 +471,8 @@ p, li { white-space: pre-wrap; }
      <y>87</y>
     </hint>
     <hint type="destinationlabel">
-     <x>134</x>
-     <y>490</y>
+     <x>155</x>
+     <y>465</y>
     </hint>
    </hints>
   </connection>
@@ -483,8 +483,8 @@ p, li { white-space: pre-wrap; }
    <slot>browse()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>678</x>
-     <y>61</y>
+     <x>994</x>
+     <y>66</y>
     </hint>
     <hint type="destinationlabel">
      <x>387</x>
@@ -499,8 +499,8 @@ p, li { white-space: pre-wrap; }
    <slot>abrowse()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>669</x>
-     <y>489</y>
+     <x>985</x>
+     <y>464</y>
     </hint>
     <hint type="destinationlabel">
      <x>389</x>
@@ -512,15 +512,15 @@ p, li { white-space: pre-wrap; }
    <sender>local</sender>
    <signal>toggled(bool)</signal>
    <receiver>abrowse</receiver>
-   <slot>setVisible(bool)</slot>
+   <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>120</x>
-     <y>137</y>
+     <x>113</x>
+     <y>151</y>
     </hint>
     <hint type="destinationlabel">
-     <x>669</x>
-     <y>489</y>
+     <x>985</x>
+     <y>464</y>
     </hint>
    </hints>
   </connection>
@@ -535,8 +535,8 @@ p, li { white-space: pre-wrap; }
      <y>90</y>
     </hint>
     <hint type="destinationlabel">
-     <x>214</x>
-     <y>448</y>
+     <x>235</x>
+     <y>433</y>
     </hint>
    </hints>
   </connection>
@@ -547,8 +547,8 @@ p, li { white-space: pre-wrap; }
    <slot>setVisible(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>124</x>
-     <y>188</y>
+     <x>113</x>
+     <y>181</y>
     </hint>
     <hint type="destinationlabel">
      <x>33</x>

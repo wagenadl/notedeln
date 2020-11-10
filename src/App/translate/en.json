@@ -44,6 +44,7 @@
     "no-git": "Could not run git",
     "clone-failed": "Failed to clone hosted archive",
     "create-path": "Create new notebook...",
+    "create-archive": "Location for archive...",
     "could-not-open-notebook": "Could not open notebook at “%1”'",
     "could-not-create-notebook-exists": "Could not create new notebook “%1”: found existing notebook",
     "could-not-create-notebook": "Could not create new notebook “%1”",

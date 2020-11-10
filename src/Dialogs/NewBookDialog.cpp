@@ -37,7 +37,7 @@ NewBookDialog::NewBookDialog(QWidget *parent): QDialog(parent) {
 
   ui->location->setText(defaultLocation() + "/book.nb");
   connect(ui->location, SIGNAL(textChanged(QString)),
-          SLOT(locationChanged(QString)));
+          SLOT(locationChanged()));
   
   ui->local->setChecked(true);
   ui->archive->setChecked(false);
@@ -52,6 +52,7 @@ NewBookDialog::NewBookDialog(QWidget *parent): QDialog(parent) {
     ui->cautionIcon->setPixmap(pm);
   }
   ui->test->hide();
+  locationChanged();
 }
 
 NewBookDialog::~NewBookDialog() {
@@ -103,14 +104,18 @@ void NewBookDialog::browse() {
 }
 
 void NewBookDialog::abrowse() {
-  QString fn = QFileDialog::getExistingDirectory(this,
-						 Translate::_("create-archive"),
-						 defaultLocation());
+  qDebug() << "abrowse";
+  QString loc = defaultLocation();
+  qDebug() << "location" << loc;
+  QString ttl = Translate::_("create-archive");
+  qDebug() << "title" << ttl;
+  QString fn = QFileDialog::getExistingDirectory(0, ttl, loc);
+  qDebug() << "fn" << fn;
   if (!fn.isEmpty())
     ui->alocation->setText(fn);
 }
 
-void NewBookDialog::locationChanged(QString) {
+void NewBookDialog::locationChanged() {
   ui->leaf->setText("/" + leaf() + ".git");
 }
 
@@ -145,7 +150,9 @@ QString NewBookDialog::getNewSimple() {
 
 QString NewBookDialog::getNewArchive() {
   NewBookDialog nbd;
+  qDebug() << "getnewarchive";
   while (nbd.exec()) {
+    qDebug() << "nbd.exec";
     QString fn = nbd.location();
     if (fn.isEmpty()) {
       QMessageBox::warning(&nbd, Translate::_("eln"),
