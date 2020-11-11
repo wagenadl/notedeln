@@ -862,6 +862,26 @@ bool TextItem::keyPressAsBackslash(QKeyEvent *e) {
   }
 }
 
+int TextItem::substituteInternalScripts(int start, int end) {
+  int sumdelta = 0;
+  for (int pos=start; pos<end; pos++) {
+    QChar c = document()->characterAt(pos);
+    if ((c=="^" || c=="_") && pos<end-1) {
+      QString s = QString(c) + QString(document()->characterAt(pos+1));
+      if (Accents::contains(s)) {
+        TextCursor cur(document(), pos+2, pos);
+        cur.deleteChar();
+        QString sub = Accents::map(s);
+        cur.insertText(sub);
+        int delta = sub.size() - s.size();
+        end += delta;
+        sumdelta += delta;
+      }
+    }
+  }
+  return sumdelta;
+}      
+
 bool TextItem::keyPressAsDigraph(QKeyEvent *e) {
   QChar charBefore = document()->characterAt(cursor.position()-1);
   QChar charBefore2 = document()->characterAt(cursor.position()-2);
@@ -1034,8 +1054,13 @@ bool TextItem::tryScriptStyles(bool onlyIfBalanced) {
       || data()->markupAt(cursor.position(),
                           MarkupData::Subscript))
     return false;
+
+  bool endswithbrace = document()->characterAt(cursor.position()-1) == '}';
+  QString re = "(\\^|_)";
+  if (endswithbrace)
+    re += "\\{";
       
-  TextCursor m = cursor.findBackward(QRegExp("\\^|_"));
+  TextCursor m = cursor.findBackward(QRegExp(re));
   if (!m.hasSelection())
     return false; // no "^" or "_"
   if (m.selectionEnd() == cursor.position())
@@ -1048,11 +1073,16 @@ bool TextItem::tryScriptStyles(bool onlyIfBalanced) {
     scr.setPosition(cursor.position(), TextCursor::KeepAnchor);
     if (!balancedBrackets(scr.selectedText()))
       return false;
-  }  
+  }
 
+  if (endswithbrace) {
+    cursor.deletePreviousChar();
+    cursor.correctPosition(substituteInternalScripts(m.position(),
+                                                     cursor.position()));
+  }
   cursor.correctPosition(-m.deleteChar());
 
-  addMarkup(mrk=="^"
+  addMarkup(mrk[0]=="^"
 	    ? MarkupData::Superscript
 	    : MarkupData::Subscript,
 	    m.selectionStart(), cursor.position());

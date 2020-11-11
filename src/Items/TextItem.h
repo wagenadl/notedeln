@@ -101,6 +101,7 @@ private:
   bool keyPressAsInsertion(QKeyEvent *);
   void handleLeftClick(QGraphicsSceneMouseEvent *);
   void selectWordOrLineOrParagraph(int pos);
+  int substituteInternalScripts(int start, int end);
 protected slots:
   virtual void markupChange(MarkupData *);
   virtual void docChange();
