@@ -771,6 +771,8 @@ bool TextItem::keyPressAsInsertion(QKeyEvent *e) {
   }
   if (!cursor.hasSelection()) {
     cursor.insertText(now);
+    if (now=="}" && mode()->typeMode()==Mode::Math) 
+      tryScriptStyles(true);
     ensureCursorVisible();
   }
   return true;
@@ -843,6 +845,7 @@ bool TextItem::keyPressAsBackslash(QKeyEvent *e) {
         cursor.movePosition(TextCursor::Left, TextCursor::KeepAnchor);
       cursor.deleteChar();
       cursor.insertText(Accents::map(pre));
+      ensureCursorVisible();
       return true;
     } else {
       return false;
@@ -856,6 +859,7 @@ bool TextItem::keyPressAsBackslash(QKeyEvent *e) {
       sub = sub.mid(1);
     cursor.insertText(sub);
     //cursor.insertText(txt);
+    ensureCursorVisible();
     return true;
   } else {
     return false;
@@ -864,6 +868,28 @@ bool TextItem::keyPressAsBackslash(QKeyEvent *e) {
 
 int TextItem::substituteInternalScripts(int start, int end) {
   int sumdelta = 0;
+  while (true) {
+    MarkupData *md = data()->markupAt(start, end, MarkupData::Superscript);
+    if (!md)
+      break;
+    int s = md->start();
+    deleteMarkup(md);
+    TextCursor cur(document(), s);
+    cur.insertText("^");
+    sumdelta += 1;
+    end += 1;
+  }
+  while (true) {
+    MarkupData *md = data()->markupAt(start, end, MarkupData::Subscript);
+    if (!md)
+      break;
+    int s = md->start();
+    deleteMarkup(md);
+    TextCursor cur(document(), s);
+    cur.insertText("_");
+    sumdelta += 1;
+    end += 1;
+  }
   for (int pos=start; pos<end; pos++) {
     QChar c = document()->characterAt(pos);
     if ((c=="^" || c=="_") && pos<end-1) {
@@ -946,13 +972,13 @@ void TextItem::keyPressEvent(QKeyEvent *e) {
     break;
   case Mode::Type:
     if (isWritable()) {
-      if (keyPressWithControl(e) 
-	  || (mode()->typeMode()==Mode::Math && keyPressAsMath(e))
-          || (mode()->typeMode()!=Mode::Code && keyPressAsDigraph(e))) {
+      if (keyPressWithControl(e)) {
         e->accept();
       } else {
         bool bs = mode()->typeMode()!=Mode::Code && keyPressAsBackslash(e);
-        if (keyPressAsMotion(e)
+        if (mode()->typeMode()==Mode::Math && keyPressAsMath(e)
+            || (!bs && mode()->typeMode()!=Mode::Code && keyPressAsDigraph(e))
+            || keyPressAsMotion(e)
             || keyPressAsSpecialEvent(e)
             || keyPressAsInsertion(e)
             || bs) {
@@ -1069,8 +1095,9 @@ bool TextItem::tryScriptStyles(bool onlyIfBalanced) {
   QString mrk = m.selectedText();
 
   if (onlyIfBalanced) {
-    TextCursor scr(m);
+    TextCursor scr(document(), m.selectionStart() + 1);
     scr.setPosition(cursor.position(), TextCursor::KeepAnchor);
+    qDebug() << "onlyifbalanced" << scr.selectedText();
     if (!balancedBrackets(scr.selectedText()))
       return false;
   }
@@ -1086,6 +1113,7 @@ bool TextItem::tryScriptStyles(bool onlyIfBalanced) {
 	    ? MarkupData::Superscript
 	    : MarkupData::Subscript,
 	    m.selectionStart(), cursor.position());
+  ensureCursorVisible();
   return true;
 }
 

@@ -195,9 +195,9 @@ bool TextItem::keyPressAsMath(QKeyEvent *e) {
 	if (md)
           deleteMarkup(md);
       }
-      tryScriptStyles();
+      tryScriptStyles(true);
     } else if (txt=="_") {
-      tryScriptStyles();
+      tryScriptStyles(true);
     } else if ((spacing.contains(txt) || closing.contains(txt))
 	       && punct.contains(document()->characterAt(cursor.position()-1))) {
 	cursor.movePosition(TextCursor::Left);
