@@ -28,6 +28,7 @@
 #include "BlockItem.h"
 #include "ElnAssert.h"
 #include "TeXCodes.h"
+#include "Accents.h"
 #include "Latin.h"
 #include "Digraphs.h"
 #include "TextBlockItem.h"
@@ -53,6 +54,15 @@
 
 #include "LateNoteItem.h" 
 #include "LateNoteData.h" 
+
+
+static bool isLatinLetter(QChar x) {
+  return (x>='A' && x<='Z') || (x>='a' && x<='z');
+}
+
+static bool isDigit(QChar x) {
+  return (x>='0' && x<='9');
+}
 
 TextItem::TextItem(TextData *data, Item *parent, bool noFinalize,
 		   TextItemDoc *altdoc):
@@ -614,10 +624,10 @@ bool TextItem::keyPressWithControl(QKeyEvent *e) {
 
 bool TextItem::keyPressAsSimpleStyle(int key, TextCursor const &cursor) {
   switch (key) {
-  case Qt::Key_Slash:
+  case Qt::Key_Slash: case Qt::Key_I:
     toggleSimpleStyle(MarkupData::Italic, cursor);
     return true;
-  case Qt::Key_8: case Qt::Key_Asterisk: case Qt::Key_Comma:
+  case Qt::Key_8: case Qt::Key_Asterisk: case Qt::Key_Comma: case Qt::Key_B:
     toggleSimpleStyle(MarkupData::Bold, cursor);
     return true;
   case Qt::Key_6: case Qt::Key_AsciiCircum:
@@ -774,6 +784,84 @@ void TextItem::ensureCursorVisible() {
   }
 }  
 
+bool TextItem::keyPressAsBackslash(QKeyEvent *e) {
+  // if this keyevent terminates a \tex code.
+  if (cursor.hasSelection())
+    return false;
+
+  QString txt = e->text();
+  if (txt.isEmpty() || txt=="\b" || txt==QChar(127)) // backspace/delete are weird
+    return false;
+  qDebug() << "bs" << txt[0].unicode();
+
+  int pos = cursor.position();
+  QString pre = "";
+  QString accents = ",.:^_‘’";
+  bool hasdig = false;
+  bool haslet = false;
+  bool hasacc = false;
+  while (true) {
+    if (--pos < 0)
+      return false;
+    QChar c = document()->characterAt(pos);
+    if (c=='\\') {
+      break;
+    } else if (isLatinLetter(c)) {
+      haslet = true;
+      pre = c + pre;
+    } else if (isDigit(c)) {
+      hasdig = true;
+      pre = c + pre;
+    } else if (pos>0 && accents.contains(c)
+               && document()->characterAt(pos-1)=='\\') {
+      hasacc = true;
+      pre = c + pre;
+      break;
+    } else {
+      return false;
+    }
+  }
+  if (hasacc && pre.size()!=2)
+    return false;
+  if (pre.size()<1)
+    return false;
+
+
+  bool subst = hasacc ? true
+    : isLatinLetter(txt[0]) ? hasdig
+    : isDigit(txt[0]) ? haslet
+    : true;
+
+  if (!subst)
+    return false;
+
+  qDebug() << "subst" << pre;
+  
+  if (hasacc) {
+    if (Accents::contains(pre)) {
+      for (int m=0; m<=pre.size(); m++)
+        cursor.movePosition(TextCursor::Left, TextCursor::KeepAnchor);
+      cursor.deleteChar();
+      cursor.insertText(Accents::map(pre));
+      return true;
+    } else {
+      return false;
+    }
+  } else if (TeXCodes::contains(pre)) {
+    for (int m=0; m<=pre.size(); m++)
+      cursor.movePosition(TextCursor::Left, TextCursor::KeepAnchor);
+    cursor.deleteChar();
+    QString sub = TeXCodes::map(pre);
+    if (sub.startsWith("x"))
+      sub = sub.mid(1);
+    cursor.insertText(sub);
+    //cursor.insertText(txt);
+    return true;
+  } else {
+    return false;
+  }
+}
+
 bool TextItem::keyPressAsDigraph(QKeyEvent *e) {
   QChar charBefore = document()->characterAt(cursor.position()-1);
   QChar charBefore2 = document()->characterAt(cursor.position()-2);
@@ -840,13 +928,18 @@ void TextItem::keyPressEvent(QKeyEvent *e) {
     if (isWritable()) {
       if (keyPressWithControl(e) 
 	  || (mode()->typeMode()==Mode::Math && keyPressAsMath(e))
-	  || (mode()->typeMode()!=Mode::Code &&keyPressAsDigraph(e))
-	  || keyPressAsMotion(e)
-	  || keyPressAsSpecialEvent(e)
-	  || keyPressAsInsertion(e)) {
-	e->accept();
+          || (mode()->typeMode()!=Mode::Code && keyPressAsDigraph(e))) {
+        e->accept();
       } else {
-	Item::keyPressEvent(e);
+        bool bs = mode()->typeMode()!=Mode::Code && keyPressAsBackslash(e);
+        if (keyPressAsMotion(e)
+            || keyPressAsSpecialEvent(e)
+            || keyPressAsInsertion(e)
+            || bs) {
+          e->accept();
+        } else {
+          Item::keyPressEvent(e);
+        }
       }
     } else {
       if (keyPressInBrowseMode(e))

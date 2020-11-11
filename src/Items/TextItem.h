@@ -92,6 +92,7 @@ public:
 private:
   bool keyPressInBrowseMode(QKeyEvent *);
   bool keyPressAsMath(QKeyEvent *);
+  bool keyPressAsBackslash(QKeyEvent *);
   void letterAsMath(QString);
   bool keyPressAsMotion(QKeyEvent *);
   bool keyPressAsDigraph(QKeyEvent *);
