@@ -2,7 +2,9 @@
 \usepackage[utf8]{inputenc}
 \usepackage{mathptm}
 \usepackage{newcent}
-\usepackage[letterpaper,left=1.25in,right=1.25in,top=1.25in,bottom=1.5in]{geometry}
+\usepackage{xfrac}
+\usepackage[letterpaper,left=1.1in,right=1.1in,top=1.1in,bottom=1.25in]{geometry}
+\linespread{1.1}
 \usepackage[perpage,symbol]{footmisc}
 \usepackage{graphicx}
 \usepackage{footnote}
@@ -42,13 +44,13 @@
 \vskip10pt
   
   
-  {Copyright (c) 2013--2019}
+  {Copyright (c) 2013--2020}
   
 \end{centering}
 \pagebreak
 ~
 \vfill
-\noindent Copyright (C) 2013--2019 Daniel A. Wagenaar\medskip
+\noindent Copyright (C) 2013--2020 Daniel A. Wagenaar\medskip
 
 ELN is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -407,15 +409,14 @@ mode, indicated by the \icon{browse} icon being automatically selected.
 \section{Formatting}
 
 ELN doesn't offer advanced formatting, but it does offer some basic
-options: Press \keycontrol{/} to italicize the word under the
-cursor or the current selection (or to unitalicize). Press
-\keycontrol{*} (or \keycontrol{8}) for bold face. Press
-\keyctrlunderscore{} (underscore; on my keyboard:
-\controlshift{-}) for underline. Type
-\keyctrlhat{} (or \keycontrol{6}) to create a
+options: Press \keycontrol{I} or \keycontrol{/} to italicize the word
+under the cursor or the current selection (or to unitalicize). Press
+\keycontrol{B} or \keycontrol{*} (or \keycontrol{8}) for bold face. Press
+\keycontrol{U} or \keyctrlunderscore{} (underscore; on my keyboard: \controlshift{-})
+for underline. Type \keyctrlhat{} (or \keycontrol{6}) to create a
 superscript and \keycontrol{-} (minus) to create a
-subscript.\footnote{Superscripts and subscripts can also be creates by typing
-  \keyhat{} or \keyunderscore{} followed by the text of the
+subscript.\footnote{Superscripts and subscripts can also be created by
+  typing \keyhat{} or \keyunderscore{} followed by the text of the
   superscript or subscript and then pressing \keycontrol{.} (period).}
 
 In addition, any text, old or new, can be highlighted using the
@@ -437,34 +438,54 @@ character first, move the cursor back, and then type the first
 character. But it might be more convenient to press \keycontrol{F2} to
 enter ``Code mode''; see section~\ref{sec:codemode}.)
 
-\begin{figure}[b]
+\begin{figure}[t]
 \noindent~\hfill\includegraphics[scale=.85]{../doc/digraphs.pdf}\hfill~\vspace{-40pt}
 
 \caption{{\bf Automatic character substitutions.} To get the glyph on
   the left, type the character sequence on the right. {\bf a.}~General
-  punctuation. {\bf b.}~Arrows. {\bf c.}~Less than and greater
+  punctuation. {\bf b.}~Arrows (see also Figure~\ref{fig:texcodes}i). {\bf c.}~Less than and greater
   than. {\bf d.} Decorated equals signs. {\bf e.}~Other mathematical
   operators.}\label{fig:charsubst}
 \end{figure}
 
 In addition to the automatic substitutions, there are many symbols
-that can be obtained by typing their name and pressing
-\keyctrlbackslash{} (Figure~\ref{fig:texcodes}).  Extending this list
+that can be obtained by typing a backslash followed by their name
+(Figure~\ref{fig:texcodes}).  Extending this list
 is easy, so let me know if you have suggestions.
 
+As an alternative to standard unicode input methods for entering
+accented letters, ELN supports creating a select group of accented
+letters by typing a backslash followed by a symbol and a letter
+(Figure~\ref{fig:accents}), as in ``{\tt Se\char92\char126nor}'' for
+``Se\~nor'' or ``{\tt soup\char92,con}'' for ``soup\c{c}on''. 
+
 \begin{figure}
-\noindent~\hfill\includegraphics[scale=.85]{../doc/texcodes.pdf}\hfill~\vspace{-7pt}
+\noindent\includegraphics[width=\textwidth]{../doc/texcodes.pdf}\vspace{-7pt}
 
 \caption{{\bf Symbols that may be obtained by a TeX-like command.} To
-  get the symbols on the left, type the character sequence on the
-  right and press \keyctrlbackslash.  {\bf a.}~General
-  punctuation. {\bf b.}~Arrows. {\bf c.}~Other symbols. {\bf
-    d,~e.}~Lowercase and uppercase Greek letters. {\bf f.}~Scientific
-  units. {\bf g.}~Mathematical operators. {\bf h.}~Other mathematical
-  symbols. {\bf i.}~Mathematical accents. (The codes in \emph{i} are
+  get the symbols on the left, type a backslash followed by the character sequence on the
+  right, then keep typing.
+  {\bf a,~b.}~Lowercase and uppercase Greek letters.
+  {\bf c.}~Fractions.
+  {\bf d.}~Scientific units.
+  {\bf e.}~Mathematical operators.
+ {\bf f.}~Other mathematical symbols.
+  {\bf g.}~Other symbols.
+  {\bf h.}~General punctuation.
+  {\bf i.}~Arrows.
+  {\bf j.}~Mathematical accents.
+  (The codes in \emph{j} are
   different from the others, in that the accent is placed over the
   preceding character rather than as a separate
   entity.)}\label{fig:texcodes}
+\end{figure}
+
+\begin{figure}
+\noindent~\hfill\includegraphics[scale=.85]{../doc/accents.pdf}\vspace{-7pt}\hfill~
+
+\caption{{\bf Accented letters that may be obtained by a TeX-like sequence.} To
+  get the accented letters on the left, type a backslash followed by the character sequence on the
+  right, then keep typing.}\label{fig:accents}
 \end{figure}
 
 
@@ -528,8 +549,7 @@ pressing \keyshift{Tab}.
 
 \section{Typesetting mathematics}
 
-When typing mathematical equations, having to frequently press
-\keyctrlbackslash{} for special characters and \keycontrol{/} for
+When typing mathematical equations, having to frequently type the backslash for special characters and \keycontrol{/} for
 italics can get tiresome. To avoid this annoyance, press
 \keycontrol{`} (that's the key to the left of the \key{1} on many
 qwerty keyboards) to enter (and exit) ``math'' mode, which turns the
@@ -545,18 +565,26 @@ name and single-character words are typeset in italics.\footnote{A few
   subtle cases are handled semi-intelligently as well.} Additionally,
 simple subscripts and superscripts can be typeset by just typing
 underscore or hat followed by the text of the sub- or superscript. As
-a result, a basic equation like ``$\int_1^\infty 1/x^2\, \mathrm{d}x =
-1$'' can be typeset simple by typing ``{\tt{int\char95{}1\char94inf
-    1/x\char94{}2 dx = 1}}''.
+a result, an equation like ``$\int_1^\infty 1/x^2\, \mathrm{d}x =
+1$'' can be typeset simply by typing ``{\tt{int\char95{}1\char94inf
+    1/x\char94{}2 dx = 1}}''. Even double superscripts and subscripts are possible,
+to the degree that the second level is supported by
+unicode.\footnote{At the moment, only single digits are
+  supported. Outside of mathmode these can be obtained by typing
+  ``{\tt \char92\char94{}2}'', ``{\tt \char92\char95{}2}'', etc.} For
+instance, ``$\mathrm{e}^{-\sfrac12(x_1{}^2+x_2{}^2)}$'' can be typeset simply by
+typing
+``{\tt{e\char94\char123-\char92{}12(x\char95{}1\char94{}2+x\char95{}2\char94{}2)\char125}}''. (Note
+how the curly braces ``protect'' the inner expression.)
 
 \section{Typesetting computer code}\label{sec:codemode}
 
 When typing computer code, the automatic substitions in
-Figure~\ref{fig:charsubst} can be a hindrance. To disable all
-automatic substitions, press \keycontrol{F2} (or click the
-\icon{type} icon with \key{Ctrl} held). The icon will
-change to \icon{type-code}, which signifies ``Code''
-mode. Press \key{F2} to return to normal text mode.
+Figure~\ref{fig:charsubst}, \ref{fig:texcodes}, and~\ref{fig:accents} can be a
+hindrance. To disable all automatic substitions, press \keycontrol{F2}
+(or click the \icon{type} icon with \key{Ctrl} held). The icon will
+change to \icon{type-code}, which signifies ``Code'' mode. Press
+\key{F2} to return to normal text mode.
 
 \section{Exporting and printing}
 
@@ -597,40 +625,47 @@ your notebooks archived locally or to another computer using
 Git. Simple enable the ``Archiving'' option and specify the place
 where you want the archive to be stored.
 
-Archiving locally is extremely easy, but of limited utility. Archiving
-remotely is somewhat more involved. If you have no experience with
-Git, it is probably best to remedy that first. Some of the following
-is likely to be hard to understand otherwise.
+Archiving locally is extremely easy, but of limited
+utility.\footnote{Unless ``locally'' actually means a network location
+  that your computer maps to a path that merely ``looks'' local to
+  ELN.  Most operating systems are capable of that.} Archiving
+remotely from within ELN is slightly more involved. If you have no
+experience with Git, it is probably best to remedy that first. Some of
+the following is likely to be hard to understand otherwise.
 
 \emph{Caution: Black diamond contents ahead.} For remote archiving,
-you need to have a host computer that you can access by ssh
-without a password. Typically, that involves setting up a
-public/private RSA key pair using ssh-keygen or similar and appending
-the public key to the file ``.ssh/authorized\_keys'' on the
-server. Further details can be found elsewhere. In my experience,
-doing this from a Windows computer is much more tricky than from
-either Linux or Mac OS; the only Windows solution I have found is
-``Pageant,'' which is part of the ``PuTTY'' package.\footnote{At
-http://www.putty.org. See
-http://the.earth.li/~sgtatham/putty/0.58/htmldoc/Chapter9.html for an
-introduction to Pageant.} If you use Git to store your notebook on a
-remote host, you can also access it from other computers. To do that,
-you would select ``Clone hosted notebook for local use'' from the ELN
-opening screen. Conveniently, once you have cloned the notebook, you
-can treat it just like any other local notebook, with one caveat: you
-must never open a notebook simultaneously on two computers, and always
-allow Git to ``commit and push'' any changes back to the
-host. (Otherwise, your notebook can get into a messy state from which
-recovery will require typing Git commands in a terminal
-window. Note that it is always completely safe to only use one client
-computer with Git.)
+you need to have a host computer that you can access by ssh without a
+password. Typically, that involves setting up a public/private RSA key
+pair using ssh-keygen or similar and appending the public key to the
+file ``.ssh/authorized\_keys'' on the server. Further details can be
+found elsewhere. In my experience, doing this from a Windows computer
+is much trickier than from either Linux or Mac OS; the most
+workable Windows solution I have found is ``Pageant,'' which is part
+of the ``PuTTY'' package.\footnote{At https://www.putty.org. See
+  https://documentation.help/PuTTY/pageant.html for an introduction to
+  Pageant.}
+
+If you use Git to store your notebook on a remote host,
+you can also access it from other computers. To do that, you would
+select ``Clone hosted notebook for local use'' from the ELN opening
+screen. Conveniently, once you have cloned the notebook, you can treat
+it just like any other local notebook, with one caveat: you should not
+open a notebook simultaneously on two computers, and always allow Git
+to ``commit and push'' any changes back to the host.\footnote{If you fail to
+heed this warning, ELN will likely have to manually rebuild your index
+and table of contents. That's not the end of the world. However, in
+rare instances, your notebook can get into a messy state from which
+recovery will require typing Git commands in a terminal window. Note
+that it is always completely safe to only use one client computer with
+Git at a time.} Similar cautions apply when you use solutions like
+Dropbox or iCloud for holding your notebook.
 
 \emph{Warning: Double black diamond contents ahead.} It is also
 possible to turn an existing notebook into a Git repository. There are
 two steps:
 \begin{enumerate}
   \item you should replace the line in your notebook's
-    ``style.json'' file that says ``"vc": ""'' to ``"vc": "git"'';
+    ``style.json'' file that says ``{\tt"vc":~""}'' to ``{\tt"vc":~"git"}'';
     \item you
 should locate the ``.nb'' folder, type \terminal{git init} to turn your
 notebook into a Git repository, then type some variant of
@@ -666,6 +701,8 @@ fixed. And I would be happy to try and help.
 
 \noindent Woods Hole, June 2015;
 
-\noindent Pasadena, January 2016, January 2017, April 2019.
+\noindent Pasadena, January 2016, January 2017, April 2019;
+
+\noindent Altadena, November 2020.
 
 \end{document}

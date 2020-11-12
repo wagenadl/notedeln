@@ -637,7 +637,7 @@ bool TextItem::keyPressAsSimpleStyle(int key, TextCursor const &cursor) {
     // on my keyboard, but they generate different codes
     toggleSimpleStyle(MarkupData::Subscript, cursor);
     return true;
-  case Qt::Key_Underscore:
+  case Qt::Key_Underscore: case Qt::Key_U:
     toggleSimpleStyle(MarkupData::Underline, cursor);
     return true;
   case Qt::Key_1: case Qt::Key_Exclam:
@@ -830,8 +830,8 @@ bool TextItem::keyPressAsBackslash(QKeyEvent *e) {
 
 
   bool subst = hasacc ? true
-    : isLatinLetter(txt[0]) ? hasdig
-    : isDigit(txt[0]) ? haslet
+    : isLatinLetter(txt[0]) ? (hasdig && !haslet)
+    : isDigit(txt[0]) ? (haslet && !hasdig)
     : true;
 
   if (!subst)

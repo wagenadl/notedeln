@@ -1,0 +1,45 @@
+#!placeqpt -o ../build/texcodes.pdf
+
+FONTSIZE 10pt
+FONTSTYLE \sf\bfseries
+
+PANEL 0 0
+GRAPHICS ../build/accents-0.pdf 
+LABEL a SHIFTED 0 2
+
+PANEL SAME BELOW
+GRAPHICS ../build/accents-4.pdf 
+
+PANEL RIGHT 0
+GRAPHICS ../build/accents-1.pdf
+LABEL b SHIFTED 0 2
+
+PANEL SAME BELOW
+GRAPHICS ../build/accents-5.pdf 
+
+
+PANEL RIGHT 0
+GRAPHICS ../build/accents-2.pdf
+LABEL c SHIFTED 0 2
+
+PANEL SAME BELOW
+GRAPHICS ../build/accents-6.pdf 
+
+PANEL RIGHT 0
+GRAPHICS ../build/accents-3.pdf
+LABEL d SHIFTED 0 2
+
+PANEL SAME BELOW
+GRAPHICS ../build/accents-7.pdf 
+
+PANEL RIGHT 0
+GRAPHICS ../build/accents-8.pdf
+LABEL e SHIFTED 0 2
+
+#PANEL RIGHT 0
+#GRAPHICS ../build/accents-9.pdf
+#LABEL f SHIFTED 0 2
+#
+#PANEL RIGHT 0
+#GRAPHICS ../build/accents-10.pdf
+#LABEL g SHIFTED 0 2
