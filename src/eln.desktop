@@ -6,5 +6,5 @@ Exec=eln %f
 Terminal=false
 Type=Application
 Categories=Office
-Icon=/usr/share/pixmaps/eln.png
+Icon=net.danielwagenaar.eln.png
 MimeType=application/eln-book

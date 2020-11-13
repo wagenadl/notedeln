@@ -2,13 +2,18 @@
 # Windows uses QCreator.
 
 # Unix installation
-ifdef DESTDIR
-  # Debian uses this
-  INSTALLPATH = $(DESTDIR)/usr
-  SHAREPATH = $(DESTDIR)/usr/share
+ifdef FLATPAKAPP
+  INSTALLPATH = /app
+  SHAREPATH = /app/share
 else
-  INSTALLPATH = /usr/local
-  SHAREPATH = /usr/local/share
+  ifdef DESTDIR
+    # Debian uses this
+    INSTALLPATH = $(DESTDIR)/usr
+    SHAREPATH = $(DESTDIR)/usr/share
+  else
+    INSTALLPATH = /usr/local
+    SHAREPATH = /usr/local/share
+  endif
 endif
 
 UNAME=$(shell uname -s)
@@ -25,7 +30,7 @@ ifeq ($(UNAME),Linux)
 else
   ifeq ($(UNAME),Darwin)
     # Mac OS
-    QROOT=/Users/wagenaar/Qt-5.7/5.7
+    # QROOT=/Users/wagenaar/Qt-5.7/5.7
     QROOT=/Users/wagenaar/Qt-5.12/5.12.1
     QBINPATH=$(QROOT)/clang_64/bin
     QMAKE=$(QBINPATH)/qmake
@@ -64,39 +69,53 @@ webgrabprep:
 	( cd build-webgrab;  $(SELECTQT) $(QMAKE) ../webgrab/webgrab.pro )
 
 # Unix installation
-install: all install-userguide
+install: all #install-userguide
 	install -d $(INSTALLPATH)/bin
 	install -d $(SHAREPATH)/man/man1
 	install -d $(SHAREPATH)/pixmaps
 	install -d $(SHAREPATH)/applications
-	install -d $(SHAREPATH)/icons/gnome/24x24/mimetypes
-	install -d $(SHAREPATH)/icons/gnome/48x48/mimetypes
-	install -d $(SHAREPATH)/icons/gnome/16x16/mimetypes
-	install -d $(SHAREPATH)/icons/gnome/32x32/mimetypes
-	install -d $(SHAREPATH)/icons/gnome/64x64/mimetypes
-	install -d $(SHAREPATH)/icons/gnome/128x128/mimetypes
+	install -d $(SHAREPATH)/icons/hicolor/24x24/mimetypes
+	install -d $(SHAREPATH)/icons/hicolor/48x48/mimetypes
+	install -d $(SHAREPATH)/icons/hicolor/16x16/mimetypes
+	install -d $(SHAREPATH)/icons/hicolor/32x32/mimetypes
+	install -d $(SHAREPATH)/icons/hicolor/64x64/mimetypes
+	install -d $(SHAREPATH)/icons/hicolor/128x128/mimetypes
+	install -d $(SHAREPATH)/icons/hicolor/256x256/mimetypes
+	install -d $(SHAREPATH)/icons/hicolor/24x24/apps
+	install -d $(SHAREPATH)/icons/hicolor/48x48/apps
+	install -d $(SHAREPATH)/icons/hicolor/16x16/apps
+	install -d $(SHAREPATH)/icons/hicolor/32x32/apps
+	install -d $(SHAREPATH)/icons/hicolor/64x64/apps
+	install -d $(SHAREPATH)/icons/hicolor/128x128/apps
+	install -d $(SHAREPATH)/icons/hicolor/256x256/apps
 	install -d $(SHAREPATH)/mime/packages
 	install -d $(DOCPATH)
 	install build/eln $(INSTALLPATH)/bin/eln
 	install build-webgrab/webgrab $(INSTALLPATH)/bin/webgrab
 	cp build-doc/eln.1 $(SHAREPATH)/man/man1/eln.1
 	cp build-doc/webgrab.1 $(SHAREPATH)/man/man1/webgrab.1
-	cp src/App/eln.png $(SHAREPATH)/pixmaps/eln.png
-	cp src/eln.xpm $(SHAREPATH)/pixmaps/eln.xpm
-	cp src/App/eln.iconset/icon_16x16.png $(SHAREPATH)/icons/gnome/16x16/mimetypes/application-eln-book.png
-	cp src/App/eln.iconset/icon_24x24.png $(SHAREPATH)/icons/gnome/24x24/mimetypes/application-eln-book.png
-	cp src/App/eln.iconset/icon_32x32.png $(SHAREPATH)/icons/gnome/32x32/mimetypes/application-eln-book.png
-	cp src/App/eln.iconset/icon_48x48.png $(SHAREPATH)/icons/gnome/48x48/mimetypes/application-eln-book.png
-	cp src/App/eln.iconset/icon_64x64.png $(SHAREPATH)/icons/gnome/64x64/mimetypes/application-eln-book.png
-	cp src/App/eln.iconset/icon_128x128.png $(SHAREPATH)/icons/gnome/128x128/mimetypes/application-eln-book.png
-	cp src/eln.xml $(SHAREPATH)/mime/packages/eln.xml
-	install src/eln.desktop $(SHAREPATH)/applications/eln.desktop
+	cp src/App/eln.iconset/icon_16x16.png $(SHAREPATH)/icons/hicolor/16x16/apps/net.danielwagenaar.eln.png
+	cp src/App/eln.iconset/icon_24x24.png $(SHAREPATH)/icons/hicolor/24x24/apps/net.danielwagenaar.eln.png
+	cp src/App/eln.iconset/icon_32x32.png $(SHAREPATH)/icons/hicolor/32x32/apps/net.danielwagenaar.eln.png
+	cp src/App/eln.iconset/icon_48x48.png $(SHAREPATH)/icons/hicolor/48x48/apps/net.danielwagenaar.eln.png
+	cp src/App/eln.iconset/icon_64x64.png $(SHAREPATH)/icons/hicolor/64x64/apps/net.danielwagenaar.eln.png
+	cp src/App/eln.iconset/icon_128x128.png $(SHAREPATH)/icons/hicolor/128x128/apps/net.danielwagenaar.eln.png
+	cp src/App/eln.iconset/icon_256x256.png $(SHAREPATH)/icons/hicolor/256x256/apps/net.danielwagenaar.eln.png
+	cp src/App/eln.iconset/icon_16x16.png $(SHAREPATH)/icons/hicolor/16x16/mimetypes/application-eln-book.png
+	cp src/App/eln.iconset/icon_24x24.png $(SHAREPATH)/icons/hicolor/24x24/mimetypes/application-eln-book.png
+	cp src/App/eln.iconset/icon_32x32.png $(SHAREPATH)/icons/hicolor/32x32/mimetypes/application-eln-book.png
+	cp src/App/eln.iconset/icon_48x48.png $(SHAREPATH)/icons/hicolor/48x48/mimetypes/application-eln-book.png
+	cp src/App/eln.iconset/icon_64x64.png $(SHAREPATH)/icons/hicolor/64x64/mimetypes/application-eln-book.png
+	cp src/App/eln.iconset/icon_128x128.png $(SHAREPATH)/icons/hicolor/128x128/mimetypes/application-eln-book.png
+	cp src/App/eln.iconset/icon_256x256.png $(SHAREPATH)/icons/hicolor/256x256/mimetypes/application-eln-book.png
+	cp src/eln.xml $(SHAREPATH)/mime/packages/net.danielwagenaar.eln.xml
+	install src/eln.desktop $(SHAREPATH)/applications/net.danielwagenaar.eln.desktop
 	cp README.md $(DOCPATH)/readme
 	gzip -9 $(DOCPATH)/readme
 	cp CHANGELOG $(DOCPATH)/changelog
 	gzip -9 $(DOCPATH)/changelog
-	install src/Gui/fonts/ubuntu-font-licence-1.0.txt.gz $(DOCPATH)/ubuntu-font-licence-1.0.txt.gz
-#       gtk-update-icon-cache $(SHAREPATH)/icons/gnome || true
+	cp src/Gui/fonts/ubuntu-font-licence-1.0.txt.gz $(DOCPATH)/ubuntu-font-licence-1.0.txt.gz
+#       gtk-update-icon-cache $(SHAREPATH)/icons/hicolor || true
 #       update-mime-database $(SHAREPATH)/mime/ || true
 
 man:

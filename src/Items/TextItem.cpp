@@ -976,7 +976,7 @@ void TextItem::keyPressEvent(QKeyEvent *e) {
         e->accept();
       } else {
         bool bs = mode()->typeMode()!=Mode::Code && keyPressAsBackslash(e);
-        if (mode()->typeMode()==Mode::Math && keyPressAsMath(e)
+        if ((mode()->typeMode()==Mode::Math && keyPressAsMath(e))
             || (!bs && mode()->typeMode()!=Mode::Code && keyPressAsDigraph(e))
             || keyPressAsMotion(e)
             || keyPressAsSpecialEvent(e)
