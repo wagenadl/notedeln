@@ -1,3 +1,22 @@
+eln (1.2.18-1) bionic; urgency=medium
+
+  New features:
+
+  * Ctrl-Shift-S exports an entry as an html file
+  * New option in Print Dialog: Print all search results
+
+  Improvements:
+
+  * Improved navigation between tables and surrounding text
+  * Control+Arrow keys now moves by word or paragraph
+
+  Bug fixes:
+
+  * Prevented crash when clicking between tables
+  * Ctrl-A in tables works correctly
+
+ -- Daniel A. Wagenaar <daw@caltech.edu>  Fri, 13 Nov 2020 22:35:01 -0800
+
 eln (1.2.15-1) bionic; urgency=medium
 
   Testing for debian readiness
