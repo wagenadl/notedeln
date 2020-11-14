@@ -145,7 +145,6 @@ QRectF TextItemDoc::boundingRect() const {
 }
 
 void TextItemDoc::recalculateCharacterWidths() {
-  qDebug() << "forced recalc";
   d->forgetWidths();
   buildLinePos();
 }
@@ -319,7 +318,11 @@ QPointF TextItemDoc::locate(int offset) const {
   QVector<double> const &charw = d->charWidths();
   QVector<int> const &starts = d->linestarts;
   int line = findLastLE(starts, offset);
-  ASSERT(line>=0);
+  if (line<0) {
+    COMPLAIN("TextItemDoc::locate: line<0");
+    // this can happen when clicking beyond lines of table
+    line = 0;
+  }
   QPointF xy = d->linepos[line];
   int pos = starts[line];
 

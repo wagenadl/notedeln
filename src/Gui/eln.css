@@ -37,6 +37,7 @@ a:hover {  background-color: rgba(0, 130, 255, 0.35); color: inherit;
 
 .gfxnote {
     color: #2255ff;
+    font-size: 90%;
 }
 
 .latenote {
@@ -50,6 +51,15 @@ a:hover {  background-color: rgba(0, 130, 255, 0.35); color: inherit;
 .noindent {
     text-indent: 0px;
 }
+.dedent {
+    text-indent: -20px;
+    margin-left: 20px;
+}
+.displaytext {
+    color: #000066;
+    font-size: 90%;
+    padding-left: 30px;
+}
 
 .footnote {
     margin-top: 7px;
@@ -59,6 +69,7 @@ a:hover {  background-color: rgba(0, 130, 255, 0.35); color: inherit;
 
 .footnotes {
     margin-top: 30px;
+    font-size: 90%;
 }
 
 .latenote {

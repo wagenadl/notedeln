@@ -1,3 +1,46 @@
+eln 1.2.18
+
+  New features:
+
+  * Ctrl-Shift-S exports an entry as an html file
+  * New option in Print Dialog: Print all search results
+
+  Improvements:
+
+  * Improved navigation between tables and surrounding text
+  * Control+Arrow keys now moves by word or paragraph
+
+  Bug fixes:
+
+  * Prevented crash when clicking between tables
+  * Ctrl-A in tables works correctly
+
+  -- Daniel Wagenaar <daw@caltech.edu>  Wed, 21 Aug 2019 10:17:03 -0700
+
+eln 1.2.16
+
+  Release highlights:
+
+  * User guide is now fully consistent with current version of the actual code.
+  * Added "Code" mode which disables digraphs so that, e.g., “>=” does not
+    become “≥”.
+
+  Minor usability improvements:
+
+  * Added a few symbols.
+  * Double-clicking "type" icon now enters math mode, as does shift-click.
+  * Double-clicking "sketch" icon now enters straight-line mode, ditto.
+  * Creating new page is now by Ctrl-Shift-Plus rather than Page-Down.
+
+  Bugs fixed:
+
+  * Occasional focus loss with overlong lines resolved.
+  * No longer crashes when PubMed records lack certain fields.
+  * Better detection of Mime types from downloads.
+  * Restored link downloading and opening in Windows.
+
+  -- Daniel Wagenaar <daw@caltech.edu>  Tue, 16 Apr 2019 11:35:28 +0200
+
 eln 1.2.15
 
   Testing for debian readiness

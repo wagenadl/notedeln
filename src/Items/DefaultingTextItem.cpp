@@ -44,4 +44,5 @@ void DefaultingTextItem::paint(QPainter *p, const QStyleOptionGraphicsItem *o,
     p->drawText(xy, dflt_text);
   }
   TextItem::paint(p, o, w);
+  qDebug() << "defaulting text item rect" << boundingRect() << pos() << scenePos();
 }

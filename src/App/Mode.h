@@ -31,12 +31,21 @@ public:
     Type,
     MoveResize,
     Mark,
-    Freehand,
+    Draw,
     Annotate,
     Highlight,
     Strikeout,
     Plain,
     Invalid,
+  };
+  enum TypeM {
+    Normal,
+    Math,
+    Code
+  };
+  enum DrawM {
+    Freehand,
+    Straightline
   };
 public:
   Mode(bool readonly, QObject *parent=0);
@@ -46,8 +55,8 @@ public:
   QColor color() const;
   GfxMarkData::Shape shape() const;
   double markSize() const;
-  bool isMathMode() const;
-  bool isStraightLineMode() const;
+  TypeM typeMode() const;
+  DrawM drawMode() const;
   bool isReadOnly() const { return ro; }
 public:
   static Mode *ensure(Mode *);
@@ -57,21 +66,21 @@ public slots:
   void setColor(QColor);
   void setShape(GfxMarkData::Shape);
   void setMarkSize(double);
-  void setMathMode(bool);
-  void setStraightLineMode(bool);
+  void setTypeMode(TypeM);
+  void setDrawMode(DrawM);
 signals:
   void modeChanged(Mode::M);
   void lineWidthChanged(double);
   void colorChanged(QColor);
   void shapeChanged(GfxMarkData::Shape);
   void markSizeChanged(double);
-  void mathModeChanged(bool);
-  void straightLineModeChanged(bool);
+  void typeModeChanged(TypeM);
+  void drawModeChanged(DrawM);
 private:
   bool ro;
   M m;
-  bool math;
-  bool straight;
+  TypeM typem;
+  DrawM drawm;
   double lw;
   QColor c;
   GfxMarkData::Shape shp;

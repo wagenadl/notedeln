@@ -24,10 +24,12 @@
 #include "GfxNoteItem.h"
 #include "GfxMarkItem.h"
 #include "GfxSketchItem.h"
+#include "GfxLineItem.h"
 #include "BlockItem.h"
 #include "Cursors.h"
 #include <QDesktopServices>
 #include "Notebook.h"
+#include "ImageLoader.h"
 
 #include <QProcess>
 #include <QDebug>
@@ -58,10 +60,21 @@ GfxImageItem::GfxImageItem(GfxImageData *data, Item *parent):
     qDebug() << "GfxImageItem: missing resource" << data->resName();
     return;
   }
-  if (!image.load(res->archivePath())) {
-    qDebug() << "GfxImageItem: image load failed for " << data->resName()
-	     << res->archivePath();
-    return;
+  constexpr int SIZETHRESHOLD = 100000;
+  if (data->width() * data->height() > SIZETHRESHOLD) {
+    ImageLoader *ldr = new ImageLoader;
+    connect(ldr, &ImageLoader::loaded,
+	    this, &GfxImageItem::setImage);
+    image = QImage(data->width(), data->height(), QImage::Format_RGB32);
+    image.fill(QColor(255, 255, 200)); // pale yellow during loading
+    ldr->loadThenDelete(res->archivePath());
+  } else {
+    if (!image.load(res->archivePath())) {
+      qDebug() << "GfxImageItem: image load failed for " << data->resName()
+	       << res->archivePath();
+      image = QImage(data->width(), data->height(), QImage::Format_RGB32);
+      image.fill(QColor(255, 50, 50)); // pink-grey for failed to load
+    }
   }
   pixmap->setPixmap(QPixmap::fromImage(image.copy(data->cropRect().toRect())));
   setScale(data->scale());
@@ -232,23 +245,28 @@ void GfxImageItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
         mi->setScale(1./data()->scale());
         take = true;
       } break;
-      case Mode::Freehand: {
-        GfxSketchItem *mi = GfxSketchItem::newSketch(e->pos(), this);
-        mi->setScale(1./data()->scale());
-        mi->build();
+      case Mode::Draw: 
+	if (mode()->drawMode()==Mode::Straightline) {
+	  GfxLineItem *li = GfxLineItem::newLine(e->pos(), this);
+	  li->setScale(1./data()->scale());
+	  li->build(e);
+	} else {
+	  GfxSketchItem *ski = GfxSketchItem::newSketch(e->pos(), this);
+	  ski->setScale(1./data()->scale());
+	  ski->build();
+	}
         take = true;
-      } break;
+	break;
       default:
         break;
       }
     }
   }
   
-  if (take) {
+  if (take) 
     e->accept();
-  } else {
+  else 
     e->ignore();
-  }
 }
 
 void GfxImageItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *e) {
@@ -360,4 +378,10 @@ void GfxImageItem::setScale(double s) {
 }
 
 void GfxImageItem::paint(QPainter*, const QStyleOptionGraphicsItem*, QWidget*) {
+}
+
+void GfxImageItem::setImage(QImage img) {
+  image = img;
+  QImage crop(image.copy(data()->cropRect().toRect()));
+  pixmap->setPixmap(QPixmap::fromImage(crop));
 }

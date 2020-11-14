@@ -41,7 +41,7 @@ public:
 private slots:
   void browse();
   void abrowse();
-  void locationChanged(QString);
+  void locationChanged();
 private:
   class Ui_newBookDialog *ui;
 };

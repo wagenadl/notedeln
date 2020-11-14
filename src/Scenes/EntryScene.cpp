@@ -103,8 +103,6 @@ void EntryScene::loadLateNotes() {
     } else {
       LateNoteItem *lni = new LateNoteItem(lnd);
       sheets[lnd->sheet()]->addItem(lni);
-      qDebug() << "Created LNI";
-      qDebug() << lni << lni->data() << lni->data()->parent() << lni->parent();
     }
   }
 }
@@ -434,18 +432,30 @@ void EntryScene::joinTextBlocks(int iblock_pre, int iblock_post,
     = dynamic_cast<TextBlockItem*>(blockItems[iblock_post]);
   ASSERT(tbi_pre);
   ASSERT(tbi_post);
-  if (dynamic_cast<TableBlockData*>(tbi_pre->data())
-      || dynamic_cast<TableBlockData*>(tbi_post->data()))
-    return; // don't try to merge tables
-  TextBlockData *block1 = Data::deepCopy(tbi_pre->data());
-  TextBlockData *block2 = Data::deepCopy(tbi_post->data());
-  int pos = block1->text()->text().size();
-  deleteBlock(iblock_post);
-  deleteBlock(iblock_pre);
-  block1->join(block2);
-  block1->resetSheetSplits();
-  TextBlockItem *tbi = injectTextBlock(block1,
-				       forward ? iblock_post - 1 : iblock_pre);
+  TextBlockItem *tbi = 0;
+  int pos = 0;
+  if (tbi_pre->isEmpty() && dynamic_cast<TableBlockData*>(tbi_post->data())) {
+    deleteBlock(iblock_pre);
+    tbi = tbi_post;
+    pos = tbi->text()->document()->firstPosition();
+  } else if (tbi_post->isEmpty()
+             && dynamic_cast<TableBlockData*>(tbi_pre->data())) {
+    deleteBlock(iblock_post);
+    tbi = tbi_pre;
+    pos = tbi->text()->document()->lastPosition();
+  } else {
+    if (dynamic_cast<TableBlockData*>(tbi_pre->data())
+        || dynamic_cast<TableBlockData*>(tbi_post->data()))
+      return; // don't try to merge tables
+    TextBlockData *block1 = Data::deepCopy(tbi_pre->data());
+    TextBlockData *block2 = Data::deepCopy(tbi_post->data());
+    pos = block1->text()->text().size();
+    deleteBlock(iblock_post);
+    deleteBlock(iblock_pre);
+    block1->join(block2);
+    block1->resetSheetSplits();
+    tbi = injectTextBlock(block1, forward ? iblock_post - 1 : iblock_pre);
+  }
   tbi->text()->document()->relayout();
   restackBlocks(iblock_pre);
   gotoSheetOfBlock(iblock_pre);
@@ -593,20 +603,26 @@ void EntryScene::futileMovement(int block) {
 
   FutileMovementInfo fmi = tbi->lastFutileMovement();
   int tgtidx = -1;
-  if (fmi.key()==Qt::Key_Enter || fmi.key()==Qt::Key_Return) {
+  switch (fmi.key()) {
+  case Qt::Key_Enter: case Qt::Key_Return: {
     TextCursor c = tbi->textCursor();
     /* Ctrl-Enter makes next block with same indentation. Note that this
        currently cannot happen, because Ctrl-Enter is intercepted in TextItem
        and inserts a '\n' in the text. */
-    if (c.atEnd() && !(fmi.modifiers() & Qt::ControlModifier)) 
+    if (c.atEnd()) {
       newTextBlock(block, true);
-    else
-      splitTextBlock(block, c.position());
-    return;
-  }
-  
-  if (fmi.key()==Qt::Key_Left || fmi.key()==Qt::Key_Up
-      || fmi.key()==Qt::Key_Backspace) {
+    } else {
+      if (tbi->document()->characterAt(c.position())=='\n') {
+	c.deleteChar();
+	splitTextBlock(block, c.position());
+	//splitTextBlock(block, c.position());
+	newTextBlock(block, true);
+      } else {
+	splitTextBlock(block, c.position());
+      }
+    }
+  } return;
+  case Qt::Key_Left: case Qt::Key_Up: case Qt::Key_Backspace:
     // upward movement
     for (int b=block-1; b>=0; b--) {
       BlockItem *bi = blockItems[b];
@@ -616,8 +632,8 @@ void EntryScene::futileMovement(int block) {
 	break;
       }
     }
-  } else if (fmi.key()==Qt::Key_Right || fmi.key()==Qt::Key_Down
-	     || fmi.key()==Qt::Key_Delete) {
+    break;
+  case Qt::Key_Right: case Qt::Key_Down: case Qt::Key_Delete:
     // downward movement
     for (int b=block+1; b<blockItems.size(); b++) {
       BlockItem *bi = blockItems[b];
@@ -627,12 +643,20 @@ void EntryScene::futileMovement(int block) {
 	break;
       }
     }
-    if (tgtidx<0 && block+1<blockItems.size()) {
-    // no text block below us, but yes graphics blocks below us
-      newTextBlock(block + 1, true);
-      tgtidx = block + 2;
-      Q_ASSERT(tgtidx < blockItems.size());
+    if (tgtidx<0) {
+      // no text/table block below us
+      if (block+1<blockItems.size()) {
+        // ... but yes graphics blocks below us
+        newTextBlock(block + 1, true);
+        tgtidx = block + 2;
+        Q_ASSERT(tgtidx < blockItems.size());
+      } else if (dynamic_cast<TableBlockItem const *>(tbi)) {
+        newTextBlock(block , true);
+        tgtidx = block + 1;
+        Q_ASSERT(tgtidx < blockItems.size());
+      }        
     }
+    break;
   }
 
   if (tgtidx<0) {
@@ -653,29 +677,19 @@ void EntryScene::futileMovement(int block) {
   }
 
   if (fmi.key()==Qt::Key_Delete) {
-    if (tgtidx==block+1 // do not combine across (e.g.) gfxblocks
-	|| blockItems[block]->data()->isEmpty()) // ... unless empty
+    if (tgtidx==block+1 || tbi->isEmpty())
+      // do not combine across (e.g.) gfxblock ... unless empty
       joinTextBlocks(block, tgtidx, true);
     return;
   } else if (fmi.key()==Qt::Key_Backspace) {
-    if (tgtidx==block-1
-	|| blockItems[block]->data()->isEmpty()) // ... unless empty
+    qDebug() << "futile backspace" << tgtidx << block;
+    if (tgtidx==block-1 || tbi->isEmpty())
       joinTextBlocks(tgtidx, block);
     return;
   }
   
   TextBlockItem *tgt = dynamic_cast<TextBlockItem*>(blockItems[tgtidx]);
   ASSERT(tgt);
-
-  /// Clear selection? Now handled by TextItemText!
-  //foreach (TextItem *ti, tbi->fragments()) {
-  //  QTextCursor c(ti->textCursor());
-  //  if (c.hasSelection()) {
-  //    c.clearSelection();
-  //    ti->setTextCursor(c);
-  //  }
-  //  ti->clearFocus();
-  //}
   
   TextItemDoc *doc = tgt->document();
   TextCursor c(doc);
@@ -686,23 +700,31 @@ void EntryScene::futileMovement(int block) {
   case Qt::Key_Left: 
     c.movePosition(TextCursor::End);
     break;
-  case Qt::Key_Up: {
-    int N = doc->lastPosition();
-    QPointF endp = doc->locate(N);
-    QPointF tgtp(p.x(), endp.y());
-    int idx = doc->find(tgtp);
-    c.setPosition(idx>=doc->firstPosition() ? idx : N);
-    break; }
+  case Qt::Key_Up: 
+    if (fmi.modifiers() & Qt::ControlModifier) {
+      c.setPosition(doc->firstPosition());
+    } else {
+      int N = doc->lastPosition();
+      QPointF endp = doc->locate(N);
+      QPointF tgtp(p.x(), endp.y());
+      int idx = doc->find(tgtp);
+      c.setPosition(idx>=doc->firstPosition() ? idx : N);
+    }
+    break;
   case Qt::Key_Right:
     c.movePosition(TextCursor::Start);
     break;
-  case Qt::Key_Down: {
-    int n = doc->firstPosition();
-    QPointF startp = doc->locate(n);
-    QPointF tgtp(p.x(), startp.y());
-    int idx = doc->find(tgtp);
-    c.setPosition(idx>=n ? idx : n);
-    break; }
+  case Qt::Key_Down:
+    if (fmi.modifiers() & Qt::ControlModifier) {
+      c.setPosition(doc->firstPosition());
+    } else {
+      int n = doc->firstPosition();
+      QPointF startp = doc->locate(n);
+      QPointF tgtp(p.x(), startp.y());
+      int idx = doc->find(tgtp);
+      c.setPosition(idx>=n ? idx : n);
+    }
+    break; 
   }
   tgt->setTextCursor(c);
 }
@@ -822,7 +844,7 @@ bool EntryScene::mousePressEvent(QGraphicsSceneMouseEvent *e, SheetScene *s) {
   }
   Mode *mo = sheets[sh]->mode();
   switch (mo->mode()) {
-  case Mode::Mark: case Mode::Freehand:
+  case Mode::Mark: case Mode::Draw:
     if (!it && isWritable() && !inMargin(sp)) {
       GfxBlockItem *blk = 0;
       int idx = findLastBlockOnSheet(sh);
@@ -1009,12 +1031,13 @@ bool EntryScene::tryToPaste(SheetScene *s) {
   
   QClipboard *cb = QApplication::clipboard();
   QMimeData const *md = cb->mimeData(QClipboard::Clipboard);
-  qDebug() << "I/U/T" << md->hasImage() << md->hasUrls() << md->hasText();
-  qDebug() << "fi" << fi;
-  if (md->hasUrls())
-    qDebug() << "u=" << md->urls();
-  if (md->hasText())
-    qDebug() << "t=" << md->text();
+
+  //qDebug() << "I/U/T" << md->hasImage() << md->hasUrls() << md->hasText();
+  //qDebug() << "fi" << fi;
+  //if (md->hasUrls())
+  //  qDebug() << "u=" << md->urls();
+  //if (md->hasText())
+  //  qDebug() << "t=" << md->text();
 
   /* The optimal behavior is actually quite tricky.
      In Linux, when I copy and paste:
@@ -1032,21 +1055,6 @@ bool EntryScene::tryToPaste(SheetScene *s) {
     return importDroppedImage(scenePos, sheet,
 			      qvariant_cast<QImage>(md->imageData()),
                               QUrl());
-  else
-    return false;
-}
-
-bool EntryScene::dropBelow(QPointF scenePos, int sheet, QMimeData const *md) {
-  if (!isWritable())
-    return false;
-  if (md->hasImage())
-    return importDroppedImage(scenePos, sheet,
-			      qvariant_cast<QImage>(md->imageData()),
-			      QUrl());
-  else if (md->hasUrls())
-    return importDroppedUrls(scenePos, sheet, md->urls());
-  else if (md->hasText())
-    return importDroppedText(scenePos, sheet, md->text());
   else
     return false;
 }
@@ -1142,7 +1150,8 @@ bool EntryScene::importDroppedText(QPointF scenePos, int sheet,
   TextItem *ti = 0;
   if (inMargin(scenePos)) {
     Item *fti = sheets[sheet]->fancyTitleItem();
-    GfxNoteItem *note = fti->createGfxNote(fti->mapFromScene(scenePos));
+    QPointF p(fti->mapFromScene(scenePos));
+    GfxNoteItem *note = fti->newGfxNote(p, p);
     note->data()->setSheet(sheet);
     ti = note->textItem();
   } else {
@@ -1152,20 +1161,28 @@ bool EntryScene::importDroppedText(QPointF scenePos, int sheet,
         GfxBlockItem *gbi = dynamic_cast<GfxBlockItem*>(blockItems[blk]);
         TextBlockItem *tbi = dynamic_cast<TextBlockItem*>(blockItems[blk]);
         if (tbi) {
+	  qDebug() << "textblock";
           ti = tbi->text();
         } else if (gbi) {
-          GfxNoteItem *note = gbi->createGfxNote(gbi->mapFromScene(scenePos));
+	  qDebug() << "graphicsblock";
+	  QPointF p(gbi->mapFromScene(scenePos));
+          GfxNoteItem *note = gbi->newGfxNote(p, p);
           ti = note->textItem();
         }
-      } else { // not writable block
+      } else {
 	Item *fti = sheets[sheet]->fancyTitleItem();
-	GfxNoteItem *note = fti->createGfxNote(fti->mapFromScene(scenePos));
+	QPointF p(fti->mapFromScene(scenePos));
+	GfxNoteItem *note = fti->newGfxNote(p, p);
 	note->data()->setSheet(sheet);
-        ti = note->textItem();
-      }
+	ti = note->textItem();
+      }	
+    } else {
+      TextBlockItem *tbi = newTextBlockAt(scenePos, sheet);
+      ti = tbi->text();
     }
   }
 
+  qDebug() << "got ti" << ti;
   if (!ti)
     return false;
 

@@ -68,7 +68,6 @@ void Resource::setTag(QString s) {
 }
 
 void Resource::setSourceURL(QUrl u) {
-  qDebug() << "Resource::setSpurceUrl" << tag_ << u;
   if (src==u)
     return;
   src = u;
@@ -213,8 +212,8 @@ void Resource::ensureArchiveFilename() {
       base += leaf.mid(idx);
     }
   } else {
-    qDebug() << "ensureArchiveFilename" << src.path() << safeExtension(base);
-    if (safeExtension(base).isEmpty() || src.path().isEmpty())
+    qDebug() << "ensureArchiveFilename" << base <<src.path() << safeExtension(base);
+    if (safeExtension(base).isEmpty())
       base += ".html";
   }
   setArchiveFilename(safeBaseName(base) + "-" + uuid() + safeExtension(base));
@@ -223,16 +222,29 @@ void Resource::ensureArchiveFilename() {
 bool Resource::importImage(QImage img) {
   if (tag_.isEmpty())
     return false;
-  if (arch.isEmpty())
-    setArchiveFilename(safeBaseName(tag_) + "-" + uuid() + ".png");
+  if (arch.isEmpty()) {
+    QString ext = safeExtension(src.path()).toLower();
+    if (ext==".jpeg")
+      ext = ".jpg";
+    if (ext!=".jpg")
+      ext = ".png";
+    setArchiveFilename(safeBaseName(tag_) + "-" + uuid() + ext);
+  }
   ensureDir();
-  bool ok = img.save(archivePath());
+  bool ok = false;
+  if (src.isLocalFile()) {
+    QString fn = src.path();
+    ok = QFile::copy(fn, archivePath());
+  } else {
+    ok = img.save(archivePath());
+  }
   markModified();
   return ok;
 }
 
 void Resource::getArchiveAndPreview() {
-  qDebug() << "getarchiveandpreview for " << tag_ << loader << needsArchive() << needsPreview() << src << src.isValid();
+  qDebug() << "getarchiveandpreview for " << tag_ << loader
+	   << needsArchive() << needsPreview() << src << src.isValid();
   if (loader)
     return; // can't start another one
   if (!needsArchive() && !needsPreview())

@@ -33,6 +33,7 @@
 #include <QDebug>
 #include <QImage>
 #include <QPainter>
+#include <QSvgGenerator>
 
 bool HtmlOutput::ok() const {
   return file.error() == QFile::NoError && res.exists();
@@ -87,7 +88,7 @@ HtmlOutput::~HtmlOutput() {
   html.setDevice(0); // close before file gets deleted
 }
 
-void HtmlOutput::add(EntryScene *source) {
+void HtmlOutput::addEntry(EntryScene *source) {
   html << "<div class=\"entry\">\n";
   html << "<div class=\"date\">"
        << source->data()->created()
@@ -100,19 +101,33 @@ void HtmlOutput::add(EntryScene *source) {
   QList<GfxNoteData const *> gfxnotes;
   collectGfxNotes(source->data()->title(), gfxnotes);
 
+  if (source->blocks().size()>0) {
+    BlockItem const *b = *source->blocks().begin();
+    QList<GfxNoteData const *> herenotes;
+    foreach (GfxNoteData const *nd, gfxnotes) {
+      if (nd->sheet() <= b->data()->sheet() &&
+          nd->y() < b->data()->y0()) {
+        herenotes << nd;
+        addGfxNote(nd, resmgr);
+      }
+    }
+    foreach (GfxNoteData const *nd, herenotes)
+      gfxnotes.removeOne(nd);
+  }    
+
   foreach (BlockItem const *b, source->blocks()) {
     if (dynamic_cast<TableBlockItem const *>(b))
-      add(dynamic_cast<TableBlockItem const *>(b), resmgr);
+      addTableBlock(dynamic_cast<TableBlockItem const *>(b), resmgr);
     else if (dynamic_cast<TextBlockItem const *>(b))
-      add(dynamic_cast<TextBlockItem const *>(b), resmgr);
+      addTextBlock(dynamic_cast<TextBlockItem const *>(b), resmgr);
     else if (dynamic_cast<GfxBlockItem const *>(b))
-      add(dynamic_cast<GfxBlockItem const *>(b), resmgr);
+      addGfxBlock(dynamic_cast<GfxBlockItem const *>(b), resmgr);
     QList<GfxNoteData const *> herenotes;
     foreach (GfxNoteData const *nd, gfxnotes) {
       if (nd->sheet() <= b->data()->sheet() &&
           nd->y() < b->data()->y0() + b->data()->height()) {
         herenotes << nd;
-        add(nd, resmgr);
+        addGfxNote(nd, resmgr);
       }
     }
     foreach (GfxNoteData const *nd, herenotes)
@@ -120,7 +135,7 @@ void HtmlOutput::add(EntryScene *source) {
   }
 
   foreach (GfxNoteData const *nd, gfxnotes) 
-    add(nd, resmgr);
+    addGfxNote(nd, resmgr);
 
   html << "<div class=\"footnotes\">\n";
   addFootnotes(source->data(), resmgr);
@@ -132,7 +147,7 @@ void HtmlOutput::addFootnotes(Data const *data, ResManager const *resmgr) {
   ASSERT(data);
   FootnoteData const *fnd = dynamic_cast<FootnoteData const *>(data);
   if (fnd) 
-    add(fnd, resmgr);
+    addFootnote(fnd, resmgr);
   foreach (Data const *d, data->allChildren())
     addFootnotes(d, resmgr);
 }
@@ -150,7 +165,7 @@ void  HtmlOutput::addGfxNotes(Data const *data, ResManager const *resmgr) {
   ASSERT(data);
   GfxNoteData const *nd = dynamic_cast<GfxNoteData const *>(data);
    if (nd)
-    add(nd, resmgr);
+    addGfxNote(nd, resmgr);
   foreach (Data const *d, data->allChildren())
     addGfxNotes(d, resmgr);
 }
@@ -171,12 +186,21 @@ void HtmlOutput::buildGfxRefs(Data const *source, QList<QString> &dst) {
 
 void HtmlOutput::addRefStart(QString key, ResManager const *resmgr) {
   Resource *r = resmgr->byTag(key);
+  qDebug() << "addrefstart" << key;
   if (r) {
     QUrl url = r->sourceURL();
-    if (url.isValid()) 
-      html << "<a href=\"" << escape(url.toString()) << "\">";
-    else 
+    qDebug() << "got resource" << url.toString();
+    if (url.isValid()) {
+      QString txt = url.toString();
+      if (txt.startsWith("page:")) {
+        qDebug() << "html output for page references NYI";
+        // how can we handle this?
+      } else {
+        html << "<a href=\"" << escape(txt) << "\">";
+      }
+    } else {
       html << "<span class=\"badurl\">"; // is this acceptable at all?
+    }
   } else {
     if (key.startsWith("http://") || key.startsWith("https://"))
       html << "<a href=\"" << escape(key) << "\">";
@@ -189,12 +213,19 @@ void HtmlOutput::addRefStart(QString key, ResManager const *resmgr) {
 
 void HtmlOutput::addRefEnd(QString key, ResManager const *resmgr) {
   Resource *r = resmgr->byTag(key);
+  qDebug() << "addrefend" << key;
   if (r) {
     QUrl url = r->sourceURL();
-    if (url.isValid()) 
-      html << "</a>";
-    else
+    if (url.isValid()) {
+      QString txt = url.toString();
+      if (txt.startsWith("page:")) {
+        // can we handle this?
+      } else {
+        html << "</a>";
+      }
+    } else {
       html << "</span>";
+    }
     if (r->hasArchive()) {
       QString fn = r->archivePath();
       QFile resfile(fn);
@@ -217,24 +248,28 @@ void HtmlOutput::addRefEnd(QString key, ResManager const *resmgr) {
   
 
 void HtmlOutput::addRef(QString key, ResManager const *resmgr) {
+  qDebug() << "addref" << key;
   addRefStart(key, resmgr);
-  html << escape(key) << "</a>";
+  html << escape(key);
   addRefEnd(key, resmgr);
 }
 
-void HtmlOutput::add(GfxBlockItem const *source, ResManager const *resmgr) {
+void HtmlOutput::addGfxBlock(GfxBlockItem const *source,
+                             ResManager const *resmgr) {
   html << "<div class=\"gfxblock\">\n";
   html << "<div class=\"gfx\">\n";
   QRectF r = source->sceneBoundingRect();
   r |= source->mapRectToScene(source->childrenBoundingRect());
-  QImage img((r.size()*1.25).toSize(),
-	     QImage::Format_ARGB32);
+  QSvgGenerator img;
+  QString fn = source->data()->uuid() + ".svg";
+  img.setFileName(res.absoluteFilePath(fn));
+  img.setSize(r.size().toSize());
+  img.setViewBox(QRect(QPoint(0,0), r.size().toSize()));
   QPainter p(&img);
   source->scene()->render(&p, QRectF(), r);
   p.end();
-  QString fn = QString("%1.png").arg((qulonglong)source->data());
-  img.save(res.absoluteFilePath(fn));
-  html << "<img src=\"" + local + "/" + fn +"\">";
+  html << QString("<img src=\"%1/%2\" width=\"%3\">")
+    .arg(local).arg(fn).arg(int(1.25*r.width()));
   html << "</div>\n";
   QList<QString> gfxrefs;
   buildGfxRefs(source->data(), gfxrefs);
@@ -252,7 +287,8 @@ void HtmlOutput::add(GfxBlockItem const *source, ResManager const *resmgr) {
   html << "</div>\n";
 }
 
-void HtmlOutput::add(TableBlockItem const *source, ResManager const *resmgr) {
+void HtmlOutput::addTableBlock(TableBlockItem const *source,
+                               ResManager const *resmgr) {
   html << "<div class=\"tableblock\">\n";
   html << "<table>\n";
   TableData const *td = source->data()->table();
@@ -260,9 +296,9 @@ void HtmlOutput::add(TableBlockItem const *source, ResManager const *resmgr) {
     html << "<tr>\n";
     for (int c=0; c<td->columns(); c++) {
       html << "<td>\n";
-      add(td, resmgr,
-	  td->cellStart(r, c), 
-	  td->cellStart(r, c) + td->cellLength(r, c)); 
+      addText(td, resmgr,
+              td->cellStart(r, c), 
+              td->cellStart(r, c) + td->cellLength(r, c)); 
       html << "</td>\n";
     }
     html << "</tr>\n";
@@ -271,14 +307,23 @@ void HtmlOutput::add(TableBlockItem const *source, ResManager const *resmgr) {
   html << "</div>\n";
 }
 
-void HtmlOutput::add(TextBlockItem const *source, ResManager const *resmgr) {
-  html << "<div class=\"textblock\">\n";
-  add(source->data()->text(), resmgr);
+void HtmlOutput::addTextBlock(TextBlockItem const *source,
+                              ResManager const *resmgr) {
+  QString cls = "textblock";
+  if (source->data()->dedented())
+    cls += " dedent";
+  else if (!source->data()->indented())
+    cls += " noindent";
+  if (source->data()->displayed())
+    cls += " displaytext";
+  html << "<div class=\"" + cls + "\">\n";
+  addText(source->data()->text(), resmgr);
   addGfxNotes(source->data(), resmgr);
   html << "</div>\n";
 }
 
-void HtmlOutput::add(GfxNoteData const *source, ResManager const *resmgr) {
+void HtmlOutput::addGfxNote(GfxNoteData const *source,
+                            ResManager const *resmgr) {
   bool isLate = dynamic_cast<LateNoteData const *>(source);
   html << "<div class=\"";
   html << (isLate ? "latenote" : "gfxnote");
@@ -289,12 +334,12 @@ void HtmlOutput::add(GfxNoteData const *source, ResManager const *resmgr) {
     html << QString::fromUtf8(" —");
     html << "</span>\n";
   }
-  add(source->text(), resmgr, 0, -1, isLate ? "latenote" : "gfxnote");
+  addText(source->text(), resmgr, 0, -1, isLate ? "latenote" : "gfxnote");
   html << "</div>\n";
 }
 
-void HtmlOutput::add(TextData const *source, ResManager const *resmgr,
-		     int startidx, int endidx, QString cls) {
+void HtmlOutput::addText(TextData const *source, ResManager const *resmgr,
+                         int startidx, int endidx, QString cls) {
   QString txt = source->text();
   QList<MarkupData *> markups = source->markups();
   /* Markups are not necessarily nesting properly. But we have to clean that
@@ -434,20 +479,38 @@ void HtmlOutput::add(TextData const *source, ResManager const *resmgr,
 
 }
 
-void HtmlOutput::add(FootnoteData const *source, ResManager const *resmgr) {
+void HtmlOutput::addFootnote(FootnoteData const *source,
+                             ResManager const *resmgr) {
   html << "<div class=\"footnote\">\n";
   html << "<span class=\"tag\">\n";
   html << "<a name=\"" << escape(source->tag()) << "\"></a>";
   html << escape(source->tag());
   html << ":</span>\n";
-  add(source->text(), resmgr);
+  addText(source->text(), resmgr);
   html << "</div>\n";
 }
 
 QString HtmlOutput::escape(QString x) {
 #if QT_VERSION >= 0x050000
-  return x.toHtmlEscaped();
+  x = x.toHtmlEscaped();
 #else
-  return Qt::escape(x);
+  x = Qt::escape(x);
 #endif
+  QStringList bits = x.split("\n");
+  for (QString &bit: bits) {
+    int n = 0;
+    for (int i=0; i<bit.size(); i++) {
+      if (bit[i]==' ')
+        ++n;
+      else
+        break;
+    }
+    QString pfx = "";
+    for (int i=0; i<n; i++)
+      pfx += "&nbsp;";
+    bit = pfx + bit.mid(n);
+  }
+  x = bits.join("\n");
+  x = x.replace("\n", "<br>");
+  return x;
 }

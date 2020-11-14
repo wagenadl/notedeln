@@ -28,7 +28,8 @@ QMap<QString, QMap<QString, QString> > const &Digraphs::chars() {
     QVariantMap v(JSONFile::load(":/Digraphs.json", &ok));
     ASSERT(ok);
     foreach (QString k, v.keys())
-      c[k.right(1)][k] = v[k].toString();
+      if (k != "#")
+	c[k.right(1)][k] = v[k].toString();
   }
   return c;
 }

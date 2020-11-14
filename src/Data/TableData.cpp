@@ -69,8 +69,8 @@ void TableData::setRows(int r) {
   recalculate();
   if (valid) 
     markModified();
-  else if (!loading())
-    qDebug() << "TableData::setRows: Not saving: inconsistent count";
+  //else if (!loading())
+  //  qDebug() << "TableData::setRows: Not saving: inconsistent count";
 }
 
 void TableData::setColumns(int c) {
@@ -80,8 +80,8 @@ void TableData::setColumns(int c) {
   recalculate();
   if (valid) 
     markModified();
-  else if (!loading())
-    qDebug() << "TableData::setColumns: Not saving: inconsistent count";
+  //else if (!loading())
+  //  qDebug() << "TableData::setColumns: Not saving: inconsistent count";
 }
 
 void TableData::setText(QString const &t, bool hushhush) {

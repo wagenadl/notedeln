@@ -92,14 +92,16 @@ public:
 private:
   bool keyPressInBrowseMode(QKeyEvent *);
   bool keyPressAsMath(QKeyEvent *);
+  bool keyPressAsBackslash(QKeyEvent *);
   void letterAsMath(QString);
   bool keyPressAsMotion(QKeyEvent *);
-  bool keyPressAsSpecialChar(QKeyEvent *);
+  bool keyPressAsDigraph(QKeyEvent *);
   bool keyPressWithControl(QKeyEvent *);
   bool keyPressAsSpecialEvent(QKeyEvent *);
   bool keyPressAsInsertion(QKeyEvent *);
   void handleLeftClick(QGraphicsSceneMouseEvent *);
   void selectWordOrLineOrParagraph(int pos);
+  int substituteInternalScripts(int start, int end);
 protected slots:
   virtual void markupChange(MarkupData *);
   virtual void docChange();

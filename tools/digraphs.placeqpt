@@ -1,0 +1,24 @@
+#!placeqpt -o digraphs.pdf
+
+FONTSIZE 10pt
+FONTSTYLE \sf\bfseries
+
+PANEL 0 0
+GRAPHICS digraphs-0.pdf SHIFTED 5 0
+LABEL a
+
+PANEL RIGHT SAME
+GRAPHICS digraphs-3.pdf SHIFTED 5 0
+LABEL b
+
+PANEL RIGHT SAME
+GRAPHICS digraphs-1.pdf SHIFTED 5 0
+LABEL c
+
+PANEL RIGHT SAME
+GRAPHICS digraphs-2.pdf SHIFTED 5 0
+LABEL d
+
+PANEL RIGHT SAME
+GRAPHICS digraphs-4.pdf SHIFTED 5 0
+LABEL e

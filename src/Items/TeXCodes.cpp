@@ -27,7 +27,8 @@ QMap<QString, QString> const &TeXCodes::chars() {
     QVariantMap v(JSONFile::load(":/TeXCodes.json", &ok));
     ASSERT(ok);
     foreach (QString k, v.keys())
-      c[k] = v[k].toString();
+      if (k != "#")
+	c[k] = v[k].toString();
   }
   return c;
 }

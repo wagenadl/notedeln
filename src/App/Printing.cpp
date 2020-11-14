@@ -35,12 +35,14 @@
 #include <QDebug>
 #include "SearchResultScene.h"
 
-static QSet<int> startPagesOfSearchResults() {
+static QList<int> startPagesOfSearchResults() {
   QSet<int> pp;
   for (QList<SearchResult> const &lst: SearchResultScene::allOpenSearches())
     for (auto const &sr: lst) 
       pp.insert(sr.startPageOfEntry);
-  return pp;
+  QList<int> ppp = pp.toList();
+  qSort(ppp.begin(), ppp.end());
+  return ppp;
 }
 
 void PageView::openPrintDialog() {
@@ -105,7 +107,7 @@ void PageView::openPrintDialog() {
       nentries = 1 + dialog.entriesTo() - dialog.entriesFrom();
       break;
     case PrintDialog::Range::SearchResults: {
-      QSet<int> pgs = startPagesOfSearchResults();
+      QList<int> pgs = startPagesOfSearchResults();
       nentries = 0;
       for (int p: pgs) 
 	nentries += book->toc()->tocEntry(p)->sheetCount();
@@ -192,9 +194,18 @@ void PageView::openPrintDialog() {
         }
       } break;
       case PrintDialog::Range::SearchResults: {
-	qDebug() << "Printing search results NYI";
-	break;
-      }
+        QList<int> pgs = startPagesOfSearchResults();
+        for (int sp: pgs) {
+          if (progress.wasCanceled())
+            throw 0;
+          gotoEntryPage(sp);
+          ASSERT(entryScene);
+          if (any)
+            printer.newPage();
+          any = entryScene->print(&printer, &p);
+          progress.setValue(progress.value() + entryScene->sheetCount());
+        }
+      } break;
       }
       any = true;
       progress.setValue(nfront + ntoc + nentries);

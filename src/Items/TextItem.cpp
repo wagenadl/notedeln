@@ -28,6 +28,7 @@
 #include "BlockItem.h"
 #include "ElnAssert.h"
 #include "TeXCodes.h"
+#include "Accents.h"
 #include "Latin.h"
 #include "Digraphs.h"
 #include "TextBlockItem.h"
@@ -53,6 +54,15 @@
 
 #include "LateNoteItem.h" 
 #include "LateNoteData.h" 
+
+
+static bool isLatinLetter(QChar x) {
+  return (x>='A' && x<='Z') || (x>='a' && x<='z');
+}
+
+static bool isDigit(QChar x) {
+  return (x>='0' && x<='9');
+}
 
 TextItem::TextItem(TextData *data, Item *parent, bool noFinalize,
 		   TextItemDoc *altdoc):
@@ -455,6 +465,8 @@ bool TextItem::keyPressAsMotion(QKeyEvent *e) {
     if (cursor.atStart() && !cursor.hasSelection()) {
       emit futileMovementKey(e->key(), e->modifiers());
     } else {
+      if (cursor.hasSelection())
+	prepareGeometryChange(); // needed in title item. Unsure why.
       cursor.deletePreviousChar();
       ensureCursorVisible();      
     }
@@ -463,29 +475,49 @@ bool TextItem::keyPressAsMotion(QKeyEvent *e) {
     if (cursor.atEnd() && !cursor.hasSelection()) {
       emit futileMovementKey(e->key(), e->modifiers());
     } else {
+      if (cursor.hasSelection())
+	prepareGeometryChange(); // needed in title item. Unsure why.	
       cursor.deleteChar();
       ensureCursorVisible();
     }
     return true;
   case Qt::Key_Left:
-    tryMove(TextCursor::Left, e->key(), e->modifiers());
+    tryMove(e->modifiers() & Qt::ControlModifier
+            ? TextCursor::PreviousWord : TextCursor::Left,
+            e->key(), e->modifiers());
     return true;
   case Qt::Key_Up:
-    if (text->lineFor(cursor.position())==0
-	&& !(e->modifiers() & Qt::ShiftModifier))
-      emit futileMovementKey(e->key(), e->modifiers());
-    else
-      tryMove(TextCursor::Up, e->key(), e->modifiers());
+    if (e->modifiers() & Qt::ControlModifier) {
+      if (cursor.atStart() && !(e->modifiers() & Qt::ShiftModifier)) 
+        emit futileMovementKey(e->key(), e->modifiers());
+      else
+        tryMove(TextCursor::Start, e->key(), e->modifiers());
+    } else {
+      if (text->lineFor(cursor.position())==0
+          && !(e->modifiers() & Qt::ShiftModifier))
+        emit futileMovementKey(e->key(), e->modifiers());
+      else
+        tryMove(TextCursor::Up, e->key(), e->modifiers());
+    }
     return true;
   case Qt::Key_Right:
-    tryMove(TextCursor::Right, e->key(), e->modifiers());
+    tryMove(e->modifiers() & Qt::ControlModifier
+            ? TextCursor::NextWord : TextCursor::Right,
+            e->key(), e->modifiers());
     return true;
   case Qt::Key_Down:
-    if (text->lineFor(cursor.position())==text->lineStarts().size()-1
-	&& !(e->modifiers() & Qt::ShiftModifier))	
-      emit futileMovementKey(e->key(), e->modifiers());
-    else
-      tryMove(TextCursor::Down, e->key(), e->modifiers());
+    if (e->modifiers() & Qt::ControlModifier) {
+      if (!(e->modifiers() & Qt::ShiftModifier)) 
+        emit futileMovementKey(e->key(), e->modifiers());
+      else
+        tryMove(TextCursor::End, e->key(), e->modifiers());
+    } else {
+      if (text->lineFor(cursor.position())==text->lineStarts().size()-1
+          && !(e->modifiers() & Qt::ShiftModifier))	
+        emit futileMovementKey(e->key(), e->modifiers());
+      else
+        tryMove(TextCursor::Down, e->key(), e->modifiers());
+    }
     return true;
   case Qt::Key_Home:
     tryMove(TextCursor::StartOfLine, e->key(), e->modifiers());
@@ -501,26 +533,20 @@ void TextItem::tryMove(TextCursor::MoveOperation op,
                        int key,
                        Qt::KeyboardModifiers mod) {
   TextCursor c = textCursor();
-  TextCursor::MoveMode mm = mod & Qt::ShiftModifier ? TextCursor::KeepAnchor
+  TextCursor::MoveMode mm = mod & Qt::ShiftModifier
+    ? TextCursor::KeepAnchor
     : TextCursor::MoveAnchor;
   c.movePosition(op, mm);
-  if (op==TextCursor::Left) {
-    if (Unicode::isLowSurrogate(text->characterAt(c.position())))
-      c.movePosition(TextCursor::Left, mm);
-  } else {
-    if (Unicode::isLowSurrogate(text->characterAt(c.position())))
-      c.movePosition(TextCursor::Right, mm);
-  }
-  if (c==textCursor()
-      && !(mod & Qt::ShiftModifier)) {
+  if (c==textCursor() && !(mod & Qt::ShiftModifier)) {
     emit futileMovementKey(key, mod);
-    return;
+  } else {
+    setTextCursor(c);
+    QPointF p = posToPoint(c.position());
+    if (clips() && !clipRect().contains(p)) {
+      qDebug() << "emitting invisible focus" << p << clipRect();
+      emit invisibleFocus(c, p);
+    }
   }
-
-  setTextCursor(c);
-  QPointF p = posToPoint(c.position());
-  if (clips() && !clipRect().contains(p))
-    emit invisibleFocus(c, p);
 }
 
 bool TextItem::keyPressWithControl(QKeyEvent *e) {
@@ -529,7 +555,7 @@ bool TextItem::keyPressWithControl(QKeyEvent *e) {
   if (keyPressAsSimpleStyle(e->key(), textCursor()))
     return true;
 
-  if (mode()->isMathMode())
+  if (mode()->typeMode()==Mode::Math)
     tryTeXCode(true);
   
   switch (e->key()) {
@@ -540,8 +566,10 @@ bool TextItem::keyPressWithControl(QKeyEvent *e) {
     tryToCopy();
     return true;
   case Qt::Key_X:
-    if (tryToCopy())
+    if (tryToCopy()) {
+      prepareGeometryChange(); // needed in title item. Unsure why.
       cursor.deleteChar();
+    }
     return true;
   case Qt::Key_A:
     cursor.setPosition(0);
@@ -595,20 +623,20 @@ bool TextItem::keyPressWithControl(QKeyEvent *e) {
 
 bool TextItem::keyPressAsSimpleStyle(int key, TextCursor const &cursor) {
   switch (key) {
-  case Qt::Key_Slash:
+  case Qt::Key_Slash: case Qt::Key_I:
     toggleSimpleStyle(MarkupData::Italic, cursor);
     return true;
-  case Qt::Key_8: case Qt::Key_Asterisk: case Qt::Key_Comma:
+  case Qt::Key_8: case Qt::Key_Asterisk: case Qt::Key_Comma: case Qt::Key_B:
     toggleSimpleStyle(MarkupData::Bold, cursor);
     return true;
-  case Qt::Key_6: // case Qt::Key_Hat:
+  case Qt::Key_6: case Qt::Key_AsciiCircum:
     toggleSimpleStyle(MarkupData::Superscript, cursor);
     return true;
   case Qt::Key_Minus: // Underscore and Minus are on the same key
     // on my keyboard, but they generate different codes
     toggleSimpleStyle(MarkupData::Subscript, cursor);
     return true;
-  case Qt::Key_Underscore:
+  case Qt::Key_Underscore: case Qt::Key_U:
     toggleSimpleStyle(MarkupData::Underline, cursor);
     return true;
   case Qt::Key_1: case Qt::Key_Exclam:
@@ -685,7 +713,8 @@ bool TextItem::muckWithIndentation(TextBlockItem *p,
   } else if (mod & Qt::ShiftModifier) {
     if (hasIndent) 
       p->data()->setIndented(false);
-    else if (hasDedent)
+    else if (hasDedent
+	     || data()->lineStarts().size()<=data()->paragraphStarts().size())
       p->data()->setIndented(true);
     else
       p->data()->setDedented(true);
@@ -741,6 +770,8 @@ bool TextItem::keyPressAsInsertion(QKeyEvent *e) {
   }
   if (!cursor.hasSelection()) {
     cursor.insertText(now);
+    if (now=="}" && mode()->typeMode()==Mode::Math) 
+      tryScriptStyles(true);
     ensureCursorVisible();
   }
   return true;
@@ -748,11 +779,134 @@ bool TextItem::keyPressAsInsertion(QKeyEvent *e) {
 
 void TextItem::ensureCursorVisible() {
   QPointF p = posToPoint(cursor.position());
-  if (clips() && !clipRect().contains(p))
+  if (clips() && !clipRect().contains(p)) {
+    qDebug() << "emitting invisible focus 2" << p << clipRect();
     emit invisibleFocus(cursor, p);
+  }
 }  
 
-bool TextItem::keyPressAsSpecialChar(QKeyEvent *e) {
+bool TextItem::keyPressAsBackslash(QKeyEvent *e) {
+  // if this keyevent terminates a \tex code.
+  if (cursor.hasSelection())
+    return false;
+
+  QString txt = e->text();
+  if (txt.isEmpty() || txt=="\b" || txt==QChar(127)) // backspace/delete are weird
+    return false;
+
+  int pos = cursor.position();
+  QString pre = "";
+  QString accents = ",.:^_‘’";
+  bool hasdig = false;
+  bool haslet = false;
+  bool hasacc = false;
+  while (true) {
+    if (--pos < 0)
+      return false;
+    QChar c = document()->characterAt(pos);
+    if (c=='\\') {
+      break;
+    } else if (isLatinLetter(c)) {
+      haslet = true;
+      pre = c + pre;
+    } else if (isDigit(c)) {
+      hasdig = true;
+      pre = c + pre;
+    } else if (pos>0 && accents.contains(c)
+               && document()->characterAt(pos-1)=='\\') {
+      hasacc = true;
+      pre = c + pre;
+      break;
+    } else {
+      return false;
+    }
+  }
+  if (hasacc && pre.size()!=2)
+    return false;
+  if (pre.size()<1)
+    return false;
+
+
+  bool subst = hasacc ? true
+    : isLatinLetter(txt[0]) ? (hasdig && !haslet)
+    : isDigit(txt[0]) ? (haslet && !hasdig)
+    : true;
+
+  if (!subst)
+    return false;
+
+  qDebug() << "subst" << pre;
+  
+  if (hasacc) {
+    if (Accents::contains(pre)) {
+      for (int m=0; m<=pre.size(); m++)
+        cursor.movePosition(TextCursor::Left, TextCursor::KeepAnchor);
+      cursor.deleteChar();
+      cursor.insertText(Accents::map(pre));
+      ensureCursorVisible();
+      return true;
+    } else {
+      return false;
+    }
+  } else if (TeXCodes::contains(pre)) {
+    for (int m=0; m<=pre.size(); m++)
+      cursor.movePosition(TextCursor::Left, TextCursor::KeepAnchor);
+    cursor.deleteChar();
+    QString sub = TeXCodes::map(pre);
+    if (sub.startsWith("x"))
+      sub = sub.mid(1);
+    cursor.insertText(sub);
+    //cursor.insertText(txt);
+    ensureCursorVisible();
+    return true;
+  } else {
+    return false;
+  }
+}
+
+int TextItem::substituteInternalScripts(int start, int end) {
+  int sumdelta = 0;
+  while (true) {
+    MarkupData *md = data()->markupAt(start, end, MarkupData::Superscript);
+    if (!md)
+      break;
+    int s = md->start();
+    deleteMarkup(md);
+    TextCursor cur(document(), s);
+    cur.insertText("^");
+    sumdelta += 1;
+    end += 1;
+  }
+  while (true) {
+    MarkupData *md = data()->markupAt(start, end, MarkupData::Subscript);
+    if (!md)
+      break;
+    int s = md->start();
+    deleteMarkup(md);
+    TextCursor cur(document(), s);
+    cur.insertText("_");
+    sumdelta += 1;
+    end += 1;
+  }
+  for (int pos=start; pos<end; pos++) {
+    QChar c = document()->characterAt(pos);
+    if ((c=="^" || c=="_") && pos<end-1) {
+      QString s = QString(c) + QString(document()->characterAt(pos+1));
+      if (Accents::contains(s)) {
+        TextCursor cur(document(), pos+2, pos);
+        cur.deleteChar();
+        QString sub = Accents::map(s);
+        cur.insertText(sub);
+        int delta = sub.size() - s.size();
+        end += delta;
+        sumdelta += delta;
+      }
+    }
+  }
+  return sumdelta;
+}      
+
+bool TextItem::keyPressAsDigraph(QKeyEvent *e) {
   QChar charBefore = document()->characterAt(cursor.position()-1);
   QChar charBefore2 = document()->characterAt(cursor.position()-2);
   QString charNow = e->text();
@@ -803,6 +957,7 @@ void TextItem::inputMethodEvent(QInputMethodEvent *e) {
   
 void TextItem::keyPressEvent(QKeyEvent *e) {
   if (clips() && !clip_.contains(posToPoint(cursor.position()))) {
+    qDebug() << "keypress out of rect"<< posToPoint(cursor.position()) << clip_;
     clearFocus();
     return;
   }
@@ -815,15 +970,20 @@ void TextItem::keyPressEvent(QKeyEvent *e) {
     break;
   case Mode::Type:
     if (isWritable()) {
-      if (keyPressWithControl(e) 
-	  || (mode()->isMathMode() && keyPressAsMath(e))
-	  || keyPressAsSpecialChar(e)
-	  || keyPressAsMotion(e)
-	  || keyPressAsSpecialEvent(e)
-	  || keyPressAsInsertion(e)) {
-	e->accept();
+      if (keyPressWithControl(e)) {
+        e->accept();
       } else {
-	Item::keyPressEvent(e);
+        bool bs = mode()->typeMode()!=Mode::Code && keyPressAsBackslash(e);
+        if ((mode()->typeMode()==Mode::Math && keyPressAsMath(e))
+            || (!bs && mode()->typeMode()!=Mode::Code && keyPressAsDigraph(e))
+            || keyPressAsMotion(e)
+            || keyPressAsSpecialEvent(e)
+            || keyPressAsInsertion(e)
+            || bs) {
+          e->accept();
+        } else {
+          Item::keyPressEvent(e);
+        }
       }
     } else {
       if (keyPressInBrowseMode(e))
@@ -918,8 +1078,13 @@ bool TextItem::tryScriptStyles(bool onlyIfBalanced) {
       || data()->markupAt(cursor.position(),
                           MarkupData::Subscript))
     return false;
+
+  bool endswithbrace = document()->characterAt(cursor.position()-1) == '}';
+  QString re = "(\\^|_)";
+  if (endswithbrace)
+    re += "\\{";
       
-  TextCursor m = cursor.findBackward(QRegExp("\\^|_"));
+  TextCursor m = cursor.findBackward(QRegExp(re));
   if (!m.hasSelection())
     return false; // no "^" or "_"
   if (m.selectionEnd() == cursor.position())
@@ -928,18 +1093,25 @@ bool TextItem::tryScriptStyles(bool onlyIfBalanced) {
   QString mrk = m.selectedText();
 
   if (onlyIfBalanced) {
-    TextCursor scr(m);
+    TextCursor scr(document(), m.selectionStart() + 1);
     scr.setPosition(cursor.position(), TextCursor::KeepAnchor);
+    qDebug() << "onlyifbalanced" << scr.selectedText();
     if (!balancedBrackets(scr.selectedText()))
       return false;
-  }  
+  }
 
+  if (endswithbrace) {
+    cursor.deletePreviousChar();
+    cursor.correctPosition(substituteInternalScripts(m.position(),
+                                                     cursor.position()));
+  }
   cursor.correctPosition(-m.deleteChar());
 
-  addMarkup(mrk=="^"
+  addMarkup(mrk[0]=="^"
 	    ? MarkupData::Superscript
 	    : MarkupData::Subscript,
 	    m.selectionStart(), cursor.position());
+  ensureCursorVisible();
   return true;
 }
 
@@ -1331,7 +1503,7 @@ Qt::CursorShape TextItem::cursorShape(Qt::KeyboardModifiers m) const {
       cs = Qt::IBeamCursor;
     }
     break;
-  case Mode::Annotate: case Mode::Mark: case Mode::Freehand:
+  case Mode::Annotate: case Mode::Mark: case Mode::Draw:
     cs = Qt::CrossCursor;
     break;
   case Mode::MoveResize:
@@ -1405,7 +1577,7 @@ void TextItem::paint(QPainter *p, const QStyleOptionGraphicsItem *, QWidget *) {
     return;
   
   if (clips())
-    p->setClipRect(clip_.adjusted(-10,0,10,0));
+    p->setClipRect(clip_);
   else
     p->setClipRect(boundingRect().adjusted(-10,0,10,0));
 
@@ -1435,9 +1607,10 @@ void TextItem::renderCursor(QPainter *p, int pos) {
   }
   xy += QPointF(-2, text->baselineShift(sty));
   if (clips() && !clip_.contains(xy)) {
-    qDebug() << "Relinquishing focus on redraw: out of rectangle";
-    clearFocus();
-    return;
+    qDebug() << "xy" << xy << clip_;
+    qDebug() << "NOT Relinquishing focus on redraw: out of rectangle";
+    //    clearFocus();
+    //    return;
   }
   
   PageView *pv = EventView::eventView();
@@ -1497,7 +1670,7 @@ bool TextItem::clips() const {
 }
 
 void TextItem::setClip(QRectF r) {
-  clip_ = r;
+  clip_ = r.adjusted(-10, 0, 1000, 0);
   update();
 }
 

@@ -1,5 +1,5 @@
 # QMake project file for eln                  -*- mode: shell-script; -*-
-w#
+
 # When adding source files, run scripts/updatesources to include them
 
 TEMPLATE = app
@@ -24,6 +24,7 @@ greaterThan(QT_MAJOR_VERSION, 4) {
 } else {
     QMAKE_CXXFLAGS += -std=c++11
 }
+QMAKE_CXXFLAGS += -W -Wall -Wextra
 
 win32 {
     RC_FILE = App/winicon.rc

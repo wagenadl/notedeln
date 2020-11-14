@@ -177,7 +177,11 @@ void PageView::keyPressEvent(QKeyEvent *e) {
   case Qt::Key_F2:
     if (currentSection==Entries) {
       mode()->setMode(Mode::Type);
-      mode()->setMathMode(e->modifiers() & Qt::ShiftModifier);
+      mode()->setTypeMode(e->modifiers() & Qt::ShiftModifier
+			  ? Mode::Math
+			  : e->modifiers() & Qt::ControlModifier
+			  ? Mode::Code
+			  : Mode::Normal);
     }
     break;
   case Qt::Key_F3:
@@ -190,8 +194,9 @@ void PageView::keyPressEvent(QKeyEvent *e) {
     break;
   case Qt::Key_F5:
     if (currentSection==Entries) {
-      mode()->setMode(Mode::Freehand);
-      mode()->setStraightLineMode(e->modifiers() & Qt::ShiftModifier);
+      mode()->setMode(Mode::Draw);
+      mode()->setDrawMode((e->modifiers() & Qt::ShiftModifier)
+			  ? Mode::Straightline : Mode::Freehand);
     }
     break;
   case Qt::Key_F6:
@@ -212,7 +217,21 @@ void PageView::keyPressEvent(QKeyEvent *e) {
     break;
   case Qt::Key_QuoteLeft: case Qt::Key_AsciiTilde: case Qt::Key_4:
     if (e->modifiers() & Qt::ControlModifier)
-      mode()->setMathMode(!mode()->isMathMode());
+      mode()->setTypeMode(mode()->typeMode()==Mode::Math
+			  ? Mode::Normal : Mode::Math);
+    else
+      take = false;
+    break;
+  case Qt::Key_NumberSign: case Qt::Key_3:
+    if (e->modifiers() & Qt::ControlModifier)
+      mode()->setTypeMode(mode()->typeMode()==Mode::Code
+			  ? Mode::Normal : Mode::Code);
+    else
+      take = false;
+    break;
+  case Qt::Key_Plus:
+    if (e->modifiers() & Qt::ControlModifier)
+      newPage();
     else
       take = false;
     break;
@@ -422,23 +441,23 @@ void PageView::gotoEntryPage(int n, int dir) {
   if (n<1)
     n=1;
   int N = book->toc()->newPageNumber();
-  if (n>N)
-    n=N;
-
-  if (n==N) {
-    // make a new page?
-    TOCEntry *te = book->toc()->findBackward(n);
-    if (te) {
-      // let's look at page before end
-      CachedEntry ef(book->entry(te->startPage()));
-      ASSERT(ef);
-      if (ef->isEmpty() || dir>1) {
-	// final page is empty, or we got here from the NAV_N10 icon -> go to final page instead
-	gotoEntryPage(te->startPage() + te->sheetCount() - 1);
+  if (n>=N) {
+    n = N;
+    if (n<=1) {
+      book->createEntry(n); // create first entry
+    } else {
+      TOCEntry *te = book->toc()->findBackward(n);
+      if (te) {
+	// let's look at page before end
+	CachedEntry ef(book->entry(te->startPage()));
+	ASSERT(ef);
+	n = te->startPage() + te->sheetCount() - 1;
+	dir = 0;
+      } else {
+	qDebug() << "Found no entry before" << n << "!?";
 	return;
       }
     }
-    book->createEntry(n);
   }
 
   TOCEntry *te = book->toc()->find(n);
@@ -644,7 +663,21 @@ void PageView::newPage(Qt::KeyboardModifiers m) {
   if (m & Qt::ShiftModifier) {
     newView()->newPage();
   } else {
-    gotoEntryPage(book->toc()->newPageNumber());
+    int n = book->toc()->newPageNumber();
+    TOCEntry *te = book->toc()->findBackward(n);
+    if (te) {
+      CachedEntry ef(book->entry(te->startPage()));
+      ASSERT(ef);
+      if (ef->isEmpty()) {
+	// don't create new if previous empty
+	gotoEntryPage(n);
+	focusEntry();
+	return;
+      }
+    }
+
+    book->createEntry(n);
+    gotoEntryPage(n);
     focusEntry();
   }
 }
@@ -705,8 +738,8 @@ void PageView::createContinuationEntry() {
   QPointF pp = fwdNote->mapToScene(fwdNote->netBounds().topLeft());
   fwdNote->translate(fwdNotePos - pp);
 
-  // Goto new page
-  gotoEntryPage(newPage);
+  // Create and go to new page
+  this->newPage();
   ASSERT(entryScene);
   // (So now entryScene refers to the new page.)
   entryScene->data()->title()->text()->setText(newTtl);
@@ -760,7 +793,7 @@ void PageView::htmlDialog() {
       if (!fn.endsWith(".html"))
         fn += ".html";
       HtmlOutput html(fn, entryScene->title());
-      html.add(entryScene.obj());
+      html.addEntry(entryScene.obj());
     }
   }
 }

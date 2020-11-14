@@ -53,7 +53,8 @@ protected:
   virtual void doLeftClick(QString id, Qt::KeyboardModifiers);
   virtual void doRightClick(QString id, Qt::KeyboardModifiers);
   void timerEvent(QTimerEvent *);
-private slots:
+protected slots:
+  virtual void doubleClicked(Qt::KeyboardModifiers);
   void leftClicked(Qt::KeyboardModifiers);
   void rightClicked(Qt::KeyboardModifiers);
   void released();
