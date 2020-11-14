@@ -755,9 +755,9 @@ bool TextItem::keyPressAsInsertion(QKeyEvent *e) {
       break;
     case Qt::Key_Space:
       if (e->modifiers() & Qt::ShiftModifier)
-	now = QString::fromUtf8(" "); // figure space
+	now = QString(QChar(8199)); // figure space
       else
-	now = QString::fromUtf8(" "); // unbreakable space
+	now = QString(QChar(160)); // unbreakable space
       break;
     default:
       break;
