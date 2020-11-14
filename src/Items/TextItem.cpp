@@ -757,7 +757,7 @@ bool TextItem::keyPressAsInsertion(QKeyEvent *e) {
       if (e->modifiers() & Qt::ShiftModifier)
 	now = QString::fromUtf8(" "); // figure space
       else
-	now = QString::fromUtf8(" "); // unbreakable space
+	now = QString::fromUtf8(" "); // unbreakable space
       break;
     default:
       break;
@@ -1107,7 +1107,7 @@ bool TextItem::tryScriptStyles(bool onlyIfBalanced) {
   }
   cursor.correctPosition(-m.deleteChar());
 
-  addMarkup(mrk[0]=="^"
+  addMarkup(mrk.startsWith("^")
 	    ? MarkupData::Superscript
 	    : MarkupData::Subscript,
 	    m.selectionStart(), cursor.position());
