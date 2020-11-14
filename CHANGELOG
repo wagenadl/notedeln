@@ -1,3 +1,19 @@
+eln 1.2.20
+
+  New features:
+
+  * TeX codes can now be entered by typing \alpha, etc rather than with
+    key combo.
+  * Accented characters can be created in this fa\,con.
+  * Double superscripts supported using Unicode.
+
+  Bug fixes:
+
+  * Bugfix to "browse" button in New Book dialog.
+  * Limited when new text blocks get created by arrow-down key.
+
+  -- Daniel A. Wagenaar <daw@caltech.edu>  Fri, 13 Nov 2020 22:39:10 -0800
+
 eln 1.2.18
 
   New features:
