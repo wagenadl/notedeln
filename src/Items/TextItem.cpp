@@ -143,7 +143,6 @@ void TextItem::initializeFormat() {
 }
 
 void TextItem::docChange() {
-  qDebug() << "docchange" << boundingRect();
   prepareGeometryChange();
   emit textChanged();
   update();
@@ -794,7 +793,6 @@ bool TextItem::keyPressAsBackslash(QKeyEvent *e) {
   QString txt = e->text();
   if (txt.isEmpty() || txt=="\b" || txt==QChar(127)) // backspace/delete are weird
     return false;
-  qDebug() << "bs" << txt[0].unicode();
 
   int pos = cursor.position();
   QString pre = "";
