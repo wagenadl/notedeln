@@ -44,13 +44,13 @@
 \vskip10pt
   
   
-  {Copyright (c) 2013--2020}
+  {Copyright (c) 2013--2021}
   
 \end{centering}
 \pagebreak
 ~
 \vfill
-\noindent Copyright (C) 2013--2020 Daniel A. Wagenaar\medskip
+\noindent Copyright (C) 2013--2021 Daniel A. Wagenaar\medskip
 
 ELN is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -64,6 +64,9 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see http://www.gnu.org/licenses.
+\pagebreak
+
+\tableofcontents
 \pagebreak
 
 \chapter{Introduction}
@@ -254,7 +257,7 @@ You will need a C++ compiler. I have successfully used both MinGW and
 Microsoft Visual Studio.
 
 First, run ``updatesources.sh'' in the
-``tools'' subfolder in a Cygwin shell. Then open, one by one, ``src/eln.pro''
+``tools'' subfolder in a Cygwin or git shell. Then open, one by one, ``src/eln.pro''
 and ``webgrab/webgrab.pro'' in Qt
 Creator and follow the standard build steps.
 
@@ -268,8 +271,7 @@ quickly get to appreciate the simplicity of the system.
 
 ELN is intended to be fully usable either with traditional laptop or
 desktop computers or with tablets. To facilitate that, it only uses
-the left mouse button and hardly any keyboard modifiers (shift,
-control, alt, etc.) It can also be operated exclusively from the
+the left mouse button. ELN can also be operated almost exclusively from the
 keyboard.
 
 \section{Creating a new notebook}
@@ -639,11 +641,13 @@ password. Typically, that involves setting up a public/private RSA key
 pair using ssh-keygen or similar and appending the public key to the
 file ``.ssh/authorized\_keys'' on the server. Further details can be
 found elsewhere. In my experience, doing this from a Windows computer
-is much trickier than from either Linux or Mac OS; the most
-workable Windows solution I have found is ``Pageant,'' which is part
-of the ``PuTTY'' package.\footnote{At https://www.putty.org. See
+is much trickier than from either Linux or Mac OS; the most workable
+Windows solutions I have found are ``Pageant,'' which is part of the
+``PuTTY'' package,\footnote{At https://www.putty.org. See
   https://documentation.help/PuTTY/pageant.html for an introduction to
-  Pageant.}
+  Pageant.} and the unix-style `ssh-keygen,'' ``ssh-agent,'' and
+``ssh-add'' that come with recent versions of Git SCM.\footnote{An
+  excellent port of git to Windows. At https://git-scm.com.}
 
 If you use Git to store your notebook on a remote host,
 you can also access it from other computers. To do that, you would
