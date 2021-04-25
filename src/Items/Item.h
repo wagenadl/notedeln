@@ -70,6 +70,7 @@ public:
   }
   virtual void setScale(qreal);
   virtual void modeChangeUnderCursor(); // only called for item under mouse
+  Item *findDescendant(QString uuid); // 0 if not found
 public:
   static Item *create(Data *d, Item *parent=0);
   class GfxNoteItem *createGfxNote(QPointF p0); // create by dragging

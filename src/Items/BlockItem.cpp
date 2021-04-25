@@ -40,6 +40,8 @@ BlockItem::~BlockItem() {
 
 FootnoteItem *BlockItem::newFootnote(FootnoteData *fd) {
   FootnoteItem *fni = new FootnoteItem(fd, 0);
+  connect(fni, &FootnoteItem::futileMovement,
+          this, &BlockItem::futileMovementFromFootnote);
   //  fni->setBaseScene(baseScene()); // is this a good idea?
   if (fd->height()==0) 
     fni->sizeToFit();
@@ -198,4 +200,26 @@ QPointF BlockItem::findRefTextIn(QString s, Item *i) {
 
 double BlockItem::visibleHeight() const {
   return data()->height();
+}
+
+void BlockItem::markPreviousFocus(QString uuid) {
+  prevfocus = uuid;
+}
+
+
+void BlockItem::futileMovementFromFootnote() {
+  FootnoteItem *fni = dynamic_cast<FootnoteItem *>(sender());
+  if (!fni)
+    return;
+  FutileMovementInfo fmi = fni->lastFutileMovement();
+  if (fmi.key()==Qt::Key_Escape) {
+    if (prevfocus != "") {
+      Item *src = findDescendant(prevfocus);
+      if (src) {
+        qDebug() << "go back to" << src;
+        src->setFocus();
+      }
+    }
+    prevfocus = QString();
+  }
 }

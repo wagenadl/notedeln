@@ -42,6 +42,7 @@ public:
   virtual void makeWritable();
   class FootnoteItem *newFootnote(class FootnoteData *fnd);
   QPointF findRefText(QString);
+  void markPreviousFocus(QString uuid);
 public:
   // splitpar stuff
   virtual double visibleHeight() const;
@@ -64,12 +65,15 @@ public slots:
      box is at the position specified in the Data.
    */
   void refTextChange(QString olds, QString news);
+protected slots:
+  void futileMovementFromFootnote();
 private:
   QPointF findRefTextIn(QString, Item *);
   int countReferences(QString reftext) const;
 private:
   BaseScene *bs;
   QList<QPointer<FootnoteItem> > foots;
+  QString prevfocus;
 };
 
 

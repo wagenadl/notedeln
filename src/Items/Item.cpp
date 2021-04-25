@@ -240,3 +240,19 @@ void Item::unsetGlowItem(Item *it) {
   if (glowitem==it)
     glowitem = 0;
 }
+
+Item *Item::findDescendant(QString uuid) {
+  if (d->uuid() == uuid)
+    return this;
+  foreach (QGraphicsItem *c0, QGraphicsObject::childItems()) {
+    Item *c = dynamic_cast<Item *>(c0);
+    if (c) {
+      Item *res = c->findDescendant(uuid);
+      if (res)
+        return res;
+    }
+  }
+  return 0;
+}
+
+  

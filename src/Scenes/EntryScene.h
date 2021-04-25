@@ -144,6 +144,8 @@ private:
   int firstDisallowedPgNo;
   class QGraphicsTextItem *unlockedItem;
   Item *lateNoteParent;
+  QString originatingUUID;
+  int originatingPos;
 };
 
 #endif

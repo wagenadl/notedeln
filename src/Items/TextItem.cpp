@@ -1417,6 +1417,7 @@ bool TextItem::tryFootnote(bool del) {
   } else {
     if (oldmd) {
       bs->focusFootnote(i, oldmd->text());
+      anc->markPreviousFocus(data()->uuid());
       return true;
     } else if (start<end) {
       if (!symMark.isEmpty()) {
@@ -1433,6 +1434,7 @@ bool TextItem::tryFootnote(bool del) {
       }
       MarkupData *md = addMarkup(MarkupData::FootnoteRef, start, end);
       bs->newFootnote(i, md->text());
+      anc->markPreviousFocus(data()->uuid());
       return true;
     }
   }
