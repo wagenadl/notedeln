@@ -18,7 +18,7 @@ is great for:
  *  Recording your thought processes, since it will never get in the
     way of your typing with arbitrary constraints on input formatting.
 
-ELN is fairly mature and used daily in our lab. ELN has never caused
+ELN is quite mature and used daily in our lab. ELN has never caused
 anyone to lose any data or notes. To the contrary, since most people
 type faster than they can write by hand, ELN has helped people take
 more detailed notes than they would otherwise have.
@@ -32,9 +32,8 @@ contributions are welcome.
 
 ## Installation
 
-On Ubuntu Linux, Windows 7/10, and Mac OS X, you should be able to
-install the executables available from
-[danielwagenaar.net/eln](http://www.danielwagenaar.net/eln.html).
+On Ubuntu Linux, Windows 10, and Mac OS X, you should be able to
+install the executables available from [github](https://github.com/wagenadl/eln).
 
 ## Installation from source on Linux
 
