@@ -46,3 +46,14 @@ void DefaultingTextItem::paint(QPainter *p, const QStyleOptionGraphicsItem *o,
   TextItem::paint(p, o, w);
   qDebug() << "defaulting text item rect" << boundingRect() << pos() << scenePos();
 }
+
+QRectF DefaultingTextItem::boundingRect() const {
+  QRectF rct = TextItem::boundingRect();
+  double textwidth = style().real("page-width")
+    - style().real("margin-left")
+    - style().real("margin-right");
+  if (rct.width() < textwidth)
+    rct.setWidth(textwidth);
+  return rct;
+}
+

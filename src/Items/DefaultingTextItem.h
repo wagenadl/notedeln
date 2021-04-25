@@ -32,6 +32,7 @@ public:
   virtual ~DefaultingTextItem();
   void setDefaultText(QString);
 protected:
+  virtual QRectF boundingRect() const;
   virtual void paint(QPainter *, const QStyleOptionGraphicsItem *, QWidget *);
 signals:
   void textChanged();
