@@ -173,7 +173,7 @@ void Assertion::reportFailedToSave(QString msg2) {
     msg += ".";
 
   msg += "\nWhile trying to save your most recent changes,"
-    " another problem occured:";
+    " another problem occurred:";
   msg += "\n" + msg2.trimmed();
   if (!msg.endsWith("."))
     msg += ".";
