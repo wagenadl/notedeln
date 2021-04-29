@@ -94,13 +94,13 @@ install: all #install-userguide
 	install build-webgrab/webgrab $(INSTALLPATH)/bin/webgrab
 	cp build-doc/eln.1 $(SHAREPATH)/man/man1/eln.1
 	cp build-doc/webgrab.1 $(SHAREPATH)/man/man1/webgrab.1
-	cp src/App/eln.iconset/icon_16x16.png $(SHAREPATH)/icons/hicolor/16x16/apps/net.danielwagenaar.eln.png
-	cp src/App/eln.iconset/icon_24x24.png $(SHAREPATH)/icons/hicolor/24x24/apps/net.danielwagenaar.eln.png
-	cp src/App/eln.iconset/icon_32x32.png $(SHAREPATH)/icons/hicolor/32x32/apps/net.danielwagenaar.eln.png
-	cp src/App/eln.iconset/icon_48x48.png $(SHAREPATH)/icons/hicolor/48x48/apps/net.danielwagenaar.eln.png
-	cp src/App/eln.iconset/icon_64x64.png $(SHAREPATH)/icons/hicolor/64x64/apps/net.danielwagenaar.eln.png
-	cp src/App/eln.iconset/icon_128x128.png $(SHAREPATH)/icons/hicolor/128x128/apps/net.danielwagenaar.eln.png
-	cp src/App/eln.iconset/icon_256x256.png $(SHAREPATH)/icons/hicolor/256x256/apps/net.danielwagenaar.eln.png
+	cp src/App/eln.iconset/icon_16x16.png $(SHAREPATH)/icons/hicolor/16x16/apps/eln.png
+	cp src/App/eln.iconset/icon_24x24.png $(SHAREPATH)/icons/hicolor/24x24/apps/eln.png
+	cp src/App/eln.iconset/icon_32x32.png $(SHAREPATH)/icons/hicolor/32x32/apps/eln.png
+	cp src/App/eln.iconset/icon_48x48.png $(SHAREPATH)/icons/hicolor/48x48/apps/eln.png
+	cp src/App/eln.iconset/icon_64x64.png $(SHAREPATH)/icons/hicolor/64x64/apps/eln.png
+	cp src/App/eln.iconset/icon_128x128.png $(SHAREPATH)/icons/hicolor/128x128/apps/eln.png
+	cp src/App/eln.iconset/icon_256x256.png $(SHAREPATH)/icons/hicolor/256x256/apps/eln.png
 	cp src/App/eln.iconset/icon_16x16.png $(SHAREPATH)/icons/hicolor/16x16/mimetypes/application-eln-book.png
 	cp src/App/eln.iconset/icon_24x24.png $(SHAREPATH)/icons/hicolor/24x24/mimetypes/application-eln-book.png
 	cp src/App/eln.iconset/icon_32x32.png $(SHAREPATH)/icons/hicolor/32x32/mimetypes/application-eln-book.png
@@ -108,8 +108,8 @@ install: all #install-userguide
 	cp src/App/eln.iconset/icon_64x64.png $(SHAREPATH)/icons/hicolor/64x64/mimetypes/application-eln-book.png
 	cp src/App/eln.iconset/icon_128x128.png $(SHAREPATH)/icons/hicolor/128x128/mimetypes/application-eln-book.png
 	cp src/App/eln.iconset/icon_256x256.png $(SHAREPATH)/icons/hicolor/256x256/mimetypes/application-eln-book.png
-	cp src/eln.xml $(SHAREPATH)/mime/packages/net.danielwagenaar.eln.xml
-	install src/eln.desktop $(SHAREPATH)/applications/net.danielwagenaar.eln.desktop
+	cp src/eln.xml $(SHAREPATH)/mime/packages/eln.xml
+	install src/eln.desktop $(SHAREPATH)/applications/eln.desktop
 	cp README.md $(DOCPATH)/readme
 	gzip -9 $(DOCPATH)/readme
 	cp CHANGELOG $(DOCPATH)/changelog
