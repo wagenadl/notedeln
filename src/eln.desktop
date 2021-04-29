@@ -1,10 +1,10 @@
 [Desktop Entry]
 Name=eln
 GenericName=Electronic Lab Notebook
-Comment=Electronic Lab Notebook
 Exec=eln %f
 Terminal=false
 Type=Application
 Categories=Office
-Icon=net.danielwagenaar.eln.png
+Icon=eln
 MimeType=application/eln-book
+Keywords=science;laboratory;data analysis;screen shots;literature search;PubMed;note taking;
