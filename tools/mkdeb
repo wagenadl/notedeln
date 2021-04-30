@@ -1,0 +1,98 @@
+#!/usr/bin/perl -w
+
+use strict;
+
+# mkdeb - creates a .deb from a git archive
+
+# Usage: mkdeb
+# It is required that preprelease has been used first so that the
+# toplevel CHANGELOG file is up to date.
+
+sub System {
+  print STDERR "-> ", join(" ", @_), "\n";
+  return system(@_);
+}
+
+my $name = `git config user.name`;
+chomp $name;
+die "No user name configured\n" if $name eq "";
+
+my $email = `git config user.email`;
+chomp $email;
+die "No user email configured\n" if $email eq "";
+
+System("git checkout debian");
+System("git merge master");
+
+my $status = `git status --porcelain`;
+chomp $status;
+die "You have uncommitted changes\n" unless $status eq "";
+
+my $here = `pwd`;
+chomp $here;
+my @bits = split("/", $here);
+my $package = pop @bits;
+
+open IN, "<CHANGELOG" or die "Cannot read CHANGELOG\n";
+my $header = <IN>;
+chomp $header;
+my ($pkg, $vsn) = split(/ /, $header);
+die "Package name mismatch\n" unless $pkg eq $package;
+die "Bad version\n" unless $vsn =~ /^\d+\.\d+\.\d+(-.+)?$/;
+
+my $message = "";
+while (<IN>) {
+  chomp;
+  if (/^\s+--/) {
+    last;
+  } elsif (/^$/ || /^\s+/) {
+    $message .= "$_\n";
+  } else {
+    last;
+  }
+}
+close IN;
+$message =~ s/^\s*\n+//s;
+$message =~ s/\s+$//s;
+
+my $first = `head -n 1 debian/changelog`;
+chomp $first;
+$first =~ /^(.*?)\s+\((.*?)\)\s+(.*)$/ or die "Cannot parse debian/changelog\n";
+my $debpkg = $1;
+my $debvsn = $2;
+my $debinfo = $3;
+die "Debian package mismatch\n" unless $debpkg eq $package;
+
+print STDERR "Version: $debvsn vs $vsn ($debinfo; $debpkg)\n";
+
+if ($debvsn =~ /^$vsn-/) {
+  print STDERR "debian/changelog already up-to-date; not touching.\n";
+} else {
+  system("mv debian/changelog debian/changelog~") and
+    die "Cannot move debian/changelog\n";
+  open IN, "<debian/changelog~" or die "Cannot read debian/changelog\n";
+  open OUT, ">debian/changelog" or die "Cannot write debian/changelog\n";
+  print OUT "$package ($vsn-1) $debinfo\n";
+  print OUT "\n";
+  print OUT "$message\n";
+  print OUT "\n";
+  my $date = `date -R`;
+  chomp $date;
+  print OUT " -- $name <$email>  $date\n\n";
+  while (<IN>) {
+    print OUT $_;
+  }
+  close IN;
+  close OUT;
+  System("git commit -a -m'debian changelog updated'") and die "Failed to commit\n";
+}
+
+System("gbp buildpackage") and die "Package building failed\n";
+
+System("mv ../${package}_$vsn-* ../releases") and die "Archiving failed\n";
+System("mv ../${package}_$vsn.* ../releases");
+
+print STDERR "Your binary debian package:\n";
+system("ls ../releases/${package}_$vsn-1*deb");
+
+print STDERR "\nDo not forget to run:\n  git checkout master\n";
