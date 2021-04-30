@@ -27,7 +27,7 @@
 #include "WordIndex.h"
 #include "ElnAssert.h"
 #include "LateNoteManager.h"
-
+#include <algorithm>
 #include <QSet>
 #include <QDebug>
 #include "TableData.h"
@@ -103,8 +103,8 @@ void Search::addToResults(QList<SearchResult> &dest, QString phrase,
 QList<SearchResult> Search::immediatelyFindPhrase(QString phrase) const {
   QStringList words = phrase.toLower().split(QRegExp("\\s+"));
   QSet<int> entries = book->index()->words()->findWords(words, true);
-  QList<int> sortedEntries = entries.toList();
-  qSort(sortedEntries);
+  QList<int> sortedEntries = entries.values();
+  std::sort(sortedEntries.begin(), sortedEntries.end());
   qDebug () << "immfp" << entries;
 
   QList<SearchResult> results;
