@@ -11,3 +11,23 @@ release-*
 *.dmg
 Info.plist
 obj-*
+
+# LaTeX debris and output in doc/
+*.aux
+*.fdb_latexmk
+*.fls
+*.pdf
+*.toc
+
+# qmake debris and output
+Makefile.Debug
+Makefile.Release
+release/
+/src/App/eln.iconset/eln_*.png
+/src/Makefile
+/src/eln
+/src/ui_CloneBookDialog.h
+/src/ui_NewBookDialog.h
+/src/ui_PrintDialog.h
+/webgrab/Makefile
+/webgrab/webgrab
