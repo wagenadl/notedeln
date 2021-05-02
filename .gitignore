@@ -12,7 +12,3 @@ release-*
 *.dmg
 Info.plist
 obj-*
-*debhelper*
-debian/notedeln
-debian/files
-debian/*.substvars
