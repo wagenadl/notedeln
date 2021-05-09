@@ -26,9 +26,12 @@
 class TeXCodes {
 public:
   static bool contains(QString);
+  static bool onlyExplicit(QString);
   static QString map(QString);
 private:
-  static QMap<QString, QString> const &chars();
+  static void ensure();
+  static QMap<QString, QString> map_;
+  static QMap<QString, QString> nox_;
 };
 
 #endif

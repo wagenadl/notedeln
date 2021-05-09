@@ -20,26 +20,42 @@
 #include "ElnAssert.h"
 #include "JSONFile.h"
 
-QMap<QString, QString> const &TeXCodes::chars() {
-  static QMap<QString, QString> c;
-  if (c.isEmpty()) {
-    bool ok;
-    QVariantMap v(JSONFile::load(":/TeXCodes.json", &ok));
-    ASSERT(ok);
-    foreach (QString k, v.keys())
-      if (k != "#")
-	c[k] = v[k].toString();
+QMap<QString, QString> TeXCodes::nox_;
+QMap<QString, QString> TeXCodes::map_;
+
+void TeXCodes::ensure() {
+  if (!map_.isEmpty())
+    return;
+
+  bool ok;
+  QVariantMap kv(JSONFile::load(":/TeXCodes.json", &ok));
+  ASSERT(ok);
+
+  foreach (QString k, kv.keys()) {
+    if (k.startsWith("#"))
+      continue;
+    QString v = kv[k].toString();
+    if (k.startsWith("*")) {
+      k = k.mid(1);
+      nox_[k] = v;
+    }
+    map_[k] = v;
   }
-  return c;
 }
 
 bool TeXCodes::contains(QString k) {
-  return chars().contains(k);
+  ensure();
+  return map_.contains(k);
 }
 
 QString TeXCodes::map(QString k) {
   if (contains(k))
-    return chars()[k];
+    return map_[k];
   else
     return "";
+}
+
+bool TeXCodes::onlyExplicit(QString k) {
+  ensure();
+  return k.size()==1 || nox_.contains(k);
 }

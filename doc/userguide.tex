@@ -434,11 +434,11 @@ ELN supports most of unicode and---presumably---you can use any input
 method supported by Qt to enter text.\footnote{I have only tested this
   with the ``compose'' key method in ``Gnome''; I am interested in
   your test results.} In addition, the following substitutions are
-made automatically as you type (Figure~\ref{fig:charsubst}).  (To
+made automatically as you type (Figure~\ref{fig:charsubst}).  To
 prevent these substitutions, you can of course type the second
 character first, move the cursor back, and then type the first
 character. But it might be more convenient to press \keycontrol{F2} to
-enter ``Code mode''; see section~\ref{sec:codemode}.)
+enter ``Code mode''; see section~\ref{sec:codemode}.
 
 \begin{figure}[t]
 \noindent~\hfill\includegraphics[scale=.85]{../doc/digraphs.pdf}\hfill~\vspace{-40pt}
@@ -459,7 +459,7 @@ As an alternative to standard unicode input methods for entering
 accented letters, ELN supports creating a select group of accented
 letters by typing a backslash followed by a symbol and a letter
 (Figure~\ref{fig:accents}), as in ``{\tt Se\char92\char126nor}'' for
-``Se\~nor'' or ``{\tt soup\char92,con}'' for ``soup\c{c}on''. 
+``Se\~nor'' or ``{\tt gar\char92,con}'' for ``gar\c{c}on''. 
 
 \begin{figure}
 \noindent\includegraphics[width=\textwidth]{../doc/texcodes.pdf}\vspace{-7pt}
@@ -561,23 +561,27 @@ or pressing \keyshift{F2}.)
 
 In math mode, special characters can be entered simply by typing their
 name and single-character words are typeset in italics.\footnote{A few
-  exceptions apply: ``x'' does not generate $\times$, ``d'' does not
+  exceptions apply: Without a preceding backslash, ``x'' does not generate $\times$, ``d'' does not
   generate $\partial,$ and ELN tries to guess whether you mean the
   variables $a$ and $I$ or the words ``a'' and ``I.'' A few other
-  subtle cases are handled semi-intelligently as well.} Additionally,
+  subtle cases are handled semi-intelligently as well.} To typeset a
+single-letter variable name in bold, bold italic, or roman, type its
+letter multiple times. Also in math mode,
 simple subscripts and superscripts can be typeset by just typing
 underscore or hat followed by the text of the sub- or superscript. As
 a result, an equation like ``$\int_1^\infty 1/x^2\, \mathrm{d}x =
 1$'' can be typeset simply by typing ``{\tt{int\char95{}1\char94inf
-    1/x\char94{}2 dx = 1}}''. Even double superscripts and subscripts are possible,
+    1/x\char94{}2 dx = 1}}''. A space, or punctuation followed by a
+space, ends to subscript or superscript.
+
+Even double superscripts and subscripts are possible,
 to the degree that the second level is supported by
-unicode.\footnote{At the moment, only single digits are
-  supported. Outside of mathmode these can be obtained by typing
-  ``{\tt \char92\char94{}2}'', ``{\tt \char92\char95{}2}'', etc.} For
+unicode.\footnote{At the moment, support is limited to digits,
+  parentheses, and the plus, minus, and equal signs.} For
 instance, ``$\mathrm{e}^{-\sfrac12(x_1{}^2+x_2{}^2)}$'' can be typeset simply by
 typing
 ``{\tt{e\char94\char123-\char92{}12(x\char95{}1\char94{}2+x\char95{}2\char94{}2)\char125}}''. (Note
-how the curly braces ``protect'' the inner expression.)
+how the curly braces temporarily ``protect'' the inner expression.)
 
 \section{Typesetting computer code}\label{sec:codemode}
 

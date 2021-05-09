@@ -39,6 +39,7 @@ static bool isDigit(QString x) {
 }
 
 void TextItem::letterAsMath(QString txt) {
+  static QChar lastdup(' ');
   // txt can be a letter or a digit, actually
   const QString rquote = QString::fromUtf8("’");
 
@@ -54,6 +55,7 @@ void TextItem::letterAsMath(QString txt) {
       // we had the same letter before -> cycle faces
       // order is italic -> bold italic -> bold -> plain -> italic
       // but "mm" is redupped instead because millimeter is a unit
+      lastdup = txt[0];
       if (mdb) {
 	if (mdi) 
 	  deleteMarkup(mdi);
@@ -73,7 +75,8 @@ void TextItem::letterAsMath(QString txt) {
 	deleteMarkup(mdi);
       if (mdb) 
 	deleteMarkup(mdb);
-      if (mdb)
+      if (mdb || (mdi && prevChar=="a" && lastdup=="a"))
+        // redup double letters, including "a" for aardvark
 	cursor.insertText(QString(prevChar));
       cursor.insertText(txt);
       if (prevChar=='d') { // magic for "dx"

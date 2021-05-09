@@ -670,7 +670,7 @@ bool TextItem::tryTeXCode(bool noX, bool onlyAtEndOfWord) {
 
   if (!TeXCodes::contains(key))
     return false;
-  if (noX && key.size()==1)
+  if (noX && TeXCodes::onlyExplicit(key))
     return false;
 
   if (data()->markupEdgeIn(c.selectionStart(), c.selectionEnd()))
@@ -835,7 +835,6 @@ bool TextItem::keyPressAsBackslash(QKeyEvent *e) {
   if (!subst)
     return false;
 
-  qDebug() << "subst" << pre;
   
   if (hasacc) {
     if (Accents::contains(pre)) {
@@ -871,22 +870,28 @@ int TextItem::substituteInternalScripts(int start, int end) {
     if (!md)
       break;
     int s = md->start();
+    int e = md->end();
     deleteMarkup(md);
-    TextCursor cur(document(), s);
-    cur.insertText("^");
-    sumdelta += 1;
-    end += 1;
+    for (int p=e-1; p>=s; --p) {
+      TextCursor cur(document(), p);
+      cur.insertText("^");
+      sumdelta += 1;
+      end += 1;
+    }
   }
   while (true) {
     MarkupData *md = data()->markupAt(start, end, MarkupData::Subscript);
     if (!md)
       break;
     int s = md->start();
+    int e = md->end();
     deleteMarkup(md);
-    TextCursor cur(document(), s);
-    cur.insertText("_");
-    sumdelta += 1;
-    end += 1;
+    for (int p=e-1; p>=s; --p) {
+      TextCursor cur(document(), p);
+      cur.insertText("_");
+      sumdelta += 1;
+      end += 1;
+    }
   }
   for (int pos=start; pos<end; pos++) {
     QChar c = document()->characterAt(pos);
