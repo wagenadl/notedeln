@@ -11,8 +11,8 @@ release-*
 .qmake.stash
 *.dmg
 Info.plist
-
+obj-*
 *debhelper*
-debian/eln
+debian/notedeln
 debian/files
 debian/*.substvars
