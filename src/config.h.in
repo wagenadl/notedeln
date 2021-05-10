@@ -1,0 +1,6 @@
+// the configured options and settings for Noted ELN
+
+#define ELN_VERSION @NotedELN_VERSION@
+#define ELN_VERSION_MAJOR @NotedELN_VERSION_MAJOR@
+#define ELN_VERSION_MINOR @NotedELN_VERSION_MINOR@
+#define ELN_VERSION_PATCH @NotedELN_VERSION_PATCH@

@@ -207,9 +207,11 @@ void FrontScene::makeBackground() {
     addItem(bottomrect);
   }
 
+  QString eln = Translate::_("eln");
   QGraphicsTextItem *dw
-    = addText(QString("ELN v. ")
-	      + Version::toString() + QString::fromUtf8(" — ")
+    = addText(eln
+              + " v. " + Version::toString()
+              + QString::fromUtf8(" — ")
 	      + QString::fromUtf8("(C) Daniel Wagenaar 2013–")
 	      + QString::number(Version::buildDate().year()),
 	      style.font("splash-small-font"));

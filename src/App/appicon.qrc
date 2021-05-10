@@ -1,6 +1,6 @@
 <!DOCTYPE RCC><RCC version="1.0">
  <qresource>
-   <file alias="eln.png">eln.iconset/icon_48x48.png</file>
-   <file alias="eln512.png">eln.iconset/icon_512x512.png</file>
+   <file alias="eln.png">eln.iconset/eln_48x48.png</file>
+   <file alias="eln512.png">eln.iconset/eln_512x512.png</file>
  </qresource>
 </RCC>

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <mime-info xmlns="http://www.freedesktop.org/standards/shared-mime-info">
-   <mime-type type="application/eln-book">
+   <mime-type type="application/notedeln-book">
       <sub-class-of type="application/json"/>
-      <comment>ELN Notebook</comment>
+      <comment>Noted ELN Notebook</comment>
       <glob pattern="book.eln"/>
    </mime-type>
 </mime-info>

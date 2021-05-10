@@ -154,8 +154,8 @@ void Assertion::reportSaved(int nsaved, int nunsaved) {
     msg += " at " + email;
   msg += ".";
   if (!vsn.isEmpty())
-    msg += " Please mention this ELN version: " + vsn + ".";
-  msg += "\n\n(ELN automatically saves your work every few seconds,"
+    msg += " Please mention this Noted ELN version: " + vsn + ".";
+  msg += "\n\n(Noted ELN automatically saves your work every few seconds,"
     " so hopefully your data loss is minimal."
     " Regardless: apologies for the inconvenience.)";
   mb.setInformativeText(msg);

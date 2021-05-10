@@ -4,7 +4,7 @@ all: eln_8x8.png eln_16x16.png eln_22x22.png eln_24x24.png eln_32x32.png eln_48x
 eln_%.png: eln_scalable.svg
 	inkscape --export-width  $(shell echo $*|sed 's/x.*//') \
 		 --export-height $(shell echo $*|sed 's/.*x//') \
-		 --export-filename=$@ $<
+		 --export-png $@ $<
 
 # Shell fragment to convert scalable icon to bitmaps:
 # in=eln_scalable.svg

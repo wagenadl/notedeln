@@ -1,10 +1,10 @@
 [Desktop Entry]
-Name=eln
+Name=Noted ELN
 GenericName=Electronic Lab Notebook
-Exec=eln %f
+Exec=noted %f
 Terminal=false
 Type=Application
 Categories=Office
-Icon=eln
-MimeType=application/eln-book
+Icon=notedeln
+MimeType=application/notedeln-book
 Keywords=science;laboratory;data analysis;screen shots;literature search;PubMed;note taking;

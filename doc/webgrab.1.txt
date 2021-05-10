@@ -22,7 +22,8 @@ OPTIONS
 -------
 
 *-p*::
-    Specifies that output should be paginated. (Valid for pdf output only.)
+    Specifies that output should be split into pages. (Valid for pdf
+    output only.)
 
 *-t, -s, -m, -l, -h*::
     Specifies that output images should be __t__iny, __s__mall, __m__edium,
@@ -36,9 +37,10 @@ There may be bugs. Please contact the author if one bites you.
 AUTHOR
 ------
 Daniel Wagenaar <daw@caltech.edu>, Division of Biology and Biological
-Engineering, California Institute of Technology. http://www.danielwagenaar.net.
+Engineering, California Institute of
+Technology. https://www.danielwagenaar.net.
 
 SEE ALSO
 --------
-*eln*(1)
+*noted*(1)
 

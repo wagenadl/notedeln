@@ -1,0 +1,22 @@
+install(TARGETS noted DESTINATION bin)
+install(TARGETS webgrab DESTINATION bin)
+
+install(FILES build/userguide.pdf DESTINATION share/doc/notedeln)
+install(FILES doc/noted.1 DESTINATION share/man/man1)
+install(FILES doc/webgrab.1 DESTINATION share/man/man1)
+install(FILES README.md DESTINATION share/doc/notedeln)
+install(FILES CHANGELOG DESTINATION share/doc/notedeln)
+install(FILES src/Gui/fonts/ubuntu-font-licence-1.0.txt.gz
+  DESTINATION share/doc/notedeln)
+
+foreach(RES IN ITEMS 8 16 22 24 32 48 64 128 256 512)
+  install(FILES src/App/eln.iconset/eln_${RES}x${RES}.png
+    DESTINATION share/icons/hicolor/${RES}x${RES}/apps
+    RENAME notedeln.png)
+  install(FILES src/App/eln.iconset/eln_${RES}x${RES}.png
+    DESTINATION share/icons/hicolor/${RES}x${RES}/types
+    RENAME application-notedeln-book.png)
+endforeach()
+
+install(PROGRAMS src/notedeln.desktop DESTINATION share/applications)
+install(FILES src/notedeln.xml DESTINATION share/applications)

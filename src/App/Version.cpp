@@ -17,25 +17,13 @@
 // Version.cpp
 
 #include "Version.h"
+#include "config.h"
 #include <QFile>
 #include <QFileInfo>
 #include <QDebug>
 #include "BuildDate.h"
 
 namespace Version {
-  QString verbit() {
-    static QString ver = "";
-    if (ver.isEmpty()) {
-      QFile fv(":/version");
-      if (fv.open(QFile::ReadOnly)) 
-	ver = QString(fv.readAll()).simplified();
-      else
-	ver = "?.?.?";
-    }
-    return ver;
-  }
-
-    
   QDate buildDate() {
     QString date = ::buildDate();
     return QDate::fromString(date.simplified(), "MMM d yyyy");
@@ -44,13 +32,14 @@ namespace Version {
   QString toString() {
     static QString ver = "";
     if (ver.isEmpty()) {
-      ver = verbit();
-      int idx = ver.lastIndexOf(".");
-      QString subv = ver.mid(idx+1);
-      if (subv=="?" || (subv.toInt()&1)==1) {
-        // odd version: development
-        ver += "-" + buildDate().toString("yyMMdd");
-      }
+      ver = QString::number(ELN_VERSION_MAJOR);
+      ver += "." + QString::number(ELN_VERSION_MINOR);
+      if (ELN_VERSION_MINOR & 1)
+        // development version, include build date
+        ver += "." + buildDate().toString("yyMMdd");
+      else
+        // release version, include patch number
+        ver += "." + QString::number(ELN_VERSION_PATCH);
     }
     return ver;
   }

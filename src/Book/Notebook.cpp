@@ -414,12 +414,13 @@ Index *Notebook::index() const {
 
 
 CachedEntry Notebook::recoverFromExistingEntry(int pgno) {
-  QMessageBox::critical(0, Translate::_("eln"),
+  QString eln = Translate::_("eln");
+  QMessageBox::critical(0, eln,
                         QString("Page %1 already exists while trying to create"
                                 " a new entry. This is a sign of TOC"
-                                " corruption. ELN will exit now and attempt"
+                                " corruption. %2 will exit now and attempt"
                                 " to rebuild the TOC when you restart it.")
-                        .arg(pgno), QMessageBox::Ok);
+                        .arg(pgno).arg(eln), QMessageBox::Ok);
   flush();
   root.remove("toc.json");
   root.remove("index.json");
@@ -428,12 +429,13 @@ CachedEntry Notebook::recoverFromExistingEntry(int pgno) {
 }
 
 EntryFile *Notebook::recoverFromMissingEntry(int pgno) {
-  QMessageBox::critical(0, Translate::_("eln"),
+  QString eln = Translate::_("eln");
+  QMessageBox::critical(0, eln,
                         QString("Page %1 could not be loaded."
                                 " This is a sign of TOC"
-                                " corruption. ELN will exit now and attempt"
+                                " corruption. %2 will exit now and attempt"
                                 " to rebuild the TOC when you restart it.")
-                        .arg(pgno), QMessageBox::Ok);
+                        .arg(pgno).arg(eln), QMessageBox::Ok);
   flush();
   root.remove("toc.json");
   root.remove("index.json");
