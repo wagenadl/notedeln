@@ -59,7 +59,7 @@ add_latex_document(doc/userguide.tex IMAGE_DIRS doc doc/icons
   FORCE_PDF INCLUDE_DIRECTORIES doc)
 ######################################################################
 # Installation
-include(Install.CMakeLists.txt)
+include(UnixInstall.CMakeLists.txt)
 
 ######################################################################
 # General packaging
