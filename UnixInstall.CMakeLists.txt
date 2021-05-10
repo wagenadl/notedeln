@@ -14,7 +14,7 @@ foreach(RES IN ITEMS 8 16 22 24 32 48 64 128 256 512)
     DESTINATION share/icons/hicolor/${RES}x${RES}/apps
     RENAME notedeln.png)
   install(FILES src/App/eln.iconset/eln_${RES}x${RES}.png
-    DESTINATION share/icons/hicolor/${RES}x${RES}/types
+    DESTINATION share/icons/hicolor/${RES}x${RES}/mimetypes
     RENAME application-notedeln-book.png)
 endforeach()
 
