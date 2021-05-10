@@ -19,4 +19,4 @@ foreach(RES IN ITEMS 8 16 22 24 32 48 64 128 256 512)
 endforeach()
 
 install(PROGRAMS src/notedeln.desktop DESTINATION share/applications)
-install(FILES src/notedeln.xml DESTINATION share/applications)
+install(FILES src/notedeln.xml DESTINATION share/mime/packages)
