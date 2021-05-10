@@ -14,7 +14,7 @@
 "balloon-nav-toc": "Go to table of contents (Ctrl+Home). Shift click to open new window.",
 "balloon-nav-find": "Search for phrase anywhere in notebook (Ctrl+F).",
 "balloon-nav-print": "Print (part of) notebook (Ctrl+P).",
-"balloon-nav-help": "Show information about Noted ELN.",
+"balloon-nav-help": "Show information about NotedELN.",
 "balloon-nav-p10": "Flip back 10 pages (Ctrl+Page Up). Shift click to open new window.",
 "balloon-nav-prev": "Go to previous page (Page Up). Shift click to open new window.",
 "balloon-nav-next": "Go to next page (Page Down). Shift click to open new window.",
@@ -61,10 +61,10 @@
     "key-info": "Archiving to a remote host is only supported if you have passwordless ssh access to that host.  To arrange that, you first need to have (or create) a public/private key pair, e.g., using ssh-keygen [1]. Then you need to copy the public key from the pair to the host’s “.ssh/authorized_keys” file, e.g., using ssh-copy-id (again, see [1]). On modern Linux systems, that’s basically all it takes. It is even OK to protect your key with a passphrase. I think the same goes for Mac OS. On Windows, you will also need Pageant [2] (see [3] for more info) or something similar to make sure the key gets used.\n\n[1] https://help.ubuntu.com/community/SSH/OpenSSH/Keys\n[2] http://www.chiark.greenend.org.uk/~sgtatham/putty/download.html\n[3] http://the.earth.li/~sgtatham/putty/0.58/htmldoc/Chapter9.html",
     "open-notebook": "Open notebook",
     "open-location": "Open location (i.e., notebook’s parent folder)",
-    "eln": "Noted ELN",
-    "eln-is": "<b>Noted ELN</b> is an Electronic Lab Notebook.",
+    "eln": "NotedELN",
+    "eln-is": "<b>NotedELN</b> is an Electronic Lab Notebook.",
     "where-man": "More information, including a user manual, is available at <a href=\"http://www.danielwagenaar.net/eln\">www.danielwagenaar.net/eln</a>. Please do read that user manual. It is short and informative.",
-    "about-eln": "About Noted ELN",
-    "gpl": "<b>Noted ELN</b> is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.<br><br><b>Noted ELN</b> is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.<br>You should have received a copy of the GNU General Public License along with this program. If not, see <a href=\"http://www.gnu.org/licenses//gpl-3.0.en.html\">www.gnu.org/licenses//gpl-3.0.en.html</a>.",
+    "about-eln": "About NotedELN",
+    "gpl": "<b>NotedELN</b> is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.<br><br><b>NotedELN</b> is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.<br>You should have received a copy of the GNU General Public License along with this program. If not, see <a href=\"http://www.gnu.org/licenses//gpl-3.0.en.html\">www.gnu.org/licenses//gpl-3.0.en.html</a>.",
     "author-email": "daw@caltech.edu"
 }

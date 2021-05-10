@@ -12,11 +12,12 @@ SYNOPSIS
 
 DESCRIPTION
 -----------
-*webgrab* loads a page from the web (specified by 'URL') and renders it to a
-local file. The format of the file is determined from its file name. Currently,
-pdf, jpg, png, and many other bitmap file formats are supported in Linux,
-while only pdf is supported on Mac and Windows. This discrepancy will be
-addressed once Qt's QWebEngine technology matures.
+*webgrab* loads a page from the web (specified by 'URL') and renders
+it to a local file. The format of the file is determined from its file
+name. Currently, pdf, jpg, png, and many other bitmap file formats are
+supported in Linux, while only pdf is supported on Mac and
+Windows. This discrepancy will be addressed once Qt's QWebEngine
+technology matures.
 
 OPTIONS
 -------
@@ -42,5 +43,5 @@ Technology. https://www.danielwagenaar.net.
 
 SEE ALSO
 --------
-*noted*(1)
+*notedeln*(1)
 

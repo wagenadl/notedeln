@@ -1,8 +1,8 @@
-install(TARGETS noted DESTINATION bin)
+install(TARGETS notedeln DESTINATION bin)
 install(TARGETS webgrab DESTINATION bin)
 
 install(FILES ${CMAKE_BINARY_DIR}/userguide.pdf DESTINATION share/doc/notedeln)
-install(FILES doc/noted.1 DESTINATION share/man/man1)
+install(FILES doc/notedeln.1 DESTINATION share/man/man1)
 install(FILES doc/webgrab.1 DESTINATION share/man/man1)
 install(FILES README.md DESTINATION share/doc/notedeln)
 install(FILES CHANGELOG DESTINATION share/doc/notedeln)

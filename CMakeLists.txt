@@ -1,4 +1,4 @@
-# CMakeLists.txt - Part of ELN, (C) Daniel Wagenaar 2021
+# CMakeLists.txt - Part of NotedELN, (C) Daniel Wagenaar 2021
 
 # NEW BUILD INSTRUCTIONS (as of version 1.3.x)
 # Type:
@@ -32,25 +32,28 @@ find_package(Qt5 COMPONENTS Widgets Network Svg PrintSupport REQUIRED)
 
 ######################################################################
 # Add the executables
-add_executable(noted WIN32 MACOSX_BUNDLE)
+add_executable(notedeln WIN32 MACOSX_BUNDLE)
 add_executable(webgrab WIN32 MACOSX_BUNDLE)
 
 include(src/CMakeLists.txt)
 include(webgrab/CMakeLists.txt)
 
 # Libraries to link to - Qt must be mentioned
-target_link_libraries(noted Qt5::Widgets)
-target_link_libraries(noted Qt5::Network)
-target_link_libraries(noted Qt5::Svg)
-target_link_libraries(noted Qt5::PrintSupport)
+target_link_libraries(notedeln Qt5::Widgets)
+target_link_libraries(notedeln Qt5::Network)
+target_link_libraries(notedeln Qt5::Svg)
+target_link_libraries(notedeln Qt5::PrintSupport)
+
+set_target_properties(notedeln PROPERTIES LINK_OPTIONS -s)
+set_target_properties(webgrab PROPERTIES LINK_OPTIONS -s)
 
 # Produce configuration files
 configure_file(src/config.h.in config.h)
 configure_file(doc/version.tex.in version.tex)
 
 # Include paths - Qt must be mentioned
-target_include_directories(noted PUBLIC "${PROJECT_BINARY_DIR}")
-target_include_directories(noted PUBLIC "${Qt5Widgets_INCLUDE_DIRS}")
+target_include_directories(notedeln PUBLIC "${PROJECT_BINARY_DIR}")
+target_include_directories(notedeln PUBLIC "${Qt5Widgets_INCLUDE_DIRS}")
 
 ######################################################################
 # Userguide
@@ -64,50 +67,48 @@ include(UnixInstall.CMakeLists.txt)
 ######################################################################
 # General packaging
 set(CPACK_PACKAGE_VENDOR "Daniel Wagenaar")
-set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Noted ELN - an Electronic Lab Notebook")
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "NotedELN - an Electronic Lab Notebook")
 set(CPACK_PACKAGE_DESCRIPTION
-  "Noted ELN is an Electronic Lab Notebook that lets you focus on note taking.
-Noted ELN supports text, images, and basic graphical annotations. 
-Noted ELN makes safeguarding your notebook entries its number one priority 
+  "NotedELN is an Electronic Lab Notebook that lets you focus on note taking.
+NotedELN supports text, images, and basic graphical annotations. 
+NotedELN makes safeguarding your notebook entries its number one priority 
 and is extremely stable.")
-set(CPACK_PACKAGE_EXECUTABLES "noted;Noted ELN")
+set(CPACK_PACKAGE_EXECUTABLES "notedeln;NotedELN")
 
 # OS dependent packaging choices
 if (WIN32)
   set(CPACK_GENERATOR "NSIS")
-elseif(APPLE)
+elseif (APPLE)
   set(CPACK_GENERATOR "DMG") # NYI
-elseif(UNIX)
+elseif (UNIX)
   set(CPACK_GENERATOR "DEB")
 endif()
-
-# DEB packaging - to be updated
-set(CPACK_DEBIAN_PACKAGE_MAINTAINER "Daniel A. Wagenaar <daw@caltech.edu>")
-set(CPACK_DEBIAN_PACKAGE_RELEASE "1.2.21")
-set(CPACK_DEBIAN_FILE_NAME DEB-DEFAULT)
-# Use my "concise-deps" to figure out minimal list of dependencies
-set(CPACK_DEBIAN_PACKAGE_DEPENDS "libqt5widgets5 (>= 5.12), libstdc++6 (>=10.0)")
-set(CPACK_DEBIAN_PACKAGE_SECTION "scientific")
-set(CPACK_DEBIAN_PACKAGE_HOMEPAGE "${PROJECT_HOMEPAGE_URL}")
 
 if (WINDOWS)
   # NSIS packaging - to be updated
   include("Windeployqt.cmake")
-  windeployqt("chello" "bin")
+  windeployqt("notedeln" "bin")
+  windeployqt("webgrab" "bin")
   set(CPACK_GENERATOR "NSIS")
   set(CPACK_NSIS_ENABLE_UNINSTALL_BEFORE_INSTALL "ON")
-endif()
-
-if (APPLE)
+elseif (APPLE)
   get_target_property(_qmake_executable Qt5::qmake IMPORTED_LOCATION)
   get_filename_component(_qt_bin_dir "${_qmake_executable}" DIRECTORY)
   find_program(MACDEPLOYQT_EXECUTABLE macdeployqt HINTS "${_qt_bin_dir}")
   add_custom_command(TARGET myapp POST_BUILD
-      COMMAND "${MACDEPLOYQT_EXECUTABLE}"
-          "$<TARGET_FILE_DIR:myapp>/../.."
-          -always-overwrite
-      COMMENT "Running macdeployqt..."
-  )
+    COMMAND "${MACDEPLOYQT_EXECUTABLE}"
+    "$<TARGET_FILE_DIR:myapp>/../.."
+    -always-overwrite
+    COMMENT "Running macdeployqt..."
+    )
+elseif (UNIX)
+  set(CPACK_DEBIAN_PACKAGE_MAINTAINER "Daniel A. Wagenaar <daw@caltech.edu>")
+  set(CPACK_DEBIAN_PACKAGE_RELEASE "1")
+  set(CPACK_DEBIAN_FILE_NAME DEB-DEFAULT)
+  # Use my "concise-deps" to figure out minimal list of dependencies
+  set(CPACK_DEBIAN_PACKAGE_DEPENDS "libqt5widgets5 (>= 5.12), libqt5svg5 (>= 5.12), libqt5printsupport5 (>= 5.12), libqt5webkit5 (>= 5.12), libstdc++6 (>=10.0)")
+  set(CPACK_DEBIAN_PACKAGE_SECTION "editors")
+  set(CPACK_DEBIAN_PACKAGE_HOMEPAGE "${PROJECT_HOMEPAGE_URL}")
 endif()
 
 # Packaging

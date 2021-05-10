@@ -1,4 +1,4 @@
-// the configured options and settings for Noted ELN
+// the configured options and settings for NotedELN
 
 #define ELN_VERSION @NotedELN_VERSION@
 #define ELN_VERSION_MAJOR @NotedELN_VERSION_MAJOR@

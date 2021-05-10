@@ -1,18 +1,18 @@
-NOTED(1)
+NOTEDELN(1)
 ======
 :doctype: manpage
 
 NAME
 ----
-noted - Noted ELN Electronic Lab Notebook
+notedeln - NotedELN Electronic Lab Notebook
 
 SYNOPSIS
 --------
-*noted* ['NOTEBOOK']
+*notedeln* ['NOTEBOOK']
 
 DESCRIPTION
 -----------
-The *noted*(1) command starts the Noted ELN Electronic Lab Notebook
+The *notedeln*(1) command starts the NotedELN Electronic Lab Notebook
 editor.  Without arguments it presents a splash screen from which a
 notebook can be selected. With argument, it loads up the specified
 notebook.
@@ -23,7 +23,7 @@ None.
 
 BUGS
 ----
-Noted ELN is fairly mature and used daily in our lab. Noted ELN has
+NotedELN has been used daily in our lab for 8 years now. NotedELN has
 never caused anyone to lose any data or notes. However, there may be
 bugs. Please contact the author if one bites you.
 

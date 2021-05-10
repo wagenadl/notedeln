@@ -1,5 +1,5 @@
 [Desktop Entry]
-Name=Noted ELN
+Name=NotedELN
 GenericName=Electronic Lab Notebook
 Exec=noted %f
 Terminal=false

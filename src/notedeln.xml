@@ -2,7 +2,7 @@
 <mime-info xmlns="http://www.freedesktop.org/standards/shared-mime-info">
    <mime-type type="application/notedeln-book">
       <sub-class-of type="application/json"/>
-      <comment>Noted ELN Notebook</comment>
+      <comment>NotedELN Notebook</comment>
       <glob pattern="book.eln"/>
    </mime-type>
 </mime-info>

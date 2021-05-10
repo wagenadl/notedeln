@@ -142,7 +142,7 @@ void Assertion::reportSaved(int nsaved, int nunsaved) {
   QString msg = message().trimmed();
   if (!msg.endsWith("."))
     msg += ".";
-  if (!backtrace().isEmpty())
+  if (!backtrace().trimmed().isEmpty())
     msg += "\n\nStack backtrace:\n" + backtrace();
   if (nunsaved>0)
     msg += "\nRegrettably, your work of the last few seconds"
@@ -154,8 +154,8 @@ void Assertion::reportSaved(int nsaved, int nunsaved) {
     msg += " at " + email;
   msg += ".";
   if (!vsn.isEmpty())
-    msg += " Please mention this Noted ELN version: " + vsn + ".";
-  msg += "\n\n(Noted ELN automatically saves your work every few seconds,"
+    msg += " Please mention this NotedELN version: " + vsn + ".";
+  msg += "\n\n(NotedELN automatically saves your work every few seconds,"
     " so hopefully your data loss is minimal."
     " Regardless: apologies for the inconvenience.)";
   mb.setInformativeText(msg);
