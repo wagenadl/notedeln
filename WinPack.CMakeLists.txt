@@ -1,0 +1,25 @@
+set(CPACK_GENERATOR "NSIS")
+get_filename_component(_qt5_bin "${_qt5_install_prefix}/../../bin" ABSOLUTE)
+find_program(WINDEPLOYQT_EXECUTABLE NAMES windeployqt HINTS "${_qt5_bin}" REQUIRED)
+
+function(windeploy target)
+  add_custom_command(TARGET ${target}
+    POST_BUILD
+    COMMAND "${WINDEPLOYQT_EXECUTABLE}" --dir windeploy --compiler-runtime ${CMAKE_CFG_INTDIR}/${target}.exe
+	)
+endfunction()
+
+windeploy(webgrab)
+windeploy(notedeln)
+
+set(CPACK_GENERATOR "NSIS")
+install(TARGETS notedeln)
+install(TARGETS webgrab)
+install(DIRECTORY ${CMAKE_BINARY_DIR}/windeploy/ DESTINATION bin)
+
+set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_SOURCE_DIR}/GPL-3.0.txt")
+set(CPACK_PACKAGE_INSTALL_DIRECTORY "NotedELN")
+set(CPACK_NSIS_MUI_ICON "${CMAKE_SOURCE_DIR}/src/App/eln.ico")
+set(CPACK_NSIS_INSTALLED_ICON_NAME "${CMAKE_SOURCE_DIR}/src/App/eln.ico")
+target_sources(notedeln PRIVATE "src/App/winicon.rc")
+set(CPACK_NSIS_MUI_FINISHPAGE_RUN "notedeln.exe")

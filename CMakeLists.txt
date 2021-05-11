@@ -44,8 +44,14 @@ target_link_libraries(notedeln Qt5::Network)
 target_link_libraries(notedeln Qt5::Svg)
 target_link_libraries(notedeln Qt5::PrintSupport)
 
-set_target_properties(notedeln PROPERTIES LINK_OPTIONS -s)
-set_target_properties(webgrab PROPERTIES LINK_OPTIONS -s)
+if (WIN32)
+  target_link_libraries(notedeln secur32.lib)
+endif()
+
+if (UNIX)
+  set_target_properties(notedeln PROPERTIES LINK_OPTIONS -s)
+  set_target_properties(webgrab PROPERTIES LINK_OPTIONS -s)
+endif()
 
 # Produce configuration files
 configure_file(src/config.h.in config.h)
@@ -57,15 +63,14 @@ target_include_directories(notedeln PUBLIC "${Qt5Widgets_INCLUDE_DIRS}")
 
 ######################################################################
 # Userguide
-include(doc/UseLATEX.cmake)
-add_latex_document(doc/userguide.tex IMAGE_DIRS doc doc/icons
-  FORCE_PDF INCLUDE_DIRECTORIES doc)
-######################################################################
-# Installation
-include(UnixInstall.CMakeLists.txt)
+if (UNIX AND NOT APPLE)
+  include(doc/UseLATEX.cmake)
+  add_latex_document(doc/userguide.tex IMAGE_DIRS doc doc/icons
+    FORCE_PDF INCLUDE_DIRECTORIES doc)
+endif()
 
 ######################################################################
-# General packaging
+# General packaging / installation
 set(CPACK_PACKAGE_VENDOR "Daniel Wagenaar")
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "NotedELN - an Electronic Lab Notebook")
 set(CPACK_PACKAGE_DESCRIPTION
@@ -75,23 +80,13 @@ NotedELN makes safeguarding your notebook entries its number one priority
 and is extremely stable.")
 set(CPACK_PACKAGE_EXECUTABLES "notedeln;NotedELN")
 
-# OS dependent packaging choices
 if (WIN32)
-  set(CPACK_GENERATOR "NSIS")
+  # NSIS packaging - to be updated
+  include(WinPack.CMakeLists.txt)
+  
 elseif (APPLE)
   set(CPACK_GENERATOR "DMG") # NYI
-elseif (UNIX)
-  set(CPACK_GENERATOR "DEB")
-endif()
 
-if (WINDOWS)
-  # NSIS packaging - to be updated
-  include("Windeployqt.cmake")
-  windeployqt("notedeln" "bin")
-  windeployqt("webgrab" "bin")
-  set(CPACK_GENERATOR "NSIS")
-  set(CPACK_NSIS_ENABLE_UNINSTALL_BEFORE_INSTALL "ON")
-elseif (APPLE)
   get_target_property(_qmake_executable Qt5::qmake IMPORTED_LOCATION)
   get_filename_component(_qt_bin_dir "${_qmake_executable}" DIRECTORY)
   find_program(MACDEPLOYQT_EXECUTABLE macdeployqt HINTS "${_qt_bin_dir}")
@@ -102,13 +97,8 @@ elseif (APPLE)
     COMMENT "Running macdeployqt..."
     )
 elseif (UNIX)
-  set(CPACK_DEBIAN_PACKAGE_MAINTAINER "Daniel A. Wagenaar <daw@caltech.edu>")
-  set(CPACK_DEBIAN_PACKAGE_RELEASE "1")
-  set(CPACK_DEBIAN_FILE_NAME DEB-DEFAULT)
-  # Use my "concise-deps" to figure out minimal list of dependencies
-  set(CPACK_DEBIAN_PACKAGE_DEPENDS "libqt5widgets5 (>= 5.12), libqt5svg5 (>= 5.12), libqt5printsupport5 (>= 5.12), libqt5webkit5 (>= 5.12), libstdc++6 (>=10.0)")
-  set(CPACK_DEBIAN_PACKAGE_SECTION "editors")
-  set(CPACK_DEBIAN_PACKAGE_HOMEPAGE "${PROJECT_HOMEPAGE_URL}")
+  include(UnixInstall.CMakeLists.txt)
+  include(DebPack.CMakeLists.txt)
 endif()
 
 # Packaging

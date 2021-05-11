@@ -50,10 +50,11 @@ namespace UserInfo {
 //#include <Lmcons.h>
 #define SECURITY_WIN32
 #include <security.h>
+#include <secext.h>
 
 namespace UserInfo {
   QString fullName() {
-    TCHAR username[1024];
+    WCHAR username[1024];
     DWORD username_len = 1023;
     if (GetUserNameExW(NameDisplay, username, &username_len))
       return QString::fromWCharArray(username);
