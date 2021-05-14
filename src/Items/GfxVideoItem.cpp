@@ -19,13 +19,14 @@
 #include "GfxVideoItem.h"
 #include "GfxVideoData.h"
 #include "Mode.h"
-
+#include <QGraphicsScene>
 #include <QGraphicsSceneMouseEvent>
 #include <QGraphicsSceneHoverEvent>
 #include <QKeyEvent>
 #include "ResManager.h"
 #include <QGraphicsVideoItem>
 #include <QMediaPlayer>
+#include "ToolItem.h"
 
 static Item::Creator<GfxVideoData, GfxVideoItem> c("gfxvideo");
 
@@ -34,6 +35,14 @@ GfxVideoItem::GfxVideoItem(GfxVideoData *data, Item *parent):
   setCropAllowed(false);
   player = 0;
   vidmap = 0;
+  playbutton = new ToolItem();
+  playbutton->setSvg(":icons/video-play.svg");
+  playbutton->setParentItem(this);
+  playbutton->setZValue(100);
+  playbutton->setAlpha(0.6);
+  repositionPlayButton();
+  connect(playbutton, &ToolItem::leftClick,
+          [this]() { playVideo(); });
 
   ResManager *resmgr = data->resManager();
   if (!resmgr) {
@@ -81,13 +90,11 @@ void GfxVideoItem::loadVideo() {
             [](QMediaPlayer::Error error) {
               qDebug() << "player error" << error;
             });
-    connect(player, &QMediaPlayer::mediaStatusChanged,
-            [this](QMediaPlayer::MediaStatus status) {
-              qDebug() << "player mediastatus" << status;
-            });
-    connect(player, &QMediaPlayer::mediaChanged,
-            [](QMediaContent const &cont) {
-              qDebug() << "player media changed";
+    connect(player, &QMediaPlayer::stateChanged,
+            [this](QMediaPlayer::State state) {
+              qDebug() << "player state" << state;
+              if (state==QMediaPlayer::StoppedState)
+                playbutton->show();
             });
   }
 }
@@ -106,10 +113,12 @@ void GfxVideoItem::playVideo() {
   qDebug() << "pixmap size" << pixmap->boundingRect();
   qDebug() << "vidmap size" << vidmap->boundingRect();
   vidmap->setSize(pixmap->boundingRect().size());
+  playbutton->hide();
   player->play();
 }
 
 void GfxVideoItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
+  qDebug() << playbutton->boundingRect() << playbutton->pos() << playbutton->isVisible();
   // click starts the video in certain modes, unless shift or control is held
   if ((mode()->mode()==Mode::Browse || mode()->mode()==Mode::Type)
       && !(e->modifiers() & (Qt::ControlModifier | Qt::ShiftModifier))) {
@@ -118,4 +127,22 @@ void GfxVideoItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
   } else {
     GfxImageItem::mousePressEvent(e);
   }
+}
+
+void GfxVideoItem::repositionPlayButton(double s) { 
+  if (s<=0) 
+    s = data()->scale();
+  double x = 0;
+  double y = data()->height();
+  QRectF r = playbutton->boundingRect();
+  x += 1/s*r.width()*.1;
+  y -= 1/s*r.height()*1.1;
+  playbutton->setScale(1/s);
+  playbutton->setPos(x, y);
+  qDebug() << "gvi scale" << x << y << s << r.width() << r.height();
+}
+
+void GfxVideoItem::setScale(double s) {
+  GfxImageItem::setScale(s);
+  repositionPlayButton(s);
 }

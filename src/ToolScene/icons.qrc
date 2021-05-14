@@ -21,6 +21,8 @@
      <file>icons/nav-n10.svg</file>
      <file>icons/nav-end.svg</file>
 
+     <file>icons/video-play.svg</file>
+
      <file>icons/crosshair.png</file>
  </qresource>
 </RCC>

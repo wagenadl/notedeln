@@ -38,6 +38,7 @@ public:
   virtual void paintContents(QPainter *);
   virtual void paint(QPainter *, const QStyleOptionGraphicsItem *, QWidget *);
   virtual QRectF boundingRect() const;
+  void setAlpha(double a);
 signals:
   void leftClick(Qt::KeyboardModifiers);
   void rightClick(Qt::KeyboardModifiers);
@@ -63,6 +64,7 @@ private:
   QString helpText;
   QPointF popupPos;
   QPointer<QGraphicsObject> balloon;
+  double alpha;
 };
 
 #endif

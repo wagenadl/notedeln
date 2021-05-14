@@ -29,14 +29,17 @@ public:
   GfxVideoItem(GfxVideoData *data, Item *parent=0);
   virtual ~GfxVideoItem();
   DATAACCESS(GfxVideoData);
+  virtual void setScale(double);
 protected:
   virtual void mousePressEvent(QGraphicsSceneMouseEvent *);
 private:
   void loadVideo();
   void playVideo();
+  void repositionPlayButton(double s=-1);
 private:
   class QMediaPlayer *player;
   class QGraphicsVideoItem *vidmap;
+  class ToolItem *playbutton;
 };
 
 #endif

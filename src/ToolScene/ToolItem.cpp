@@ -36,6 +36,7 @@
 #define SHRINK 1
 
 ToolItem::ToolItem(): QGraphicsObject() {
+  alpha = 1;
   popupDelay = 0;
   balloon = 0;
   svg = 0;
@@ -86,7 +87,9 @@ QRectF ToolItem::boundingRect() const {
 
 void ToolItem::paintContents(QPainter *p) {
   if (!isEnabled())
-    p->setOpacity(0.25);
+    p->setOpacity(0.25*alpha);
+  else
+    p->setOpacity(alpha);
   if (svg) 
     svg->render(p, boundingRect());
 }
@@ -99,9 +102,9 @@ void ToolItem::setBalloonHelpText(QString txt) {
 
 void ToolItem::paint(QPainter *p, const QStyleOptionGraphicsItem *, QWidget *) {
   QColor blk("black");
-  blk.setAlphaF(0.25);
+  blk.setAlphaF(.25*alpha);
   QColor wht("white");
-  wht.setAlphaF(0.5);
+  wht.setAlphaF(.5*alpha);
 
   if (sel) {  
     p->setPen(Qt::NoPen);
@@ -260,4 +263,9 @@ void ToolItem::popup() {
   shadow->setColor("black");
   rect->setGraphicsEffect(shadow);
   balloon->setPos(mapToScene(popupPos + QPointF(10, 10)));
+}
+
+void ToolItem::setAlpha(double a) {
+  alpha = a;
+  update();
 }
