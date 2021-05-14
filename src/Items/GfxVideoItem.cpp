@@ -63,7 +63,6 @@ GfxVideoItem::GfxVideoItem(GfxVideoData *data, Item *parent):
     return;
   }
   image.load(res->previewPath());
-  qDebug() << "VideoItem loaded image" << image.size();
   pixmap->setPixmap(QPixmap::fromImage(image));
 }
 
@@ -131,8 +130,6 @@ void GfxVideoItem::playVideo() {
     }
   }
   loadVideo();
-  qDebug() << "pixmap size" << pixmap->boundingRect();
-  qDebug() << "vidmap size" << vidmap->boundingRect();
   vidmap->setSize(pixmap->boundingRect().size());
   player->play();
 }
@@ -154,8 +151,8 @@ void GfxVideoItem::repositionAnnotation(double s) {
   double x = 0;
   double y = data()->height();
   QRectF r = annotation->boundingRect();
-  x += 1/s*r.height()*.1;
-  y -= 1/s*r.height()*1.1;
+  //x += 1/s*r.height()*.1;
+  y -= 1/s*r.height()*1.;
   annotation->setScale(1/s);
   annotation->setPos(x, y);
 }
@@ -165,24 +162,7 @@ void GfxVideoItem::setScale(double s) {
   repositionAnnotation(s);
 }
 
-void GfxVideoItem::showTime() {
-  QMediaPlayer::State state = player ? player->state()
-    : QMediaPlayer::StoppedState;
-  double t_s = data()->dur();
-  if (player) {
-    if (state==QMediaPlayer::StoppedState) {
-      if (player->duration()>0)
-        t_s = player->duration()/1000.0;
-    } else {
-      t_s = player->position()/1000.0;
-    }
-  }
-
-  if (t_s==0 && state==QMediaPlayer::StoppedState) {
-    annotation->setPlainText("▶"); // big version
-    return;
-  }
-
+static QString hms(double t_s) {
   int h = t_s/3600;
   t_s -= h*3600;
   int m = t_s/60;
@@ -190,17 +170,38 @@ void GfxVideoItem::showTime() {
   int s = t_s;
   t_s -= s;
   int ds = t_s*10;
-  QString t = state==QMediaPlayer::PausedState ? "⏸"
-    : state==QMediaPlayer::PlayingState ? "⏵"
-    : neverplayed ? "▶"
-    : "▶"; // "⏹";
-  t += " ";
-  
+
+  QString t;
   if (h)
     t += QString("%1:").arg(h);
   t += QString("%1:%2.%3")
     .arg(m, h ? 2 : 1, 10, QChar('0'))
     .arg(s, 2, 10, QChar('0'))
     .arg(ds);
-  annotation->setPlainText(t);
+  return t;
+}
+
+void GfxVideoItem::showTime() {
+  QMediaPlayer::State state = player ? player->state()
+    : QMediaPlayer::StoppedState;
+
+  double dur_s = data()->dur();
+  if (player && player->duration()>0)
+    dur_s = player->duration()/1000.0;
+
+  double pos_s = 0;
+  if (player && state!=QMediaPlayer::StoppedState)
+    pos_s = player->position()/1000.0;
+
+
+  if (dur_s==0 && pos_s==0) {
+    annotation->setPlainText("▶"); // big version
+    return;
+  }
+
+  QString txt = state==QMediaPlayer::PausedState ? "⏸"
+    : state==QMediaPlayer::PlayingState ? "⏵"
+    : "⏹";
+
+  annotation->setPlainText(txt + " " + hms(pos_s) + " / " + hms(dur_s));
 }
