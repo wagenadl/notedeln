@@ -37,6 +37,7 @@ GfxVideoItem::GfxVideoItem(GfxVideoData *data, Item *parent):
   setCropAllowed(false);
   player = 0;
   vidmap = 0;
+  neverplayed = true;
   annotation = new QGraphicsTextItem("▶");
   showTime();
   annotation->setFont(style().font("text-font"));
@@ -119,6 +120,7 @@ void GfxVideoItem::loadVideo() {
 }
 
 void GfxVideoItem::playVideo() {
+  neverplayed = false;
   if (player) {
     if (player->state() == QMediaPlayer::PausedState) {
       player->play();
@@ -177,7 +179,7 @@ void GfxVideoItem::showTime() {
   }
 
   if (t_s==0 && state==QMediaPlayer::StoppedState) {
-    annotation->setPlainText("⏵");
+    annotation->setPlainText("▶"); // big version
     return;
   }
 
@@ -188,9 +190,10 @@ void GfxVideoItem::showTime() {
   int s = t_s;
   t_s -= s;
   int ds = t_s*10;
-  QString t = state==QMediaPlayer::StoppedState ? "⏹"
+  QString t = state==QMediaPlayer::PausedState ? "⏸"
     : state==QMediaPlayer::PlayingState ? "⏵"
-    : "⏸";
+    : neverplayed ? "▶"
+    : "▶"; // "⏹";
   t += " ";
   
   if (h)
