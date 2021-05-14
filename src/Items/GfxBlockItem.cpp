@@ -26,7 +26,9 @@
 #include "ResManager.h"
 #include "TextItem.h"
 #include "GfxImageData.h"
+#include "GfxVideoData.h"
 #include "GfxImageItem.h"
+#include "GfxVideoItem.h"
 #include "GfxNoteData.h"
 #include "GfxNoteItem.h"
 #include <math.h>
@@ -87,6 +89,34 @@ Item *GfxBlockItem::newImage(QImage img, QUrl src, QPointF pos) {
   gid->setScale(scale);
   gid->setPos(pos);
   GfxImageItem *gii = new GfxImageItem(gid, this);
+  gii->makeWritable();
+  resetPosition();
+  sizeToFit();
+  return gii;
+}
+
+Item *GfxBlockItem::newVideo(QImage img, QUrl src, QPointF pos) {
+  qDebug() << "GfxBlockItem::newVideo";
+  ASSERT(data()->book());
+  ASSERT(data()->resManager());
+  double maxW = availableWidth();
+  double maxH = maxW;
+  double scale = 1;
+  if (scale*img.width()>maxW)
+    scale = maxW/img.width();
+  if (scale*img.height()>maxH)
+    scale = maxH/img.height();
+  if (allChildren().isEmpty())
+    pos = QPointF(0, 0);
+  else
+    pos -= QPointF(img.width(),img.height())*(scale/2);
+  pos = constrainPointToRect(pos, boundingRect());
+  Resource *res = data()->resManager()->importVideo(img, src);
+  QString resname = res->tag();
+  GfxVideoData *gid = new GfxVideoData(resname, img, data());
+  gid->setScale(scale);
+  gid->setPos(pos);
+  GfxVideoItem *gii = new GfxVideoItem(gid, this);
   gii->makeWritable();
   resetPosition();
   sizeToFit();

@@ -86,6 +86,8 @@ private:
   void remap();
   bool importDroppedImage(QPointF scenePos, int sheet,
 			  QImage const &img, class QUrl const &source);
+  bool importDroppedVideo(QPointF scenePos, int sheet,
+			  QImage const &img, class QUrl const &source);
   bool importDroppedUrls(QPointF scenePos, int sheet,
 			 QList<class QUrl> const &url,
                          class TextItem *fi=0);

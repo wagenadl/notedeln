@@ -18,6 +18,7 @@
 
 #include "GfxImageItem.h"
 #include "GfxImageData.h"
+#include "GfxVideoData.h"
 #include "EntryScene.h"
 #include "Mode.h"
 #include "GfxNoteData.h"
@@ -48,7 +49,8 @@ GfxImageItem::GfxImageItem(GfxImageData *data, Item *parent):
   pixmap->setAcceptedMouseButtons(0);
 
   dragType = None;
-
+  cropallowed = true;
+  
   // get the image, crop it, etc.
   ResManager *resmgr = data->resManager();
   if (!resmgr) {
@@ -60,23 +62,25 @@ GfxImageItem::GfxImageItem(GfxImageData *data, Item *parent):
     qDebug() << "GfxImageItem: missing resource" << data->resName();
     return;
   }
-  constexpr int SIZETHRESHOLD = 100000;
-  if (data->width() * data->height() > SIZETHRESHOLD) {
-    ImageLoader *ldr = new ImageLoader;
-    connect(ldr, &ImageLoader::loaded,
-	    this, &GfxImageItem::setImage);
-    image = QImage(data->width(), data->height(), QImage::Format_RGB32);
-    image.fill(QColor(255, 255, 200)); // pale yellow during loading
-    ldr->loadThenDelete(res->archivePath());
-  } else {
-    if (!image.load(res->archivePath())) {
-      qDebug() << "GfxImageItem: image load failed for " << data->resName()
-	       << res->archivePath();
+  if (!dynamic_cast<GfxVideoData*>(data)) {
+    constexpr int SIZETHRESHOLD = 100000;
+    if (data->width() * data->height() > SIZETHRESHOLD) {
+      ImageLoader *ldr = new ImageLoader;
+      connect(ldr, &ImageLoader::loaded,
+              this, &GfxImageItem::setImage);
       image = QImage(data->width(), data->height(), QImage::Format_RGB32);
-      image.fill(QColor(255, 50, 50)); // pink-grey for failed to load
+      image.fill(QColor(255, 255, 200)); // pale yellow during loading
+      ldr->loadThenDelete(res->archivePath());
+    } else {
+      if (!image.load(res->archivePath())) {
+        qDebug() << "GfxImageItem: image load failed for " << data->resName()
+                 << res->archivePath();
+        image = QImage(data->width(), data->height(), QImage::Format_RGB32);
+        image.fill(QColor(255, 50, 50)); // pink-grey for failed to load
+      }
     }
+    pixmap->setPixmap(QPixmap::fromImage(image.copy(data->cropRect().toRect())));
   }
-  pixmap->setPixmap(QPixmap::fromImage(image.copy(data->cropRect().toRect())));
   setScale(data->scale());
   setPos(data->pos());
   pixmap->setPos(data->cropRect().topLeft());
@@ -104,7 +108,6 @@ void GfxImageItem::mouseMoveEvent(QGraphicsSceneMouseEvent *e) {
   QPointF ppos = mapToParent(e->pos());
   switch (dragType) {
   case None:
-    qDebug() << " Nonmove!?";
     break;
   case Move:
     setPos(data()->pos() + moveDelta(e));
@@ -306,13 +309,13 @@ GfxImageItem::DragType GfxImageItem::dragTypeForPoint(QPointF p) const {
     return ResizeTopRight;
   else if (x/w > .75 && y/h > .75)
     return ResizeBottomRight;
-  else if (x/w < .15)
+  else if (x/w < .15 && cropallowed)
     return CropLeft;
-  else if (x/w > .85)
+  else if (x/w > .85 && cropallowed)
     return CropRight;
-  else if (y/h < .15)
+  else if (y/h < .15 && cropallowed)
     return CropTop;
-  else if (y/h > .85)
+  else if (y/h > .85 && cropallowed)
     return CropBottom;
   else
     return Move;
@@ -384,4 +387,8 @@ void GfxImageItem::setImage(QImage img) {
   image = img;
   QImage crop(image.copy(data()->cropRect().toRect()));
   pixmap->setPixmap(QPixmap::fromImage(crop));
+}
+
+void GfxImageItem::setCropAllowed(bool a) {
+  cropallowed = a;
 }

@@ -35,7 +35,7 @@ GfxImageData::GfxImageData(Data *parent): GfxData(parent) {
   cropRight_ = 0;
 }
 
-GfxImageData::GfxImageData(QString resName, QImage img, Data *parent):
+GfxImageData::GfxImageData(QString resName, QImage const &img, Data *parent):
   GfxData(parent) {
   setType("gfximage");
   attachResource(resName);

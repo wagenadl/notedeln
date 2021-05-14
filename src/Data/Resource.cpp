@@ -109,7 +109,7 @@ void Resource::setRoot(QDir d) {
 }
 
 bool Resource::hasArchive() const {
-  return !arch.isEmpty() && dir.exists(arch) && !loader;
+  return !arch.isEmpty() && dir.exists(arch); // && !loader;
 }
 
 bool Resource::needsArchive() const {
@@ -241,6 +241,18 @@ bool Resource::importImage(QImage img) {
   markModified();
   return ok;
 }
+
+void Resource::setPreviewImage(QImage img) {
+  ensureArchiveFilename();
+  if (prev.isEmpty())
+    setPreviewFilename(safeBaseName(tag_) + "-" + uuid() + "p.png");
+  ensureDir();
+  qDebug() << "setpreviewimage" << img.size();
+  if (!img.isNull())
+    img.save(previewPath());
+  qDebug() << "image saved";
+}
+  
 
 void Resource::getArchiveAndPreview() {
   qDebug() << "getarchiveandpreview for " << tag_ << loader

@@ -56,6 +56,16 @@ Resource *ResManager::importImage(QImage img, QUrl source) {
   return res;
 }
 
+Resource *ResManager::importVideo(QImage keyimg, QUrl source) {
+  Resource *res = newResource();
+  res->setSourceURL(source);
+  res->setPreviewImage(keyimg);
+  qDebug() << "importvideo" << keyimg.size() << source;
+  res->getArchiveAndPreview();
+
+  return res;
+}
+
 Resource *ResManager::getArchiveAndPreview(QUrl source, QString altRes) {
   Resource *res = newResource(altRes);
   res->setSourceURL(source);

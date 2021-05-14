@@ -43,7 +43,7 @@
 #include "GfxNoteData.h"
 #include "TableItem.h"
 #include "LateNoteManager.h"
-
+#include "VideoFile.h"
 #include "SvgFile.h"
 #include "Restacker.h"
 #include "Cursors.h"
@@ -1068,6 +1068,25 @@ bool EntryScene::importDroppedSvg(QPointF scenePos, int sheet,
     return importDroppedImage(scenePos, sheet, img, source);
 }
 
+bool EntryScene::importDroppedVideo(QPointF scenePos, int sheet,
+				    QImage const &img, QUrl const &source) {
+  qDebug() << "importdroppedvideo";
+  QPointF pdest(0,0);
+  
+  int i = findBlock(scenePos, sheet);
+  GfxBlockItem *gdst = (i>=0) ? dynamic_cast<GfxBlockItem*>(blockItems[i]) : 0;
+  if (gdst) 
+    pdest = gdst->mapFromScene(scenePos);
+  // else if (i>=0 && i+1<blockItems.size())
+  //   gdst = dynamic_cast<GfxBlockItem*>(blockItems[i+1]);
+  if (!gdst)
+    gdst = newGfxBlockAt(scenePos, sheet);
+
+  gdst->newVideo(img, source, pdest);
+  gotoSheetOfBlock(findBlock(gdst));
+  return true;
+}
+
 bool EntryScene::importDroppedImage(QPointF scenePos, int sheet,
 				    QImage const &img, QUrl const &source) {
   // Return true if we want it
@@ -1128,14 +1147,29 @@ bool EntryScene::importDroppedUrl(QPointF scenePos, int sheet,
     QString path = url.toLocalFile();
     if (path.endsWith(".svg")) 
       return importDroppedSvg(scenePos, sheet, url);
+
     QImage image = QImage(path);
-    if (!image.isNull())
+    if (!image.isNull()) 
       return importDroppedImage(scenePos, sheet, image, url);
-    else 
-      return importDroppedFile(scenePos, sheet, path);
+
+    if (VideoFile::plausiblyVideo(url)) {
+      qDebug() << "plausible video";
+      VideoFile vf(url);
+      if (vf.checkValidity()) 
+        return importDroppedVideo(scenePos, sheet, vf.keyImage(), url);
+    }
+    return importDroppedFile(scenePos, sheet, path);
   } else {
-    // Right now, we import all network urls as text
-    return importDroppedText(scenePos, sheet, url.toString(), 0, 0, 0, fi);
+    // Right now, we import all network urls as text, which becomes a link
+    // This should be reconsidered if the network url points to an image
+    // or video
+    int start, end;
+    TextItem *ti;
+    if (!importDroppedText(scenePos, sheet, url.toString(),
+                           &ti, &start, &end, fi))
+      return false;
+    ti->addMarkup(MarkupData::Link, start, end);
+    return true;
   }
   return false;
 }

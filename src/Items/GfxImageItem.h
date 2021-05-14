@@ -41,6 +41,7 @@ public:
   virtual GfxNoteItem *newGfxNote(QPointF p0, QPointF p1);   
   virtual Qt::CursorShape cursorShape(Qt::KeyboardModifiers) const;
   virtual bool changesCursorShape() const;
+  void setCropAllowed(bool); // default is true
 protected:
   virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *);
   virtual void mousePressEvent(QGraphicsSceneMouseEvent *);
@@ -68,14 +69,16 @@ private:
 private slots:
   void setImage(QImage img);
 private:
-  QImage image; // not cropped
   DragType dragType;
   QPointF dragStart; // in parent block's coordinates
   Qt::CursorShape oldCursor;
   QPointF cursorPos;
   QRectF cropStart; // in parent block's coordinates
-  QRectF imStart; // in parent block's coordinates
   QRect dragCrop;
+  QRectF imStart; // in parent block's coordinates
+  bool cropallowed;
+protected:
+  QImage image; // not cropped
   QGraphicsPixmapItem *pixmap;
 };
 

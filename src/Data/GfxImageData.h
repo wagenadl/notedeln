@@ -39,7 +39,7 @@ class GfxImageData: public GfxData {
   */
 public:
   GfxImageData(Data *parent=0);
-  GfxImageData(QString resName, QImage img, Data *parent=0);
+  GfxImageData(QString resName, QImage const &img, Data *parent=0);
   virtual ~GfxImageData();
 public:
   // read properties

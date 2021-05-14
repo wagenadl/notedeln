@@ -287,6 +287,7 @@ void SheetScene::dragEnterEvent(QGraphicsSceneDragDropEvent *e) {
   qDebug() << "SheetScene::dragEnterEvent: has image?" << md->hasImage()
 	   << "hasurl?" << md->hasUrls()
 	   << "hastext?" << md->hasText()
+           << "formats" << md->formats()
 	   << "has base?" << base
 	   << "iswritable" << (base && base->isWritable())
 	   << "proposed" << e->proposedAction();

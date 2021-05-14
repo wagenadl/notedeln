@@ -104,6 +104,8 @@ public: // functions to do with actually acquiring a resource
      for this resource. Returns true if successful.
      Requires TAG and ROOT to be set first.
   */
+  void setPreviewImage(QImage);
+  /* SETPREVIEWIMAGE - Stores given image as preview */
   void getArchiveAndPreview();
   /* GETARCHIVEANDPREVIEW - Request that archival copy be downloaded
      GETARCHIVEANDPREVIEW() starts downloading of the resource. Completes in

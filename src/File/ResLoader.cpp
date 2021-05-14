@@ -53,7 +53,10 @@ void ResLoader::start() {
     emit finished();
     return;
   }
-  startDownload();
+  if (parentRes->hasArchive())
+    downloadFinished();
+  else
+    startDownload();
 } 
 
 void ResLoader::startDownload() {
@@ -83,7 +86,7 @@ void ResLoader::downloadFinished() {
   if (ok || err) // already finished
     return;
 
-  if (downloader->isFailed()) {
+  if (downloader && downloader->isFailed()) {
     qDebug() << "ResLoader " << src.toString()
              << ": downloader error" << downloader->error();
     err = true;
@@ -97,7 +100,7 @@ void ResLoader::downloadFinished() {
     return;
   }
 
-  if (downloader->source() != src) {
+  if (downloader && downloader->source() != src) {
     src = downloader->source();
     parentRes->setSourceURL(src);
   }

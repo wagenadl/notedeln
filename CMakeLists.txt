@@ -28,7 +28,9 @@ endif()
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
-find_package(Qt5 COMPONENTS Widgets Network Svg PrintSupport REQUIRED)
+find_package(Qt5
+  COMPONENTS Widgets Network Svg PrintSupport Multimedia MultimediaWidgets
+  REQUIRED)
 
 ######################################################################
 # Add the executables
@@ -43,14 +45,11 @@ target_link_libraries(notedeln Qt5::Widgets)
 target_link_libraries(notedeln Qt5::Network)
 target_link_libraries(notedeln Qt5::Svg)
 target_link_libraries(notedeln Qt5::PrintSupport)
+target_link_libraries(notedeln Qt5::Multimedia)
+target_link_libraries(notedeln Qt5::MultimediaWidgets)
 
 if (WIN32)
   target_link_libraries(notedeln secur32.lib)
-endif()
-
-if (UNIX)
-  set_target_properties(notedeln PROPERTIES LINK_OPTIONS -s)
-  set_target_properties(webgrab PROPERTIES LINK_OPTIONS -s)
 endif()
 
 # Produce configuration files
