@@ -24,10 +24,16 @@
 
 class GfxVideoData: public GfxImageData {
   Q_OBJECT;
+  Q_PROPERTY(double dur READ dur WRITE setDur) // in seconds, 0 ≡ invalid
 public:
   GfxVideoData(Data *parent=0);
-  GfxVideoData(QString resName, QImage const &keyimg, Data *parent=0);
+  GfxVideoData(QString resName, QImage const &keyimg, double dur,
+               Data *parent=0);
   virtual ~GfxVideoData();
+  void setDur(double);
+  double dur() const;
+private:
+  double dur_;
 };
 
 #endif

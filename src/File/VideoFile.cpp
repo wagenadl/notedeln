@@ -71,6 +71,12 @@ bool VideoFile::checkValidity() {
                      s = s1;
                      el.exit();
                    });
+  dur = mp.duration();
+  QObject::connect(&mp, &QMediaPlayer::durationChanged,
+            [this](int t_ms) {
+              dur = t_ms / 1000.0;
+            });
+  
   mp.play();
   QTimer tm;
   QObject::connect(&tm, &QTimer::timeout,
@@ -100,3 +106,6 @@ bool VideoFile::plausiblyVideo(QUrl url) {
 }
 
       
+double VideoFile::duration() const {
+  return dur;
+}

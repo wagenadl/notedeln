@@ -1068,7 +1068,8 @@ bool EntryScene::importDroppedSvg(QPointF scenePos, int sheet,
 }
 
 bool EntryScene::importDroppedVideo(QPointF scenePos, int sheet,
-				    QImage const &img, QUrl const &source) {
+				    QImage const &img, double dur,
+                                    QUrl const &source) {
   QPointF pdest(0,0);
   
   int i = findBlock(scenePos, sheet);
@@ -1080,7 +1081,7 @@ bool EntryScene::importDroppedVideo(QPointF scenePos, int sheet,
   if (!gdst)
     gdst = newGfxBlockAt(scenePos, sheet);
 
-  gdst->newVideo(img, source, pdest);
+  gdst->newVideo(img, dur, source, pdest);
   gotoSheetOfBlock(findBlock(gdst));
   return true;
 }
@@ -1153,7 +1154,8 @@ bool EntryScene::importDroppedUrl(QPointF scenePos, int sheet,
     if (VideoFile::plausiblyVideo(url)) {
       VideoFile vf(url);
       if (vf.checkValidity()) 
-        return importDroppedVideo(scenePos, sheet, vf.keyImage(), url);
+        return importDroppedVideo(scenePos, sheet,
+                                  vf.keyImage(), vf.duration(), url);
     }
     return importDroppedFile(scenePos, sheet, path);
   } else {

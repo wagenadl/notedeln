@@ -27,7 +27,9 @@
 #include <QGraphicsVideoItem>
 #include <QMediaPlayer>
 #include "ToolItem.h"
-
+#include <QGraphicsTextItem>
+#include <QGraphicsDropShadowEffect>
+  
 static Item::Creator<GfxVideoData, GfxVideoItem> c("gfxvideo");
 
 GfxVideoItem::GfxVideoItem(GfxVideoData *data, Item *parent):
@@ -35,14 +37,19 @@ GfxVideoItem::GfxVideoItem(GfxVideoData *data, Item *parent):
   setCropAllowed(false);
   player = 0;
   vidmap = 0;
-  playbutton = new ToolItem();
-  playbutton->setSvg(":icons/video-play.svg");
-  playbutton->setParentItem(this);
-  playbutton->setZValue(100);
-  playbutton->setAlpha(0.6);
-  repositionPlayButton();
-  connect(playbutton, &ToolItem::leftClick,
-          [this]() { playVideo(); });
+  annotation = new QGraphicsTextItem("▶");
+  showTime();
+  annotation->setFont(style().font("text-font"));
+  annotation->setDefaultTextColor(QColor(255,255,128)); //style().color("text-color"));
+  QGraphicsDropShadowEffect *eff = new QGraphicsDropShadowEffect;
+  eff->setColor(QColor(0,0,0));
+  eff->setOffset(QPointF(0, 0));
+  eff->setBlurRadius(6);
+  annotation->setGraphicsEffect(eff);
+
+  annotation->setParentItem(this);
+  annotation->setZValue(100);
+  repositionAnnotation();
 
   ResManager *resmgr = data->resManager();
   if (!resmgr) {
@@ -92,10 +99,22 @@ void GfxVideoItem::loadVideo() {
             });
     connect(player, &QMediaPlayer::stateChanged,
             [this](QMediaPlayer::State state) {
-              qDebug() << "player state" << state;
-              if (state==QMediaPlayer::StoppedState)
-                playbutton->show();
+              showTime();
             });
+    connect(player, &QMediaPlayer::durationChanged,
+            [this](int t_ms) {
+              if (t_ms>0 && data()->isWritable())
+                data()->setDur(t_ms/1000.0);
+              showTime();
+            });
+    connect(player, &QMediaPlayer::positionChanged,
+            [this](int t_ms) {
+              showTime();
+            });
+    player->setNotifyInterval(100);
+    if (data()->dur()==0 && data()->isWritable())
+      data()->setDur(player->duration()/1000.0);
+    showTime();
   }
 }
 
@@ -113,12 +132,10 @@ void GfxVideoItem::playVideo() {
   qDebug() << "pixmap size" << pixmap->boundingRect();
   qDebug() << "vidmap size" << vidmap->boundingRect();
   vidmap->setSize(pixmap->boundingRect().size());
-  playbutton->hide();
   player->play();
 }
 
 void GfxVideoItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
-  qDebug() << playbutton->boundingRect() << playbutton->pos() << playbutton->isVisible();
   // click starts the video in certain modes, unless shift or control is held
   if ((mode()->mode()==Mode::Browse || mode()->mode()==Mode::Type)
       && !(e->modifiers() & (Qt::ControlModifier | Qt::ShiftModifier))) {
@@ -129,20 +146,58 @@ void GfxVideoItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
   }
 }
 
-void GfxVideoItem::repositionPlayButton(double s) { 
+void GfxVideoItem::repositionAnnotation(double s) { 
   if (s<=0) 
     s = data()->scale();
   double x = 0;
   double y = data()->height();
-  QRectF r = playbutton->boundingRect();
-  x += 1/s*r.width()*.1;
+  QRectF r = annotation->boundingRect();
+  x += 1/s*r.height()*.1;
   y -= 1/s*r.height()*1.1;
-  playbutton->setScale(1/s);
-  playbutton->setPos(x, y);
-  qDebug() << "gvi scale" << x << y << s << r.width() << r.height();
+  annotation->setScale(1/s);
+  annotation->setPos(x, y);
 }
 
 void GfxVideoItem::setScale(double s) {
   GfxImageItem::setScale(s);
-  repositionPlayButton(s);
+  repositionAnnotation(s);
+}
+
+void GfxVideoItem::showTime() {
+  QMediaPlayer::State state = player ? player->state()
+    : QMediaPlayer::StoppedState;
+  double t_s = data()->dur();
+  if (player) {
+    if (state==QMediaPlayer::StoppedState) {
+      if (player->duration()>0)
+        t_s = player->duration()/1000.0;
+    } else {
+      t_s = player->position()/1000.0;
+    }
+  }
+
+  if (t_s==0 && state==QMediaPlayer::StoppedState) {
+    annotation->setPlainText("⏵");
+    return;
+  }
+
+  int h = t_s/3600;
+  t_s -= h*3600;
+  int m = t_s/60;
+  t_s -= m*60;
+  int s = t_s;
+  t_s -= s;
+  int ds = t_s*10;
+  QString t = state==QMediaPlayer::StoppedState ? "⏹"
+    : state==QMediaPlayer::PlayingState ? "⏵"
+    : "⏸";
+  t += " ";
+  
+  if (h)
+    t += QString("%1:").arg(h);
+  t += QString("%1:%2.%3")
+    .arg(m, h ? 2 : 1, 10, QChar('0'))
+    .arg(s, 2, 10, QChar('0'))
+    .arg(ds);
+  annotation->setPlainText(t);
 }

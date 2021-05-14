@@ -35,11 +35,13 @@ protected:
 private:
   void loadVideo();
   void playVideo();
-  void repositionPlayButton(double s=-1);
+  void repositionAnnotation(double s=0);
+  void showTime();
 private:
   class QMediaPlayer *player;
   class QGraphicsVideoItem *vidmap;
-  class ToolItem *playbutton;
+  //  class ToolItem *playbutton;
+  class QGraphicsTextItem *annotation;
 };
 
 #endif

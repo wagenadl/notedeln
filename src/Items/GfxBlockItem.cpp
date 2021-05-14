@@ -94,7 +94,7 @@ Item *GfxBlockItem::newImage(QImage img, QUrl src, QPointF pos) {
   return gii;
 }
 
-Item *GfxBlockItem::newVideo(QImage img, QUrl src, QPointF pos) {
+Item *GfxBlockItem::newVideo(QImage img, double dur, QUrl src, QPointF pos) {
   ASSERT(data()->book());
   ASSERT(data()->resManager());
   double maxW = availableWidth();
@@ -111,7 +111,7 @@ Item *GfxBlockItem::newVideo(QImage img, QUrl src, QPointF pos) {
   pos = constrainPointToRect(pos, boundingRect());
   Resource *res = data()->resManager()->importVideo(img, src);
   QString resname = res->tag();
-  GfxVideoData *gid = new GfxVideoData(resname, img, data());
+  GfxVideoData *gid = new GfxVideoData(resname, img, dur, data());
   gid->setScale(scale);
   gid->setPos(pos);
   GfxVideoItem *gii = new GfxVideoItem(gid, this);

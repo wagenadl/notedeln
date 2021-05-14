@@ -31,7 +31,7 @@ public:
   GfxBlockItem(GfxBlockData *data, Item *parent=0);
   virtual ~GfxBlockItem();
   DATAACCESS(GfxBlockData);
-  Item *newVideo(QImage keyimg, QUrl src, QPointF xy);
+  Item *newVideo(QImage keyimg, double dur, QUrl src, QPointF xy);
   Item *newImage(QImage img, QUrl src, QPointF xy);
   void paint(QPainter *, const QStyleOptionGraphicsItem *, QWidget *);
   QRectF boundingRect() const;

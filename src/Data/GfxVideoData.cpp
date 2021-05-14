@@ -24,14 +24,28 @@ static Data::Creator<GfxVideoData> c("gfxvideo");
 
 GfxVideoData::GfxVideoData(Data *parent): GfxImageData(parent) {
   setType("gfxvideo");
+  dur_ = 0;
 }
 
 GfxVideoData::GfxVideoData(QString resName,
                            QImage const &keyimg,
+                           double dur,
                            Data *parent):
   GfxImageData(resName, keyimg, parent) {
   setType("gfxvideo");
+  dur_ = dur;
 }
 
 GfxVideoData::~GfxVideoData() {
+}
+
+void GfxVideoData::setDur(double t_s) {
+  if (dur_==t_s)
+    return;
+  dur_ = t_s;
+  markModified();
+}
+
+double GfxVideoData::dur() const {
+  return dur_;
 }
