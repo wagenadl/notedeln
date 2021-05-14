@@ -87,7 +87,6 @@ int BlockItem::countReferences(QString txt) const {
 void BlockItem::refTextChange(QString olds, QString news) {
   int nOldRefs = countReferences(olds);
   int nNewRefs = countReferences(news);
-  qDebug() << "BI: reftxtchg" << olds << news << nOldRefs << nNewRefs;
   // nOldRefs is *other* refs; the change must already have been made
   // nNewRefs is other refs plus the one that just changed
   ASSERT(news.isEmpty() || nNewRefs>0);
@@ -216,7 +215,6 @@ void BlockItem::futileMovementFromFootnote() {
     if (prevfocus != "") {
       Item *src = findDescendant(prevfocus);
       if (src) {
-        qDebug() << "go back to" << src;
         src->setFocus();
       }
     }

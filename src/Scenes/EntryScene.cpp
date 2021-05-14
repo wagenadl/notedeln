@@ -1004,7 +1004,6 @@ bool EntryScene::tryToPaste(SheetScene *s) {
      If we don't have focus, anything is placed in the focused block if it
      is a canvas, or in a new block if not.
   */
-  qDebug() << "trytopaste";
   if (!isWritable())
     return false;
   
@@ -1070,7 +1069,6 @@ bool EntryScene::importDroppedSvg(QPointF scenePos, int sheet,
 
 bool EntryScene::importDroppedVideo(QPointF scenePos, int sheet,
 				    QImage const &img, QUrl const &source) {
-  qDebug() << "importdroppedvideo";
   QPointF pdest(0,0);
   
   int i = findBlock(scenePos, sheet);
@@ -1153,7 +1151,6 @@ bool EntryScene::importDroppedUrl(QPointF scenePos, int sheet,
       return importDroppedImage(scenePos, sheet, image, url);
 
     if (VideoFile::plausiblyVideo(url)) {
-      qDebug() << "plausible video";
       VideoFile vf(url);
       if (vf.checkValidity()) 
         return importDroppedVideo(scenePos, sheet, vf.keyImage(), url);
@@ -1195,10 +1192,8 @@ bool EntryScene::importDroppedText(QPointF scenePos, int sheet,
         GfxBlockItem *gbi = dynamic_cast<GfxBlockItem*>(blockItems[blk]);
         TextBlockItem *tbi = dynamic_cast<TextBlockItem*>(blockItems[blk]);
         if (tbi) {
-	  qDebug() << "textblock";
           ti = tbi->text();
         } else if (gbi) {
-	  qDebug() << "graphicsblock";
 	  QPointF p(gbi->mapFromScene(scenePos));
           GfxNoteItem *note = gbi->newGfxNote(p, p);
           ti = note->textItem();
@@ -1216,7 +1211,6 @@ bool EntryScene::importDroppedText(QPointF scenePos, int sheet,
     }
   }
 
-  qDebug() << "got ti" << ti;
   if (!ti)
     return false;
 
@@ -1428,7 +1422,6 @@ TableBlockItem *EntryScene::makeMulticellular(int pos, TextData *td) {
 }
 
 void EntryScene::makeMulticellularAndPaste(TextData *td, QString txt) {
-  qDebug() <<"mmapaste";
   TableBlockItem *tbi = makeMulticellular(0, td);
   if (!tbi)
     return; // oh well

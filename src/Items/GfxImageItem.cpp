@@ -62,7 +62,10 @@ GfxImageItem::GfxImageItem(GfxImageData *data, Item *parent):
     qDebug() << "GfxImageItem: missing resource" << data->resName();
     return;
   }
-  if (!dynamic_cast<GfxVideoData*>(data)) {
+  if (dynamic_cast<GfxVideoData*>(data)) {
+    pixmap->setPixmap(QPixmap(QSize(data->width(), data->height())));
+    // this place holder is important for sizing during block construction
+  } else {
     constexpr int SIZETHRESHOLD = 100000;
     if (data->width() * data->height() > SIZETHRESHOLD) {
       ImageLoader *ldr = new ImageLoader;
@@ -198,7 +201,6 @@ void GfxImageItem::mouseMoveEvent(QGraphicsSceneMouseEvent *e) {
 }
 
 void GfxImageItem::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *e) {
-  qDebug() << "GII::dclick";
   Resource *r = data()->resManager()->byTag(data()->resName());
   if (!r) {
     qDebug() << "GfxImageItem: double click: no resource";
@@ -275,7 +277,6 @@ void GfxImageItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
 void GfxImageItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *e) {
   switch (dragType) {
   case None:
-    qDebug() << "Nonmove!?";
     break;
   case Move: 
     data()->setPos(pos());

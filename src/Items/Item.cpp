@@ -163,7 +163,6 @@ GfxNoteItem *Item::newGfxNote(QPointF p0, QPointF p1) {
 }
 
 GfxNoteItem *Item::createGfxNote(QPointF p0) {
-  qDebug() << "creategfxnote" << p0;
   ASSERT(d);
   QPointF p1 = mapFromScene(DragLine::drag(scene(), mapToScene(p0), style()));
   return newGfxNote(p0, p1);

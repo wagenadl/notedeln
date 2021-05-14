@@ -68,7 +68,6 @@ static QPointF constrainPointToRect(QPointF p, QRectF rect) {
 }
 
 Item *GfxBlockItem::newImage(QImage img, QUrl src, QPointF pos) {
-  qDebug() << "GfxBlockItem::newImage";
   ASSERT(data()->book());
   ASSERT(data()->resManager());
   double maxW = availableWidth();
@@ -96,7 +95,6 @@ Item *GfxBlockItem::newImage(QImage img, QUrl src, QPointF pos) {
 }
 
 Item *GfxBlockItem::newVideo(QImage img, QUrl src, QPointF pos) {
-  qDebug() << "GfxBlockItem::newVideo";
   ASSERT(data()->book());
   ASSERT(data()->resManager());
   double maxW = availableWidth();
@@ -182,7 +180,7 @@ QRectF GfxBlockItem::boundingRect() const {
 void GfxBlockItem::paint(QPainter *p,
 			 const QStyleOptionGraphicsItem *,
 			 QWidget *) {
-  // paint background grid; items draw themselves  
+  // paint background grid; items draw themselves
   QRectF bb = boundingRect();
   QColor c(style().color("canvas-grid-color"));
   c.setAlphaF(style().real("canvas-grid-alpha"));
