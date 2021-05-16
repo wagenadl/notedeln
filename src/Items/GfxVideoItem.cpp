@@ -29,7 +29,8 @@
 #include "ToolItem.h"
 #include <QGraphicsTextItem>
 #include <QGraphicsDropShadowEffect>
-  
+#include "VideoSlider.h"
+
 static Item::Creator<GfxVideoData, GfxVideoItem> c("gfxvideo");
 
 GfxVideoItem::GfxVideoItem(GfxVideoData *data, Item *parent):
@@ -38,18 +39,32 @@ GfxVideoItem::GfxVideoItem(GfxVideoData *data, Item *parent):
   player = 0;
   vidmap = 0;
   neverplayed = true;
+
   annotation = new QGraphicsTextItem("▶");
-  showTime();
   annotation->setFont(style().font("text-font"));
-  annotation->setDefaultTextColor(QColor(255,255,128)); //style().color("text-color"));
+  annotation->setDefaultTextColor(QColor(255,255,128)); 
   QGraphicsDropShadowEffect *eff = new QGraphicsDropShadowEffect;
   eff->setColor(QColor(0,0,0));
   eff->setOffset(QPointF(0, 0));
   eff->setBlurRadius(6);
   annotation->setGraphicsEffect(eff);
-
   annotation->setParentItem(this);
   annotation->setZValue(100);
+
+  slider = new VideoSlider();
+  slider->setParentItem(this);
+  slider->setZValue(100);
+
+  connect(slider, &VideoSlider::sliderDragged,
+          [this](double pos_s) {
+            if (!player)
+              loadVideo();
+            if (player->state()==QMediaPlayer::StoppedState) 
+              player->pause();
+            player->setPosition(pos_s*1000);
+          });
+
+  showTime();
   repositionAnnotation();
 
   ResManager *resmgr = data->resManager();
@@ -116,6 +131,8 @@ void GfxVideoItem::loadVideo() {
       data()->setDur(player->duration()/1000.0);
     showTime();
   }
+
+  vidmap->setSize(pixmap->boundingRect().size());
 }
 
 void GfxVideoItem::playVideo() {
@@ -130,7 +147,6 @@ void GfxVideoItem::playVideo() {
     }
   }
   loadVideo();
-  vidmap->setSize(pixmap->boundingRect().size());
   player->play();
 }
 
@@ -155,6 +171,8 @@ void GfxVideoItem::repositionAnnotation(double s) {
   y -= 1/s*r.height()*1.;
   annotation->setScale(1/s);
   annotation->setPos(x, y);
+  slider->resize(data()->width() - 6/s, 6/s);
+  slider->setPos(3/s, data()->height() - 7/s);
 }
 
 void GfxVideoItem::setScale(double s) {
@@ -204,4 +222,6 @@ void GfxVideoItem::showTime() {
     : "⏹";
 
   annotation->setPlainText(txt + " " + hms(pos_s) + " / " + hms(dur_s));
+  slider->setDuration(dur_s);
+  slider->setPosition(pos_s);
 }

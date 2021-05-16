@@ -42,6 +42,7 @@ private:
   class QGraphicsVideoItem *vidmap;
   //  class ToolItem *playbutton;
   class QGraphicsTextItem *annotation;
+  class VideoSlider *slider;
   bool neverplayed;
 };
 
