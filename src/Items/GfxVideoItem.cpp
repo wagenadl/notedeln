@@ -40,7 +40,7 @@ GfxVideoItem::GfxVideoItem(GfxVideoData *data, Item *parent):
   vidmap = 0;
   neverplayed = true;
 
-  annotation = new QGraphicsTextItem("▶");
+  annotation = new QGraphicsTextItem("⏵");
   annotation->setFont(style().font("text-font"));
   annotation->setDefaultTextColor(QColor(255,255,128)); 
   QGraphicsDropShadowEffect *eff = new QGraphicsDropShadowEffect;
@@ -213,7 +213,7 @@ void GfxVideoItem::showTime() {
 
 
   if (dur_s==0 && pos_s==0) {
-    annotation->setPlainText("▶"); // big version
+    annotation->setPlainText("⏵"); // or "▶" // big version
     return;
   }
 

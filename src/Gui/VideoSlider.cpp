@@ -71,13 +71,14 @@ void VideoSlider::paint(QPainter*, const QStyleOptionGraphicsItem*, QWidget*) {
 }
 
 void VideoSlider::mouseMoveEvent(QGraphicsSceneMouseEvent *e) {
-  qDebug() << "vs move" << e->pos();
   setPosition(x2time(e->pos().x()));
   emit sliderDragged(pos_s);
+  e->accept();
 }
 
 void VideoSlider::mousePressEvent(QGraphicsSceneMouseEvent *e) {
-  qDebug() << "vs press" << e->pos();
+  setPosition(x2time(e->pos().x()));
+  emit sliderDragged(pos_s);
   e->accept();
 }
 
