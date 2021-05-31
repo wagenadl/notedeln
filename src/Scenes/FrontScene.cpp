@@ -25,6 +25,7 @@
 #include "Version.h"
 #include "Translate.h"
 #include "DefaultingQTI.h"
+#include "RecentBooks.h"
 
 #include <math.h>
 #include <QTextBlockFormat>
@@ -91,6 +92,7 @@ void FrontScene::textChange() {
       toplevel->setWindowTitle(title->toPlainText()
 			       .replace(QRegExp("\\s\\s*"), " ") + " - eln");
   }
+  RecentBooks::instance()->addBook(book);
 }
 
 static void centerAt(QGraphicsItem *item, double x, double y) {
