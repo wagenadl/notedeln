@@ -133,8 +133,8 @@ void Navbar::showHelp() {
 }
 
 void Navbar::setPageType(Navbar::PageType pt) {
-  bool isfirst = pt==FrontPage;
-  bool islast = pt==LastEntry || pt==EmptyLastEntry;
+  bool isfirst = pt==FrontPage || pt==NoNav;
+  bool islast = pt==LastEntry || pt==EmptyLastEntry || pt==NoNav;
   ti_p1->setEnabled(!isfirst);
   ti_p10->setEnabled(!isfirst);
   ti_n1->setEnabled(!islast);

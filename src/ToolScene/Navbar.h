@@ -30,7 +30,8 @@ public:
     TOC,
     Entry,
     LastEntry,
-    EmptyLastEntry
+    EmptyLastEntry,
+    NoNav,
   };
 public:
   Navbar(QGraphicsItem *parent);

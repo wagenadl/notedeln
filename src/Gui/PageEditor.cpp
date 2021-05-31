@@ -204,8 +204,11 @@ void PageEditor::nowOnEntry(int p0, int dp) {
 
 void PageEditor::nowOnFrontMatter(int p0) {
   toolview->toolbars()->hideTools();
-  toolview->toolbars()->navbar()->setPageType(p0==0 ? Navbar::FrontPage
-					      : Navbar::TOC);
+
+  Navbar::PageType pt = p0==0 ? Navbar::FrontPage : Navbar::TOC;
+  if (bank->book()->isReadOnly() && bank->book()->toc()->newPageNumber()<=1)
+    pt = Navbar::NoNav;
+  toolview->toolbars()->navbar()->setPageType(pt);
 }
 
 void PageEditor::enterEvent(QEvent *e) {

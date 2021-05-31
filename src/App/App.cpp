@@ -17,10 +17,16 @@
 // App.C
 
 #include "App.h"
+#include "Version.h"
 #include "CUI.h"
 #include <stdio.h>
+#include <QIcon>
 
 App::App(int &argc, char **argv): QApplication(argc, argv) {
+  setApplicationName("NotedELN");
+  setApplicationVersion(Version::toString());
+  setWindowIcon(QIcon(":/eln.png"));
+
   cui_ = new CUI();
   
 #if defined Q_OS_ANDROID

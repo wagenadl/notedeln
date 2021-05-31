@@ -35,66 +35,89 @@
 #include "CrashReport.h"
 #include "VersionControl.h"
 #include "CUI.h"
+#include <QCommandLineParser>
+#include <QCommandLineOption>
 
 int main(int argc, char **argv) {
   CrashReport cr;
+  bool ro = false;
   Notebook *nb = 0;
   App app(argc, argv);
-  try {
-    app.setWindowIcon(QIcon(":/eln.png"));
-    Fonts fonts;
-    if (argc>1 && QString("-novc")==argv[1]) {
-      VersionControl::globallyDisable();
-      argc--;
-      argv++;
-    }
-    if (argc>1 && QString("-nocui")==argv[1]) {
-      CUI::globallyDisable();
-      argc--;
-      argv++;
-    }
 
-    if (argc==1) {
+  QCommandLineOption cli_new("new", "Create new notebook");
+  QCommandLineOption cli_ro("ro", "Open notebook read-only");
+  QCommandLineOption cli_novc("novc", "Disable version control");
+  QCommandLineOption cli_nocui("nocui", "Disable use of computer IDs");
+
+  QCommandLineParser cli;
+  cli.setApplicationDescription("\n"
+    "NotedELN is an Electronic Lab Notebook for scientists of all stripes.\n"
+    "More information is at https://danielwagenaar.net/eln.");
+  cli.addHelpOption();
+  cli.addVersionOption();
+  cli.addPositionalArgument("book", "Specify notebook to open", "[book]");
+  cli.addOption(cli_new);
+  cli.addOption(cli_ro);
+  cli.addOption(cli_novc);
+  cli.addOption(cli_nocui);
+                                    
+  cli.process(app);
+  QStringList args = cli.positionalArguments();
+
+  qDebug() << "cli new" << cli.value("new");
+  qDebug() << "cli book" << cli.value("book");
+  qDebug() << "cli args" << args;
+  
+  try {
+    Fonts fonts;
+    if (cli.isSet("novc")) 
+      VersionControl::globallyDisable();
+    if (cli.isSet("nocui"))
+      CUI::globallyDisable();
+    
+    if (args.size()>0) {
+      QString fn = QDir::fromNativeSeparators(args[0]);
+      if (cli.isSet("new")) {
+        if (cli.isSet("ro"))
+          cli.showHelp(3);
+        if (QDir(fn).exists()) {
+          QMessageBox::critical(0, Translate::_("eln"),
+                            Translate::_("could-not-create-notebook-exists")
+                                .arg(fn),
+                                QMessageBox::Abort);
+          return 1;
+        }
+        nb = Notebook::create(fn) ? Notebook::open(fn) : 0;
+        if (!nb) {
+          QMessageBox::critical(0, Translate::_("eln"),
+                                Translate::_("could-not-create-notebook")
+                                .arg(fn)
+                                + "\n" + Notebook::errorMessage(),
+                                QMessageBox::Abort);
+          return 1;
+        }
+      } else { // not new
+        if (fn.endsWith("/book.eln"))
+          fn = fn.left(fn.length() - 9);
+        if (AlreadyOpen::check(fn))
+          return 0;
+        nb = Notebook::open(fn, cli.isSet("ro"));
+        if (!nb) {
+          QMessageBox::critical(0, Translate::_("eln"),
+                                Translate::_("could-not-open-notebook").arg(fn)
+                                + "\n" + Notebook::errorMessage(),
+                                QMessageBox::Close);
+          return 1;
+        }
+      }
+    } else { // no book specified
+      if (cli.isSet("new") || cli.isSet("ro"))
+        cli.showHelp(4);
       nb = SplashScene::openNotebook();
       if (!nb)
         return 0;
-    } else if (argc==2 && argv[1][0]!='-') {
-      QString fn = QDir::fromNativeSeparators(argv[1]);
-      if (fn.endsWith("/book.eln"))
-        fn = fn.left(fn.length() - 9);
-      if (AlreadyOpen::check(fn))
-        return 0;
-      nb = Notebook::open(fn);
-      if (!nb) {
-        QMessageBox::critical(0, Translate::_("eln"),
-                              Translate::_("could-not-open-notebook").arg(fn)
-                              + "\n" + Notebook::errorMessage(),
-                              QMessageBox::Close);
-        return 1;
-      }
-    } else if (argc==3 && argv[1]==QString("-new")) {
-      QString fn = argv[2];
-      if (QDir(fn).exists()) {
-        QMessageBox::critical(0, Translate::_("eln"),
-                              Translate::_("could-not-create-notebook-exists")
-                              .arg(fn),
-                              QMessageBox::Abort);
-        return 1;
-      }
-      nb = Notebook::create(fn) ? Notebook::open(fn) : 0;
-      if (!nb) {
-        QMessageBox::critical(0, Translate::_("eln"),
-                              Translate::_("could-not-create-notebook")
-                              .arg(fn)
-                              + "\n" + Notebook::errorMessage(),
-                              QMessageBox::Abort);
-        return 1;
-      }
-      
-    } else {
-      qDebug() << Translate::_("usage");
-      return 1;
     }
+
     ASSERT(nb);
 
     assertion_register_notebook(nb);

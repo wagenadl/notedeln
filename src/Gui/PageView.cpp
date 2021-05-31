@@ -444,7 +444,8 @@ void PageView::gotoEntryPage(int n, int dir) {
   if (n>=N) {
     n = N;
     if (n<=1) {
-      book->createEntry(n); // create first entry
+      if (!book->isReadOnly())
+        book->createEntry(n); // create first entry
     } else {
       TOCEntry *te = book->toc()->findBackward(n);
       if (te) {
@@ -687,7 +688,8 @@ void PageView::lastPage(Qt::KeyboardModifiers m) {
     newView()->lastPage();
   } else {
     gotoEntryPage(book->toc()->newPageNumber()-1);
-    gotoSheet(entryScene->sheetCount()-1);
+    if (entryScene)
+      gotoSheet(entryScene->sheetCount()-1);
     focusEntry();
   }
 }
