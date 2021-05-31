@@ -57,10 +57,12 @@ public:
   double markSize() const;
   TypeM typeMode() const;
   DrawM drawMode() const;
-  bool isReadOnly() const { return ro; }
+  bool isReadOnly() const { return ro; } // whole notebook
+  bool isWritable() const { return writable && !ro; } // this entry
 public:
   static Mode *ensure(Mode *);
 public slots:
+  void setWritable(bool);
   void setMode(Mode::M);
   void setLineWidth(double);
   void setColor(QColor);
@@ -78,6 +80,7 @@ signals:
   void drawModeChanged(DrawM);
 private:
   bool ro;
+  bool writable;
   M m;
   TypeM typem;
   DrawM drawm;

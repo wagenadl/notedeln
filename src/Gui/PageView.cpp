@@ -496,10 +496,7 @@ void PageView::gotoEntryPage(int n, int dir) {
   if (entryScene->data()->title()->isDefault())
     entryScene->focusTitle(currentSheet);
 
-  if (entryScene->isWritable())
-    mode()->setMode(Mode::Type);
-  else
-    mode()->setMode(Mode::Browse);
+  mode()->setWritable(entryScene->isWritable());
 }
 
 void PageView::gotoFront() {

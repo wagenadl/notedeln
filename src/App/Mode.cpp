@@ -63,13 +63,19 @@ QColor Mode::color() const {
 GfxMarkData::Shape Mode::shape() const {
   return shp;
 }
+
 double Mode::markSize() const {
   return ms;
 }
 
 void Mode::setMode(Mode::M m1) {
   if (ro && m1!=Browse) {
-    qDebug() << "Caution: setMode ignored on RO";
+    qDebug() << "Caution: setMode ignored on read-only";
+    m1 = Browse;
+  } else if (!writable
+             && !(m1==Browse || m1==Annotate
+                  || m1==Highlight || m1==Strikeout || m1==Plain)) {
+    qDebug() << "Caution: setMode ignored on nonwritable";
     m1 = Browse;
   }
   m = m1;
@@ -129,3 +135,10 @@ void Mode::setMarkSize(double ms1) {
   emit markSizeChanged(ms);
 }
 
+void Mode::setWritable(bool wr) {
+  writable = wr;
+  if (writable)
+    setMode(Type);
+  else
+    setMode(Browse);
+}

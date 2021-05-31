@@ -43,6 +43,8 @@ private:
   Mode *mode;
 private:
   class ToolItem *typeModeItem;
+  class ToolItem *moveModeItem;
+  class MarkSizeItem *markModeItem;
   class LineWidthItem *sketchModeItem;
   
 };

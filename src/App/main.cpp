@@ -64,10 +64,6 @@ int main(int argc, char **argv) {
   cli.process(app);
   QStringList args = cli.positionalArguments();
 
-  qDebug() << "cli new" << cli.value("new");
-  qDebug() << "cli book" << cli.value("book");
-  qDebug() << "cli args" << args;
-  
   try {
     Fonts fonts;
     if (cli.isSet("novc")) 

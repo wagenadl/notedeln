@@ -37,7 +37,7 @@ void LineWidthItem::paintContents(QPainter *p) {
   if (pp.isEmpty()) 
     for (double x=10; x<22.1; x+=0.5) 
       pp << QPointF(x, 16-(x-16)-sin(.7*(x-12)));
-  p->setPen(QPen(c, lw));
+  p->setPen(QPen(isEnabled() ? c : QColor(180,180,180), lw));
   p->setBrush(Qt::NoBrush);
   if (straight)
     p->drawLine(QLineF(QPointF(10, 22), QPointF(22, 10)));

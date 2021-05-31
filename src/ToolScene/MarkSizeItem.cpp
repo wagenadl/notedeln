@@ -28,7 +28,9 @@ MarkSizeItem::~MarkSizeItem() {
 }
 
 void MarkSizeItem::paintContents(QPainter *p) {
-  GfxMarkItem::renderMark(QPointF(16, 16), c, ms, shp, p);
+  GfxMarkItem::renderMark(QPointF(16, 16),
+                          isEnabled() ? c : QColor(180,180,180),
+                          ms, shp, p);
 }
 
 void MarkSizeItem::setColor(QColor c1) {

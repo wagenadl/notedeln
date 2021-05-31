@@ -21,10 +21,7 @@
 #include "Mode.h"
 #include "MarkSizeItem.h"
 #include "LineWidthItem.h"
-/*
-#include <QPainter>
-#include <QImage>
-*/
+#include <QDebug>
 
 Modebar::Modebar(Mode *mode, QGraphicsItem *parent):
   Toolbar(parent), mode(mode) {
@@ -41,10 +38,10 @@ Modebar::Modebar(Mode *mode, QGraphicsItem *parent):
   updateTypeMode();
   connect(mode, &Mode::typeModeChanged, this, &Modebar::updateTypeMode);
 
-  t = new ToolItem();
-  t->setBalloonHelpText(":mode-move");
-  t->setSvg(":icons/move.svg");
-  addTool(modeToId(Mode::MoveResize), t);
+  moveModeItem = new ToolItem();
+  moveModeItem->setBalloonHelpText(":mode-move");
+  moveModeItem->setSvg(":icons/move.svg");
+  addTool(modeToId(Mode::MoveResize), moveModeItem);
 
   MarkSizeItem *mst = new MarkSizeItem(mode->markSize());
   mst->setBalloonHelpText(":mode-mark");
@@ -57,27 +54,9 @@ Modebar::Modebar(Mode *mode, QGraphicsItem *parent):
 	  mst, SLOT(setMarkSize(double)));
   connect(mode, SIGNAL(colorChanged(QColor)),
 	  mst, SLOT(setColor(QColor)));
+  markModeItem = mst;
 
   LineWidthItem *lwt = new LineWidthItem(mode->lineWidth());
-
-  /*
-  QImage test(64, 64, QImage::Format_RGB32);
-  test.fill(QColor(255,255,255));
-  QPainter p(&test);
-  p.scale(2, 2);
-  lwt->paintContents(&p);
-  test.save("/tmp/squiggle.png");
-  test.fill(QColor(255,255,255));
-  lwt->setStraightLineMode(true);
-  lwt->paintContents(&p);
-  test.save("/tmp/straight.png");
-  lwt->setStraightLineMode(false);
-  test.fill(QColor(255,255,255));
-  lwt->setStraightLineMode(true);
-  mst->paintContents(&p);
-  test.save("/tmp/mark.png");
-  */
-    
   lwt->setBalloonHelpText(":mode-freehand");
   connect(mode, SIGNAL(colorChanged(QColor)),
 	  lwt, SLOT(setColor(QColor)));
@@ -117,7 +96,12 @@ Modebar::~Modebar() {
 }
 
 void Modebar::updateMode() {
+  qDebug() << "updatemode" << mode->mode() << mode->isReadOnly();
   select(modeToId(mode->mode()));
+  typeModeItem->setEnabled(mode->isWritable());
+  moveModeItem->setEnabled(mode->isWritable());
+  markModeItem->setEnabled(mode->isWritable());
+  sketchModeItem->setEnabled(mode->isWritable());
 }
 
 void Modebar::updateTypeMode() {
