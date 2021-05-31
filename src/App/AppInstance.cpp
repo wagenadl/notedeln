@@ -42,9 +42,8 @@ AppInstance::AppInstance(App *app, Notebook *nb): book(nb) {
   updateTimer = 0;
   backgroundVC = 0;
 
-  qDebug() << "AppInstance: seting up VC";
-  setupVC();
-  qDebug() << "VC setup complete";
+  if (!book->isReadOnly())
+    setupVC();
 
   book->load();
 

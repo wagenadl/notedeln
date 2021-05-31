@@ -55,6 +55,13 @@ Notebook::Notebook(QString path, bool ro0): root(QDir(path)), ro(ro0) {
   index_ = 0;
   tocFile_ = 0;
   bookFile_ = 0;
+  if (!ro) {
+    QFile test(root.filePath("test.txt"));
+    if (test.open(QFile::WriteOnly)) 
+      test.remove();
+   else 
+     ro = true;
+  }
   mode_ = new Mode(isReadOnly(), this);
 }
 
