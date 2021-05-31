@@ -302,11 +302,11 @@ static QUrl urlFromTag(QString s) {
     return QUrl(s);
 
   if (s.startsWith("/"))
-    return QUrl("file://" + s);
+    return QUrl::fromLocalFile(s);
 
   if (s.startsWith("~/")) {
     QString home = qgetenv("HOME");
-    return QUrl("file://" + home + "/" + s.mid(2));
+    return QUrl::fromLocalFile(home + "/" + s.mid(2));
   }
   
   QStringList spl = s.split("/");  

@@ -57,9 +57,9 @@ AN_Biblio::AN_Biblio(QString tag, Style const &st) {
   if (st.contains("bib-dir")) {
     QDir dir(st.string("bib-dir"));
     if (dir.exists(tag + ".pdf"))
-      url_ = QUrl("file://" + dir.absoluteFilePath(tag + ".pdf"));
+      url_ = QUrl::fromLocalFile(dir.absoluteFilePath(tag + ".pdf"));
     else if (tag_!=tag && dir.exists(tag_ + ".pdf"))
-      url_ = QUrl("file://" + dir.absoluteFilePath(tag_ + ".pdf"));
+      url_ = QUrl::fromLocalFile(dir.absoluteFilePath(tag_ + ".pdf"));
   } // otherwise, url_ will be null
 
   qDebug() << "AN_Biblio" << tag << ref_ << url_;

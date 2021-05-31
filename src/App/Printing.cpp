@@ -217,7 +217,7 @@ void PageView::openPrintDialog() {
   progress.setValue(progress.maximum());
 
   if (dialog.toFile() && dialog.openFileAfter()) 
-    QDesktopServices::openUrl(QUrl(dialog.filename()));
+    QDesktopServices::openUrl(QUrl::fromLocalFile(dialog.filename()));
 
   switch (oldSection) {
   case Front:

@@ -214,7 +214,7 @@ void GfxImageItem::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *e) {
   } else {
     QUrl url = (e->modifiers() & Qt::ShiftModifier)
       ? r->sourceURL()
-      : QUrl(r->archivePath());
+      : QUrl::fromLocalFile(r->archivePath());
     bool ok = QDesktopServices::openUrl(url);
     if (!ok)
       qDebug() << "GfxImageItem: Failed to open location " << url;

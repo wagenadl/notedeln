@@ -170,6 +170,6 @@ void BookSplashItem::doMenu() {
   } else if (act==locate) {
     QDir d(dirname);
     d.cdUp();
-    QDesktopServices::openUrl(QUrl(d.absolutePath()));
+    QDesktopServices::openUrl(QUrl::fromLocalFile(d.absolutePath()));
   }
 }
