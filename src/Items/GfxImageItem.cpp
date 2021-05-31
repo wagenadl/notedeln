@@ -16,6 +16,7 @@
 
 // GfxImageItem.C
 
+#include <QEventLoop>
 #include "GfxImageItem.h"
 #include "GfxImageData.h"
 #include "GfxVideoData.h"
@@ -45,6 +46,7 @@ static Item::Creator<GfxImageData, GfxImageItem> c("gfximage");
 
 GfxImageItem::GfxImageItem(GfxImageData *data, Item *parent):
   Item(data, parent) {
+  loading = false;
   pixmap = new QGraphicsPixmapItem(this);
   pixmap->setAcceptedMouseButtons(0);
 
@@ -69,8 +71,13 @@ GfxImageItem::GfxImageItem(GfxImageData *data, Item *parent):
     constexpr int SIZETHRESHOLD = 100000;
     if (data->width() * data->height() > SIZETHRESHOLD) {
       ImageLoader *ldr = new ImageLoader;
+      loading = true;
       connect(ldr, &ImageLoader::loaded,
-              this, &GfxImageItem::setImage);
+              [this](QImage img) {
+                this->loading = false;
+                this->setImage(img);
+                emit loadComplete();
+              });
       image = QImage(data->width(), data->height(), QImage::Format_RGB32);
       image.fill(QColor(255, 255, 200)); // pale yellow during loading
       ldr->loadThenDelete(res->archivePath());
@@ -393,3 +400,15 @@ void GfxImageItem::setImage(QImage img) {
 void GfxImageItem::setCropAllowed(bool a) {
   cropallowed = a;
 }
+
+void GfxImageItem::waitForLoadComplete() {
+  Item::waitForLoadComplete();
+  if (!loading)
+    return;
+  QEventLoop el;
+  connect(this, &GfxImageItem::loadComplete,
+          &el, &QEventLoop::quit);
+  el.exec(QEventLoop::ExcludeUserInputEvents);
+}
+
+  

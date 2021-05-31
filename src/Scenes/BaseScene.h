@@ -64,6 +64,7 @@ protected:
   void setContInMargin(bool x=true);
   int findSheet(class SheetScene *); // -1 if not found
   virtual QList<QGraphicsItem *> printAnnotations(int isheet);
+  virtual void waitForLoadComplete() { } // wait for all images to load
 public: // for SheetScene only
   virtual bool mousePressEvent(QGraphicsSceneMouseEvent *, SheetScene *);
   virtual bool keyPressEvent(QKeyEvent *, SheetScene *);

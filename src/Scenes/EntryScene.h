@@ -69,6 +69,7 @@ protected:
   bool dropEvent(QGraphicsSceneDragDropEvent *, SheetScene *);
 protected:
   void setSheetCount(int);
+  void waitForLoadComplete() override;
 protected slots:
   void titleEdited();
   void vChanged(int block);

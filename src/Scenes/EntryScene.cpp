@@ -1445,3 +1445,8 @@ int EntryScene::findLastBlockOnSheet(int sh) {
   }
   return res;
 }
+
+void EntryScene::waitForLoadComplete() {
+  for (BlockItem *bi: blockItems)
+    bi->waitForLoadComplete();
+}

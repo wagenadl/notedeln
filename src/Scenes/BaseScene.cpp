@@ -106,6 +106,24 @@ void BaseScene::focusTitle(int sheet) {
     ti->setFocus();
 }
 
+class PrintAnnotations {
+public:
+  PrintAnnotations(QList<QGraphicsItem *> anno, SheetScene *dest):
+    anno(anno), dest(dest) {
+    for (QGraphicsItem *a: anno)
+      dest->addItem(a);
+  }
+  ~PrintAnnotations() {
+    for (QGraphicsItem *a: anno)
+      dest->removeItem(a);
+    for (auto a: anno)
+      delete a;
+  }
+private:
+  QList<QGraphicsItem *> anno;
+  SheetScene *dest;
+};
+
 bool BaseScene::print(QPrinter *prt, QPainter *p,
 		      int firstSheet, int lastSheet) {
   QString phr = SearchDialog::latestPhrase();
@@ -121,18 +139,15 @@ bool BaseScene::print(QPrinter *prt, QPainter *p,
       .startsWith(pgNoToString(startPage()+lastSheet)))
     // slightly convoluted way to pick up continuation pages.
     lastSheet = nSheets-1; 
+
+  waitForLoadComplete();
+
   bool first = true;
   for (int k=firstSheet; k<=lastSheet; k++) {
     if (!first)
       prt->newPage();
-    QList<QGraphicsItem *> anno = printAnnotations(k);
-    for (auto a: anno)
-      sheets[k]->addItem(a);
+    PrintAnnotations pa(printAnnotations(k), sheets[k]);
     sheets[k]->render(p);
-    for (auto a: anno)
-      sheets[k]->removeItem(a);
-    for (auto a: anno)
-      delete a;
     first = false;
   }
 

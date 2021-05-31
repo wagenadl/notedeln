@@ -42,6 +42,7 @@ public:
   virtual Qt::CursorShape cursorShape(Qt::KeyboardModifiers) const;
   virtual bool changesCursorShape() const;
   void setCropAllowed(bool); // default is true
+  void waitForLoadComplete() override;
 protected:
   virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *);
   virtual void mousePressEvent(QGraphicsSceneMouseEvent *);
@@ -61,12 +62,13 @@ private:
     CropTop,
     CropBottom,
   };
+signals:
+  void loadComplete();
 private:
   QPointF moveDelta(QGraphicsSceneMouseEvent *);
   DragType dragTypeForPoint(QPointF) const;
   static Qt::CursorShape cursorForDragType(DragType);
   void startDrag(QGraphicsSceneMouseEvent *);
-private slots:
   void setImage(QImage img);
 private:
   DragType dragType;
@@ -80,6 +82,7 @@ private:
 protected:
   QImage image; // not cropped
   QGraphicsPixmapItem *pixmap;
+  bool loading;
 };
 
 #endif

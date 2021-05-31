@@ -78,6 +78,7 @@ public:
   virtual GfxNoteItem *newGfxNote(QPointF p0, QPointF p1);
   virtual bool makesOwnNotes() const { return false; }
   Item *glowItem() const;
+  virtual void waitForLoadComplete();
 public: // but only for use in derived class source files
   template <class DT, class IT> class Creator {
   public:

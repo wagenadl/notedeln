@@ -254,4 +254,7 @@ Item *Item::findDescendant(QString uuid) {
   return 0;
 }
 
-  
+void Item::waitForLoadComplete() {
+  for (Item *it: allChildren())
+    it->waitForLoadComplete();
+}

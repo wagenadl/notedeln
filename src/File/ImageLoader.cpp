@@ -46,7 +46,8 @@ bool ImageLoader::loadThenDelete(QString fn) {
     return false;
   thr = new ILThread(fn, this);
   connect(thr, &QThread::finished,
-	  this, &ImageLoader::complete);
+	  this, &ImageLoader::complete,
+          Qt::QueuedConnection);
   thr->start();
   return true;
 }
