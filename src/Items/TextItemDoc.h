@@ -105,6 +105,7 @@ protected:
 signals:
   void contentsChanged(int pos, int nDel, int nIns);
   void markupChanged(MarkupData *md);
+  void noLongerEmpty();
 protected:
   class TextItemDocData *d;
 };

@@ -260,7 +260,7 @@ void EntryScene::redateBlocks() {
   int st = data()->stampTime();
   double tmin = style().real("auto-timestamp-min-dt"); 
   for (int i=0; i<blockItems.size(); i++) {
-    if (blockItems[i]->data()->isEmpty() && i<blockItems.size()-1)
+    if (blockItems[i]->data()->isEmpty() && (i>0 || i<blockItems.size()-1))
       continue;
     QDateTime cre1 = blockItems[i]->data()->created();
     QDateTime mod1 = blockItems[i]->data()->modified();

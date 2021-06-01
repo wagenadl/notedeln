@@ -104,6 +104,15 @@ void TextItem::finalizeConstructor(int sheet) {
 	  this, SLOT(docChange()));
   connect(document(), SIGNAL(markupChanged(MarkupData *)),
 	  this, SLOT(markupChange(MarkupData *)));
+  connect(document(), &TextItemDoc::noLongerEmpty,
+          [this]() {
+            BlockItem *bi = ancestralBlock();
+            if (bi) {
+              EntryScene *es = dynamic_cast<EntryScene *>(bi->baseScene());
+              if (es)
+                es->redateBlocks();
+            }
+          });
 }
 
 bool TextItem::allowNotes() const {

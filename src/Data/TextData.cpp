@@ -42,12 +42,22 @@ QList<MarkupData *> TextData::markups() const {
 }
 
 void TextData::setText(QString const &t, bool hushhush) {
+  bool wasempty = text_=="";
   if (text_==t)
     return;
   text_ = t;
   wordset_.clear();
-  if (!hushhush)
+  if (!hushhush) {
+    if (wasempty) {
+      QDateTime t = QDateTime::currentDateTime();
+      setCreated(t);
+      if (parent() && parent()->allChildren().size()==1) {
+        parent()->setCreated(t);
+        parent()->markModified();
+      }
+    }
     markModified();
+  }
 }
 
 MarkupData *TextData::addMarkup(int start, int end,

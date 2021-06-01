@@ -410,6 +410,8 @@ void TextItemDoc::insert(int offset, QString text) {
   /* Really what we should do is try to preserve most linestarts. */
 
   emit contentsChanged(offset, 0, dN);
+  if (t0=="")
+    emit noLongerEmpty();
 }
 
 void TextItemDoc::swapCase(int offset) {
