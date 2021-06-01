@@ -35,7 +35,7 @@ public:
   virtual BlockItem *ancestralBlock();
   void setBaseScene(class BaseScene *);
   /* setBaseScene does *not* move the footnotes to the scene. */
-  BaseScene *baseScene();
+  BaseScene *baseScene() const;
   QList<class FootnoteItem *> footnotes();
   /* Footnotes are associated with a block, but they are not children
      of a block item in the qgraphics sense except during construction. */

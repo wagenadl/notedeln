@@ -60,7 +60,6 @@ public:
   QString filePath(QString) const; // path of file in root
   QString dirPath() const; // path of root
   bool needToSave() const;
-  class Mode *mode() const;
 signals:
   void mod();
 public slots:
@@ -85,7 +84,6 @@ private:
   BookFile *bookFile_;
   Index *index_;
   Style const *style_;
-  class Mode *mode_;
 };
 
 #endif

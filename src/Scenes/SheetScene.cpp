@@ -328,8 +328,13 @@ void SheetScene::drawBackground(QPainter *p, const QRectF &r) {
 }
 
 Mode *SheetScene::mode() const {
-  ASSERT(base);
-  return base->book()->mode();
+  static Mode nullmode(true);
+  PageView *pv = EventView::eventView();
+  if (!pv) {
+    qDebug() << "no eventview hence no mode";
+    return &nullmode;
+  }
+  return pv->mode();
 }
 
 void SheetScene::futileTitleMovement(int key, Qt::KeyboardModifiers) {

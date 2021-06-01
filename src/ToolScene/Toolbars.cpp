@@ -26,52 +26,14 @@
 
 #include <QDebug>
 
-#define CORRESPONDING 1
-
 Toolbars::Toolbars(Mode *mode, QGraphicsItem *parent): QGraphicsObject(parent) {
   m = Mode::Browse;
   modes = new Modebar(mode, this);
-
   mcolors = new ColorBar(mode, false, this);
-#if CORRESPONDING
-  connect(mode, SIGNAL(markSizeChanged(double)),
-	  mcolors, SLOT(setMarkSize(double)));
-  connect(mode, SIGNAL(shapeChanged(GfxMarkData::Shape)),
-	  mcolors, SLOT(setShape(GfxMarkData::Shape)));
-  connect(mode, SIGNAL(colorChanged(QColor)),
-	  mcolors, SLOT(setColor(QColor)));
-#endif
-
   lcolors = new ColorBar(mode, true, this);
-#if CORRESPONDING
-  connect(mode, SIGNAL(lineWidthChanged(double)),
-	  lcolors, SLOT(setLineWidth(double)));
-  connect(mode, SIGNAL(colorChanged(QColor)),
-	  lcolors, SLOT(setColor(QColor)));
-#endif
-  
   shapes = new MarkShapeBar(mode, this);
-#if CORRESPONDING
-  connect(mode, SIGNAL(colorChanged(QColor)),
-	  shapes, SLOT(setColor(QColor)));
-  connect(mode, SIGNAL(markSizeChanged(double)),
-	  shapes, SLOT(setMarkSize(double)));
-#endif
-
   sizes = new MarkSizeBar(mode, this);
-#if CORRESPONDING
-  connect(mode, SIGNAL(colorChanged(QColor)),
-	  sizes, SLOT(setColor(QColor)));
-  connect(mode, SIGNAL(shapeChanged(GfxMarkData::Shape)),
-	  sizes, SLOT(setShape(GfxMarkData::Shape)));
-#endif
-  
   widths = new LineWidthBar(mode, this);
-#if CORRESPONDING
-  connect(mode, SIGNAL(colorChanged(QColor)),
-	  widths, SLOT(setColor(QColor)));
-#endif
-
   nav = new Navbar(this);
 
   ro = mode->isReadOnly();

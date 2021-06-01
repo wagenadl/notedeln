@@ -34,7 +34,6 @@
 #include <QDebug>
 #include <QProcess>
 #include "RmDir.h"
-#include "Mode.h"
 
 QString Notebook::checkVersionControl(QString path) {
   QDir root(path);
@@ -62,7 +61,6 @@ Notebook::Notebook(QString path, bool ro0): root(QDir(path)), ro(ro0) {
    else 
      ro = true;
   }
-  mode_ = new Mode(isReadOnly(), this);
 }
 
 void Notebook::load() {
@@ -452,8 +450,4 @@ EntryFile *Notebook::recoverFromMissingEntry(int pgno) {
 
 void Notebook::markReadOnly() {
   ro = true;
-}
-
-Mode *Notebook::mode() const {
-  return mode_;
 }

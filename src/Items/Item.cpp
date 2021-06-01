@@ -35,6 +35,9 @@
 #include "Mode.h"
 #include "BlockItem.h"
 #include "SheetScene.h"
+#include "EventView.h"
+#include "PageView.h"
+
 
 Item::Item(Data *d, Item *parent): QGraphicsObject(parent), d(d) {
   ASSERT(d);
@@ -86,8 +89,14 @@ void Item::makeWritable() {
 }
 
 Mode *Item::mode() const {
+  static Mode nullmode(true);
   ASSERT(d);
-  return d->book()->mode();
+  PageView *pv = EventView::eventView();
+  if (!pv) {
+    qDebug() << "no eventview, hence no mode";
+    return &nullmode;
+  }
+  return pv->mode();
 }
 
 Item *Item::create(Data *d, Item *parent) {
