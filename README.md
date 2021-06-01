@@ -1,9 +1,9 @@
-# ELN - an Electronic Lab Notebook
+# NotedELN - an Electronic Lab Notebook
 
 ## Introduction
 
-ELN is an Electronic Lab Notebook for scientists of all stripes. ELN
-is great for:
+NotedELN is an Electronic Lab Notebook for scientists of all stripes. 
+NotedELN is great for:
 
  *  Taking notes during experiments since it automatically saves your
     input every 10 seconds so that your notes will never be lost;
@@ -18,12 +18,12 @@ is great for:
  *  Recording your thought processes, since it will never get in the
     way of your typing with arbitrary constraints on input formatting.
 
-ELN is quite mature and used daily in our lab. ELN has never caused
-anyone to lose any data or notes. To the contrary, since most people
-type faster than they can write by hand, ELN has helped people take
-more detailed notes than they would otherwise have.
+NotedELN is quite mature and used daily in our lab. NotedELN has never 
+caused anyone to lose any data or notes. To the contrary, since most 
+people type faster than they can write by hand, ELN has helped people 
+take more detailed notes than they would otherwise have.
 
-ELN is free and open source and is available for Windows, Mac, and
+NotedELN is free and open source and is available for Windows, Mac, and
 Linux. Please visit its [web page](http://www.danielwagenaar.net/eln)
 for download details.
 
@@ -61,7 +61,7 @@ straightforward:
   (I would be happy to include your instructions for other
   distributions. Please [drop me a line](mailto:daw@caltech.edu).)
 
-* Clone the ELN code from github:
+* Clone the NotedELN code from github:
 
         git clone https://github.com/wagenadl/eln.git
 
@@ -72,9 +72,9 @@ straightforward:
 * Compile the code:
 
         mkdir build
-		cd build
-		cmake ..
-		cmake --build .
+        cd build
+        cmake ..
+        cmake --build .
 
 * Test the result:
 
@@ -100,22 +100,26 @@ Please let me know if you have trouble. I will gladly try to help.
 
 ## Installation from source on Mac OS X
 
+(This section needs verification of CMake instructions.)
+
 Building from source on Mac is only slightly more involved.
 
 * You need to get the Qt development system and Apple's XCode
   development tools.
 
-* After that, the same `git clone` / `cd eln` / `make` steps
-  should compile the code:
+* After that, the same steps should compile the code:
 
         git clone https://github.com/wagenadl/eln.git
         cd eln
-        make
+        mkdir build
+        cd build
+        cmake ..
+        cmake --build .
 
-* You can then simply run ELN from within the build tree, or—more
+* You can then simply run NotedELN from within the build tree, or—more
   conveniently—build a package:
 
-        make macdmg
+        cpack
 
   That should generate a file called "eln.dmg" that you can install
   in the usual way.
