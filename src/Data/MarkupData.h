@@ -48,6 +48,8 @@ public:
     DeadLink, // this is never saved in json; just for MarkupStyles
     SearchResult, // this is never saved in json; just for MarkupStyles
     LoadingLink, // this is never saved in json; just for MarkupStyles
+    LateStrikeThrough, // this is never saved in json; just for MarkupStyles
+    LateEmphasize, // this is never saved in json; just for MarkupStyles
   };
 public:
   MarkupData(Data *parent=0);

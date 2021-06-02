@@ -21,16 +21,32 @@
 #include <QSet>
 #include <QList>
 #include <QDebug>
+#include "Style.h"
 
 MarkupEdges::MarkupEdges(QList<MarkupData *> const &mdd,
+                         QDateTime parentcre,
                          QList<TransientMarkup> const &trans) {
   QMap<int, MarkupStyles> starts;
   QMap<int, MarkupStyles> ends;
   QSet<int> all;
+  QDateTime parentcre_nextmorning(parentcre.date().addDays(1), QTime(4,0,0));
+  if (mdd.size())
+    parentcre_nextmorning
+      .setTime(QTime(((Data*)mdd[0])->style().real("midnight-allowance"),
+                     0, 0));
   foreach (MarkupData *md, mdd) {
     if (md->end()>md->start()) {
-      starts[md->start()].add(md->style());
-      ends[md->end()].add(md->style());
+      QDateTime mdcre = md->created();
+      MarkupData::Style sty = md->style();
+      if (mdcre > parentcre_nextmorning) {
+        // late
+        if (sty==MarkupData::StrikeThrough)
+          sty = MarkupData::LateStrikeThrough;
+        else if (sty==MarkupData::Emphasize)
+          sty = MarkupData::LateEmphasize;
+      }
+      starts[md->start()].add(sty);
+      ends[md->end()].add(sty);
       all << md->start() << md->end();
     }
   }

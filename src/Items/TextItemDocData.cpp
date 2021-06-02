@@ -69,7 +69,7 @@ void TextItemDocData::recalcSomeWidths(int start, int end) const {
   }
 
   MarkupStyles current;
-  MarkupEdges edges(text->markups());
+  MarkupEdges edges(text->markups(), text->created());
   foreach (int k, edges.keys()) 
     if (k<start)
       current = edges[k];

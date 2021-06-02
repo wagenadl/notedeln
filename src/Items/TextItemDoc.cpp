@@ -581,7 +581,7 @@ void TextItemDoc::render(QPainter *p, QList<TransientMarkup> tmm) const {
   
   int k0 = d->linestarts[n0];
 
-  MarkupEdges edges(d->text->markups(), tmm);
+  MarkupEdges edges(d->text->markups(), d->text->created(), tmm);
   MarkupStyles style;
   foreach (int k, edges.keys()) 
     if (k<k0)
@@ -640,6 +640,8 @@ void TextItemDoc::render(QPainter *p, QList<TransientMarkup> tmm) const {
         bgcol = alphaBlend(bgcol, st.alphaColor("hover-loading"));
       } else if (s.contains(MarkupData::Link)) 
         bgcol = alphaBlend(bgcol, st.alphaColor("hover-found"));
+      if (s.contains(MarkupData::LateEmphasize))
+        bgcol = alphaBlend(bgcol, st.alphaColor("late-emphasize"));
       if (s.contains(MarkupData::Emphasize))
         bgcol = alphaBlend(bgcol, st.alphaColor("emphasize"));
       if (s.contains(MarkupData::SearchResult))
@@ -660,19 +662,24 @@ void TextItemDoc::render(QPainter *p, QList<TransientMarkup> tmm) const {
       else
         p->setPen(QPen(color()));
       
-      if (s.contains(MarkupData::StrikeThrough)) {
+      if (s.contains(MarkupData::StrikeThrough)
+          || s.contains(MarkupData::LateStrikeThrough)) {
 	double y1 = y0 
 	  - ((s.contains(MarkupData::Superscript)
 	      || s.contains(MarkupData::Subscript)) ? 0.7 : 1.0)
 	  * 0.6 * d->xheight;
 	QPen pn = p->pen();
 	QPen p1 = pn;
-	qreal h, s, l, a;
-	QColor c = pn.color();
-	c.getHslF(&h, &s, &l, &a);
-	l *= 1.7; if (l>1) l = 1;
-	c.setHslF(h, s, l, a);
-	pn.setColor(c);
+	qreal h, s_, l, a;
+        if (s.contains(MarkupData::LateStrikeThrough)) {
+          pn.setColor(d->text->style().color("latenote-line-color"));
+        } else {
+          QColor c = pn.color();
+          c.getHslF(&h, &s_, &l, &a);
+          l *= 1.7; if (l>1) l = 1;
+          c.setHslF(h, s_, l, a);
+          pn.setColor(c);
+        }
 	pn.setWidthF(1.2);
 	p->setPen(pn);
 	p->drawLine(QPointF(x0, y1), QPointF(x, y1));

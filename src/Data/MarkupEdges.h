@@ -39,6 +39,7 @@ private:
 class MarkupEdges: public QMap<int, MarkupStyles> {
 public:
   MarkupEdges(QList<MarkupData *> const &mdd,
+              QDateTime parentcre,
               QList<TransientMarkup> const &trans=QList<TransientMarkup>());
 };
 

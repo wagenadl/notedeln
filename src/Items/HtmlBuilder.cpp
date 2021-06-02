@@ -26,7 +26,7 @@ HtmlBuilder::HtmlBuilder(TextData const *src, int start, int end) {
     end = text.size();
   text = text.mid(start, end-start);
   
-  MarkupEdges edges(src->markups());
+  MarkupEdges edges(src->markups(), src->created());
   MarkupStyles style;
   foreach (int k, edges.keys()) 
     if (k<start)
