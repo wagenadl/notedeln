@@ -158,7 +158,7 @@ void BlockItem::setBaseScene(BaseScene *b) {
   //   fni->setBaseScene(b);
 }
 
-BaseScene *BlockItem::baseScene() {
+BaseScene *BlockItem::baseScene() const {
   return bs;
 }
 
