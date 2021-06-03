@@ -58,7 +58,8 @@ public:
   TypeM typeMode() const;
   DrawM drawMode() const;
   bool isReadOnly() const { return ro; } // whole notebook
-  bool isWritable() const { return writable && !ro; } // this entry
+  bool isWritable() const; // this entry
+  bool isInLateNote() const { return inlatenote; }
 public:
   static Mode *ensure(Mode *);
 public slots:
@@ -70,6 +71,8 @@ public slots:
   void setMarkSize(double);
   void setTypeMode(TypeM);
   void setDrawMode(DrawM);
+  void enterLateNote();
+  void leaveLateNote();
 signals:
   void modeChanged(Mode::M);
   void lineWidthChanged(double);
@@ -81,6 +84,7 @@ signals:
 private:
   bool ro;
   bool writable;
+  bool inlatenote;
   M m;
   TypeM typem;
   DrawM drawm;

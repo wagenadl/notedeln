@@ -871,6 +871,7 @@ bool EntryScene::mousePressEvent(QGraphicsSceneMouseEvent *e, SheetScene *s) {
       note->data()->setSheet(sh);
     } else {
       createLateNote(sp, sh);
+      mo->enterLateNote();
     }
     mo->setMode(Mode::Type);
     take = true;

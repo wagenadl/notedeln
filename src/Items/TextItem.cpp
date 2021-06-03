@@ -284,7 +284,8 @@ void TextItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
   e->accept();
   switch (e->button()) {
   case Qt::LeftButton:
-    if ((mode()->mode()==Mode::Type || mode()->mode()==Mode::Browse)
+    if ((mode()->mode()==Mode::Type || mode()->mode()==Mode::Browse
+         || mode()->mode()==Mode::Annotate)
         && lastClickTime.elapsed() < 500
         && (lastClickScreenPos - e->screenPos()).manhattanLength()<5) 
       // Select word or line or paragraph
@@ -295,7 +296,7 @@ void TextItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
     lastClickScreenPos = e->screenPos();
     break;
   case Qt::MiddleButton:
-    if (mode()->mode() == Mode::Type) {
+    if (mode()->mode()==Mode::Type || mode()->mode()==Mode::Annotate) {
       QClipboard *cb = QApplication::clipboard();
       QString txt = cb->text(QClipboard::Selection);
       if (!txt.isEmpty()) {

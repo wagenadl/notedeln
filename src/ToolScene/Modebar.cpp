@@ -98,7 +98,7 @@ Modebar::~Modebar() {
 void Modebar::updateMode() {
   qDebug() << "updatemode" << mode->mode() << mode->isReadOnly();
   select(modeToId(mode->mode()));
-  typeModeItem->setEnabled(mode->isWritable());
+  typeModeItem->setEnabled(mode->isWritable() || mode->isInLateNote());
   moveModeItem->setEnabled(mode->isWritable());
   markModeItem->setEnabled(mode->isWritable());
   sketchModeItem->setEnabled(mode->isWritable());

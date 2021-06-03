@@ -20,6 +20,8 @@
 #include <QDebug>
 
 Mode::Mode(bool ro, QObject *parent): QObject(parent), ro(ro) {
+  writable = !ro;
+  inlatenote = false;
   m = Browse;
   typem = Normal;
   drawm = Freehand;
@@ -74,7 +76,8 @@ void Mode::setMode(Mode::M m1) {
     m1 = Browse;
   } else if (!writable
              && !(m1==Browse || m1==Annotate
-                  || m1==Highlight || m1==Strikeout || m1==Plain)) {
+                  || m1==Highlight || m1==Strikeout || m1==Plain
+                  || (inlatenote && m1==Type))) {
     qDebug() << "Caution: setMode ignored on nonwritable";
     m1 = Browse;
   }
@@ -137,8 +140,22 @@ void Mode::setMarkSize(double ms1) {
 
 void Mode::setWritable(bool wr) {
   writable = wr;
-  if (writable)
+  if (writable || inlatenote)
     setMode(Type);
   else
+    setMode(Browse);
+}
+
+bool Mode::isWritable() const {
+  return !ro && writable;
+}
+
+void Mode::enterLateNote() {
+  inlatenote = true;
+}
+
+void Mode::leaveLateNote() {
+  inlatenote = false;
+  if (m==Type && !writable)
     setMode(Browse);
 }
