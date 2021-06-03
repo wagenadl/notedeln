@@ -151,7 +151,10 @@ bool Mode::isWritable() const {
 }
 
 void Mode::enterLateNote() {
+  qDebug() << "mode::enterlatenote";
   inlatenote = true;
+  if (m==Browse)
+    setMode(Type);
 }
 
 void Mode::leaveLateNote() {

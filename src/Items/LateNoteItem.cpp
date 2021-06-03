@@ -21,6 +21,7 @@
 #include "TextItem.h"
 #include "EntryData.h"
 #include "ElnAssert.h"
+#include "EventView.h"
 
 #include <QPen>
 #include <QBrush>
@@ -97,3 +98,4 @@ void LateNoteItem::setScale(qreal f) {
 bool LateNoteItem::excludeFromNet() const {
   return true;
 }
+

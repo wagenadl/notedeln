@@ -159,6 +159,13 @@ void TextItem::docChange() {
 
 void TextItem::focusInEvent(QFocusEvent *e) {
   QGraphicsItem::focusInEvent(e);
+  if (isWritable() && dynamic_cast<LateNoteItem*>(parent())) {
+    PageView *pv = EventView::eventView();
+    if (pv)
+      pv->mode()->enterLateNote();
+    else
+      qDebug() << "text focusin - no eventview";
+  }
 }
 
 void TextItem::focusOutEvent(QFocusEvent *e) {
@@ -171,6 +178,13 @@ void TextItem::focusOutEvent(QFocusEvent *e) {
     if (fi != this) {
       cursor.clearSelection();
       update();
+      if (dynamic_cast<LateNoteItem*>(parent())) {
+        PageView *pv = EventView::eventView();
+        if (pv)
+          pv->mode()->leaveLateNote();
+        else
+          qDebug() << "text focusout - no eventview";
+      }
     }
   }
 
