@@ -36,6 +36,27 @@ Toolbars::Toolbars(Mode *mode, QGraphicsItem *parent): QGraphicsObject(parent) {
   widths = new LineWidthBar(mode, this);
   nav = new Navbar(this);
 
+  connect(mode, &Mode::markSizeChanged,
+          [this](double ms) {
+            mcolors->setMarkSize(ms);
+            shapes->setMarkSize(ms);
+          });
+
+  connect(mode, &Mode::shapeChanged,
+          [this](GfxMarkData::Shape shp) {
+            mcolors->setShape(shp);
+            sizes->setShape(shp);
+          });
+
+  connect(mode, &Mode::colorChanged,
+          [this](QColor c) {
+            lcolors->setColor(c);
+            mcolors->setColor(c);
+            shapes->setColor(c);
+            sizes->setColor(c);
+            widths->setColor(c);
+          });  
+
   ro = mode->isReadOnly();
   if (ro) {
     hideTools();

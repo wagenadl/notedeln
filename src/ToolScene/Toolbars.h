@@ -41,11 +41,11 @@ private:
   void placeChildren();
 private:
   bool ro;
-  class Toolbar *modes;
-  class Toolbar *mcolors, *lcolors;
-  class Toolbar *shapes;
-  class Toolbar *sizes;
-  class Toolbar *widths;
+  class Modebar *modes;
+  class ColorBar *mcolors, *lcolors;
+  class MarkShapeBar *shapes;
+  class MarkSizeBar *sizes;
+  class LineWidthBar *widths;
   class Navbar *nav;
   Mode::M m;
 };
