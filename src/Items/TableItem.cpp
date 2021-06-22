@@ -157,12 +157,13 @@ bool TableItem::tryToPaste(bool /*noparagraphs*/) {
   if (md->hasText()) {
     QString txt = md->text();
     QString mid = txt.mid(1, txt.size()-2);
-    if (mid.contains("\t") || mid.contains("\n")) {
-      pasteMultiCell(txt);
-      return true;
-    }
+    if (mid.contains("\t") || mid.contains("\n"))
+      return pasteMultiCell(txt);
   }
-  return TextItem::tryToPaste(true);
+  if (selectionSpansCells())
+    return false;
+  else
+    return TextItem::tryToPaste(true);
 }
 
 void TableItem::tryToCopyCells(class TableCellRange const &rng) const {
@@ -297,7 +298,8 @@ bool TableItem::keyPressWithControl(QKeyEvent *e) {
     }
     return true;    
   case Qt::Key_V:
-    tryToPaste();
+    if (!cursor.hasSelection())
+      tryToPaste();
     return true;
   case Qt::Key_N:
     if (nr==1 && nc==1) // footnote refs cannot span cells
@@ -498,7 +500,7 @@ void TableItem::representCursor(QList<TransientMarkup> &tmm) const {
 
 bool TableItem::pasteMultiCell(QString txt) {
   if (cursor.hasSelection())
-    cursor.deleteChar();
+    return false; // simply refuse
 
   QStringList rows = txt.split("\n");
   while (!rows.isEmpty() && rows.last().isEmpty())

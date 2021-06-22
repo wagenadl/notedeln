@@ -584,7 +584,8 @@ bool TextItem::keyPressWithControl(QKeyEvent *e) {
   
   switch (e->key()) {
   case Qt::Key_V:
-    tryToPaste(); // for text only; image pasting is handled in EntryScene
+    if (!cursor.hasSelection())
+      tryToPaste(); // for text only; image pasting is handled in EntryScene
     return true;
   case Qt::Key_C:
     tryToCopy();
