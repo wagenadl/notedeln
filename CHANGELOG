@@ -1,3 +1,60 @@
+eln 1.4.0
+
+  Project renamed to “NotedELN” to avoid confusion with other electronic
+  lab notebooks.
+
+  Major new feature:
+
+  * Videos can now be embedded in notebooks in the same way as static images.
+    A simple interface is provided to play videos directly inside the notebook.
+    Cropping videos is not yet supported.
+
+  Other user-visible changes:
+
+  * The “mode bar” now operates on a per-window basis. This is less confusing.
+  * When a page is protected against writing, tool buttons that are not available
+    appear greyed out.
+  * Ctrl-V (“paste”) is disabled when a selection is active. This provides
+    protection against accidental overwriting of a selection.
+  * Several more TeX-style codes that are English words need to be explicitly
+    introduced by backslash (or activated by Ctrl-Backslash) even in math mode,
+    to facilitate typing of normal sentences in that mode.
+  * Applying emphasize or strikethrough to older material now results in
+    distinctive coloring to alert reader that the annotation was made at a
+    later date.
+  * Empty text blocks have their creating date updated when the first character
+    is typed. This improves the timestamps shown by Ctrl-Shift-T.
+  * The characters "+", "-", "=", "(", and ")" can now appear inside double
+    subscripts and superscripts. Unfortunately there are no unicode glyphs
+    for "," and "." in subscript or superscript.
+  * Words starting with a repeated letter (“aardvark”) can now be typed in
+    math mode without special effort.
+  * Pressing Escape while editing a footnote returns to reference if footnote
+    entered from that reference.
+  * Clicking on the title item is less finicky.
+
+  Bugfixes:
+
+  * When opening notebook, NotedELN now tests whether folder is writable. If not,
+    it does not try version control update, and opens the notebook read-only.
+  * The print dialog now opens created pdfs if requested, even if the file name
+    contains spaces.
+  * Printing now waits for loading of images to complete.
+  * The splash scene now responds to changes of notebook titles at next run of
+    NotedELN, rather than only after reload of the affected notebook.
+  * Previously pasting (Ctrl-V), while multiple cells in a table were selected
+    could cause a crash of ELN that required manual recovery of the affected
+    entry. TableItem now protects against this situation. Thus, even if we ever
+    revert the policty that Ctrl-V is disabled when a selection is active,
+    this kind of crash will not re-emerge.
+
+  Under-the-hood changes:
+
+  * Now builds using CMake rather than QMake.
+  * Names of installed icons updated.
+
+  -- Daniel A. Wagenaar <daw@caltech.edu>  Wed, 07 Jul 2021 14:56:16 -0700
+
 eln 1.2.20
 
   New features:

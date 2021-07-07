@@ -28,7 +28,7 @@ if ($isrepeat) {
 ######################################################################
 sub reprep {
   my $info = shift;
-  my $vsn = $info->{sourceversion};
+  my $vsn = $info->{changelogversion};
 
   print STDERR "Current version number is $vsn.\n";
   print STDERR "I am assuming that your change log is already complete.\n";
@@ -55,7 +55,7 @@ sub prep {
 
   updateversion($newvsn);
 
-  updateinno($newvsn, $info);
+  # updateinno($newvsn, $info);
 
   gitadd($newvsn, $info);
 
@@ -90,8 +90,8 @@ sub getbasicinfo {
   my @bits = split("/", $here);
   my $package = pop @bits;
 
-  my $srcvsn = `cat src/version`;
-  chomp $srcvsn;
+  #my $srcvsn = `cat src/version`;
+  #chomp $srcvsn;
 
   my $chglvsn;
   my $nextvsn = "0.1.0";
@@ -110,7 +110,6 @@ sub getbasicinfo {
   my %info = ( "name" => $name,
                "email" => $email,
                "package" => $package,
-               "sourceversion" => $srcvsn,
                "changelogversion" => $chglvsn,
                "nextversion" => $nextvsn,
                "here" => $here
