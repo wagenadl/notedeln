@@ -1,7 +1,7 @@
 [Desktop Entry]
 Name=NotedELN
 GenericName=Electronic Lab Notebook
-Exec=noted %f
+Exec=notedeln %f
 Terminal=false
 Type=Application
 Categories=Office
