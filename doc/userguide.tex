@@ -31,10 +31,11 @@
 \def\keyunderscore{``{\tt\char95}''}
 \def\terminal#1{{\tt#1}}
 \def\icon#1{\raise-2pt\hbox{\includegraphics[height=11pt]{icons/#1.png}}}
+\newcommand{\NotedELN}{NotedELN} % allow for clever typesetting, like \LaTeX.
 \begin{document}
 \thispagestyle{empty}
 \begin{centering}
-  {\Huge NotedELN}
+  {\Huge \NotedELN}
   \vskip30pt
 
   {\Large an Electronic Lab Notebook}
@@ -56,7 +57,7 @@
 \vfill
 \noindent Copyright (C) 2013--2021 Daniel A. Wagenaar\medskip
 
-NotedELN is free software: you can redistribute it and/or modify
+\NotedELN\ is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or
 (at your option) any later version.
@@ -75,18 +76,18 @@ along with this program.  If not, see \url{http://www.gnu.org/licenses}.
 
 \chapter{Introduction}
 
-This document describes the installation and usage of NotedELN, an
+This document describes the installation and usage of \NotedELN, an
 electronic lab notebook written by Daniel Wagenaar.  This introduction
 will not cover why you should keep a lab notebook, nor why an
 electronic lab notebook may be desirable. You already know that.  It
 will however, cover some of the ideas behind this particular
 implementation.
 
-\section{Why use NotedELN?}
+\section{Why use \NotedELN?}
 
 There are any
 number of software packages available that implement electronic
-notebooks. So why should you choose NotedELN? NotedELN is for you if:
+notebooks. So why should you choose \NotedELN? \NotedELN\ is for you if:
 \begin{itemize}
   \item You want your notes to be stored in a human-readable format.
   \item You want your notes to be stored in a format that will be easy to
@@ -105,11 +106,11 @@ notebooks. So why should you choose NotedELN? NotedELN is for you if:
     run it 20 years from now.
 \end{itemize}
 
-\noindent However, NotedELN may not be for you if:
+\noindent However, \NotedELN\ may not be for you if:
 \begin{itemize}
   \item You want complete control over the formatting of your notes.
-    (NotedELN will allow you some coarse control.)
-  \item You need to typeset complex equations in your notes. (NotedELN
+    (\NotedELN\ will allow you some coarse control.)
+  \item You need to typeset complex equations in your notes. (\NotedELN
     will allow you to set basic equations.)
   \item You need to typeset music in your notes.
   \item You need to import formatted documents into your notes. (Noted
@@ -119,21 +120,21 @@ notebooks. So why should you choose NotedELN? NotedELN is for you if:
   \item You need a fully polished graphical user interface.
   \item You need a help desk on-call.
 \end{itemize}
-\noindent Lastly, a note on development. NotedELN is being developed by an
+\noindent Lastly, a note on development. \NotedELN\ is being developed by an
 active research scientist. Practically, that means two things: On the
 positive side, it means that I have a vested interest in fixing bugs
-and improving NotedELN, because I use it daily. On the negative side, that
+and improving \NotedELN, because I use it daily. On the negative side, that
 means that, by and large, new features are added only when I need them
 and bugs are fixed when I have time. I certainly do welcome feature
 requests, but I cannot guarantee that they will get implemented
 quickly or at all. (If you are in a hurry, I will consider (paid)
-consultancy related to NotedELN.) Finally, I definitely welcome
+consultancy related to \NotedELN.) Finally, I definitely welcome
 contributions to either the code or the documentation. I would be very
-happy if NotedELN turned into a community-supported open source project.
+happy if \NotedELN\ turned into a community-supported open source project.
 
 \section{Features}
 
-NotedELN notebooks consist of ``entries'' that fill one or more pages.
+\NotedELN\ notebooks consist of ``entries'' that fill one or more pages.
 Each entry has a title and consists of paragraphs of text, tables, and/or
 graphics canvases. Typesetting is deliberately simple: you can create italics
 and bold face text as well as super- and subscripts, but you cannot
@@ -148,18 +149,18 @@ entry, and these graphics can be cropped and resized, but they cannot,
 e.g., be rotated or recolored. You can add simple symbols in a limited
 set of colors to the graphics as well as draw freehand lines. It is also
 possible to attach text notes to the graphics. You cannot, however,
-create arbitrarily complex graphics in NotedELN; for that, the author
+create arbitrarily complex graphics in \NotedELN; for that, the author
 recommends using the GIMP\footnote{\url{http://www.gimp.org}.} or
 Inkscape\footnote{\url{http://www.inkscape.org}.}. It is easy to
-cut-and-paste from these programs into NotedELN, and even easier to simply
-grab screenshots and paste them into NotedELN.
+cut-and-paste from these programs into \NotedELN, and even easier to simply
+grab screenshots and paste them into \NotedELN.
 
-NotedELN supports footnotes and references to other pages within the same
+\NotedELN\ supports footnotes and references to other pages within the same
 notebook, and automatically downloads and archives web pages if you
 type their URL into a notebook entry. This, for instance, facilitates
 keeping data sheets, MSDSs, and journal articles with your notes.
 
-A key feature of NotedELN is that each entry is stored in a separate
+A key feature of \NotedELN\ is that each entry is stored in a separate
 file. (A notebook is a folder on your hard disk with these files in a
 subfolder.) This approach has numerous advantages:
 \begin{itemize}
@@ -175,7 +176,7 @@ potential of hard disk corruption;
 entry was created; and
 \item It makes it much easier to manually correct
 broken files if somehow data does get compromised.\footnote{Of course
-  that's not supposed to happen, but NotedELN, like all software, does have
+  that's not supposed to happen, but \NotedELN, like all software, does have
   bugs, so it is good to know that failure can never be catastrophic.}
 \end{itemize}
 
@@ -184,30 +185,30 @@ locked (i.e., become immune to editing) after 24 hours.\footnote{See
   below under ``Editing old entries'' for a minor exception.} This
 design choice might be controversial, but it is an important feature
 for a lab notebook: it encourages (in fact, enforces), chronological
-note taking and discourages manipulating data post-hoc.\footnote{NotedELN
+note taking and discourages manipulating data post-hoc.\footnote{\NotedELN\
   on its own cannot be relied on to fully guarantee that entries
   aren't modified post-hoc, because it is certainly possible to modify
   entries using an external text editor. However, judicious use of
   version control software can be used to document that such abuse has
   not occurred.}
 
-NotedELN does not, at present, offer any facilities for multi-user
+\NotedELN\ does not, at present, offer any facilities for multi-user
 collaboration. However, if used in conjunction with version control
 software, it is not hard to automatically maintain a central library of
 many lab members' notebooks. Lab members can then readily browse each
-others' notebooks. In addition, NotedELN can export anything from an
+others' notebooks. In addition, \NotedELN\ can export anything from an
 individual page to an entire notebook to pdf.
 
 \section{Contacting the author}
 
-If you like NotedELN or find fault with it, if you discover a bug or have a
+If you like \NotedELN\ or find fault with it, if you discover a bug or have a
 suggestion for a new feature, if you are interested in improving this
 documentation or have a patch to contribute to the code, I want to
 hear from you. My contact information is on the web at
 \url{http://www.danielwagenaar.net}. I very much look forward to hearing
 from you. I realize that this guide is extremely terse, and I
 really do welcome questions, particularly if they help me to improve
-NotedELN or its documentation.
+\NotedELN\ or its documentation.
 
 
 \chapter{Installation}
@@ -223,7 +224,7 @@ either of the following places:
 
 To install on Windows 10, using the ``.exe'' installation
 package. To install on Mac OS X, opening the ``.dmg'' archive and
-place ``NotedELN.app'' anywhere on your system.  Installation on
+place ``\NotedELN.app'' anywhere on your system.  Installation on
 Debian, Ubuntu, or Mint Linux should be easy using the
 ``.deb'' installation package. At present, installation on other
 flavors of Linux will require compiling the sources yourself, but this
@@ -231,7 +232,7 @@ should be straightforward (see below).
 
 At present, neither Android devices nor iPads are currently supported,
 simply because the author doesn't own any. If you are interested in
-porting NotedELN to either of these platforms or would like to commission
+porting \NotedELN\ to either of these platforms or would like to commission
 me to do so, please contact me by email.
 
 Please note that development occurs primarily on Linux, so the Windows
@@ -266,33 +267,33 @@ something like
 \terminal{CMAKE\_PREFIX\_PATH=/c/Qt/5.15.2/msvc2019\_64/lib/cmake/Qt5
   cmake ..} (notice the literal periods at the end).  The path to Qt
 may need to be changed. Follow this by \terminal{cmake --build . --config
-  Release} and fetch your tea. At that point, you can run NotedELN in place (in the
+  Release} and fetch your tea. At that point, you can run \NotedELN\ in place (in the
 Release subdirectory), or you can create an installation package using
 \terminal{cpack} and install that.
 
-\chapter{Using NotedELN}
+\chapter{Using \NotedELN}
 
-NotedELN has a deliberately sparse user interface that may take a little
+\NotedELN\ has a deliberately sparse user interface that may take a little
 getting used to. It is the author's hope, however, that users will
 quickly get to appreciate the simplicity of the system.
 
 \section{Some general notes}
 
-NotedELN is intended to be fully usable either with traditional laptop or
+\NotedELN\ is intended to be fully usable either with traditional laptop or
 desktop computers or with tablets. To facilitate that, it only uses
-the left mouse button. NotedELN can also be operated almost exclusively from the
+the left mouse button. \NotedELN\ can also be operated almost exclusively from the
 keyboard.
 
 \section{Creating a new notebook}
 
-When NotedELN starts, it displays a list of recent notebooks and also offers the
+When \NotedELN\ starts, it displays a list of recent notebooks and also offers the
 choice of opening a notebook that is not on the list or to create a
 new notebook. When you click ``Create new notebook,'' it will
 immediately ask you where you want to store that notebook. It will
 then open the front page of your notebook, where you can change its
 title and add your name as the author as well as your affiliation or
 other relevant information. It is highly recommended that you give
-your notebook a meaningful title, as that title will show up in NotedELN's
+your notebook a meaningful title, as that title will show up in \NotedELN's
 opening screen in the future.
 
 Other options on the opening screen are ``Open other existing
@@ -317,7 +318,7 @@ press \key{Enter} or \key{Tab}.
 
 \section{Adding text}
 
-Text mode is NotedELN's default mode, so you should be able to start typing
+Text mode is \NotedELN's default mode, so you should be able to start typing
 right away. If not, click the \icon{type} mode icon (or press
 \key{F2}) to enter text mode. Click below existing contents or inside
 an existing paragraph to start editing. Note that it is not possible
@@ -325,7 +326,7 @@ to edit an entry that is older than 24 hours.
 
 Text may be cut-and-pasted as you would expect using
 \keycontrol{X}, \keycontrol{C}, and \keycontrol{V} as in other
-programs, but NotedELN does not have an ``undo'' mechanism. To protect
+programs, but \NotedELN\ does not have an ``undo'' mechanism. To protect
 you against accidental deletion, you have to explicitly press
 \key{Delete} to delete a selection.
 
@@ -341,7 +342,7 @@ Various plot symbols as well as freehand lines can be added using the
 \icon{squiggle} icon (or by pressing \keyshift{F5}) which turns the
 squiggly line into a straight line: \icon{straight}. Several choices
 for symbol size, line width, and color are available.  (These options
-are not extendible. By limiting the options, NotedELN hopes to encourage
+are not extendible. By limiting the options, \NotedELN\ hopes to encourage
 you to not spend too much time thinking about the perfect color for
 your annotation.)
 
@@ -385,7 +386,7 @@ an entire column, and the entire table.
 
 \section{Saving your work}
 
-You don't have to! NotedELN automatically saves your work every 10 seconds
+You don't have to! \NotedELN\ automatically saves your work every 10 seconds
 (if you have made any changes) and when you navigate to a different
 entry (ditto). If you have configured version control (see below),
 your changes are automatically committed and pushed to the server
@@ -413,12 +414,12 @@ Cannot be done. Except that you can use the \icon{note} icon (\key{F6}) to
 create so-called ``late notes.'' These are automatically set in a
 distinct color and decorated with a date stamp. They
 may be manipulated just like text annotations on a graphics canvas. To
-indicate that an entry cannot be edited, NotedELN switches to ``browse''
+indicate that an entry cannot be edited, \NotedELN\ switches to ``browse''
 mode, indicated by the \icon{browse} icon being automatically selected.
 
 \section{Formatting}
 
-NotedELN doesn't offer advanced formatting, but it does offer some basic
+\NotedELN\ doesn't offer advanced formatting, but it does offer some basic
 options: Press \keycontrol{I} or \keycontrol{/} to italicize the word
 under the cursor or the current selection (or to unitalicize). Press
 \keycontrol{B} or \keycontrol{*} (or \keycontrol{8}) for bold face. Press
@@ -439,7 +440,7 @@ also be toggled using \keycontrol{!} (or \keycontrol{1}). Likewise,
 
 \section{Special characters}
 
-NotedELN supports most of unicode and---presumably---you can use any input
+\NotedELN\ supports most of unicode and---presumably---you can use any input
 method supported by Qt to enter text.\footnote{I have only tested this
   with the ``compose'' key method in ``Gnome''; I am interested in
   your test results.} In addition, the following substitutions are
@@ -462,7 +463,7 @@ that can be obtained by typing a backslash followed by their name
 is easy, so let me know if you have suggestions.
 
 As an alternative to standard unicode input methods for entering
-accented letters, NotedELN supports creating a select group of accented
+accented letters, \NotedELN\ supports creating a select group of accented
 letters by typing a backslash followed by a symbol and a letter
 (Figure~\ref{fig:accents}), as in ``{\tt Se\char92\char126nor}'' for
 ``Se\~nor'' or ``{\tt gar\char92,con}'' for ``gar\c{c}on''.
@@ -509,7 +510,7 @@ tag.  If you prefer to use symbols to tag footnotes, the symbols *,
     highlighted.
 
 If your tag is a big integer, it is interpreted as a PubMed ID. In
-that case, NotedELN will insert the corresponding citation in the note for
+that case, \NotedELN\ will insert the corresponding citation in the note for
 you automatically. (If you have suggestions for other kinds of
 automatically created note contents, I want to hear from you.)
 
@@ -517,7 +518,7 @@ automatically created note contents, I want to hear from you.)
 
 Press \keycontrol{L} to create a hyperlink. (If your hyperlink
 contains spaces, you will have to select the text first, otherwise,
-NotedELN figures out the boundaries of the link text automatically.)
+\NotedELN\ figures out the boundaries of the link text automatically.)
 
 Hovering over a link displays a thumbnail of the
 page\footnote{Currently, the Mac and Windows versions merely show the
@@ -531,7 +532,7 @@ download is in progress.)
 
 \section{Magic links}
 
-NotedELN recognizes not just URL-style hyperlinks, but also a number of
+\NotedELN\ recognizes not just URL-style hyperlinks, but also a number of
 other ``magic'' links:
 \begin{itemize}
 \item A small number (at most 4 digits), upon pressing \keycontrol{L}
@@ -546,7 +547,7 @@ and archived with the notebook.
 
 Occasionally it is useful to typeset ``imported'' materials such as
 quotations differently from the rest of your notes. In a small
-concession to typographic nicety, NotedELN does this for you if you press
+concession to typographic nicety, \NotedELN\ does this for you if you press
 \keycontrol{Tab}.  The paragraph will be typeset in a slightly
 different color, a slightly smaller point size, and with slightly
 larger margins. To undo, simply press \keycontrol{Tab}
@@ -570,7 +571,7 @@ name and single-character words are typeset in italics.\footnote{A few
   exceptions apply: Without a preceding backslash, ``x'' does not
   generate $\times$, ``d'' does not generate $\partial,$ and symbols
   whose commands are plain English words (e.g., ``sum'') also still
-  require typing the backslash. NotedELN tries to guess whether you
+  require typing the backslash. \NotedELN\ tries to guess whether you
   mean the variables $a$ and $I$ or the words ``a'' and ``I.'' A few
   other subtle cases are handled semi-intelligently as well.} To
 typeset a single-letter variable name in bold, bold italic, or roman,
@@ -602,7 +603,7 @@ change to \icon{type-code}, which signifies ``Code'' mode. Press
 
 \section{Exporting and printing}
 
-NotedELN can export your entire notebook or portions of it to pdf or print
+\NotedELN\ can export your entire notebook or portions of it to pdf or print
 them directly. Simply press \keycontrol{P} or click the
 \icon{nav-print} icon
 to open the print dialog and select either ``Print to pdf'' or an
@@ -615,7 +616,7 @@ may be integrated with the print dialog.
 
 \section{Searching your notebook}
 
-NotedELN incorporates a simple but very useful full-text search
+\NotedELN\ incorporates a simple but very useful full-text search
 facility. Press \keycontrol{F} or click the \icon{nav-find} icon to open the
 search dialog, type any word or phrase, and press \key{Enter} or click
 ``OK.'' A list with search results from the entire notebook will open;
@@ -624,7 +625,7 @@ click on a result to navigate to the relevant entry.
 \section{Customization}
 
 At present, you cannot graphically change the looks of a
-notebook. However, inside each notebook folder, NotedELN creates a file
+notebook. However, inside each notebook folder, \NotedELN\ creates a file
 called ``style.json'' that defines many of the style parameters of the
 notebook. I don't have the time right now to document all of them
 (feel free to contribute). Particularly important ones are
@@ -642,8 +643,8 @@ where you want the archive to be stored.
 Archiving locally is extremely easy, but of limited
 utility.\footnote{Unless ``locally'' actually means a network location
   that your computer maps to a path that merely ``looks'' local to
-  NotedELN.  Most operating systems are capable of that.} Archiving
-remotely from within NotedELN is slightly more involved. If you have no
+  \NotedELN.  Most operating systems are capable of that.} Archiving
+remotely from within \NotedELN\ is slightly more involved. If you have no
 experience with Git, it is probably best to remedy that first. Some of
 the following is likely to be hard to understand otherwise.
 
@@ -663,12 +664,12 @@ Windows solutions I have found are ``Pageant,'' which is part of the
 
 If you use Git to store your notebook on a remote host,
 you can also access it from other computers. To do that, you would
-select ``Clone hosted notebook for local use'' from the NotedELN opening
+select ``Clone hosted notebook for local use'' from the \NotedELN\ opening
 screen. Conveniently, once you have cloned the notebook, you can treat
 it just like any other local notebook, with one caveat: you should not
 open a notebook simultaneously on two computers, and always allow Git
 to ``commit and push'' any changes back to the host.\footnote{If you fail to
-heed this warning, NotedELN will likely have to manually rebuild your index
+heed this warning, \NotedELN\ will likely have to manually rebuild your index
 and table of contents. That's not the end of the world. However, in
 rare instances, your notebook can get into a messy state from which
 recovery will require typing Git commands in a terminal window. Note
@@ -701,10 +702,10 @@ contacting me. (And yes, I will be happy to assist.)
 
 \section{Conclusion}
 
-I hope that NotedELN will be useful to you, and that it will encourage you
+I hope that \NotedELN\ will be useful to you, and that it will encourage you
 to take more---and more usable---notes. I love to hear happy users'
 stories. I also welcome bug reports of all kinds. And in the unlikely
-event that NotedELN appears to have chewed up your notes, please do not
+event that \NotedELN\ appears to have chewed up your notes, please do not
 just throw away the broken notebook. Although I cannot make any
 guarantees (see the GPL license text!), it almost certainly can be
 fixed. And I would be happy to try and help.
