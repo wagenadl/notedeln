@@ -10,6 +10,9 @@
 \usepackage{graphicx}
 \usepackage{footnote}
 \usepackage[margin=0pt,font=small,labelfont=bf]{caption}
+\usepackage{hyperref}
+\hypersetup{colorlinks,linkcolor={blue},citecolor={blue},urlcolor={blue}}
+\urlstyle{same}
 \makesavenoteenv{tabular}
 \def\topfraction{.9}
 \def\bottomfraction{.9}
@@ -64,7 +67,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with this program.  If not, see http://www.gnu.org/licenses.
+along with this program.  If not, see \url{http://www.gnu.org/licenses}.
 \pagebreak
 
 \tableofcontents
@@ -146,8 +149,8 @@ e.g., be rotated or recolored. You can add simple symbols in a limited
 set of colors to the graphics as well as draw freehand lines. It is also
 possible to attach text notes to the graphics. You cannot, however,
 create arbitrarily complex graphics in NotedELN; for that, the author
-recommends using the GIMP\footnote{http://www.gimp.org.} or
-Inkscape\footnote{http://www.inkscape.org.}. It is easy to
+recommends using the GIMP\footnote{\url{http://www.gimp.org}.} or
+Inkscape\footnote{\url{http://www.inkscape.org}.}. It is easy to
 cut-and-paste from these programs into NotedELN, and even easier to simply
 grab screenshots and paste them into NotedELN.
 
@@ -165,7 +168,7 @@ editing regardless of the size of the notebook;
 \item It limits the damage
 potential of hard disk corruption;
 \item It makes it convenient to use external version control software
-  to archive your notebooks (Git\footnote{http://git-scm.com (free and
+  to archive your notebooks (Git\footnote{\url{http://git-scm.com} (free and
     open source despite the ``.com'' domain).} is best
   supported);
 \item It facilitates electronically verifying when an
@@ -201,7 +204,7 @@ If you like NotedELN or find fault with it, if you discover a bug or have a
 suggestion for a new feature, if you are interested in improving this
 documentation or have a patch to contribute to the code, I want to
 hear from you. My contact information is on the web at
-http://www.danielwagenaar.net. I very much look forward to hearing
+\url{http://www.danielwagenaar.net}. I very much look forward to hearing
 from you. I realize that this guide is extremely terse, and I
 really do welcome questions, particularly if they help me to improve
 NotedELN or its documentation.
@@ -212,8 +215,8 @@ NotedELN or its documentation.
 The latest version of the software can always be downloaded from
 either of the following places:
 \begin{itemize}
-\item https://github.com/wagenadl/eln/releases
-  \item http://www.danielwagenaar.net/eln
+\item \url{https://github.com/wagenadl/eln/releases}
+  \item \url{http://www.danielwagenaar.net/eln}
 \end{itemize}
 
 \section{Installing precompiled binaries}
@@ -235,7 +238,7 @@ Please note that development occurs primarily on Linux, so the Windows
 and Mac OS versions may lag behind.
 
 \section{Compiling the source}
-To compile the source, download the source at https://github.com/wagenadl/eln. You will need
+To compile the source, download the source at \url{https://github.com/wagenadl/eln}. You will need
 ``Qt 5'' version 5.6 or later.
 
 You will need a C++ compiler, the Qt development packages and
@@ -243,7 +246,7 @@ You will need a C++ compiler, the Qt development packages and
   apt-get install g++ cmake qtmultimedia5-dev
   \ libqt5webkit5-dev libqt5svg5-dev}.  On Mac OS, you need the
 ``Command Line tools for XCode'' from the Apple Developers' web
-site\footnote{https://developer.apple.com/xcode.}. On Windows you will
+site\footnote{\url{https://developer.apple.com/xcode}.}. On Windows you will
 need Visual Studio (Community Edition).
 
 Open a terminal (git bash works great in Windows), then ``cd'' to the
@@ -652,11 +655,11 @@ file ``.ssh/authorized\_keys'' on the server. Further details can be
 found elsewhere. In my experience, doing this from a Windows computer
 is much trickier than from either Linux or Mac OS; the most workable
 Windows solutions I have found are ``Pageant,'' which is part of the
-``PuTTY'' package,\footnote{At https://www.putty.org. See
-  https://documentation.help/PuTTY/pageant.html for an introduction to
+``PuTTY'' package,\footnote{At \url{https://www.putty.org}. See
+  \url{https://documentation.help/PuTTY/pageant.html} for an introduction to
   Pageant.} and the unix-style `ssh-keygen,'' ``ssh-agent,'' and
 ``ssh-add'' that come with recent versions of Git SCM.\footnote{An
-  excellent port of git to Windows. At https://git-scm.com.}
+  excellent port of git to Windows. At \url{https://git-scm.com}.}
 
 If you use Git to store your notebook on a remote host,
 you can also access it from other computers. To do that, you would
