@@ -16,3 +16,6 @@ obj-*
 debian/notedeln
 debian/files
 debian/*.substvars
+debian/eln
+
+

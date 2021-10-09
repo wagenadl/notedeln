@@ -2,5 +2,6 @@
  <qresource>
      <file>TeXCodes.json</file>
      <file>Accents.json</file>
+     <file>Scripts.json</file>
  </qresource>
 </RCC>

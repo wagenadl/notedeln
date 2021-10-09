@@ -922,7 +922,7 @@ int TextItem::substituteInternalScripts(int start, int end) {
     QChar c = document()->characterAt(pos);
     if ((c=="^" || c=="_") && pos<end-1) {
       QString s = QString(c) + QString(document()->characterAt(pos+1));
-      if (Accents::contains(s)) {
+      if (Accents::isScript(s)) {
         TextCursor cur(document(), pos+2, pos);
         cur.deleteChar();
         QString sub = Accents::map(s);
@@ -1075,7 +1075,8 @@ static bool balancedBrackets(QString s) {
 }
 
 bool TextItem::unscriptStyles() {
-  // drop old super/subscript 
+  // drop old super/subscript
+  qDebug() << "unscriptStyles";
   cursor.clearSelection();
   
   MarkupData *oldscript = data()->markupAt(cursor.position(),
@@ -1097,7 +1098,7 @@ bool TextItem::unscriptStyles() {
 }
   
 
-bool TextItem::tryScriptStyles(bool onlyIfBalanced) {
+bool TextItem::tryScriptStyles(bool onlyifbalanced) {
   /* Returns true if we decide to make a superscript or subscript, that is,
      if there is a preceding "^" or "_".
    */
@@ -1111,18 +1112,26 @@ bool TextItem::tryScriptStyles(bool onlyIfBalanced) {
 
   bool endswithbrace = document()->characterAt(cursor.position()-1) == '}';
   QString re = "(\\^|_)";
-  if (endswithbrace)
+  if (endswithbrace || onlyifbalanced)
     re += "\\{";
       
   TextCursor m = cursor.findBackward(QRegExp(re));
-  if (!m.hasSelection())
-    return false; // no "^" or "_"
+  if (!m.hasSelection()) {
+    if (endswithbrace)
+      return false;
+    re = "(\\^|_)";
+    m = cursor.findBackward(QRegExp(re));
+    if (!m.hasSelection())
+      return false; // no "^" or "_"
+  }
   if (m.selectionEnd() == cursor.position())
     return false; // empty target
 
   QString mrk = m.selectedText();
 
-  if (onlyIfBalanced) {
+  qDebug() << "tryscript" << onlyifbalanced << mrk;
+ 
+  if (onlyifbalanced) {
     TextCursor scr(document(), m.selectionStart() + 1);
     scr.setPosition(cursor.position(), TextCursor::KeepAnchor);
     qDebug() << "onlyifbalanced" << scr.selectedText();

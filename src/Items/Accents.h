@@ -21,14 +21,17 @@
 #define ACCENTS_H
 
 #include <QMap>
+#include <QSet>
 #include <QString>
 
 class Accents {
 public:
   static bool contains(QString);
+  static bool isScript(QString);
   static QString map(QString);
 private:
   static QMap<QString, QString> const &chars();
+  static QSet<QString> &scripts();
 };
 
 #endif

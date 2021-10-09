@@ -20,6 +20,11 @@
 #include "ElnAssert.h"
 #include "JSONFile.h"
 
+QSet<QString> &Accents::scripts() {
+  static QSet<QString> c;
+  return c;
+}
+
 QMap<QString, QString> const &Accents::chars() {
   static QMap<QString, QString> c;
   if (c.isEmpty()) {
@@ -29,6 +34,14 @@ QMap<QString, QString> const &Accents::chars() {
     foreach (QString k, v.keys())
       if (k != "#")
 	c[k] = v[k].toString();
+    v = JSONFile::load(":/Scripts.json", &ok);
+    ASSERT(ok);
+    foreach (QString k, v.keys()) {
+      if (k != "#") {
+	c[k] = v[k].toString();
+	scripts().insert(k);
+      }
+    }
   }
   return c;
 }
@@ -42,4 +55,8 @@ QString Accents::map(QString k) {
     return chars()[k];
   else
     return "";
+}
+
+bool Accents::isScript(QString k) {
+  return chars().contains(k) && scripts().contains(k);
 }
