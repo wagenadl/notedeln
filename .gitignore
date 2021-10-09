@@ -11,6 +11,7 @@ release-*
 *.dmg
 Info.plist
 obj-*
+<<<<<<< HEAD
 *debhelper*
 debian/notedeln
 debian/files
