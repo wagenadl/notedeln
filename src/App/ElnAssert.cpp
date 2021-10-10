@@ -134,8 +134,9 @@ QString Assertion::tryToSave() {
 }
   
 void Assertion::reportSaved(int nsaved, int nunsaved) {
-  QMessageBox mb(QMessageBox::Critical, Translate::_("eln"),
-                 Translate::_("eln")
+  QString eln = Translate::_("eln");
+  QMessageBox mb(QMessageBox::Critical, eln,
+                 eln
                  + " suffered a fatal internal error and will have to close:",
                  QMessageBox::Close);
     
@@ -154,8 +155,8 @@ void Assertion::reportSaved(int nsaved, int nunsaved) {
     msg += " at " + email;
   msg += ".";
   if (!vsn.isEmpty())
-    msg += " Please mention this NotedELN version: " + vsn + ".";
-  msg += "\n\n(NotedELN automatically saves your work every few seconds,"
+    msg += " Please mention this " + eln + " version: " + vsn + ".\n\n";
+  msg += "(" + eln + " automatically saves your work every few seconds,"
     " so hopefully your data loss is minimal."
     " Regardless: apologies for the inconvenience.)";
   mb.setInformativeText(msg);
@@ -178,7 +179,7 @@ void Assertion::reportFailedToSave(QString msg2) {
   if (!msg.endsWith("."))
     msg += ".";
 
-  if (!backtrace().isEmpty())
+  if (!backtrace().trimmed().isEmpty())
     msg += "\n\nStack backtrace:\n" + backtrace();
 
   msg += "\nRegrettably, your work of the last few seconds"
