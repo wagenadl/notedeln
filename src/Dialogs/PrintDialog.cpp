@@ -47,7 +47,7 @@ PrintDialog::PrintDialog(QWidget *parent): QDialog(parent) {
       ui->pPrinterName->addItem(p.printerName());
   }
 
-  ui->pFileName->setText(defaultLocation() + "/output.pdf");
+  ui->pFileName->setText(DefaultLocation::lastLocation() + "/output.pdf");
 }
 
 PrintDialog::~PrintDialog() {

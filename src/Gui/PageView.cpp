@@ -785,13 +785,14 @@ void PageView::openGotoPageDialog() {
 void PageView::htmlDialog() {
   if (currentSection==Entries) {
     QString fn = QFileDialog::getSaveFileName(this, "Save entry as html",
-					      defaultLocation()
+					      DefaultLocation::lastLocation()
 					      + QString("/%1.html")
                                               .arg(entryScene->startPage()),
                                               "Web pages (*.html)");
     if (!fn.isEmpty()) {
       if (!fn.endsWith(".html"))
         fn += ".html";
+      DefaultLocation::updateLastLocation(fn);
       HtmlOutput html(fn, entryScene->title());
       html.addEntry(entryScene.obj());
     }

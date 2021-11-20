@@ -16,6 +16,7 @@
 
 #define NOHIDETOOLBARS 0
 
+#include "DefaultLocation.h"
 #include "SceneBank.h"
 #include "PageView.h"
 #include "Notebook.h"
@@ -59,6 +60,7 @@ void PageView::openPrintDialog() {
 
   if (dialog.toFile()) {
     printer.setOutputFileName(dialog.filename());
+    DefaultLocation::updateLastLocation(dialog.filename());
   } else {
     printer.setOutputFileName(QString());
     printer.setPrinterName(dialog.printername());
