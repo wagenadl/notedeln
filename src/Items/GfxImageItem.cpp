@@ -73,11 +73,7 @@ GfxImageItem::GfxImageItem(GfxImageData *data, Item *parent):
       ImageLoader *ldr = new ImageLoader;
       loading = true;
       connect(ldr, &ImageLoader::loaded,
-              [this](QImage img) {
-                this->loading = false;
-                this->setImage(img);
-                emit loadComplete();
-              });
+              this, &GfxImageItem::delayedLoad);
       image = QImage(data->width(), data->height(), QImage::Format_RGB32);
       image.fill(QColor(255, 255, 200)); // pale yellow during loading
       ldr->loadThenDelete(res->archivePath());
@@ -391,10 +387,17 @@ void GfxImageItem::setScale(double s) {
 void GfxImageItem::paint(QPainter*, const QStyleOptionGraphicsItem*, QWidget*) {
 }
 
+void GfxImageItem::delayedLoad(QImage img) {
+  this->loading = false;
+  this->setImage(img);
+  emit loadComplete();
+}
+
 void GfxImageItem::setImage(QImage img) {
   image = img;
   QImage crop(image.copy(data()->cropRect().toRect()));
-  pixmap->setPixmap(QPixmap::fromImage(crop));
+  QPixmap pm(QPixmap::fromImage(crop));
+  pixmap->setPixmap(pm);
 }
 
 void GfxImageItem::setCropAllowed(bool a) {

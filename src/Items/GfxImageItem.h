@@ -64,6 +64,8 @@ private:
   };
 signals:
   void loadComplete();
+private slots:
+  void delayedLoad(QImage);
 private:
   QPointF moveDelta(QGraphicsSceneMouseEvent *);
   DragType dragTypeForPoint(QPointF) const;
