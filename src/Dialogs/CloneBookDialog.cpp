@@ -30,7 +30,7 @@
 CloneBookDialog::CloneBookDialog(QWidget *parent): QDialog(parent) {
   ui = new Ui_cloneBookDialog;
   ui->setupUi(this);
-  ui->location->setText(defaultLocation());
+  ui->location->setText(DefaultLocation::defaultLocation());
   ui->leaf->setText("");
   ui->infoText->setPlainText(Translate::_("key-info"));
   QStyle *s = style();

@@ -35,7 +35,7 @@ NewBookDialog::NewBookDialog(QWidget *parent): QDialog(parent) {
   ui = new Ui_newBookDialog();
   ui->setupUi(this);
 
-  ui->location->setText(defaultLocation() + "/book.nb");
+  ui->location->setText(DefaultLocation::defaultLocation() + "/book.nb");
   connect(ui->location, SIGNAL(textChanged(QString)),
           SLOT(locationChanged()));
   
@@ -105,7 +105,7 @@ void NewBookDialog::browse() {
 
 void NewBookDialog::abrowse() {
   qDebug() << "abrowse";
-  QString loc = defaultLocation();
+  QString loc = DefaultLocation::defaultLocation();
   qDebug() << "location" << loc;
   QString ttl = Translate::_("create-archive");
   qDebug() << "title" << ttl;
@@ -130,7 +130,7 @@ QString NewBookDialog::getNewSimple() {
   while (true) {
     QString fn = QFileDialog::getSaveFileName(0,
                                               Translate::_("create-path"),
-                                              defaultLocation(),
+                                              DefaultLocation::defaultLocation(),
                                               Translate::_("Notebooks")
                                               + " (*.nb)");
     if (fn.isEmpty())

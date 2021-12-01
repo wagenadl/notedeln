@@ -41,7 +41,7 @@
 
 SplashScene::SplashScene(QObject *parent):
   QGraphicsScene(parent) {
-  openlocation = defaultLocation();
+  openlocation = DefaultLocation::defaultLocation();
   makeBackground();
   makeItems();
 }
