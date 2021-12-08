@@ -1096,12 +1096,30 @@ bool TextItem::unscriptStyles() {
   cursor.movePosition(TextCursor::Right);
   return true;
 }
-  
+
+bool TextItem::tryAngleBrackets() {
+  cursor.clearSelection();
+  if (document()->characterAt(cursor.position()-1) != '>')
+    return false;
+  TextCursor m = cursor.findBackward("<");
+  if (!m.hasSelection())
+    return false;
+  m.clearSelection();
+  for (int k=m.position(); k<cursor.position(); k++)
+    if (document()->characterAt(k).isSpace())
+      return false;
+  m.deleteChar();
+  m.insertText("⟨");
+  cursor.deletePreviousChar();
+  cursor.insertText("⟩");
+  return true;
+}
 
 bool TextItem::tryScriptStyles(bool onlyifbalanced) {
   /* Returns true if we decide to make a superscript or subscript, that is,
      if there is a preceding "^" or "_".
    */
+  tryAngleBrackets();
   cursor.clearSelection();
   
   if (data()->markupAt(cursor.position(),

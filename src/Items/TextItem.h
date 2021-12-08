@@ -122,6 +122,7 @@ protected:
   bool tryFootnote(bool del);
   virtual bool tryToPaste(bool noparagraphs=false);
   virtual bool tryToCopy() const;
+  bool tryAngleBrackets();
   bool tryScriptStyles(bool onlyIfBalanced=false);
   bool unscriptStyles();
   bool tryTeXCode(bool noX=false, bool onlyAtEndOfWord=false);
