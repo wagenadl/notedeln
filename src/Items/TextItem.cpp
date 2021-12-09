@@ -937,9 +937,13 @@ int TextItem::substituteInternalScripts(int start, int end) {
 }      
 
 bool TextItem::keyPressAsDigraph(QKeyEvent *e) {
+  if (cursor.hasSelection())
+    return false;
+  QString charNow = e->text();
+  if (charNow=="")
+    return false;
   QChar charBefore = document()->characterAt(cursor.position()-1);
   QChar charBefore2 = document()->characterAt(cursor.position()-2);
-  QString charNow = e->text();
   QString digraph = QString(charBefore) + charNow;
   QString trigraph = QString(charBefore2) + digraph;
   if (Digraphs::contains(digraph)) {
