@@ -1080,7 +1080,6 @@ static bool balancedBrackets(QString s) {
 
 bool TextItem::unscriptStyles() {
   // drop old super/subscript
-  qDebug() << "unscriptStyles";
   cursor.clearSelection();
   
   MarkupData *oldscript = data()->markupAt(cursor.position(),
@@ -1151,12 +1150,9 @@ bool TextItem::tryScriptStyles(bool onlyifbalanced) {
 
   QString mrk = m.selectedText();
 
-  qDebug() << "tryscript" << onlyifbalanced << mrk;
- 
   if (onlyifbalanced) {
     TextCursor scr(document(), m.selectionStart() + 1);
     scr.setPosition(cursor.position(), TextCursor::KeepAnchor);
-    qDebug() << "onlyifbalanced" << scr.selectedText();
     if (!balancedBrackets(scr.selectedText()))
       return false;
   }
@@ -1272,8 +1268,20 @@ void TextItem::toggleSimpleStyle(MarkupData::Style type,
   
   MarkupData *oldmd = data()->markupAt(start, type);
   
-  if (oldmd && oldmd->start()==start && oldmd->end()==end) {
-    deleteMarkup(oldmd);
+  if (oldmd) {
+    // touch or overlap
+    int ostart = oldmd->start();
+    int oend = oldmd->end();
+    if (oend>=end) {
+      // whole section was marked up, we'll drop it
+      deleteMarkup(oldmd);
+      if (ostart<start)
+        addMarkup(type, ostart, start);
+      if (oend>end)
+        addMarkup(type, end, oend);
+    } else {
+      addMarkup(type, start, end);
+    }
   } else if (start<end) {
     addMarkup(type, start, end);
   }

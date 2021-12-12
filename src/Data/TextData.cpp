@@ -112,6 +112,15 @@ MarkupData *TextData::mergeMarkup(int start, int end, MarkupData::Style style,
 MarkupData *TextData::mergeMarkup(MarkupData *md, bool *new_return) {
   MarkupData *md0 = markupAt(md->start(), md->end(), md->style());
   if (md0 && mergeable(md, md0)) {
+    int s0 = md0->end();
+    MarkupData *md1 = markupAt(s0 + 1, md->end(), md->style());
+    while (md1) { // get rid of other overlaps
+      s0 = md1->end();
+      if (s0 > md0->end())
+        md0->setEnd(s0);
+      deleteMarkup(md1);
+      md1 = markupAt(s0 + 1, md->end(), md->style());
+    }
     if (md->start()<md0->start())
       md0->setStart(md->start());
     if (md->end()>md0->end())
