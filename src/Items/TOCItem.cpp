@@ -73,6 +73,8 @@ QRectF TOCItem::boundingRect() const {
 }
 
 void TOCItem::entryChanged() {
+  if (beingDeleted())
+    return;
   QRectF r = childrenBoundingRect();
   fillItems();
   if (r != childrenBoundingRect())
