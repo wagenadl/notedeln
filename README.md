@@ -145,10 +145,14 @@ In my experience, this tends to be a bit more tricky.
         cd eln
         mkdir build
         cd build
-        CMAKE_PREFIX_PATH=/c/Qt/5.15.2/msvc2019_64/lib/cmake/Qt5 cmake ..
+        export CMAKE_PREFIX_PATH=/c/Qt/5.15.2/msvc2019_64/lib/cmake/Qt5 
+	export PATH=/c/Qt/5.15.2/msvc2019_64/bin:$PATH
+	cmake ..
         cmake --build . --config Release
 		
   You will have to change the path to Qt if you have a different version.
+  (Don't assume all is well if it builds without specifying a path. I have seen CMake using one 
+  version of Qt for the actual building and an other for collecting DLLs for deployment.)
 
 * You can now run the eln binary in-place, but you probably want to create an installation 
   package, so keep typing in the terminal:
@@ -158,3 +162,4 @@ In my experience, this tends to be a bit more tricky.
 * This results in a file called NotedELN-x.y.z-win64.exe in the "build" folder.
   Double click it to install.
 	
+* Before installing, you may check that \_CPack\_Packages/win64/NSIS/NotedELN-x.y.z/bin/notedeln.exe actually runs.
