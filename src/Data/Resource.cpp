@@ -202,7 +202,7 @@ void Resource::ensureArchiveFilename() {
   QString base = tag_;
   if (src.isLocalFile()) {
     // use extension from local file
-    QStringList bits = src.path().split("/");
+    QStringList bits = src.toLocalFile().split("/");
     QString leaf = bits.last();
     int idx = leaf.lastIndexOf(".");
     if (idx>=0) {
@@ -212,7 +212,7 @@ void Resource::ensureArchiveFilename() {
       base += leaf.mid(idx);
     }
   } else {
-    qDebug() << "ensureArchiveFilename" << base <<src.path() << safeExtension(base);
+    qDebug() << "ensureArchiveFilename" << base <<src.toLocalFile() << safeExtension(base);
     if (safeExtension(base).isEmpty())
       base += ".html";
   }
@@ -232,12 +232,14 @@ bool Resource::importImage(QImage img) {
   }
   ensureDir();
   bool ok = false;
+  qDebug() << "resource::importimage" << src << src.toLocalFile() << archivePath();
   if (src.isLocalFile()) {
-    QString fn = src.path();
+    QString fn = src.toLocalFile();
     ok = QFile::copy(fn, archivePath());
   } else {
     ok = img.save(archivePath());
   }
+  qDebug() << " -> importimage" << ok;
   markModified();
   return ok;
 }
