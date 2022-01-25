@@ -1143,12 +1143,15 @@ bool EntryScene::importDroppedUrl(QPointF scenePos, int sheet,
      (4) A web-page
      (5) Anything else
   */
+    qDebug() << "importDroppedUrl" << scenePos << sheet << fi << url;
   if (url.isLocalFile()) {
     QString path = url.toLocalFile();
+    qDebug() << "importdropped file" << path;
     if (path.endsWith(".svg")) 
       return importDroppedSvg(scenePos, sheet, url);
 
     QImage image = QImage(path);
+    qDebug() << "image loaded" << image.size();
     if (!image.isNull()) 
       return importDroppedImage(scenePos, sheet, image, url);
 
@@ -1241,6 +1244,7 @@ bool EntryScene::importDroppedText(QPointF scenePos, int sheet,
 
 bool EntryScene::importDroppedFile(QPointF scenePos, int sheet,
 				   QString const &fn) {
+    qDebug() << "importdroppedfile" << fn;
   if (!fn.startsWith("/"))
     return false;
   int start, end;
