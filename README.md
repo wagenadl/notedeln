@@ -146,8 +146,8 @@ In my experience, this tends to be a bit more tricky.
         mkdir build
         cd build
         export CMAKE_PREFIX_PATH=/c/Qt/5.15.2/msvc2019_64/lib/cmake/Qt5 
-	export PATH=/c/Qt/5.15.2/msvc2019_64/bin:$PATH
-	cmake ..
+        export PATH=/c/Qt/5.15.2/msvc2019_64/bin:$PATH
+        cmake ..
         cmake --build . --config Release
 		
   You will have to change the path to Qt if you have a different version.
