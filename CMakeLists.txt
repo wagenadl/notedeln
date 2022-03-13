@@ -35,7 +35,7 @@ find_package(Qt5
 ######################################################################
 # Add the executables
 add_executable(notedeln WIN32 MACOSX_BUNDLE src/App/main.cpp)
-add_executable(webgrab WIN32 MACOSX_BUNDLE webgrab/webgrab.cpp)
+add_executable(webgrab WIN32 MACOSX_BUNDLE webgrab/Options.cpp)
 
 include(src/CMakeLists.txt)
 include(webgrab/CMakeLists.txt)
