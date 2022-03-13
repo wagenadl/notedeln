@@ -8,7 +8,7 @@
 
 
 ######################################################################
-cmake_minimum_required(VERSION 3.10.0)
+cmake_minimum_required(VERSION 3.11.0)
 
 ######################################################################
 # Set the project name and version
@@ -34,8 +34,8 @@ find_package(Qt5
 
 ######################################################################
 # Add the executables
-add_executable(notedeln WIN32 MACOSX_BUNDLE)
-add_executable(webgrab WIN32 MACOSX_BUNDLE)
+add_executable(notedeln WIN32 MACOSX_BUNDLE src/App/main.cpp)
+add_executable(webgrab WIN32 MACOSX_BUNDLE webgrab/webgrab.cpp)
 
 include(src/CMakeLists.txt)
 include(webgrab/CMakeLists.txt)
