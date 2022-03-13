@@ -53,6 +53,14 @@ public:
     if (c>=beforec)
       c++;
   }
+  void splitColumn(int col, int offset) {
+    if (c>col) {
+      c++;
+    } else if (c==col && off>=offset) {
+      c++;
+      off -= offset;
+    }
+  }
   void deleteRow(int rdel) {
     if (r==rdel) 
       off = 0;
@@ -83,6 +91,8 @@ public:
   void insertRow(int r) { s.insertRow(r); e.insertRow(r); }
   void deleteRow(int r) { s.deleteRow(r); e.deleteRow(r); }
   void insertColumn(int c) { s.insertColumn(c); e.insertColumn(c); }
+  void splitColumn(int c, int off) { s.splitColumn(c, off);
+    e.splitColumn(c, off); }
   void deleteColumn(int c) { s.deleteColumn(c); e.deleteColumn(c); }
 private:
   CellPos s, e;
@@ -178,8 +188,6 @@ void TableData::insertColumn(int beforecol) {
   if (beforecol>C)
     beforecol = C;
 
-  qDebug() << "old text[" << text() << "]";
-
   QMap<RCPair, QString> oldcont = allContents(this);
   QMap<RCPair, QString> newcont;
   for (int r=0; r<R; r++)
@@ -187,17 +195,9 @@ void TableData::insertColumn(int beforecol) {
       newcont[RCPair(r, c>=beforecol ? c+1 : c)] = oldcont[RCPair(r, c)];
   
   QMap<MarkupData *, MDPos> allmarks = allMarkupPos(this);
-
-  for (auto pos: allmarks) 
-    qDebug() << "old pos" << pos.toString();
   
   for (auto &pos: allmarks) 
     pos.insertColumn(beforecol);
-
-  for (auto pos: allmarks) 
-    qDebug() << "new pos" << pos.toString();
-  
-  qDebug() << "new text[" << buildContents(R, C+1, newcont) << "]";
 
   setColumns(C+1);
   setText(buildContents(R, C+1, newcont));
@@ -236,8 +236,6 @@ void TableData::deleteColumn(int col) {
   if (col<0 || col>=C || C==1)
     return;
 
-  qDebug() << "old text[" << text() << "]";
-
   QMap<RCPair, QString> oldcont = allContents(this);
   QMap<RCPair, QString> newcont;
   for (int r=0; r<R; r++)
@@ -246,17 +244,9 @@ void TableData::deleteColumn(int col) {
   
   QMap<MarkupData *, MDPos> allmarks = allMarkupPos(this);
 
-  for (auto pos: allmarks) 
-    qDebug() << "old pos" << pos.toString();
-
   for (auto &pos: allmarks) 
     pos.deleteColumn(col);
   
-  for (auto pos: allmarks) 
-    qDebug() << "new pos" << pos.toString();
-
-  qDebug() << "new text[" << buildContents(R, C-1, newcont) << "]";
-
   setColumns(C-1);
   setText(buildContents(R, C-1, newcont));
   for (auto *md: markups()) {
@@ -264,4 +254,51 @@ void TableData::deleteColumn(int col) {
     if (md->start()>=md->end())
       deleteMarkup(md);
   }
+}
+
+
+void TableData::joinColumnWithNext(int col) {
+  int R = rows();
+  int C = columns();
+  if (col<0 || col>=C-1)
+    return;
+
+  QMap<RCPair, QString> oldcont = allContents(this);
+  QMap<RCPair, QString> newcont;
+  for (int r=0; r<R; r++)
+    for (int c=0; c<C-1; c++)
+      newcont[RCPair(r, c)] = oldcont[RCPair(r, c>col ? c+1 : c)];
+  for (int r=0; r<R; r++)
+    newcont[RCPair(r, col)] += " " + oldcont[RCPair(r, col+1)];
+  
+  setColumns(C-1);
+  setText(buildContents(R, C-1, newcont));
+}
+
+
+void TableData::splitColumn(int col, int offset) {
+  int R = rows();
+  int C = columns();
+  if (col<0 || col>=C)
+    return;
+
+  QMap<RCPair, QString> oldcont = allContents(this);
+  QMap<RCPair, QString> newcont;
+  for (int r=0; r<R; r++)
+    for (int c=0; c<C; c++)
+      newcont[RCPair(r, c>col ? c+1 : c)] = oldcont[RCPair(r, c)];
+  for (int r=0; r<R; r++) {
+    newcont[RCPair(r,col+1)] = oldcont[RCPair(r,col)].mid(offset);
+    newcont[RCPair(r,col)] = oldcont[RCPair(r,col)].left(offset);
+  }	    
+  
+  QMap<MarkupData *, MDPos> allmarks = allMarkupPos(this);
+
+  for (auto &pos: allmarks) 
+    pos.splitColumn(col, offset);
+
+  setColumns(C+1);
+  setText(buildContents(R, C+1, newcont));
+  for (auto *md: markups())
+    updateMD(md, allmarks[md], this);
 }

@@ -63,6 +63,8 @@ public:
   void insertColumn(int beforecol);
   /* INSERTCOLUMN - Insert a new column above given old column */
   void deleteColumn(int col);
+  void splitColumn(int col, int offset);
+  void joinColumnWithNext(int col);
 protected:
   void loadMore(QVariantMap const &src);
   void saveMore(QVariantMap &dst) const;

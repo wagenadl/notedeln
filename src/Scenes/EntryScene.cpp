@@ -1391,6 +1391,7 @@ void EntryScene::makeUnicellular(TableData *td) {
 
   TableBlockItem *tbi0 = dynamic_cast<TableBlockItem *>(blockItems[iblock]);
   ASSERT(tbi0);
+  int pos = tbi0->textCursor().position();
   TextBlockData *tbd1 = tbi0->data()->deepCopyAsTextBlock();
 
   deleteBlock(iblock);
@@ -1400,7 +1401,8 @@ void EntryScene::makeUnicellular(TableData *td) {
   gotoSheetOfBlock(iblock);
   tbi1->setFocus();
   TextCursor c = tbi1->textCursor();
-  c.movePosition(TextCursor::End);
+  c.setPosition(pos-1);
+  //c.movePosition(TextCursor::End);
   tbi1->setTextCursor(c);
 }
   

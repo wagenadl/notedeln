@@ -67,6 +67,8 @@ private:
   TextCursor cursorSelectingCell(TableCell const &cel) const;
   void deleteSelection();
   void tryToCopyCells(class TableCellRange const &) const;
+  void joinColumnWithNext(int col); // only for single-row tables
+  void splitColumn(int col, int offset); // only for single-row tables
 private:
   bool ignoreChanges;
   int ctrla_r0, ctrla_c0;

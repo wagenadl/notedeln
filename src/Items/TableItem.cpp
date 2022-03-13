@@ -47,6 +47,7 @@ bool TableItem::keyPressAsMotion(QKeyEvent *e) {
   int col = cel.column();
   switch (e->key()) {
   case Qt::Key_Backspace:
+    qDebug() << "table backspace";
     if (cursor.hasSelection()) {
       deleteSelection();
     } else if (col==0 && data()->isRowEmpty(row) && data()->rows()>1) {
@@ -55,6 +56,12 @@ bool TableItem::keyPressAsMotion(QKeyEvent *e) {
 	gotoCell(row-1, data()->columns()-1, true);
       else
 	normalizeCursorPosition();
+    } else if (data()->rows()==1 && col>0
+	       && cursor.position()==cel.firstPosition()) {
+      qDebug() << "Join with prev";
+      // join col with previous
+      joinColumnWithNext(col-1);
+      cursor.movePosition(TextCursor::Right);
     } else if (data()->isColumnEmpty(col) && data()->columns()>1) {
       deleteColumns(col, 1);
       if (col>0)
@@ -77,6 +84,10 @@ bool TableItem::keyPressAsMotion(QKeyEvent *e) {
       deleteRows(row, 1);
       gotoCell(row, col);
       normalizeCursorPosition();
+    } else if (data()->rows()==1 && col<data()->columns()-1
+	       && cursor.position()==cel.lastPosition()) {
+      // join col with next
+      joinColumnWithNext(col);
     } else if (data()->isColumnEmpty(col) && data()->columns()>1) {
       deleteColumns(col, 1);
       gotoCell(row, col);
@@ -86,6 +97,10 @@ bool TableItem::keyPressAsMotion(QKeyEvent *e) {
     }
     return true;
   case Qt::Key_Tab:
+    if (data()->rows()==1 && !shft && !ctrl) {
+      splitColumn(col, cursor.position()-cel.firstPosition());
+      return true;
+    }
     if (shft && ctrl) 
       insertColumn(col++);
     else if (ctrl)
@@ -644,4 +659,23 @@ bool TableItem::pasteMultiCell(QString txt) {
   }
   update();
   return true;
+}
+
+void TableItem::joinColumnWithNext(int col) {
+  int pos = data()->cellEnd(0, col);
+  data()->joinColumnWithNext(col);
+  setTextCursor(TextCursor(document(), pos));
+  text->relayout();
+  docChange();
+
+  if (data()->rows()==1 && data()->columns()==1)
+    emit unicellular(data());
+}
+
+void TableItem::splitColumn(int col, int offset) {
+  data()->splitColumn(col, offset);
+  int pos = data()->cellEnd(0, col);
+  setTextCursor(TextCursor(document(), pos + 1));
+  text->relayout();
+  docChange();
 }
