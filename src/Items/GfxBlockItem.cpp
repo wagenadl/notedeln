@@ -139,7 +139,7 @@ QRectF GfxBlockItem::generousChildrenBounds() const {
   return r;
 }
 
-void GfxBlockItem::sizeToFit() {
+void GfxBlockItem::sizeToFit(bool shrink) {
   QRectF r = generousChildrenBounds();
   double minh = style().real("gfx-block-minh");
   if (r.height() < minh)
@@ -149,8 +149,14 @@ void GfxBlockItem::sizeToFit() {
   double h = data()->height();
 
   bool mustemit = false;
+  if (!shrink) {
+    if (r.top() > yref)
+      r.setTop(yref);
+    if (r.bottom() < yref + h)
+      r.setBottom(yref + h);
+  }
   
-  if (yref!=r.top()) {
+  if (r.top() != yref) {
     prepareGeometryChange();
     if (isWritable())
       data()->setYref(r.top());
@@ -158,7 +164,7 @@ void GfxBlockItem::sizeToFit() {
       data()->sneakilySetYref(r.top());
     mustemit = true;
   }
-  if (h!=r.height()) {
+  if (r.height() != h) {
     prepareGeometryChange();
     if (isWritable())
       data()->setHeight(r.height());
@@ -222,7 +228,21 @@ bool GfxBlockItem::perhapsSendMousePressToChild(QGraphicsSceneMouseEvent *) {
   */
   return false; // make Control-press do nothing.
 }
-  
+
+void GfxBlockItem::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *e) {
+  Mode::M mod = mode()->mode();
+  bool take = false;
+  if (isWritable()) {
+    if (mod==Mode::MoveResize || e->modifiers() & Qt::ControlModifier) {
+      sizeToFit(true);
+      take = true;
+    }
+  }
+  if (take)
+    e->accept();
+  else
+    BlockItem::mouseDoubleClickEvent(e);
+}
 
 void GfxBlockItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
   Mode::M mod = mode()->mode();
@@ -231,19 +251,23 @@ void GfxBlockItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
   if (isWritable()) {
     switch (mod) {
     case Mode::Mark:
-      GfxMarkItem::newMark(e->pos(), this);
-      sizeToFit();
-      take = true;
+      if (!(e->modifiers() & Qt::ControlModifier)) {
+	GfxMarkItem::newMark(e->pos(), this);
+	sizeToFit(false);
+	take = true;
+      }
       break;
     case Mode::Draw: {
-      if (mode()->drawMode()==Mode::Straightline) {
-	GfxLineItem *li = GfxLineItem::newLine(e->pos(), this);
-	li->build(e);
-      } else {
-	GfxSketchItem *ski = GfxSketchItem::newSketch(e->pos(), this);
-	ski->build();
+      if (!(e->modifiers() & Qt::ControlModifier)) {
+	if (mode()->drawMode()==Mode::Straightline) {
+	  GfxLineItem *li = GfxLineItem::newLine(e->pos(), this);
+	  li->build(e);
+	} else {
+	  GfxSketchItem *ski = GfxSketchItem::newSketch(e->pos(), this);
+	  ski->build();
+	}
+	take = true;
       }
-      take = true;
     } break;
     case Mode::Type:
       if (e->modifiers() & Qt::ControlModifier) {

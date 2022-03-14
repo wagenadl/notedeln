@@ -39,9 +39,10 @@ public:
 public:
   bool makesOwnNotes() const { return isWritable(); }
 public slots:
-  void sizeToFit();
+  void sizeToFit(bool shrink=false);
 public: // should be protected, but EntryScene calls it
   virtual void mousePressEvent(QGraphicsSceneMouseEvent *);
+  virtual void mouseDoubleClickEvent(QGraphicsSceneMouseEvent *);
 protected:
   virtual bool changesCursorShape() const;
   virtual Qt::CursorShape cursorShape(Qt::KeyboardModifiers) const;

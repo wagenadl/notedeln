@@ -69,7 +69,7 @@ signals:
   void multicellular(int, class TextData *);
   void multicellularpaste(class TextData *, QString);
 public slots:
-  void sizeToFit();
+  void sizeToFit(bool shrink=true);
   void muckWithIndentation(TextCursor);
   void testmulticellularpaste(class TextData *, QString);
 protected:

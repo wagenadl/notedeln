@@ -108,7 +108,7 @@ void GfxSketchItem::build() {
   ungrabMouse();
   building = false;
   if (ancestralBlock())
-    ancestralBlock()->sizeToFit();
+    ancestralBlock()->sizeToFit(false);
   data()->markModified();
 }
   
@@ -202,7 +202,7 @@ void GfxSketchItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *e) {
   } else {
     data()->setPos(pos());
     if (ancestralBlock())
-      ancestralBlock()->sizeToFit();
+      ancestralBlock()->sizeToFit(false);
     e->accept();
   }
 }

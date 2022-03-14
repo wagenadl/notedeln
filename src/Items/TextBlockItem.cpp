@@ -198,7 +198,7 @@ TextItem *TextBlockItem::text() const {
   return frags[0];
 }
 
-void TextBlockItem::sizeToFit() {
+void TextBlockItem::sizeToFit(bool /*shrink*/) {
   if (beingDeleted())
     return;
   if (frags.size()==0) {

@@ -55,7 +55,7 @@ public:
 signals:
   void heightChanged();
 public slots:
-  virtual void sizeToFit()=0;
+  virtual void sizeToFit(bool shrink=false)=0;
   /* This method will update the height of the block as stored in the Data
      to the actual height needed for the Item.
      Emits heightChanged() if the height changed.
