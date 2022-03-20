@@ -48,7 +48,7 @@ straightforward:
 
         sudo apt install git qtmultimedia5-dev \
              libqt5webkit5-dev libqt5svg5-dev \
-			 latexmk texlive-latex-base
+			 latexmk texlive-latex-base texlive-latex-recommended
 
   On OpenSUSE, you would do:
 
@@ -56,7 +56,7 @@ straightforward:
              libqt5-qtmultimedia-devel libQt5WebKitWidgets-devel \
              libqt5-qtsvg-devel libqt5-qttools-devel \
              libQt5PrintSupport-devel \
-			 latexmk texlive-latex
+			 latexmk texlive-latex texlive-latex-recommended
 
   (I would be happy to include your instructions for other
   distributions. Please [drop me a line](mailto:daw@caltech.edu).)
