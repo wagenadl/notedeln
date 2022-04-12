@@ -601,6 +601,7 @@ bool TextItem::keyPressWithControl(QKeyEvent *e) {
   case Qt::Key_A:
     cursor.setPosition(0);
     cursor.movePosition(TextCursor::End, TextCursor::KeepAnchor);
+    ensureCursorVisible();
     update();
     return true;
   case Qt::Key_N:
