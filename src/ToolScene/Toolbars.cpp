@@ -36,26 +36,17 @@ Toolbars::Toolbars(Mode *mode, QGraphicsItem *parent): QGraphicsObject(parent) {
   widths = new LineWidthBar(mode, this);
   nav = new Navbar(this);
 
-  connect(mode, &Mode::markSizeChanged,
-          [this](double ms) {
-            mcolors->setMarkSize(ms);
-            shapes->setMarkSize(ms);
-          });
+  connect(mode, &Mode::markSizeChanged, mcolors, &ColorBar::setMarkSize);
+  connect(mode, &Mode::markSizeChanged, shapes, &MarkShapeBar::setMarkSize);
 
-  connect(mode, &Mode::shapeChanged,
-          [this](GfxMarkData::Shape shp) {
-            mcolors->setShape(shp);
-            sizes->setShape(shp);
-          });
+  connect(mode, &Mode::shapeChanged, mcolors, &ColorBar::setShape);
+  connect(mode, &Mode::shapeChanged, sizes, &MarkSizeBar::setShape);
 
-  connect(mode, &Mode::colorChanged,
-          [this](QColor c) {
-            lcolors->setColor(c);
-            mcolors->setColor(c);
-            shapes->setColor(c);
-            sizes->setColor(c);
-            widths->setColor(c);
-          });  
+  connect(mode, &Mode::colorChanged, lcolors, &ColorBar::setColor);
+  connect(mode, &Mode::colorChanged, mcolors, &ColorBar::setColor);
+  connect(mode, &Mode::colorChanged, shapes, &MarkShapeBar::setColor);
+  connect(mode, &Mode::colorChanged, sizes, &MarkSizeBar::setColor);
+  connect(mode, &Mode::colorChanged, widths, &LineWidthBar::setColor);
 
   ro = mode->isReadOnly();
   if (ro) {

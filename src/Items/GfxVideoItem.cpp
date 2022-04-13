@@ -56,14 +56,7 @@ GfxVideoItem::GfxVideoItem(GfxVideoData *data, Item *parent):
   slider->setZValue(100);
 
   connect(slider, &VideoSlider::sliderDragged,
-          [this](double pos_s) {
-            if (!player)
-              loadVideo();
-            if (player->state()==QMediaPlayer::StoppedState) 
-              player->pause();
-            player->setPosition(pos_s*1000);
-          });
-
+          this, &GfxVideoItem::dragSlider);
   showTime();
   repositionAnnotation();
 
@@ -82,6 +75,14 @@ GfxVideoItem::GfxVideoItem(GfxVideoData *data, Item *parent):
 }
 
 GfxVideoItem::~GfxVideoItem() {
+}
+
+void GfxVideoItem::dragSlider(double pos_s) {
+  if (!player)
+    loadVideo();
+  if (player->state()==QMediaPlayer::StoppedState) 
+    player->pause();
+  player->setPosition(pos_s*1000);
 }
 
 void GfxVideoItem::loadVideo() {
@@ -113,19 +114,11 @@ void GfxVideoItem::loadVideo() {
               qDebug() << "player error" << error;
             });
     connect(player, &QMediaPlayer::stateChanged,
-            [this](QMediaPlayer::State state) {
-              showTime();
-            });
+            this, &GfxVideoItem::showTime);
     connect(player, &QMediaPlayer::durationChanged,
-            [this](int t_ms) {
-              if (t_ms>0 && data()->isWritable())
-                data()->setDur(t_ms/1000.0);
-              showTime();
-            });
+            this, &GfxVideoItem::durationChange);
     connect(player, &QMediaPlayer::positionChanged,
-            [this](int t_ms) {
-              showTime();
-            });
+            this, &GfxVideoItem::showTime);
     player->setNotifyInterval(100);
     if (data()->dur()==0 && data()->isWritable())
       data()->setDur(player->duration()/1000.0);
@@ -133,6 +126,12 @@ void GfxVideoItem::loadVideo() {
   }
 
   vidmap->setSize(pixmap->boundingRect().size());
+}
+
+void GfxVideoItem::durationChange(int t_ms) {
+  if (t_ms>0 && data()->isWritable())
+    data()->setDur(t_ms/1000.0);
+  showTime();
 }
 
 void GfxVideoItem::playVideo() {
