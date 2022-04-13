@@ -106,6 +106,7 @@ protected slots:
   virtual void markupChange(MarkupData *);
   virtual void docChange();
   virtual void inProgressMod();
+  virtual void redate();
 protected:
   void ensureCursorVisible();
 protected:

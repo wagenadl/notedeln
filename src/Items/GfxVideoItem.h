@@ -22,6 +22,7 @@
 
 #include "GfxImageItem.h"
 #include "GfxVideoData.h"
+#include <QMediaPlayer>
 
 class GfxVideoItem: public GfxImageItem {
   Q_OBJECT;
@@ -36,6 +37,9 @@ private:
   void loadVideo();
   void playVideo();
   void repositionAnnotation(double s=0);
+protected slots:
+  void dragSlider(double pos_s);
+  void durationChange(int t_ms);
   void showTime();
 private:
   class QMediaPlayer *player;
