@@ -12,7 +12,7 @@ cmake_minimum_required(VERSION 3.11.0)
 
 ######################################################################
 # Set the project name and version
-project(NotedELN VERSION 1.4.3)
+project(NotedELN VERSION 1.4.4)
 set(CMAKE_PROJECT_HOMEPAGE_URL "http://danielwagenaar.net/eln")
 
 ######################################################################

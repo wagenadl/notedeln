@@ -57,7 +57,7 @@ public:
   SavedState saveState() const;
   void restoreState(SavedState const &);
 public slots:
-  void pageNumberClick(int, Qt::KeyboardModifiers);
+  void pageNumberClick(int, Qt::KeyboardModifiers=Qt::KeyboardModifiers());
   PageView *newView(); // opens new view on a named entry page
   void gotoEntryPage(QString pgno, QString path);
   void gotoEntryPage(QString pgno);
