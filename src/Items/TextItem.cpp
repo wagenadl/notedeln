@@ -215,11 +215,11 @@ void TextItem::handleLeftClick(QGraphicsSceneMouseEvent *e) {
     if (linkHelper->mousePress(e))
       break;
     int pos = text->find(e->pos());
-    if (pos>=0) {
+    if (pos>=0 && (!clips() || clipRect().contains(posToPoint(pos)))) {
       cursor.setPosition(pos,
                          e->modifiers() & Qt::ShiftModifier
                          ? TextCursor::KeepAnchor
-                         : TextCursor::MoveAnchor);
+                         : TextCursor::MoveAnchor); 
       setFocus();
       update();
     }
@@ -409,8 +409,14 @@ void TextItem::mouseMoveEvent(QGraphicsSceneMouseEvent *evt) {
   switch (mode()->mode()) {
   case Mode::Browse:
   case Mode::Type: {
-    int anc = cursor.hasSelection() ? cursor.anchor() : cursor.position();
-    setTextCursor(TextCursor(text, pos, anc));
+    while (pos>=0) {
+      int anc = cursor.hasSelection() ? cursor.anchor() : cursor.position();
+      setTextCursor(TextCursor(text, pos, anc));
+      QPointF p = posToPoint(pos);
+      if (!clips() || clipRect().contains(p))
+        break;
+      pos -= 1;
+    }
     } break;
   case Mode::Highlight:
   case Mode::Strikeout:
