@@ -1,6 +1,6 @@
 set(CPACK_GENERATOR "NSIS")
-get_filename_component(_qt5_bin "${_qt5_install_prefix}/../../bin" ABSOLUTE)
-find_program(WINDEPLOYQT_EXECUTABLE NAMES windeployqt HINTS "${_qt5_bin}" REQUIRED)
+get_filename_component(_qt6_bin "${_qt6_install_prefix}/../../bin" ABSOLUTE)
+find_program(WINDEPLOYQT_EXECUTABLE NAMES windeployqt HINTS "${_qt6_bin}" REQUIRED)
 
 function(windeploy target)
   add_custom_command(TARGET ${target}

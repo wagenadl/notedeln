@@ -12,7 +12,7 @@ cmake_minimum_required(VERSION 3.11.0)
 
 ######################################################################
 # Set the project name and version
-project(NotedELN VERSION 1.4.4)
+project(NotedELN VERSION 1.4.99.0)
 set(CMAKE_PROJECT_HOMEPAGE_URL "http://danielwagenaar.net/eln")
 
 ######################################################################
@@ -28,7 +28,7 @@ endif()
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
-find_package(Qt5
+find_package(Qt6
   COMPONENTS Widgets Network Svg PrintSupport Multimedia MultimediaWidgets
   REQUIRED)
 
@@ -41,12 +41,12 @@ include(src/CMakeLists.txt)
 include(webgrab/CMakeLists.txt)
 
 # Libraries to link to - Qt must be mentioned
-target_link_libraries(notedeln Qt5::Widgets)
-target_link_libraries(notedeln Qt5::Network)
-target_link_libraries(notedeln Qt5::Svg)
-target_link_libraries(notedeln Qt5::PrintSupport)
-target_link_libraries(notedeln Qt5::Multimedia)
-target_link_libraries(notedeln Qt5::MultimediaWidgets)
+target_link_libraries(notedeln Qt6::Widgets)
+target_link_libraries(notedeln Qt6::Network)
+target_link_libraries(notedeln Qt6::Svg)
+target_link_libraries(notedeln Qt6::PrintSupport)
+target_link_libraries(notedeln Qt6::Multimedia)
+target_link_libraries(notedeln Qt6::MultimediaWidgets)
 
 if (WIN32)
   target_link_libraries(notedeln secur32.lib)
@@ -58,7 +58,7 @@ configure_file(doc/version.tex.in version.tex)
 
 # Include paths - Qt must be mentioned
 target_include_directories(notedeln PUBLIC "${PROJECT_BINARY_DIR}")
-target_include_directories(notedeln PUBLIC "${Qt5Widgets_INCLUDE_DIRS}")
+target_include_directories(notedeln PUBLIC "${Qt6Widgets_INCLUDE_DIRS}")
 
 ######################################################################
 # Userguide
@@ -86,7 +86,7 @@ if (WIN32)
 elseif (APPLE)
   set(CPACK_GENERATOR "DMG") # NYI
 
-  get_target_property(_qmake_executable Qt5::qmake IMPORTED_LOCATION)
+  get_target_property(_qmake_executable Qt6::qmake IMPORTED_LOCATION)
   get_filename_component(_qt_bin_dir "${_qmake_executable}" DIRECTORY)
   find_program(MACDEPLOYQT_EXECUTABLE macdeployqt HINTS "${_qt_bin_dir}")
   add_custom_command(TARGET myapp POST_BUILD
