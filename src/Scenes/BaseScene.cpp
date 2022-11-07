@@ -292,7 +292,7 @@ QList<QGraphicsView *> BaseScene::allViews() const {
   foreach (SheetScene *s, sheets)
     foreach (QGraphicsView *v, s->views())
       set.insert(v);
-  return set.toList();
+  return set.values();
 }
 
 Notebook *BaseScene::book() const {

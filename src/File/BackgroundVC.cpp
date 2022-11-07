@@ -112,7 +112,7 @@ void BackgroundVC::timeout() {
     return;
 
 #ifdef Q_OS_LINUX
-  ::kill(vc->pid(), SIGINT);
+  ::kill(vc->processId(), SIGINT);
   // Killing vc with INT produces cleaner exit than with TERM...
 #else
   vc->kill();

@@ -27,6 +27,7 @@
 #include "ElnAssert.h"
 #include <QProgressDialog>
 #include "Catalog.h"
+#include <QRegularExpression>
 
 static Data::Creator<TOC> c("toc");
 
@@ -37,7 +38,7 @@ static TOC *errorReturn(QString s) {
 		 + "not reconstruct it:\n\n"
 		 + s + "\n\n"
 		 + "Manual recovery will be needed.",
-		 0);
+		 QMessageBox::NoButton);
   mb.addButton("Quit", QMessageBox::RejectRole);
   mb.exec();
   QApplication::quit();
@@ -193,8 +194,9 @@ Notebook *TOC::book() const {
 }
 
 QString TOC::extractUUIDFromFilename(QString fn) {
-  QRegExp re("(\\d\\d*)-([a-z0-9]+).json");
-  return re.exactMatch(fn) ? re.cap(2) : "";
+  QRegularExpression re("^(\\d\\d*)-([a-z0-9]+).json$");
+  QRegularExpressionMatch m = re.match(fn);
+  return m.hasMatch() ? m.captured(2) : "";
 }
 
 bool TOC::update(Catalog const &cat) {
@@ -264,20 +266,30 @@ static bool quickRead(QString fn,
   if (!f.open(QFile::ReadOnly))
     return false;
   char buffer[100];
-  QRegExp re1(": *\"(.*)\"");
-  QRegExp re2(": (\\d+)");
+  QRegularExpression re1(": *\"(.*)\"");
+  QRegularExpression re2(": (\\d+)");
   int n = 0;
   while (n<3 && f.readLine(buffer, 100)>0) {
     QString line(buffer);
-    if (line.indexOf("\"mod\"")>=0 && re1.indexIn(line)) {
-      date = QVariant(re1.cap(1)).toDateTime();
-      n++;
-    } else if (line.indexOf("\"startPage\"")>=0 && re2.indexIn(line)) {
-      pgno = re2.cap(1).toInt();
-      n++;
-    } else if (line.indexOf("\"uuid\"")>=0 && re1.indexIn(line)) {
-      uuid = re1.cap(1);
-      n++;
+
+    if (line.indexOf("\"mod\"")>=0) {
+      QRegularExpressionMatch m = re1.match(line);
+      if (m.hasMatch()) {
+        date = QVariant(m.captured(1)).toDateTime();
+        n++;
+      }
+    } else if (line.indexOf("\"startPage\"")>=0) {
+      QRegularExpressionMatch m = re2.match(line);
+      if (m.hasMatch()) {
+        pgno = m.captured(1).toInt();
+        n++;
+      }
+    } else if (line.indexOf("\"uuid\"")>=0) {
+      QRegularExpressionMatch m = re1.match(line);
+      if (m.hasMatch()) {
+        uuid = m.captured(1);
+        n++;
+      }
     } else if (line.indexOf("\"cc\"")>=0) {
       return true;
     }
@@ -306,8 +318,9 @@ bool TOC::doUpdate(Catalog const &cat,
       return false;
 
     QString fn = *cat.pageToFileMap().find(pgno);
-    QRegExp re("^(\\d\\d*)-(.*).json");
-    QString namedid = re.exactMatch(fn) ? re.cap(2) : "";
+    QRegularExpression re("^(\\d\\d*)-(.*).json");
+    QRegularExpressionMatch m = re.match(fn);
+    QString namedid = m.hasMatch() ? m.captured(2) : "";
     int storedpgno = 0;
     QString storeduuid;
     QDateTime storeddate;
@@ -425,14 +438,14 @@ void TOC::resolveDuplicates(QMultiMap<int, QString> &pg2file, int pgno,
       }
     }
   }
-  qSort(entries);
+  std::sort(entries.begin(), entries.end());
   int k = 0;
   for (auto &it: entries) {
     if (it.cre.isNull())
       continue;
     if (k) {
       QString fn1 = it.fn;
-      fn1.replace(QRegExp("^(\\d\\d+)"), QString("%1")
+      fn1.replace(QRegularExpression("^(\\d\\d+)"), QString("%1")
 		  .arg(pgno + k, 4, 10, QChar('0')));
       if (!pages.rename(it.fn, fn1))
 	errorReturn("Failed to rename " + it.fn + " to " + fn1 + ".");
@@ -508,8 +521,9 @@ TOC *TOC::rebuild(QDir pages) {
       mustsave = true;
     }
     QString storedid = f->data()->uuid();
-    QRegExp re("^(\\d\\d*)-(.*).json");
-    QString namedid = re.exactMatch(fn) ? re.cap(2) : "";
+    QRegularExpression re("^(\\d\\d*)-(.*).json");
+    QRegularExpressionMatch mtch = re.match(fn);
+    QString namedid = mtch.hasMatch() ? mtch.captured(2) : "";
     
     if (storedid != namedid) {
       qDebug() << "TOC::rebuildTOC " << n << ":" << fn

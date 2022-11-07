@@ -109,14 +109,14 @@ private:
   }
   bool moreThanOne() const {
 #if QT_VERSION >= 0x050000
-    return cntr->load()>1;
+    return cntr->loadRelaxed()>1;
 #else
     return *cntr > 1;
 #endif
   }
   T *pointer() const {
 #if QT_VERSION >= 0x050000
-    return objp->load();
+    return objp->loadRelaxed();
 #else
     return *objp;
 #endif

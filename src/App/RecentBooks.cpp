@@ -111,7 +111,7 @@ void RecentBooks::addBook(Notebook const *nb) {
     QList<QDateTime> tt;
     foreach (QString s, data.keys()) 
       tt.append(data[s].accessed);
-    qSort(tt);
+    std::sort(tt.begin(), tt.end());
     QDateTime t0 = tt.first();
     foreach (QString s, data.keys()) {
       if (data[s].accessed<=t0) {

@@ -56,7 +56,7 @@ void TitleItem::deleteLater() {
 
 void TitleItem::keyPressEvent(QKeyEvent *e) {
   if (e->key()==Qt::Key_Tab)
-    emit futileMovementKey(Qt::Key_Enter, 0);
+    emit futileMovementKey(Qt::Key_Enter, Qt::NoModifier);
   else
     TextItem::keyPressEvent(e);
 }

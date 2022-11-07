@@ -21,7 +21,6 @@
 #define TEXTSPLITTER_H
 
 #include <QString>
-#include <QLinkedList>
 #include <QVector>
 
 class TextSplitter {
@@ -42,7 +41,7 @@ public:
     int start; // offset from start of text
     Type type;
   };
-  typedef QLinkedList<Bit> List;
+  typedef QList<Bit> List;
   typedef List::iterator Iter;
 public:
   TextSplitter(QString text, QVector<double> const &charwidths);

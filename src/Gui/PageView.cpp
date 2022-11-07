@@ -43,6 +43,7 @@
 #include "DefaultLocation.h"
 #include "GotoPageDialog.h"
 
+#include <QRegularExpression>
 #include <QMimeData>
 #include <QWheelEvent>
 #include <QKeyEvent>
@@ -92,7 +93,7 @@ void PageView::resizeEvent(QResizeEvent *e) {
   QRectF r = scene()->sceneRect();
   fitInView(r.adjusted(1, 1, -2, -2),
 	    Qt::KeepAspectRatio);
-  emit scaled(matrix().m11());
+  emit scaled(transform().m11());
 }
 
 void PageView::handleSheetRequest(int n) {
@@ -152,7 +153,7 @@ void PageView::dragEnterEvent(QDragEnterEvent *e) {
   QGraphicsView::dragEnterEvent(e);
 }
 
-void PageView::enterEvent(QEvent *e) {
+void PageView::enterEvent(QEnterEvent *e) {
   EventView ev(this);
   modeChange();
   QGraphicsView::enterEvent(e);
@@ -405,10 +406,11 @@ PageView *PageView::newView() {
 }  
 
 void PageView::gotoEntryPage(QString s, QString path) {
-  QRegExp re("/([a-z0-9]+)/(\\d+)");
-  if (re.exactMatch(path)) {
-    QString uuid = re.cap(1);
-    int sheet = re.cap(2).toInt();
+  QRegularExpression re("^/([a-z0-9]+)/(\\d+)$");
+  QRegularExpressionMatch m = re.match(path);
+  if (m.hasMatch()) {
+    QString uuid = m.captured(1);
+    int sheet = m.captured(2).toInt();
     TOCEntry *e = book->toc()->findUUID(uuid);
     if (e) {
       qDebug() << "Using uuid";
@@ -702,7 +704,7 @@ Notebook *PageView::notebook() const {
 
 void PageView::wheelEvent(QWheelEvent *e) {
   EventView ev(this);
-  wheelDeltaAccum += e->delta();
+  wheelDeltaAccum += e->angleDelta().y();
   int step = (e->modifiers() & Qt::ShiftModifier) ? 10 : 1;
   while (wheelDeltaAccum>=wheelDeltaStepSize) {
     wheelDeltaAccum -= wheelDeltaStepSize;
@@ -828,20 +830,22 @@ void PageView::modeChange() {
   QPointF p = mapToScene(mapFromGlobal(QCursor::pos()));
   Item *item = dynamic_cast<Item*>(entryScene->itemAt(p, currentSheet));
   if (item) {
-    item->setCursor(Cursors::refined(item->cursorShape(0)));
+    item->setCursor(Cursors::refined(item->cursorShape(Qt::NoModifier)));
     // XXX should find out current keyboard state above! XXX
     item->modeChangeUnderCursor();
   }
 }
 
-void PageView::drop(QDropEvent e) {
-  QMimeData const *md = e.mimeData();
+/*
+void PageView::drop(QMimeData md) {
+  // QMimeData const *md = e.mimeData();
   qDebug() << "PageView::drop: has image?" << md->hasImage()
 	   << "hasurl?" << md->hasUrls()
 	   << "hastext?" << md->hasText()
 	   << "proposed" << e.proposedAction();
   dropEvent(&e);
 }
+*/
 
 void PageView::ensureSearchVisible(QString uuid, QString phrase) {
   scene()->update();  

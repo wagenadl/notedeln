@@ -18,6 +18,7 @@
 
 #include "TextData.h"
 #include <QDebug>
+#include <QRegularExpression>
 
 static Data::Creator<TextData> c("text");
 
@@ -188,7 +189,7 @@ QList<int> TextData::paragraphStarts() const {
 
 QSet<QString> TextData::wordSet() const {
   if (wordset_.isEmpty() && !text_.isEmpty()) {
-    for (QString w: text_.split(QRegExp("\\W+")))
+    for (QString w: text_.split(QRegularExpression("\\W+")))
       if (!w.isEmpty())
         wordset_ << w.toLower();
   }

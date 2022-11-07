@@ -29,10 +29,10 @@
 
 bool AutoNote::autoNote(QString tag, TextItem *dest, Style const &st) {
   QString txt;
-  if (QRegExp("\\d\\d\\d\\d\\d\\d*").exactMatch(tag)) {
+  if (QRegularExpression("\\d\\d\\d\\d\\d\\d*").match(tag).hasMatch()) {
     // At least 5 digits makes a PMID.
      txt = AN_Pubmed(tag, st).ref();
-  } else if (QRegExp("\\d\\d(\\d\\d)?-[A-Za-z][A-Za-z]?[A-Za-z]?[A-Za-z]?[1-9]?").exactMatch(tag)) {
+  } else if (QRegularExpression("\\d\\d(\\d\\d)?-[A-Za-z][A-Za-z]?[A-Za-z]?[A-Za-z]?[1-9]?").match(tag).hasMatch()) {
     // This is for my own bibliography system: YY-AAAAN
     txt = AN_Biblio(tag, st).ref();
   }

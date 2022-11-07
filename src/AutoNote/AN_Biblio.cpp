@@ -24,7 +24,7 @@
 #include <QFileInfo>
 #include <QDateTime>
 #include <QVariantMap>
-#include <QRegExp>
+#include <QRegularExpression>
 #include <QDir>
 #include <QDebug>
 
@@ -45,7 +45,7 @@ QVariantMap const &AN_Biblio::biblio(Style const &st) {
 }
 
 AN_Biblio::AN_Biblio(QString tag, Style const &st) {
-  if (tag.indexOf(QRegExp("[A-Z]"))==0)
+  if (tag.indexOf(QRegularExpression("[A-Z]"))==0)
     tag_ = tag.mid(1);
   else
     tag_ = tag;

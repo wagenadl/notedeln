@@ -18,6 +18,7 @@
 
 #include "TOCEntry.h"
 #include <QDebug>
+#include <QRegularExpression>
 
 static Data::Creator<TOCEntry> c("entry");
 
@@ -48,11 +49,12 @@ bool TOCEntry::contains(int pgno) const {
 }
 
 bool TOCEntry::contains(QString pgno) const {
-  QRegExp re("(\\d\\d*)([a-z]?)");
-  if (!re.exactMatch(pgno))
+  QRegularExpression re("^(\\d\\d*)([a-z]?)$");
+  QRegularExpressionMatch m = re.match(pgno);
+  if (!m.hasMatch())
     return false;
-  int n = re.cap(1).toInt();
-  QString a = re.cap(2);
+  int n = m.captured(1).toInt();
+  QString a = m.captured(2);
   if (a=="")
     return contains(n);
   else
@@ -60,11 +62,12 @@ bool TOCEntry::contains(QString pgno) const {
 }
 
 int TOCEntry::sheetOf(QString pgno) const {
-  QRegExp re("(\\d\\d*)([a-z]?)");
-  if (!re.exactMatch(pgno))
+  QRegularExpression re("(\\d\\d*)([a-z]?)");
+  QRegularExpressionMatch m = re.match(pgno);
+  if (!m.hasMatch())
     return -1;
-  int n = re.cap(1).toInt();
-  QString a = re.cap(2);
+  int n = m.captured(1).toInt();
+  QString a = m.captured(2);
   if (a=="")
     return n - startPage();
   else

@@ -84,7 +84,7 @@ void SearchView::keyPressEvent(QKeyEvent *e) {
 }
 
 void SearchView::wheelEvent(QWheelEvent *e) {
-  wheelDeltaAccum += e->delta();
+  wheelDeltaAccum += e->angleDelta().y();
   while (wheelDeltaAccum>=wheelDeltaStepSize) {
     wheelDeltaAccum -= wheelDeltaStepSize;
     gotoSheet(currentSheet-1);

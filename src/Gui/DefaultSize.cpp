@@ -17,21 +17,20 @@
 // DefaultSize.cpp
 
 #include "DefaultSize.h"
-#include <QDesktopWidget>
+#include <QScreen>
 #include <QApplication>
 #include <math.h>
 
 namespace DefaultSize {
   QSize onScreenSize(QSizeF booksize) {
-    QDesktopWidget *d = QApplication::desktop();
-    QWidget *s = d->screen();
-    double dpi = sqrt(s->physicalDpiX() * 1.0 * s->physicalDpiY());
+    QScreen *s = QApplication::primaryScreen();
+    double dpi = s->physicalDotsPerInch();
     double bookw = booksize.width() * dpi/72;
     double bookh = booksize.height() * dpi/72;
     double bookrat = bookh/bookw;
 
-    double deskw = d->availableGeometry().width() - 10;
-    double deskh = d->availableGeometry().height() - 30;
+    double deskw = s->availableGeometry().width() - 10;
+    double deskh = s->availableGeometry().height() - 30;
     // Subtract some space for window decorations
     double deskrat = deskh/deskw;
 

@@ -29,6 +29,7 @@
 
 #include <QDebug>
 #include <QKeyEvent>
+#include <QRegularExpression>
 
 class HibernationInfo {
 public:
@@ -51,7 +52,8 @@ PageEditor::PageEditor(SceneBank *bank): bank(bank) {
   if (ttl.isEmpty())
     setWindowTitle(appname);
   else
-    setWindowTitle(ttl.replace(QRegExp("\\s\\s*"), " ") + " - " + appname);
+    setWindowTitle(ttl.replace(QRegularExpression("\\s\\s*"), " ")
+                   + " - " + appname);
 }
 
 bool PageEditor::isHibernating() const {
@@ -211,7 +213,7 @@ void PageEditor::nowOnFrontMatter(int p0) {
   toolview->toolbars()->navbar()->setPageType(pt);
 }
 
-void PageEditor::enterEvent(QEvent *e) {
+void PageEditor::enterEvent(QEnterEvent *e) {
   QMainWindow::enterEvent(e);
   toolview->show();
 }

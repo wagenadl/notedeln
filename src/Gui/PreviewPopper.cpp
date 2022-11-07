@@ -19,7 +19,8 @@
 #include "PreviewPopper.h"
 #include "Resource.h"
 #include <QApplication>
-#include <QDesktopWidget>
+#include <QScreen>
+
 #include <QLabel>
 #include <QGraphicsSceneHoverEvent>
 #include <QDebug>
@@ -80,7 +81,7 @@ QWidget *PreviewPopper::popup() {
 void PreviewPopper::smartPosition() {
   ASSERT(widget);
   
-  QRect desktop = QApplication::desktop()->screenGeometry();
+  QRect desktop = QApplication::primaryScreen()->availableGeometry();
 
   QSize s = widget->frameSize();
 

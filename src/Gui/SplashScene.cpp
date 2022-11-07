@@ -33,7 +33,7 @@
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QApplication>
-#include <QDesktopWidget>
+#include <QScreen>
 #include <QGraphicsView>
 #include <QDebug>
 #include <QDir>
@@ -127,7 +127,7 @@ void SplashScene::makeItems() {
     else
       books << BookInfo(d);
 
-  qSort(books.begin(), books.end());
+  std::sort(books.begin(), books.end());
   
   foreach (BookInfo const &b, books) {
     bsi = new BookSplashItem(b.dirname, b);

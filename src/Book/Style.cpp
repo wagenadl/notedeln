@@ -22,8 +22,8 @@
 #include <QFileInfo>
 #include <QDebug>
 #include <QColor>
-#include "JSONParser.h"
 #include "ElnAssert.h"
+#include <QJsonDocument>
 
 Style const &Style::defaultStyle() {
   static Style s;
@@ -33,14 +33,12 @@ Style const &Style::defaultStyle() {
 Style::Style() {
   QFile f(":/style.json");
   ASSERT(f.open(QFile::ReadOnly));
-  QTextStream ts(&f);
-  ts.setCodec("UTF-8");
-  JSONParser p(ts.readAll());
-  try {
-    options_ = p.readObject();
-    p.assertEnd();
-  } catch (JSONParser::Error const &e) {
-    e.report();
+  QJsonParseError err;
+  QJsonDocument doc(QJsonDocument::fromJson(f.readAll(), &err));
+  if (doc.isObject()) {
+    options_ = doc.toVariant().toMap();
+  } else {
+    qDebug() << err.errorString();
     qFatal("style error");
   }
 }
@@ -48,14 +46,12 @@ Style::Style() {
 Style::Style(QString fn) {
   QFile f(fn);
   if (f.open(QFile::ReadOnly)) {
-    QTextStream ts(&f);
-    ts.setCodec("UTF-8");
-    JSONParser p(ts.readAll());
-    try {
-      options_ = p.readObject();
-      p.assertEnd();
-    } catch (JSONParser::Error const &e) {
-      e.report();
+    QJsonParseError err;
+    QJsonDocument doc(QJsonDocument::fromJson(f.readAll(), &err));
+    if (doc.isObject()) {
+      options_ = doc.toVariant().toMap();
+    } else {
+      qDebug() << err.errorString();
       qFatal("style error");
     }
   } else {

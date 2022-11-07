@@ -54,7 +54,7 @@ CUI::CUI() {
   }
   
   // QDateTime th = QFileInfo(QDir::home().absolutePath()).created();
-  QDateTime tr = QFileInfo(QDir::root().absolutePath()).created();
+  QDateTime tr = QFileInfo(QDir::root().absolutePath()).birthTime();
   //  qint64 sh = th.toMSecsSinceEpoch()/1000;
   // Turns out, in ubuntu/cinnamon, the ~ directory gets changed upon login.
   qint64 sr = tr.toMSecsSinceEpoch()/1000;

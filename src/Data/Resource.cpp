@@ -24,6 +24,7 @@
 #include "Notebook.h"
 #include "TOC.h"
 #include "TOCEntry.h"
+#include <QRegularExpression>
 
 static Data::Creator<Resource> c("res");
 
@@ -155,17 +156,17 @@ static QString safeExtension(QString fn) {
   if (idx<0)
     return "";
   fn = fn.mid(idx+1);
-  fn.replace(QRegExp("[^a-zA-Z0-9_]"), "");
+  fn.replace(QRegularExpression("[^a-zA-Z0-9_]"), "");
   return "." + fn;
 }
   
 static QString safeBaseName(QString fn) {
   qDebug() << " safename" << fn;
 
-  fn.replace(QRegExp("^http(s?)://"), "");
-  fn.replace(QRegExp("^file://"), "");
-  fn.replace(QRegExp("^//*"), "");
-  fn.replace(QRegExp("//*$"), "");
+  fn.replace(QRegularExpression("^http(s?)://"), "");
+  fn.replace(QRegularExpression("^file://"), "");
+  fn.replace(QRegularExpression("^//*"), "");
+  fn.replace(QRegularExpression("//*$"), "");
   int idx = fn.lastIndexOf(".");
   int id0 = fn.lastIndexOf("/");
   if (idx>id0)
@@ -189,7 +190,7 @@ static QString safeBaseName(QString fn) {
 
   fn = f_0 + "_" + f_n;
 
-  fn.replace(QRegExp("[^a-zA-Z0-9_]"), "_");
+  fn.replace(QRegularExpression("[^a-zA-Z0-9_]"), "_");
   qDebug() << " -> " << fn;
   return fn;
 }
@@ -323,11 +324,11 @@ static QUrl urlFromTag(QString s) {
 }
 
 static bool isPubMed(QString s) {
-  return QRegExp("\\d\\d\\d\\d\\d\\d*").exactMatch(s);
+  return QRegularExpression("^\\d\\d\\d\\d\\d\\d*$").match(s).hasMatch();
 }
 
 static bool isPageNumber(QString s) {
-  return QRegExp("\\d\\d*[a-z]?").exactMatch(s);
+  return QRegularExpression("^\\d\\d*[a-z]?$").match(s).hasMatch();
 }
 
 static QUrl pageLink(QString s, Notebook *book) {

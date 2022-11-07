@@ -20,25 +20,9 @@
 #include <QDateTime>
 #include <QHash>
 #include <QNetworkInterface>
+#include <QRandomGenerator>
 
 quint16 Random::random() {
-  if (!inited())
-    srandom();
-  quint16 x = qrand();
-  return x;
+  static QRandomGenerator _random = QRandomGenerator::securelySeeded();
+  return _random.generate();
 }
-
-bool &Random::inited() {
-  static bool x = false;
-  return x;
-}
-
-void Random::srandom() {
-  qint64 t = QDateTime::currentDateTime().toMSecsSinceEpoch();
-  qsrand(t);
-  foreach (QHostAddress a, QNetworkInterface::allAddresses())
-    t ^= qHash(a);
-  inited() = true;
-}
-
-    

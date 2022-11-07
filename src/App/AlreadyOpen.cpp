@@ -15,6 +15,7 @@
 */
 
 #include "AlreadyOpen.h"
+#include "PageEditor.h"
 
 #include <QLocalServer>
 #include <QLocalSocket>
@@ -30,7 +31,7 @@ static QString servername(QString fn) {
   return QString("eln-%1").arg(qHash(fn));
 }
 
-AlreadyOpen::AlreadyOpen(QString name, QWidget *w) {
+AlreadyOpen::AlreadyOpen(QString name, PageEditor *w) {
   toBeRaised << w;
   server = new QLocalServer(this);
   QString sn = servername(name);
@@ -42,18 +43,18 @@ AlreadyOpen::AlreadyOpen(QString name, QWidget *w) {
       qDebug() << "AlreadyOpen: Could not construct server. Sorry.";
     }
   }
-  connect(server, SIGNAL(newConnection()), SLOT(raise()));
-  connect(w, SIGNAL(newEditorCreated(QWidget *)), SLOT(addEditor(QWidget *)));
-  connect(w, SIGNAL(destroyed(QObject *)), SLOT(dropEditor(QObject *)));
+  connect(server, &QLocalServer::newConnection, this, &AlreadyOpen::raise);
+  connect(w, &PageEditor::newEditorCreated, this, &AlreadyOpen::addEditor);
+  connect(w, &QWidget::destroyed, this, &AlreadyOpen::dropEditor);
 }
 
 AlreadyOpen::~AlreadyOpen() {
 }
 
-void AlreadyOpen::addEditor(QWidget *w) {
+void AlreadyOpen::addEditor(PageEditor *w) {
   toBeRaised << w;
-  connect(w, SIGNAL(newEditorCreated(QWidget *)), SLOT(addEditor(QWidget *)));
-  connect(w, SIGNAL(destroyed(QObject *)), SLOT(dropEditor(QObject *)));
+  connect(w, &PageEditor::newEditorCreated, this, &AlreadyOpen::addEditor);
+  connect(w, &QObject::destroyed, this, &AlreadyOpen::dropEditor);
 }
 
 void AlreadyOpen::dropEditor(QObject *o) {

@@ -112,8 +112,8 @@ void Notebook::load() {
 
   RecentBooks::instance()->addBook(this);
   
-  connect(bookFile_->data(), SIGNAL(mod()), this, SIGNAL(mod()));
-  connect(tocFile_->data(), SIGNAL(mod()), this, SIGNAL(mod()));
+  connect(bookFile_->data(), &Data::mod, this, &Notebook::mod);
+  connect(tocFile_->data(), &Data::mod, this, &Notebook::mod);
 }
 
 Notebook::~Notebook() {
@@ -279,10 +279,12 @@ CachedEntry Notebook::entry(int n)  {
   pgFiles[n] = entry;
 
   entry.setBook(this);
-  connect(entry.data(), SIGNAL(titleMod()), SLOT(titleMod()));
-  connect(entry.data(), SIGNAL(sheetCountMod()), SLOT(sheetCountMod()));
+  connect(entry.data(), &EntryData::titleMod,
+          this, &Notebook::titleMod);
+  connect(entry.data(), &EntryData::sheetCountMod,
+          this, &Notebook::sheetCountMod);
   index_->watchEntry(entry.obj());
-  connect(entry.data(), SIGNAL(mod()), this, SIGNAL(mod()));
+  connect(entry.data(), &EntryData::mod, this, &Notebook::mod);
   return entry;
 }
 
@@ -303,10 +305,12 @@ CachedEntry Notebook::createEntry(int n) {
   toc()->addEntry(entry.data());
 
   entry.setBook(this);
-  connect(entry.data(), SIGNAL(titleMod()), SLOT(titleMod()));
-  connect(entry.data(), SIGNAL(sheetCountMod()), SLOT(sheetCountMod()));
+  connect(entry.data(), &EntryData::titleMod,
+          this, &Notebook::titleMod);
+  connect(entry.data(), &EntryData::sheetCountMod,
+          this, &Notebook::sheetCountMod);
   index_->watchEntry(entry.obj());
-  connect(entry.data(), SIGNAL(mod()), this, SIGNAL(mod()));
+  connect(entry.data(), &EntryData::mod, this, &Notebook::mod);
   //  bookData()->setEndDate(QDate::currentDate());
   return entry;
 }

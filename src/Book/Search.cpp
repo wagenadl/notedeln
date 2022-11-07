@@ -31,6 +31,7 @@
 #include <QSet>
 #include <QDebug>
 #include "TableData.h"
+#include <QRegularExpression>
 
 Search::Search(Notebook *book): book(book) {
 }
@@ -101,7 +102,7 @@ void Search::addToResults(QList<SearchResult> &dest, QString phrase,
 }
 
 QList<SearchResult> Search::immediatelyFindPhrase(QString phrase) const {
-  QStringList words = phrase.toLower().split(QRegExp("\\s+"));
+  QStringList words = phrase.toLower().split(QRegularExpression("\\s+"));
   QSet<int> entries = book->index()->words()->findWords(words, true);
   QList<int> sortedEntries = entries.values();
   std::sort(sortedEntries.begin(), sortedEntries.end());
@@ -160,7 +161,7 @@ QList<SearchResult> Search::searchResults() const {
 
       
 void Search::run() {
-  QStringList words = phrase.toLower().split(QRegExp("\\s+"));
+  QStringList words = phrase.toLower().split(QRegularExpression("\\s+"));
   QSet<int> entries = book->index()->words()->findWords(words, true);
 
   foreach (int pgno, entries) {

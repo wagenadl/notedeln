@@ -28,6 +28,7 @@
 #include "SheetScene.h"
 
 #include <QInputDialog>
+#include <QRegularExpression>
 #include <QProgressDialog>
 #include <QMessageBox>
 #include <QDebug>
@@ -86,7 +87,8 @@ void SearchDialog::newSearch() {
   view->resize(pgView->size()*.9);
   QString ttl = pgView->notebook()->bookData()->title();
   view->setWindowTitle("Search in: "
-		       + ttl.replace(QRegExp("\\s\\s*"), " ") + " - eln");
+		       + ttl.replace(QRegularExpression("\\s\\s*"), " ")
+                       + " - eln");
   view->show();
 }
 

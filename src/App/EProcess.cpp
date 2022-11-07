@@ -18,6 +18,8 @@
 
 #include "EProcess.h"
 
+#include <QRegularExpression>
+#include <QAbstractButton>
 #include <QMessageBox>
 #include <QEventLoop>
 #include <QProcess>
@@ -63,8 +65,8 @@ bool EProcess::exec() {
   box.setWindowModality(Qt::ApplicationModal);
   box.setStandardButtons(QMessageBox::Cancel);
   box.show();
-  QObject::connect(&box, SIGNAL(buttonClicked(QAbstractButton*)),
-                   &box, SLOT(close()));
+  QObject::connect(&box, &QMessageBox::buttonClicked,
+                   &box, &QMessageBox::close);
   QEventLoop el;
   QProcess process;
   if (!wd.isEmpty())
@@ -86,7 +88,7 @@ bool EProcess::exec() {
     }
     if (box.isHidden()) {
 #ifdef Q_OS_LINUX
-      ::kill(process.pid(), SIGINT);
+      ::kill(process.processId(), SIGINT);
       // Killing bzr with INT produces cleaner exit than with TERM...
 #else
       process.kill();
@@ -113,7 +115,7 @@ bool EProcess::exec() {
   QString sto = process.readAllStandardOutput();
   so += sto;
 
-  se.replace(QRegExp("\\s*Traceback.*"), "");
+  se.replace(QRegularExpression("\\s*Traceback.*"), "");
   
   if (process.state()!=QProcess::NotRunning) {
     return false;

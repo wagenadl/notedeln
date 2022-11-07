@@ -93,7 +93,7 @@ bool update(QString path, QString program) {
     se = "(no message)";
 
   QMessageBox mb(QMessageBox::Warning, "eln version control",
-		 "Update of '" + path + "' failed.", 0);
+		 "Update of '" + path + "' failed.", QMessageBox::NoButton);
   QPushButton *editb
     = mb.addButton("Edit anyway", QMessageBox::DestructiveRole);
   QPushButton *rob

@@ -28,6 +28,7 @@
 #include "BackgroundVC.h"
 #include "ElnAssert.h"
 #include "Style.h"
+#include <QTimer>
 
 #include <QTimer>
 #include <QDebug>
@@ -47,7 +48,7 @@ AppInstance::AppInstance(App *app, Notebook *nb): book(nb) {
 
   book->load();
 
-  connect(app, SIGNAL(aboutToQuit()), this, SLOT(commitNow()));
+  connect(app, &App::aboutToQuit, this, &AppInstance::commitNow);
 
   bank = new SceneBank(nb);
 
@@ -73,7 +74,7 @@ void AppInstance::registerEditor(QObject *e) {
   PageEditor *ed = dynamic_cast<PageEditor *>(e);
   if (ed) {
     editors << ed;
-    connect(ed, SIGNAL(destroyed(QObject*)), SLOT(forgetEditor(QObject*)));
+    connect(ed, &QObject::destroyed, this, &AppInstance::forgetEditor);
   }
 }
 
@@ -94,9 +95,9 @@ void AppInstance::setupVC() {
       backgroundVC = new BackgroundVC(this);
       commitTimer = new QTimer(this);
       commitTimer->setSingleShot(true);
-      connect(book, SIGNAL(mod()), SLOT(commitSoonish()));
-      connect(backgroundVC, SIGNAL(done(bool)), SLOT(committed(bool)));
-      connect(commitTimer, SIGNAL(timeout()), SLOT(commitNowUnless()));
+      connect(book, &Notebook::mod, this, &AppInstance::commitSoonish);
+      connect(backgroundVC, &BackgroundVC::done, this, &AppInstance::committed);
+      connect(commitTimer, &QTimer::timeout, this, &AppInstance::commitNowUnless);
     } else {
       book->markReadOnly();
     }
@@ -105,7 +106,7 @@ void AppInstance::setupVC() {
   updateTimer = new QTimer(this);
   updateTimer->setSingleShot(true);
   updateTimer->start();
-  connect(updateTimer, SIGNAL(timeout()), SLOT(updateNowUnless()));
+  connect(updateTimer, &QTimer::timeout, this, &AppInstance::updateNowUnless);
 }  
 
 void AppInstance::updateNowUnless() {

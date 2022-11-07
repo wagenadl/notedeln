@@ -99,7 +99,7 @@ void TextItemDocData::recalcSomeWidths(int start, int end) const {
     if (edges.contains(n+1) || n+1>=N
 	|| txt[n+1].category()==QChar::Other_Control) {
       // simple, no kerning across edges or table cells
-      charwidths[n] = fm->width(s);
+      charwidths[n] = fm->horizontalAdvance(s);
       if (edges.contains(n+1) && current.contains(MarkupData::Italic)
 	  && !edges[n+1].contains(MarkupData::Italic))
 	charwidths[n] += italicCorrection(current);
@@ -108,12 +108,12 @@ void TextItemDocData::recalcSomeWidths(int start, int end) const {
       QString t(d);
       if (Unicode::isHighSurrogate(d) && n+2<N)
 	t = txt.mid(n+1, 2);
-      charwidths[n] = fm->width(s+t) - fm->width(t);
+      charwidths[n] = fm->horizontalAdvance(s+t) - fm->horizontalAdvance(t);
     }
   }
 }
 
 double TextItemDocData::italicCorrection(MarkupStyles const &sty) const {
   QFontMetricsF const *fm = fv.metrics(sty);
-  return fm->width(" ")*0.4;
+  return fm->horizontalAdvance(" ")*0.4;
 }

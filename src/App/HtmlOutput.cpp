@@ -34,6 +34,7 @@
 #include <QImage>
 #include <QPainter>
 #include <QSvgGenerator>
+#include <QRegularExpression>
 
 bool HtmlOutput::ok() const {
   return file.error() == QFile::NoError && res.exists();
@@ -44,13 +45,13 @@ HtmlOutput::HtmlOutput(QString outputFile, QString pageTitle):
   if (!file.open(QFile::WriteOnly))
     return;
 
-  outputFile.replace(QRegExp(".html$"), "");
+  outputFile.replace(QRegularExpression(".html$"), "");
   outputFile += "_files";
   int slash = outputFile.lastIndexOf("/");
   local = slash>=0 ? outputFile.mid(slash+1) : outputFile;
   
   html.setDevice(&file);
-  html.setCodec("UTF-8");
+  //  html.setCodec("UTF-8"); // that's default in Qt6
   html << "<!DOCTYPE HTML PUBLIC "
        << "\"-//W3C//DTD HTML 4.01 Transitional//EN\">\n";
   html << "<html>\n";
@@ -402,8 +403,8 @@ void HtmlOutput::addText(TextData const *source, ResManager const *resmgr,
     e=endidx;
   edges.insert(e);
   
-  QList<int> edgeList = edges.toList();
-  qSort(edgeList);
+  QList<int> edgeList = edges.values();
+  std::sort(edgeList.begin(), edgeList.end());
   QMap<int, QString> textBits;
   for (int k=0; k<edgeList.size()-1; k++)
     textBits[edgeList[k]] = txt.mid(edgeList[k], edgeList[k+1]-edgeList[k]);
@@ -422,8 +423,10 @@ void HtmlOutput::addText(TextData const *source, ResManager const *resmgr,
   // Make sure that we properly nest by closing and reopening at edges
   QSet<QString> currentTags;
   foreach (int edge, edgeList) {
-    QList<QString> starts = startTags[edge].toList(); qSort(starts);
-    QList<QString> ends = endTags[edge].toList(); qSort(ends);
+    QList<QString> starts = startTags[edge].values();
+    std::sort(starts.begin(), starts.end());
+    QList<QString> ends = endTags[edge].values();
+    std::sort(ends.begin(), ends.end());
     QString lowest;
     if (!starts.isEmpty())
       lowest = starts[0];
@@ -448,8 +451,10 @@ void HtmlOutput::addText(TextData const *source, ResManager const *resmgr,
   html << ("<span class=\"" + cls + "\">\n");
   
   foreach (int edge, edgeList) {
-    QList<QString> starts = startTags[edge].toList(); qSort(starts);
-    QList<QString> ends = endTags[edge].toList(); qSort(ends);
+    QList<QString> starts = startTags[edge].values();
+    std::sort(starts.begin(), starts.end());
+    QList<QString> ends = endTags[edge].values();
+    std::sort(ends.begin(), ends.end());
     for (int i=ends.size()-1; i>=0; --i) {
       QString tag = ends[i];
       if (!tag.isEmpty()) {

@@ -195,16 +195,16 @@ bool TextCursor::movePosition(TextCursor::MoveOperation op,
     pos = doc->lineEndFor(pos);
     break;
   case StartOfWord: {
-    QRegExp re("\\W");
-    int off = re.lastIndexIn(doc->text(), pos);
+    QRegularExpression re("\\W");
+    int off = doc->text().lastIndexOf(re, pos);
     if (off<doc->firstPosition())
       pos = doc->firstPosition();
     else if (off<pos)
       pos = off+1;
   } break;
   case EndOfWord: {
-    QRegExp re("\\W");
-    int off = re.indexIn(doc->text(), pos);
+    QRegularExpression re("\\W");
+    int off = doc->text().indexOf(re, pos);
     if (off<0 || off>doc->lastPosition())
       pos = doc->lastPosition();
     else 
@@ -286,51 +286,106 @@ bool TextCursor::operator==(TextCursor const &a) const {
   return doc==a.doc && pos==a.pos && anc==a.anc;
 }
 
-TextCursor TextCursor::findForward(QString s) const {
+int TextCursor::startOfStrictWord() const {
   if (!isValid())
-    return TextCursor(doc, -1);
+    return -1;
   QString txt = doc->text();
-  int off = txt.indexOf(s, pos);
-  if (off>=0)
-    return TextCursor(doc, off, s.length());
-  else
-    return TextCursor(doc, -1);
+  int p = pos;
+  while (p>0 && txt[p-1].isLetter())
+    --p;
+  return p;
 }
 
-TextCursor TextCursor::findBackward(QString s) const {
+int TextCursor::endOfStrictWord() const {
   if (!isValid())
-    return TextCursor(doc, -1);
+    return -1;
   QString txt = doc->text();
-  int off = txt.lastIndexOf(s, pos-s.length());
-  if (off>=0)
-    return TextCursor(doc, off, s.length());
-  else
-    return TextCursor(doc, -1);
+  int N = txt.size();
+  int p = pos;
+  while (p<N && txt[p].isLetter())
+    ++p;
+  return p;
 }
 
-TextCursor TextCursor::findForward(QRegExp re) const {
+inline bool isBroadlyWordy(QChar c) {
+  return c.isLetterOrNumber() || c=='-' || c=='_';
+}
+
+int TextCursor::startOfBroadWord() const {
   if (!isValid())
-    return TextCursor(doc, -1);
+    return -1;
   QString txt = doc->text();
-  int off = re.indexIn(txt, pos);
-  if (off>=0)
-    return TextCursor(doc, off, off+re.cap().size());
-  else
-    return TextCursor(doc, -1);
+  int p = pos;
+  while (p>0 && isBroadlyWordy(txt[p-1]))
+    --p;
+  return p;
 }
 
-TextCursor TextCursor::findBackward(QRegExp re) const {
+int TextCursor::endOfBroadWord() const {
   if (!isValid())
-    return TextCursor(doc, -1);
-  QString txt = doc->text().left(pos);
-  // This makes sure that we won't capture beyond POS, 
-  int off = re.lastIndexIn(txt);
-
-  if (off>=0)
-    return TextCursor(doc, off, off+re.cap().length());
-  else
-    return TextCursor(doc, -1);
+    return -1;
+  QString txt = doc->text();
+  int N = txt.size();
+  int p = pos;
+  while (p<N && isBroadlyWordy(txt[p]))
+    ++p;
+  return p;
 }
+
+int TextCursor::startOfNonSpaces() const {
+  if (!isValid())
+    return -1;
+  QString txt = doc->text();
+  int p = pos - 1;
+  while (p>=0 && !txt[p].isSpace())
+    --p;
+  return p < 0 ? 0 : p;
+}
+
+int TextCursor::endOfNonSpaces() const {
+  if (!isValid())
+    return -1;
+  QString txt = doc->text();
+  int N = txt.size();
+  int p = pos;
+  while (p<N && !txt[p].isSpace())
+    ++p;
+  return p;
+}
+
+
+int TextCursor::startOfScript(bool requirebrace) const {
+  if (!isValid())
+    return -1;
+  QString txt = doc->text();
+  int p = pos - 1;
+  while (p >= 0) {
+    if (txt[p]==QChar('^') || txt[p]==QChar('_')) 
+      if (!requirebrace || (p<txt.length()-1 && txt[p+1]==QChar('{')))
+        return p;
+    --p;
+  }
+  return -1;
+}
+
+int TextCursor::startOfTag() const {
+  if (!isValid())
+    return -1;
+  QString txt = doc->text();
+  int p = pos - 1;
+  if (txt[p]!=QChar('>'))
+    return -1;
+  --p;
+  while (p >= 0) {
+    if (txt[p]==QChar('<'))
+      return p;
+    else if (txt[p].isSpace())
+      return -1;
+    --p;
+  }
+  return -1;
+}
+  
 
 void TextCursor::selectAround(int pos,
                               TextCursor::MoveOperation s,

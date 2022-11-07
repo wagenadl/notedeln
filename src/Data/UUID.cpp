@@ -28,9 +28,9 @@ QString UUID::create(int bits) {
 	break;
       int y = x & 15;
       if (y<10)
-	res += ('0' + y);
+	res += char('0' + y);
       else
-	res += ('a' + y - 10);
+	res += char('a' + y - 10);
       x >>= 4;
     }
   }

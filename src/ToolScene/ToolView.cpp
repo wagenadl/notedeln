@@ -83,7 +83,7 @@ void ToolView::dragMoveEvent(QDragMoveEvent *e) {
 }  
 
 void ToolView::dropEvent(QDropEvent *e) {
-  emit drop(*e);
+  //  emit drop(*e);
   e->acceptProposedAction();
 }  
 
