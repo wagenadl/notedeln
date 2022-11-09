@@ -67,8 +67,8 @@ GfxNoteItem::GfxNoteItem(GfxNoteData *data, Item *parent):
   setPos(data->pos());
   line = 0;
   text = new TextItem(data->text(), this);
-  connect(text, SIGNAL(futileMovementKey(int, Qt::KeyboardModifiers)),
-	  SLOT(futileMovementKey(int, Qt::KeyboardModifiers)));
+  connect(text, &TextItem::futileMovementKey,
+	  this, &GfxNoteItem::futileMovementKey);
   text->setFont(style().font("note-font"));
   text->setDefaultTextColor(QColor(style().string("note-text-color")));
   if (data->textWidth()>1)
@@ -77,12 +77,12 @@ GfxNoteItem::GfxNoteItem(GfxNoteData *data, Item *parent):
   text->setLineHeight(style().lineSpacing("note-font",
 					  "note-line-spacing"));
   
-  connect(text, SIGNAL(abandoned()),
-	  this, SLOT(abandon()), Qt::QueuedConnection);
+  connect(text, &TextItem::abandoned,
+	  this, &GfxNoteItem::abandon, Qt::QueuedConnection);
 		     
   setFlag(ItemIsFocusable);
-  connect(text->document(), SIGNAL(contentsChanged(int, int, int)),
-	  SLOT(updateTextPos()));
+  connect(text->document(), &TextItemDoc::contentsChanged,
+	  this, &GfxNoteItem::updateTextPos);
   if (data->text()->lineStarts().isEmpty()) 
     text->document()->relayout();
   else

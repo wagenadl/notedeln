@@ -85,8 +85,8 @@ QPointF DragLine::drag(QGraphicsScene *scene, QPointF p0, double pw, QColor c) {
   scene->addItem(dl);
   dl->setPen(QPen(c, pw));
   QEventLoop el;
-  QObject::connect(dl, SIGNAL(release()),
-		   &el, SLOT(quit()),
+  QObject::connect(dl, &DragLine::release,
+		   &el, &QEventLoop::quit,
 		   Qt::QueuedConnection);
   // Use queued connection so that we don't try to destruct the dragline
   // prematurely.

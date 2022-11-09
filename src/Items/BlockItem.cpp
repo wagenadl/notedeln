@@ -46,8 +46,8 @@ FootnoteItem *BlockItem::newFootnote(FootnoteData *fd) {
   if (fd->height()==0) 
     fni->sizeToFit();
   fni->resetPosition();
-  connect(fni, SIGNAL(heightChanged()),
-	  this, SIGNAL(heightChanged()));
+  connect(fni, &FootnoteItem::heightChanged,
+	  this, &BlockItem::heightChanged);
   foots << fni;
   return fni;
 }

@@ -65,12 +65,12 @@ TextBlockItem::TextBlockItem(TextBlockData *data, Item *parent,
     if (frags.size()>1) 
       frags[i]->setClip(QRectF(r0.left(), ysplit[i],
 			       r0.width(), ysplit[i+1]-ysplit[i]));
-    connect(frags[i], SIGNAL(invisibleFocus(TextCursor, QPointF)),
-	    SLOT(ensureVisible(TextCursor, QPointF)));
-    connect(frags[i], SIGNAL(multicellular(int, TextData*)),
-	    this, SIGNAL(multicellular(int, TextData*)));
-    connect(frags[i], SIGNAL(multicellularpaste(TextData*, QString)),
-	    this, SLOT(testmulticellularpaste(TextData*, QString)));
+    connect(frags[i], &TextItem::invisibleFocus,
+            this, &TextBlockItem::ensureVisible);
+    connect(frags[i], &TextItem::multicellular,
+	    this, &TextBlockItem::multicellular);
+    connect(frags[i], &TextItem::multicellularpaste,
+	    this, &TextBlockItem::testmulticellularpaste);
 
   }
   
@@ -80,14 +80,14 @@ TextBlockItem::TextBlockItem(TextBlockData *data, Item *parent,
   }
 
   foreach (TextItem *ti, frags) {
-    connect(ti, SIGNAL(textChanged()),
-	    this, SLOT(sizeToFit()), Qt::QueuedConnection);
+    connect(ti, &TextItem::textChanged,
+	    this, [this]() { sizeToFit(); }, Qt::QueuedConnection);
     // The non-instantaneous delivery is important, otherwise the check
     // may happen before the change is processed.
-    connect(ti, SIGNAL(futileMovementKey(int, Qt::KeyboardModifiers)),
-	    this, SLOT(futileMovementKey(int, Qt::KeyboardModifiers)));
-    connect(ti, SIGNAL(refTextChange(QString, QString)),
-	    this, SLOT(refTextChange(QString, QString)));
+    connect(ti, &TextItem::futileMovementKey,
+	    this, &TextBlockItem::futileMovementKey);
+    connect(ti, &TextItem::refTextChange,
+	    this, &TextBlockItem::refTextChange);
   }
 }
 
@@ -312,8 +312,8 @@ void TextBlockItem::split(QList<double> ysplit) {
 
   while (frags.size()<1+ysplit.size()) {
     TextItem *ti = tic.create(data()->text(), 0, frags[0]->document());
-    connect(ti, SIGNAL(invisibleFocus(TextCursor, QPointF)),
-	    SLOT(ensureVisible(TextCursor, QPointF)));
+    connect(ti, &TextItem::invisibleFocus,
+	    this, &TextBlockItem::ensureVisible);
     ti->setParentBlock(this);
     
     frags << ti;
@@ -324,14 +324,14 @@ void TextBlockItem::split(QList<double> ysplit) {
     ti->setAllowParagraphs(false);
     ti->setAllowNotes(true);
 
-    connect(ti, SIGNAL(textChanged()),
-	    this, SLOT(sizeToFit()), Qt::QueuedConnection);
+    connect(ti, &TextItem::textChanged,
+	    this, [this]() { sizeToFit(); }, Qt::QueuedConnection);
     // The non-instantaneous delivery is important, otherwise the check
     // may happen before the change is processed.
-    connect(ti, SIGNAL(futileMovementKey(int, Qt::KeyboardModifiers)),
-	    this, SLOT(futileMovementKey(int, Qt::KeyboardModifiers)));
-    connect(ti, SIGNAL(refTextChange(QString, QString)),
-	    this, SLOT(refTextChange(QString, QString)));
+    connect(ti, &TextItem::futileMovementKey,
+	    this, &TextBlockItem::futileMovementKey);
+    connect(ti, &TextItem::refTextChange,
+	    this, &TextBlockItem::refTextChange);
 
   }
 

@@ -72,8 +72,8 @@ void SearchResultScene::populate() {
       lastLine->setParentItem(headers.last());
       oldPage = r.startPageOfEntry;
       connect(headers.last(),
-              SIGNAL(clicked(int, Qt::KeyboardModifiers, QString)),
-              SLOT(pageNumberClick(int, Qt::KeyboardModifiers, QString)));
+              &SearchResItem::clicked,
+              this, &SearchResultScene::pageNumberClick);
       if (y > y0 && y + headers.last()->childrenBoundingRect().height() > y1) {
 	createContinuationItem(sheet, y, y1);
         y = y0;

@@ -58,8 +58,7 @@ Toolbars::Toolbars(Mode *mode, QGraphicsItem *parent): QGraphicsObject(parent) {
 
   placeChildren();
   
-  connect(mode, SIGNAL(modeChanged(Mode::M)),
-	  SLOT(setMode(Mode::M)));
+  connect(mode, &Mode::modeChanged, this, &Toolbars::setMode);
 }
 
 Toolbars::~Toolbars() {

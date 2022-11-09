@@ -100,10 +100,10 @@ void TextItem::finalizeConstructor(int sheet) {
       if (sheet<0 || gnd->sheet()==sheet)
 	create(gnd, this);
 
-  connect(document(), SIGNAL(contentsChanged(int, int, int)),
-	  this, SLOT(docChange()));
-  connect(document(), SIGNAL(markupChanged(MarkupData *)),
-	  this, SLOT(markupChange(MarkupData *)));
+  connect(document(), &TextItemDoc::contentsChanged,
+	  this, &TextItem::docChange);
+  connect(document(), &TextItemDoc::markupChanged,
+	  this, &TextItem::markupChange);
   connect(document(), &TextItemDoc::noLongerEmpty,
           this, &TextItem::redate);
 }
@@ -374,7 +374,7 @@ void TextItem::representDeadLinks(QList<TransientMarkup> &tmm) {
 			       MarkupData::LoadingLink);
 	if (!in_progress_res.contains(res)) {
 	  in_progress_res.insert(res);
-	  connect(res, SIGNAL(mod()), SLOT(inProgressMod()));
+	  connect(res, &Resource::mod, this, &TextItem::inProgressMod);
 	}
       } else if (res->needsArchive()) {
 	// qDebug() << "no archive";
@@ -1788,7 +1788,7 @@ void TextItem::inProgressMod() {
   Resource *res = dynamic_cast<Resource *>(sender());
   update();
   if (res && !res->inProgress()) {
-    disconnect(res, SIGNAL(mod()), this, SLOT(inProgressMod()));
+    disconnect(res, &Resource::mod, this, &TextItem::inProgressMod);
     in_progress_res.remove(res);
   }
 }

@@ -220,9 +220,8 @@ void SheetScene::setFancyTitle(TitleData *data, int sheet,
   if (fancyTitleItem_)
     fancyTitleItem_->deleteLater();
   fancyTitleItem_ = new TitleItem(data, sheet, doc);
-  connect(fancyTitleItem_,
-	  SIGNAL(futileMovementKey(int, Qt::KeyboardModifiers)),
-	  SLOT(futileTitleMovement(int, Qt::KeyboardModifiers)));
+  connect(fancyTitleItem_, &TitleItem::futileMovementKey,
+	  this, &SheetScene::futileTitleMovement);
   addItem(fancyTitleItem_);
   titleItem = fancyTitleItem_;
   repositionTitle();

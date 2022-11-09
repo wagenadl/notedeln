@@ -74,14 +74,11 @@ void SearchDialog::newSearch() {
 			    res,
 			    pgView->notebook()->bookData());
   scene->populate();
-  connect(scene,
-	  SIGNAL(pageNumberClicked(int, Qt::KeyboardModifiers,
-				   QString, QString)),
-	  this,
-	  SLOT(gotoPage(int, Qt::KeyboardModifiers, QString, QString)));
+  connect(scene, &SearchResultScene::pageNumberClicked,			   
+          this, &SearchDialog::gotoPage);
   SearchView *view = new SearchView(scene);
   view->setAttribute(Qt::WA_DeleteOnClose, true);
-  connect(parent(), SIGNAL(destroyed()), view, SLOT(close()));
+  connect(parent(), &QObject::destroyed, view, &SearchView::close);
   delete progress;
   
   view->resize(pgView->size()*.9);

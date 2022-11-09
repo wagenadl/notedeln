@@ -67,7 +67,7 @@ bool BackgroundVC::commit(QString path1, QString program1) {
 
   if (!guard) {
     guard = new QTimer(this);
-    connect(guard, SIGNAL(timeout()), SLOT(timeout()));
+    connect(guard, &QTimer::timeout, this, &BackgroundVC::timeout);
   }
   
   guard->setSingleShot(true);
@@ -79,12 +79,12 @@ bool BackgroundVC::commit(QString path1, QString program1) {
   vc = new QProcess(this);
   step = 0;
   vc->setWorkingDirectory(path);
-  connect(vc, SIGNAL(finished(int, QProcess::ExitStatus)),
-          SLOT(processFinished()));
-  connect(vc, SIGNAL(readyReadStandardError()),
-          SLOT(processStderr()));
-  connect(vc, SIGNAL(readyReadStandardOutput()),
-          SLOT(processStdout()));
+  connect(vc, &QProcess::finished,
+          this, &BackgroundVC::processFinished);
+  connect(vc, &QProcess::readyReadStandardError,
+          this, &BackgroundVC::processStderr);
+  connect(vc, &QProcess::readyReadStandardOutput,
+          this, &BackgroundVC::processStdout);
   if (program=="bzr") 
     vc->start("bzr", QStringList() << "add");
  else if (program=="git")

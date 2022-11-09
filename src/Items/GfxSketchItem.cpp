@@ -100,8 +100,8 @@ void GfxSketchItem::build() {
   data()->addPoint(QPointF(0, 0), true); // by def., we start at the origin
   droppedPoints.clear();
   QEventLoop el;
-  connect(this, SIGNAL(doneBuilding()),
-	  &el, SLOT(quit()),
+  connect(this, &GfxSketchItem::doneBuilding,
+	  &el, &QEventLoop::quit,
 	  Qt::QueuedConnection);
   grabMouse();
   el.exec();

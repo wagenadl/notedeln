@@ -61,7 +61,8 @@ void ResLoader::start() {
 
 void ResLoader::startDownload() {
   downloader = new Downloader(src, this);
-  connect(downloader, SIGNAL(finished()), SLOT(downloadFinished()));
+  connect(downloader, &Downloader::finished,
+          this, &ResLoader::downloadFinished);
   downloader->start(dst->fileName());
 }
 
@@ -144,10 +145,10 @@ void ResLoader::processFinished() {
 
 void ResLoader::startProcess(QString prog, QStringList args) {
   proc = new QProcess(this);
-  connect(proc, SIGNAL(finished(int, QProcess::ExitStatus)),
-	  this, SLOT(processFinished()));
-  connect(proc, SIGNAL(error(QProcess::ProcessError)),
-	  this, SLOT(processError()));
+  connect(proc, &QProcess::finished,
+	  this, &ResLoader::processFinished);
+  connect(proc, &QProcess::error,
+	  this, &ResLoader::processError);
   proc->start(prog, args);
   proc->closeWriteChannel();
 }

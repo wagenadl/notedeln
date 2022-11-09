@@ -26,7 +26,7 @@ static Data::Creator<TitleData> c("title");
 TitleData::TitleData(Data *parent): Data(parent) {
   setType("title");
   TextData *v0 = new TextData(this);
-  connect(v0, SIGNAL(mod()), this, SIGNAL(textMod()));
+  connect(v0, &TextData::mod, this, &TitleData::textMod);
 }
 
 TitleData::~TitleData() {
@@ -34,7 +34,7 @@ TitleData::~TitleData() {
 
 void TitleData::loadMore(QVariantMap const &vm) {
   Data::loadMore(vm);
-  connect(text(), SIGNAL(mod()), this, SIGNAL(textMod()));
+  connect(text(), &TextData::mod, this, &TitleData::textMod);
 }
   
 bool TitleData::isDefault() const {

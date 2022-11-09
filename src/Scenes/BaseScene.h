@@ -74,7 +74,6 @@ protected:
   class Notebook *book_;
   QList<class SheetScene *> sheets;
   bool contInMargin;
-  class QSignalMapper *focusFirstMapper;
 };
 
 #endif

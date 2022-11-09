@@ -25,6 +25,7 @@
 #include "TextItemDoc.h"
 
 class DefaultingTextItem: public TextItem {
+  Q_OBJECT;
 public:
   DefaultingTextItem(TextData *data, Item *parent=0,
 		     bool noFinalize=false,

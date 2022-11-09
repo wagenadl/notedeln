@@ -29,13 +29,18 @@ PrintDialog::PrintDialog(QWidget *parent): QDialog(parent) {
   ui->setupUi(this);
   resize(sizeHint());
 
-  connect(ui->pPrinter, SIGNAL(toggled(bool)), SLOT(setDestination()));
-  connect(ui->pPrinterName, SIGNAL(currentIndexChanged(int)),
-          SLOT(setDestination()));
-  connect(ui->pFile, SIGNAL(toggled(bool)), SLOT(setDestination()));
-  connect(ui->rtRange, SIGNAL(toggled(bool)), SLOT(toggleTocRange(bool)));
-  connect(ui->reRange, SIGNAL(toggled(bool)), SLOT(toggleEntriesRange(bool)));
-  connect(ui->pBrowse, SIGNAL(clicked(bool)), SLOT(browse()));
+  connect(ui->pPrinter, &QRadioButton::toggled,
+          this, &PrintDialog::setDestination);
+  connect(ui->pPrinterName, &QComboBox::currentIndexChanged,
+          this, &PrintDialog::setDestination);
+  connect(ui->pFile, &QRadioButton::toggled, 
+          this, &PrintDialog::setDestination);
+  connect(ui->rtRange, &QRadioButton::toggled,  
+          this, &PrintDialog::toggleTocRange);
+  connect(ui->reRange, &QRadioButton::toggled,  
+          this, &PrintDialog::toggleEntriesRange);
+  connect(ui->pBrowse, &QPushButton::clicked,   
+          this, &PrintDialog::browse);
   
   QList<QPrinterInfo> printers = QPrinterInfo::availablePrinters();
   if (printers.isEmpty()) {

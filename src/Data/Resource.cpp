@@ -273,7 +273,7 @@ void Resource::getArchiveAndPreview() {
   qDebug() << "validated? " << src << src.isValid();
   if (src.isValid()) {
     loader = new ResLoader(this);
-    connect(loader, SIGNAL(finished()), SLOT(downloadFinished()));
+    connect(loader, &ResLoader::finished, this, &Resource::downloadFinished);
     loader->start();
   } else {
   }

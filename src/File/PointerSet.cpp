@@ -20,7 +20,8 @@
 
 void PointerSet::insert(QObject *o) {
   data.insert(o);
-  connect(o, SIGNAL(destroyed(QObject*)), SLOT(remove(QObject*)));
+  connect(o, &QObject::destroyed,
+          this, &PointerSet::remove);
 }
 
 void PointerSet::remove(QObject *o) {

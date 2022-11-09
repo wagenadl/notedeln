@@ -71,7 +71,8 @@ PageView::PageView(SceneBank *bank, PageEditor *parent):
   wheelDeltaAccum = 0;
   wheelDeltaStepSize = book->style().real("wheelstep");
 
-  connect(mode(), SIGNAL(modeChanged(Mode::M)), SLOT(modeChange()));
+  connect(mode(), &Mode::modeChanged,
+          this, &PageView::modeChange);
 
   setAcceptDrops(true);
 
@@ -481,13 +482,13 @@ void PageView::gotoEntryPage(int n, int dir) {
   } else {
     leavePage();
     entryScene = bank->entryScene(te->startPage());
-    connect(entryScene->data(), SIGNAL(emptyStatusChanged(bool)),
-	    SLOT(emptyEntryChange()));
+    connect(entryScene->data(), &EntryData::emptyStatusChanged,
+	    this, &PageView::emptyEntryChange);
     connect(entryScene.obj(), &EntryScene::restacked,
             this, &PageView::emptyEntryChange);
                 
-    connect(entryScene.obj(), SIGNAL(sheetRequest(int)),
-	    SLOT(handleSheetRequest(int)));
+    connect(entryScene.obj(), &EntryScene::sheetRequest,
+	    this, &PageView::handleSheetRequest);
     if (entryScene->data()->isWritable())
       entryScene->makeWritable(); // this should be even more sophisticated
     currentSection = Entries;
@@ -529,8 +530,8 @@ void PageView::leavePage() {
   }
 
   if (currentSection==Entries) {
-    disconnect(entryScene->data(), SIGNAL(emptyStatusChanged(bool)),
-	       this, SLOT(emptyEntryChange()));
+    disconnect(entryScene->data(), &EntryData::emptyStatusChanged,
+	       this, &PageView::emptyEntryChange);
     if (currentPage==book->toc()->newPageNumber()-1) {
       // Leaving the last page in the notebook.
       // If the page is empty, we'll delete it.

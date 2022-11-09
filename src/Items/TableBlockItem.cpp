@@ -35,8 +35,8 @@ TableBlockItem::TableBlockItem(TableBlockData *data, Item *parent):
   TextBlockItem(data, parent, TTICreator()) {
   item_ = firstChild<TableItem>();
   ASSERT(item_);
-  connect(item_, SIGNAL(unicellular(TableData*)),
-	  this, SIGNAL(unicellular(TableData*)));
+  connect(item_, &TableItem::unicellular,
+	  this, &TableBlockItem::unicellular);
 
   /*
   TextCursor tc(item_->document());

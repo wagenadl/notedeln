@@ -27,8 +27,8 @@
 
 DefaultingQTI::DefaultingQTI(QString dflttxt, QGraphicsItem *parent):
   QGraphicsTextItem(parent), dt(dflttxt) {
-  //connect(document(), SIGNAL(contentsChange(int, int, int)),
-    // SLOT(update()));
+  //connect(document(), SIG NAL(contentsChange(int, int, int)),
+    // SL OT(update()));
   setPlainText(dt);
   setPlainText("");
 }

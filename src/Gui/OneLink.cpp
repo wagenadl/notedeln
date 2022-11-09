@@ -128,8 +128,8 @@ void OneLink::enter(QGraphicsSceneHoverEvent *) {
     Resource *r = resource();
     if (r) {
       popper = new PreviewPopper(r, QRect(), this);
-      connect(popper, SIGNAL(clicked(Qt::KeyboardModifiers)),
-	      SLOT(activate(Qt::KeyboardModifiers)));
+      connect(popper, &PreviewPopper::clicked,
+	      this, &OneLink::activate);
     }
   }
 }
@@ -235,7 +235,7 @@ void OneLink::getArchiveAndPreview() {
     r = md->resManager()->newResource(newRef);
     lastRefIsNew = true;
   }
-  connect(r, SIGNAL(finished()), SLOT(downloadFinished()),
+  connect(r, &Resource::finished, this, &OneLink::downloadFinished,
 	  Qt::UniqueConnection);
 
   if (!md->resourceTags().contains(newRef))

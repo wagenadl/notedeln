@@ -30,7 +30,7 @@ TOCScene::TOCScene(TOC *data, QObject *parent):
   BaseScene(data, parent),
   data(data) {
   setContInMargin();
-  connect(data, SIGNAL(mod()), this, SLOT(tocChanged()));
+  connect(data, &TOC::mod, this, &TOCScene::tocChanged);
 }
 
 TOCScene::~TOCScene() {
@@ -66,9 +66,9 @@ void TOCScene::rebuild() {
   foreach (TOCEntry *e, data->entries()) {
     TOCItem *i = new TOCItem(e, this);
     items.append(i);
-    connect(i, SIGNAL(vboxChanged()), SLOT(itemChanged()));
-    connect(i, SIGNAL(clicked(int, Qt::KeyboardModifiers)),
-	    SLOT(pageNumberClicked(int, Qt::KeyboardModifiers)));
+    connect(i, &TOCItem::vboxChanged, this, &TOCScene::itemChanged);
+    connect(i, &TOCItem::clicked,
+	    this, &TOCScene::pageNumberClicked);
 
     QGraphicsLineItem *l
       = new QGraphicsLineItem(0, 0, style().real("page-width"), 0);

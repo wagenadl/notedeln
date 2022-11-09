@@ -27,7 +27,7 @@
 ToolView::ToolView(Mode *mode, QWidget *parent): QGraphicsView(parent) {
   timer = new QTimer(this);
   timer->setInterval(5);
-  connect(timer, SIGNAL(timeout()), SLOT(timeout()));
+  connect(timer, &QTimer::timeout, this, &ToolView::timeout);
   opacity = 1.;
   tools = new ToolScene(mode, this);
   setStyleSheet("background: transparent");
@@ -39,8 +39,7 @@ ToolView::ToolView(Mode *mode, QWidget *parent): QGraphicsView(parent) {
   setAlignment(Qt::AlignLeft | Qt::AlignTop);
   
   setScene(tools);
-  connect(tools, SIGNAL(changed(const QList<QRectF> &)),
-	  SLOT(autoMask()));
+  connect(tools, &ToolScene::changed, this, &ToolView::autoMask);
 
   setAcceptDrops(true);
 }
