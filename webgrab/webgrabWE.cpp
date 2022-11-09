@@ -44,18 +44,18 @@ int main(int argc, char **argv) {
 
   QWebEngineView webview;
   PrinterWE p(&webview, options);
-  QObject::connect(&webview, SIGNAL(loadFinished(bool)),
-      &p, SLOT(complete(bool)));
+  QObject::connect(&webview, &QWebEngineView::loadFinished,
+                   &p, &PrinterWE::complete);
   QWebEnginePage *page = webview.page();
-  QObject::connect(page, SIGNAL(featurePermissionRequested(QUrl const &,
-                                                           QWebEnginePage::Feature)),
-                   &p, SLOT(featureReq(QUrl const &,
-                                       QWebEnginePage::Feature)));
-  QObject::connect(page, SIGNAL(contentsSizeChanged(QSizeF const &)),
-                   &p, SLOT(sizeChange(QSizeF const &)));
+  QObject::connect(page, &QWebEnginePage::featurePermissionRequested,
+                   &p, &PrinterWE::featureReq);
+  QObject::connect(page, &QWebEnginePage::contentsSizeChanged,
+                   &p, &PrinterWE::sizeChange);
   page->setAudioMuted(true);
   qDebug() << "Loading url " << options.url;
   webview.load(QUrl(options.url));
+  qDebug() << "ready to exec";
   app.exec();
+  qDebug() << "back from exec";
   return 0;
 }

@@ -55,12 +55,12 @@ void PrinterWE::display() {
 
 
 void PrinterWE::complete(bool ok) {
+  qDebug() << "complete";
   if (!ok) {
     fprintf(stderr, "webgrab: Failed to load web page");
     QApplication::exit(2);
     return;
   }
-  qDebug() << "complete";
   if (opt.out.isEmpty()) {
     src->show();
   } else {
