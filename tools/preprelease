@@ -88,7 +88,7 @@ sub getbasicinfo {
   my $here = `pwd`;
   chomp $here;
   my @bits = split("/", $here);
-  my $package = pop @bits;
+  my $pkgname = pop @bits;
 
   #my $srcvsn = `cat src/version`;
   #chomp $srcvsn;
@@ -101,7 +101,8 @@ sub getbasicinfo {
     my ($pkg, $vsn, @junk) = split(" ", $headline);
     die "Junk in CHANGELOG headline\n" if @junk || !defined($pkg) ||
       !defined($vsn);
-    die "Package name mismatch\n" if $pkg ne $package;
+    print("Package name mismatch $pkg vs $pkgname\n") if $pkg ne $pkgname;
+    $pkgname = $pkg;
     $chglvsn = $vsn;
     $vsn =~ /^(\d+)\.(\d+)\.(\d+)(-.+)?/ or die "Junk in CHANGELOG headline\n";
     $nextvsn = "$1.$2." . ($3+1);
@@ -109,7 +110,7 @@ sub getbasicinfo {
 
   my %info = ( "name" => $name,
                "email" => $email,
-               "package" => $package,
+               "package" => $pkgname,
                "changelogversion" => $chglvsn,
                "nextversion" => $nextvsn,
                "here" => $here
@@ -226,8 +227,8 @@ sub updateinno {
   my $newvsn = shift;
   my $info = shift;
 
-  my $package = $info->{package};
-  system("tools/updateinnoscript.pl $package $newvsn") and
+  my $pkgname = $info->{package};
+  system("tools/updateinnoscript.pl $pkgname $newvsn") and
     die "Could not update windows deplotment script\n";
 }
 
@@ -235,11 +236,11 @@ sub gitadd {
   my $newvsn = shift;
   my $info = shift;
 
-  my $package = $info->{package};
+  my $pkgname = $info->{package};
   system("git add CHANGELOG") and die "Could not add CHANGELOG\n";
   system("git add src/version") and die "Could not add src/version\n";
-  system("git add tools/$package-x86.iss") and
-    die "Could not add tools/$package-x86.iss\n";
+  system("git add tools/$pkgname-x86.iss") and
+    die "Could not add tools/$pkgname-x86.iss\n";
   system("git commit -m'Prepared for new version $newvsn'") and
     die "Could not commit\n";
 }
@@ -248,11 +249,11 @@ sub maketar {
   my $newvsn = shift;
   my $info = shift;
 
-  my $package = $info->{package};
+  my $pkgname = $info->{package};
 
-  my $tar = "releases/$package-$newvsn.tar.gz";
+  my $tar = "releases/$pkgname-$newvsn.tar.gz";
   system("mkdir -p ../releases");
-  system("git archive -o ../$tar --prefix=$package-$newvsn/ HEAD") and
+  system("git archive -o ../$tar --prefix=$pkgname-$newvsn/ HEAD") and
     die "Could not create archive\n";
 
   chdir("..");
