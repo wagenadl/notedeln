@@ -37,23 +37,31 @@ void setGlobalSettings() {
 }
 
 int main(int argc, char **argv) {
+  qDebug() << "webgrab";
   QApplication app(argc, argv);
+  qDebug() << "app created";
   Options options(argc, argv);
-
-  setGlobalSettings();
-
-  QWebEngineView webview;
-  PrinterWE p(&webview, options);
-  QObject::connect(&webview, &QWebEngineView::loadFinished,
-                   &p, &PrinterWE::complete);
-  QWebEnginePage *page = webview.page();
+  qDebug() << "options created";
+  //setGlobalSettings();
+  qDebug() << "options set";
+  QWidget *w = new QWidget;
+  qDebug() << "widget created";
+  QWebEngineView *webview = new QWebEngineView(w);
+  qDebug() << "view created";
+  PrinterWE *p = new PrinterWE(webview, options);
+  qDebug() << "printer created";
+  QObject::connect(webview, &QWebEngineView::loadFinished,
+                   p, &PrinterWE::complete);
+  QWebEnginePage *page = webview->page();
+  qDebug() << "page is " << page;
   QObject::connect(page, &QWebEnginePage::featurePermissionRequested,
-                   &p, &PrinterWE::featureReq);
+                   p, &PrinterWE::featureReq);
   QObject::connect(page, &QWebEnginePage::contentsSizeChanged,
-                   &p, &PrinterWE::sizeChange);
+                   p, &PrinterWE::sizeChange);
+  qDebug() << "connected";
   page->setAudioMuted(true);
   qDebug() << "Loading url " << options.url;
-  webview.load(QUrl(options.url));
+  webview->load(QUrl(options.url));
   qDebug() << "ready to exec";
   app.exec();
   qDebug() << "back from exec";

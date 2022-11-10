@@ -20,7 +20,7 @@
 
 TextSplitter::TextSplitter(QString text,  QVector<double> const &charwidths):
   text(text), charwidths(charwidths) {
-  bits_ << makeBit(0, text.size(), Type::Any);
+  bits_.push_back(makeBit(0, text.size(), Type::Any));
   splitAtNewlines(bits_.begin());
 }
 

@@ -769,7 +769,7 @@ bool TextItem::muckWithIndentation(TextBlockItem *p,
 bool TextItem::keyPressAsInsertion(QKeyEvent *e) {
   if (mode()->mode()!=Mode::Type)
     return false;
-  QString now = "";
+  QString now = e->text();
   if (e->modifiers() & Qt::ControlModifier) {
     switch (e->key()) {
     case Qt::Key_2:
@@ -794,11 +794,12 @@ bool TextItem::keyPressAsInsertion(QKeyEvent *e) {
       break;
     }
   }
-  if (now.isEmpty()) {
-    now = e->text();
-    if (now[0]<QChar(32) || now[0]==QChar(127))
+
+  if (now.isEmpty())
+    return false;
+  if (now[0]<QChar(32) || now[0]==QChar(127))
       return false; 
-  }
+
   if (!cursor.hasSelection()) {
     cursor.insertText(now);
     if (now=="}" && mode()->typeMode()==Mode::Math) 

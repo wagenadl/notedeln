@@ -17,12 +17,12 @@ set(CMAKE_PROJECT_HOMEPAGE_URL "http://danielwagenaar.net/eln")
 
 ######################################################################
 # Specify the C++ standard [must be done _before_ adding executable!]
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
-set(CMAKE_POSITION_INDEPENDENT_CODE ON) # I thought this would do the trick...
-if (UNIX) 
-  add_compile_options(-fPIC) # ... but in fact, this is required on Linux
-endif()
+#set(CMAKE_POSITION_INDEPENDENT_CODE ON) # I thought this would do the trick...
+#if (UNIX) 
+#  add_compile_options(-fPIC) # ... but in fact, this is required on Linux
+#endif()
 
 # Qt stuff
 set(CMAKE_AUTOMOC ON)
@@ -58,7 +58,7 @@ configure_file(doc/version.tex.in version.tex)
 
 # Include paths - Qt must be mentioned
 target_include_directories(notedeln PUBLIC "${PROJECT_BINARY_DIR}")
-target_include_directories(notedeln PUBLIC "${Qt6Widgets_INCLUDE_DIRS}")
+target_include_directories(notedeln PUBLIC "${Qt6_INCLUDE_DIRS}")
 
 ######################################################################
 # Userguide

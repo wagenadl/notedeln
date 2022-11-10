@@ -20,6 +20,7 @@
 
 #define TEXTSPLITTER_H
 
+#include <list>
 #include <QString>
 #include <QVector>
 
@@ -41,7 +42,10 @@ public:
     int start; // offset from start of text
     Type type;
   };
-  typedef QList<Bit> List;
+  typedef std::list<Bit> List; // this *must* be a linked list, or our
+                               // insertion semantics will cause
+                               // crashes. QLinkedList has been
+                               // abolished.
   typedef List::iterator Iter;
 public:
   TextSplitter(QString text, QVector<double> const &charwidths);
