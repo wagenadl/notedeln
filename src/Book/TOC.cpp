@@ -433,8 +433,7 @@ void TOC::resolveDuplicates(QMultiMap<int, QString> &pg2file, int pgno,
       if (fi.exists() && fi.size()>0) {
 	errorReturn("Failed to load " + it.fn + ".");  
       } else {
-	fd.remove(); // !? I don't understand this - DW 3/11/16
-	continue;
+	fd.remove(); // remove zero-size files left behind by some vc systems
       }
     }
   }
