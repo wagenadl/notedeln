@@ -336,8 +336,8 @@ int TextCursor::startOfNonSpaces() const {
   if (!isValid())
     return -1;
   QString txt = doc->text();
-  int p = pos - 1;
-  while (p>=0 && !txt[p].isSpace())
+  int p = pos;
+  while (p>0 && !txt[p-1].isSpace())
     --p;
   return p < 0 ? 0 : p;
 }
