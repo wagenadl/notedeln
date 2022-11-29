@@ -731,13 +731,13 @@ void PageView::createContinuationEntry() {
                      - style.real("margin-bottom")
                      + style.real("pgno-sep"));
   LateNoteItem *fwdNote = entryScene->newLateNote(currentSheet, fwdNotePos);
+
   TextItem *fwdNoteTI = fwdNote->textItem();
   TextCursor cursor = fwdNoteTI->textCursor();
   QString fwdNoteText = QString("(see p. %1)").arg(newPage);
   cursor.insertText(fwdNoteText);
   cursor.setPosition(fwdNoteText.size()-1);
   fwdNoteTI->setTextCursor(cursor);
-  fwdNoteTI->tryExplicitLink(); // dead at first, but not for long
   QPointF pp = fwdNote->mapToScene(fwdNote->netBounds().topLeft());
   fwdNote->translate(fwdNotePos - pp);
 
@@ -767,7 +767,10 @@ void PageView::createContinuationEntry() {
   qDebug() << "  topright=" << pp << " desired="<<revNotePos; 
   revNote->translate(revNotePos - pp);
 
+  // Finish forward note
   gotoEntryPage(oldPage);
+  fwdNoteTI->tryExplicitLink();
+
   gotoEntryPage(newPage); // pick up new title
 
   mode()->setMode(Mode::Type);
