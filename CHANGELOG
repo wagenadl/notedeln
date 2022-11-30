@@ -1,3 +1,45 @@
+NotedELN 1.4.99
+
+  Preparing for a 1.5.0 release that uses Qt6
+
+
+NotedELN 1.4.6
+
+  User-visible changes:
+
+  * Graphics blocks no longer automatically shrink to fit. You have to
+    ctrl-double click on the canvas.
+  * Table split/join now more intuitive: Use Tab/Backspace/Delete on single-
+    row tables.
+  * Cursor position better preserved after dissolution of tables.
+  * <X> now replaced with ⟨X⟩ along with tryScriptStyles for any X that
+    does not contain spaces.
+
+  Bugfixes:
+
+  * Click/drag outside of visible portion of text block handled more gracefully.
+  * Reduced use of lambdas as slots, because they are dangerous: Qt does not
+    know when the target is destructed.
+  * Ctrl-A did not move to next page if needed for split paragraph
+  * Fixed bug caused by lingering signal after TextItem deletion upon shrink
+    across page
+  * QUrl::path does not give legal pathname in windows. Replaced with 
+    toLocalFile
+  * Bugfix to TOCItem to avoid crash during TOCScene rebuild
+  * Fixed longstanding bug re (de)italicizing near other italics
+  * GfxImageItem could crash when deleted before load complete. Fixed.
+  * Bugfix to trySubscript
+
+  Documentation changes:
+  * Updated README.md
+  * Userguide LaTeX improvements for foofy typesetting
+  * Distinguish front matter roman numbering; use titlepage for title page
+  * Activate links in manual
+  * Terminal whitespace
+  * Improved linux crash reporting
+
+  -- Daniel A. Wagenaar <daw@caltech.edu>  Sun, 08 May 2022 13:43:12 -0700
+
 NotedELN 1.4.0
 
   Project renamed to “NotedELN” to avoid confusion with other electronic
