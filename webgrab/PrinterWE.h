@@ -39,13 +39,12 @@ private:
   void toPdf(QString);
   void toSinglePagePdf(QString);
   void toMultiPagePdf(QString);
-  void toSvg(QString);
-  void toImg(QString);
   void display();
 private:
   QWebEngineView *src;
   Options const &opt;
   bool havesize;
+  QString temppdf;
 };
 
 #endif
