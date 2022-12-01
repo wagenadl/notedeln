@@ -212,13 +212,13 @@ void GfxVideoItem::showTime() {
 
 
   if (dur_s==0 && pos_s==0) {
-    annotation->setPlainText("⏵"); // or "▶" // big version
+    annotation->setPlainText("‣"); // or "▶" // big version
     return;
   }
 
-  QString txt = state==QMediaPlayer::PausedState ? "⏸"
-    : state==QMediaPlayer::PlayingState ? "⏵"
-    : "⏹";
+  QString txt = state==QMediaPlayer::PausedState ? "‣"
+    : state==QMediaPlayer::PlayingState ? "‖"
+    : "‣";
 
   annotation->setPlainText(txt + " " + hms(pos_s) + " / " + hms(dur_s));
   slider->setDuration(dur_s);
