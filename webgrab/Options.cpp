@@ -53,7 +53,15 @@ Options::Options(int &argc, char **&argv) {
     usage();
   }
   url = argv[1];
-  if (url.startsWith("www."))
+  if (url.startsWith("/"))
+    url = "file://" + url;
+  else if (url.startsWith("http:"))
+    ;
+  else if (url.startsWith("https:"))
+    ;
+  else if (url.startsWith("file:"))
+    ;
+  else
     url = "http://" + url;
   for (int n=2; n<argc; n++)
     out.append(argv[n]);
