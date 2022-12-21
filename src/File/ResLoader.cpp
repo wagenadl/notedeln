@@ -147,10 +147,11 @@ void ResLoader::startProcess(QString prog, QStringList args) {
   proc = new QProcess(this);
   connect(proc, &QProcess::finished,
 	  this, &ResLoader::processFinished);
-  connect(proc, &QProcess::error,
+  connect(proc, &QProcess::errorOccurred,
 	  this, &ResLoader::processError);
   proc->start(prog, args);
   proc->closeWriteChannel();
+  
 }
 
 bool ResLoader::parentAlive() const {

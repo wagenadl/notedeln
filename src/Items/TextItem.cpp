@@ -1540,12 +1540,7 @@ bool TextItem::tryToPaste(bool nonewlines) {
     cursor.clearSelection();
     return true;   
   } else if (md->hasText()) {
-    QString txt = md->text();
-    txt.replace(QRegularExpression("[\\x0000-\\x0008\\x000b-\\x001f]"), "");
-    txt.replace("\t", " ");
-    if (nonewlines)
-      txt.replace("\n", " ");
-    cursor.insertText(txt);
+    cursor.insertText(dropcontrol(md->text(), nonewlines));
     return true;
   } else {
     return false;
