@@ -64,6 +64,15 @@ static bool isDigit(QChar x) {
   return (x>='0' && x<='9');
 }
 
+static QString dropcontrol(QString txt, bool nonewlines) {
+  static QRegularExpression re("[\\x00-\\x08\\x0b-\\x1f]");
+  txt.replace(re, "");
+  txt.replace("\t", " ");
+  if (nonewlines)
+    txt.replace("\n", " ");
+  return txt;
+}
+
 TextItem::TextItem(TextData *data, Item *parent, bool noFinalize,
 		   TextItemDoc *altdoc):
   Item(data, parent) {
@@ -991,9 +1000,15 @@ bool TextItem::keyPressAsDigraph(QKeyEvent *e) {
 }
 
 void TextItem::inputMethodEvent(QInputMethodEvent *e) {
-  if (mode()->mode()==Mode::Type) 
+  // This is for handling Ctrl+Shift+U unicode entering
+  // We ought to represent the "preeditstring" somehow, but we currently don't
+  //  qDebug() << "inputmethod" << e->commitString() << e->preeditString() << e->replacementStart() << e->replacementLength();
+  if (isWritable() && mode()->mode()==Mode::Type && !cursor.hasSelection()) {
     cursor.insertText(e->commitString());
-  e->accept();
+    e->accept();
+  } else {
+    Item::inputMethodEvent(e);
+  }
 }
   
 void TextItem::keyPressEvent(QKeyEvent *e) {
@@ -1693,20 +1708,11 @@ TextCursor TextItem::insertBasicHtml(QString html, int pos, bool nonewlines,
   TextCursor c(cursor);
   c.setPosition(pos);
   if (ref.isNull() || p.text()==ref) {
-    QString txt = p.text();
-    txt.replace(QRegularExpression("[\\x0000-\\x0008\\x000b-\\x001f]"), "");
-    txt.replace("\t", " ");
-    if (nonewlines)
-      txt.replace("\n", " ");
-    c.insertText(txt);
+    c.insertText(dropcontrol(p.text(), nonewlines));
     foreach (MarkupData *md, p.markups()) 
       addMarkup(md->style(), md->start()+pos, md->end()+pos);
   } else {
-    ref.replace(QRegularExpression("[\\x0000-\\x0008\\x000b-\\x001f]"), "");
-    ref.replace("\t", " ");
-    if (nonewlines)
-      ref.replace("\n", " ");
-    c.insertText(ref);
+    c.insertText(dropcontrol(ref, nonewlines));
   }
   c.setPosition(pos, TextCursor::KeepAnchor);
   c.exchangePositionAndAnchor();
