@@ -144,9 +144,9 @@ Press [Ctrl][L] to create a hyperlink. (If your hyperlink contains
 spaces, you will have to select the text first, otherwise, NotedELN
 figures out the boundaries of the link text automatically.) NotedELN
 will automatically download the webpage and store an archival copy
-with the notebook.
+with the notebook [#f1]_.
 
-Hovering over a link displays a thumbnail of the page [#f1]_, and
+Hovering over a link displays a thumbnail of the page, and
 double clicking opens a pdf of the downloaded page. Double clicking
 with [Shift] held opens the original web page. Hyperlinks are typeset
 with a pale blue background once download is complete and with a pink
@@ -283,4 +283,8 @@ fixed. And I would be happy to try and help.
 Footnote
 ----------
 
-.. [#f1] On select operating systems
+.. [#f1] In the current implementation, the saved pdf is as it would
+         be saved by the “Chromium” browser. Many websites generate
+         pdf output that is somewhat different from how they appear in
+         a browser. For a visually true snapshot of a website, taking
+         a screenshot and pasting that into NotedELN is more accurate.
