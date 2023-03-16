@@ -69,6 +69,10 @@ if (UNIX AND NOT APPLE)
 endif()
 
 ######################################################################
+# Spinx documentation
+add_subdirectory("docs")
+
+######################################################################
 # General packaging / installation
 set(CPACK_PACKAGE_VENDOR "Daniel Wagenaar")
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "NotedELN - an Electronic Lab Notebook")
