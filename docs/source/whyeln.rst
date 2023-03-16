@@ -29,7 +29,7 @@ for you if:
 However, NotedELN may not be for you if:
 
 - You want complete control over the formatting of your
-  notes. (NotedELN does enable basic formattings.)
+  notes. (NotedELN does enable basic formatting.)
 
 - You need to typeset complex equations in your notes. (NotedELN does
   have facilities for typesetting basic equations.)
@@ -39,8 +39,6 @@ However, NotedELN may not be for you if:
 - You need to import formatted documents into your notes. (NotedELN
   can archive web pages and pdf files for you, but they cannot be
   rendered onto the notebook pages.)
-
-- You need a fully polished graphical user interface.
 
 - You need a help desk on-call.
 
@@ -136,10 +134,10 @@ Footnotes
   all software, does have bugs, so it is good to know that failure can
   never be catastrophic.
 
-.. [#f2] See `Editing old entries` in the user guide for a minor exception.
+.. [#f2] See :ref:`Editing old entries` in the user guide for a minor exception.
 
 .. [#f3] NotedELN on its own cannot be relied on to fully guarantee
-that entries aren’t modified post-hoc, because it is certainly
-possible to modify entries using an external text editor. However,
-judicious use of version control software can be used to document that
-such abuse has not occurred.
+  that entries aren’t modified post-hoc, because it is certainly
+  possible to modify entries using an external text editor. However,
+  judicious use of version control software can be used to document
+  that such abuse has not occurred.

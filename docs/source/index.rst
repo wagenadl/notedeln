@@ -26,10 +26,11 @@ stripes. NotedELN is great for:
 From its beginning in 2013, NotedELN has focused on reliability and on
 the premise that a lab notebook should be a record for the ages. We
 now have a track record of 10 years of daily use and not a single case
-of data loss. That is hard to achieve even with paper
-notebooks. Moreover, since most people type faster than they can write
-by hand, NotedELN has helped us take more detailed and more
-useful notes than we would otherwise have.
+of data loss. In my experience, that is not easy to achieve even with
+paper notebooks. Moreover, since most people type faster than they can
+write by hand, NotedELN has helped us take more detailed and more
+useful notes than we would otherwise have. When a student graduates,
+they and their PI can each keep an original copy of all their notes.
 
 NotedELN is free and open source and is available for Windows, Mac,
 and Linux.
@@ -56,7 +57,7 @@ User guide
 
 .. toctree::
    :maxdepth: 1
-   :caption: For full details on how to use the software, read these.
+   :caption: For full details on how to use the software, read these chapters.
 
    install
    userguide

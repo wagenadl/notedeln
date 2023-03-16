@@ -1,6 +1,6 @@
 .. _install:
 
-Tutorial: Installing NotedELN on your computer
+Installing NotedELN on your computer
 =====================================================
 
 Binary installation

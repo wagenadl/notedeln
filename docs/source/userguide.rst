@@ -144,7 +144,7 @@ Press [Ctrl][L] to create a hyperlink. (If your hyperlink contains
 spaces, you will have to select the text first, otherwise, NotedELN
 figures out the boundaries of the link text automatically.) NotedELN
 will automatically download the webpage and store an archival copy
-with the notebook [#f1]_.
+with the notebook [#f1]_ [#f2]_.
 
 Hovering over a link displays a thumbnail of the page, and
 double clicking opens a pdf of the downloaded page. Double clicking
@@ -212,24 +212,26 @@ Saving your work
 --------------------
 
 You don’t have to! NotedELN automatically saves your work every 10
-seconds (if you have made any changes) and when you navigate to a
-different entry (ditto). If you have configured version control (see
-below), your changes are automatically committed and pushed to the
-server every 5 minutes and when you close the notebook.
+seconds and when you navigate to a different entry (if you have made
+any changes). If you have configured `version control <vc>`, your
+changes are automatically committed and pushed to the server every 5
+minutes and when you close the notebook.
 
 
 Editing old entries
 -------------------
 
 Cannot be done, by design. Just as you cannot change the outcome of
-yesterday's experiments, yesterday's notes are fixed. However, you can
-use the |note| icon ([F6]) to add so-called “late notes” to a previous entry. Late notes are
-automatically set in a distinct color and decorated with a date
-stamp. They may be manipulated just like text annotations on a
-graphics canvas. To indicate that an entry cannot be edited, NotedELN
-switches to “browse” mode, indicated by the |browse| icon being
-automatically selected.
+yesterday's experiments, yesterday's notes are fixed.
 
+However, you can use the |note| icon ([F6]) to add so-called “late
+notes” to a previous entry. Late notes are automatically set in a
+distinct color and decorated with a date stamp. They may be
+manipulated just like text annotations on a graphics canvas.
+
+To indicate that an entry cannot be edited, NotedELN switches to
+“browse” mode, indicated by the |browse| icon being automatically
+selected.
 
 .. |browse| image:: browse.png
               :height: 3ex
@@ -276,15 +278,19 @@ I hope that NotedELN will be useful to you, and that it will encourage
 you to take more—and more usable—notes. I love to hear happy users’
 stories. I also welcome bug reports of all kinds. And in the unlikely
 event that NotedELN appears to have chewed up your notes, please do
-not just throw away the broken notebook. Although I cannot make any
+not just throw away the broken notebook. Although I cannot offer any
 guarantees (see the GPL license text!), it almost certainly can be
 fixed. And I would be happy to try and help.
 
 Footnote
 ----------
 
-.. [#f1] In the current implementation, the saved pdf is as it would
+.. [#f1] If the link is a web page, the saved pdf is as it would
          be saved by the “Chromium” browser. Many websites generate
          pdf output that is somewhat different from how they appear in
          a browser. For a visually true snapshot of a website, taking
          a screenshot and pasting that into NotedELN is more accurate.
+
+.. [#f2] If the link is not a web page but some other file type, the
+         file is downloaded and archived, and NotedELN will attempt to
+         create a thumbnail. Currently, this only works for pdf files.
