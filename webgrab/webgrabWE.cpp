@@ -38,7 +38,8 @@ void setGlobalSettings() {
 
 int main(int argc, char **argv) {
   QApplication app(argc, argv);
-  Options options(argc, argv);
+  Options options(app);
+  
   setGlobalSettings();
   {
     QWidget w;

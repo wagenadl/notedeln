@@ -24,12 +24,11 @@
 
 class Options {
 public:
-  Options(int &argc, char **&argv);
+  Options(class QApplication const &);
   bool paginate;
   int imSize;
   QString url;
   QStringList out;
-  void usage();
   
 };
 
