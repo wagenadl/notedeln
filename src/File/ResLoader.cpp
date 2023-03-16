@@ -202,7 +202,7 @@ bool ResLoader::makePdfAndPreview() {
     parentRes->setArchiveFilename(parentRes->archiveFilename() + ".pdf");
 
   QStringList args;
-  args.append("-480");
+  args.append("-m");
   args.append(src.toString());
   args.append(parentRes->archivePath());
   if (!parentRes->previewFilename().isEmpty())
