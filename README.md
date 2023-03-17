@@ -32,4 +32,4 @@ contributions are welcome.
 ## Installation and more information
 
 Installation instructions, tutorials, and user guides for NotedELN 
-are now on [ReadTheDocs](https://cschem.readthedocs.io/en/latest).
+are now on [ReadTheDocs](https://notedeln.readthedocs.io/en/latest).
