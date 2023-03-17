@@ -175,7 +175,14 @@ public:
       qDebug() << "No pages in pdf" << pdffn;
       QApplication::exit(2);
     }
+
+    /* Ugly section follows to deal with unannounced API change in Qt PDF */
+#if QT_VERSION >= QT_VERSION_CHECK(6, 4, 0)
+    QSizeF ptsize = pdf.pagePointSize(0);
+#else
     QSizeF ptsize = pdf.pageSize(0);
+#endif
+    /* End of ugly section */
     QSize outsize(opt.imSize,
                   int(opt.imSize*ptsize.height()/ptsize.width()));
     QImage img = autotrim(pdf.render(0, outsize));

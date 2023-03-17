@@ -32,7 +32,7 @@ all of these through your distribution's package manager. For
 instance, on Ubuntu::
 
      sudo apt install g++ cmake git qt6-tools-dev \
-       qt6-webengine-dev qt6-multimedia-dev libqt6svg6-dev
+       qt6-webengine-dev qt6-multimedia-dev libqt6svg6-dev qt6-pdf-dev
 
 On Windows you may have to install the software from the websites
 provided above.
