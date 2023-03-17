@@ -1,4 +1,4 @@
-![NotedELN - an Electronic Lab Notebook](https://github.com/wagenadl/notedeln/blob/main/docs/source/banner3.svg)
+<img alt="NotedELN - an Electronic Lab Notebook" src="https://github.com/wagenadl/notedeln/blob/main/docs/source/banner3.svg" width="100%">
 
 ## Introduction
 
