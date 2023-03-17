@@ -70,16 +70,16 @@ global option). These limits were a conscious design choice: the hope
 is that this will force the user to concentrate on content rather than
 form, just as you would in a paper notebook.
 
-Graphic manipulation is similarly rudimentary: you can drag-and-drop
-or cut-and-paste images and (svg) vector graphics into a notebook
-entry, and these graphics can be cropped and resized, but they cannot,
-e.g., be rotated or recolored. You can add simple symbols in a limited
-set of colors to the graphics as well as draw freehand lines. It is
-also possible to attach text notes to the graphics. You cannot,
-however, create arbitrarily complex graphics in NotedELN; for that,
-the author recommends using the GIMP, Krita, or Inkscape. It is easy to
-cut-and-paste from these programs into NotedELN, and even easier to
-simply grab screenshots and paste them into NotedELN.
+Support for graphics follows the same philosophy: you can
+drag-and-drop or cut-and-paste images and (svg) vector graphics into a
+notebook entry, and these graphics can be cropped and resized. You can
+add simple symbols in a limited set of colors to the graphics as well
+as draw freehand lines. It is also possible to attach text notes to
+the graphics. You cannot, however, create arbitrarily complex graphics
+in NotedELN; for that, the author recommends using the GIMP, Krita, or
+Inkscape. It is easy to cut-and-paste from these programs into
+NotedELN, and even easier to simply grab screenshots and paste them
+into NotedELN.
 
 NotedELN supports footnotes and references to other pages within the
 same notebook, and automatically downloads and archives web pages if
@@ -104,10 +104,11 @@ subfolder.) This approach has numerous advantages:
   data does get compromised [#f1]_.
 
 Another important design feature is that entries automatically get
-locked (i.e., become immune to editing) after 24 hours [#f2]_. This design choice
-might be controversial, but it is an important feature for a lab
-notebook: it encourages (in fact, enforces), chronological note taking
-and discourages manipulating data post-hoc [#f3]_.
+locked (i.e., become immune to editing) after 24 hours [#f2]_. This
+design choice might appear controversial, but it is an important
+feature for a lab notebook: it encourages (in fact, enforces),
+chronological note taking and preservation of history in experimental
+records [#f3]_  [#f4]_.
 
 NotedELN does not, at present, offer any facilities for multi-user
 collaboration. However, if used in conjunction with version control
@@ -131,13 +132,20 @@ Footnotes
 ---------
 
 .. [#f1] Of course that’s not supposed to happen, but NotedELN, like
-  all software, does have bugs, so it is good to know that failure can
-  never be catastrophic.
+  all software, does have bugs, so it is good to know that failure is
+  highly unlikely to be catastrophic.
 
-.. [#f2] See :ref:`Editing old entries` in the user guide for a minor exception.
+.. [#f2] See :ref:`Editing old entries` in the user guide for a minor
+         exception.
 
+.. [#f4] You can write an annotation onto a previous entry, e.g., to
+         point out a factual error, or to link to a follow-up notebook
+         entry. Such annotations are typeset in a special color and
+         automatically dated, so the historical record is clearly
+         preserved.
+         
 .. [#f3] NotedELN on its own cannot be relied on to fully guarantee
   that entries aren’t modified post-hoc, because it is certainly
   possible to modify entries using an external text editor. However,
-  judicious use of version control software can be used to document
-  that such abuse has not occurred.
+  judicious use of version control software can help document
+  that such has not occurred.
