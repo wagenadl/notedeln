@@ -121,6 +121,18 @@ restored by pressing [Insert]. An empty graphics canvas can be deleted
 by pressing [Delete]. [Ctrl][Delete] works in any mode, provided there
 is no active text cursor.
 
+Adding videos
+-------------
+
+By popular demand, you can now embed [#f1]_ videos in NotedELN. Support is
+limited to whatever formats Qt can play on your system.  Drag a video
+file into your notebook just as you would an image file. Embedded
+videos are outfitted with play/pause controls and a slider to scrub
+through the timeline. 
+
+Video objects can be resized and deleted as other images. At present,
+they cannot be cropped.
+
 Adding tables
 -------------
 
@@ -144,7 +156,7 @@ Press [Ctrl][L] to create a hyperlink. (If your hyperlink contains
 spaces, you will have to select the text first, otherwise, NotedELN
 figures out the boundaries of the link text automatically.) NotedELN
 will automatically download the webpage and store an archival copy
-with the notebook [#f1]_ [#f2]_.
+with the notebook [#f2]_ [#f3]_.
 
 Hovering over a link displays a thumbnail of the page, and
 double clicking opens a pdf of the downloaded page. Double clicking
@@ -285,12 +297,16 @@ fixed. And I would be happy to try and help.
 Footnote
 ----------
 
-.. [#f1] If the link is a web page, the saved pdf is as it would
+.. [#f1] As for other imported content, the video object on the page
+         is an archival copy of the video file stored within the
+         notebook, not a mere link to the original file.
+
+.. [#f2] If the link is a web page, the saved pdf is as it would
          be saved by the “Chromium” browser. Many websites generate
          pdf output that is somewhat different from how they appear in
          a browser. For a visually true snapshot of a website, taking
          a screenshot and pasting that into NotedELN is more accurate.
 
-.. [#f2] If the link is not a web page but some other file type, the
+.. [#f3] If the link is not a web page but some other file type, the
          file is downloaded and archived, and NotedELN will attempt to
          create a thumbnail. Currently, this only works for pdf files.
