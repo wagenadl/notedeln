@@ -1171,8 +1171,9 @@ bool TextItem::tryScriptStyles(bool onlyifbalanced) {
   if (endswithbrace) {
     cursor.deletePreviousChar();
     cursor.correctPosition(substituteInternalScripts(k, cursor.position()));
+    cursor.correctPosition(-TextCursor(document(), k).deleteChar()); // remove opening brace
   }
-  cursor.correctPosition(-TextCursor(document(), k).deleteChar());
+  cursor.correctPosition(-TextCursor(document(), k).deleteChar()); // remove opening _ or ^
 
   addMarkup(mrk==QChar('^')
 	    ? MarkupData::Superscript
