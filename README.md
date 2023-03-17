@@ -24,8 +24,7 @@ people type faster than they can write by hand, ELN has helped people
 take more detailed notes than they would otherwise have.
 
 NotedELN is free and open source and is available for Windows, Mac, and
-Linux. Please visit its [web page](http://www.danielwagenaar.net/eln)
-for download details.
+Linux.
 
 Development continues, and your suggestions, bug reports, and
 contributions are welcome.
@@ -33,7 +32,7 @@ contributions are welcome.
 ## Installation
 
 On Ubuntu Linux, Windows 10, and Mac OS X, you should be able to
-install the executables available from [github](https://github.com/wagenadl/eln).
+install the executables available from [github](https://github.com/wagenadl/notedeln/releases/latest).
 
 ## Installation from source on Linux
 
@@ -100,17 +99,16 @@ Please let me know if you have trouble. I will gladly try to help.
 
 ## Installation from source on Mac OS X
 
-(This section needs verification of CMake instructions.)
-
-Building from source on Mac is only slightly more involved.
+It's been a little while since I last built NotedELN on Mac OS. In principle, 
+CMake should make it a breeze, but let me know if you run into trouble.
 
 * You need to get the Qt development system and Apple's XCode
   development tools.
 
 * After that, the same steps should compile the code:
 
-        git clone https://github.com/wagenadl/eln.git
-        cd eln
+        git clone https://github.com/wagenadl/notedeln.git
+        cd notedeln
         mkdir build
         cd build
         cmake ..
@@ -121,12 +119,13 @@ Building from source on Mac is only slightly more involved.
 
         cpack
 
-  That should generate a file called "eln.dmg" that you can install
+  That should generate a file called "notedeln.dmg" that you can install
   in the usual way.
 
 ## Installation from source on Windows
 
-In my experience, this tends to be a bit more tricky.
+Building the source on Windows is easier than it once was, thanks to CMake. Most importantly,
+you have to pay attention to the Qt installation path. 
 
 * You need to get Visual Studio (Community Edition works great) and the Qt development system,
   version 5.12 or later. (NotedELN has not yet been tested with Qt 6.)
@@ -136,13 +135,13 @@ In my experience, this tends to be a bit more tricky.
 
 * Open a "git bash" terminal in some appropriate location, then type:
 
-        git clone https://github.com/wagenadl/eln.git
+        git clone https://github.com/wagenadl/notedeln.git
 		
   to download the repository.
   
 * Continue typing in the terminal to build the package:
 
-        cd eln
+        cd notedeln
         mkdir build
         cd build
         export CMAKE_PREFIX_PATH=/c/Qt/5.15.2/msvc2019_64/lib/cmake/Qt5 
@@ -151,10 +150,12 @@ In my experience, this tends to be a bit more tricky.
         cmake --build . --config Release
 		
   You will have to change the path to Qt if you have a different version.
-  (Don't assume all is well if it builds without specifying a path. I have seen CMake using one 
-  version of Qt for the actual building and an other for collecting DLLs for deployment.)
+  Caution: Don't assume all is well if it builds without specifying a path. I have seen CMake using one 
+  version of Qt for the actual building and an other for collecting DLLs for deployment. If you 
+  change the CMAKE_PREFIX_PATH or PATH during experimentation, you must clean out the "build" folder
+  entirely before rebuilding.
 
-* You can now run the eln binary in-place, but you probably want to create an installation 
+* You can now run the notedeln binary in-place, but you probably want to create an installation 
   package, so keep typing in the terminal:
 
         cpack
@@ -162,4 +163,4 @@ In my experience, this tends to be a bit more tricky.
 * This results in a file called NotedELN-x.y.z-win64.exe in the "build" folder.
   Double click it to install.
 	
-* Before installing, you may check that \_CPack\_Packages/win64/NSIS/NotedELN-x.y.z/bin/notedeln.exe actually runs.
+* Before installing, you may check that \_CPack\_Packages\win64\NSIS/NotedELN-x.y.z\bin\notedeln.exe actually runs.
