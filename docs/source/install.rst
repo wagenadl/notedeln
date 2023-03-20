@@ -116,7 +116,7 @@ installation package::
 On Ubuntu, that creates a :file:`.deb`; on Windows, a
 :file:`.exe`. The :file:`.deb` may be installed like::
 
-    sudo dpkg -i notedeln_1.4.99-1_amd64.deb
+    sudo dpkg -i notedeln_1.5.0-1_amd64.deb
 
 And the :file:`.exe` may be installed by double-clicking it.    
 

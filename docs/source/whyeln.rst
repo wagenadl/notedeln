@@ -141,7 +141,7 @@ Footnotes
 .. [#f4] You can write an annotation onto a previous entry, e.g., to
          point out a factual error, or to link to a follow-up notebook
          entry. Such annotations are typeset in a special color and
-i         automatically dated, so the historical record is clearly
+         automatically dated, so the historical record is clearly
          preserved.
          
 .. [#f3] NotedELN on its own cannot be relied on to fully guarantee
