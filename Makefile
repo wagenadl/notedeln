@@ -19,8 +19,11 @@ prep-debug:
 
 clean:; rm -rf build build-debug
 
+deb:	release
+	(cd build; cpack )
+
 tar:;	git archive -o ../notedeln.tar.gz --prefix=notedeln/ HEAD
 
 ######################################################################
-.PHONY: release prep-release debug prep-debug clean tar 
+.PHONY: release prep-release debug prep-debug clean tar deb
 

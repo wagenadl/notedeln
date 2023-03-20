@@ -62,7 +62,6 @@ endif()
 
 # Produce configuration files
 configure_file(src/config.h.in config.h)
-configure_file(doc/version.tex.in version.tex)
 
 # Include paths - Qt must be mentioned
 target_include_directories(notedeln PUBLIC "${PROJECT_BINARY_DIR}")
@@ -71,7 +70,7 @@ target_include_directories(notedeln PUBLIC "${Qt6_INCLUDE_DIRS}")
 ######################################################################
 # Spinx documentation
 if (UNIX AND NOT APPLE)
-add_subdirectory("docs")
+  add_subdirectory("docs")
 endif()
 
 ######################################################################

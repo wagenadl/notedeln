@@ -1,4 +1,4 @@
-.. image:: banner3.svg
+.. image:: banner.svg
            :width: 900
            :align: center
            :class: no-scaled-link
