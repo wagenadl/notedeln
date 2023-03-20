@@ -69,16 +69,10 @@ target_include_directories(notedeln PUBLIC "${PROJECT_BINARY_DIR}")
 target_include_directories(notedeln PUBLIC "${Qt6_INCLUDE_DIRS}")
 
 ######################################################################
-# Userguide
-if (UNIX AND NOT APPLE)
-  include(doc/UseLATEX.cmake)
-  add_latex_document(doc/userguide.tex IMAGE_DIRS doc doc/icons
-    FORCE_PDF INCLUDE_DIRECTORIES doc)
-endif()
-
-######################################################################
 # Spinx documentation
+if (UNIX AND NOT APPLE)
 add_subdirectory("docs")
+endif()
 
 ######################################################################
 # General packaging / installation
@@ -94,26 +88,12 @@ set(CPACK_PACKAGE_EXECUTABLES "notedeln;NotedELN")
 if (WIN32)
   # NSIS packaging - to be updated
   include(WinPack.CMakeLists.txt)
-  
 elseif (APPLE)
   include(MacDMG.CMakeLists.txt)
-  #include(MacPack.CMakeLists.txt)
-  #set(CPACK_GENERATOR "Bundle") # NYI
-
-  #get_target_property(_qmake_executable Qt6::qmake IMPORTED_LOCATION)
-  #get_filename_component(_qt_bin_dir "${_qmake_executable}" DIRECTORY)
-  #find_program(MACDEPLOYQT_EXECUTABLE macdeployqt HINTS "${_qt_bin_dir}")
-  #add_custom_command(TARGET myapp POST_BUILD
-  #  COMMAND "${MACDEPLOYQT_EXECUTABLE}"
-  #  "$<TARGET_FILE_DIR:myapp>/../.."
-  #  -always-overwrite
-  #  COMMENT "Running macdeployqt..."
-  #  )
 elseif (UNIX)
   include(UnixInstall.CMakeLists.txt)
   include(DebPack.CMakeLists.txt)
 endif()
 
-# Packaging
 include(CPack)
 
