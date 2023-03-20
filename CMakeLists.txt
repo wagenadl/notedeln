@@ -35,7 +35,7 @@ find_package(Qt6
 ######################################################################
 # Add the executables
 add_executable(notedeln WIN32 MACOSX_BUNDLE src/App/main.cpp)
-add_executable(webgrab WIN32 MACOSX_BUNDLE webgrab/Options.cpp)
+add_executable(webgrab WIN32 webgrab/webgrabWE.cpp)
 
 include(src/CMakeLists.txt)
 include(webgrab/CMakeLists.txt)
@@ -50,6 +50,14 @@ target_link_libraries(notedeln Qt6::MultimediaWidgets)
 
 if (WIN32)
   target_link_libraries(notedeln secur32.lib)
+endif()
+if (APPLE)
+  set(MACOSX_BUNDLE_ICON_FILE eln.icns)
+  add_custom_command(TARGET notedeln POST_BUILD
+     COMMAND mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/notedeln.app/Contents/Resources
+     COMMAND cp ${CMAKE_CURRENT_SOURCE_DIR}/src/App/eln.icns
+        ${CMAKE_CURRENT_BINARY_DIR}/notedeln.app/Contents/Resources
+  )
 endif()
 
 # Produce configuration files
@@ -88,17 +96,19 @@ if (WIN32)
   include(WinPack.CMakeLists.txt)
   
 elseif (APPLE)
-  set(CPACK_GENERATOR "DMG") # NYI
+  include(MacDMG.CMakeLists.txt)
+  #include(MacPack.CMakeLists.txt)
+  #set(CPACK_GENERATOR "Bundle") # NYI
 
-  get_target_property(_qmake_executable Qt6::qmake IMPORTED_LOCATION)
-  get_filename_component(_qt_bin_dir "${_qmake_executable}" DIRECTORY)
-  find_program(MACDEPLOYQT_EXECUTABLE macdeployqt HINTS "${_qt_bin_dir}")
-  add_custom_command(TARGET myapp POST_BUILD
-    COMMAND "${MACDEPLOYQT_EXECUTABLE}"
-    "$<TARGET_FILE_DIR:myapp>/../.."
-    -always-overwrite
-    COMMENT "Running macdeployqt..."
-    )
+  #get_target_property(_qmake_executable Qt6::qmake IMPORTED_LOCATION)
+  #get_filename_component(_qt_bin_dir "${_qmake_executable}" DIRECTORY)
+  #find_program(MACDEPLOYQT_EXECUTABLE macdeployqt HINTS "${_qt_bin_dir}")
+  #add_custom_command(TARGET myapp POST_BUILD
+  #  COMMAND "${MACDEPLOYQT_EXECUTABLE}"
+  #  "$<TARGET_FILE_DIR:myapp>/../.."
+  #  -always-overwrite
+  #  COMMENT "Running macdeployqt..."
+  #  )
 elseif (UNIX)
   include(UnixInstall.CMakeLists.txt)
   include(DebPack.CMakeLists.txt)

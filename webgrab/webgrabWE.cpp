@@ -37,6 +37,7 @@ void setGlobalSettings() {
 }
 
 int main(int argc, char **argv) {
+
   QApplication app(argc, argv);
   Options options(app);
   

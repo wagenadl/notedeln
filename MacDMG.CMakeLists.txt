@@ -1,0 +1,14 @@
+find_program(MACDEPLOYQT_EXECUTABLE macdeployqt HINTS "${_qt_bin_dir}")
+
+add_custom_target(dmg ALL DEPENDS notedeln.dmg)
+add_custom_target(notedeln.dmg)
+
+add_custom_command(TARGET notedeln.dmg 
+    DEPENDS notedeln.app/Contents/MacOS/notedeln webgrab
+    COMMAND cp -a webgrab notedeln.app/Contents/MacOS/webgrab
+    COMMAND "${MACDEPLOYQT_EXECUTABLE}" notedeln.app -dmg
+       -executable=notedeln.app/Contents/MacOS/webgrab
+       -executable=notedeln.app/Contents/MacOS/notedeln
+       -always-overwrite
+    COMMENT "Running macdeployqt to build notedeln.dmg"
+    )
