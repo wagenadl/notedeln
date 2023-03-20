@@ -35,7 +35,7 @@ find_package(Qt6
 ######################################################################
 # Add the executables
 add_executable(notedeln WIN32 MACOSX_BUNDLE src/App/main.cpp)
-add_executable(webgrab WIN32 MACOSX_BUNDLE webgrab/Options.cpp)
+add_executable(webgrab WIN32 webgrab/webgrabWE.cpp)
 
 include(src/CMakeLists.txt)
 include(webgrab/CMakeLists.txt)
@@ -51,6 +51,14 @@ target_link_libraries(notedeln Qt6::MultimediaWidgets)
 if (WIN32)
   target_link_libraries(notedeln secur32.lib)
 endif()
+if (APPLE)
+  set(MACOSX_BUNDLE_ICON_FILE eln.icns)
+  add_custom_command(TARGET notedeln POST_BUILD
+     COMMAND mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/notedeln.app/Contents/Resources
+     COMMAND cp ${CMAKE_CURRENT_SOURCE_DIR}/src/App/eln.icns
+        ${CMAKE_CURRENT_BINARY_DIR}/notedeln.app/Contents/Resources
+  )
+endif()
 
 # Produce configuration files
 configure_file(src/config.h.in config.h)
@@ -61,16 +69,10 @@ target_include_directories(notedeln PUBLIC "${PROJECT_BINARY_DIR}")
 target_include_directories(notedeln PUBLIC "${Qt6_INCLUDE_DIRS}")
 
 ######################################################################
-# Userguide
-if (UNIX AND NOT APPLE)
-  include(doc/UseLATEX.cmake)
-  add_latex_document(doc/userguide.tex IMAGE_DIRS doc doc/icons
-    FORCE_PDF INCLUDE_DIRECTORIES doc)
-endif()
-
-######################################################################
 # Spinx documentation
+if (UNIX AND NOT APPLE)
 add_subdirectory("docs")
+endif()
 
 ######################################################################
 # General packaging / installation
@@ -86,24 +88,12 @@ set(CPACK_PACKAGE_EXECUTABLES "notedeln;NotedELN")
 if (WIN32)
   # NSIS packaging - to be updated
   include(WinPack.CMakeLists.txt)
-  
 elseif (APPLE)
-  set(CPACK_GENERATOR "DMG") # NYI
-
-  get_target_property(_qmake_executable Qt6::qmake IMPORTED_LOCATION)
-  get_filename_component(_qt_bin_dir "${_qmake_executable}" DIRECTORY)
-  find_program(MACDEPLOYQT_EXECUTABLE macdeployqt HINTS "${_qt_bin_dir}")
-  add_custom_command(TARGET myapp POST_BUILD
-    COMMAND "${MACDEPLOYQT_EXECUTABLE}"
-    "$<TARGET_FILE_DIR:myapp>/../.."
-    -always-overwrite
-    COMMENT "Running macdeployqt..."
-    )
+  include(MacDMG.CMakeLists.txt)
 elseif (UNIX)
   include(UnixInstall.CMakeLists.txt)
   include(DebPack.CMakeLists.txt)
 endif()
 
-# Packaging
 include(CPack)
 
