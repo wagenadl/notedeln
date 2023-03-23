@@ -1,8 +1,8 @@
-##########
-User Guide
-##########
+################
+Getting Started
+################
 
-This guide contains the information you need to get started using NotedELN.
+This guide contains all the information you need to get started using NotedELN.
 
 ************************
 Create a New Notebook
@@ -42,34 +42,48 @@ Create a New Notebook
 
 #. Select the *Address* text and replace it with your address or affiliation.
 
-#. To view the first page of the notebook, press [Page Up], or click |icon-next| on the *Toolbar*.
+#. To view the first page of the notebook, click |icon-next| on the *Toolbar*, or press [Page Up].
 
 .. note::
 
    The notebook auto-saves every 10 seconds, or when you navigate to a new page. There is no *Save* option.
 
-You can configure a backup of the notebook using the *Archiving (backup)* option on the *Create new notebook* window. For more information, see Archiving (needs link).
+You can configure a backup of the notebook using the *Archiving (backup)* option on the *Create new notebook* window. For more information, see :ref:`Archiving<VC>`.
 
 .. |icon-explorer| image:: images/icons/icn-explorer.png
                    :class: no-scaled-link
 
-.. |icon-next| image:: images/icons/icn-nxt-page.png
+.. |icon-next| image:: images/icons/icn-next.svg
                    :class: no-scaled-link
 
-Creating new entries
---------------------
+************************
+Create a New Entry
+************************
 
-To create a new entry, press [Ctrl][Shift][+] or click the |nav-plus| icon in
-the tool bar. To encourage you to give your entries meaningful titles,
-the cursor is positioned in the title field. The title you give to
-your entry here is automatically copied to the table of contents.
+#. From the *Toolbar*, click |icon-plus|, or press [CTRL][SHIFT][+].
+
+   A new page appears.
+
+   .. image:: images/new-entry.png
+
+#. Select the *Title* text and replace it with a suitable title.
+
+   The *Title* text appears in the table of contents.
+
+   .. note::
+
+      The *Date* value is read-only, and is updated automatically to the current date on your local system.
+
+#. To add content to the page, press [Enter], or [Tab], or click anywhere in the *Entry area*.
+
+   You can add text, graphics, videos, tables, and links.
+
+.. |icon-plus| image:: images/icons/icn-plus.svg
+                   :class: no-scaled-link
 
 .. |nav-plus| image:: nav-plus.png
               :height: 3ex
               :class: no-scaled-link
-
-To move from the title to the first paragraph of your entry, simple
-press [Enter] or [Tab].
 
 Adding text
 -----------
