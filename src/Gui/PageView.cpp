@@ -43,6 +43,7 @@
 #include "DefaultLocation.h"
 #include "GotoPageDialog.h"
 
+#include <QRegularExpression>
 #include <QMimeData>
 #include <QWheelEvent>
 #include <QKeyEvent>
@@ -70,7 +71,8 @@ PageView::PageView(SceneBank *bank, PageEditor *parent):
   wheelDeltaAccum = 0;
   wheelDeltaStepSize = book->style().real("wheelstep");
 
-  connect(mode(), SIGNAL(modeChanged(Mode::M)), SLOT(modeChange()));
+  connect(mode(), &Mode::modeChanged,
+          this, &PageView::modeChange);
 
   setAcceptDrops(true);
 
@@ -92,7 +94,7 @@ void PageView::resizeEvent(QResizeEvent *e) {
   QRectF r = scene()->sceneRect();
   fitInView(r.adjusted(1, 1, -2, -2),
 	    Qt::KeepAspectRatio);
-  emit scaled(matrix().m11());
+  emit scaled(transform().m11());
 }
 
 void PageView::handleSheetRequest(int n) {
@@ -152,7 +154,7 @@ void PageView::dragEnterEvent(QDragEnterEvent *e) {
   QGraphicsView::dragEnterEvent(e);
 }
 
-void PageView::enterEvent(QEvent *e) {
+void PageView::enterEvent(QEnterEvent *e) {
   EventView ev(this);
   modeChange();
   QGraphicsView::enterEvent(e);
@@ -405,10 +407,11 @@ PageView *PageView::newView() {
 }  
 
 void PageView::gotoEntryPage(QString s, QString path) {
-  QRegExp re("/([a-z0-9]+)/(\\d+)");
-  if (re.exactMatch(path)) {
-    QString uuid = re.cap(1);
-    int sheet = re.cap(2).toInt();
+  QRegularExpression re("^/([a-z0-9]+)/(\\d+)$");
+  QRegularExpressionMatch m = re.match(path);
+  if (m.hasMatch()) {
+    QString uuid = m.captured(1);
+    int sheet = m.captured(2).toInt();
     TOCEntry *e = book->toc()->findUUID(uuid);
     if (e) {
       qDebug() << "Using uuid";
@@ -479,13 +482,13 @@ void PageView::gotoEntryPage(int n, int dir) {
   } else {
     leavePage();
     entryScene = bank->entryScene(te->startPage());
-    connect(entryScene->data(), SIGNAL(emptyStatusChanged(bool)),
-	    SLOT(emptyEntryChange()));
+    connect(entryScene->data(), &EntryData::emptyStatusChanged,
+	    this, &PageView::emptyEntryChange);
     connect(entryScene.obj(), &EntryScene::restacked,
             this, &PageView::emptyEntryChange);
                 
-    connect(entryScene.obj(), SIGNAL(sheetRequest(int)),
-	    SLOT(handleSheetRequest(int)));
+    connect(entryScene.obj(), &EntryScene::sheetRequest,
+	    this, &PageView::handleSheetRequest);
     if (entryScene->data()->isWritable())
       entryScene->makeWritable(); // this should be even more sophisticated
     currentSection = Entries;
@@ -527,8 +530,8 @@ void PageView::leavePage() {
   }
 
   if (currentSection==Entries) {
-    disconnect(entryScene->data(), SIGNAL(emptyStatusChanged(bool)),
-	       this, SLOT(emptyEntryChange()));
+    disconnect(entryScene->data(), &EntryData::emptyStatusChanged,
+	       this, &PageView::emptyEntryChange);
     if (currentPage==book->toc()->newPageNumber()-1) {
       // Leaving the last page in the notebook.
       // If the page is empty, we'll delete it.
@@ -702,7 +705,7 @@ Notebook *PageView::notebook() const {
 
 void PageView::wheelEvent(QWheelEvent *e) {
   EventView ev(this);
-  wheelDeltaAccum += e->delta();
+  wheelDeltaAccum += e->angleDelta().y();
   int step = (e->modifiers() & Qt::ShiftModifier) ? 10 : 1;
   while (wheelDeltaAccum>=wheelDeltaStepSize) {
     wheelDeltaAccum -= wheelDeltaStepSize;
@@ -728,13 +731,13 @@ void PageView::createContinuationEntry() {
                      - style.real("margin-bottom")
                      + style.real("pgno-sep"));
   LateNoteItem *fwdNote = entryScene->newLateNote(currentSheet, fwdNotePos);
+
   TextItem *fwdNoteTI = fwdNote->textItem();
   TextCursor cursor = fwdNoteTI->textCursor();
   QString fwdNoteText = QString("(see p. %1)").arg(newPage);
   cursor.insertText(fwdNoteText);
   cursor.setPosition(fwdNoteText.size()-1);
   fwdNoteTI->setTextCursor(cursor);
-  fwdNoteTI->tryExplicitLink(); // dead at first, but not for long
   QPointF pp = fwdNote->mapToScene(fwdNote->netBounds().topLeft());
   fwdNote->translate(fwdNotePos - pp);
 
@@ -764,7 +767,10 @@ void PageView::createContinuationEntry() {
   qDebug() << "  topright=" << pp << " desired="<<revNotePos; 
   revNote->translate(revNotePos - pp);
 
+  // Finish forward note
   gotoEntryPage(oldPage);
+  fwdNoteTI->tryExplicitLink();
+
   gotoEntryPage(newPage); // pick up new title
 
   mode()->setMode(Mode::Type);
@@ -828,20 +834,22 @@ void PageView::modeChange() {
   QPointF p = mapToScene(mapFromGlobal(QCursor::pos()));
   Item *item = dynamic_cast<Item*>(entryScene->itemAt(p, currentSheet));
   if (item) {
-    item->setCursor(Cursors::refined(item->cursorShape(0)));
+    item->setCursor(Cursors::refined(item->cursorShape(Qt::NoModifier)));
     // XXX should find out current keyboard state above! XXX
     item->modeChangeUnderCursor();
   }
 }
 
-void PageView::drop(QDropEvent e) {
-  QMimeData const *md = e.mimeData();
+/*
+void PageView::drop(QMimeData md) {
+  // QMimeData const *md = e.mimeData();
   qDebug() << "PageView::drop: has image?" << md->hasImage()
 	   << "hasurl?" << md->hasUrls()
 	   << "hastext?" << md->hasText()
 	   << "proposed" << e.proposedAction();
   dropEvent(&e);
 }
+*/
 
 void PageView::ensureSearchVisible(QString uuid, QString phrase) {
   scene()->update();  

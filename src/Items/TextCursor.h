@@ -21,6 +21,7 @@
 #define TEXTCURSOR_H
 
 #include "TextItemDoc.h"
+#include <QRegularExpression>
 
 class TextCursor {
 public:
@@ -77,11 +78,14 @@ public:
   int anchor() const;
   bool operator==(TextCursor const &) const;
   bool operator!=(TextCursor const &a) const { return !operator==(a); }
-  TextCursor findForward(QString) const; // start of string not before POS
-  TextCursor findBackward(QString) const; // end of string not after POS
-  TextCursor findForward(QRegExp) const;
-  TextCursor findBackward(QRegExp) const;
-  /* findForward and findBackward ignore any selection in the source cursor. */
+  int startOfStrictWord() const; // only letters
+  int endOfStrictWord() const;
+  int startOfBroadWord() const; // letters, numbers, hyphen
+  int endOfBroadWord() const;
+  int startOfTag() const; // or -1
+  int startOfScript(bool requirebrace) const; // or -1
+  int endOfNonSpaces() const; // or length of doc
+  int startOfNonSpaces() const;
   void clampPosition();
   void skipForwardOverCombining();
   void skipBackwardOverCombining();

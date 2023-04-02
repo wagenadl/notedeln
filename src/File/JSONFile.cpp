@@ -18,13 +18,13 @@
 
 #include "JSONFile.h"
 #include <QFile>
+#include <QJsonDocument>
 #include <QDebug>
 
-#include "JSONParser.h"
+
   
 
 namespace JSONFile {
-
   /* The following portion of this file has been adapted from the source code of
      qjson. The following copyright message applies:
    */
@@ -142,28 +142,34 @@ namespace JSONFile {
   QString Serializer::serialize(QVariant v, int indent, bool parentIsArray) {
     if (!v.isValid())
       return QString(); // invalid
-    if (v.type()==QVariant::List) 
+    switch (v.typeId()) {
+    case QMetaType::QVariantList:
       return serializeList(v.toList(), indent, parentIsArray);
-    else if (v.type()==QVariant::Map)
+    case QMetaType::QVariantMap:
       return serializeMap(v.toMap(), indent, parentIsArray);
-    else if (v.type()==QVariant::String || v.type()==QVariant::ByteArray)
+    case QMetaType::QString: 
       return serializeString(v.toString());
-    else if (v.type()==QVariant::Double)
+    case QMetaType::QByteArray:
+      return serializeString(v.toString());
+    case QMetaType::Double:
       return serializeDouble(v.toDouble());
-    else if (v.type()==QVariant::Bool)
+    case QMetaType::Bool:
       return v.toBool() ? "true" : "false";
-    else if (v.type() == QVariant::ULongLong )
+    case QMetaType::ULongLong:
       return QString::number(v.value<qulonglong>());
-    else if (v.canConvert<qlonglong>())
-      return QString::number(v.value<qlonglong>());
-    else if (v.canConvert<QString>())
-      // this will catch QDate, QDateTime, QUrl, ...
-      return serializeString(v.toString());
-    else
+    default:
+      if (v.canConvert<qlonglong>())
+        return QString::number(v.value<qlonglong>());
+      else if (v.canConvert<QString>())
+        // this will catch QDate, QDateTime, QUrl, ...
+        return serializeString(v.toString());
+      qDebug() << "json serialize failure" << v;
       return QString();
+    }
   }
 
-  /* End of adapted section. The rest of this file was written by Daniel Wagenaar. */
+  /* End of adapted section.
+     The rest of this file was written by Daniel Wagenaar. */
 
   QVariantMap load(QString fn, bool *ok) {
     if (ok)
@@ -176,7 +182,7 @@ namespace JSONFile {
 
     bool ok1;
     QTextStream ts(&f);
-    ts.setCodec("UTF-8");
+    //    ts.setCodec("UTF-8"); // default in qt6
     QVariantMap res = read(ts.readAll(), &ok1);
     if (!ok1) 
       qDebug() << "(while reading: " << fn << ")";
@@ -188,22 +194,26 @@ namespace JSONFile {
   QVariantMap read(QString json, bool *ok) {
     if (ok)
       *ok = false;
-    JSONParser parser(json);
-    try {
-      QVariantMap v = parser.readObject();
-      parser.assertEnd();
-      if (ok)
-	*ok = true;
-      return v;
-    } catch (JSONParser::Error const &e) {
-      e.report();
+    QJsonParseError err;
+    QJsonDocument doc(QJsonDocument::fromJson(json.toUtf8(), &err));
+    if (!doc.isObject()) {
+      qDebug() << "JSON parse error" << err.errorString();
       return QVariantMap();
     }
+    if (ok)
+      *ok = true;
+    return doc.toVariant().toMap();
   }
 
   QString write(QVariantMap const &src, bool compact) {
     Serializer s(compact);
     return s.serialize(src, 0, true);
+    /*
+    QJsonDocument doc(QJsonDocument::fromVariant(src));
+    QString s(QString::fromUtf8(doc.toJson(compact ? QJsonDocument::Compact
+                                           : QJsonDocument::Indented)));
+    return s;
+    */
   }
   
   bool save(QVariantMap const &src, QString fn, bool compact) {
@@ -211,6 +221,13 @@ namespace JSONFile {
     //    QByteArray ba = s.serialize(QVariant(src));
     Serializer s(compact);
     QByteArray ba = s.serialize(src, 0, true).toUtf8();
+
+    /*
+    QJsonDocument doc(QJsonDocument::fromVariant(src));
+    QByteArray ba(doc.toJson(compact ? QJsonDocument::Compact
+                             : QJsonDocument::Indented));
+    */
+    
     if (ba.isEmpty()) {  
       qDebug() << "DataFile0: Serialization failed";
       return false;

@@ -156,7 +156,7 @@ void ToolItem::hoverEnterEvent(QGraphicsSceneHoverEvent *e) {
     if (popupDelay==0) {
       popupDelay = new QTimer(this);
       popupDelay->setSingleShot(true);
-      connect(popupDelay, SIGNAL(timeout()), SLOT(popup()));
+      connect(popupDelay, &QTimer::timeout, this, &ToolItem::popup);
     }
     popupDelay->start(int(Style::defaultStyle().real("popup-delay")*1000));
     popupPos = e->pos();

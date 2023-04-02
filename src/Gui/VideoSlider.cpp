@@ -14,12 +14,12 @@ VideoSlider::VideoSlider():
   line = new QGraphicsLineItem(0, height/2, width, height/2);
   line->setParentItem(this);
   line->setPen(QPen(QColor(255,255,128), height/5));
-  line->setAcceptedMouseButtons(0);
+  line->setAcceptedMouseButtons(Qt::NoButton);
   ellipse = new QGraphicsEllipseItem(0, 0, height, height);
   ellipse->setParentItem(this);
   ellipse->setPen(QPen(Qt::NoPen));
   ellipse->setBrush(QBrush(QColor(255,255,128)));
-  ellipse->setAcceptedMouseButtons(0);
+  ellipse->setAcceptedMouseButtons(Qt::NoButton);
   QGraphicsDropShadowEffect *eff = new QGraphicsDropShadowEffect;
   eff->setColor(QColor(0,0,0));
   eff->setOffset(QPointF(0, 0));

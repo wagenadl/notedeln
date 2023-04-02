@@ -30,7 +30,7 @@ public:
   virtual ~ToolView();
   class Toolbars *toolbars();
 signals:
-  void drop(QDropEvent);
+  // void drop(QDropEvent const &);
 public slots:
   void setScale(double);
   void autoMask();

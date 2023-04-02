@@ -189,7 +189,7 @@ void Item::removeGlow() {
 
 void Item::modeChangeUnderCursor() {
   if (mode()->mode()==Mode::MoveResize)
-    perhapsCreateGlow(0);
+    perhapsCreateGlow(Qt::NoModifier);
   else
     removeGlow();
 }

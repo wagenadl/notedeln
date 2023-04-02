@@ -28,6 +28,7 @@
 #include <QList>
 #include "MarkupEdges.h"
 #include "BlockItem.h"
+#include <QElapsedTimer>
 
 class TextItem: public Item {
   Q_OBJECT;
@@ -171,7 +172,7 @@ protected:
   TextCursor cursor;
   class LinkHelper *linkHelper;
   QMap<MarkupData *, QString> reftexts;
-  QTime lastClickTime;
+  QElapsedTimer lastClickTime;
   QPoint lastClickScreenPos;
   QPointer<BlockItem> pblock;
   QSet<QObject*> in_progress_res;

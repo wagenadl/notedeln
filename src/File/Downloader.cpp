@@ -81,8 +81,10 @@ void Downloader::startDownload() {
   QNetworkRequest rq(src);
   rq.setRawHeader("User-Agent", "Mozilla Firefox");
   qnr = networkAccessManager().get(rq);
-  connect(qnr, SIGNAL(finished()), SLOT(qnrFinished()), Qt::QueuedConnection);
-  connect(qnr, SIGNAL(readyRead()), SLOT(qnrDataAv()), Qt::QueuedConnection);
+  connect(qnr, &QNetworkReply::finished,
+          this, &Downloader::qnrFinished, Qt::QueuedConnection);
+  connect(qnr, &QNetworkReply::readyRead, 
+          this, &Downloader::qnrDataAv, Qt::QueuedConnection);
 }
 
 Downloader::~Downloader() {

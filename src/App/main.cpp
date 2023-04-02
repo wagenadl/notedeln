@@ -52,6 +52,7 @@ int main(int argc, char **argv) {
   QCommandLineParser cli;
   cli.setApplicationDescription("\n"
     "NotedELN is an Electronic Lab Notebook for scientists of all stripes.\n"
+    "\n"
     "More information is at https://danielwagenaar.net/eln.");
   cli.addHelpOption();
   cli.addVersionOption();

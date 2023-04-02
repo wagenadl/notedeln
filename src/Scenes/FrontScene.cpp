@@ -26,7 +26,7 @@
 #include "Translate.h"
 #include "DefaultingQTI.h"
 #include "RecentBooks.h"
-
+#include <QRegularExpression>
 #include <math.h>
 #include <QTextBlockFormat>
 #include <QTextCursor>
@@ -72,9 +72,8 @@ void FrontScene::makeWritable() {
     ti->setTextInteractionFlags(Qt::TextEditorInteraction);
     ti->setCursor(QCursor(Qt::IBeamCursor));
     ti->setFlag(QGraphicsTextItem::ItemIsFocusable);
-    connect(ti->document(),
-            SIGNAL(contentsChange(int, int, int)),
-	    this, SLOT(textChange()));
+    connect(ti->document(), &QTextDocument::contentsChange,
+	    this, &FrontScene::textChange);
   }
 }
 
@@ -90,7 +89,8 @@ void FrontScene::textChange() {
     QWidget *toplevel = view->window();
     if (toplevel)
       toplevel->setWindowTitle(title->toPlainText()
-			       .replace(QRegExp("\\s\\s*"), " ") + " - eln");
+			       .replace(QRegularExpression("\\s\\s*"), " ")
+                               + " - eln");
   }
   RecentBooks::instance()->addBook(book);
 }
@@ -169,7 +169,7 @@ void FrontScene::makeBackground() {
     if (style.contains("front-recolor")) {
       QColor c(style.color("front-recolor"));
       unsigned char lookup[3][256];
-      qreal cc[3]; c.getRgbF(cc, cc+1, cc+2);
+      float cc[3]; c.getRgbF(cc, cc+1, cc+2);
       for (int k=0; k<3; k++) {
         cc[k] = pow(2.0, -4*(cc[k]-.5));
         for (int i=0; i<256; i++) {

@@ -53,7 +53,7 @@ DataFile0::DataFile0(QString fn, QObject *parent):
 
   data_->setParent(this); // just a QObject as a parent
   data_->load(v);
-  connect(data_, SIGNAL(mod()), this, SLOT(saveSoon()));
+  connect(data_, &Data::mod, this, &DataFile0::saveSoon);
 }
 
 DataFile0::DataFile0(Data *data, QString fn, QObject *parent):
@@ -68,7 +68,7 @@ DataFile0::DataFile0(Data *data, QString fn, QObject *parent):
     return;
   data_->setParent(this);
   ok_ = saveNow(true);
-  connect(data_, SIGNAL(mod()), this, SLOT(saveSoon()));
+  connect(data_, &Data::mod, this, &DataFile0::saveSoon);
 }
 
 bool DataFile0::ok() const {
@@ -108,8 +108,8 @@ void DataFile0::cancelSave() {
 void DataFile0::saveSoon() {
   if (!saveTimer_) {
     saveTimer_ = new QTimer(this);
-    connect(saveTimer_, SIGNAL(timeout()),
-	    this, SLOT(saveTimerTimeout()));
+    connect(saveTimer_, &QTimer::timeout,
+	    this, &DataFile0::saveTimerTimeout);
   }
   
   needToSave_ = true;

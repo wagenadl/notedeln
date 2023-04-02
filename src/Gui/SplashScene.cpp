@@ -33,7 +33,7 @@
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QApplication>
-#include <QDesktopWidget>
+#include <QScreen>
 #include <QGraphicsView>
 #include <QDebug>
 #include <QDir>
@@ -127,11 +127,11 @@ void SplashScene::makeItems() {
     else
       books << BookInfo(d);
 
-  qSort(books.begin(), books.end());
+  std::sort(books.begin(), books.end());
   
   foreach (BookInfo const &b, books) {
     bsi = new BookSplashItem(b.dirname, b);
-    connect(bsi, SIGNAL(leftClick(QString)), SLOT(openNamed(QString)));
+    connect(bsi, &BookSplashItem::leftClick, this, &SplashScene::openNamed);
     addItem(bsi);
     bsi->setPos(x, y);
     y += BookSplashItem::BOXHEIGHT + MARGIN;
@@ -142,20 +142,20 @@ void SplashScene::makeItems() {
   bsi = new BookSplashItem(dirs.isEmpty()
 			   ? Translate::_("open-existing")
 			   : Translate::_("open-other"));
-  connect(bsi, SIGNAL(leftClick(QString)), SLOT(openExisting()));
+  connect(bsi, &BookSplashItem::leftClick, this, &SplashScene::openExisting);
   addItem(bsi);
   bsi->setPos(x, y);
   y += BookSplashItem::SMALLBOXHEIGHT + MARGIN;
 
   bsi = new BookSplashItem(Translate::_("create-new"));
-  connect(bsi, SIGNAL(leftClick(QString)), SLOT(createNew()));
+  connect(bsi, &BookSplashItem::leftClick, this, &SplashScene::createNew);
   addItem(bsi);
   bsi->setPos(x, y);
   y += BookSplashItem::SMALLBOXHEIGHT + MARGIN;
 
   if (VersionControl::isGitAvailable()) {
     bsi = new BookSplashItem(Translate::_("clone-remote"));
-    connect(bsi, SIGNAL(leftClick(QString)), SLOT(cloneRemote()));
+    connect(bsi, &BookSplashItem::leftClick, this, &SplashScene::cloneRemote);
     addItem(bsi);
     bsi->setPos(x, y);
     y += BookSplashItem::SMALLBOXHEIGHT + MARGIN;
@@ -229,14 +229,14 @@ void SplashScene::openNamed(QString dir) {
 Notebook *SplashScene::openNotebook() {
   SplashScene *ss = new SplashScene();
   QEventLoop el;
-  QObject::connect(ss, SIGNAL(done()),
-                   &el, SLOT(quit()),
+  QObject::connect(ss, &SplashScene::done,
+                   &el, &QEventLoop::quit,
                    Qt::QueuedConnection);
 
   SplashView *gv = new SplashView();
   gv->setScene(ss);
   ss->setWidget(gv);
-  connect(gv, SIGNAL(closing()), &el, SLOT(quit()));
+  connect(gv, &SplashView::closing, &el, &QEventLoop::quit);
   QString appname = Translate::_("eln");
 #ifndef QT_NO_DEBUG
   appname += " (debug vsn)";

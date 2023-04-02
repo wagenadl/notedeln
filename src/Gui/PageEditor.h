@@ -38,16 +38,16 @@ public slots:
   void gotoTOC(int n=1); // n>=1
   void gotoFront();
 signals:
-  void newEditorCreated(QWidget *);
+  void newEditorCreated(PageEditor *);
 private slots:
   void nowOnEntry(int p0, int dp);
   void nowOnFrontMatter(int p0);
 protected:
-  void resizeEvent(QResizeEvent *);
-  void keyPressEvent(QKeyEvent *);
-  void changeEvent(QEvent *);
-  void enterEvent(QEvent *);
-  void leaveEvent(QEvent *);
+  void resizeEvent(QResizeEvent *) override;
+  void keyPressEvent(QKeyEvent *) override;
+  void changeEvent(QEvent *) override;
+  void enterEvent(QEnterEvent *) override;
+  void leaveEvent(QEvent *) override;
 private:
   void initialize();
 private:

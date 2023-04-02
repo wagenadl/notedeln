@@ -27,11 +27,11 @@ class AlreadyOpen: public QObject {
 public:
   static bool check(QString fn);
 public:
-  AlreadyOpen(QString fn, class QWidget *parent);
+  AlreadyOpen(QString fn, class PageEditor *parent);
   virtual ~AlreadyOpen();
 private slots:
   void raise();
-  void addEditor(QWidget *);
+  void addEditor(PageEditor *);
   void dropEditor(QObject *);
 private:
   QList<QPointer<QWidget> > toBeRaised;

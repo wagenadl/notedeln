@@ -19,7 +19,8 @@
 #include "PreviewPopper.h"
 #include "Resource.h"
 #include <QApplication>
-#include <QDesktopWidget>
+#include <QScreen>
+
 #include <QLabel>
 #include <QGraphicsSceneHoverEvent>
 #include <QDebug>
@@ -32,7 +33,7 @@ PreviewPopper::PreviewPopper(Resource *res,
   QObject(parent), res(res), over(over) {
   widget = 0;
   timer = new QTimer(this);
-  connect(timer, SIGNAL(timeout()), SLOT(timeout()));
+  connect(timer, &QTimer::timeout, this, &PreviewPopper::timeout);
   timer->setSingleShot(true);
   timer->start(100);
 }
@@ -65,10 +66,10 @@ QWidget *PreviewPopper::popup() {
     widget->setText(res->title());
   }
   if (widget) {
-    connect(widget, SIGNAL(clicked(Qt::KeyboardModifiers)),
-	    this, SIGNAL(clicked(Qt::KeyboardModifiers)));
-    connect(widget, SIGNAL(left()),
-	    this, SLOT(closeAndDie()));
+    connect(widget, &PopLabel::clicked,
+            this, &PreviewPopper::clicked);
+    connect(widget, &PopLabel::left,
+	    this, &PreviewPopper::closeAndDie);
     widget->resize(widget->sizeHint());
     smartPosition();
     widget->show();
@@ -80,7 +81,7 @@ QWidget *PreviewPopper::popup() {
 void PreviewPopper::smartPosition() {
   ASSERT(widget);
   
-  QRect desktop = QApplication::desktop()->screenGeometry();
+  QRect desktop = QApplication::primaryScreen()->availableGeometry();
 
   QSize s = widget->frameSize();
 

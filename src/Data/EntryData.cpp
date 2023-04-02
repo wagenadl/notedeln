@@ -62,8 +62,8 @@ bool EntryData::isEmpty() const {
 
 void EntryData::insertBlockBefore(BlockData *b, Data *ref) {
   insertChildBefore(b, ref);
-  connect(b, SIGNAL(newSheet(int)), SLOT(newSheet()));
-  connect(b, SIGNAL(sheetCountMod(int)), SLOT(newSheet()));
+  connect(b, &BlockData::newSheet, this, &EntryData::newSheet);
+  connect(b, &BlockData::sheetCountMod, this, &EntryData::newSheet);
   if (b->lastSheet()>maxSheet) {
     maxSheet = b->lastSheet();
     emit sheetCountMod();
@@ -72,8 +72,8 @@ void EntryData::insertBlockBefore(BlockData *b, Data *ref) {
 
 void EntryData::addBlock(BlockData *b) {
   addChild(b);
-  connect(b, SIGNAL(newSheet(int)), SLOT(newSheet()));
-  connect(b, SIGNAL(sheetCountMod(int)), SLOT(newSheet()));
+  connect(b, &BlockData::newSheet, this, &EntryData::newSheet);
+  connect(b, &BlockData::sheetCountMod, this, &EntryData::newSheet);
   if (b->lastSheet()>maxSheet) {
     maxSheet = b->lastSheet();
     emit sheetCountMod();
@@ -109,14 +109,14 @@ void EntryData::loadMore(QVariantMap const &src) {
   TitleData *title_ = firstChild<TitleData>();
   // Any old title has already been destructed by Data's loadChildren()
   ASSERT(title_);
-  connect(title_, SIGNAL(textMod()), SIGNAL(titleMod()));
+  connect(title_, &TitleData::textMod, this, &EntryData::titleMod);
 
   maxSheet = 0;
   foreach (BlockData *b, blocks()) {
     if (b->lastSheet() > maxSheet)
       maxSheet = b->lastSheet();
-    connect(b, SIGNAL(newSheet(int)), SLOT(newSheet()));
-    connect(b, SIGNAL(sheetCountMod(int)), SLOT(newSheet()));
+    connect(b, &BlockData::newSheet, this, &EntryData::newSheet);
+    connect(b, &BlockData::sheetCountMod, this, &EntryData::newSheet);
   }
 }
 
@@ -124,7 +124,7 @@ TitleData *EntryData::title() {
   TitleData *title_ = firstChild<TitleData>();
   if (!title_) {
     title_ = new TitleData(this);
-    connect(title_, SIGNAL(textMod()), SIGNAL(titleMod()));
+    connect(title_, &TitleData::textMod, this, &EntryData::titleMod);
   }
   
   return title_;

@@ -20,6 +20,7 @@
 
 #include <QTextDocument>
 #include <QDebug>
+#include <QRegularExpression>
 
 static QString taglessHtmlToPlainText(QString html) {
   /* This converts things like "&gt;" to ">". */
@@ -33,21 +34,21 @@ static QString taglessHtmlToPlainText(QString html) {
 HtmlParser::HtmlParser(QString html) {
   html.replace("\n", " ");
   html.replace("\t", " ");
-  html.replace(QRegExp(" *<(p|br)(\\s+[^>]*)?> *"), "\n");
+  html.replace(QRegularExpression(" *<(p|br)(\\s+[^>]*)?> *"), "\n");
   html.replace("</td><td>", "\t");
   html.replace("</tr>", "\n");
-  QRegExp tag("<([^>]*)>");
-  tag.setMinimal(true);
+  QRegularExpression tag("<([^>]*)>");
+  //  tag.setMinimal(true); // why is this necessary?
   QList<int> italicStarts;
   QList<int> boldStarts;
   QList<int> superStarts;
   QList<int> subStarts;
   while (!html.isEmpty()) {
-    int idx = tag.indexIn(html);
-    if (idx>=0) {
-      QString cap = tag.cap(1);
-      txt += taglessHtmlToPlainText(html.left(idx));
-      html = html.mid(idx + tag.matchedLength());
+    QRegularExpressionMatch m(tag.match(html));
+    if (m.hasMatch()) {
+      QString cap = m.captured(1);
+      txt += taglessHtmlToPlainText(html.left(m.capturedStart(1)));
+      html = html.mid(m.capturedEnd(1));
       if (cap=="i") 
 	italicStarts.append(txt.size());
       else if (cap=="b")

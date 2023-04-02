@@ -20,12 +20,13 @@
 
 namespace Unicode {
   bool isCombining(QChar c) {
-    return (c>=0x0300 && c<=0x036f)
-      || (c>=0x1ab0 && c<=0x1aff)
-      || (c>=0x1dc0 && c<=0x1dff)
-      || (c>=0x20d0 && c<=0x20ff)
-      || (c>=0xfe20 && c<=0xfe2f)
-      || c==0x3099 || c==0x309a;
+    char16_t u = c.unicode();
+    return (u>=0x0300 && u<=0x036f)
+      || (u>=0x1ab0 && u<=0x1aff)
+      || (u>=0x1dc0 && u<=0x1dff)
+      || (u>=0x20d0 && u<=0x20ff)
+      || (u>=0xfe20 && u<=0xfe2f)
+      || u==0x3099 || u==0x309a;
   }
 };
 

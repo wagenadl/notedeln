@@ -27,7 +27,7 @@ AN_Pubmed::AN_Pubmed(QString tag, class Style const &) {
 		  "?db=pubmed&id=%1&rettype=medline&retmode=text").arg(tag);
   Downloader dl(url);
   QEventLoop el;
-  QObject::connect(&dl, SIGNAL(finished()), &el, SLOT(quit()));
+  QObject::connect(&dl, &Downloader::finished, &el, &QEventLoop::quit);
   qDebug() << "AN_PubMed: starting download";
   dl.start();
   qDebug() << "AN_PubMed: started download";

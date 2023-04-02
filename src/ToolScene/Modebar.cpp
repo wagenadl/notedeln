@@ -48,20 +48,15 @@ Modebar::Modebar(Mode *mode, QGraphicsItem *parent):
   mst->setShape(mode->shape());
   mst->setColor(mode->color());
   addTool(modeToId(Mode::Mark), mst);
-  connect(mode, SIGNAL(shapeChanged(GfxMarkData::Shape)),
-	  mst, SLOT(setShape(GfxMarkData::Shape)));
-  connect(mode, SIGNAL(markSizeChanged(double)),
-	  mst, SLOT(setMarkSize(double)));
-  connect(mode, SIGNAL(colorChanged(QColor)),
-	  mst, SLOT(setColor(QColor)));
+  connect(mode, &Mode::shapeChanged, mst, &MarkSizeItem::setShape);
+  connect(mode, &Mode::markSizeChanged, mst, &MarkSizeItem::setMarkSize);
+  connect(mode, &Mode::colorChanged, mst, &MarkSizeItem::setColor);
   markModeItem = mst;
 
   LineWidthItem *lwt = new LineWidthItem(mode->lineWidth());
   lwt->setBalloonHelpText(":mode-freehand");
-  connect(mode, SIGNAL(colorChanged(QColor)),
-	  lwt, SLOT(setColor(QColor)));
-  connect(mode, SIGNAL(lineWidthChanged(double)),
-	  lwt, SLOT(setLineWidth(double)));
+  connect(mode, &Mode::colorChanged, lwt, &LineWidthItem::setColor);
+  connect(mode, &Mode::lineWidthChanged, lwt, &LineWidthItem::setLineWidth);
   addTool(modeToId(Mode::Draw), lwt);
   sketchModeItem = lwt;
   updateDrawMode();
@@ -89,7 +84,7 @@ Modebar::Modebar(Mode *mode, QGraphicsItem *parent):
   addTool(modeToId(Mode::Plain), t);
 
   select(modeToId(mode->mode()));
-  connect(mode, SIGNAL(modeChanged(Mode::M)), SLOT(updateMode()));
+  connect(mode, &Mode::modeChanged, this, &Modebar::updateMode);
 }
 
 Modebar::~Modebar() {

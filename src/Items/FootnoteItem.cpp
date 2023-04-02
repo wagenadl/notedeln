@@ -41,7 +41,7 @@ FootnoteItem::FootnoteItem(FootnoteData *data, Item *parent):
   text()->document()->setIndent(0);
   text()->document()->relayout();
 
-  connect(text(), SIGNAL(abandoned()), this, SLOT(abandon()));
+  connect(text(), &TextItem::abandoned, this, &FootnoteItem::abandon);
 }
 
 FootnoteItem::~FootnoteItem() {

@@ -20,46 +20,71 @@
 #include <QApplication>
 #include <stdio.h>
 #include <stdlib.h>
+#include <QCommandLineParser>
+#include <QCommandLineOption>
 
-Options::Options(int &argc, char **&argv) {
-  paginate = false;
-  imSize = 640;
-  while (argc>1 && argv[1][0]=='-') {
-    for (int n=1; argv[1][n]; n++) {
-      switch (argv[1][n]) {
-      case 'p': paginate = true; break;
-      case 't': imSize = 160; break;
-      case 's': imSize = 320; break;
-      case 'm': imSize = 640; break;
-      case 'l': imSize = 1280; break;
-      case 'h': imSize = 2560; break;
-      default:
-	if (n==1) {
-	  bool ok;
-	  imSize = QString(argv[1]+1).toInt(&ok);
-	  if (!ok)
-	    usage();
-	  n = strlen(argv[1])-1; // awkward way to skip to end
-	} else {
-	  usage();
-	}
-	break;
-      }
-    }
-    argv++;
-    argc--;
+Options::Options(QApplication const &app) {
+  QCommandLineOption cli_page("p", "Produce paginated output");
+  QCommandLineOption cli_tiny("t", "Tiny [160px]");
+  QCommandLineOption cli_small("s", "Small [320px]");
+  QCommandLineOption cli_medium("m", "Medium [640px]");
+  QCommandLineOption cli_large("l", "Large [1280px]");
+  QCommandLineParser cli;
+  cli.setApplicationDescription("\n"
+    "Webgrab is a utility to download webpages and save archival copies\n"
+    "in pdf format.\n"
+    "\n"
+    "Webgrab can also create a (png) thumbnail of the first page of the\n"
+    "downloaded pdf.\n"
+    "\n"
+    "More information is at https://danielwagenaar.net/eln.");
+  cli.addHelpOption();
+  cli.addVersionOption();
+  cli.addPositionalArgument("url", "Webpage to archive", "url");
+  cli.addPositionalArgument("out.pdf", "Output filename", "out.pdf");
+  cli.addPositionalArgument("out.png", "Thumbnail filename", "[out.png]");
+  cli.addOption(cli_page);
+  cli.addOption(cli_tiny);
+  cli.addOption(cli_small);
+  cli.addOption(cli_medium);
+  cli.addOption(cli_large);
+                             
+  cli.process(app);
+
+  if (cli.isSet("l"))
+    imSize = 1280;
+  else if (cli.isSet("m"))
+    imSize = 640;
+  else if (cli.isSet("s"))
+    imSize = 320;
+  else if (cli.isSet("t"))
+    imSize = 160;
+  else
+    imSize = 640;
+
+  paginate = cli.isSet("p");
+
+  QStringList args = cli.positionalArguments();
+
+  if (args.size() < 2) {
+    cli.showHelp();
   }
-  if (argc<2) {
-    usage();
-  }
-  url = argv[1];
-  if (url.startsWith("www."))
+
+  url = args.takeFirst();
+  if (url.startsWith("/"))
+    url = "file://" + url;
+  else if (url.startsWith("http:"))
+    ;
+  else if (url.startsWith("https:"))
+    ;
+  else if (url.startsWith("file:"))
+    ;
+  else
     url = "http://" + url;
-  for (int n=2; n<argc; n++)
-    out.append(argv[n]);
+
+ 
+  out = args;
+
+  qDebug() << "Hello world";
 }
 
-void Options::usage() {
-  fprintf(stderr, "Usage: webgrab -p -tsmlh url outfile [outfile...]\n");
-  exit(1);
-}

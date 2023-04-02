@@ -27,7 +27,7 @@ TOCItem::TOCItem(TOCEntry *data, BaseScene *parent):
   Item(data, 0), scene_(parent) {
   makeItems();
   fillItems();
-  connect(data, SIGNAL(mod()), this, SLOT(entryChanged()));
+  connect(data, &TOCEntry::mod, this, &TOCItem::entryChanged);
 }
 
 TOCItem::~TOCItem() {

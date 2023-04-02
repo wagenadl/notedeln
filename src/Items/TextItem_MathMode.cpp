@@ -75,7 +75,7 @@ void TextItem::letterAsMath(QString txt) {
 	deleteMarkup(mdi);
       if (mdb) 
 	deleteMarkup(mdb);
-      if (mdb || (mdi && prevChar=="a" && lastdup=="a"))
+      if (mdb || (mdi && prevChar==QChar('a') && lastdup==QChar('a')))
         // redup double letters, including "a" for aardvark
 	cursor.insertText(QString(prevChar));
       cursor.insertText(txt);
@@ -97,11 +97,11 @@ void TextItem::letterAsMath(QString txt) {
       // don't italicize after "’" (for "somebody's" etc.)
     } else if (txt=="I" || txt=="a" || txt=="A")  {
       // don't italicize the one-letter words "I" and "a"
-    } else if (prevChar=="."
-	       && ((antePrevChar=="i" && txt=="e")
-		   || (antePrevChar=="e" && txt=="g")
-		   || (antePrevChar=="s" && txt=="t")
-		   || (antePrevChar=="d" && txt=="d"))) {
+    } else if (prevChar==QChar('.')
+	       && ((antePrevChar==QChar('i') && txt==QChar('e'))
+		   || (antePrevChar==QChar('e') && txt==QChar('g'))
+		   || (antePrevChar==QChar('s') && txt==QChar('t'))
+		   || (antePrevChar==QChar('d') && txt==QChar('d')))) {
       // treat "e.g.", "i.e.", etc. specially
       qDebug() << "." << antePrevChar << txt;
       MarkupData *mdi = data()->markupAt(cursor.position()-2,

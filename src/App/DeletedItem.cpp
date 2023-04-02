@@ -26,7 +26,8 @@ DeletedItem::DeletedItem(Item *item) {
   ASSERT(data);
   parentItem = item->parent();
   if (parentItem)
-    connect(parentItem, SIGNAL(destroyed()), this, SLOT(parentDestroyed()));
+    connect(parentItem, &QObject::destroyed,
+            this, &DeletedItem::parentDestroyed);
 }
 
 DeletedItem::~DeletedItem() {

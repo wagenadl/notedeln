@@ -36,8 +36,8 @@ NewBookDialog::NewBookDialog(QWidget *parent): QDialog(parent) {
   ui->setupUi(this);
 
   ui->location->setText(DefaultLocation::defaultLocation() + "/book.nb");
-  connect(ui->location, SIGNAL(textChanged(QString)),
-          SLOT(locationChanged()));
+  connect(ui->location, &QLineEdit::textChanged,
+          this, &NewBookDialog::locationChanged);
   
   ui->local->setChecked(true);
   ui->archive->setChecked(false);

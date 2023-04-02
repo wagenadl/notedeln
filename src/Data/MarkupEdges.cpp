@@ -59,8 +59,8 @@ MarkupEdges::MarkupEdges(QList<MarkupData *> const &mdd,
   }
 
   MarkupStyles st;
-  QList<int> alls = all.toList();
-  qSort(alls);
+  QList<int> alls = all.values();
+  std::sort(alls.begin(), alls.end());
   foreach (int k, alls) {
     if (ends.contains(k)) {
       st.remove(ends[k]);

@@ -19,6 +19,8 @@
 #include "PrinterWE.h"
 #include <QPrinter>
 #include <QPainter>
+#include <QTemporaryFile>
+#include <QProcess>
 #include <QPrintDialog>
 #include <QDebug>
 #include <QWebEngineView>
@@ -26,6 +28,7 @@
 #include <stdio.h>
 #include <QSvgGenerator>
 #include <QFile>
+#include <QPdfDocument>
 
 PrinterWE::PrinterWE(QWebEngineView *src, Options const &opt):
   src(src), opt(opt) {
@@ -55,28 +58,23 @@ void PrinterWE::display() {
 
 
 void PrinterWE::complete(bool ok) {
+  qDebug() << "complete";
   if (!ok) {
     fprintf(stderr, "webgrab: Failed to load web page");
     QApplication::exit(2);
     return;
   }
-  qDebug() << "complete";
   if (opt.out.isEmpty()) {
     src->show();
   } else {
-    bool stayalive = false;
     foreach (QString fn, opt.out) {
       if (fn.endsWith(".pdf")) {
-        stayalive = true;
         toPdf(fn);
-      } else if (fn.endsWith(".svg")) {
-        toSvg(fn);
-      } else {
-        toImg(fn);
+        return;
       }
     }
-    if (!stayalive)
-      QApplication::exit(0);
+    // no pdf is requested, we'll make a temporary pdf
+    toPdf("");
   }
 }
 
@@ -91,26 +89,118 @@ void PrinterWE::toPdf(QString fn) {
     toSinglePagePdf(fn);
 }
 
+
+static bool allequalx(QImage const &img, int y, int x0, int x1, QRgb bg) {
+  for (int x=x0; x<x1; x++)
+    if (img.pixel(x,y)!=bg)
+      return false;
+  return true;
+}
+
+static bool allequaly(QImage const &img, int x, int y0, int y1, QRgb bg) {
+  for (int y=y0; y<y1; y++)
+    if (img.pixel(x,y)!=bg)
+      return false;
+  return true;
+}
+
+
+static QImage autotrim(QImage const &img) {
+  int X = img.width();
+  int Y = img.height();
+  if (X<=1 || Y<=1)
+    return img;
+  QRgb bg(img.pixel(X-1, Y-1));
+  int y1 = Y;
+  while (y1>1) 
+    if (allequalx(img, y1-1, 0, X, bg))
+      --y1;
+    else
+      break;
+  int x1 = X;
+  while (x1>1)
+    if (allequaly(img, x1-1, 0, y1, bg))
+      --x1;
+    else
+      break;
+  int x0 = 0;
+  while (x0<x1-1)
+    if (allequaly(img, x0, 0, y1, bg))
+      x0++;
+    else
+      break;
+  int y0 = 0;
+  while (y0<y1-1)
+    if (allequalx(img, y0, x0, x1, bg))
+      y0++;
+    else
+      break;
+  qDebug() << X << Y << x0 << y0 << x1 << y1;
+  if (x0==0 && y0==0 && x1==X && y1==Y)
+    return img;
+  else
+    return img.copy(x0, y0, x1-x0, y1-y0);
+}
+
+
+
 class Receiver {
 public:
-  Receiver(QString fn): fn(fn) {
+  Receiver(QString fn, Options const &opt):
+    fn(fn), opt(opt) {
   }
   void operator()(QByteArray const &ar) {
-    QFile f(fn);
-    if (!f.open(QFile::WriteOnly)) {
-        qDebug() << "Cannot open" << fn;
+    QFile *f = fn.isEmpty() ? new QTemporaryFile : new QFile(fn);
+    if (f->open(QFile::WriteOnly)) {
+      f->write(ar);
+      f->close();
+      convert(f->fileName());
+      QApplication::exit(0);
+    } else {
+      qDebug() << "Cannot open" << fn;
+      QApplication::exit(2);
     }
-    f.write(ar);
-    f.close();
-    QApplication::exit(0);
+  }
+  void convert(QString pdffn) {
+    bool mustdo = false;
+    foreach (QString ofn, opt.out) 
+      if (ofn != pdffn)
+        mustdo = true;
+    if (!mustdo)
+      return;
+    
+    QPdfDocument pdf;
+    pdf.load(pdffn);
+    if (pdf.pageCount()<1) {
+      qDebug() << "No pages in pdf" << pdffn;
+      QApplication::exit(2);
+    }
+
+    /* Ugly section follows to deal with unannounced API change in Qt PDF */
+#if QT_VERSION >= QT_VERSION_CHECK(6, 4, 0)
+    QSizeF ptsize = pdf.pagePointSize(0);
+#else
+    QSizeF ptsize = pdf.pageSize(0);
+#endif
+    /* End of ugly section */
+    QSize outsize(opt.imSize,
+                  int(opt.imSize*ptsize.height()/ptsize.width()));
+    QImage img = autotrim(pdf.render(0, outsize));
+    foreach (QString ofn, opt.out) 
+      if (ofn != pdffn) 
+        img.save(ofn);    
   }
 private:
   QString fn;
+  Options const &opt;
 };
 
 void PrinterWE::toMultiPagePdf(QString fn) {
-  Receiver *recv = new Receiver(fn);
-  src->page()->printToPdf(*recv, QPageLayout(QPageSize(QPageSize::Letter), QPageLayout::Portrait, QMarginsF()));
+  Receiver *recv = new Receiver(fn, opt);
+  QPageLayout layout(QPageSize(QPageSize::Letter),
+                     QPageLayout::Portrait,
+                     QMarginsF());
+  src->page()->printToPdf(*recv, layout);
 }
 
 void PrinterWE::toSinglePagePdf(QString fn) {
@@ -118,41 +208,9 @@ void PrinterWE::toSinglePagePdf(QString fn) {
   // single-page pdf not supported in WebEngine.
 }
 
-void PrinterWE::toSvg(QString fn) {
-  QSvgGenerator printer;
-  printer.setFileName(fn);
-  printer.setResolution(90);
-  QFont font;
-  QFontMetricsF fm(font);
-  QString txt = src->page()->title();
-  QRectF r = fm.boundingRect(txt);
-  printer.setSize((r.size() * 90./72).toSize());
-  QPainter p;
-  p.begin(&printer);
-  p.setFont(font);
-  p.drawText(QRectF(QPointF(0,0), r.size()), txt);
-  p.end();
-}
-
-void PrinterWE::toImg(QString fn) {
-  QFont font;
-  QFontMetricsF fm(font);
-  QString txt = src->page()->title();
-  QRectF r = fm.boundingRect(txt);
-  QPixmap printer(r.size().toSize());
-  printer.fill(QColor("white"));
-  QPainter p;
-  p.begin(&printer);
-  p.setFont(font);
-  p.drawText(QRectF(QPointF(0,0), r.size()), txt);
-  p.end();
-  if (!printer.save(fn)) {
-      qDebug() << "Failed to save image";
-      QApplication::exit(2);
-  }
- }
 
 void PrinterWE::featureReq(QUrl const &url, QWebEnginePage::Feature f) {
-    src->page()->setFeaturePermission(url, f, QWebEnginePage::PermissionDeniedByUser);
+    src->page()->setFeaturePermission(url, f,
+                                      QWebEnginePage::PermissionDeniedByUser);
 }
 

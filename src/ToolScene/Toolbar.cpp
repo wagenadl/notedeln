@@ -74,14 +74,11 @@ void Toolbar::addTool(QString id, ToolItem *item) {
   revmap[item] = id;
   ids.append(id);
   spaceAfter.append(0);
-  connect(item, SIGNAL(destroyed(QObject*)), SLOT(childGone()));
-  connect(item, SIGNAL(leftClick(Qt::KeyboardModifiers)),
-	  SLOT(leftClicked(Qt::KeyboardModifiers)));
-  connect(item, SIGNAL(doubleClick(Qt::KeyboardModifiers)),
-	  SLOT(doubleClicked(Qt::KeyboardModifiers)));
-  connect(item, SIGNAL(rightClick(Qt::KeyboardModifiers)),
-	  SLOT(rightClicked(Qt::KeyboardModifiers)));
-  connect(item, SIGNAL(release()), SLOT(released()));
+  connect(item, &ToolItem::destroyed, this, &Toolbar::childGone);
+  connect(item, &ToolItem::leftClick, this, &Toolbar::leftClicked);
+  connect(item, &ToolItem::doubleClick, this, &Toolbar::doubleClicked);
+  connect(item, &ToolItem::rightClick, this, &Toolbar::rightClicked);
+  connect(item, &ToolItem::release, this, &Toolbar::released);
   arrangeTools();
 }
     

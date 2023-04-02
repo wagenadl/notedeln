@@ -59,7 +59,6 @@
 #include <QTextBlock>
 #include <QDebug>
 #include <QGraphicsSceneMouseEvent>
-#include <QSignalMapper>
 #include <QCursor>
 #include <QUrl>
 #include <QClipboard>
@@ -75,10 +74,6 @@ EntryScene::EntryScene(CachedEntry data, QObject *parent):
   unlockedItem = 0;
   lateNoteParent = 0;
 
-  vChangeMapper = new QSignalMapper(this);
-  futileMovementMapper = new QSignalMapper(this);
-  connect(vChangeMapper, SIGNAL(mapped(int)), SLOT(vChanged(int)));
-  connect(futileMovementMapper, SIGNAL(mapped(int)), SLOT(futileMovement(int)));
 }
 
 void EntryScene::populate() {
@@ -115,11 +110,11 @@ void EntryScene::makeBlockItems() {
     if (!bi)
       bi = tryMakeGfxBlock(bd);
     ASSERT(bi);
-    connect(bi, SIGNAL(heightChanged()), vChangeMapper, SLOT(map()));
+    connect(bi, &BlockItem::heightChanged,
+            this, [this, bi]() { vChanged(bi); });
     blockItems.append(bi);
   }
   redateBlocks();
-  remap();
 }
 
 BlockItem *EntryScene::tryMakeGfxBlock(BlockData *bd) {
@@ -141,10 +136,12 @@ BlockItem *EntryScene::tryMakeTableBlock(BlockData *bd) {
   tbi->setBaseScene(this);
   if (tbd->height()==0)
     tbi->sizeToFit();
-  connect(tbi, SIGNAL(futileMovement()), futileMovementMapper, SLOT(map()));
-  connect(tbi, SIGNAL(sheetRequest(int)), this, SIGNAL(sheetRequest(int)));
-  connect(tbi, SIGNAL(unicellular(class TableData *)),
-	  SLOT(makeUnicellular(class TableData *)),
+  connect(tbi, &TableBlockItem::futileMovement,
+          this, [this, tbi] { futileMovement(tbi); });
+  connect(tbi, &TableBlockItem::sheetRequest,
+          this, &EntryScene::sheetRequest);
+  connect(tbi, &TableBlockItem::unicellular,
+          this, &EntryScene::makeUnicellular,
 	  Qt::QueuedConnection);
   return tbi;
 }
@@ -157,13 +154,15 @@ BlockItem *EntryScene::tryMakeTextBlock(BlockData *bd) {
   tbi->setBaseScene(this);
   if (tbd->height()==0)
     tbi->sizeToFit();
-  connect(tbi, SIGNAL(futileMovement()), futileMovementMapper, SLOT(map()));
-  connect(tbi, SIGNAL(sheetRequest(int)), this, SIGNAL(sheetRequest(int)));
-  connect(tbi, SIGNAL(multicellular(int, class TextData *)),
-	  SLOT(makeMulticellular(int, class TextData *)),
+  connect(tbi, &TextBlockItem::futileMovement,
+          this, [this, tbi]() { futileMovement(tbi); });
+  connect(tbi, &TextBlockItem::sheetRequest,
+          this, &EntryScene::sheetRequest);
+  connect(tbi, &TextBlockItem::multicellular,
+	  this, &EntryScene::makeMulticellular,
 	  Qt::QueuedConnection);
-  connect(tbi, SIGNAL(multicellularpaste(class TextData *, QString)),
-	  SLOT(makeMulticellularAndPaste(class TextData *, QString)),
+  connect(tbi, &TextBlockItem::multicellularpaste,
+	  this, &EntryScene::makeMulticellularAndPaste,
 	  Qt::QueuedConnection);
     
   return tbi;
@@ -351,8 +350,7 @@ void EntryScene::deleteBlock(int blocki) {
   BlockData *bd = bi->data();
 
   blockItems.removeAt(blocki);
-  remap();
-
+  
   foreach (FootnoteItem *fni, bi->footnotes()) {
     QGraphicsScene *s = fni->scene();
     if (s)
@@ -396,9 +394,9 @@ GfxBlockItem *EntryScene::newGfxBlock(int iAbove) {
   
   blockItems.insert(iNew, gbi);
 
-  connect(gbi, SIGNAL(heightChanged()), vChangeMapper, SLOT(map()));
-  remap();
-
+  connect(gbi, &GfxBlockItem::heightChanged,
+          this, [this, gbi]() { vChanged(gbi); });
+  
   restackBlocks(iNew);
   gotoSheetOfBlock(iNew);
   return gbi;
@@ -477,14 +475,16 @@ TableBlockItem *EntryScene::injectTableBlock(TableBlockData *tbd, int iblock) {
   tbi->makeWritable();
 
   blockItems.insert(iblock, tbi);
-  connect(tbi, SIGNAL(heightChanged()), vChangeMapper, SLOT(map()));
-  connect(tbi, SIGNAL(futileMovement()), futileMovementMapper, SLOT(map()));
-  connect(tbi, SIGNAL(sheetRequest(int)), this, SIGNAL(sheetRequest(int)));
-  connect(tbi, SIGNAL(unicellular(class TableData *)),
-	  SLOT(makeUnicellular(class TableData *)),
+  connect(tbi, &TableBlockItem::heightChanged,
+          this, [this, tbi]() { vChanged(tbi); });
+  connect(tbi, &TableBlockItem::futileMovement,
+          this, [this, tbi]() { futileMovement(tbi); });
+  connect(tbi, &TableBlockItem::sheetRequest,
+          this, &EntryScene::sheetRequest);
+  connect(tbi, &TableBlockItem::unicellular,
+	  this, &EntryScene::makeUnicellular,
 	  Qt::QueuedConnection);
-  remap();
-  return tbi;
+    return tbi;
 }
 
 TextBlockItem *EntryScene::injectTextBlock(TextBlockData *tbd, int iblock) {
@@ -500,26 +500,21 @@ TextBlockItem *EntryScene::injectTextBlock(TextBlockData *tbd, int iblock) {
   tbi->makeWritable();
 
   blockItems.insert(iblock, tbi);
-  connect(tbi, SIGNAL(heightChanged()), vChangeMapper, SLOT(map()));
-  connect(tbi, SIGNAL(futileMovement()), futileMovementMapper, SLOT(map()));
-  connect(tbi, SIGNAL(sheetRequest(int)), this, SIGNAL(sheetRequest(int)));
-  connect(tbi, SIGNAL(multicellular(int, class TextData *)),
-	  SLOT(makeMulticellular(int, class TextData *)),
+  connect(tbi, &TextBlockItem::heightChanged,
+          this, [this, tbi]() { vChanged(tbi); });
+  connect(tbi, &TextBlockItem::futileMovement,
+          this, [this, tbi]() { futileMovement(tbi); });
+  connect(tbi, &TextBlockItem::sheetRequest,
+          this, &EntryScene::sheetRequest);
+  connect(tbi, &TextBlockItem::multicellular,
+	  this, &EntryScene::makeMulticellular,
 	  Qt::QueuedConnection);
-  connect(tbi, SIGNAL(multicellularpaste(class TextData *, QString)),
-	  SLOT(makeMulticellularAndPaste(class TextData *, QString)),
+  connect(tbi, &TextBlockItem::multicellularpaste,
+	  this, &EntryScene::makeMulticellularAndPaste,
 	  Qt::QueuedConnection);
-  remap();
   return tbi;
 }
 
-void EntryScene::remap() {
-  for (int i=0; i<blockItems.size(); i++) {
-    BlockItem *bi = blockItems[i];
-    vChangeMapper->setMapping(bi, i);
-    futileMovementMapper->setMapping(bi, i);
-  }
-}
 
 TableBlockItem *EntryScene::newTableBlock(int iAbove) {
   int iNew = (iAbove>=0)
@@ -591,11 +586,11 @@ TextBlockItem *EntryScene::newTextBlock(int iAbove, bool evenIfLastEmpty) {
   return tbi;
 }
 
-void EntryScene::futileMovement(int block) {
-  //  qDebug() << "EntryScene::futileMovement" << block;
-  ASSERT(block>=0 && block<blockItems.size());
+void EntryScene::futileMovement(BlockItem *block) {
+  int idx = indexOfBlock(block);
+  ASSERT(idx>=0);
   // futile movement in a text block
-  TextBlockItem *tbi = dynamic_cast<TextBlockItem *>(blockItems[block]);
+  TextBlockItem *tbi = dynamic_cast<TextBlockItem *>(block);
   if (!tbi) {
     qDebug() << "not a text block";
     return;
@@ -610,21 +605,21 @@ void EntryScene::futileMovement(int block) {
        currently cannot happen, because Ctrl-Enter is intercepted in TextItem
        and inserts a '\n' in the text. */
     if (c.atEnd()) {
-      newTextBlock(block, true);
+      newTextBlock(idx, true);
     } else {
       if (tbi->document()->characterAt(c.position())=='\n') {
 	c.deleteChar();
-	splitTextBlock(block, c.position());
+	splitTextBlock(idx, c.position());
 	//splitTextBlock(block, c.position());
-	newTextBlock(block, true);
+	newTextBlock(idx, true);
       } else {
-	splitTextBlock(block, c.position());
+	splitTextBlock(idx, c.position());
       }
     }
   } return;
   case Qt::Key_Left: case Qt::Key_Up: case Qt::Key_Backspace:
     // upward movement
-    for (int b=block-1; b>=0; b--) {
+    for (int b=idx-1; b>=0; b--) {
       BlockItem *bi = blockItems[b];
       QString typ = bi->data()->type();
       if ((typ=="textblock" || typ=="tableblock") && bi->isWritable()) {
@@ -635,7 +630,7 @@ void EntryScene::futileMovement(int block) {
     break;
   case Qt::Key_Right: case Qt::Key_Down: case Qt::Key_Delete:
     // downward movement
-    for (int b=block+1; b<blockItems.size(); b++) {
+    for (int b=idx+1; b<blockItems.size(); b++) {
       BlockItem *bi = blockItems[b];
       QString typ = bi->data()->type();
       if ((typ=="textblock" || typ=="tableblock") && bi->isWritable()) {
@@ -645,14 +640,14 @@ void EntryScene::futileMovement(int block) {
     }
     if (tgtidx<0) {
       // no text/table block below us
-      if (block+1<blockItems.size()) {
+      if (idx+1<blockItems.size()) {
         // ... but yes graphics blocks below us
-        newTextBlock(block + 1, true);
-        tgtidx = block + 2;
+        newTextBlock(idx + 1, true);
+        tgtidx = idx + 2;
         Q_ASSERT(tgtidx < blockItems.size());
       } else if (dynamic_cast<TableBlockItem const *>(tbi)) {
-        newTextBlock(block , true);
-        tgtidx = block + 1;
+        newTextBlock(idx , true);
+        tgtidx = idx + 1;
         Q_ASSERT(tgtidx < blockItems.size());
       }        
     }
@@ -677,14 +672,14 @@ void EntryScene::futileMovement(int block) {
   }
 
   if (fmi.key()==Qt::Key_Delete) {
-    if (tgtidx==block+1 || tbi->isEmpty())
+    if (tgtidx==idx+1 || tbi->isEmpty())
       // do not combine across (e.g.) gfxblock ... unless empty
-      joinTextBlocks(block, tgtidx, true);
+      joinTextBlocks(idx, tgtidx, true);
     return;
   } else if (fmi.key()==Qt::Key_Backspace) {
     qDebug() << "futile backspace" << tgtidx << block;
-    if (tgtidx==block-1 || tbi->isEmpty())
-      joinTextBlocks(tgtidx, block);
+    if (tgtidx==idx-1 || tbi->isEmpty())
+      joinTextBlocks(tgtidx, idx);
     return;
   }
   
@@ -809,10 +804,17 @@ void EntryScene::focusEnd(int isheet) {
   }
 }
 
+int EntryScene::indexOfBlock(class BlockItem const *block) const {
+  for (int k=0; k<blockItems.size(); k++) 
+    if (blockItems[k]==block)
+      return k;
+  return -1;
+}
 
-void EntryScene::vChanged(int block) {
-  ASSERT(block>=0 && block<blockItems.size());
-  TextBlockItem *tbi = dynamic_cast<TextBlockItem*>(blockItems[block]);
+void EntryScene::vChanged(BlockItem *block) {
+  int idx = indexOfBlock(block);
+  ASSERT(idx>=0);
+  TextBlockItem *tbi = dynamic_cast<TextBlockItem*>(block);
   if (tbi) {
     Item *f = 0;
     PageView *ev = EventView::eventView();
@@ -820,15 +822,15 @@ void EntryScene::vChanged(int block) {
       f = dynamic_cast<Item*>(ev->scene()->focusItem());
     // that's a really ugly way to find out who has focus
     TextCursor c = tbi->textCursor();
-    restackBlocks(block);
+    restackBlocks(idx);
     if (f && f->ancestralBlock()!=tbi)
       f->setFocus(); // restore focus to correct footnote. hope this works.
     /* It work more or less, but not in the context of cross-sheet notes. */
     else
       tbi->setTextCursor(c); // this ensures the correct fragment gets focus
   } else {
-    restackBlocks(block);
-    gotoSheetOfBlock(block);
+    restackBlocks(idx);
+    gotoSheetOfBlock(idx);
   }
 }
 

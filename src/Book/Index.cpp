@@ -22,7 +22,6 @@
 #include <QDebug>
 #include <QFile>
 #include <QTimer>
-#include <QSignalMapper>
 #include "EntryFile.h"
 #include "LateNoteManager.h"
 
@@ -31,10 +30,8 @@
 Index::Index(QString rootDir, class TOC *toc, QObject *parent):
   QObject(parent), rootdir(rootDir) {
   widx = new WordIndex(this);
-  mp = new QSignalMapper(this);
   saveTimer = new QTimer(this);
-  connect(saveTimer, SIGNAL(timeout()), SLOT(flush()));
-  connect(mp, SIGNAL(mapped(QObject*)), SLOT(updateEntry(QObject*)));
+  connect(saveTimer, &QTimer::timeout, this, &Index::flush);
   QString fn = rootdir + "/index.json";
   if (QFile(fn).exists()) {
     widx->load(fn);
@@ -58,12 +55,13 @@ void Index::watchEntry(Entry *e) {
   EntryFile *f = e->file();
   ASSERT(f);
   int pgno = d->startPage();
-  connect(f, SIGNAL(saved()), mp, SLOT(map()), Qt::UniqueConnection);
-  connect(e->lateNoteManager(), SIGNAL(mod()),
-	  mp, SLOT(map()), Qt::UniqueConnection);
+  cons[f]
+    = connect(f, &EntryFile::saved,
+              this, [this,e]() { updateEntry(e); }, Qt::UniqueConnection);
+  cons[e->lateNoteManager()]
+    = connect(e->lateNoteManager(), &LateNoteManager::mod,
+              this, [this,e]() { updateEntry(e); }, Qt::UniqueConnection);
   oldsets[pgno] = e->wordSet();
-  mp->setMapping(f, e);
-  mp->setMapping(e->lateNoteManager(), e);
 }
 
 void Index::unwatchEntry(Entry *e) {
@@ -72,11 +70,14 @@ void Index::unwatchEntry(Entry *e) {
   ASSERT(d);
   EntryFile *f = e->file();
   ASSERT(f);
+  LateNoteManager *lnm = e->lateNoteManager();
   int pgno = d->startPage();
-  disconnect(f, SIGNAL(saved()), mp, SLOT(map()));
-  disconnect(e->lateNoteManager(), SIGNAL(mod()), mp, SLOT(map()));
-  mp->removeMappings(f);
-  mp->removeMappings(e->lateNoteManager());
+  if (cons.contains(f))
+    disconnect(cons[f]);
+  cons.remove(f);
+  if (cons.contains(lnm))
+    disconnect(cons[lnm]);
+  cons.remove(lnm);
   oldsets.remove(pgno);
 }
 

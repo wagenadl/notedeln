@@ -17,6 +17,7 @@
 // Calltrace.cpp
 
 #include "Calltrace.h"
+#include <QRegularExpression>
 
 #if defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)
 
@@ -66,7 +67,7 @@ namespace Calltrace {
     QStringList fns = list();
     fns.pop_front();
     QString trc = fns.join(" < ");
-    trc.replace(QRegExp(" <  <  < ( < )*"), " <...< ");
+    trc.replace(QRegularExpression(" <  <  < ( < )*"), " <...< ");
     trc.replace("  ", " ");
     return trc;
   }
@@ -76,7 +77,7 @@ namespace Calltrace {
     while (skip-- > 0) 
       fns.pop_front();
     QString trc = fns.join(" < ");
-    trc.replace(QRegExp(" <  <  < ( < )*"), " <...< ");
+    trc.replace(QRegularExpression(" <  <  < ( < )*"), " <...< ");
     trc.replace("  ", " ");
     return trc;
   }

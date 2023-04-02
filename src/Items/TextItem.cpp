@@ -64,6 +64,15 @@ static bool isDigit(QChar x) {
   return (x>='0' && x<='9');
 }
 
+static QString dropcontrol(QString txt, bool nonewlines) {
+  static QRegularExpression re("[\\x00-\\x08\\x0b-\\x1f]");
+  txt.replace(re, "");
+  txt.replace("\t", " ");
+  if (nonewlines)
+    txt.replace("\n", " ");
+  return txt;
+}
+
 TextItem::TextItem(TextData *data, Item *parent, bool noFinalize,
 		   TextItemDoc *altdoc):
   Item(data, parent) {
@@ -100,10 +109,10 @@ void TextItem::finalizeConstructor(int sheet) {
       if (sheet<0 || gnd->sheet()==sheet)
 	create(gnd, this);
 
-  connect(document(), SIGNAL(contentsChanged(int, int, int)),
-	  this, SLOT(docChange()));
-  connect(document(), SIGNAL(markupChanged(MarkupData *)),
-	  this, SLOT(markupChange(MarkupData *)));
+  connect(document(), &TextItemDoc::contentsChanged,
+	  this, &TextItem::docChange);
+  connect(document(), &TextItemDoc::markupChanged,
+	  this, &TextItem::markupChange);
   connect(document(), &TextItemDoc::noLongerEmpty,
           this, &TextItem::redate);
 }
@@ -363,7 +372,7 @@ void TextItem::representDeadLinks(QList<TransientMarkup> &tmm) {
       Resource *res = resmgr->byTag(md->text());
       if (!res) {
 	// qDebug() << "No resource";
-	if (!QRegExp("\\d\\d?\\d?\\d?[a-z]?").exactMatch(md->text())) {
+	if (!QRegularExpression("^\\d\\d?\\d?\\d?[a-z]?$").match(md->text()).hasMatch()) {
 	  // qDebug() << "  and not a page";
 	  tmm << TransientMarkup(md->start(), md->end(),
 				 MarkupData::DeadLink);
@@ -374,7 +383,7 @@ void TextItem::representDeadLinks(QList<TransientMarkup> &tmm) {
 			       MarkupData::LoadingLink);
 	if (!in_progress_res.contains(res)) {
 	  in_progress_res.insert(res);
-	  connect(res, SIGNAL(mod()), SLOT(inProgressMod()));
+	  connect(res, &Resource::mod, this, &TextItem::inProgressMod);
 	}
       } else if (res->needsArchive()) {
 	// qDebug() << "no archive";
@@ -687,14 +696,11 @@ bool TextItem::keyPressAsSimpleStyle(int key, TextCursor const &cursor) {
 bool TextItem::tryTeXCode(bool noX, bool onlyAtEndOfWord) {
   TextCursor c = cursor;
   if (!c.hasSelection()) {
-    TextCursor m = cursor.findBackward(QRegExp("([^A-Za-z])"));
-    int start = m.hasSelection() ? m.selectionEnd() : 0;
+    int start = c.startOfStrictWord();
     if (onlyAtEndOfWord) {
       c.setPosition(start, TextCursor::KeepAnchor);
     } else {
-      m.setPosition(start);
-      m = m.findForward(QRegExp("([^A-Za-z])"));
-      int end = m.hasSelection() ? m.selectionStart() : data()->text().size();
+      int end = c.endOfStrictWord();
       c.setPosition(start);
       c.setPosition(end, TextCursor::KeepAnchor);
     }
@@ -752,7 +758,7 @@ bool TextItem::muckWithIndentation(TextBlockItem *p,
       p->data()->setIndented(true);
     else
       p->data()->setDedented(true);
-  } else if (QRegExp("\\s*").exactMatch(text->text().left(cursor.position()))) {
+  } else if (QRegularExpression("^\\s*$").match(text->text().left(cursor.position())).hasMatch()) {
     if (hasIndent)
       return false; // allow Tab to be inserted at start
     else
@@ -772,7 +778,7 @@ bool TextItem::muckWithIndentation(TextBlockItem *p,
 bool TextItem::keyPressAsInsertion(QKeyEvent *e) {
   if (mode()->mode()!=Mode::Type)
     return false;
-  QString now = "";
+  QString now = e->text();
   if (e->modifiers() & Qt::ControlModifier) {
     switch (e->key()) {
     case Qt::Key_2:
@@ -797,11 +803,12 @@ bool TextItem::keyPressAsInsertion(QKeyEvent *e) {
       break;
     }
   }
-  if (now.isEmpty()) {
-    now = e->text();
-    if (now[0]<32 || now[0]==127)
+
+  if (now.isEmpty())
+    return false;
+  if (now[0]<QChar(32) || now[0]==QChar(127))
       return false; 
-  }
+
   if (!cursor.hasSelection()) {
     cursor.insertText(now);
     if (now=="}" && mode()->typeMode()==Mode::Math) 
@@ -929,7 +936,7 @@ int TextItem::substituteInternalScripts(int start, int end) {
   }
   for (int pos=start; pos<end; pos++) {
     QChar c = document()->characterAt(pos);
-    if ((c=="^" || c=="_") && pos<end-1) {
+    if ((c==QChar('^') || c==QChar('_')) && pos<end-1) {
       QString s = QString(c) + QString(document()->characterAt(pos+1));
       if (Accents::isScript(s)) {
         TextCursor cur(document(), pos+2, pos);
@@ -993,9 +1000,15 @@ bool TextItem::keyPressAsDigraph(QKeyEvent *e) {
 }
 
 void TextItem::inputMethodEvent(QInputMethodEvent *e) {
-  if (mode()->mode()==Mode::Type) 
+  // This is for handling Ctrl+Shift+U unicode entering
+  // We ought to represent the "preeditstring" somehow, but we currently don't
+  //  qDebug() << "inputmethod" << e->commitString() << e->preeditString() << e->replacementStart() << e->replacementLength();
+  if (isWritable() && mode()->mode()==Mode::Type && !cursor.hasSelection()) {
     cursor.insertText(e->commitString());
-  e->accept();
+    e->accept();
+  } else {
+    Item::inputMethodEvent(e);
+  }
 }
   
 void TextItem::keyPressEvent(QKeyEvent *e) {
@@ -1111,15 +1124,11 @@ bool TextItem::unscriptStyles() {
 
 bool TextItem::tryAngleBrackets() {
   cursor.clearSelection();
-  if (document()->characterAt(cursor.position()-1) != '>')
+  int k = cursor.startOfTag();
+  if (k<0)
     return false;
-  TextCursor m = cursor.findBackward("<");
-  if (!m.hasSelection())
-    return false;
-  m.clearSelection();
-  for (int k=m.position(); k<cursor.position(); k++)
-    if (document()->characterAt(k).isSpace())
-      return false;
+  TextCursor m = cursor;
+  m.setPosition(k);
   m.deleteChar();
   m.insertText("⟨");
   cursor.deletePreviousChar();
@@ -1141,26 +1150,19 @@ bool TextItem::tryScriptStyles(bool onlyifbalanced) {
     return false;
 
   bool endswithbrace = document()->characterAt(cursor.position()-1) == '}';
-  QString re = "(\\^|_)";
-  if (endswithbrace || onlyifbalanced)
-    re += "\\{";
-      
-  TextCursor m = cursor.findBackward(QRegExp(re));
-  if (!m.hasSelection()) {
+  int k = cursor.startOfScript(endswithbrace || onlyifbalanced);
+  if (k<0) {
     if (endswithbrace)
       return false;
-    re = "(\\^|_)";
-    m = cursor.findBackward(QRegExp(re));
-    if (!m.hasSelection())
-      return false; // no "^" or "_"
+    k = cursor.startOfScript(false);
   }
-  if (m.selectionEnd() == cursor.position())
-    return false; // empty target
-
-  QString mrk = m.selectedText();
+  if (k<0 || k >= cursor.position())
+    return false;
+ 
+  QChar mrk = document()->characterAt(k);
 
   if (onlyifbalanced) {
-    TextCursor scr(document(), m.selectionStart() + 1);
+    TextCursor scr(document(), k + 1);
     scr.setPosition(cursor.position(), TextCursor::KeepAnchor);
     if (!balancedBrackets(scr.selectedText()))
       return false;
@@ -1168,15 +1170,15 @@ bool TextItem::tryScriptStyles(bool onlyifbalanced) {
 
   if (endswithbrace) {
     cursor.deletePreviousChar();
-    cursor.correctPosition(substituteInternalScripts(m.position(),
-                                                     cursor.position()));
+    cursor.correctPosition(substituteInternalScripts(k, cursor.position()));
+    cursor.correctPosition(-TextCursor(document(), k).deleteChar()); // remove opening brace
   }
-  cursor.correctPosition(-m.deleteChar());
+  cursor.correctPosition(-TextCursor(document(), k).deleteChar()); // remove opening _ or ^
 
-  addMarkup(mrk.startsWith("^")
+  addMarkup(mrk==QChar('^')
 	    ? MarkupData::Superscript
 	    : MarkupData::Subscript,
-	    m.selectionStart(), cursor.position());
+	    k, cursor.position());
   ensureCursorVisible();
   return true;
 }
@@ -1388,19 +1390,12 @@ static TextCursor linkAt(TextCursor const &c) {
 
   TextItemDoc *doc = c.document();
 
-  TextCursor e = c.findForward(QRegExp("\\s"));
-  int end = e.hasSelection() ? e.selectionStart() : -1;
-  if (end<0) {
-    e = c;
-    e.movePosition(TextCursor::End);
-    end = e.position();
-  }
+  int end = c.endOfNonSpaces();
   QString endchars = QString::fromUtf8(";:.,)]}’”!?—");
   while (end>0 && endchars.contains(doc->characterAt(end-1)))
     end--;
 
-  TextCursor s = c.findBackward(QRegExp("\\s"));
-  int start = s.hasSelection() ? s.selectionEnd() : 0;
+  int start = c.startOfNonSpaces();
   QString startchars = QString::fromUtf8("([{‘“¡¿—");
   while (start<end && startchars.contains(doc->characterAt(start)))
     start++;
@@ -1470,11 +1465,8 @@ bool TextItem::tryFootnote(bool del) {
     start = c.selectionStart();
     end = c.selectionEnd();
   } else {
-    TextCursor m = c.findBackward(QRegExp("[^-\\w]"));
-    QString mrk = m.selectedText();
-    start = m.hasSelection() ? m.selectionEnd() : 0;
-    m = c.findForward(QRegExp("[^-\\w]"));
-    end = m.hasSelection() ? m.selectionStart() : data()->text().size();
+    start = c.startOfBroadWord();
+    end = c.endOfBroadWord();
     if (start==end && start>0) {
       symMark = approvedMark(c);
       // symMark is one or more non-word chars like "*".      
@@ -1549,12 +1541,7 @@ bool TextItem::tryToPaste(bool nonewlines) {
     cursor.clearSelection();
     return true;   
   } else if (md->hasText()) {
-    QString txt = md->text();
-    txt.replace(QRegExp("[\\x0000-\\x0008\\x000b-\\x001f]"), "");
-    txt.replace("\t", " ");
-    if (nonewlines)
-      txt.replace("\n", " ");
-    cursor.insertText(txt);
+    cursor.insertText(dropcontrol(md->text(), nonewlines));
     return true;
   } else {
     return false;
@@ -1717,20 +1704,11 @@ TextCursor TextItem::insertBasicHtml(QString html, int pos, bool nonewlines,
   TextCursor c(cursor);
   c.setPosition(pos);
   if (ref.isNull() || p.text()==ref) {
-    QString txt = p.text();
-    txt.replace(QRegExp("[\\x0000-\\x0008\\x000b-\\x001f]"), "");
-    txt.replace("\t", " ");
-    if (nonewlines)
-      txt.replace("\n", " ");
-    c.insertText(txt);
+    c.insertText(dropcontrol(p.text(), nonewlines));
     foreach (MarkupData *md, p.markups()) 
       addMarkup(md->style(), md->start()+pos, md->end()+pos);
   } else {
-    ref.replace(QRegExp("[\\x0000-\\x0008\\x000b-\\x001f]"), "");
-    ref.replace("\t", " ");
-    if (nonewlines)
-      ref.replace("\n", " ");
-    c.insertText(ref);
+    c.insertText(dropcontrol(ref, nonewlines));
   }
   c.setPosition(pos, TextCursor::KeepAnchor);
   c.exchangePositionAndAnchor();
@@ -1813,7 +1791,7 @@ void TextItem::inProgressMod() {
   Resource *res = dynamic_cast<Resource *>(sender());
   update();
   if (res && !res->inProgress()) {
-    disconnect(res, SIGNAL(mod()), this, SLOT(inProgressMod()));
+    disconnect(res, &Resource::mod, this, &TextItem::inProgressMod);
     in_progress_res.remove(res);
   }
 }

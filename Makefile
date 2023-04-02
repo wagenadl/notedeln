@@ -4,38 +4,26 @@
 # Actual build process is through cmake.
 
 ######################################################################
-# Linux stuff
+# Linux and Mac stuff
 release: prep-release
-	( cd build; cmake --build . )
+	+cmake --build build --config Release
 
 prep-release:
-	mkdir -p build
-	( cd build; cmake -DCMAKE_BUILD_TYPE=Release  .. )
+	+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release  
 
 debug: prep-debug
-	( cd build-debug; cmake --build . )
+	+cmake --build build-debug --config Debug
 
 prep-debug:
-	mkdir -p build-debug
-	( cd build-debug; cmake -DCMAKE_BUILD_TYPE=Debug .. )
+	+cmake -S . -B build-debug -DCMAKE_BUILD_TYPE=Debug 
 
 clean:; rm -rf build build-debug
+
+deb:	release
+	(cd build; cpack )
 
 tar:;	git archive -o ../notedeln.tar.gz --prefix=notedeln/ HEAD
 
 ######################################################################
-# Mac OS stuff - to be updated
-macclean:; rm -rf eln.app eln.dmg
-
-macapp: SRC WEBGRAB 
-	mkdir -p eln.app/Contents/MacOS
-	cp build-webgrab/webgrab eln.app/Contents/MacOS
-	cp src/App/elnmac.sh eln.app/Contents/MacOS/
-	chmod a+x eln.app/Contents/MacOS/elnmac.sh
-
-macdmg: macapp
-	$(QBINPATH)/macdeployqt eln.app -dmg -executable=eln.app/Contents/MacOS/webgrab -executable=eln.app/Contents/MacOS/eln
-
-######################################################################
-.PHONY: release prep-release debug prep-debug clean tar macclean macapp macdmg 
+.PHONY: release prep-release debug prep-debug clean tar deb
 

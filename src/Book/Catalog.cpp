@@ -19,7 +19,7 @@
 #include "Catalog.h"
 #include <QDir>
 #include <QFileInfo>
-#include <QRegExp>
+#include <QRegularExpression>
 
 Catalog::Catalog(QString pgdir): pgdir(pgdir) {
   ok = false;
@@ -27,9 +27,9 @@ Catalog::Catalog(QString pgdir): pgdir(pgdir) {
   if (!pages.exists())
     return;
 
-  QRegExp re1("^(\\d\\d*)-([a-z0-9]+).json");
-  QRegExp re0("^(\\d\\d*).json");
-  QRegExp ren("^(\\d\\d*)-([a-z0-9]+).notes");
+  QRegularExpression re1("^(\\d\\d*)-([a-z0-9]+).json$");
+  QRegularExpression re0("^(\\d\\d*).json$");
+  QRegularExpression ren("^(\\d\\d*)-([a-z0-9]+).notes$");
   
   foreach (QFileInfo const &fi, pages.entryInfoList()) {
     if (fi.isFile()) {
@@ -39,12 +39,13 @@ Catalog::Catalog(QString pgdir): pgdir(pgdir) {
         err << "Presence of " + fn + " indicates unsuccessful bzr update.";
       if (!fn.endsWith(".json"))
         continue;
-      if (re1.exactMatch(fn)) {
-        int n = re1.cap(1).toInt();
+      QRegularExpressionMatch m;
+      if ((m = re1.match(fn)).hasMatch()) {
+        int n = m.captured(1).toInt();
         pg2file.insert(n, fn);
         filemods[fn] = fi.lastModified();
-      } else if (re0.exactMatch(fn)) {
-        int n = re0.cap(1).toInt();
+      } else if ((m = re0.match(fn)).hasMatch()) {
+        int n = m.captured(1).toInt();
         pg2file.insert(n, fn);
         filemods[fn] = fi.lastModified();
       } else {
@@ -55,7 +56,7 @@ Catalog::Catalog(QString pgdir): pgdir(pgdir) {
       if (fn.endsWith(".moved") || fn.endsWith(".THIS")
           || fn.endsWith(".OTHER") || fn.endsWith(".BASE")) 
         err << "Presence of " + fn + " indicates unsuccessful bzr update.";
-      if (ren.exactMatch(fn)) {
+      if (ren.match(fn).hasMatch()) {
         notemods[fn] = fi.lastModified();
       }
     }

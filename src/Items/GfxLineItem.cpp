@@ -113,8 +113,8 @@ void GfxLineItem::build(QGraphicsSceneMouseEvent *e) {
   data()->addPoint(QPointF(), true); // by def., we start at the origin
   data()->addPoint(QPointF(), true); // and preliminarily end at the origin
   QEventLoop el;
-  connect(this, SIGNAL(doneBuilding()),
-	  &el, SLOT(quit()),
+  connect(this, &GfxLineItem::doneBuilding,
+	  &el, &QEventLoop::quit,
 	  Qt::QueuedConnection);
   grabMouse();
   el.exec();

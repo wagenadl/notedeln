@@ -16,45 +16,47 @@
 
 #include <QApplication>
 #include <QWebEngineView>
+#include <QWebEngineProfile>
 #include <QWebEngineSettings>
 #include <QDebug>
 #include "PrinterWE.h"
 #include "Options.h"
 
 void setGlobalSettings() {
-    QWebEngineSettings *s = QWebEngineSettings::globalSettings();
-    s->setAttribute(QWebEngineSettings::AutoLoadImages, true);
-    s->setAttribute(QWebEngineSettings::JavascriptEnabled, false);
-    s->setAttribute(QWebEngineSettings::JavascriptCanOpenWindows, false);
-    s->setAttribute(QWebEngineSettings::JavascriptCanAccessClipboard, false);
-    s->setAttribute(QWebEngineSettings::LocalStorageEnabled, false);
-    s->setAttribute(QWebEngineSettings::LocalContentCanAccessRemoteUrls, false);
-    s->setAttribute(QWebEngineSettings::SpatialNavigationEnabled, false);
-    s->setAttribute(QWebEngineSettings::PluginsEnabled, false);
-    s->setAttribute(QWebEngineSettings::FullScreenSupportEnabled, false);
-    s->setAttribute(QWebEngineSettings::TouchIconsEnabled, false);
+  QWebEngineSettings *s = QWebEngineProfile::defaultProfile()->settings();
+  s->setAttribute(QWebEngineSettings::AutoLoadImages, true);
+  s->setAttribute(QWebEngineSettings::JavascriptEnabled, false);
+  s->setAttribute(QWebEngineSettings::JavascriptCanOpenWindows, false);
+  s->setAttribute(QWebEngineSettings::JavascriptCanAccessClipboard, false);
+  s->setAttribute(QWebEngineSettings::LocalStorageEnabled, false);
+  s->setAttribute(QWebEngineSettings::LocalContentCanAccessRemoteUrls, false);
+  s->setAttribute(QWebEngineSettings::SpatialNavigationEnabled, false);
+  s->setAttribute(QWebEngineSettings::PluginsEnabled, false);
+  s->setAttribute(QWebEngineSettings::FullScreenSupportEnabled, false);
+  s->setAttribute(QWebEngineSettings::TouchIconsEnabled, false);
 }
 
 int main(int argc, char **argv) {
+
   QApplication app(argc, argv);
-  Options options(argc, argv);
-
+  Options options(app);
+  
   setGlobalSettings();
-
-  QWebEngineView webview;
-  PrinterWE p(&webview, options);
-  QObject::connect(&webview, SIGNAL(loadFinished(bool)),
-      &p, SLOT(complete(bool)));
-  QWebEnginePage *page = webview.page();
-  QObject::connect(page, SIGNAL(featurePermissionRequested(QUrl const &,
-                                                           QWebEnginePage::Feature)),
-                   &p, SLOT(featureReq(QUrl const &,
-                                       QWebEnginePage::Feature)));
-  QObject::connect(page, SIGNAL(contentsSizeChanged(QSizeF const &)),
-                   &p, SLOT(sizeChange(QSizeF const &)));
-  page->setAudioMuted(true);
-  qDebug() << "Loading url " << options.url;
-  webview.load(QUrl(options.url));
-  app.exec();
+  {
+    QWidget w;
+    QWebEngineView webview(&w);
+    PrinterWE p(&webview, options);
+    QObject::connect(&webview, &QWebEngineView::loadFinished,
+                     &p, &PrinterWE::complete);
+    QWebEnginePage *page = webview.page();
+    QObject::connect(page, &QWebEnginePage::featurePermissionRequested,
+                     &p, &PrinterWE::featureReq);
+    QObject::connect(page, &QWebEnginePage::contentsSizeChanged,
+                     &p, &PrinterWE::sizeChange);
+    page->setAudioMuted(true);
+    qDebug() << "Loading url " << options.url;
+    webview.load(QUrl(options.url));
+    app.exec();
+  }
   return 0;
 }

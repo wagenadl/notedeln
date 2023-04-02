@@ -80,7 +80,7 @@ GfxVideoItem::~GfxVideoItem() {
 void GfxVideoItem::dragSlider(double pos_s) {
   if (!player)
     loadVideo();
-  if (player->state()==QMediaPlayer::StoppedState) 
+  if (player->playbackState()==QMediaPlayer::StoppedState) 
     player->pause();
   player->setPosition(pos_s*1000);
 }
@@ -92,7 +92,7 @@ void GfxVideoItem::loadVideo() {
     player = new QMediaPlayer(this);
     vidmap = new QGraphicsVideoItem(this);
     player->setVideoOutput(vidmap);
-    vidmap->setAcceptedMouseButtons(0);
+    vidmap->setAcceptedMouseButtons(Qt::NoButton);
   }
   
   // get the video
@@ -106,20 +106,20 @@ void GfxVideoItem::loadVideo() {
     qDebug() << "GfxVideoItem: missing resource" << data()->resName();
     return;
   }
-  player->setMedia(QUrl::fromLocalFile(res->archivePath()));
+  player->setSource(QUrl::fromLocalFile(res->archivePath()));
 
   if (firsttime) {
-    connect(player, QOverload<QMediaPlayer::Error>::of(&QMediaPlayer::error),
-            [](QMediaPlayer::Error error) {
-              qDebug() << "player error" << error;
+    connect(player, &QMediaPlayer::errorOccurred,
+            [](QMediaPlayer::Error error, QString s) {
+              qDebug() << "player error" << error << s;
             });
-    connect(player, &QMediaPlayer::stateChanged,
+    connect(player, &QMediaPlayer::playbackStateChanged,
             this, &GfxVideoItem::showTime);
     connect(player, &QMediaPlayer::durationChanged,
             this, &GfxVideoItem::durationChange);
     connect(player, &QMediaPlayer::positionChanged,
             this, &GfxVideoItem::showTime);
-    player->setNotifyInterval(100);
+    // player->setNotifyInterval(100);
     if (data()->dur()==0 && data()->isWritable())
       data()->setDur(player->duration()/1000.0);
     showTime();
@@ -137,10 +137,10 @@ void GfxVideoItem::durationChange(int t_ms) {
 void GfxVideoItem::playVideo() {
   neverplayed = false;
   if (player) {
-    if (player->state() == QMediaPlayer::PausedState) {
+    if (player->playbackState() == QMediaPlayer::PausedState) {
       player->play();
       return;
-    } else if (player->state() == QMediaPlayer::PlayingState) {
+    } else if (player->playbackState() == QMediaPlayer::PlayingState) {
       player->pause();
       return;
     }
@@ -199,7 +199,7 @@ static QString hms(double t_s) {
 }
 
 void GfxVideoItem::showTime() {
-  QMediaPlayer::State state = player ? player->state()
+  QMediaPlayer::PlaybackState state = player ? player->playbackState()
     : QMediaPlayer::StoppedState;
 
   double dur_s = data()->dur();
@@ -212,13 +212,13 @@ void GfxVideoItem::showTime() {
 
 
   if (dur_s==0 && pos_s==0) {
-    annotation->setPlainText("⏵"); // or "▶" // big version
+    annotation->setPlainText("‣"); // or "▶" // big version
     return;
   }
 
-  QString txt = state==QMediaPlayer::PausedState ? "⏸"
-    : state==QMediaPlayer::PlayingState ? "⏵"
-    : "⏹";
+  QString txt = state==QMediaPlayer::PausedState ? "‣"
+    : state==QMediaPlayer::PlayingState ? "‖"
+    : "‣";
 
   annotation->setPlainText(txt + " " + hms(pos_s) + " / " + hms(dur_s));
   slider->setDuration(dur_s);

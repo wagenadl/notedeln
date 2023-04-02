@@ -48,7 +48,7 @@ GfxImageItem::GfxImageItem(GfxImageData *data, Item *parent):
   Item(data, parent) {
   loading = false;
   pixmap = new QGraphicsPixmapItem(this);
-  pixmap->setAcceptedMouseButtons(0);
+  pixmap->setAcceptedMouseButtons(Qt::NoButton);
 
   dragType = None;
   cropallowed = true;

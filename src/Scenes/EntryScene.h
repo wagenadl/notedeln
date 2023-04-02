@@ -72,8 +72,8 @@ protected:
   void waitForLoadComplete() override;
 protected slots:
   void titleEdited();
-  void vChanged(int block);
-  void futileMovement(int block);
+  void vChanged(BlockItem *block);
+  void futileMovement(BlockItem *block);
   void focusFirst(int sheet);
   void makeUnicellular(class TableData *);
   class TableBlockItem *makeMulticellular(int pos, class TextData *);
@@ -84,7 +84,6 @@ private:
   class TableBlockItem *injectTableBlock(class TableBlockData *, int iblock);
   class TextBlockItem *injectTextBlock(class TextBlockData *, int iblock);
   bool tryToPaste(SheetScene *s);
-  void remap();
   bool importDroppedImage(QPointF scenePos, int sheet,
 			  QImage const &img, class QUrl const &source);
   bool importDroppedVideo(QPointF scenePos, int sheet,
@@ -133,12 +132,11 @@ private:
   void addUnlockedWarning();
   int lastBlockAbove(QPointF scenepos, int sheet);
   // find the last block with bottom y above scene pos, or -1 if none
+  int indexOfBlock(class BlockItem const *) const; // -1 if none
 public slots:
   void gotoSheetOfBlock(int);
 private:
   QList<QGraphicsTextItem *> dateItems;
-  class QSignalMapper *vChangeMapper;
-  class QSignalMapper *futileMovementMapper;
 private:
   QList<class BlockItem *> blockItems;
   QMap<class BlockItem *, class QGraphicsTextItem *> blockDateItems;

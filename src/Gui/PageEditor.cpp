@@ -29,6 +29,7 @@
 
 #include <QDebug>
 #include <QKeyEvent>
+#include <QRegularExpression>
 
 class HibernationInfo {
 public:
@@ -51,7 +52,8 @@ PageEditor::PageEditor(SceneBank *bank): bank(bank) {
   if (ttl.isEmpty())
     setWindowTitle(appname);
   else
-    setWindowTitle(ttl.replace(QRegExp("\\s\\s*"), " ") + " - " + appname);
+    setWindowTitle(ttl.replace(QRegularExpression("\\s\\s*"), " ")
+                   + " - " + appname);
 }
 
 bool PageEditor::isHibernating() const {
@@ -87,29 +89,28 @@ void PageEditor::initialize() {
   view = new PageView(bank, this);
   toolview = new ToolView(view->mode(), view);
 
-  connect(toolview->toolbars()->navbar(), SIGNAL(goTOC(Qt::KeyboardModifiers)),
-	  view, SLOT(goTOC(Qt::KeyboardModifiers)));
-  connect(toolview->toolbars()->navbar(), SIGNAL(goFind()),
-	  view, SLOT(openFindDialog()));
-  connect(toolview->toolbars()->navbar(), SIGNAL(goPrint()),
-	  view, SLOT(openPrintDialog()));
-  connect(toolview->toolbars()->navbar(), SIGNAL(goEnd(Qt::KeyboardModifiers)),
-	  view, SLOT(lastPage(Qt::KeyboardModifiers)));
-  connect(toolview->toolbars()->navbar(), SIGNAL(goNew(Qt::KeyboardModifiers)),
-	  view, SLOT(newPage(Qt::KeyboardModifiers)));
-  connect(toolview->toolbars()->navbar(),
-	  SIGNAL(goRelative(int, Qt::KeyboardModifiers)),
-	  view, SLOT(goRelative(int, Qt::KeyboardModifiers)));
+  connect(toolview->toolbars()->navbar(), &Navbar::goTOC,
+	  view, &PageView::goTOC);
+  connect(toolview->toolbars()->navbar(), &Navbar::goFind,
+	  view, &PageView::openFindDialog);
+  connect(toolview->toolbars()->navbar(), &Navbar::goPrint,
+	  view, &PageView::openPrintDialog);
+  connect(toolview->toolbars()->navbar(), &Navbar::goEnd,
+	  view, &PageView::lastPage);
+ connect(toolview->toolbars()->navbar(), &Navbar::goNew,
+	  view, &PageView::newPage);
+ connect(toolview->toolbars()->navbar(), &Navbar::goRelative,
+	  view, &PageView::goRelative);
 
-  connect(view, SIGNAL(onEntryPage(int, int)),
-	  this, SLOT(nowOnEntry(int, int)));
-  connect(view, SIGNAL(onFrontMatter(int)),
-	  this, SLOT(nowOnFrontMatter(int)));
-  connect(view, SIGNAL(scaled(double)),
-	  toolview, SLOT(setScale(double)));
+  connect(view, &PageView::onEntryPage,
+	  this, &PageEditor::nowOnEntry);
+  connect(view, &PageView::onFrontMatter,
+	  this, &PageEditor::nowOnFrontMatter);
+  connect(view, &PageView::scaled,
+	  toolview, &ToolView::setScale);
 
-  connect(toolview, SIGNAL(drop(QDropEvent)),
-	  view, SLOT(drop(QDropEvent)));
+  //connect(toolview, &ToolView::drop,
+  //	  view, &ToolView::drop);
    
   toolview->setGeometry(0, 0, width(), height());
   setCentralWidget(view);
@@ -211,7 +212,7 @@ void PageEditor::nowOnFrontMatter(int p0) {
   toolview->toolbars()->navbar()->setPageType(pt);
 }
 
-void PageEditor::enterEvent(QEvent *e) {
+void PageEditor::enterEvent(QEnterEvent *e) {
   QMainWindow::enterEvent(e);
   toolview->show();
 }

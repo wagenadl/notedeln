@@ -34,7 +34,6 @@
 #include <QKeyEvent>
 #include <QPainter>
 #include <QPrinter>
-#include <QSignalMapper>
 
 #include "Notebook.h"
 #include "BookData.h"
@@ -45,8 +44,6 @@ BaseScene::BaseScene(Data *data, QObject *parent):
   ASSERT(book_);
   nSheets = 0;
   contInMargin = false;
-  focusFirstMapper = new QSignalMapper(this);
-  connect(focusFirstMapper, SIGNAL(mapped(int)), SLOT(focusFirst(int)));
 }
 
 void BaseScene::populate() {
@@ -218,12 +215,10 @@ void BaseScene::setSheetCount(int n) {
       if (k>0)
         if (sheets[0]->fancyTitleItem()->isWritable())
           s->fancyTitleItem()->makeWritable();
-      connect(s, SIGNAL(leaveTitle()),
-	      focusFirstMapper, SLOT(map()));
-      focusFirstMapper->setMapping(s, k);
-      connect(s->fancyTitleItem()->document(),
-              SIGNAL(contentsChanged(int, int, int)),
-	      SLOT(titleEdited()));
+      connect(s, &SheetScene::leaveTitle,
+	      this, [this, k]() { focusFirst(k); });
+      connect(s->fancyTitleItem()->document(), &TextItemDoc::contentsChanged,
+	      this, &BaseScene::titleEdited);
       
     } else {
       s->setTitle(title());
@@ -292,7 +287,7 @@ QList<QGraphicsView *> BaseScene::allViews() const {
   foreach (SheetScene *s, sheets)
     foreach (QGraphicsView *v, s->views())
       set.insert(v);
-  return set.toList();
+  return set.values();
 }
 
 Notebook *BaseScene::book() const {

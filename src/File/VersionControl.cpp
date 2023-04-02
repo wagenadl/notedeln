@@ -93,7 +93,7 @@ bool update(QString path, QString program) {
     se = "(no message)";
 
   QMessageBox mb(QMessageBox::Warning, "eln version control",
-		 "Update of '" + path + "' failed.", 0);
+		 "Update of '" + path + "' failed.", QMessageBox::NoButton);
   QPushButton *editb
     = mb.addButton("Edit anyway", QMessageBox::DestructiveRole);
   QPushButton *rob
@@ -179,7 +179,7 @@ bool isGitAvailable() {
   static bool inited = false;
   if (!inited) {
     QProcess p;
-    p.start("git --version");
+    p.start("git", QStringList{"--version"});
     av = p.waitForFinished(3000);
     inited = true;
   }

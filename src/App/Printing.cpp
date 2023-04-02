@@ -41,8 +41,8 @@ static QList<int> startPagesOfSearchResults() {
   for (QList<SearchResult> const &lst: SearchResultScene::allOpenSearches())
     for (auto const &sr: lst) 
       pp.insert(sr.startPageOfEntry);
-  QList<int> ppp = pp.toList();
-  qSort(ppp.begin(), ppp.end());
+  QList<int> ppp = pp.values();
+  std::sort(ppp.begin(), ppp.end());
   return ppp;
 }
 

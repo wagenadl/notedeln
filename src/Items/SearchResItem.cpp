@@ -23,6 +23,7 @@
 #include <QTextCursor>
 #include <QDebug>
 #include <QGraphicsSceneMouseEvent>
+#include <QRegularExpression>
 
 SearchResItem::SearchResItem(TOCEntry *data, BaseScene *parent):
   TOCItem(data, parent) {
@@ -71,7 +72,7 @@ void SearchResItem::addResult(SearchResult const &res,
 int SearchResItem::refineBreak(QString s, int idx) {
   if (idx<0)
     return idx;
-  return s.indexOf(QRegExp("\\s"), idx);
+  return s.indexOf(QRegularExpression("\\s"), idx);
 }
 
 int SearchResItem::decentBreak(QString s, int first, int last) {
@@ -82,22 +83,22 @@ int SearchResItem::decentBreak(QString s, int first, int last) {
   if (idx>=0 && idx<last) 
     return idx;
 
-  idx = s.indexOf(QRegExp("[!?][^)]"), first);
+  idx = s.indexOf(QRegularExpression("[!?][^)]"), first);
   idx = refineBreak(s, idx);
   if (idx>=0 && idx<last) 
     return idx;
 
-  idx = s.indexOf(QRegExp("[!?,;]"), first);
+  idx = s.indexOf(QRegularExpression("[!?,;]"), first);
   idx = refineBreak(s, idx);
   if (idx>=0 && idx<last) 
     return idx;
 
-  idx = s.indexOf(QRegExp(QString::fromUtf8("[])”’]")), first);
+  idx = s.indexOf(QRegularExpression(QString::fromUtf8("[])”’]")), first);
   idx = refineBreak(s, idx);
   if (idx>=0 && idx<last) 
     return idx;
 
-  idx = s.indexOf(QRegExp("\\s"), first);
+  idx = s.indexOf(QRegularExpression("\\s"), first);
   if (idx>=0 && idx<last) 
     return idx;
 

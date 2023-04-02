@@ -21,8 +21,8 @@
 DefaultingTextItem::DefaultingTextItem(TextData *data, Item *parent,
 				       bool noFinalize, TextItemDoc *altdoc):
   TextItem(data, parent, noFinalize, altdoc) {
-  connect(document(), SIGNAL(contentsChanged(int, int, int)),
-	  this, SIGNAL(textChanged()));
+  connect(document(), &TextItemDoc::contentsChanged,
+	  this, &DefaultingTextItem::textChanged);
 }
 
 DefaultingTextItem::~DefaultingTextItem() {

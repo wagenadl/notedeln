@@ -43,6 +43,7 @@ private:
   class QSignalMapper *mp;
   bool needToSave;
   class QTimer *saveTimer;
+  QMap<QObject *, QMetaObject::Connection> cons;
 };
 
 #endif

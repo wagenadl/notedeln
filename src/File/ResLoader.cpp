@@ -61,7 +61,8 @@ void ResLoader::start() {
 
 void ResLoader::startDownload() {
   downloader = new Downloader(src, this);
-  connect(downloader, SIGNAL(finished()), SLOT(downloadFinished()));
+  connect(downloader, &Downloader::finished,
+          this, &ResLoader::downloadFinished);
   downloader->start(dst->fileName());
 }
 
@@ -144,12 +145,13 @@ void ResLoader::processFinished() {
 
 void ResLoader::startProcess(QString prog, QStringList args) {
   proc = new QProcess(this);
-  connect(proc, SIGNAL(finished(int, QProcess::ExitStatus)),
-	  this, SLOT(processFinished()));
-  connect(proc, SIGNAL(error(QProcess::ProcessError)),
-	  this, SLOT(processError()));
+  connect(proc, &QProcess::finished,
+	  this, &ResLoader::processFinished);
+  connect(proc, &QProcess::errorOccurred,
+	  this, &ResLoader::processError);
   proc->start(prog, args);
   proc->closeWriteChannel();
+  
 }
 
 bool ResLoader::parentAlive() const {
@@ -200,7 +202,7 @@ bool ResLoader::makePdfAndPreview() {
     parentRes->setArchiveFilename(parentRes->archiveFilename() + ".pdf");
 
   QStringList args;
-  args.append("-480");
+  args.append("-m");
   args.append(src.toString());
   args.append(parentRes->archivePath());
   if (!parentRes->previewFilename().isEmpty())

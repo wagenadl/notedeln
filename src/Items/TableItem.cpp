@@ -27,8 +27,8 @@
 
 TableItem::TableItem(TableData *data, Item *parent):
   TextItem(data, parent) {
-  connect(this, SIGNAL(mustNormalizeCursor()),
-	  SLOT(normalizeCursorPosition()),
+  connect(this, &TableItem::mustNormalizeCursor,
+	  this, &TableItem::normalizeCursorPosition,
 	  Qt::QueuedConnection);
 }
 

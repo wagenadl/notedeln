@@ -20,7 +20,7 @@
 #include "TextItemDocData.h"
 #include "TextData.h"
 #include "TextSplitter.h"
-#include <QRegExp>
+#include <QRegularExpression>
 #include <QFontMetricsF>
 #include <QPainter>
 #include <math.h>
@@ -670,7 +670,7 @@ void TextItemDoc::render(QPainter *p, QList<TransientMarkup> tmm) const {
 	  * 0.6 * d->xheight;
 	QPen pn = p->pen();
 	QPen p1 = pn;
-	qreal h, s_, l, a;
+	float h, s_, l, a;
         if (s.contains(MarkupData::LateStrikeThrough)) {
           pn.setColor(d->text->style().color("latenote-line-color"));
         } else {
@@ -689,7 +689,7 @@ void TextItemDoc::render(QPainter *p, QList<TransientMarkup> tmm) const {
 	double y1 = y0 + 0.25 * d->xheight;
 	QPen pn = p->pen();
 	QPen p1 = pn;
-	qreal h, s, l, a;
+	float h, s, l, a;
 	QColor c = pn.color();
 	c.getHslF(&h, &s, &l, &a);
 	l *= 1.7; if (l>1) l = 1;
