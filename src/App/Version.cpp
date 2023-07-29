@@ -34,7 +34,7 @@ namespace Version {
     if (ver.isEmpty()) {
       ver = QString::number(ELN_VERSION_MAJOR);
       ver += "." + QString::number(ELN_VERSION_MINOR);
-      if (ELN_VERSION_MINOR & 1)
+      if (ELN_VERSION_PATCH & 1)
         // development version, include build date
         ver += "." + buildDate().toString("yyMMdd");
       else
