@@ -22,7 +22,9 @@
 
 #include "GfxImageItem.h"
 #include "GfxVideoData.h"
+#ifdef QT_MULTIMEDIAWIDGETS_LIB
 #include <QMediaPlayer>
+#endif
 
 class GfxVideoItem: public GfxImageItem {
   Q_OBJECT;
@@ -42,9 +44,13 @@ protected slots:
   void durationChange(int t_ms);
   void showTime();
 private:
+#ifdef QT_MULTIMEDIAWIDGETS_LIB  
   class QMediaPlayer *player;
   class QGraphicsVideoItem *vidmap;
-  //  class ToolItem *playbutton;
+#else
+  void *player;
+  void *vidmap;
+#endif
   class QGraphicsTextItem *annotation;
   class VideoSlider *slider;
   bool neverplayed;

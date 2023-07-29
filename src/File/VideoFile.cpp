@@ -3,20 +3,22 @@
 #include "VideoFile.h"
 
 #include <QEventLoop>
-#include <QMediaPlayer>
-#include <QVideoWidget>
 #include <QDebug>
 #include <QDateTime>
 #include <QTimer>
+#ifdef QT_MULTIMEDIA_LIB
+#include <QMediaPlayer>
 #include <QVideoSink>
 #include <QVideoFrame>
-
+#endif
 
 VideoFile::VideoFile(QUrl url): url(url) {
   tested = false;
+  dur = 0;
 }
 
 bool VideoFile::checkValidity() {
+#ifdef QT_MULTIMEDIA_LIB
   qDebug() << "videofile checkvalidity" << tested << valid;
   if (tested)
     return valid;
@@ -64,6 +66,9 @@ bool VideoFile::checkValidity() {
   valid = !keyimg.isNull();
   qDebug() << "videofile returned" << tested << valid << s << keyimg.size();
   return valid;
+#else
+  return false;
+#endif
 }
 
 QImage VideoFile::keyImage() const {
