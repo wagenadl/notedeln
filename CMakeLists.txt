@@ -14,6 +14,7 @@ cmake_minimum_required(VERSION 3.16)
 # Set the project name and version
 project(NotedELN VERSION 1.5.0)
 set(CMAKE_PROJECT_HOMEPAGE_URL "http://danielwagenaar.net/eln")
+set(CMAKE_EXPORT_COMPILE_COMMANDS 1) # for clangd
 
 ######################################################################
 # Specify the C++ standard [must be done _before_ adding executable!]

@@ -38,3 +38,4 @@ release/
 /src/ui_PrintDialog.h
 /webgrab/Makefile
 /webgrab/webgrab
+.cache

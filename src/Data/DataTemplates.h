@@ -20,6 +20,8 @@
 
 #define DATATEMPLATES_H
 
+#include <QList>
+
 template <class T> QList<T *> Data::children() const {
   QList<T *> res;
   for (QList<Data*>::const_iterator i=children_.begin();
