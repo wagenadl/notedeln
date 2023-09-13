@@ -1,3 +1,25 @@
+NotedELN 1.5.2
+
+  User-visible changes:
+
+  * Video support now optional at build time. This means NotedELN can
+    now build on platforms where QtMultiMedia is not available.
+
+  -- Daniel A. Wagenaar <daw@caltech.edu>  Sat, 29 Jul 2023 09:58:00 -0700
+
+NotedELN 1.5.0
+
+  Major maintenance change:
+
+  * Now uses Qt6
+
+  Documentation change:
+
+  * Documentation now based on sphinx. Github.com and ReadTheDocs.io
+    work behind the scenes to keep online docs updated.
+
+  -- Daniel A. Wagenaar <daw@caltech.edu>  Mon, Mar 20 14:35:02 2023 -0700
+
 NotedELN 1.4.99
 
   Preparing for a 1.5.0 release that uses Qt6
@@ -30,6 +52,7 @@ NotedELN 1.4.6
   * Bugfix to trySubscript
 
   Documentation changes:
+
   * Updated README.md
   * Userguide LaTeX improvements for foofy typesetting
   * Distinguish front matter roman numbering; use titlepage for title page

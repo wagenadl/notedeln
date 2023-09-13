@@ -24,12 +24,16 @@
 #include <QGraphicsSceneHoverEvent>
 #include <QKeyEvent>
 #include "ResManager.h"
-#include <QGraphicsVideoItem>
-#include <QMediaPlayer>
 #include "ToolItem.h"
 #include <QGraphicsTextItem>
 #include <QGraphicsDropShadowEffect>
 #include "VideoSlider.h"
+
+#ifdef QT_MULTIMEDIAWIDGETS_LIB
+#include <QGraphicsVideoItem>
+#include <QMediaPlayer>
+#endif
+
 
 static Item::Creator<GfxVideoData, GfxVideoItem> c("gfxvideo");
 
@@ -40,7 +44,11 @@ GfxVideoItem::GfxVideoItem(GfxVideoData *data, Item *parent):
   vidmap = 0;
   neverplayed = true;
 
+#ifdef QT_MULTIMEDIAWIDGETS_LIB
   annotation = new QGraphicsTextItem("⏵");
+#else
+  annotation = new QGraphicsTextItem("");
+#endif
   annotation->setFont(style().font("text-font"));
   annotation->setDefaultTextColor(QColor(255,255,128)); 
   QGraphicsDropShadowEffect *eff = new QGraphicsDropShadowEffect;
@@ -78,14 +86,17 @@ GfxVideoItem::~GfxVideoItem() {
 }
 
 void GfxVideoItem::dragSlider(double pos_s) {
+#ifdef QT_MULTIMEDIAWIDGETS_LIB
   if (!player)
     loadVideo();
   if (player->playbackState()==QMediaPlayer::StoppedState) 
     player->pause();
   player->setPosition(pos_s*1000);
+#endif
 }
 
 void GfxVideoItem::loadVideo() {
+#ifdef QT_MULTIMEDIAWIDGETS_LIB
   bool firsttime = !vidmap;
 
   if (firsttime) {
@@ -126,6 +137,9 @@ void GfxVideoItem::loadVideo() {
   }
 
   vidmap->setSize(pixmap->boundingRect().size());
+#else
+  #warning Video playing disabled
+#endif
 }
 
 void GfxVideoItem::durationChange(int t_ms) {
@@ -135,6 +149,7 @@ void GfxVideoItem::durationChange(int t_ms) {
 }
 
 void GfxVideoItem::playVideo() {
+#ifdef QT_MULTIMEDIAWIDGETS_LIB
   neverplayed = false;
   if (player) {
     if (player->playbackState() == QMediaPlayer::PausedState) {
@@ -146,7 +161,9 @@ void GfxVideoItem::playVideo() {
     }
   }
   loadVideo();
-  player->play();
+  if (player)
+    player->play();
+#endif
 }
 
 void GfxVideoItem::mousePressEvent(QGraphicsSceneMouseEvent *e) {
@@ -199,6 +216,7 @@ static QString hms(double t_s) {
 }
 
 void GfxVideoItem::showTime() {
+#ifdef QT_MULTIMEDIAWIDGETS_LIB
   QMediaPlayer::PlaybackState state = player ? player->playbackState()
     : QMediaPlayer::StoppedState;
 
@@ -223,4 +241,5 @@ void GfxVideoItem::showTime() {
   annotation->setPlainText(txt + " " + hms(pos_s) + " / " + hms(dur_s));
   slider->setDuration(dur_s);
   slider->setPosition(pos_s);
+#endif
 }

@@ -12,7 +12,8 @@ cmake_minimum_required(VERSION 3.16)
 
 ######################################################################
 # Set the project name and version
-project(NotedELN VERSION 1.5.0)
+project(NotedELN VERSION 1.5.2)
+
 set(CMAKE_PROJECT_HOMEPAGE_URL "http://danielwagenaar.net/eln")
 set(CMAKE_EXPORT_COMPILE_COMMANDS 1) # for clangd
 
@@ -30,8 +31,9 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 find_package(Qt6
-  COMPONENTS Widgets Network Svg PrintSupport Multimedia MultimediaWidgets
-  REQUIRED)
+  REQUIRED COMPONENTS Widgets Network Svg PrintSupport
+  OPTIONAL_COMPONENTS Multimedia MultimediaWidgets
+  )
 
 ######################################################################
 # Add the executables
@@ -46,8 +48,12 @@ target_link_libraries(notedeln Qt6::Widgets)
 target_link_libraries(notedeln Qt6::Network)
 target_link_libraries(notedeln Qt6::Svg)
 target_link_libraries(notedeln Qt6::PrintSupport)
-target_link_libraries(notedeln Qt6::Multimedia)
-target_link_libraries(notedeln Qt6::MultimediaWidgets)
+if(TARGET Qt6::Multimedia)
+  target_link_libraries(notedeln Qt6::Multimedia)
+endif()
+if(TARGET Qt6::MultimediaWidgets)
+  target_link_libraries(notedeln Qt6::MultimediaWidgets)
+endif()
 
 if (WIN32)
   target_link_libraries(notedeln secur32.lib)
