@@ -1,50 +1,89 @@
-Essential note taking
-=====================
+################
+Getting Started
+################
 
-NotedELN has a deliberately sparse user interface intended to
-encourage you to write notes without demanding too much of your
-attention for technicalities and esthetical choices. It is the
-author’s hope that the simplicity of the system will allow users to
-come to experience note taking as a natural and unremarkable part of
-their experimental work and data analysis rather than as a separate
-chore.
+This guide contains all the information you need to get started using NotedELN.
 
-Creating a new notebook
-------------------------
+************************
+Create a New Notebook
+************************
 
-When NotedELN starts, it displays a list of recent notebooks and also
-offers the choice of opening a notebook that is not on the list or to
-create a new notebook. When you click “Create new notebook,” it will
-immediately ask you where you want to store that notebook. It will
-then open the front page of your notebook, where you can change its
-title and add your name as the author as well as your affiliation or
-other relevant information. It is highly recommended that you give
-your notebook a meaningful title, as that title will show up in
-NotedELN’s opening screen in the future.
+#. Open NotedELN.
 
-Other options on the opening screen are “Open other existing
-notebook,” which speaks for itself, and “Clone hosted notebook for
-local use,” which is explained under `Archiving (version control)`,
-below.
+   The start page appears.
 
-To leave the front page and go to the first actual page of your new
-notebook, press [Page Down] or [Ctrl][Shift][+] on your keyboard, or
-use the navigation buttons in the tool bar.
+   .. image:: images/start-page.png
 
-Creating new entries
---------------------
+#. Click **Create new notebook**.
 
-To create a new entry, press [Ctrl][Shift][+] or click the |nav-plus| icon in
-the tool bar. To encourage you to give your entries meaningful titles,
-the cursor is positioned in the title field. The title you give to
-your entry here is automatically copied to the table of contents.
+   The *Create new notebook* window appears.
+
+   .. image:: images/create-new-notebook.png
+
+#. Use one of the following methods to specify the location and name of the folder where the notebook files will be stored:
+
+   * In the *Location* field, enter the location to store the notebook. If you enter a directory that does not currently exist, NotedELN creates it.
+
+   * Click |icon-explorer| to open a file explorer, navigate to the desired location and enter the desired folder name.
+
+   .. note::
+
+      NotedELN folder names have the format *[name].nb*.
+
+   The new notebook opens.
+
+   .. image:: images/new-notebook.png
+
+#. Select the *Title* text and replace it with a suitable title.
+
+   The *Title* text will appear on the start page the next time you open NotedELN.
+
+#. Select the *Name* text and replace it with your name.
+
+#. Select the *Address* text and replace it with your address or affiliation.
+
+#. To view the first page of the notebook, click |icon-next| on the *Toolbar*, or press [Page Up].
+
+.. note::
+
+   The notebook auto-saves every 10 seconds, or when you navigate to a new page. There is no *Save* option.
+
+You can configure a backup of the notebook using the *Archiving (backup)* option on the *Create new notebook* window. For more information, see :ref:`Archiving<VC>`.
+
+.. |icon-explorer| image:: images/icons/icn-explorer.png
+                   :class: no-scaled-link
+
+.. |icon-next| image:: images/icons/icn-next.svg
+                   :class: no-scaled-link
+
+************************
+Create a New Entry
+************************
+
+#. From the *Toolbar*, click |icon-plus|, or press [CTRL][SHIFT][+].
+
+   A new page appears.
+
+   .. image:: images/new-entry.png
+
+#. Select the *Title* text and replace it with a suitable title.
+
+   The *Title* text appears in the table of contents.
+
+   .. note::
+
+      The *Date* value is read-only, and is updated automatically to the current date on your local system.
+
+#. To add content to the page, press [Enter], or [Tab], or click anywhere in the *Entry area*.
+
+   You can add text, graphics, videos, tables, and links.
+
+.. |icon-plus| image:: images/icons/icn-plus.svg
+                   :class: no-scaled-link
 
 .. |nav-plus| image:: nav-plus.png
               :height: 3ex
-              :class: no-scaled-link                   
-
-To move from the title to the first paragraph of your entry, simple
-press [Enter] or [Tab].
+              :class: no-scaled-link
 
 Adding text
 -----------
@@ -57,7 +96,7 @@ edit an entry that is older than 24 hours.
 
 .. |type| image:: type.png
               :height: 3ex
-              :class: no-scaled-link                   
+              :class: no-scaled-link
 
 
 Text may be cut-and-pasted as you would expect using [Ctrl][X], [Ctrl][C], and [Ctrl][V] as in other programs, but NotedELN does not have an “undo” mechanism. To protect you against accidental deletion, you have to explicitly press [Delete] to delete a selection.
@@ -79,15 +118,15 @@ about the perfect color for your annotation.)
 
 .. |mark| image:: mark.png
               :height: 3ex
-              :class: no-scaled-link                   
+              :class: no-scaled-link
 
 .. |squiggle| image:: squiggle.png
               :height: 3ex
-              :class: no-scaled-link                   
+              :class: no-scaled-link
 
 .. |straight| image:: straight.png
               :height: 3ex
-              :class: no-scaled-link                   
+              :class: no-scaled-link
 
 Text annotations can be added to the graphics canvas using the |note|
 icon ([F6]) and either clicking to place text or dragging to place
@@ -96,7 +135,7 @@ changed (again, on purpose).
 
 .. |note| image:: note.png
               :height: 3ex
-              :class: no-scaled-link                   
+              :class: no-scaled-link
 
 Images, plot symbols, freehand and straight lines, and text
 annotations can be moved around, cropped, and resized by selecting the
@@ -106,7 +145,7 @@ selecting the |move| icon.
 
 .. |move| image:: move.png
               :height: 3ex
-              :class: no-scaled-link                   
+              :class: no-scaled-link
 
 Also with the |move| icon selected, you can change the wrap width of
 text annotations by dragging the right edge of your annotation. The
@@ -128,7 +167,7 @@ By popular demand, you can now embed [#f1]_ videos in NotedELN. Support is
 limited to whatever formats Qt can play on your system.  Drag a video
 file into your notebook just as you would an image file. Embedded
 videos are outfitted with play/pause controls and a slider to scrub
-through the timeline. 
+through the timeline.
 
 Video objects can be resized and deleted as other images. At present,
 they cannot be cropped.
@@ -198,26 +237,26 @@ untitled and empty entry abandons that entry.)
 .. |nav-prev| image:: nav-prev.png
               :height: 3ex
               :class: no-scaled-link
-                      
+
 .. |nav-next| image:: nav-next.png
               :height: 3ex
               :class: no-scaled-link
 
 .. |nav-p10| image:: nav-p10.png
               :height: 3ex
-              :class: no-scaled-link                 
+              :class: no-scaled-link
 
 .. |nav-n10| image:: nav-n10.png
               :height: 3ex
-              :class: no-scaled-link                 
-                      
+              :class: no-scaled-link
+
 .. |nav-toc| image:: nav-toc.png
               :height: 3ex
-              :class: no-scaled-link                 
+              :class: no-scaled-link
 
 .. |nav-end| image:: nav-end.png
               :height: 3ex
-              :class: no-scaled-link                 
+              :class: no-scaled-link
 
 
 Saving your work
@@ -249,7 +288,7 @@ selected.
               :height: 3ex
               :class: no-scaled-link
 
-                      
+
 
 Exporting and printing
 ---------------------------
