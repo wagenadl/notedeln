@@ -86,15 +86,15 @@ void TextItemDocData::recalcSomeWidths(int start, int end) const {
   for (int n=start; n<end; n++) {
     QChar c = txt[n];
     QString s(c);
+    if (edges.contains(n)) {
+      current = edges[n];
+      fm = fv.metrics(current);
+    }
     if (Unicode::isHighSurrogate(c) && n+1<N) {
       // utf16 long characters
       s = txt.mid(n, 2);
       charwidths[n] = 0; // store width with second of pair
       n += 1;
-    }
-    if (edges.contains(n)) {
-      current = edges[n];
-      fm = fv.metrics(current);
     }
     if (edges.contains(n+1) || n+1>=N
 	|| txt[n+1].category()==QChar::Other_Control) {
