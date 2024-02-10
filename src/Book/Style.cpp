@@ -104,7 +104,10 @@ int Style::integer(QString k) const {
 }
 
 QFont Style::font(QString k) const {
-  QFont f(string(k + "-family"));
+  QString fam = string(k + "-family");
+  QFont f(fam);
+  if (fam=="Ubuntu")
+    f.setWeight(QFont::Weight(473));
   f.setPixelSize(int((100./72)*real(k + "-size")));
   f.setHintingPreference(QFont::PreferVerticalHinting);
   return f;

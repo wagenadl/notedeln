@@ -20,6 +20,7 @@
 #include <QFontDatabase>
 #include <QStringList>
 #include <QDebug>
+#include <QFont>
 
 Fonts::Fonts() {
   QStringList ff;
@@ -27,7 +28,10 @@ Fonts::Fonts() {
   ff << ":fonts/Ubuntu-B.ttf";
   ff << ":fonts/Ubuntu-RI.ttf";
   ff << ":fonts/Ubuntu-R.ttf";
+  ff << ":fonts/NotoSansMath-Regular.ttf";
 
   foreach (QString f, ff)
     QFontDatabase::addApplicationFont(f);
+
+  QFont::insertSubstitution("Ubuntu", "Noto Sans Math");
 }
