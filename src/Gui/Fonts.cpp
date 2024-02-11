@@ -24,14 +24,14 @@
 
 Fonts::Fonts() {
   QStringList ff;
-  ff << ":fonts/Ubuntu-BI.ttf";
-  ff << ":fonts/Ubuntu-B.ttf";
-  ff << ":fonts/Ubuntu-RI.ttf";
-  ff << ":fonts/Ubuntu-R.ttf";
+  ff << ":fonts/UbuntuOrigWeight-BI.ttf";
+  ff << ":fonts/UbuntuOrigWeight-B.ttf";
+  ff << ":fonts/UbuntuOrigWeight-RI.ttf";
+  ff << ":fonts/UbuntuOrigWeight-R.ttf";
   ff << ":fonts/NotoSansMath-Regular.ttf";
 
   foreach (QString f, ff)
     QFontDatabase::addApplicationFont(f);
 
-  QFont::insertSubstitution("Ubuntu", "Noto Sans Math");
+  QFont::insertSubstitution("UbuntuOrigWeight", "Noto Sans Math");
 }
