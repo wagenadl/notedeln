@@ -1,0 +1,6 @@
+Noto Sans Math Regular is included with NotedELN as a fallback font
+for mathematical Greek characters that are not included in the Ubuntu
+font family. The included copy of Noto Sans Math Regular is version
+2.001, as packaged with Ubuntu Linux 23.10.
+
+The SIL Open Font License applies.

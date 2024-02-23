@@ -1,0 +1,31 @@
+FONTLOG for the UbuntuOrigWeight fonts
+
+This file provides detailed information on the UbuntuOrigWeight Font
+Software.  This information should be distributed along with the
+UbuntuOrigWeight fonts and any derivative works.
+
+Basic Font Information
+
+UbuntuOrigWeight is a Unicode typeface family that is an exact copy of
+version 0.80 of a subset of the Ubuntu font family. The sole reason
+why UbuntuOrigWeight exists is that in version 1.0 of the Ubuntu font
+family the weights were dramatically changed. As such, documents
+typeset in “Ubuntu Regular” in 2022 look very different when viewed in
+2024. As this is unacceptable for lab notebooks, NotedELN now
+incorporates a frozen version of the Ubuntu fonts.
+
+The name “UbuntuOrigWeight” was chosen to respect clauses 2) (a) and
+2) (c) of the Ubuntu Font License.
+
+ChangeLog
+
+10 February 2024 (Daniel Wagenaar) UbuntuOrigWeight version 0.80
+- No changes from Ubuntu version 0.80
+
+Acknowledgements
+
+Daniel Wagenaar (daw@caltech.edu; www.danielwagenaar.net) does not
+deserve any of the credit for these fonts, as they are identical
+copies of the Ubuntu fonts.
+
+The original Ubuntu Font License applies.
