@@ -97,6 +97,7 @@ bool TableItem::keyPressAsMotion(QKeyEvent *e) {
     }
     return true;
   case Qt::Key_Tab:
+    tryScriptStyles();
     if (data()->rows()==1 && !shft && !ctrl) {
       splitColumn(col, cursor.position()-cel.firstPosition());
       return true;
@@ -120,6 +121,7 @@ bool TableItem::keyPressAsMotion(QKeyEvent *e) {
     }
     return true;
   case Qt::Key_Backtab:
+    tryScriptStyles();
     if (ctrl) 
       insertColumn(col++);
     --col;
@@ -130,6 +132,7 @@ bool TableItem::keyPressAsMotion(QKeyEvent *e) {
     gotoCell(row, col, true);
     return true;
   case Qt::Key_Enter: case Qt::Key_Return:
+    tryScriptStyles();
     if (shft && ctrl)
       insertRow(row++);
     else if (ctrl)

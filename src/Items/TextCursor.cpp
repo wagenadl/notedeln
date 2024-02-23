@@ -363,7 +363,10 @@ int TextCursor::startOfScript(bool requirebrace) const {
     if (txt[p]==QChar('^') || txt[p]==QChar('_')) 
       if (!requirebrace || (p<txt.length()-1 && txt[p+1]==QChar('{')))
         return p;
+    if (txt[p]==QChar('\n')) // table cell boundary
+      return -1;
     --p;
+    
   }
   return -1;
 }
