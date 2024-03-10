@@ -54,6 +54,7 @@ Restacker::Restacker(QList<BlockItem *> const &blocks, int s):
   // its footnotes may move.
   isheet = blocks[start]->data()->sheet();
   if (isheet<0) {
+    qDebug() << "Negative sheet number" << isheet << "for block" << start;
     isheet = 0;
     start = 0;
   }
@@ -61,9 +62,13 @@ Restacker::Restacker(QList<BlockItem *> const &blocks, int s):
   // back to first block on sheet
   while (start>0) {
     if (blocks[start-1]->data()->sheet()!=isheet) {
+      if (blocks[start-1]->data()->sheet()<0)
+        qDebug() << "Negative sheet number" << blocks[start-1]->data()->sheet() << "for block" << start-1;
       if (blocks[start-1]->data()->sheetSplits().isEmpty())
 	break;
       isheet = blocks[start-1]->data()->sheet();
+      if (isheet<0)
+        isheet = 0;
     }
     --start;
   }
