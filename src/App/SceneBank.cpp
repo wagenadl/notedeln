@@ -66,6 +66,7 @@ CachedPointer<EntryScene> SceneBank::entryScene(int startPage) {
      which gets deleted along with its regular payload. That would work,
      but let me do it later.
   */
+  qDebug() << "scenebank entryscene" << startPage;
   TOCEntry *te = nb->toc()->tocEntry(startPage);
   ASSERT(te);
   CachedEntry entry(nb->entry(startPage));
