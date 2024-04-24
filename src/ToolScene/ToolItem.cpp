@@ -245,6 +245,7 @@ void ToolItem::popup() {
   balloon->setZValue(100);
   QGraphicsTextItem *ti = new QGraphicsTextItem(balloon);
   ti->setZValue(1);
+  ti->setDefaultTextColor(style.color("popup-foreground-color"));
   ti->document()->setDefaultFont(style.font("popup-font"));
   ti->setHtml(helpText);
   if (ti->boundingRect().width()>500)

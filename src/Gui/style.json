@@ -160,6 +160,7 @@
 "popup-margin": 3,
 "popup-delay": 1.0,
 "popup-background-color": "#ffffc0",
+"popup-foreground-color": "#000000",
 "auto-timestamp-min-dt": 0,
 "timestamp-font-family": "Ubuntu",
 "timestamp-font-size": 11,

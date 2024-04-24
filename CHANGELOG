@@ -1,3 +1,14 @@
+NotedELN 1.5.4
+
+  Bugfix:
+
+  * Creating superscripts or subscripts inside tables now works as
+    intended: Scripts are confined to individual cells.
+
+  * Foreground color on popup help now black even in dark theme
+
+  -- Daniel A. Wagenaar <daw@caltech.edu>  Wed, 24 Apr 2024 16:04:00 -0700
+
 NotedELN 1.5.2
 
   User-visible changes:
