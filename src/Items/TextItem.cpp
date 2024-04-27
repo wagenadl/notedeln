@@ -809,6 +809,8 @@ bool TextItem::keyPressAsInsertion(QKeyEvent *e) {
   if (!cursor.hasSelection()) {
     if (QString(")}]”’»").contains(now))
       magicInsertClose(now);
+    else if (QString("({[“‘«").contains(now))
+      magicInsertOpen(now);
     else
       cursor.insertText(now);
     if (now=="}" && mode()->typeMode()==Mode::Math) 
@@ -816,6 +818,19 @@ bool TextItem::keyPressAsInsertion(QKeyEvent *e) {
     ensureCursorVisible();
   }
   return true;
+}
+
+void TextItem::magicInsertOpen(QString txt) {
+  int prepos = cursor.position();
+  cursor.insertText(txt);
+  int postpos = cursor.position();
+  for (MarkupData *m: data()->markups()) {
+    if (m->start() == postpos
+        && (m->style()==MarkupData::Superscript
+            || m->style()==MarkupData::Subscript)) {
+      m->setStart(prepos);
+    }
+  }
 }
 
 void TextItem::magicInsertClose(QString txt) {
