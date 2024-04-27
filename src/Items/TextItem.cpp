@@ -596,9 +596,6 @@ bool TextItem::keyPressWithControl(QKeyEvent *e) {
   if (keyPressAsSimpleStyle(e->key(), textCursor()))
     return true;
 
-  if (mode()->typeMode()==Mode::Math)
-    tryTeXCode(true);
-  
   switch (e->key()) {
   case Qt::Key_V:
     if (!cursor.hasSelection())
@@ -1010,8 +1007,17 @@ void TextItem::inputMethodEvent(QInputMethodEvent *e) {
     Item::inputMethodEvent(e);
   }
 }
-  
+
+void TextItem::keyReleaseEvent(QKeyEvent *e) {
+  if (mode()!=Mode::Type)
+    return;
+  if (e->key() == Qt::Key_Control && controltap)
+    if (mode()->typeMode()==Mode::Math)
+      tryTeXCode(true);
+}
+
 void TextItem::keyPressEvent(QKeyEvent *e) {
+  controltap = e->key() == Qt::Key_Control;
   if (clips() && !clip_.contains(posToPoint(cursor.position()))) {
     qDebug() << "keypress out of rect"<< posToPoint(cursor.position()) << clip_;
     clearFocus();
