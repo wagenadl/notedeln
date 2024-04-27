@@ -111,6 +111,7 @@ protected slots:
   virtual void redate();
 protected:
   void ensureCursorVisible();
+  void magicInsertClose(QString txt);
 protected:
   Qt::CursorShape cursorShape(Qt::KeyboardModifiers) const;
   bool changesCursorShape() const;

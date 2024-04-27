@@ -807,12 +807,41 @@ bool TextItem::keyPressAsInsertion(QKeyEvent *e) {
       return false; 
 
   if (!cursor.hasSelection()) {
-    cursor.insertText(now);
+    if (QString(")}]”’»").contains(now))
+      magicInsertClose(now);
+    else
+      cursor.insertText(now);
     if (now=="}" && mode()->typeMode()==Mode::Math) 
       tryScriptStyles(true);
     ensureCursorVisible();
   }
   return true;
+}
+
+void TextItem::magicInsertClose(QString txt) {
+  int prepos = cursor.position();
+  cursor.insertText(txt);
+  QString open = "({[“‘«";
+  QString close = ")}]”’»";
+  int idx = close.indexOf(txt);
+  if (idx<0)
+    return;
+  QChar opener = open[idx];
+  int postpos = cursor.position();
+  for (MarkupData *m: data()->markups()) {
+    if (m->end() == prepos) {
+      int count = 0;
+      for (int p = m->start(); p<prepos; p++) {
+        QChar c = document()->characterAt(p);
+        if (c==opener)
+          count++;
+        else if (c==txt)
+          count--;
+      }
+      if (count>0)
+        m->setEnd(postpos);
+    }
+  }
 }
 
 void TextItem::ensureCursorVisible() {
@@ -1009,7 +1038,7 @@ void TextItem::inputMethodEvent(QInputMethodEvent *e) {
 }
 
 void TextItem::keyReleaseEvent(QKeyEvent *e) {
-  if (mode()!=Mode::Type)
+  if (mode()->mode()!=Mode::Type)
     return;
   if (e->key() == Qt::Key_Control && controltap)
     if (mode()->typeMode()==Mode::Math)
