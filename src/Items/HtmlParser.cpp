@@ -37,7 +37,7 @@ HtmlParser::HtmlParser(QString html) {
   html.replace(QRegularExpression(" *<(p|br)(\\s+[^>]*)?> *"), "\n");
   html.replace("</td><td>", "\t");
   html.replace("</tr>", "\n");
-  QRegularExpression tag("<([^>]*)>");
+  QRegularExpression tag("(<([^>]*)>)");
   //  tag.setMinimal(true); // why is this necessary?
   QList<int> italicStarts;
   QList<int> boldStarts;
@@ -46,7 +46,7 @@ HtmlParser::HtmlParser(QString html) {
   while (!html.isEmpty()) {
     QRegularExpressionMatch m(tag.match(html));
     if (m.hasMatch()) {
-      QString cap = m.captured(1);
+      QString cap = m.captured(2);
       txt += taglessHtmlToPlainText(html.left(m.capturedStart(1)));
       html = html.mid(m.capturedEnd(1));
       if (cap=="i") 
