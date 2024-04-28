@@ -1200,7 +1200,7 @@ bool TextItem::tryScriptStyles(bool onlyifbalanced) {
     return false;
 
   bool endswithbrace = document()->characterAt(cursor.position()-1) == '}';
-  int k = cursor.startOfScript(endswithbrace || onlyifbalanced);
+  int k = cursor.startOfScript(endswithbrace);
   if (k<0) {
     if (endswithbrace)
       return false;
@@ -1218,11 +1218,13 @@ bool TextItem::tryScriptStyles(bool onlyifbalanced) {
       return false;
   }
 
-  if (endswithbrace) {
+  if (endswithbrace) 
     cursor.deletePreviousChar();
-    cursor.correctPosition(substituteInternalScripts(k, cursor.position()));
+  if (endswithbrace || onlyifbalanced)
+    cursor.correctPosition(substituteInternalScripts(k+1, cursor.position()));
+  if (endswithbrace)
     cursor.correctPosition(-TextCursor(document(), k).deleteChar()); // remove opening brace
-  }
+  
   cursor.correctPosition(-TextCursor(document(), k).deleteChar()); // remove opening _ or ^
 
   addMarkup(mrk==QChar('^')
