@@ -67,6 +67,9 @@ CachedPointer<EntryScene> SceneBank::entryScene(int startPage) {
      but let me do it later.
   */
   qDebug() << "scenebank entryscene" << startPage;
+  if (!nb->toc()->entries().contains(startPage)) {
+    nb->recoverFromMissingEntry(startPage, "scenebank");
+  }
   TOCEntry *te = nb->toc()->tocEntry(startPage);
   ASSERT(te);
   CachedEntry entry(nb->entry(startPage));

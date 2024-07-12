@@ -111,8 +111,11 @@ void PageView::openPrintDialog() {
     case PrintDialog::Range::SearchResults: {
       QList<int> pgs = startPagesOfSearchResults();
       nentries = 0;
-      for (int p: pgs) 
+      for (int p: pgs) {
+        if (!book->toc()->contains(p))
+          book->recoverFromMissingEntry(p, "printing1");
 	nentries += book->toc()->tocEntry(p)->sheetCount();
+      }
     } break;
     }
   }
@@ -184,6 +187,8 @@ void PageView::openPrintDialog() {
         foreach (int startPage, book->toc()->entries().keys()) {
           if (progress.wasCanceled())
             throw 0;
+          if (!book->toc()->contains(startPage))
+            book->recoverFromMissingEntry(startPage, "printing2");
           if (to>=startPage &&
               from<startPage+book->toc()->tocEntry(startPage)->sheetCount()) {
             gotoEntryPage(startPage);

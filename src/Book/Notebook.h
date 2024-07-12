@@ -72,7 +72,9 @@ private slots:
   void sheetCountMod();
 private:
   CachedEntry recoverFromExistingEntry(int pgno);
-  EntryFile *recoverFromMissingEntry(int pgno);
+public: // debugging
+  EntryFile *recoverFromMissingEntry(int pgno, QString issuer="");
+private:
   static QString &errMsg();
   static void copyStyleFile(QDir, QString vc);
   static bool createGitArchive(QDir);

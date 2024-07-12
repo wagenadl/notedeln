@@ -454,6 +454,9 @@ void PageView::gotoEntryPage(int n, int dir) {
       TOCEntry *te = book->toc()->findBackward(n);
       if (te) {
 	// let's look at page before end
+        int pgno = te->startPage();
+        if (!book->toc()->contains(pgno))
+          book->recoverFromMissingEntry(pgno, "pageview");
 	CachedEntry ef(book->entry(te->startPage()));
 	ASSERT(ef);
 	n = te->startPage() + te->sheetCount() - 1;
@@ -640,7 +643,10 @@ void PageView::nextPage() {
     break;
   case Entries:
     if (!gotoSheet(currentSheet+1)) {
-      TOCEntry *te = book->toc()->tocEntry(entryScene->data()->startPage());
+      int pgno = entryScene->data()->startPage();
+      if (!book->toc()->contains(pgno))
+        book->recoverFromMissingEntry(pgno, "pageview");
+      TOCEntry *te = book->toc()->tocEntry(pgno);
       te = book->toc()->entryAfter(te);
       if (te)
 	gotoEntryPage(te->startPage(), 1);

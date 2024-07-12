@@ -67,8 +67,10 @@ void SearchResultScene::populate() {
       lastLine = new QGraphicsLineItem(0, 0, style().real("page-width"), 0);
       lastLine->setPen(QPen(QBrush(style().color("toc-line-color")),
 			    style().real("toc-line-width")));
-      headers << new SearchResItem(book->toc()->tocEntry(r.startPageOfEntry),
-                                   this);
+      int pgno = r.startPageOfEntry;
+      if (!book->toc()->contains(pgno))
+        book->recoverFromMissingEntry(pgno, "searchres");
+      headers << new SearchResItem(book->toc()->tocEntry(pgno), this);
       lastLine->setParentItem(headers.last());
       oldPage = r.startPageOfEntry;
       connect(headers.last(),

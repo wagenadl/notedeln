@@ -354,8 +354,11 @@ bool Notebook::deleteEntry(int pgno) {
 void Notebook::titleMod() {
   EntryData *pg = dynamic_cast<EntryData *>(sender());
   ASSERT(pg);
-  qDebug() << "titlemod" << pg->startPage() << pg->title()->text()->text();
-  TOCEntry *e = toc()->tocEntry(pg->startPage());
+  int pgno = pg->startPage();
+  qDebug() << "titlemod" << pgno << pg->title()->text()->text();
+  if (!toc()->contains(pgno))
+    recoverFromMissingEntry(pgno, "titlemod");
+  TOCEntry *e = toc()->tocEntry(pgno);
   ASSERT(e);
   e->setTitle(pg->title()->text()->text());
 }
@@ -363,8 +366,11 @@ void Notebook::titleMod() {
 void Notebook::sheetCountMod() {
   EntryData *pg = dynamic_cast<EntryData *>(sender());
   ASSERT(pg);
-  qDebug() << "sheetcountmod" << pg->startPage() << pg->sheetCount();
-  TOCEntry *e = toc()->tocEntry(pg->startPage());
+  int pgno = pg->startPage();
+  qDebug() << "titlemod" << pgno << pg->title()->text()->text();
+  if (!toc()->contains(pgno))
+    recoverFromMissingEntry(pgno, "setsheetcount");
+  TOCEntry *e = toc()->tocEntry(pgno);
   ASSERT(e);
   e->setSheetCount(pg->sheetCount());
 }
@@ -440,14 +446,14 @@ CachedEntry Notebook::recoverFromExistingEntry(int pgno) {
   return CachedEntry();
 }
 
-EntryFile *Notebook::recoverFromMissingEntry(int pgno) {
+EntryFile *Notebook::recoverFromMissingEntry(int pgno, QString src) {
   QString eln = Translate::_("eln");
   QMessageBox::critical(0, eln,
                         QString("Page %1 could not be loaded."
                                 " This is a sign of TOC"
                                 " corruption. %2 will exit now and attempt"
-                                " to rebuild the TOC when you restart it.")
-                        .arg(pgno).arg(eln), QMessageBox::Ok);
+                                " to rebuild the TOC when you restart it. %3")
+                        .arg(pgno).arg(eln).arg(src), QMessageBox::Ok);
   flush();
   root.remove("toc.json");
   root.remove("index.json");
