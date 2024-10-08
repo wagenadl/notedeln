@@ -33,7 +33,7 @@ that can be obtained by typing a backslash followed by their name:
    :width: 700px
    :align: center
 
-To get on of the symbols on the left, type a backslash followed by the
+To get one of the symbols on the left, type a backslash followed by the
 character sequence to its right, then keep typing. (The accents
 (**j**) differ from the other codes, in that the accent is placed over
 the preceding character rather than as a separate entity.)
@@ -47,7 +47,7 @@ Accented letters
 As an alternative to standard unicode input methods for entering
 accented letters, NotedELN supports creating a select group of
 accented letters by typing a backslash followed by a symbol and a
-letter, as in “Se\\˜nor” for “Señor” or “gar\\,con” for
+letter, as in “Se\\˜norita” for “Señorita” or “gar\\,con” for
 “garçon”. Here is the full list:
 
 .. image:: accents.svg
@@ -96,8 +96,8 @@ a result, an equation like |eqn1| can be typeset simply by typing
 Even double superscripts and subscripts are possible, to the degree
 that the second level is supported by unicode [#f4]_. For instance,
 |eqn2| can be typeset simply by typing
-“e^{-\\12 (x_1^2 + x_2^2)}”. (Note how the curly braces temporarily
-“protect” the inner expression.)
+“e^{-\\12(x_1^2 + x_2^2)}”. (Note how the curly braces temporarily
+“protect” the inner expression. In this case, you could have actually achieved the same without the braces, as the parentheses also protect their contents.)
 
 .. |eqn2| image:: eqn1.png
                   :height: 2.7ex
