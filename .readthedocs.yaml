@@ -9,5 +9,5 @@ build:
     python: "3.12"
 
 sphinx:
-  configureation: docs/conf.py
+  configuration: docs/conf.py
 
