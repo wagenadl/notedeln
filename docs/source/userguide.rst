@@ -60,7 +60,13 @@ edit an entry that is older than 24 hours.
               :class: no-scaled-link                   
 
 
-Text may be cut-and-pasted as you would expect using [Ctrl][X], [Ctrl][C], and [Ctrl][V] as in other programs, but NotedELN does not have an “undo” mechanism. To protect you against accidental deletion, you have to explicitly press [Delete] to delete a selection.
+Text may be cut-and-pasted as you would expect using [Ctrl][X],
+[Ctrl][C], and [Ctrl][V] as in other programs, but NotedELN does not
+have an “undo” mechanism. To protect you against accidental deletion,
+you have to explicitly press [Delete] to delete a selection. (Just
+typing “over it” does not work.) Instead of deleting something from
+your notes, consider :ref:`crossing it out <crossout>` so your thought
+process remains documented.
 
 Adding graphics
 ---------------
@@ -217,7 +223,11 @@ untitled and empty entry abandons that entry.)
 
 .. |nav-end| image:: nav-end.png
               :height: 3ex
-              :class: no-scaled-link                 
+              :class: no-scaled-link
+
+Shift-clicking on any of these icons opens the target pages in a new
+window. Holding shift in combination with any of the keyboard
+shortcuts (except [Ctrl][Shift][+]) likewise opens a new window.
 
 
 Saving your work
@@ -249,6 +259,12 @@ selected.
               :height: 3ex
               :class: no-scaled-link
 
+If you want to add more than just a note to a previous entry, the
+common idiom is to create a “continuation entry” by pressing
+[Ctrl][Shift][C]. This adds a late note saying “(see p. *nnn*)” to the
+current page, and creates a new entry titled by adding “(cont’d)” to
+the current entry’s title. The new entry (including its title) is
+fully editable as you’d expect.
                       
 
 Exporting and printing
@@ -276,7 +292,8 @@ NotedELN incorporates a simple but very useful full-text search
 facility. Press [Ctrl][F] or click the |nav-find| icon to open the
 search dialog, type any word or phrase, and press [Enter] or click
 “OK.” A list with search results from the entire notebook will open;
-click on a result to navigate to the relevant entry.
+click on a result to navigate to the relevant entry, or shift-click
+to open it in a new window.
 
 .. |nav-find| image:: nav-find.png
               :height: 3ex

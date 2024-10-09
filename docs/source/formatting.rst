@@ -28,6 +28,8 @@ _Underline_
     the text of the superscript or subscript and then pressing
     [Ctrl][.] (period).
 
+.. _crossout:    
+
 Editorializing: Highlighting and crossing out
 ---------------------------------------------
 
