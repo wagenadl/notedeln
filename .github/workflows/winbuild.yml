@@ -18,7 +18,7 @@ jobs:
         uses: jurplel/install-qt-action@v4
         with:
           version: '6.8'
-          modules: "qtwebengine qtmultimedia qtwebchannel qtpositioning"
+          modules: "qtwebengine qtmultimedia qtwebchannel qtpositioning qtpdf qtsvg"
       - name: Prepare build directory
         run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
       - name: Build binary
