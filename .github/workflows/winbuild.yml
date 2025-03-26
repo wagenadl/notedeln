@@ -1,0 +1,27 @@
+on: 
+  push:
+    branches: [ "main" ]
+
+name: Build binaries on Windows
+
+
+jobs:
+  build:
+    name: Build binary
+    runs-on: windows-latest
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@master
+      - name: Install CMake
+        uses: lukka/get-cmake@latest
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: '5.15.2'
+      - name: Prepare build directory
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+      - name: Build binary
+        run: cmake --build build --config=Release
+      - name: Create installer
+        working-directory: ./build
+        run: cpack
