@@ -36,7 +36,14 @@ dy = 12
 space = {}
 
 for n in range(N):
-    h = len(sections[n]) * dy / 72 + .1
+    seen = {}
+    for k_ in sections[n]:
+        k = k_
+        v = keymap[k]
+        if (v in seen) or (' ' in k):
+            continue
+        seen[v] = 1
+    h = len(seen) * dy / 72 + .1
     qp.figure('digraphs', 1.2, h)
     qp.pen('w')
     qp.plot([0, 1], [0, -1])

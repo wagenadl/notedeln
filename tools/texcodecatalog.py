@@ -51,6 +51,11 @@ for n in range(N):
         while k[0] in revmap:
             k = revmap[k[0]] + k[1:]
         k = k.replace("^", "∧")
+        if k[0]=='*':
+            if len(k)==2:
+                k = k[1]
+            else:
+                k = k[1:] + "^*"
         qp.text(k, 10, y)
         y = y + dy
     y = 0
