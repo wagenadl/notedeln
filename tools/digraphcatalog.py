@@ -2,8 +2,9 @@
 
 import re
 import os
+import qplot as qp
 
-rx = re.compile('"(.*)":\s*"(.*)"');
+rx = re.compile(r'"(.*)":\s*"(.*)"');
 
 sections = []
 keylist = []
@@ -33,57 +34,50 @@ sections = sections[1:]
 N = len(sections)
 dy = 12
 space = {}
-with open("../build/digraphs.m", "w") as f:
-    for n in range(N):
-        h = len(sections[n]) * dy / 72 + .1
-        f.write("qfigure('digraphs-%i', 1.2, %g)\n" % (n, h))
-        f.write("qpen w\n")
-        f.write("qplot([0 1],[0 -1])\n")
-        f.write("qpen k\n")
-        f.write("qat .25 0\n")
-        # f.write("qalign left base\n")
-        # f.write("qfont Helvetica bold 10\n")
-        # f.write("qtext(0, 0, '%s')\n" % secheader[n])
-        # y = 14
-        # f.write("qfont Helvetica 10\n")
-        y = 0
-        seen = {}
-        f.write("qfont FreeMono 10\n")
-        f.write("qalign left base\n")
-        for k_ in sections[n]:
-            k = k_
-            v = keymap[k]
-            if not(v in seen) and not(' ' in k):
-                seen[v] = 1
-                while k[0] in revmap:
-                    k = revmap[k[0]] + k[1:]
-                k = k.replace("^", "∧")
-                k = k.replace("~", "∼")
-                k = k.replace("\\\\", "\\")
-                if "'" in k:
-                    f.write('qtext(10, %i, "%s")\n' % (y, k))
-                else:
-                    f.write("qtext(10, %i, '%s')\n" % (y, k))
-                if n==1 and '∼∼' in k:
-                    space[k_] = 1
-                    y = y + 1
-                y = y + dy
-        y = 0
-        seen = {}
-        f.write("qfont NewCenturySchoolbook 10\n")
-        f.write("qalign center base\n")
-        for k in sections[n]:
-            v = keymap[k]
-            if not(v in seen) and not(' ' in k):
-                seen[v] = 1
-                f.write("qtext(-10, %i, '%s')\n" % (y, v))
-                if k in space:
-                    y = y + 1
-                y = y + dy
-        f.write("qshrink 2\n")
-        f.write("qsave digraphs-%i.pdf\n" % n)
+
+for n in range(N):
+    h = len(sections[n]) * dy / 72 + .1
+    qp.figure('digraphs', 1.2, h)
+    qp.pen('w')
+    qp.plot([0, 1], [0, -1])
+    qp.pen()
+    qp.at(.25, 0)
+    y = 0
+    seen = {}
+    qp.font('FreeMono', 10)
+    qp.align('left', 'base')
+    for k_ in sections[n]:
+        k = k_
+        v = keymap[k]
+        if (v in seen) or (' ' in k):
+            continue
+        seen[v] = 1
+        while k[0] in revmap:
+            k = revmap[k[0]] + k[1:]
+        k = k.replace("^", "∧")
+        k = k.replace("~", "∼")
+        k = k.replace("\\\\", "\\")
+        qp.text(k, 10, y)
+        if n==1 and '∼∼' in k:
+            space[k_] = 1
+            y = y + 1
+        y = y + dy
+    y = 0
+    seen = {}
+    qp.font('CenturySchoolbook', 10)
+    qp.align('center', 'base')
+    for k in sections[n]:
+        v = keymap[k]
+        if (v in seen) or (' ' in k):
+            continue
+        seen[v] = 1
+        qp.text(v, -10, y)
+        if k in space:
+            y = y + 1
+        y = y + dy
+    qp.shrink(2)
+    qp.save(f"../build/digraphs-{n}.pdf")
 
 os.chdir("../build")
-os.system("octave --eval digraphs")
-os.system("placeqpt -o ../doc/digraphs.pdf ../tools/digraphs.placeqpt")
+os.system("placeqpt -o ../docs/userguide/digraphs.pdf ../tools/digraphs.placeqpt")
 
