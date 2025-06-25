@@ -1,5 +1,12 @@
 <img alt="NotedELN - an Electronic Lab Notebook" src="https://github.com/wagenadl/notedeln/blob/main/docs/source/banner.svg" width="100%">
 
+
+[![Build Windows Binaries](https://github.com/wagenadl/notedeln/actions/workflows/winbuild.yml/badge.svg)](https://github.com/wagenadl/notedeln/actions/workflows/winbuild.yml)
+[![Build Linux Binaries](https://github.com/wagenadl/notedeln/actions/workflows/linuxbuild.yml/badge.svg)](https://github.com/wagenadl/notedeln/actions/workflows/build.yml)
+[![Build documentation](https://app.readthedocs.org/projects/notedeln/badge/)](https://app.readthedocs.org/projects/notedeln/)
+[![Upload .exe](https://github.com/wagenadl/notedeln/actions/workflows/uploadexe.yml/badge.svg)](https://github.com/wagenadl/notedeln/actions/workflows/uploadexe.yml)
+[![Upload .deb](https://github.com/wagenadl/notedeln/actions/workflows/uploaddeb.yml/badge.svg)](https://github.com/wagenadl/notedeln/actions/workflows/uploaddeb.yml)
+
 ## Introduction
 
 NotedELN is an Electronic Lab Notebook for scientists of all stripes. 

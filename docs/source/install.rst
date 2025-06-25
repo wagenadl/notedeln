@@ -7,7 +7,7 @@ Binary installation
 -------------------
 
 Most users on Windows and Debian-derived Linux systems (including
-Ubuntu, Mint, etc.), should be able to install NotedELN CPCB using
+Ubuntu, Mint, etc.), should be able to install NotedELN using
 the binary files of the most `recent release
 <https://github.com/wagenadl/notedeln/releases/latest>`_.
 
@@ -41,7 +41,7 @@ provided above.
 Downloading the sources
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-Download the source for CSchem and CPCB from `github
+Download the source for NotedELN from `github
 <https://github.com/wagenadl/notedeln>`_. Open a terminal of your
 choice in a location on your computer of your choice and type::
 

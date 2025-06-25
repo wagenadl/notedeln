@@ -1,0 +1,32 @@
+on:
+  push:
+    tags:
+      - "v*"
+      
+name: Upload .deb
+
+
+permissions:
+  contents: write
+  id-token: write
+
+
+jobs:
+  build:
+    name: Build binary
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@master
+      - name: Install requirements for building binary
+        run: .github/get-build-requirements
+      - name: Build binary
+        run: make
+      - name: Build .deb
+        run: make deb
+      - name: Upload .deb
+        uses: softprops/action-gh-release@v2
+        with:
+          files: build/notedeln*deb
+          token: ${{github.TOKEN}}
+          
