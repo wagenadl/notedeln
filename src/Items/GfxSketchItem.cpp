@@ -72,6 +72,7 @@ void GfxSketchItem::paint(QPainter *p,
   QPen pen(data()->color());
   pen.setWidthF(data()->lineWidth());
   p->setPen(pen);
+  p->setBrush(Qt::NoBrush);
   p->drawPath(path);
 }
 
