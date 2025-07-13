@@ -1,8 +1,8 @@
 install(TARGETS notedeln DESTINATION bin)
 install(TARGETS webgrab DESTINATION bin)
 
-install(FILES man/notedeln.1 DESTINATION share/man/man1)
-install(FILES man/webgrab.1 DESTINATION share/man/man1)
+install(FILES docs/man/notedeln.1 DESTINATION share/man/man1)
+install(FILES docs/man/webgrab.1 DESTINATION share/man/man1)
 install(FILES README.md DESTINATION share/doc/notedeln)
 install(FILES CHANGELOG DESTINATION share/doc/notedeln)
 install(FILES src/Gui/fonts/ubuntu-font-licence-1.0.txt.gz
