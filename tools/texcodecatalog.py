@@ -2,8 +2,9 @@
 
 import re
 import os
+import qplot as qp
 
-rx = re.compile('"(.*)":\s*"(.*)"');
+rx = re.compile(r'"(.*)":\s*"(.*)"');
 
 sections = []
 keylist = []
@@ -32,48 +33,43 @@ sections = sections[1:]
 
 N = len(sections)
 dy = 12
-with open("../build/texcodes.m", "w") as f:
-    for n in range(N):
-        h = len(sections[n]) * dy / 72 + .1
-        if n==2:
-            w = 1.3
-        else:
-            w = 1.2
-        f.write("qfigure('texcodes-%i', %g, %g)\n" % (n, w, h))
-        f.write("qpen w\n")
-        f.write("qplot([0 1],[0 -1])\n")
-        f.write("qpen k\n")
-        f.write("qat .25 0\n")
-        # f.write("qalign left base\n")
-        # f.write("qfont Helvetica bold 10\n")
-        # f.write("qtext(0, 0, '%s')\n" % secheader[n])
-        # y = 14
-        # f.write("qfont Helvetica 10\n")
-        y = 0
-        f.write("qfont FreeMono 10\n")
-        f.write("qalign left base\n")
-        for k in sections[n]:
-            while k[0] in revmap:
-                k = revmap[k[0]] + k[1:]
-            k = k.replace("^", "∧")
-            if "'" in k:
-                f.write('qtext(10, %i, "%s")\n' % (y, k))
+for n in range(N):
+    h = len(sections[n]) * dy / 72 + .1
+    if n==2:
+        w = 1.3
+    else:
+        w = 1.2
+    qp.figure('texcodes', w, h)
+    qp.pen('w')
+    qp.plot([0, 1],[0, -1])
+    qp.pen()
+    qp.at(.25, 0)
+    y = 0
+    qp.font('FreeMono', 10)
+    qp.align('left', 'base')
+    for k in sections[n]:
+        while k[0] in revmap:
+            k = revmap[k[0]] + k[1:]
+        k = k.replace("^", "∧")
+        if k[0]=='*':
+            if len(k)==2:
+                k = k[1]
             else:
-                f.write("qtext(10, %i, '%s')\n" % (y, k))
-            y = y + dy
-        y = 0
-        if n==6:
-            f.write("qfont Georgia italic 10\n")
-        else:
-            f.write("qfont NewCenturySchoolbook 10\n")
-        f.write("qalign center base\n")
-        for k in sections[n]:
-            v = keymap[k]
-            f.write("qtext(-5, %i, '%s')\n" % (y, v))
-            y = y + dy
-        f.write("qshrink 2\n")
-        f.write("qsave texcodes-%i.pdf\n" % n)
+                k = k[1:] + "^*"
+        qp.text(k, 10, y)
+        y = y + dy
+    y = 0
+    if n==6:
+        qp.font('Georgia', 10, italic=True)
+    else:
+        qp.font('CenturySchoolbook', 10)
+    qp.align('center', 'base')
+    for k in sections[n]:
+        v = keymap[k]
+        qp.text(v, -5, y)
+        y = y + dy
+    qp.shrink(2)
+    qp.save(f"../build/texcodes-{n}.pdf")
 
 os.chdir("../build")
-os.system("octave --eval texcodes")
-os.system("placeqpt -o ../doc/texcodes.pdf ../tools/texcodes.placeqpt")
+os.system("placeqpt -o ../docs/userguide/texcodes.pdf ../tools/texcodes.placeqpt")

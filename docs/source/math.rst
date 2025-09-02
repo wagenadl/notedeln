@@ -65,9 +65,10 @@ When typing mathematical equations, having to frequently type the
 backslash for special characters and [Ctrl][/] for italics can get
 tiresome. To avoid this annoyance, press [Ctrl][‘] (that’s the key to
 the left of the [1] on many qwerty keyboards) to enter (and exit)
-“math” mode, which turns the |type| icon into |type-math|. (Math mode
+“math” mode, which turns the |type| icon into |type-math|. 
+Math mode
 can also be entered by double-clicking the |type| icon or pressing
-[Shift][F2].)
+[Shift][F2].
 
 
 .. |type| image:: type.png
@@ -79,15 +80,17 @@ can also be entered by double-clicking the |type| icon or pressing
               :height: 3ex
               :class: no-scaled-link
 
-In math mode, special characters can be entered simply by typing their
-name and single-character words are typeset in italics [#f2]_. To
-typeset a single-letter variable name in bold, bold italic, or roman,
-type its letter multiple times. Also in math mode, simple subscripts
-and superscripts can be typeset by just typing underscore or hat
-followed by the text of the sub- or superscript. A space, or
-punctuation followed by a space, ends the subscript or superscript. As
-a result, an equation like |eqn1| can be typeset simply by typing
-“int_1^inf 1/x^2 dx = 1” [#f3]_.
+In math mode, single-character words are typeset in italics [#f2]_ and
+special characters can be entered simply by typing their name. (The
+single-character substitutions and those marked with * still require a
+backslash, to avoid collisions with English words.) To typeset a
+single-letter variable name in bold, bold italic, or roman, type its
+letter multiple times. Also in math mode, simple subscripts and
+superscripts can be typeset by just typing underscore or hat followed
+by the text of the sub- or superscript. A space, or punctuation
+followed by a space, ends the subscript or superscript. As a result,
+an equation like |eqn1| can be typeset simply by typing “int_1^inf
+1/x^2 dx = 1” [#f3]_.
 
 .. |eqn1| image:: eqn2.png
                   :height: 2.7ex
