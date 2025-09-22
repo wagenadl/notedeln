@@ -55,12 +55,13 @@ void Index::watchEntry(Entry *e) {
   EntryFile *f = e->file();
   ASSERT(f);
   int pgno = d->startPage();
-  cons[f]
-    = connect(f, &EntryFile::saved,
-              this, [this,e]() { updateEntry(e); }, Qt::UniqueConnection);
-  cons[e->lateNoteManager()]
-    = connect(e->lateNoteManager(), &LateNoteManager::mod,
-              this, [this,e]() { updateEntry(e); }, Qt::UniqueConnection);
+  if (!cons.contains(f))
+    cons[f] = connect(f, &EntryFile::saved,
+                      this, [this, e]() { updateEntry(e); });
+  LateNoteManager *lnm = e->lateNoteManager();
+  if (lnm && !cons.contains(lnm))
+    cons[lnm] = connect(lnm, &LateNoteManager::mod,
+                        this, [this, e]() { updateEntry(e); });
   oldsets[pgno] = e->wordSet();
 }
 
@@ -75,7 +76,7 @@ void Index::unwatchEntry(Entry *e) {
   if (cons.contains(f))
     disconnect(cons[f]);
   cons.remove(f);
-  if (cons.contains(lnm))
+  if (lnm && cons.contains(lnm))
     disconnect(cons[lnm]);
   cons.remove(lnm);
   oldsets.remove(pgno);
