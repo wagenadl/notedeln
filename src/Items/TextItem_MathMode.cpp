@@ -110,7 +110,7 @@ void TextItem::letterAsMath(QString txt) {
 	deleteMarkup(mdi);
     } else {
       addMarkup(MarkupData::Italic,
-	      cursor.position()-txt.length(), cursor.position());
+                cursor.position()-txt.length(), cursor.position());
     }
   }
 }  
@@ -121,7 +121,7 @@ bool TextItem::keyPressAsMath(QKeyEvent *e) {
   static QString punct = ",;.:";
   static QString spacing = " \t\n\r";
   static QString closing = ")]}\"”";
-  static QString suremath = "+-_^*/=";
+  static QString suremath = "+_^*/=";
 
   if (cursor.hasSelection())
     return false;
@@ -134,85 +134,80 @@ bool TextItem::keyPressAsMath(QKeyEvent *e) {
   if (isLatinLetter(txt)) {
     letterAsMath(txt);
     return true;
-  } else if (isDigit(txt)) {
+  }
+  
+  if (isDigit(txt)) {
     QChar charBefore = document()->characterAt(cursor.position()-1);
     if (charBefore=='-') {
-      cursor.deletePreviousChar();
-      cursor.insertText(QString::fromUtf8("−"));
+      QChar charBefore2 = document()->characterAt(cursor.position()-2);
+      if (charBefore2.isNull() || charBefore2.isSpace() || charBefore2.isPunct()) {
+        cursor.deletePreviousChar();
+        cursor.insertText(QString::fromUtf8("−"));
+      }
     }
     letterAsMath(txt);
     return true;
-  } else if (suremath.contains(txt)) {
+  }
+  
+  bool ismath = suremath.contains(txt);
+  if (txt == "-") {
+    QChar charBefore = document()->characterAt(cursor.position()-1);
+    if (charBefore.isNull() || charBefore.isSpace() || charBefore.isPunct())
+      ismath = true;
+  }
+  
+  if (ismath) {
     QChar charBefore = document()->characterAt(cursor.position()-1);
     QChar charBefore2 = document()->characterAt(cursor.position()-2);
     if ((charBefore=='a' || charBefore=='A' || charBefore=='I')
 	&& !isLatinLetter(charBefore2)) {
       // italicize after all
       if (!data()->markupAt(cursor.position()-1, MarkupData::Italic))
-	  addMarkup(MarkupData::Italic,
-		    cursor.position()-1, cursor.position());
+        addMarkup(MarkupData::Italic,
+                  cursor.position()-1, cursor.position());
     } else if ((charBefore2=='a' || charBefore2=='A' || charBefore2=='I')
 	       && !isLatinLetter(charBefore)
 	       && !isLatinLetter(document()->characterAt(cursor.position()-3))) {
       // italicize after all
       if (!data()->markupAt(cursor.position()-2, MarkupData::Italic))
-	  addMarkup(MarkupData::Italic,
-		    cursor.position()-2, cursor.position()-1);
+        addMarkup(MarkupData::Italic,
+                  cursor.position()-2, cursor.position()-1);
     }
     
-    if (txt=="-") {
-      qDebug() << "minus";
-      if (isLatinLetter(charBefore) && isLatinLetter(charBefore2))
-	return false; // treat as hyphen rather than minus
-      QString digraph = QString(charBefore) + "-";
-      QString trigraph = QString(charBefore2) + digraph;
-      if (digraph=="--") {
-	cursor.deletePreviousChar();
-	cursor.insertText("−");
-      } else if (Digraphs::contains(digraph)) {
-	cursor.deletePreviousChar();
-	cursor.insertText(Digraphs::map(digraph));
-      } else if (Digraphs::contains(trigraph)) {
-        cursor.deletePreviousChar();
-        cursor.deletePreviousChar();
-        cursor.insertText(Digraphs::map(trigraph));
-      } else if (isLatinLetter(charBefore)) {
-        cursor.insertText("-");
-      } else {
-	cursor.insertText(QString::fromUtf8("−"));
-      }
+    if (txt == "-") {
+      cursor.insertText(QString::fromUtf8("−"));
       return true;
     }
   }
 
-  if (txt!="") {
-    // we may apply finished TeX Code
-    if (cursor.hasSelection()) 
-      return false; // we're overwriting, let some other piece of code deal.
-    tryTeXCode(true, true);
-    if (txt=="^") {
-      // de-italicize "e^"
-      if (document()->characterAt(cursor.position()-1)=='e') {
-	MarkupData *md
-	  = data()->markupAt(cursor.position(), MarkupData::Italic);
-	if (md)
-          deleteMarkup(md);
-      }
-      tryScriptStyles(true);
-    } else if (txt=="_") {
-      tryScriptStyles(true);
-    } else if ((spacing.contains(txt) || closing.contains(txt))
-	       && punct.contains(document()->characterAt(cursor.position()-1))) {
-	cursor.movePosition(TextCursor::Left);
-	tryScriptStyles(true);
-	cursor.movePosition(TextCursor::Right);
-    } else if (spacing.contains(txt)) {
-      tryScriptStyles(true);
-    } else if (closing.contains(txt)) {
-      // try script styles if no corresponding opening
-      tryScriptStyles(true);
+  // we may apply finished TeX Code
+  if (cursor.hasSelection()) 
+    return false; // we're overwriting, let some other piece of code deal.
+
+  tryTeXCode(true, true);
+  if (txt=="^") {
+    // de-italicize "e^"
+    if (document()->characterAt(cursor.position()-1)=='e') {
+      MarkupData *md
+        = data()->markupAt(cursor.position(), MarkupData::Italic);
+      if (md)
+        deleteMarkup(md);
     }
+    tryScriptStyles(true);
+  } else if (txt=="_") {
+    tryScriptStyles(true);
+  } else if ((spacing.contains(txt) || closing.contains(txt))
+             && punct.contains(document()->characterAt(cursor.position()-1))) {
+    cursor.movePosition(TextCursor::Left);
+    tryScriptStyles(true);
+    cursor.movePosition(TextCursor::Right);
+  } else if (spacing.contains(txt)) {
+    tryScriptStyles(true);
+  } else if (closing.contains(txt)) {
+    // try script styles if no corresponding opening
+    tryScriptStyles(true);
   }
+
   return false; // still insert the character
 }
 
