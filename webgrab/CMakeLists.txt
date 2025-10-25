@@ -1,4 +1,7 @@
-find_package(Qt6 COMPONENTS Svg WebEngineCore WebEngineWidgets Pdf REQUIRED)  
+find_package(Qt6 
+    REQUIRED COMPONENTS 
+    Svg Pdf 
+    WebChannel WebEngineCore WebEngineWidgets Positioning)
 
 target_link_libraries(webgrab Qt6::Widgets)
 target_link_libraries(webgrab Qt6::PrintSupport)

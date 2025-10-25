@@ -393,6 +393,10 @@ void HtmlOutput::addText(TextData const *source, ResManager const *resmgr,
     case MarkupData::SearchResult:
       ASSERT(0); // this should not happen
       break;
+    case MarkupData::LateStrikeThrough:
+    case MarkupData::LateEmphasize:
+      qDebug() << "Unexpected tag";
+      break;
     }
     startTags[s].insert(tag);
     endTags[e].insert(tag);

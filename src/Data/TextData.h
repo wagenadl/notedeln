@@ -67,8 +67,8 @@ public:
   int offsetOfFootnoteTag(QString) const;
   virtual QSet<QString> wordSet() const override;
 protected:
-  virtual void loadMore(QVariantMap const &);
-  virtual void saveMore(QVariantMap &) const;
+  virtual void loadMore(QVariantMap const &) override;
+  virtual void saveMore(QVariantMap &) const override;
 protected:
   QString text_;
   QVector<int> linestarts;

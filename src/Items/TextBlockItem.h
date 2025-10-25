@@ -47,34 +47,34 @@ public:
   bool lastParIsEmpty() const;
   void dropEmptyLastPar();
   FutileMovementInfo const &lastFutileMovement() const;
-  QRectF boundingRect() const;
-  void paint(QPainter *p, const QStyleOptionGraphicsItem *o, QWidget *w);
-  virtual void makeWritable();
+  QRectF boundingRect() const override;
+  void paint(QPainter *p, const QStyleOptionGraphicsItem *o, QWidget *w) override;
+  virtual void makeWritable() override;
   void initializeFormat();
   void setTIFormat(class TextItem *);
   TextCursor textCursor() const; // looks at focused fragment, if any
   void setTextCursor(TextCursor c);
   int findFragmentForPhrase(QString phrase) const; // -1 if not found
 public: // splitpar stuff:
-  virtual double visibleHeight() const;
-  virtual double splittableY(double hmax) const;
-  virtual TextItem *fragment(int fragno);
-  virtual int nFragments() const;
+  virtual double visibleHeight() const override;
+  virtual double splittableY(double hmax) const override;
+  virtual TextItem *fragment(int fragno) override;
+  virtual int nFragments() const override;
   QList<TextItem *> fragments();
-  virtual void unsplit();
-  virtual void split(QList<double> yy);
+  virtual void unsplit() override;
+  virtual void split(QList<double> yy) override;
 signals:
   void futileMovement(); // up key on top line etc
   void sheetRequest(int);
-  void multicellular(int, class TextData *);
-  void multicellularpaste(class TextData *, QString);
+  void multicellular(int, TextData *);
+  void multicellularpaste(TextData *, QString);
 public slots:
   void sizeToFit(bool shrink=true) override;
   void muckWithIndentation(TextCursor);
-  void testmulticellularpaste(class TextData *, QString);
+  void testmulticellularpaste(TextData *, QString);
 protected:
-  void focusInEvent(QFocusEvent*);
-  void mousePressEvent(QGraphicsSceneMouseEvent*);
+  void focusInEvent(QFocusEvent *) override;
+  void mousePressEvent(QGraphicsSceneMouseEvent *) override;
 private slots:
   void futileMovementKey(int, Qt::KeyboardModifiers);
   void ensureVisible(TextCursor, QPointF);

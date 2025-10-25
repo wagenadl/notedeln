@@ -32,23 +32,23 @@ public:
   GfxImageItem(GfxImageData *data, Item *parent=0);
   virtual ~GfxImageItem();
   DATAACCESS(GfxImageData);
-  QRectF boundingRect() const;
+  QRectF boundingRect() const override;
   QRectF imageBoundingRect() const; // w/o margins
-  virtual void makeWritable();
-  virtual void setScale(double);
-  virtual void paint(QPainter*, const QStyleOptionGraphicsItem*, QWidget*);
-  bool makesOwnNotes() const { return isWritable(); }
-  virtual GfxNoteItem *newGfxNote(QPointF p0, QPointF p1);   
-  virtual Qt::CursorShape cursorShape(Qt::KeyboardModifiers) const;
-  virtual bool changesCursorShape() const;
+  virtual void makeWritable() override;
+  virtual void setScale(double)  override;
+  virtual void paint(QPainter*, const QStyleOptionGraphicsItem*, QWidget*) override;
+  bool makesOwnNotes() const  override { return isWritable(); }
+  virtual GfxNoteItem *newGfxNote(QPointF p0, QPointF p1) override;
+  virtual Qt::CursorShape cursorShape(Qt::KeyboardModifiers) const override;
+  virtual bool changesCursorShape() const override;
   void setCropAllowed(bool); // default is true
   void waitForLoadComplete() override;
 protected:
-  virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *);
-  virtual void mousePressEvent(QGraphicsSceneMouseEvent *);
-  virtual void mouseDoubleClickEvent(QGraphicsSceneMouseEvent *);
-  virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *);
-  virtual void hoverMoveEvent(QGraphicsSceneHoverEvent *);
+  virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *) override;
+  virtual void mousePressEvent(QGraphicsSceneMouseEvent *) override;
+  virtual void mouseDoubleClickEvent(QGraphicsSceneMouseEvent *) override;
+  virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *) override;
+  virtual void hoverMoveEvent(QGraphicsSceneHoverEvent *) override;
 private:
   enum DragType {
     None,

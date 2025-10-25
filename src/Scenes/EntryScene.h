@@ -24,61 +24,62 @@
 #include <QTextCursor>
 #include <QMap>
 #include "CachedEntry.h"
-#include "Mode.h"
+#include "TableData.h"
 
 class EntryScene: public BaseScene {
   Q_OBJECT;
 public:
   EntryScene(CachedEntry data, QObject *parent=0);
-  virtual void populate();
+  virtual void populate() override;
   virtual ~EntryScene();
   class EntryData *data() const;
   void makeWritable();
   void focusEnd(int isheet=-1); // may create new text block
-  virtual bool isWritable() const;
+  virtual bool isWritable() const override;
   int findBlock(class Item const *) const; // -1 if none
   int findBlock(class Data const *) const; // -1 if none
   class BlockItem const *findBlockByUUID(QString uuid) const; // -1 if none
   int findBlock(QPointF scenePos, int sheet) const; // -1 if none
   bool focusFootnote(int block, QString tag); // true if found
   void newFootnote(int block, QString tag);
-  virtual int startPage() const;
+  virtual int startPage() const override;
   class LateNoteItem *createLateNote(QPointF scenePos,
 				     int sheet); // create note by dragging
   class LateNoteItem *newLateNote(int sheet,
 				  QPointF scenePos1,
 				  QPointF scenePos2=QPointF());
-  virtual QString title() const;
-  virtual class TitleData *fancyTitle() const;
-  virtual QDate date() const;
-  virtual QString pgNoToString(int) const;
+  virtual QString title() const override;
+  virtual class TitleData *fancyTitle() const override;
+  virtual QDate date() const override;
+  virtual QString pgNoToString(int) const override;
   void clipPgNoAt(int);
   void unlock();
   QList<class BlockItem const *> blocks() const;
   QList<class FootnoteItem const *> footnotes() const;
 public slots:
-  void notifyChildless(class BlockItem *);
+  void notifyChildless(BlockItem *);
   void redateBlocks();
   void restackBlocks(int start=0);
 signals:
   void restacked();
   void sheetRequest(int);
 protected:
-  bool mousePressEvent(QGraphicsSceneMouseEvent *, SheetScene *);
-  bool keyPressEvent(QKeyEvent *, SheetScene *);
-  bool dropEvent(QGraphicsSceneDragDropEvent *, SheetScene *);
+  bool mousePressEvent(QGraphicsSceneMouseEvent *, SheetScene *) override;
+  bool keyPressEvent(QKeyEvent *, SheetScene *) override;
+  bool dropEvent(QGraphicsSceneDragDropEvent *, SheetScene *) override;
 protected:
-  void setSheetCount(int);
+  void setSheetCount(int) override;
   void waitForLoadComplete() override;
 protected slots:
-  void titleEdited();
+  void titleEdited() override;
   void vChanged(BlockItem *block);
   void futileMovement(BlockItem *block);
-  void focusFirst(int sheet);
-  void makeUnicellular(class TableData *);
-  class TableBlockItem *makeMulticellular(int pos, class TextData *);
-  void makeMulticellularAndPaste(class TextData *, QString);
+  void focusFirst(int sheet) override;
+  void makeUnicellular(TableData *);
+  void makeMulticellular(int pos, TextData *);
+  void makeMulticellularAndPaste(TextData *, QString);
 private:
+  class TableBlockItem *doMakeMulticellular(int pos, TextData *);
   void resetCreation();
   void splitTextBlock(int iblock, int pos);
   class TableBlockItem *injectTableBlock(class TableBlockData *, int iblock);

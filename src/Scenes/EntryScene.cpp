@@ -1407,8 +1407,12 @@ void EntryScene::makeUnicellular(TableData *td) {
   //c.movePosition(TextCursor::End);
   tbi1->setTextCursor(c);
 }
-  
-TableBlockItem *EntryScene::makeMulticellular(int pos, TextData *td) {
+
+void EntryScene::makeMulticellular(int pos, TextData *td) {
+    doMakeMulticellular(pos, td);
+}
+
+TableBlockItem *EntryScene::doMakeMulticellular(int pos, TextData *td) {
   int iblock = findBlock(td);
   if (iblock<0)
     return 0;
@@ -1433,7 +1437,7 @@ TableBlockItem *EntryScene::makeMulticellular(int pos, TextData *td) {
 }
 
 void EntryScene::makeMulticellularAndPaste(TextData *td, QString txt) {
-  TableBlockItem *tbi = makeMulticellular(0, td);
+  TableBlockItem *tbi = doMakeMulticellular(0, td);
   if (!tbi)
     return; // oh well
   TextCursor c1(tbi->document());

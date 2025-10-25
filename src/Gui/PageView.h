@@ -97,8 +97,8 @@ protected:
   virtual void focusInEvent(QFocusEvent *) override;
   virtual void focusOutEvent(QFocusEvent *) override;
   //  void dragMoveEvent(QDragMoveEvent *);
-  virtual void drawBackground(QPainter *, QRectF const &);
-  virtual void drawForeground(QPainter *, QRectF const &);
+  virtual void drawBackground(QPainter *, QRectF const &) override;
+  virtual void drawForeground(QPainter *, QRectF const &) override;
 private:
   void leavePage();
   void createContinuationEntry();

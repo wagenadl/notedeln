@@ -42,7 +42,14 @@ int main(int argc, char **argv) {
   CrashReport cr;
   bool ro = false;
   Notebook *nb = 0;
+  qDebug() << "Hello world";
+  qDebug() << "argc is " << argc;
+  qDebug() << "argv is " << argv;
+  for (int k=0; k<argc; k++) {
+      qDebug() << "argv[" << k << "] is  " << argv[k];
+  }
   App app(argc, argv);
+  qDebug() << "App constructed";
 
   QCommandLineOption cli_new("new", "Create new notebook");
   QCommandLineOption cli_ro("ro", "Open notebook read-only");
