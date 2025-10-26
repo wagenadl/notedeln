@@ -8,11 +8,11 @@
 
 
 ######################################################################
-cmake_minimum_required(VERSION 3.21)
+cmake_minimum_required(VERSION 3.19)
 
 ######################################################################
 # Set the project name and version
-project(NotedELN VERSION 1.5.5)
+project(NotedELN VERSION 1.5.5 LANGUAGES CXX)
 
 set(CMAKE_PROJECT_HOMEPAGE_URL "http://danielwagenaar.net/eln")
 set(CMAKE_EXPORT_COMPILE_COMMANDS 1) # for clangd
@@ -21,45 +21,55 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS 1) # for clangd
 # Specify the C++ standard [must be done _before_ adding executable!]
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
-#set(CMAKE_POSITION_INDEPENDENT_CODE ON) # I thought this would do the trick...
-#if (UNIX) 
-#  add_compile_options(-fPIC) # ... but in fact, this is required on Linux
-#endif()
+set(CMAKE_POSITION_INDEPENDENT_CODE ON) # I thought this would do the trick...
+if (UNIX AND NOT APPLE)
+  add_compile_options(-fPIC) # ... but in fact, this is required on Linux
+endif()
 
 # Qt stuff
+
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
-find_package(Qt6
-  REQUIRED COMPONENTS Widgets Network Svg PrintSupport
+
+find_package(Qt6 6.5
+  REQUIRED COMPONENTS Core Widgets Network Svg PrintSupport
   OPTIONAL_COMPONENTS Multimedia MultimediaWidgets
   )
+qt_standard_project_setup()
 
 ######################################################################
 # Add the executables
-add_executable(notedeln WIN32 MACOSX_BUNDLE src/App/main.cpp)
-add_executable(webgrab WIN32 webgrab/webgrabWE.cpp)
+qt_add_executable(notedeln WIN32 MACOSX_BUNDLE src/App/main.cpp)
+qt_add_executable(webgrab WIN32 webgrab/webgrabWE.cpp)
 
 include(src/CMakeLists.txt)
 include(webgrab/CMakeLists.txt)
 
 # Libraries to link to - Qt must be mentioned
-target_link_libraries(notedeln Qt6::Widgets)
-target_link_libraries(notedeln Qt6::Network)
-target_link_libraries(notedeln Qt6::Svg)
-target_link_libraries(notedeln Qt6::PrintSupport)
+
+target_link_libraries(notedeln PRIVATE Qt::Core Qt6::Widgets
+    Qt6::Network  Qt6::Svg Qt6::PrintSupport)
 if(TARGET Qt6::Multimedia)
-  target_link_libraries(notedeln Qt6::Multimedia)
+  target_link_libraries(notedeln PRIVATE Qt6::Multimedia)
 endif()
 if(TARGET Qt6::MultimediaWidgets)
-  target_link_libraries(notedeln Qt6::MultimediaWidgets)
+  target_link_libraries(notedeln PRIVATE Qt6::MultimediaWidgets)
 endif()
 
 if (WIN32)
   target_link_libraries(notedeln secur32.lib)
 endif()
 if (APPLE)
+  set(CMAKE_OSX_ARCHITECTURES "arm64;x86_64" CACHE INTERNAL "" FORCE)
+
   set(MACOSX_BUNDLE_ICON_FILE eln.icns)
+  include(GNUInstallDirs)
+  install(TARGETS notedeln
+      BUNDLE  DESTINATION .
+      RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+      LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  )
   add_custom_command(TARGET notedeln POST_BUILD
      COMMAND mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/notedeln.app/Contents/Resources
      COMMAND cp ${CMAKE_CURRENT_SOURCE_DIR}/src/App/eln.icns
@@ -72,7 +82,7 @@ configure_file(src/config.h.in config.h)
 
 # Include paths - Qt must be mentioned
 target_include_directories(notedeln PUBLIC "${PROJECT_BINARY_DIR}")
-target_include_directories(notedeln PUBLIC "${Qt6_INCLUDE_DIRS}")
+#target_include_directories(notedeln PUBLIC "${Qt6_INCLUDE_DIRS}")
 
 ######################################################################
 # Spinx documentation
@@ -95,11 +105,17 @@ if (WIN32)
   # NSIS packaging - to be updated
   include(WinPack.CMakeLists.txt)
 elseif (APPLE)
+  qt_generate_deploy_app_script(
+      TARGET notedeln
+      OUTPUT_SCRIPT deploy_script
+      NO_UNSUPPORTED_PLATFORM_ERROR
+  )
+  install(SCRIPT ${deploy_script})
   include(MacDMG.CMakeLists.txt)
 elseif (UNIX)
   include(UnixInstall.CMakeLists.txt)
   include(DebPack.CMakeLists.txt)
 endif()
 
-include(CPack)
+#include(CPack)
 

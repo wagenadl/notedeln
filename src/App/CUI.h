@@ -24,6 +24,8 @@
 
 class CUI {
 public:
+  static CUI *instance();
+public:
   bool match(QString) const;
   QString current() const;
   static void globallyDisable();

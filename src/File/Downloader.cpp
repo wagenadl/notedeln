@@ -160,7 +160,7 @@ void Downloader::qnrDataAv() {
         dst->close();
       qnr->close();
       err = true;
-      errs = "Network error: " + qnr->error();
+      errs = QString("Network error: %1").arg(qnr->error());
       qnr->deleteLater();
       qnr = 0;
       emit finished();
@@ -196,7 +196,7 @@ void Downloader::qnrFinished() {
   if (qnr->error()) {
     qDebug() << "Downloader " << src.toString() << ": qnr error" << qnr->error();
     err = true;
-    errs = "Network error" + qnr->error();
+    errs = QString("Network error %1").arg(qnr->error());
   }
 
   if (err) {

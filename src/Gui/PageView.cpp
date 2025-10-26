@@ -19,7 +19,6 @@
 #include "PageView.h"
 #include "EventView.h"
 #include "PageEditor.h"
-#include "App.h"
 #include "EntryScene.h"
 #include "EntryData.h"
 #include "Notebook.h"
@@ -27,6 +26,7 @@
 #include "TOCScene.h"
 #include "FrontScene.h"
 #include "TitleData.h"
+#include "TitleItem.h"
 #include "DeletedStack.h"
 #include "Cursors.h"
 #include "ElnAssert.h"
@@ -39,7 +39,6 @@
 #include "SearchDialog.h"
 #include "HtmlOutput.h"
 #include "SheetScene.h"
-#include "TitleItem.h"
 #include "DefaultLocation.h"
 #include "GotoPageDialog.h"
 

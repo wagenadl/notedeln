@@ -23,7 +23,7 @@
 #include "PageEditor.h"
 #include "AlreadyOpen.h"
 #include "DefaultSize.h"
-#include "App.h"
+#include <QApplication>
 #include "VersionControl.h"
 #include "BackgroundVC.h"
 #include "ElnAssert.h"
@@ -38,7 +38,7 @@
 #define UPDATE_IVAL_S 3600 // If vc, check for updates once in a while
 #define UPDATE_AVOID_S 900 // ... but not if anything has recently changed
 
-AppInstance::AppInstance(App *app, Notebook *nb): book(nb) {
+AppInstance::AppInstance(QApplication *app, Notebook *nb): book(nb) {
   commitTimer = 0;
   updateTimer = 0;
   backgroundVC = 0;
@@ -48,7 +48,7 @@ AppInstance::AppInstance(App *app, Notebook *nb): book(nb) {
 
   book->load();
 
-  connect(app, &App::aboutToQuit, this, &AppInstance::commitNow);
+  connect(app, &QApplication::aboutToQuit, this, &AppInstance::commitNow);
 
   bank = new SceneBank(nb);
 

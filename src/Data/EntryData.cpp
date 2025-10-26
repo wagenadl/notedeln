@@ -24,7 +24,6 @@
 #include "ResManager.h"
 #include "ElnAssert.h"
 
-#include "App.h"
 #include "CUI.h"
 
 static Data::Creator<EntryData> c("page");
@@ -38,7 +37,7 @@ EntryData::EntryData(Data *parent): Data(parent) {
   unlocked_ = false;
   stampTime_ = 0;
   wasEmpty = true;
-  cui_ = App::instance()->cui()->current();
+  cui_ = CUI::instance()->current();
 
   maxSheet = 0;
 }
@@ -160,7 +159,7 @@ bool EntryData::isWritable() const {
     return true;
   if (isEmpty())
     return true;
-  return isRecent() && App::instance()->cui()->match(cui_);
+  return isRecent() && CUI::instance()->match(cui_);
 }
 
 bool EntryData::lateNotesAllowed() const {

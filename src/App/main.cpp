@@ -16,41 +16,48 @@
 
 // main.C
 
-#include "Translate.h"
 #include <QApplication>
 #include <QFile>
 #include <QDir>
 #include <QIcon>
-#include "Notebook.h"
-#include "RecentBooks.h"
-#include "App.h"
-#include "Fonts.h"
-#include "AppInstance.h"
 #include <QDebug>
 #include <stdlib.h>
+#include <QCommandLineParser>
+#include <QLabel>
+#include <QCommandLineOption>
+#include <QMessageBox>
+
+#include "Translate.h"
+#include "Notebook.h"
+#include "RecentBooks.h"
+#include "Fonts.h"
+#include "AppInstance.h"
 #include "ElnAssert.h"
 #include "SplashScene.h"
 #include "AlreadyOpen.h"
-#include <QMessageBox>
 #include "CrashReport.h"
 #include "VersionControl.h"
 #include "CUI.h"
-#include <QCommandLineParser>
-#include <QCommandLineOption>
+#include "Version.h"
 
-int main(int argc, char **argv) {
-  CrashReport cr;
+
+int main(int argc, char *argv[]) {
+  //// CrashReport cr;
   bool ro = false;
-  Notebook *nb = 0;
+  class Notebook *nb = 0;
   qDebug() << "Hello world";
   qDebug() << "argc is " << argc;
   qDebug() << "argv is " << argv;
   for (int k=0; k<argc; k++) {
       qDebug() << "argv[" << k << "] is  " << argv[k];
   }
-  App app(argc, argv);
-  qDebug() << "App constructed";
 
+  QApplication app(argc, argv);
+  qDebug() << "Constr app";
+  app.setApplicationName("NotedELN");
+  app.setApplicationVersion(Version::toString());
+  app.setWindowIcon(QIcon(":/eln.png"));
+  qDebug() << "App constructed";
   QCommandLineOption cli_new("new", "Create new notebook");
   QCommandLineOption cli_ro("ro", "Open notebook read-only");
   QCommandLineOption cli_novc("novc", "Disable version control");
@@ -146,3 +153,4 @@ int main(int argc, char **argv) {
     return 1;
   }
 }
+

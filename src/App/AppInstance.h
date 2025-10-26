@@ -27,7 +27,7 @@
 class AppInstance: public QObject {
   Q_OBJECT;
 public:
-  AppInstance(class App *app, class Notebook *nb);
+  AppInstance(class QApplication *app, class Notebook *nb);
   virtual ~AppInstance();
 private slots:
   void forgetEditor(QObject *);

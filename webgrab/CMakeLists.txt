@@ -3,12 +3,8 @@ find_package(Qt6
     Svg Pdf 
     WebChannel WebEngineCore WebEngineWidgets Positioning)
 
-target_link_libraries(webgrab Qt6::Widgets)
-target_link_libraries(webgrab Qt6::PrintSupport)
-target_link_libraries(webgrab Qt6::Svg)
-target_link_libraries(webgrab Qt6::Pdf)
-target_link_libraries(webgrab Qt6::WebEngineCore)
-target_link_libraries(webgrab Qt6::WebEngineWidgets)
+target_link_libraries(webgrab PRIVATE Qt6::Widgets Qt6::PrintSupport
+    Qt6::Svg  Qt6::Pdf Qt6::WebEngineCore  Qt6::WebEngineWidgets)
 
 target_sources(webgrab PRIVATE webgrab/Options.h)
 target_sources(webgrab PRIVATE webgrab/Options.cpp)

@@ -16,7 +16,6 @@
 
 // VersionControl.C
 
-#include "App.h"
 #include "VersionControl.h"
 #include <QStringList>
 #include <QMessageBox>

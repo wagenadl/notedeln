@@ -152,7 +152,7 @@ void TextData::loadMore(QVariantMap const &src) {
   Data::loadMore(src);
   linestarts.clear();
   if (src.contains("lines"))
-    foreach (QVariant v, src["lines"].toList())
+    for (auto &v: src["lines"].toList())
       linestarts.append(v.toInt());  
 }
 

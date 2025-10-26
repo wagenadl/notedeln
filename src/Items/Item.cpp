@@ -27,7 +27,6 @@
 #include <QGraphicsSceneMouseEvent>
 #include <QKeyEvent>
 #include "DragLine.h"
-#include "App.h"
 #include "GfxData.h"
 #include "GfxNoteData.h"
 #include "ElnAssert.h"

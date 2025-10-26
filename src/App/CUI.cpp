@@ -24,6 +24,14 @@
 #include <QDir>
 #include <QDebug>
 
+CUI *CUI::instance() {
+    static CUI *cui = 0;
+    if (!cui) {
+        cui = new CUI();
+    }
+    return cui;
+}
+
 CUI::CUI() {
   QSettings s("net.danielwagenaar", "eln");
 
