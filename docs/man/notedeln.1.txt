@@ -35,5 +35,5 @@ Technology. https://www.danielwagenaar.net.
 
 SEE ALSO
 --------
-The full documentation of *noted* is contained in the user manual,
+The full documentation of *notedeln* is contained in the user manual,
 online at https://www.danielwagenaar.net/eln.
