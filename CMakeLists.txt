@@ -32,7 +32,7 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
-find_package(Qt6 6.5
+find_package(Qt6 
   REQUIRED COMPONENTS Core Widgets Network Svg PrintSupport
   OPTIONAL_COMPONENTS Multimedia MultimediaWidgets
   )
@@ -104,6 +104,7 @@ set(CPACK_PACKAGE_EXECUTABLES "notedeln;NotedELN")
 if (WIN32)
   # NSIS packaging - to be updated
   include(WinPack.CMakeLists.txt)
+  include(CPack)
 elseif (APPLE)
   qt_generate_deploy_app_script(
       TARGET notedeln
@@ -115,7 +116,7 @@ elseif (APPLE)
 elseif (UNIX)
   include(UnixInstall.CMakeLists.txt)
   include(DebPack.CMakeLists.txt)
+  include(CPack)
 endif()
 
-#include(CPack)
 
