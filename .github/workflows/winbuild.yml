@@ -12,6 +12,17 @@ jobs:
     steps:
       - name: Checkout the repository
         uses: actions/checkout@master
+      - name: Install NSIS
+        run: |
+          iwr -useb get.scoop.sh -outfile 'install.ps1'
+          .\install.ps1 -RunAsAdmin
+          scoop update
+          scoop bucket add extras
+          scoop install nsis
+      - name: Print NSIS version
+        run: makensis -VERSION
+      - name: Print NSIS compile flags
+        run: makensis -HDRINFO
       - name: Install CMake
         uses: lukka/get-cmake@latest
       - name: Install Qt
