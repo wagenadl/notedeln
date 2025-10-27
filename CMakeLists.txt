@@ -58,7 +58,7 @@ if(TARGET Qt6::MultimediaWidgets)
 endif()
 
 if (WIN32)
-  target_link_libraries(notedeln secur32.lib)
+	target_link_libraries(notedeln PRIVATE secur32.lib)
 endif()
 if (APPLE)
   set(CMAKE_OSX_ARCHITECTURES "arm64;x86_64" CACHE INTERNAL "" FORCE)
