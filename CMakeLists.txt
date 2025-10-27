@@ -103,7 +103,7 @@ set(CPACK_PACKAGE_EXECUTABLES "notedeln;NotedELN")
 
 if (WIN32)
   # NSIS packaging - to be updated
-  include(WinPack.CMakeLists.txt)
+  include(tools/WinPack.CMakeLists.txt)
   include(CPack)
 elseif (APPLE)
   qt_generate_deploy_app_script(
@@ -112,10 +112,10 @@ elseif (APPLE)
       NO_UNSUPPORTED_PLATFORM_ERROR
   )
   install(SCRIPT ${deploy_script})
-  include(MacDMG.CMakeLists.txt)
+  include(tools/MacDMG.CMakeLists.txt)
 elseif (UNIX)
-  include(UnixInstall.CMakeLists.txt)
-  include(DebPack.CMakeLists.txt)
+  include(tools/UnixInstall.CMakeLists.txt)
+  include(tools/DebPack.CMakeLists.txt)
   include(CPack)
 endif()
 
