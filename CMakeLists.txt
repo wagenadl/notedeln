@@ -12,7 +12,7 @@ cmake_minimum_required(VERSION 3.19)
 
 ######################################################################
 # Set the project name and version
-project(NotedELN VERSION 1.5.5 LANGUAGES CXX)
+project(NotedELN VERSION 1.5.6 LANGUAGES CXX)
 
 set(CMAKE_PROJECT_HOMEPAGE_URL "http://danielwagenaar.net/eln")
 set(CMAKE_EXPORT_COMPILE_COMMANDS 1) # for clangd

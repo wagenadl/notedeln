@@ -43,12 +43,15 @@ void AboutBox::about() {
   box.setTextFormat(Qt::RichText);
   box.setText(msg);
   box.setIcon(QMessageBox::Information);
-  int iconwidth = box.iconPixmap().width() * 128/48;
-  if (iconwidth>128)
-    iconwidth = 128;
-  box.setIconPixmap(QPixmap(":/eln512.png").scaled(QSize(iconwidth,iconwidth),
-                                                   Qt::KeepAspectRatio,
-                                                   Qt::SmoothTransformation));
-  //  qDebug() << "pmsize" << px.size();
+  int targetwidth = box.width() / 8;
+  int iconwidth = targetwidth;
+  //while (iconwidth < targetwidth)
+  //  iconwidth *= 2;
+  QPixmap pm = QPixmap(":/eln512.png")
+    .scaled(QSize(2*iconwidth,2*iconwidth),
+            Qt::KeepAspectRatio,
+            Qt::SmoothTransformation);
+  pm.setDevicePixelRatio(2);
+  box.setIconPixmap(pm);
   box.exec();
 }

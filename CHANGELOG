@@ -1,3 +1,28 @@
+NotedELN 1.5.6
+
+  User-visible changes:
+
+  * Parentheses and other "opening and closing" characters typed at
+    the edge of a superscript or subscript are now placed inside the
+    region
+
+  * Improvements to TeX codes
+
+  * Improvements to handling of minus sign and hyphen in math mode
+
+  * Tapping control applies TeX codes in math mode
+
+  * Documentation improvements
+
+  Bugfixes:
+
+  * Explicit "NoBrush" in SketchItem fixes pdf output bug of inappropriately
+    solid shape
+
+  * Nested superscripts within parentheses now treated correctly
+
+  * Restored preservation of our own markup through cut-and-paste
+
 NotedELN 1.5.4
 
   User-visible changes:
@@ -8,7 +33,7 @@ NotedELN 1.5.4
     across platforms
 
   * Renamed included version of “Ubuntu” font to “UbuntuOrigWeight” to
-    maintain consistent rendering despite recent major changes to Ubuntu 
+    maintain consistent rendering despite recent major changes to Ubuntu
     font
 
   * Foreground color on popup help now black even in dark theme
