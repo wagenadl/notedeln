@@ -19,7 +19,7 @@ jobs:
       - name: Install Qt
         uses: jurplel/install-qt-action@v4
         with:
-          version: '6.8'
+          version: '6.9.3'
           modules: "qtwebengine qtmultimedia qtwebchannel qtpositioning qtpdf"
       - name: Prepare build directory
         run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
