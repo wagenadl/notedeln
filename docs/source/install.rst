@@ -6,10 +6,15 @@ Installing NotedELN on your computer
 Binary installation
 -------------------
 
-Most users on Windows and Debian-derived Linux systems (including
-Ubuntu, Mint, etc.), should be able to install NotedELN using
-the binary files of the most `recent release
+Most users on Mac and Windows should be able to install NotedELN using the
+binary files of the most `recent release
 <https://github.com/wagenadl/notedeln/releases/latest>`_.
+
+On Debian and derived Linux systems (including Ubuntu, Mint, etc.),
+etc., you can get an official package by way of::
+
+    sudo apt install notedeln
+    
 
 Installation from source
 ------------------------
