@@ -24,7 +24,7 @@ copyright = '2025, Daniel A. Wagenaar'
 author = 'Daniel A. Wagenaar'
 
 # The full version, including alpha/beta/rc tags
-release = '1.5.6'
+release = '1.5.8'
 
 
 # -- General configuration ---------------------------------------------------

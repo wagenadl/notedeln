@@ -1,3 +1,14 @@
+NotedELN 1.5.8
+
+User-visible changes:
+
+  * Minor improvements to TeX codes
+  * Improved "^=" digraph
+
+Under-the-hood changes
+
+  * Now compiles against Qt 6.10 on linux
+
 NotedELN 1.5.6
 
   User-visible changes:
