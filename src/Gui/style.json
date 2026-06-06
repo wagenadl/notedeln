@@ -87,6 +87,7 @@
 "splash-date-format": "M/dd/’yy",
 "splash-font-family": "Ubuntu",
 "splash-font-size": 30,
+"splash-text-color": "#000000",
 "splash-small-font-family": "Ubuntu",
 "splash-small-font-size": 11,
 "splash-item-font-family": "Ubuntu",

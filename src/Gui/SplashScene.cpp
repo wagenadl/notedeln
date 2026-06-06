@@ -84,12 +84,14 @@ void SplashScene::makeBackground() {
   QGraphicsTextItem *eln = addText(Translate::_("eln"),
                                    style.font("splash-font"));
   centerAt(eln, style.real("page-width")/2, style.real("page-height") - 50);
+  eln->setDefaultTextColor(style.color("splash-text-color"));
   QGraphicsTextItem *dw
     = addText(QString("v. ") + Version::toString() + QString::fromUtf8(" — ")
 	      + QString::fromUtf8("(C) Daniel Wagenaar 2013–")
 	      + QString::number(Version::buildDate().year()),
 	      style.font("splash-small-font"));
   centerAt(dw, style.real("page-width")/2, style.real("page-height") - 20);
+  dw->setDefaultTextColor(style.color("splash-text-color"));
 
 }
 

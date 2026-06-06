@@ -1,7 +1,7 @@
 # Makefile - Part of NotedELN, (C) Daniel Wagenaar 2021
 
-# This Makefile just documents some generally useful actions.
-# Actual build process is through cmake.
+# Actual build process is through cmake, but typing "make"
+# is easier than "cmake -S . -B build" etc.
 
 ######################################################################
 # Linux and Mac stuff
@@ -19,11 +19,16 @@ prep-debug:
 
 clean:; rm -rf build build-debug
 
+# linux only:
 deb:	release
 	(cd build; cpack )
+
+# max only:
+dmg:	release
+	+make -C build dmg
 
 tar:;	git archive -o ../notedeln.tar.gz --prefix=notedeln/ HEAD
 
 ######################################################################
-.PHONY: release prep-release debug prep-debug clean tar deb
+.PHONY: release prep-release debug prep-debug clean tar deb dmg
 
