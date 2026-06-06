@@ -26,7 +26,12 @@
 namespace SvgFile {
   QImage downloadAsImage(QUrl const &url) {
     QTemporaryFile f(QDir::tempPath() + "/eln_XXXXXX.png");
-    f.open(); // without this, no filename is generated
+    if (f.open()) { // without this, no filename is generated
+      f.close();
+    } else {
+      qDebug() << "SvgFile::downloadAsImage failed to create tempfile";
+      return QImage();
+    }
     QStringList args; args << "-l" << url.toString() << f.fileName();
     int res = QProcess::execute(WebGrab::executable(), args);
     if (res) {

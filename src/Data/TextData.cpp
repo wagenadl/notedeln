@@ -193,5 +193,5 @@ QSet<QString> TextData::wordSet() const {
       if (!w.isEmpty())
         wordset_ << w.toLower();
   }
-  return wordset_ | Data::wordSet();
+  return Data::wordSet() | wordset_;
 }
