@@ -9,8 +9,6 @@ permissions:
   contents: write
   id-token: write
 
-
-
 jobs:
   build:
     name: Build binary
@@ -18,12 +16,15 @@ jobs:
     steps:
       - name: Checkout the repository
         uses: actions/checkout@master
+      - name: 'Install makensis (choco)'
+        run: choco install nsis
       - name: Install CMake
         uses: lukka/get-cmake@latest
       - name: Install Qt
         uses: jurplel/install-qt-action@v4
         with:
-          version: '5.15.2'
+          version: '6.9.3'
+          modules: "qtwebengine qtmultimedia qtwebchannel qtpositioning qtpdf"
       - name: Prepare build directory
         run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
       - name: Build binary

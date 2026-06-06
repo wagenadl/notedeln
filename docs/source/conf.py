@@ -20,11 +20,11 @@
 # -- Project information -----------------------------------------------------
 
 project = 'NotedELN'
-copyright = '2023, Daniel A. Wagenaar'
+copyright = '2025, Daniel A. Wagenaar'
 author = 'Daniel A. Wagenaar'
 
 # The full version, including alpha/beta/rc tags
-release = '1.5.0'
+release = '1.5.6'
 
 
 # -- General configuration ---------------------------------------------------
